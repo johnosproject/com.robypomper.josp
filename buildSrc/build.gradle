@@ -4,9 +4,7 @@
 
 repositories {
     mavenCentral()
-
-    // Required by 'gradle-docker-compose-plugin' dependency
-    jcenter()
+    gradlePluginPortal()
 
     // Spring extra repository
     maven { url 'https://repo.spring.io/milestone' }
