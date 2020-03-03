@@ -1,4 +1,4 @@
-# com.robypomper.josp.cloud.spring/buildSrc - Spring Boot Support
+# com.robypomper.josp.cloud.spring/buildSrc<br>Spring Boot Support
 
 [Spring Boot](https://spring.io/projects/spring-boot) support is based on
 [org.springframework.boot:spring-boot-gradle-plugin](https://docs.spring.io/spring-boot/docs/current/gradle-plugin/reference/html/)
