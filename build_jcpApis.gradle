@@ -1,0 +1,50 @@
+import com.robypomper.build.docker.DockerNetworkUtils
+import com.robypomper.build.java.JavaRunnableUtils
+import com.robypomper.build.spring.SpringBuildUtils
+
+// ---------------------------
+// Generic Internal Source set
+// ---------------------------
+
+// Source Sets declaration
+sourceSets {
+
+}
+
+dependencies {
+
+}
+
+// Add java app's run tasks
+
+
+
+// ----------------------
+// Docker's Test Services
+// ----------------------
+
+dockerCompose {
+
+}
+
+// Add docker's network dependency
+
+
+
+// ----------------------
+// Spring's Test Services
+// ----------------------
+
+// Source Sets declaration
+sourceSets {
+    jcpApis {}                                                                 // on localhost:
+}
+
+// Micro service's run tasks
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpApis)
+
+
+dependencies {
+    // Micro service's dependencies
+    jcpApisImplementation 'org.springframework.boot:spring-boot-starter-web'
+}

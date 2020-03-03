@@ -1,0 +1,19 @@
+// Spring specific configurations for Gradle project
+
+repositories {
+    // Spring dependencies
+    maven { url 'https://repo.spring.io/milestone' }
+}
+
+ext {
+    // Spring version
+    set('springCloudVersion', "Hoxton.RELEASE")
+    set('keycloakVersion', "9.0.0")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "org.keycloak.bom:keycloak-adapter-bom:${keycloakVersion}"
+    }
+}

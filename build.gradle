@@ -1,0 +1,21 @@
+
+plugins {
+    // Docker service management
+    id 'com.avast.gradle.docker-compose' //version '0.10.9'
+
+    // Spring Boot management
+    id 'org.springframework.boot' //version '2.2.4.RELEASE'                     version not required because specified in buildSrc/build.gradle
+    id 'io.spring.dependency-management' //version '1.0.9.RELEASE'              version not required because specified in buildSrc/build.gradle
+    id 'java'
+}
+
+group = 'com.robypomper.josp.jcp'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+apply from: 'spring_support.gradle'
+
+apply from: 'build_jcpApis.gradle'
