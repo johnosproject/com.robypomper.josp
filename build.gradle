@@ -18,4 +18,5 @@ repositories {
 
 apply from: 'spring_support.gradle'
 
+apply from: 'build_jcpMngm.gradle'
 apply from: 'build_jcpApis.gradle'
