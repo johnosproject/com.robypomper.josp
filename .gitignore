@@ -1,3 +1,7 @@
+# JCP Project
+/docker_envs
+.idea
+
 # Created by https://www.gitignore.io/api/java,gradle,java-web,intellij
 # Edit at https://www.gitignore.io/?templates=gradle,java,java-web,intellij
 # Added default Spring initializer .gitignore
