@@ -51,4 +51,5 @@ dependencies {
     jcpApisImplementation 'mysql:mysql-connector-java'
     jcpApisCompileOnly 'org.projectlombok:lombok:1.18.12'                                   // Lombok annotations
     jcpApisAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    jcpApisImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
 }
