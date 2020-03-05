@@ -47,4 +47,8 @@ SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpApis)
 dependencies {
     // Micro service's dependencies
     jcpApisImplementation 'org.springframework.boot:spring-boot-starter-web'
+    jcpApisImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'       // Database support
+    jcpApisImplementation 'mysql:mysql-connector-java'
+    jcpApisCompileOnly 'org.projectlombok:lombok:1.18.12'                                   // Lombok annotations
+    jcpApisAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 }
