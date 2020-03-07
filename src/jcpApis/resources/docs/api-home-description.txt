@@ -1,0 +1,20 @@
+<b>JCP APIs</b> reference and testing service.
+
+<h2>API's Groups:</h2>
+<ul>
+  <li>
+    <a href="/swagger-ui.html?urls.primaryName=Examples">
+      Examples
+    </a>
+  </li>
+  <li>
+    <a href="/swagger-ui.html?urls.primaryName=Login">
+      Login
+    </a>
+  </li>
+  <li>
+    <a href="/swagger-ui.html?urls.primaryName=Objs">
+      Objs
+    </a>
+  </li>
+</ul>
