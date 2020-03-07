@@ -2,6 +2,12 @@ package com.robypomper.josp.jcp.apis;
 
 import com.robypomper.josp.jcp.db.db.UsernameDBService;
 import com.robypomper.josp.jcp.db.entities.Username;
+import com.robypomper.josp.jcp.info.JCPAPIsGroups;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +25,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/apis/db")
+@RequestMapping(JCPAPIsGroups.PATH_EXMPL + "db/")
+@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_DB_NAME})
 public class APIDBEntityController {
 
     private final UsernameDBService usernamesService;
@@ -29,20 +36,62 @@ public class APIDBEntityController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Username>> findAll() {
+    @ApiOperation("Return all usernames registered in the database")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Full usernames list", response = Username.class, responseContainer = "List")
+    })
+    public ResponseEntity<List<Username>> findAll () {
         return ResponseEntity.ok(usernamesService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Username> findById(@Valid @PathVariable Long id) {
+    @ApiOperation("Look for username of specified Id in the database")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Username founded successfully", response = Username.class),
+            @ApiResponse(code = 404, message = "Username with specified id not found")
+    })
+    public ResponseEntity<Username> findById (
+            @Valid
+            @PathVariable
+            @ApiParam("The <code>id</code> of the username to be obtained. Cannot be empty.")
+                    Long id
+    ) {
         Optional<Username> optUsername = usernamesService.findById(id);
         if (!optUsername.isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request id ('%s') not found.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Request id ('%s') not found.", id));
+
         return ResponseEntity.ok(optUsername.get());
     }
 
+    @GetMapping("/{id}/username")
+    @ApiOperation("Return the username string of username object of specified Id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Username founded successfully", response = String.class),
+            @ApiResponse(code = 404, message = "Username with specified id not found")
+    })
+    public ResponseEntity<String> getUsername (
+            @Valid
+            @PathVariable
+                    Long id
+    ) {
+        Username username = findById(id).getBody();
+        if (username==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Request id ('%s') not found.", id));
+
+        return ResponseEntity.ok(username.getUserName());
+    }
+
     @GetMapping("/add")
-    public ResponseEntity<Username> add(@Valid @RequestParam String username) {
+    @ApiOperation("Add given username to the database")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Username added successfully", response = Username.class),
+            @ApiResponse(code = 409, message = "Given username not unique")
+    })
+    public ResponseEntity<Username> add (
+            @Valid
+            @RequestParam
+                    String username
+    ) {
         try {
             Username usernameEntity = new Username();
             usernameEntity.setUserName(username);
@@ -53,13 +102,17 @@ public class APIDBEntityController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Username> postAdd(@Valid @RequestBody String username) {
+    @ApiOperation("Add given username to the database")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Username added successfully", response = Username.class),
+            @ApiResponse(code = 409, message = "Given username not unique")
+    })
+    public ResponseEntity<Username> postAdd (
+            @Valid
+            @RequestBody
+                    String username
+    ) {
         return add(username);
-    }
-
-    @GetMapping("/{id}/username")
-    public ResponseEntity<String> getUsername(@Valid @PathVariable Long id) {
-        return ResponseEntity.ok(findById(id).getBody().getUserName());
     }
 
 }
