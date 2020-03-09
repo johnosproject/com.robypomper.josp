@@ -38,6 +38,7 @@ public class JCPAPIsGroups {
     public static final String API_PERM = "Permissions";
     public static final String API_CONF = "Configs";
     public static final String API_UPDS = "Updates";
+    public static final String API_JGWS = "JOSPGWs";
 
     // API's Sub-Groups
 
@@ -71,6 +72,9 @@ public class JCPAPIsGroups {
     public static final String API_UPDS_SG_PLACEHOLDER_NAME = "Updates placeholder";
     public static final APISubGroup API_UPDS_SG_PLACEHOLDER = new APISubGroup(API_UPDS_SG_PLACEHOLDER_NAME,"Placeholder sub-group");
 
+    public static final String API_JGWS_SG_PLACEHOLDER_NAME = "JOSPGWs placeholder";
+    public static final APISubGroup API_JGWS_SG_PLACEHOLDER = new APISubGroup(API_JGWS_SG_PLACEHOLDER_NAME,"Placeholder sub-group");
+
     public static final APISubGroup[] API_EXMPL_SUBGROUPS = {API_EXMPL_SG_METHODS, API_EXMPL_SG_DB, API_EXMPL_SG_AUTHENTICATION, API_EXMPL_SG_AUTHORIZATION};
     public static final APISubGroup[] API_LOGIN_SUBGROUPS = {API_LOGIN_SG_PLACEHOLDER};
     public static final APISubGroup[] API_USRS_SUBGROUPS = {API_USRS_SG_PLACEHOLDER};
@@ -79,6 +83,7 @@ public class JCPAPIsGroups {
     public static final APISubGroup[] API_PERM_SUBGROUPS = {API_PERM_SG_PLACEHOLDER};
     public static final APISubGroup[] API_CONF_SUBGROUPS = {API_CONF_SG_PLACEHOLDER};
     public static final APISubGroup[] API_UPDS_SUBGROUPS = {API_UPDS_SG_PLACEHOLDER};
+    public static final APISubGroup[] API_JGWS_SUBGROUPS = {API_JGWS_SG_PLACEHOLDER};
 
 
     // API's paths (only for @RequestMapping annotations)
@@ -91,6 +96,7 @@ public class JCPAPIsGroups {
     public static final String PATH_PERM = "/apis/permissions/" + VER_VER;
     public static final String PATH_CONF = "/apis/configs/" + VER_VER;
     public static final String PATH_UPDS = "/apis/updates/" + VER_VER;
+    public static final String PATH_JGWS = "/apis/jospgws/" + VER_VER;
 
 
     // Static declarations and initializations
@@ -107,6 +113,7 @@ public class JCPAPIsGroups {
         allGroups.put(API_PERM,new APIGroup(API_PERM,VER_VER,API_PERM_SUBGROUPS));
         allGroups.put(API_CONF,new APIGroup(API_CONF,VER_VER,API_CONF_SUBGROUPS));
         allGroups.put(API_UPDS,new APIGroup(API_UPDS,VER_VER,API_UPDS_SUBGROUPS));
+        allGroups.put(API_JGWS,new APIGroup(API_JGWS,VER_VER,API_JGWS_SUBGROUPS));
     }
 
     public static APIGroup getAPIGroupByName(String apiName) {

@@ -46,6 +46,8 @@ sourceSets {
             srcDirs 'src/jcpAPIs_Permissions/java'
             srcDirs 'src/jcpAPIs_Configs/java'
             srcDirs 'src/jcpAPIs_Updates/java'
+
+            srcDirs 'src/jcpJOSPGWs/java'
         }
     }                                                                 // on localhost:
 }
