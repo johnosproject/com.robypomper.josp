@@ -52,6 +52,10 @@ dependencies {
     jcpApisCompileOnly 'org.projectlombok:lombok:1.18.12'                                   // Lombok annotations
     jcpApisAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
     jcpApisImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
+    jcpApisImplementation 'org.springframework.security:spring-security-oauth2-jose'    // OAuth (Resource) support
+    jcpApisImplementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    jcpApisImplementation 'org.springframework.security:spring-security-oauth2-client'
+    jcpApisImplementation 'org.keycloak:keycloak-spring-boot-starter'
     def excludeSwagger = {                                                              // Swagger support
         exclude group: 'io.swagger', module: 'swagger-annotations'
         exclude group: 'io.swagger', module: 'swagger-models'
