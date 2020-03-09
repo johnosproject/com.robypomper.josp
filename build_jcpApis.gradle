@@ -37,7 +37,19 @@ dockerCompose {
 
 // Source Sets declaration
 sourceSets {
-    jcpApis {}                                                                 // on localhost:
+    jcpApis {
+        java {
+            srcDirs 'src/jcpAPIs_Login/java'
+            srcDirs 'src/jcpAPIs_User/java'
+            srcDirs 'src/jcpAPIs_Object/java'
+            srcDirs 'src/jcpAPIs_Service/java'
+            srcDirs 'src/jcpAPIs_Permissions/java'
+            srcDirs 'src/jcpAPIs_Configs/java'
+            srcDirs 'src/jcpAPIs_Updates/java'
+
+            srcDirs 'src/jcpJOSPGWs/java'
+        }
+    }                                                                 // on localhost:
 }
 
 // Micro service's run tasks

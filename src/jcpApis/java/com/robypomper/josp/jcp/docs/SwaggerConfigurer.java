@@ -97,8 +97,33 @@ public class SwaggerConfigurer {
     }
 
     @Bean
+    public Docket usrsApis() {
+        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_USRS));
+    }
+
+    @Bean
     public Docket objsApis() {
         return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_OBJS));
+    }
+
+    @Bean
+    public Docket srvsApis() {
+        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_SRVS));
+    }
+
+    @Bean
+    public Docket permApis() {
+        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_PERM));
+    }
+
+    @Bean
+    public Docket confApis() {
+        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_CONF));
+    }
+
+    @Bean
+    public Docket updsApis() {
+        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_UPDS));
     }
 
 
