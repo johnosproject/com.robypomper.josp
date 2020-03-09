@@ -48,3 +48,10 @@ created preset dataset.
 Dataset for testing purposes.
 
 It define only the user ```test_db``` with all permissions on the dataset database.
+
+### auth_josp
+Dataset for the [Auth](../../auth/docs/README.md) micro-service.
+
+It contains all tables and data compatible with Keycloak 9.0.0 server and
+contains all settings described in
+[Auth#Preset configurations](../../auth/docs/README.md#Preset-configurations).
