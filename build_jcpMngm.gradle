@@ -24,7 +24,7 @@ dependencies {
 // ----------------------
 
 dockerCompose {
-    dbms {                                                                  // on localhost:5084
+    dbms {                                                                  // on localhost:8999
         useComposeFiles = ['src/dbms/docker/docker-compose.yml']
     }
     auth {                                                                  // on localhost:8998

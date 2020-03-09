@@ -51,8 +51,8 @@ public class JCPAPIsGroups {
     // API's paths (only for @RequestMapping annotations)
 
     public static final String PATH_EXMPL = "/apis/examples/test/";
-    public static final String PATH_LOGIN = "/apis/login/test/";
-    public static final String PATH_OBJS = "/apis/objs/test/";
+    public static final String PATH_LOGIN = "/apis/login/";
+    public static final String PATH_OBJS = "/apis/objs/";
 
 
     // Static declarations and initializations
