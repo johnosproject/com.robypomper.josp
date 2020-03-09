@@ -1,0 +1,31 @@
+import com.robypomper.build.java.JavaRunnableUtils
+
+sourceSets {
+    // Common library for JCP projects
+    clientTest {}
+}
+
+dependencies {
+    clientTestImplementation 'com.github.scribejava:scribejava-core:6.9.0'
+    clientTestImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
+    clientTestImplementation 'commons-cli:commons-cli:1.4'
+}
+
+// Add java app's run tasks
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Obj')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','UsrSrv')
+
+tasks.javaClientTest_ObjRun {
+    standardInput = System.in
+    args = ['--authFlow', 'ClientCredentialsFlow',              // AuthCodeFlow | ClientCredentialsFlow
+            '--env', 'jcp',                                     // jcp | josp | test
+            '--clientCredentials', 'jcp-test-client-obj',       // See in ClientSettings{Env} class
+            '--disable-ssl-checks']                             // Disable SSL certificate validity
+}
+tasks.javaClientTest_UsrSrvRun {
+    standardInput = System.in
+    args = ['--authFlow', 'AuthCodeFlow',
+            '--env', 'jcp',
+            '--clientCredentials', 'jcp-test-client-srv',
+            '--disable-ssl-checks']
+}
