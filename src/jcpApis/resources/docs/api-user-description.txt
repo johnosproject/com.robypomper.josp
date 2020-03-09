@@ -1,4 +1,4 @@
-Placeholder for JCP Objs APIs
+Placeholder for JCP User APIs
 
 <a href="/swagger-ui.html?urls.primaryName=default">
 Back to All APIs
