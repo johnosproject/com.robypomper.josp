@@ -58,38 +58,19 @@ public class ClientMain {
         System.out.println("------");
     }
 
-    // Default configs
-
-    private static String[] generateTestClientCodeConfigs() {
-        String[] res = {"--authFlow", ClientClientCredentialFlow.AUTH_FLOW_NAME,
-                        "--env", ClientSettingsTest.AUTH_REALM,
-                        "--clientCredentials",ClientSettingsTest.AUTH_REALM+"-client-id-test"};
-        return res;
-    }
-
-    private static String[] generateJospClientCodeConfigs() {
-        String[] res = {"--authFlow", ClientClientCredentialFlow.AUTH_FLOW_NAME,
-                        "--env", ClientSettingsJosp.AUTH_REALM,
-                        "--clientCredentials",ClientSettingsJosp.AUTH_REALM+"-client-id-test"};
-        return res;
-    }
 
     // Client initialization
 
     private static Pair<String, String> getCliCred(String cliCred) {
-        if (ClientSettingsTest.findClientCredentials(cliCred)!=null) return ClientSettingsTest.findClientCredentials(cliCred);
-        if (ClientSettingsJosp.findClientCredentials(cliCred)!=null) return ClientSettingsJosp.findClientCredentials(cliCred);
         if (ClientSettingsJcp.findClientCredentials(cliCred)!=null) return ClientSettingsJcp.findClientCredentials(cliCred);
 
         throw new IllegalArgumentException(String.format("No client's credentials with name '%s' found, check '%s' arg.", cliCred, ARG_CLI_CRED));
     }
 
     private static ClientSettings getEnv(String env, Pair<String, String> cliCredInstance, int resServerPort) {
-        if (env.compareToIgnoreCase(ClientSettingsTest.AUTH_REALM)==0) return new ClientSettingsTest(cliCredInstance,resServerPort);
-        if (env.compareToIgnoreCase(ClientSettingsJosp.AUTH_REALM)==0) return new ClientSettingsJosp(cliCredInstance,resServerPort);
         if (env.compareToIgnoreCase(ClientSettingsJcp.AUTH_REALM)==0) return new ClientSettingsJcp(cliCredInstance,resServerPort);
 
-        throw new IllegalArgumentException(String.format("No env found with name '%s', check '%s' arg (valid values are '%s' or '%s').", env, ARG_ENV, ClientSettingsTest.AUTH_REALM, ClientSettingsJosp.AUTH_REALM));
+        throw new IllegalArgumentException(String.format("No env found with name '%s', check '%s' arg (valid values are 'jcp').", env, ARG_ENV));
     }
 
     private static AbsClientFlow getAuth(String authFlow, ClientSettings envInstance) {
