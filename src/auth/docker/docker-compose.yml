@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+
+  auth_josp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8998:8443"
+    environment:
+      - DB_ADDR=172.17.0.1
+      - DB_PORT=8999
+      - DB_DATABASE=auth_josp
+      - DB_USER=auth_user
+      - DB_PASSWORD=user_auth
+
+networks:
+  default:
+    external:
+      name: jcp-dev

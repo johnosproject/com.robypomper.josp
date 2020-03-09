@@ -27,10 +27,14 @@ dockerCompose {
     dbms {                                                                  // on localhost:5084
         useComposeFiles = ['src/dbms/docker/docker-compose.yml']
     }
+    auth {                                                                  // on localhost:8998
+        useComposeFiles = ['src/auth/docker/docker-compose.yml']
+    }
 }
 
 // Add docker's network dependency
 DockerNetworkUtils.setDockerNetworkDependency(project,dockerCompose.dbms,"jcp-dev")
+DockerNetworkUtils.setDockerNetworkDependency(project,dockerCompose.auth,"jcp-dev")
 
 
 // ----------------------
