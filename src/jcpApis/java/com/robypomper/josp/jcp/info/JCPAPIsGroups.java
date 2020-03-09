@@ -39,7 +39,11 @@ public class JCPAPIsGroups {
     public static final APISubGroup API_EXMPL_SG_METHODS = new APISubGroup(API_EXMPL_SG_METHODS_NAME,"Simples methods to use as APIs samples.");
     public static final String API_EXMPL_SG_DB_NAME = "Database access examples";
     public static final APISubGroup API_EXMPL_SG_DB = new APISubGroup(API_EXMPL_SG_DB_NAME,"Simples methods that use the Username entity.");
-    public static final APISubGroup[] API_EXMPL_SUBGROUPS = {API_EXMPL_SG_METHODS, API_EXMPL_SG_DB};
+    public static final String API_EXMPL_SG_AUTHENTICATION_NAME = "Authentication examples";
+    public static final APISubGroup API_EXMPL_SG_AUTHENTICATION = new APISubGroup(API_EXMPL_SG_AUTHENTICATION_NAME,"Simples methods that check user Identity.");
+    public static final String API_EXMPL_SG_AUTHORIZATION_NAME = "Authorization examples";
+    public static final APISubGroup API_EXMPL_SG_AUTHORIZATION = new APISubGroup(API_EXMPL_SG_AUTHORIZATION_NAME,"Simples methods that check user Identity and Permissions.");
+    public static final APISubGroup[] API_EXMPL_SUBGROUPS = {API_EXMPL_SG_METHODS, API_EXMPL_SG_DB, API_EXMPL_SG_AUTHENTICATION, API_EXMPL_SG_AUTHORIZATION};
     public static final APISubGroup[] API_LOGIN_SUBGROUPS = {};
     public static final APISubGroup[] API_OBJS_SUBGROUPS = {};
 
