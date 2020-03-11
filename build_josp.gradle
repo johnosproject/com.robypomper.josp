@@ -1,0 +1,48 @@
+import com.robypomper.build.java.JavaRunnableUtils
+
+sourceSets {
+    jospCore {
+        java {
+            srcDirs 'src/jospCore/java_public'   // interfaces only
+            srcDirs 'src/jospCore/java'          // main jcp classes
+            srcDirs 'src/jospCore/java_impl002'  // implementations for v 0.0.2
+        }
+    }
+    jospJOD {
+        java {
+            srcDirs 'src/jospJOD/java_public'   // interfaces only
+            srcDirs 'src/jospJOD/java'          // main jod classes
+            srcDirs 'src/jospJOD/java_mains'    // main runnable classes
+            srcDirs 'src/jospJOD/java_impl002'  // implementations for v 0.0.2
+        }
+    }
+    jospJSL {
+        java {
+            srcDirs 'src/jospJSL/java_public'   // interfaces only
+            srcDirs 'src/jospJSL/java'          // main jod classes
+            srcDirs 'src/jospJSL/java_mains'    // main runnable classes
+            srcDirs 'src/jospJSL/java_impl002'  // implementations for v 0.0.2
+        }
+    }
+}
+
+dependencies {
+    jospJODImplementation sourceSets.jospCore.output
+    jospJODImplementation configurations.jospCoreImplementation
+
+    // Mains
+    jospJODImplementation 'commons-cli:commons-cli:1.4'
+    jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
+
+    jospJSLImplementation sourceSets.jospCore.output
+    jospJSLImplementation configurations.jospCoreImplementation
+}
+
+// Add java app's run tasks
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJOD,'com.robypomper.josp.jod.JODShell')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJSL,'com.robypomper.josp.jsl.JODShell')
+
+tasks.javaJospJODRun {
+    standardInput = System.in
+    args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
+}
