@@ -30,10 +30,6 @@ dependencies {
     jospJODImplementation sourceSets.jospCore.output
     jospJODImplementation configurations.jospCoreImplementation
 
-    // Mains
-    jospJODImplementation 'commons-cli:commons-cli:1.4'
-    jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
-
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
 }
