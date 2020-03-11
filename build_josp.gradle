@@ -30,6 +30,9 @@ dependencies {
     jospJODImplementation sourceSets.jospCore.output
     jospJODImplementation configurations.jospCoreImplementation
 
+    // Impls
+    jospJODImplementation 'org.yaml:snakeyaml:1.21'
+
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
 }

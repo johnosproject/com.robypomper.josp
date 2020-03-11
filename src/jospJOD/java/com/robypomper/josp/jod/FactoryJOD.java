@@ -20,7 +20,8 @@ public class FactoryJOD {
 
     // Version constants
 
-    public static final String JOD_VER_LATEST = "null";
+    public static final String JOD_VER_002 = "0.0.2";
+    public static final String JOD_VER_LATEST = JOD_VER_002;
 
 
     // New instance method name
@@ -133,7 +134,7 @@ public class FactoryJOD {
     /**
      * <ul>
      *     <li>
-     *         ...
+     *         {@value JOD_VER_002} => {@link JOD_002.Settings}
      *     </li>
      * </ul>
      *
@@ -141,13 +142,15 @@ public class FactoryJOD {
      * @return JOD.Settings class corresponding to given <code>jodVer</code> version.
      */
     private static Class<? extends JOD.Settings> getJODSettingsClass(String jodVer) throws JOD.FactoryException {
+        if (JOD_VER_002.compareToIgnoreCase(jodVer)==0) return JOD_002.Settings.class;
+
         throw new JOD.FactoryException(String.format("JOD.Settings '%s' version not found.", jodVer));
     }
 
     /**
      * <ul>
      *     <li>
-     *         ...
+     *         {@value JOD_VER_002} => {@link JOD_002}
      *     </li>
      * </ul>
      *
@@ -155,6 +158,8 @@ public class FactoryJOD {
      * @return JOD class corresponding to given <code>jodVer</code> version.
      */
     private static Class<? extends AbsJOD> getJODClass(String jodVer) throws JOD.FactoryException {
+        if (JOD_VER_002.compareToIgnoreCase(jodVer)==0) return JOD_002.class;
+
         throw new JOD.FactoryException(String.format("JOD.Settings '%s' version not found.", jodVer));
     }
 }
