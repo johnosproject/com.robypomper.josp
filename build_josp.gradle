@@ -30,6 +30,12 @@ dependencies {
     jospJODImplementation sourceSets.jospCore.output
     jospJODImplementation configurations.jospCoreImplementation
 
+    // Impls
+    jospJODImplementation 'org.yaml:snakeyaml:1.21'
+    // Mains
+    jospJODImplementation 'commons-cli:commons-cli:1.4'
+    jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
+
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
 }
