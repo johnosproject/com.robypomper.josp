@@ -1,2 +1,11 @@
 jod.version: 0.0.2
 #jod.version: 0.0.error
+
+#jod.executor_mngr.pullers: {Proto1}://{Class1};{Proto2}://{Class2};{ProtoN}://{ClassN}
+jod.executor_mngr.pullers:
+  ciao://com.robypomper.josp.jod.executor.PullerTest
+jod.executor_mngr.listeners:
+  ciao://com.robypomper.josp.jod.executor.ListenerTest
+  ciao1://com.robypomper.josp.jod.executor.ListenerTestAdv
+jod.executor_mngr.executors:
+  ciao://com.robypomper.josp.jod.executor.ExecutorTest

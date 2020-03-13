@@ -4,6 +4,9 @@ import com.robypomper.josp.jod.executor.JODExecutor;
 import com.robypomper.josp.jod.executor.JODListener;
 import com.robypomper.josp.jod.executor.JODPuller;
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
+import com.robypomper.josp.jod.structure.executor.JODComponentListener;
+import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
 
 import java.util.Collection;
 
@@ -13,8 +16,9 @@ import java.util.Collection;
  * This system interface the JOD Object with firmware or external software.
  *
  * When the {@link JODStructure} initialize the object's components, it also
- * initialize corresponding puller ({@link #initPuller(JODComponent)}), listener
- * ({@link #initListener(JODComponent)}) and executor ({@link #initExecutor(JODComponent)}).
+ * initialize corresponding puller ({@link #initPuller(JODComponentPuller)}),
+ * listener ({@link #initListener(JODComponentListener)}) and executor
+ * ({@link #initExecutor(JODComponentExecutor)}).
  *
  * {@link JODComponent} define which puller, listener and executable types must
  * be initialized.
@@ -39,7 +43,7 @@ public interface JODExecutorMngr {
      * @param component to component containing puller settings.
      * @return the created puller object.
      */
-    JODPuller initPuller(JODComponent component);
+    JODPuller initPuller(JODComponentPuller component) throws JODPuller.FactoryException;
 
     /**
      * Init a state listener for given component.
@@ -47,7 +51,7 @@ public interface JODExecutorMngr {
      * @param component to component containing listener settings.
      * @return the created listener object.
      */
-    JODListener initListener(JODComponent component);
+    JODListener initListener(JODComponentListener component) throws JODListener.FactoryException;
 
     /**
      * Init a action executor for given component.
@@ -55,7 +59,7 @@ public interface JODExecutorMngr {
      * @param component to component containing executor settings.
      * @return the created executor object.
      */
-    JODExecutor initExecutor(JODComponent component);
+    JODExecutor initExecutor(JODComponentExecutor component) throws JODExecutor.FactoryException;
 
 
     // Mngm methods
@@ -73,7 +77,7 @@ public interface JODExecutorMngr {
     /**
      * @return list of all executors.
      */
-    Collection<JODExecutor> getExecutions();
+    Collection<JODExecutor> getExecutors();
 
     /**
      * Start all pullers and enable all listeners and executors.
@@ -88,16 +92,16 @@ public interface JODExecutorMngr {
     /**
      * Start given puller.
      *
-     * @param puller the puller object to start.
+     * @param component the component of puller object to start.
      */
-    void startPuller(JODPuller puller);
+    void startPuller(JODComponent component);
 
     /**
      * Stop given puller.
      *
-     * @param puller the puller object to stop.
+     * @param component the component of puller object to stop.
      */
-    void stopPuller(JODPuller puller);
+    void stopPuller(JODComponent component);
 
     /**
      * Start all pullers.
@@ -112,16 +116,16 @@ public interface JODExecutorMngr {
     /**
      * Connect given listener.
      *
-     * @param listener the listener object to connect.
+     * @param component the component of listener object to connect.
      */
-    void connectListener(JODListener listener);
+    void connectListener(JODComponent component);
 
     /**
      * Disconnect given listener.
      *
-     * @param listener the listener object to disconnect.
+     * @param component the component of listener object to disconnect.
      */
-    void disconnectListener(JODListener listener);
+    void disconnectListener(JODComponent component);
 
     /**
      * Connect all listeners.
@@ -136,16 +140,16 @@ public interface JODExecutorMngr {
     /**
      * Enable given executor.
      *
-     * @param executor the executor object to enable.
+     * @param component the component of executor object to enable.
      */
-    void enableExecutor(JODExecutor executor);
+    void enableExecutor(JODComponent component);
 
     /**
      * Disable given executor.
      *
-     * @param executor the executor object to disable.
+     * @param component the component of executor object to disable.
      */
-    void disableExecutor(JODExecutor executor);
+    void disableExecutor(JODComponent component);
 
     /**
      * Enable all executors.
