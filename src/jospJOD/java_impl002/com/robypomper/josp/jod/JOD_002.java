@@ -33,24 +33,30 @@ public class JOD_002 extends AbsJOD {
 
     public static JOD instance(Settings settings) {
         JODObjectInfo objInfo = new JODObjectInfo_002(settings);
-        JCPClient jcpClient = new JCPClient_Object(settings,objInfo);
+        JCPClient jcpClient = new JCPClient_Object(settings, objInfo);
         JODExecutorMngr executor = new JODExecutorMngr_002(settings);
 
-        JODStructure structure = new JODStructure_002(objInfo,executor);
+        JODStructure structure = new JODStructure_002(objInfo, executor);
 
-        JODPermissions permissions = new JODPermissions_002(settings,objInfo,jcpClient);
-        JODCommunication comm = new JODCommunication_002(settings,objInfo,jcpClient,permissions);
+        JODPermissions permissions = new JODPermissions_002(settings, objInfo, jcpClient);
+        JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions);
 
         comm.setStructure(structure);
         structure.setCommunication(comm);
 
-        return new JOD_002(settings,objInfo,structure,comm,executor,permissions);
+        return new JOD_002(settings, objInfo, structure, comm, executor, permissions);
     }
 
     public static class Settings implements JOD.Settings {
 
-        protected static final String JODVERSION_REQUIRED = "jod.version";
-        protected static final String JODVERSION_REQUIRED_DEF = JOD_002.VERSION;
+        public static final String JODVERSION_REQUIRED = "jod.version";
+        public static final String JODVERSION_REQUIRED_DEF = JOD_002.VERSION;
+        public static final String JODPULLER_IMPLS = "jod.executor_mngr.pullers";
+        public static final String JODPULLER_IMPLS_DEF = "";
+        public static final String JODLISTENER_IMPLS = "jod.executor_mngr.listeners";
+        public static final String JODLISTENER_IMPLS_DEF = "";
+        public static final String JODEXECUTOR_IMPLS = "jod.executor_mngr.executors";
+        public static final String JODEXECUTOR_IMPLS_DEF = "";
 
         private final File file;
         private final Map<String, String> properties;
@@ -75,14 +81,14 @@ public class JOD_002 extends AbsJOD {
                 assert false; // File exist already checked
             }
 
-            Map<String,String> tmpProp = new Yaml().load(inputStream);
-            if (tmpProp==null)
+            Map<String, String> tmpProp = new Yaml().load(inputStream);
+            if (tmpProp == null)
                 tmpProp = new HashMap<>();
             properties = tmpProp;
         }
 
         private void store(String property, String value) {
-            properties.put(property,value);
+            properties.put(property, value);
 
             FileWriter writer = null;
             try {
@@ -95,16 +101,34 @@ public class JOD_002 extends AbsJOD {
 
         @Override
         public String getJODVersion_Required() {
-            return jodVer!=null ? jodVer :
-                    properties.get(JODVERSION_REQUIRED)!=null ? properties.get(JODVERSION_REQUIRED) :
-                    JODVERSION_REQUIRED_DEF;
+            return jodVer != null ? jodVer :
+                    properties.get(JODVERSION_REQUIRED) != null ? properties.get(JODVERSION_REQUIRED) :
+                            JODVERSION_REQUIRED_DEF;
         }
 
         @Override
         public void setJODVersion_Required(String jodVer, boolean storageUpd) {
             this.jodVer = jodVer;
             if (storageUpd)
-                store(JODVERSION_REQUIRED,jodVer);
+                store(JODVERSION_REQUIRED, jodVer);
+        }
+
+        //@Override
+        public String getJODPullerImpls() {
+            return properties.get(JODPULLER_IMPLS) != null ? properties.get(JODPULLER_IMPLS) :
+                    JODPULLER_IMPLS_DEF;
+        }
+
+        //@Override
+        public String getJODListenerImpls() {
+            return properties.get(JODLISTENER_IMPLS) != null ? properties.get(JODLISTENER_IMPLS) :
+                    JODLISTENER_IMPLS_DEF;
+        }
+
+        //@Override
+        public String getJODExecutorImpls() {
+            return properties.get(JODEXECUTOR_IMPLS) != null ? properties.get(JODEXECUTOR_IMPLS) :
+                    JODEXECUTOR_IMPLS_DEF;
         }
     }
 
