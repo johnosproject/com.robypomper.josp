@@ -1,7 +1,6 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
-import asg.cliche.Param;
 import com.robypomper.josp.jod.JOD;
 
 public class CmdsJOD {
@@ -17,8 +16,8 @@ public class CmdsJOD {
      *
      * @return the JOD Object status.
      */
-    @Command(description="Print current JOD Object status.")
-    public com.robypomper.josp.jod.JOD.Status jodStatus() {
+    @Command(description = "Print current JOD Object status.")
+    public JOD.Status jodStatus() {
         return jod.status();
     }
 

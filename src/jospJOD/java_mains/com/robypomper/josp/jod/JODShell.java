@@ -4,6 +4,7 @@ import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jod.objinfo.JODInfo;
 import com.robypomper.josp.jod.shell.CmdsJOD;
+import com.robypomper.josp.jod.shell.CmdsJODExecutorMngr;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -192,7 +193,8 @@ public class JODShell {
     public void startShell() throws IOException {
         shell = ShellFactory.createConsoleShell(JODInfo.APP_NAME, JODInfo.APP_NAME_FULL,
                 this,
-                new CmdsJOD(jod));
+                new CmdsJOD(jod),
+                new CmdsJODExecutorMngr(jod.getExecutor()));
         shell.commandLoop();
     }
 
