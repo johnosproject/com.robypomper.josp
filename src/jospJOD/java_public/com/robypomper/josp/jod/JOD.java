@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.systems.JODCommunication;
 import com.robypomper.josp.jod.systems.JODExecutorMngr;
 import com.robypomper.josp.jod.systems.JODObjectInfo;
@@ -79,6 +80,8 @@ public interface JOD {
 
 
     // JOD Systems
+
+    JCPClient_Object getJCPClient();
 
     JODObjectInfo getObjectInfo();
     JODStructure getObjectStructure();

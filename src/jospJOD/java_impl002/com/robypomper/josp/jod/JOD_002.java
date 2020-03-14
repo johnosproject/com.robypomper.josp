@@ -1,6 +1,6 @@
 package com.robypomper.josp.jod;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.systems.JODCommunication;
 import com.robypomper.josp.jod.systems.JODCommunication_002;
@@ -27,13 +27,13 @@ public class JOD_002 extends AbsJOD {
 
     private static final String VERSION = FactoryJOD.JOD_VER_002;
 
-    protected JOD_002(Settings settings, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
-        super(settings, objInfo, structure, comm, executor, permissions);
+    protected JOD_002(Settings settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
+        super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
     public static JOD instance(Settings settings) {
+        JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
         JODObjectInfo objInfo = new JODObjectInfo_002(settings);
-        JCPClient jcpClient = new JCPClient_Object(settings, objInfo);
         JODExecutorMngr executor = new JODExecutorMngr_002(settings);
 
         JODStructure structure = new JODStructure_002(objInfo, executor);
@@ -44,13 +44,22 @@ public class JOD_002 extends AbsJOD {
         comm.setStructure(structure);
         structure.setCommunication(comm);
 
-        return new JOD_002(settings, objInfo, structure, comm, executor, permissions);
+        return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
     public static class Settings implements JOD.Settings {
 
         public static final String JODVERSION_REQUIRED = "jod.version";
         public static final String JODVERSION_REQUIRED_DEF = JOD_002.VERSION;
+
+        public static final String JCP_CONNECT = "jcp.connect";
+        public static final String JCP_URL = "jcp.url";
+        public static final String JCP_URL_DEF = "https://jcp.johnosproject.com";
+        public static final String JCP_CLIENT_ID = "jcp.client.id";
+        public static final String JCP_CLIENT_ID_DEF = "";
+        public static final String JCP_CLIENT_SECRET = "jcp.client.secret";
+        public static final String JCP_CLIENT_SECRET_DEF = "";
+
         public static final String JODPULLER_IMPLS = "jod.executor_mngr.pullers";
         public static final String JODPULLER_IMPLS_DEF = "";
         public static final String JODLISTENER_IMPLS = "jod.executor_mngr.listeners";
@@ -99,6 +108,9 @@ public class JOD_002 extends AbsJOD {
             new Yaml().dump(properties, writer);
         }
 
+
+        // JOD
+
         @Override
         public String getJODVersion_Required() {
             return jodVer != null ? jodVer :
@@ -112,6 +124,35 @@ public class JOD_002 extends AbsJOD {
             if (storageUpd)
                 store(JODVERSION_REQUIRED, jodVer);
         }
+
+
+        // JCP Client
+
+        //@Override
+        public boolean getJCPConnect() {
+            return properties.get(JCP_CONNECT) == null || Boolean.parseBoolean(properties.get(JCP_CONNECT));
+        }
+
+        //@Override
+        public String getJCPUrl() {
+            return properties.get(JCP_URL) != null ? properties.get(JCP_URL) :
+                    JCP_URL_DEF;
+        }
+
+        //@Override
+        public String getJCPId() {
+            return properties.get(JCP_CLIENT_ID) != null ? properties.get(JCP_CLIENT_ID) :
+                    JCP_CLIENT_ID_DEF;
+        }
+
+        //@Override
+        public String getJCPSecret() {
+            return properties.get(JCP_CLIENT_SECRET) != null ? properties.get(JCP_CLIENT_SECRET) :
+                    JCP_CLIENT_SECRET_DEF;
+        }
+
+
+        // Executor Manager
 
         //@Override
         public String getJODPullerImpls() {
@@ -130,6 +171,7 @@ public class JOD_002 extends AbsJOD {
             return properties.get(JODEXECUTOR_IMPLS) != null ? properties.get(JODEXECUTOR_IMPLS) :
                     JODEXECUTOR_IMPLS_DEF;
         }
+
     }
 
     @Override

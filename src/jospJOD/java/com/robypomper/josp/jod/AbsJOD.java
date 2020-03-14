@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.systems.JODCommunication;
 import com.robypomper.josp.jod.systems.JODExecutorMngr;
 import com.robypomper.josp.jod.systems.JODObjectInfo;
@@ -35,6 +36,7 @@ public abstract class AbsJOD implements JOD {
     // Private systems references
 
     private final JOD.Settings settings;
+    private final JCPClient_Object jcpClient;
     private final JODObjectInfo objInfo;
     private final JODStructure structure;
     private final JODCommunication comm;
@@ -52,15 +54,16 @@ public abstract class AbsJOD implements JOD {
     /**
      * Default constructor, set all private systems references.
      *
-     * @param settings object containing current JOD configs.
-     * @param objInfo {@link JODObjectInfo} reference.
-     * @param structure {@link JODStructure} reference.
-     * @param comm {@link JODCommunication} reference.
-     * @param executor {@link JODExecutorMngr} reference.
+     * @param settings    object containing current JOD configs.
+     * @param objInfo     {@link JODObjectInfo} reference.
+     * @param structure   {@link JODStructure} reference.
+     * @param comm        {@link JODCommunication} reference.
+     * @param executor    {@link JODExecutorMngr} reference.
      * @param permissions {@link JODPermissions} reference.
      */
-    protected AbsJOD(Settings settings, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
+    protected AbsJOD(Settings settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
         this.settings = settings;
+        this.jcpClient = jcpClient;
         this.objInfo = objInfo;
         this.structure = structure;
         this.comm = comm;
@@ -104,7 +107,7 @@ public abstract class AbsJOD implements JOD {
         comm.startCloudComm();
         comm.startLocalComm();
 
-        if (status!=Status.REBOOTING) status = Status.RUNNING;
+        if (status != Status.REBOOTING) status = Status.RUNNING;
         System.out.println("INF: JOD Obj is running.");
         System.out.println(String.format("INF: JOD Obj version = %s", version()));
         System.out.println(String.format("INF: JOD Obj Settings version = %s", settings.version()));
@@ -174,6 +177,11 @@ public abstract class AbsJOD implements JOD {
 
 
     // JOD Systems
+
+    @Override
+    public JCPClient_Object getJCPClient() {
+        return jcpClient;
+    }
 
     @Override
     public JODObjectInfo getObjectInfo() {

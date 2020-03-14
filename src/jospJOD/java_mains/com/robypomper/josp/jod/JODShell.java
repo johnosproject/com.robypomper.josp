@@ -3,6 +3,7 @@ package com.robypomper.josp.jod;
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jod.objinfo.JODInfo;
+import com.robypomper.josp.jod.shell.CmdsJCPClient;
 import com.robypomper.josp.jod.shell.CmdsJOD;
 import com.robypomper.josp.jod.shell.CmdsJODExecutorMngr;
 import org.apache.commons.cli.CommandLine;
@@ -194,6 +195,7 @@ public class JODShell {
         shell = ShellFactory.createConsoleShell(JODInfo.APP_NAME, JODInfo.APP_NAME_FULL,
                 this,
                 new CmdsJOD(jod),
+                new CmdsJCPClient(jod.getJCPClient()),
                 new CmdsJODExecutorMngr(jod.getExecutor()));
         shell.commandLoop();
     }
