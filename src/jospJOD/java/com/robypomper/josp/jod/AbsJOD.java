@@ -109,11 +109,10 @@ public abstract class AbsJOD implements JOD {
 
         if (status != Status.REBOOTING) status = Status.RUNNING;
         System.out.println("INF: JOD Obj is running.");
-        System.out.println(String.format("INF: JOD Obj version = %s", version()));
-        System.out.println(String.format("INF: JOD Obj Settings version = %s", settings.version()));
-        //System.out.println(String.format("INF: JOD Obj id = %s", objInfo.getObjId()));
-        //System.out.println(String.format("INF: JOD Obj name = %s", objInfo.getObjName()));
-        //System.out.println(String.format("INF: JOD Obj id hw = %s", objInfo.getObjIdHw()));
+        System.out.println(String.format("INF: JOD Obj version          = %s", version()));
+        System.out.println(String.format("INF: JOD Obj settings version = %s", settings.version()));
+        System.out.println(String.format("INF: JOD Obj id               = %s", objInfo.getObjId()));
+        System.out.println(String.format("INF: JOD Obj name             = %s", objInfo.getObjName()));
         //System.out.println(String.format("INF: JOD Obj structure model = %s", structure.getRoot()...));
     }
 
