@@ -1,7 +1,7 @@
 package com.robypomper.josp.jod;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
+import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.systems.JODCommunication;
 import com.robypomper.josp.jod.systems.JODCommunication_002;
 import com.robypomper.josp.jod.systems.JODExecutorMngr;
@@ -27,12 +27,12 @@ public class JOD_002 extends AbsJOD {
 
     private static final String VERSION = FactoryJOD.JOD_VER_002;
 
-    protected JOD_002(Settings settings, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
-        super(settings, objInfo, structure, comm, executor, permissions);
+    protected JOD_002(Settings settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
+        super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
     public static JOD instance(Settings settings) {
-        JCPClient jcpClient = new DefaultJCPClient_Object(settings);
+        JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
         JODObjectInfo objInfo = new JODObjectInfo_002(settings);
         JODExecutorMngr executor = new JODExecutorMngr_002(settings);
 
@@ -44,7 +44,7 @@ public class JOD_002 extends AbsJOD {
         comm.setStructure(structure);
         structure.setCommunication(comm);
 
-        return new JOD_002(settings, objInfo, structure, comm, executor, permissions);
+        return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
     public static class Settings implements JOD.Settings {
