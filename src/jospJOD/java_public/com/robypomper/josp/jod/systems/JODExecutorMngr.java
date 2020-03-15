@@ -25,10 +25,7 @@ import java.util.Collection;
  *
  * {@link JODPuller}, {@link JODListener} and {@link JODExecutor} are java
  * interfaces that can be implemented to support different inter-process
- * communications protocols and standards. For example
- * JODObjectInfo implementations can access to the JCP API and JOD settings file
- * to load and store values of Object's info (for example the hardware id must
- * be generated from the JCP APIs Object and stored on local settings file).
+ * communications protocols and standards.
  *
  * Pullers, listeners and executables can be activated/deactivated globally
  * or individually.

@@ -13,12 +13,15 @@ public class CmdsJCPClient {
 
 
     @Command(description = "Print JCP Client status.")
-    public String jcpStatus() {
+    public String jcpClientStatus() {
         return jcpClient.isConnected() ? "JCP Client is connect." : "JCP Client is disconnect.";
     }
 
     @Command(description = "Connect JCP Client.")
-    public String jcpConnect() {
+    public String jcpClientConnect() {
+        if (jcpClient.isConnected())
+            return "JCP Client already connected.";
+
         try {
             jcpClient.connect();
         } catch (JCPClient.ConnectionException e) {
@@ -28,9 +31,12 @@ public class CmdsJCPClient {
     }
 
     @Command(description = "Disconnect JCP Client.")
-    public String jcpDisconnect() {
+    public String jcpClientDisconnect() {
+        if (!jcpClient.isConnected())
+            return "JCP Client already disconnected.";
+
         jcpClient.disconnect();
-        return "JCP Client connected successfully.";
+        return "JCP Client disconnected successfully.";
     }
 
 }

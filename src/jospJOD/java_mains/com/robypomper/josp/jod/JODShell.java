@@ -2,7 +2,7 @@ package com.robypomper.josp.jod;
 
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
-import com.robypomper.josp.jod.objinfo.JODInfo;
+import com.robypomper.josp.jod.info.JODInfo;
 import com.robypomper.josp.jod.shell.CmdsJCPClient;
 import com.robypomper.josp.jod.shell.CmdsJOD;
 import com.robypomper.josp.jod.shell.CmdsJODExecutorMngr;

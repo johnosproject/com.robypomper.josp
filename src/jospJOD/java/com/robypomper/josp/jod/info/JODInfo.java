@@ -1,4 +1,4 @@
-package com.robypomper.josp.jod.objinfo;
+package com.robypomper.josp.jod.info;
 
 /**
  * Definition class with application constants.
