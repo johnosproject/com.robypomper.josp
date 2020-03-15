@@ -12,6 +12,7 @@ import com.robypomper.josp.jod.systems.JODPermissions;
 import com.robypomper.josp.jod.systems.JODPermissions_002;
 import com.robypomper.josp.jod.systems.JODStructure;
 import com.robypomper.josp.jod.systems.JODStructure_002;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -33,7 +34,7 @@ public class JOD_002 extends AbsJOD {
 
     public static JOD instance(Settings settings) {
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
-        JODObjectInfo objInfo = new JODObjectInfo_002(settings);
+        JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient);
         JODExecutorMngr executor = new JODExecutorMngr_002(settings);
 
         JODStructure structure = new JODStructure_002(objInfo, executor);
@@ -59,6 +60,13 @@ public class JOD_002 extends AbsJOD {
         public static final String JCP_CLIENT_ID_DEF = "";
         public static final String JCP_CLIENT_SECRET = "jcp.client.secret";
         public static final String JCP_CLIENT_SECRET_DEF = "";
+
+        public static final String JODOBJ_NAME = "jod.obj.name";
+        public static final String JODOBJ_NAME_DEF = "";
+        public static final String JODOBJ_IDCLOUD = "jod.obj.id_cloud";
+        public static final String JODOBJ_IDCLOUD_DEF = "";
+        public static final String JODOBJ_IDHW = "jod.obj.id_hw";
+        public static final String JODOBJ_IDHW_DEF = "";
 
         public static final String JODPULLER_IMPLS = "jod.executor_mngr.pullers";
         public static final String JODPULLER_IMPLS_DEF = "";
@@ -105,7 +113,10 @@ public class JOD_002 extends AbsJOD {
             } catch (IOException e) {
                 assert false; // File exist already checked
             }
-            new Yaml().dump(properties, writer);
+            DumperOptions options = new DumperOptions();
+            options.setIndent(2);
+            options.setPrettyFlow(true);
+            new Yaml(options).dump(properties, writer);
         }
 
 
@@ -152,6 +163,42 @@ public class JOD_002 extends AbsJOD {
         }
 
 
+        // Object info
+
+        //@Override
+        public String getObjName() {
+            return properties.get(JODOBJ_NAME) != null ? properties.get(JODOBJ_NAME) :
+                    JODOBJ_NAME_DEF;
+        }
+
+        //@Override
+        public void setObjName(String objName) {
+            store(JODOBJ_NAME, objName);
+        }
+
+        //@Override
+        public String getObjIdCloud() {
+            return properties.get(JODOBJ_IDCLOUD) != null ? properties.get(JODOBJ_IDCLOUD) :
+                    JODOBJ_IDCLOUD_DEF;
+        }
+
+        //@Override
+        public void setObjIdCloud(String objId) {
+            store(JODOBJ_IDCLOUD, objId);
+        }
+
+        //@Override
+        public String getObjIdHw() {
+            return properties.get(JODOBJ_IDHW) != null ? properties.get(JODOBJ_IDHW) :
+                    JODOBJ_IDHW_DEF;
+        }
+
+        //@Override
+        public void setObjIdHw(String objIdHw) {
+            store(JODOBJ_IDHW, objIdHw);
+        }
+
+
         // Executor Manager
 
         //@Override
@@ -171,11 +218,11 @@ public class JOD_002 extends AbsJOD {
             return properties.get(JODEXECUTOR_IMPLS) != null ? properties.get(JODEXECUTOR_IMPLS) :
                     JODEXECUTOR_IMPLS_DEF;
         }
-
     }
 
     @Override
     public String version() {
         return VERSION;
     }
+
 }
