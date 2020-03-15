@@ -6,6 +6,7 @@ import com.robypomper.josp.jod.objinfo.JODInfo;
 import com.robypomper.josp.jod.shell.CmdsJCPClient;
 import com.robypomper.josp.jod.shell.CmdsJOD;
 import com.robypomper.josp.jod.shell.CmdsJODExecutorMngr;
+import com.robypomper.josp.jod.shell.CmdsJODObjectInfo;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -196,6 +197,7 @@ public class JODShell {
                 this,
                 new CmdsJOD(jod),
                 new CmdsJCPClient(jod.getJCPClient()),
+                new CmdsJODObjectInfo(jod.getObjectInfo()),
                 new CmdsJODExecutorMngr(jod.getExecutor()));
         shell.commandLoop();
     }
