@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(JCPAPIsGroups.PATH_EXMPL + "db/")
+@RequestMapping(JCPAPIsGroups.PATH_EXMPL + "/db")
 @Api(tags = {JCPAPIsGroups.API_EXMPL_SG_DB_NAME})
 public class APIDBEntityController {
 

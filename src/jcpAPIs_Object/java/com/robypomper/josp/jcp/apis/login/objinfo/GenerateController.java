@@ -74,7 +74,7 @@ public class GenerateController {
                     ArgsGenerateObjId reqParams) {
         System.out.println(String.format("Received generateObjId request from %s and %s", reqParams.usrId, reqParams.objIdHw));
         // ToDo: implement GenerateController::generateObjId()
-        return JavaRandomStrings.randomAlfaString(5);
+        return String.format("%s-%s", JavaRandomStrings.randomAlfaString(5), JavaRandomStrings.randomAlfaString(5));
     }
 
     public static class ArgsGenerateObjId {
