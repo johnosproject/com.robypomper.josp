@@ -15,10 +15,11 @@ public interface JODPuller extends JODWorker {
      * <p>
      * Implementation of this function must perform a pulling request and
      * when detect value updates, then send the update to the corresponding JOD
-     * Component via the {@link AbsJODWorker#sendUpdate()} method (this method
-     * is provided by the {@link AbsJODWorker} class because need to be implemented,
-     * the {@link JODPuller} interface can't host methods implementations. AbsJODWorker
-     * is the basic class for each JOD Puller implementation).
+     * Component via the {@link AbsJODWorker#sendUpdate(com.robypomper.josp.jod.structure.JODStateUpdate)}
+     * method (this method is provided by the {@link AbsJODWorker} class because
+     * need to be implemented, the {@link JODPuller} interface can't host methods
+     * implementations. AbsJODWorker is the basic class for each JOD Puller
+     * implementation).
      * <p>
      * This method is call only by the internal JOD Puller timer, so no extra
      * check are required like the {@link AbsJODListenerLoop} class.

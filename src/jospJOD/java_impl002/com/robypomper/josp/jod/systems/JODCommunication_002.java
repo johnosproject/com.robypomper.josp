@@ -13,8 +13,8 @@ public class JODCommunication_002 implements JODCommunication {
     public JODCommunication_002(JOD.Settings settings, JODObjectInfo objInfo, JCPClient jcpClient, JODPermissions permissions) {}
 
     @Override
-    public void sendUpdate(JODState component, JODStateUpdate update) {
-        System.out.println("DEB: JDCommunication_002::sendUpdate()");
+    public void dispatchUpdate(JODState component, JODStateUpdate update) {
+        System.out.println("DEB: JDCommunication_002::dispatchUpdate()");
     }
 
     @Override

@@ -1,11 +1,14 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.josp.jod.structure.JODStateUpdate;
+
 /**
  * JOD Puller test.
  * <p>
  * Each time the {@link #pull()} method is called, it print a log message and call
- * the {@link #sendUpdate()} method (without any param because not yet implemented).
+ * the {@link #sendUpdate(com.robypomper.josp.jod.structure.JODStateUpdate)}
+ * method (without any param because not yet implemented).
  */
 public class PullerTest extends AbsJODPuller {
 
@@ -26,12 +29,13 @@ public class PullerTest extends AbsJODPuller {
     // Mngm
 
     /**
-     * Pull method: print a log message and call the {@link #sendUpdate()} method.
+     * Pull method: print a log message and call the
+     * {@link #sendUpdate(com.robypomper.josp.jod.structure.JODStateUpdate)} method.
      */
     @Override
     public void pull() {
-        System.out.println(String.format("JOD Puller pull %s://%s.", getProto(), getName()));
-        sendUpdate();
+        //System.out.println(String.format("JOD Puller pull %s://%s.", getProto(), getName()));
+        sendUpdate(new JODStateUpdate() {});
     }
 
 }
