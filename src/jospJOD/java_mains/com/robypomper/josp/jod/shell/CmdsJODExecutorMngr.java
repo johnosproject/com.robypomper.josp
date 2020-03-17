@@ -2,20 +2,21 @@ package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
 import asg.cliche.Param;
-import com.robypomper.josp.jod.executor.factories.AbsFactoryJODWorker;
 import com.robypomper.josp.jod.executor.AbsJODWorker;
-import com.robypomper.josp.jod.executor.factories.FactoryJODExecutor;
-import com.robypomper.josp.jod.executor.factories.FactoryJODListener;
-import com.robypomper.josp.jod.executor.factories.FactoryJODPuller;
 import com.robypomper.josp.jod.executor.JODExecutor;
 import com.robypomper.josp.jod.executor.JODListener;
 import com.robypomper.josp.jod.executor.JODPuller;
 import com.robypomper.josp.jod.executor.JODWorker;
-import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.executor.factories.AbsFactoryJODWorker;
+import com.robypomper.josp.jod.executor.factories.FactoryJODExecutor;
+import com.robypomper.josp.jod.executor.factories.FactoryJODListener;
+import com.robypomper.josp.jod.executor.factories.FactoryJODPuller;
+import com.robypomper.josp.jod.structure.AbsJODComponent;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
 import com.robypomper.josp.jod.systems.JODExecutorMngr;
+import com.robypomper.josp.jod.systems.JODStructure;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +28,13 @@ import java.util.Map;
 public class CmdsJODExecutorMngr {
 
     private final JODExecutorMngr executorMngr;
+    private final JODStructure structure;
     private final Map<String, JODPuller> pullers = new HashMap<>();
     private final Map<String, JODListener> listeners = new HashMap<>();
     private final Map<String, JODExecutor> executors = new HashMap<>();
 
-    public CmdsJODExecutorMngr(JODExecutorMngr executor) {
+    public CmdsJODExecutorMngr(JODStructure structure, JODExecutorMngr executor) {
+        this.structure = structure;
         this.executorMngr = executor;
     }
 
@@ -112,7 +115,7 @@ public class CmdsJODExecutorMngr {
     public String execAddPuller(@Param(name = "name", description = "Name of the puller to create") String name,
                                 @Param(name = "proto", description = "Protocol of the puller to create") String proto,
                                 @Param(name = "configStr", description = "String containing puller configs with format 'k1=v1[;k2=v2][...]") String conf_str) {
-        JODComponentPuller compPuller = new JODComponentPuller(new JODComponent() {}, name, proto, conf_str);
+        JODComponentPuller compPuller = new JODComponentPuller(new AbsJODComponent(structure, "comp-" + name, "com's description"), name, proto, conf_str);
 
         try {
             JODPuller puller = executorMngr.initPuller(compPuller);
@@ -129,7 +132,7 @@ public class CmdsJODExecutorMngr {
     public String execAddListener(@Param(name = "name", description = "Name of the listener to create") String name,
                                   @Param(name = "proto", description = "Protocol of the listener to create") String proto,
                                   @Param(name = "configStr", description = "String containing listener configs with format 'k1=v1[;k2=v2][...]") String conf_str) {
-        JODComponentListener compListener = new JODComponentListener(new JODComponent() {}, name, proto, conf_str);
+        JODComponentListener compListener = new JODComponentListener(new AbsJODComponent(structure, "comp-" + name, "com's description"), name, proto, conf_str);
 
         try {
             JODListener listener = executorMngr.initListener(compListener);
@@ -145,7 +148,7 @@ public class CmdsJODExecutorMngr {
     public String execAddExecutor(@Param(name = "name", description = "Name of the executor to create") String name,
                                   @Param(name = "proto", description = "Protocol of the executor to create") String proto,
                                   @Param(name = "configStr", description = "String containing executor configs with format 'k1=v1[;k2=v2][...]") String conf_str) {
-        JODComponentExecutor compExecutor = new JODComponentExecutor(new JODComponent() {}, name, proto, conf_str);
+        JODComponentExecutor compExecutor = new JODComponentExecutor(new AbsJODComponent(structure, "comp-" + name, "com's description"), name, proto, conf_str);
 
         try {
             JODExecutor executor = executorMngr.initExecutor(compExecutor);

@@ -198,7 +198,8 @@ public class JODShell {
                 new CmdsJOD(jod),
                 new CmdsJCPClient(jod.getJCPClient()),
                 new CmdsJODObjectInfo(jod.getObjectInfo()),
-                new CmdsJODExecutorMngr(jod.getExecutor()));
+                new CmdsJODExecutorMngr(jod.getObjectStructure(), jod.getExecutor())
+        );
         shell.commandLoop();
     }
 
