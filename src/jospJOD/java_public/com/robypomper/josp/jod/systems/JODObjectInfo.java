@@ -1,5 +1,7 @@
 package com.robypomper.josp.jod.systems;
 
+import java.io.IOException;
+
 
 /**
  * Interface for Object's info system.
@@ -37,6 +39,16 @@ public interface JODObjectInfo {
      * @return owner's User ID.
      */
     String getOwnerId();
+
+
+    // Structure's info
+
+    /**
+     * The object's structure definition in a String object.
+     *
+     * @return object's structure definition.
+     */
+    String getStructureStr() throws IOException;
 
 
     // Mngm methods

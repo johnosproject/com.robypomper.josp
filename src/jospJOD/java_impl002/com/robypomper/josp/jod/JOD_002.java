@@ -75,6 +75,9 @@ public class JOD_002 extends AbsJOD {
         public static final String JODEXECUTOR_IMPLS = "jod.executor_mngr.executors";
         public static final String JODEXECUTOR_IMPLS_DEF = "";
 
+        public static final String JODSTRUCT_PATH = "jod.structure.path";
+        public static final String JODSTRUCT_PATH_DEF = "struct.jod";
+
         private final File file;
         private final Map<String, String> properties;
         private String jodVer = null;
@@ -218,6 +221,14 @@ public class JOD_002 extends AbsJOD {
             return properties.get(JODEXECUTOR_IMPLS) != null ? properties.get(JODEXECUTOR_IMPLS) :
                     JODEXECUTOR_IMPLS_DEF;
         }
+
+        //@Override
+        public File getStructurePath() {
+            String fileName = properties.get(JODSTRUCT_PATH) != null ? properties.get(JODSTRUCT_PATH) :
+                    JODSTRUCT_PATH_DEF;
+            return new File(fileName);
+        }
+
     }
 
     @Override
