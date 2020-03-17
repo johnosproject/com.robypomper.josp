@@ -8,6 +8,10 @@ import com.robypomper.josp.jod.structure.JODComponent;
  */
 public abstract class AbsJODWorker implements JODWorker {
 
+    // Class constants
+
+    public static final String CONFIG_STR_SEP = "://";
+
     // Internal vars
 
     private final String proto;
@@ -78,6 +82,40 @@ public abstract class AbsJODWorker implements JODWorker {
         // ToDo: implements flow Send Update (Execution > JODComponent)
         System.out.println("WAR: Flow Send Update not yet implemented");
         //component.sendUpdate...
+    }
+
+
+    // Full config string mngm
+
+    /**
+     * Return the protocol part of the worker fullConfigs string.
+     *
+     * @param fullConfigs the worker full configs string.
+     * @return the protocol defined in given full configs string.
+     */
+    public static String extractProto(String fullConfigs) {
+        return fullConfigs.substring(0, fullConfigs.indexOf(CONFIG_STR_SEP)).trim();
+    }
+
+    /**
+     * Return the configs/name part of the worker fullConfigs string.
+     *
+     * @param fullConfigs the worker full configs string.
+     * @return the configs/name defined in given full configs string.
+     */
+    public static String extractConfigsStr(String fullConfigs) {
+        return fullConfigs.substring(fullConfigs.indexOf(CONFIG_STR_SEP) + 3).trim();
+    }
+
+    /**
+     * Compose the two part of the full configs string.
+     *
+     * @param proto  the string used as protocol part of the full configs string.
+     * @param config the string used as congis/name part of the full configs string.
+     * @return the composed full configs string.
+     */
+    public static String mergeConfigsStr(String proto, String config) {
+        return proto + CONFIG_STR_SEP + config;
     }
 
 }
