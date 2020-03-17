@@ -2,7 +2,6 @@ package com.robypomper.josp.core.jcpclient;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
@@ -33,6 +32,6 @@ public abstract class JCPClient_AuthFlow extends AbsJCPClient {
      */
     @Override
     protected OAuth2AccessToken getAccessToken(OAuth20Service service) {
-        throw new NotImplementedException();
+        throw new RuntimeException("JCPClient_AuthFlow::getAccessToken() not yet implemented");
     }
 }

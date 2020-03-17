@@ -111,7 +111,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void startAutoRefresh() {
-        System.out.println("DEB: JODObjectInfo_002::startAutoRefresh()");
+        System.out.println("WAR: JOD Object Info AutoRefresh can't started:");
+        System.out.println("     AutoRefresh not implemented, info are static");
     }
 
     /**
@@ -119,7 +120,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void stopAutoRefresh() {
-        System.out.println("DEB: JODObjectInfo_002::stopAutoRefresh()");
+        System.out.println("WAR: JOD Object Info AutoRefresh can't stopped:");
+        System.out.println("     AutoRefresh not implemented, info are static");
     }
 
 
