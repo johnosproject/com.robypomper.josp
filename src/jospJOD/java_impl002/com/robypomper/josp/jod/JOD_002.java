@@ -32,7 +32,7 @@ public class JOD_002 extends AbsJOD {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
-    public static JOD instance(Settings settings) {
+    public static JOD instance(Settings settings) throws JODStructure.ParsingException {
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
         JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient);
         JODExecutorMngr executor = new JODExecutorMngr_002(settings);
@@ -43,7 +43,11 @@ public class JOD_002 extends AbsJOD {
         JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions);
 
         comm.setStructure(structure);
-        structure.setCommunication(comm);
+        try {
+            structure.setCommunication(comm);
+        } catch (JODStructure_002.CommunicationSetException ignore) {
+            assert false;
+        }
 
         return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
