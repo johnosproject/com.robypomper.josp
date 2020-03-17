@@ -32,7 +32,7 @@ public class JOD_002 extends AbsJOD {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
-    public static JOD instance(Settings settings) {
+    public static JOD instance(Settings settings) throws JODStructure.ParsingException {
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
         JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient);
         JODExecutorMngr executor = new JODExecutorMngr_002(settings);
@@ -43,7 +43,11 @@ public class JOD_002 extends AbsJOD {
         JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions);
 
         comm.setStructure(structure);
-        structure.setCommunication(comm);
+        try {
+            structure.setCommunication(comm);
+        } catch (JODStructure_002.CommunicationSetException ignore) {
+            assert false;
+        }
 
         return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
@@ -74,6 +78,9 @@ public class JOD_002 extends AbsJOD {
         public static final String JODLISTENER_IMPLS_DEF = "";
         public static final String JODEXECUTOR_IMPLS = "jod.executor_mngr.executors";
         public static final String JODEXECUTOR_IMPLS_DEF = "";
+
+        public static final String JODSTRUCT_PATH = "jod.structure.path";
+        public static final String JODSTRUCT_PATH_DEF = "struct.jod";
 
         private final File file;
         private final Map<String, String> properties;
@@ -218,6 +225,14 @@ public class JOD_002 extends AbsJOD {
             return properties.get(JODEXECUTOR_IMPLS) != null ? properties.get(JODEXECUTOR_IMPLS) :
                     JODEXECUTOR_IMPLS_DEF;
         }
+
+        //@Override
+        public File getStructurePath() {
+            String fileName = properties.get(JODSTRUCT_PATH) != null ? properties.get(JODSTRUCT_PATH) :
+                    JODSTRUCT_PATH_DEF;
+            return new File(fileName);
+        }
+
     }
 
     @Override

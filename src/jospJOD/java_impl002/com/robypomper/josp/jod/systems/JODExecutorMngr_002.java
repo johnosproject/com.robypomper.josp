@@ -159,13 +159,13 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
         for (String iClass : implClasses) {
             if (iClass.isEmpty()) continue;
 
-            if (!iClass.contains("://")) {
+            if (!iClass.contains(AbsJODWorker.CONFIG_STR_SEP)) {
                 System.out.println(String.format("WAR: String '%s' don't contain a valid protocol/implementation pair ({proto}://{impl})", iClass));
                 continue;
             }
 
-            String proto = iClass.substring(0, iClass.indexOf("://")).trim();
-            String iClassName = iClass.substring(iClass.indexOf("://") + 3).trim();
+            String proto = AbsJODWorker.extractProto(iClass);
+            String iClassName = AbsJODWorker.extractConfigsStr(iClass);
             try {
                 factory.register(proto, iClassName);
             } catch (JODWorker.FactoryException e) {

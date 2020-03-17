@@ -14,3 +14,5 @@ jod.executor_mngr.listeners:
   ciao1://com.robypomper.josp.jod.executor.ListenerTestAdv
 jod.executor_mngr.executors:
   ciao://com.robypomper.josp.jod.executor.ExecutorTest
+
+jod.structure.path: src/jospJOD/configs/struct.jod

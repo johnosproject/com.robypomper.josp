@@ -25,10 +25,33 @@ public interface JODStructure {
     JODRoot getRoot();
 
     /**
+     * @param pathStr required component path string.
+     * @return component corresponding to given path, or null if not found.
+     */
+    JODComponent getComponent(String pathStr);
+
+    /**
      * @param path required component path.
      * @return component corresponding to given path, or null if not found.
      */
     JODComponent getComponent(JODComponentPath path);
+
+    /**
+     * Return the JOD Communication system to state component to dispatch state
+     * updates.
+     *
+     * @return the JOD Communication system.
+     */
+    JODCommunication getCommunication() throws CommunicationSetException;
+
+    /**
+     * Set the {@link JODCommunication} reference to the JODStructure object.
+     * <p>
+     * This cross-system reference is required by the State Update Flow.
+     *
+     * @param comm the {@link JODCommunication} reference.
+     */
+    void setCommunication(JODCommunication comm) throws CommunicationSetException;
 
 
     // Mngm methods
@@ -43,18 +66,87 @@ public interface JODStructure {
      */
     void stopAutoRefresh();
 
-    /**
-     * Load object's structure from data file.
-     */
-    void loadStructure();
+
+    // Exceptions
 
     /**
-     * Set the {@link JODCommunication} reference to the JODStructure object.
-     *
-     * This cross-system reference is required by the State Update Flow.
-     *
-     * @param comm the {@link JODCommunication} reference.
+     * Exceptions for {@link JODStructure#setCommunication(JODCommunication)}
+     * called twice.
      */
-    void setCommunication(JODCommunication comm);
+    class CommunicationSetException extends Throwable {
+        private static final String MSG = "Communication already set for current Structure.";
+
+        public CommunicationSetException() {
+            super(MSG);
+        }
+    }
+
+    /**
+     * Exceptions for structure parsing, file load... errors.
+     */
+    class ParsingException extends Throwable {
+        private static final String MSG = "(@line: %d; col: %d)";
+
+        public ParsingException(String msg) {
+            super(msg);
+        }
+
+        public ParsingException(String msg, Throwable e) {
+            super(msg, e);
+        }
+
+        public ParsingException(String msg, Throwable e, int line, int col) {
+            super(msg + String.format(MSG, line, col), e);
+        }
+    }
+
+    /**
+     * Exception thrown when the structure initialization try to generate an
+     * unknown component type.
+     */
+    class ParsingUnknownTypeException extends ParsingException {
+        private static final String MSG = "Unknown type '%s' for '%s' JOD Component.";
+
+        public ParsingUnknownTypeException(String compType, String compName) {
+            super(String.format(MSG, compType, compName));
+        }
+    }
+
+    /**
+     * Exception thrown when the structure initialization get an error on parsing
+     * structure string.
+     */
+    class InstantiationParsedDataException extends ParsingException {
+        private static final String MSG = "Can't initialize '%s' JOD Component because error on %s configs strings.";
+        private static final String JOIN_2 = "l'%s' or p'%s'";
+        private static final String JOIN_3 = "l'%s', p'%s' or e'%s'";
+
+        public InstantiationParsedDataException(String compName, String listener, String puller, Throwable e) {
+            super(String.format(MSG, compName, String.format(JOIN_2, listener, puller)), e);
+        }
+
+        public InstantiationParsedDataException(String compName, String listener, String puller, String executor, Throwable e) {
+            super(String.format(MSG, compName, String.format(JOIN_3, listener, puller, executor)), e);
+        }
+    }
+
+
+    // Exceptions
+
+    /**
+     * Exceptions for all component initialization errors.
+     * <p>
+     * This class is reserved for properties or hierarchy implementation errors
+     * normally catched with a <code>assert false;</code> code block.
+     */
+    class ComponentInitException extends Throwable {
+        public ComponentInitException(String msg) {
+            super(msg);
+        }
+
+        public ComponentInitException(String msg, Throwable e) {
+            super(msg, e);
+        }
+    }
 
 }

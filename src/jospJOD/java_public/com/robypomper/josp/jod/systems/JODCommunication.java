@@ -19,20 +19,20 @@ import com.robypomper.josp.jod.structure.JODStateUpdate;
  */
 public interface JODCommunication {
 
-    // JOD Component's interaction methods (from structure)
+    // Status upd flow (obj-comm)
 
     /**
-     * Send <code>component</code> <code>update</code> to connected and allowed
+     * Dispatch <code>component</code> <code>update</code> to connected and allowed
      * services.
-     *
+     * <p>
      * This method is required by {@link JODState} when receive an update from
      * his {@link com.robypomper.josp.jod.executor.JODPuller} or
      * {@link com.robypomper.josp.jod.executor.JODListener} object.
      *
      * @param component the object's component that updated his state.
-     * @param update the status update info.
+     * @param update    the status update info.
      */
-    void sendUpdate(JODState component, JODStateUpdate update);
+    void dispatchUpdate(JODState component, JODStateUpdate update);
 
 
     // Mngm methods

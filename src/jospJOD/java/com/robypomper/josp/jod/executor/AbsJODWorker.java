@@ -1,6 +1,9 @@
 package com.robypomper.josp.jod.executor;
 
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.JODState;
+import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.josp.jod.systems.JODStructure;
 
 
 /**
@@ -8,11 +11,16 @@ import com.robypomper.josp.jod.structure.JODComponent;
  */
 public abstract class AbsJODWorker implements JODWorker {
 
+    // Class constants
+
+    public static final String CONFIG_STR_SEP = "://";
+
     // Internal vars
 
     private final String proto;
     private final String name;
     private JODComponent component;
+    private int warnsCount = 0;
 
 
     // Constructor
@@ -68,16 +76,59 @@ public abstract class AbsJODWorker implements JODWorker {
     }
 
 
-    // To JODComponent method
+    // Status upd flow (fw&apps)
 
     /**
      * Method called from {@link JODPuller} and {@link JODListener} to send a
      * status update to associated {@link JODComponent}.
      */
-    protected void sendUpdate() {
-        // ToDo: implements flow Send Update (Execution > JODComponent)
-        System.out.println("WAR: Flow Send Update not yet implemented");
-        //component.sendUpdate...
+    protected boolean sendUpdate(JODStateUpdate stateUpd) {
+        if (component instanceof JODState) {
+            try {
+                ((JODState) component).propagateState(stateUpd);
+                return true;
+            } catch (JODStructure.CommunicationSetException e) {
+                warnsCount++;
+                if (warnsCount < 10 || warnsCount % 10 == 0)
+                    System.out.println(String.format("WAR: Can't propagate status update from '%s' component, because Communication System not set. (%d)", component.getName(), warnsCount));
+                return false;
+            }
+        }
+        return false;
+    }
+
+
+    // Full config string mngm
+
+    /**
+     * Return the protocol part of the worker fullConfigs string.
+     *
+     * @param fullConfigs the worker full configs string.
+     * @return the protocol defined in given full configs string.
+     */
+    public static String extractProto(String fullConfigs) {
+        return fullConfigs.substring(0, fullConfigs.indexOf(CONFIG_STR_SEP)).trim();
+    }
+
+    /**
+     * Return the configs/name part of the worker fullConfigs string.
+     *
+     * @param fullConfigs the worker full configs string.
+     * @return the configs/name defined in given full configs string.
+     */
+    public static String extractConfigsStr(String fullConfigs) {
+        return fullConfigs.substring(fullConfigs.indexOf(CONFIG_STR_SEP) + 3).trim();
+    }
+
+    /**
+     * Compose the two part of the full configs string.
+     *
+     * @param proto  the string used as protocol part of the full configs string.
+     * @param config the string used as congis/name part of the full configs string.
+     * @return the composed full configs string.
+     */
+    public static String mergeConfigsStr(String proto, String config) {
+        return proto + CONFIG_STR_SEP + config;
     }
 
 }

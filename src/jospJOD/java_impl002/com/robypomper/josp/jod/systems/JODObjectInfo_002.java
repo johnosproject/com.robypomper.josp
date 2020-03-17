@@ -6,6 +6,11 @@ import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JCPObjectInfo;
 import com.robypomper.josp.jod.objinfo.LocalObjectInfo;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+
 
 /**
  * This is the JOD object info implementation.
@@ -15,6 +20,11 @@ import com.robypomper.josp.jod.objinfo.LocalObjectInfo;
  * API Objs via the support class {@link JCPObjectInfo}.
  */
 public class JODObjectInfo_002 implements JODObjectInfo {
+
+    // Class constants
+
+    private static final String DEF_STRUCTURE = "";
+
 
     // Internal vars
 
@@ -83,6 +93,17 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
 
+    // Structure's info
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getStructureStr() throws IOException {
+        return readFile(locSettings.getStructurePath());
+    }
+
+
     // Mngm methods
 
     /**
@@ -103,6 +124,16 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
 
     // Private methods
+
+    /**
+     * Read given file and return his content in a String.
+     *
+     * @return the string with file content.
+     */
+    private String readFile(File file) throws IOException {
+        byte[] encoded = Files.readAllBytes(file.toPath());
+        return new String(encoded, Charset.defaultCharset());
+    }
 
     /**
      * The Hardware ID is the id that allow to identify a physical object.

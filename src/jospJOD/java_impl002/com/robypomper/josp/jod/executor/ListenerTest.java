@@ -1,11 +1,13 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.josp.jod.structure.JODStateUpdate;
+
 /**
  * JOD Listener test.
  * <p>
  * Each interaction of the server's infinite loop (from {@link #getServerLoop()}
- * method) call the {@link #sendUpdate()} method (without any param because not
+ * method) call the {@link #sendUpdate(JODStateUpdate)} method (without any param because not
  * yet implemented).
  * <p>
  * Print log messages, from dedicated thread, on server startup and shutdown.
@@ -30,14 +32,14 @@ public class ListenerTest extends AbsJODListenerLoop {
 
     /**
      * Server Loop method: print a log messages and start infinite loop where
-     * call the {@link #sendUpdate()} method each 10 seconds (10.000ms).
+     * call the {@link #sendUpdate(JODStateUpdate)} method each 10 seconds (10.000ms).
      */
     @Override
     protected void getServerLoop() {
         System.out.println(String.format("JOD Listener server run %s://%s.", getProto(), getName()));
 
         while (!mustShoutingDown()) {
-            sendUpdate();
+            sendUpdate(new JODStateUpdate() {});
             try {
                 Thread.sleep(1000 * 10);
             } catch (InterruptedException e) {
