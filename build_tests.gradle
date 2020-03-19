@@ -11,11 +11,13 @@ dependencies {
     clientTestImplementation 'com.github.scribejava:scribejava-core:6.9.0'
     clientTestImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
     clientTestImplementation 'commons-cli:commons-cli:1.4'
+    clientTestImplementation 'org.keycloak:keycloak-core:9.0.0'
 }
 
 // Add java app's run tasks
 JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_Obj')
 JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_UsrSrv')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Test_Keycloak')
 
 tasks.javaClientTest_Auth_ObjRun {
     group 'application test'
@@ -31,5 +33,15 @@ tasks.javaClientTest_Auth_UsrSrvRun {
     args = ['--authFlow', 'AuthCodeFlow',
             '--env', 'jcp',
             '--clientCredentials', 'jcp-test-client-srv',
+            '--disable-ssl-checks']
+}
+
+tasks.javaClientTest_Test_KeycloakRun {
+    group 'application test'
+    standardInput = System.in
+    args = ['--authFlow', 'ClientCredentialsFlow',
+            '--reqFlow', 'keycloakTest',
+            '--env', 'jcp',
+            '--clientCredentials', 'jcp-test-client-api',
             '--disable-ssl-checks']
 }
