@@ -86,20 +86,20 @@ public abstract class AbsJCPClient implements JCPClient {
                     .callback(configs.getCallback())
                     .build(KeycloakApi.instance(configs.getBaseUrl(), configs.getRealm()));
         } catch (IllegalArgumentException e) {
-            throw new JCPClient.ConnectionException("Wrong JCP configurations.", e);
+            throw new ConnectionException("Wrong JCP configurations.", e);
         }
 
         // Start Auth flow
         try {
             accessToken = getAccessToken(service);
         } catch (SSLHandshakeException e) {
-            throw new JCPClient.ConnectionException("Error on SSL JCP host checks.", e);
+            throw new ConnectionException("Error on SSL JCP host checks.", e);
         } catch (JsonParseException e) {
-            throw new JCPClient.ConnectionException("Token response from JCP not valid, check JCP url.", e);
+            throw new ConnectionException("Token response from JCP not valid, check JCP url.", e);
         } catch (OAuth2AccessTokenErrorResponse e) {
-            throw new JCPClient.ConnectionException("Client not authorized to access to JCP resources.", e);
+            throw new ConnectionException("Client not authorized to access to JCP resources.", e);
         } catch (InterruptedException | ExecutionException | IOException e) {
-            throw new JCPClient.ConnectionException(String.format("Error on getting access token from JCP: '%s'", e.getMessage()), e);
+            throw new ConnectionException(String.format("Error on getting access token from JCP: '%s'", e.getMessage()), e);
         }
 
         connected = true;
@@ -329,7 +329,7 @@ public abstract class AbsJCPClient implements JCPClient {
 
     /**
      * Depending on <code>response.getCode()</code> this method don't do nothing
-     * or thrown the {@link com.robypomper.josp.core.jcpclient.JCPClient.ResponseException}
+     * or thrown the {@link ResponseException}
      * corresponding to the response code.
      *
      * @param response response received for a request execution.

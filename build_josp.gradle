@@ -37,12 +37,15 @@ dependencies {
     // Commons - Internal
     jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                                   // Lombok annotations
     jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    jospCommonsImplementation 'org.hibernate:hibernate-core:5.4.10.Final'
+    jospCommonsImplementation 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
+    jospCommonsImplementation 'com.github.scribejava:scribejava-core:6.9.0'
+    jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
+
 
     // Core - Internal
     jospCoreImplementation sourceSets.jospCommons.output
     jospCoreImplementation sourceSets.jospCommons.runtimeClasspath
-    jospCoreImplementation 'com.github.scribejava:scribejava-core:6.9.0'
-    jospCoreImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
 
     // JOD - All
     jospJODImplementation sourceSets.jospCore.output
