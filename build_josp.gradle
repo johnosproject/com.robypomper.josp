@@ -1,6 +1,13 @@
 import com.robypomper.build.java.JavaRunnableUtils
 
 sourceSets {
+    jospCommons {
+        java {
+            srcDirs 'src/jospCommons/java_public'   // interfaces only
+            srcDirs 'src/jospCommons/java'          // main jcp classes
+            srcDirs 'src/jospCommons/java_impl002'  // implementations for v 0.0.2
+        }
+    }
     jospCore {
         java {
             srcDirs 'src/jospCore/java_public'   // interfaces only
@@ -27,19 +34,26 @@ sourceSets {
 }
 
 dependencies {
-    // Internal
+    // Commons - Internal
+    jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                                   // Lombok annotations
+    jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    // Core - Internal
+    jospCoreImplementation sourceSets.jospCommons.output
+    jospCoreImplementation sourceSets.jospCommons.runtimeClasspath
     jospCoreImplementation 'com.github.scribejava:scribejava-core:6.9.0'
     jospCoreImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
 
+    // JOD - All
     jospJODImplementation sourceSets.jospCore.output
     jospJODImplementation configurations.jospCoreImplementation
-
-    // Impls
+    // JOD - Impls
     jospJODImplementation 'org.yaml:snakeyaml:1.21'
-    // Mains
+    // JOD - Mains
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
 
+    // JSL - All
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
 }
