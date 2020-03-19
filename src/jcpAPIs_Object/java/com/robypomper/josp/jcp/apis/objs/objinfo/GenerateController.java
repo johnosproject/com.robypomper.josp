@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.apis.login.objinfo;
+package com.robypomper.josp.jcp.apis.objs.objinfo;
 
 import com.robypomper.java.JavaRandomStrings;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;

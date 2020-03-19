@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.apis.login;
+package com.robypomper.josp.jcp.apis.objs;
 
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
