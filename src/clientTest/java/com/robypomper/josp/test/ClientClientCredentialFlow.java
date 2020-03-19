@@ -11,8 +11,8 @@ public class ClientClientCredentialFlow extends AbsClientFlow {
 
     public static final String AUTH_FLOW_NAME = "ClientCredentialsFlow";
 
-    public ClientClientCredentialFlow(ClientSettings clientSettings) {
-        super(clientSettings);
+    public ClientClientCredentialFlow(ClientRequestFlow reqFlow, ClientSettings clientSettings) {
+        super(reqFlow, clientSettings);
     }
 
     @Override
