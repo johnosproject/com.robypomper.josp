@@ -1,6 +1,7 @@
 package com.robypomper.josp.jcp.apis.objs.objinfo;
 
 import com.robypomper.java.JavaRandomStrings;
+import com.robypomper.josp.jcp.apis.objs.data.ArgsGenerateObjId;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;
@@ -75,11 +76,6 @@ public class GenerateController {
         System.out.println(String.format("Received generateObjId request from %s and %s", reqParams.usrId, reqParams.objIdHw));
         // ToDo: implement GenerateController::generateObjId()
         return String.format("%s-%s", JavaRandomStrings.randomAlfaString(5), JavaRandomStrings.randomAlfaString(5));
-    }
-
-    public static class ArgsGenerateObjId {
-        public String objIdHw;
-        public String usrId;
     }
 
 }
