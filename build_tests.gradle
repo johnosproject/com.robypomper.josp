@@ -14,17 +14,19 @@ dependencies {
 }
 
 // Add java app's run tasks
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Obj')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','UsrSrv')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_Obj')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_UsrSrv')
 
-tasks.javaClientTest_ObjRun {
+tasks.javaClientTest_Auth_ObjRun {
+    group 'application test'
     standardInput = System.in
     args = ['--authFlow', 'ClientCredentialsFlow',              // AuthCodeFlow | ClientCredentialsFlow
             '--env', 'jcp',                                     // jcp | josp | test
             '--clientCredentials', 'jcp-test-client-obj',       // See in ClientSettings{Env} class
             '--disable-ssl-checks']                             // Disable SSL certificate validity
 }
-tasks.javaClientTest_UsrSrvRun {
+tasks.javaClientTest_Auth_UsrSrvRun {
+    group 'application test'
     standardInput = System.in
     args = ['--authFlow', 'AuthCodeFlow',
             '--env', 'jcp',

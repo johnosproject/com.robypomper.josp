@@ -12,8 +12,8 @@ public class ClientAuthCodeFlow extends AbsClientFlow {
 
     public static final String AUTH_FLOW_NAME = "AuthCodeFlow";
 
-    public ClientAuthCodeFlow(ClientSettings clientSettings) {
-        super(clientSettings);
+    public ClientAuthCodeFlow(ClientRequestFlow reqFlow, ClientSettings clientSettings) {
+        super(reqFlow, clientSettings);
     }
 
     @Override
