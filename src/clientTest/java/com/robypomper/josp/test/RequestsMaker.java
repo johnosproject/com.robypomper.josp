@@ -105,11 +105,29 @@ public class RequestsMaker {
             req.setPayload(body);
         for (Map.Entry<String, String> header : headers.entrySet())
             req.addHeader(header.getKey(), header.getValue());
+        injectSession(req);
         service.signRequest(accessToken, req);
         try (Response response = service.execute(req)) {
+            storeSession(response);
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(response.getBody(), reqObj);
         }
+    }
+
+    private static String sessionId = null;
+
+    private static void injectSession(OAuthRequest request) {
+        if (sessionId != null)
+            request.addHeader("Cookie", sessionId);
+    }
+
+    private static void storeSession(Response response) {
+        String setCookie = response.getHeader("Set-Cookie");
+        if (setCookie == null)
+            return;
+
+        if (setCookie.contains("JSESSIONID"))
+            sessionId = setCookie;
     }
 
 }
