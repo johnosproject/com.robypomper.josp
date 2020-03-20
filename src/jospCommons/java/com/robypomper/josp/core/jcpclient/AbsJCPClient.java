@@ -33,12 +33,20 @@ import java.util.concurrent.ExecutionException;
  */
 public abstract class AbsJCPClient implements JCPClient {
 
+    // Class constants
+
+    public static final String HEAD_COOKIE = "Cookie";
+    public static final String HEAD_SET_COOKIE = "Set-Cookie";
+    public static final String SESSION_KEY = "JSESSIONID";
+
+
     // Private vars
 
     private final JCPConfigs configs;
     private boolean connected = false;
     private OAuth20Service service = null;
     private OAuth2AccessToken accessToken = null;
+    private String sessionId = null;
 
 
     // Constructor
@@ -178,12 +186,14 @@ public abstract class AbsJCPClient implements JCPClient {
         // Send request
         String reqUrl = prepareGetUrl(url, params);
         OAuthRequest request = prepareGetRequest(reqUrl);
+        injectSession(request);
         Response response = null;
         try {
             response = service.execute(request);
+            storeSession(response);
             checkErrorCodes(response, reqUrl, secure);
         } catch (InterruptedException | ExecutionException | IOException e) {
-            throw new RequestException(String.format("Error on request '%s' to JCP.", url), e);
+            throw new RequestException(String.format("Error on execute request '%s' to JCP.", url), e);
         }
 
         // Parsing response
@@ -390,6 +400,34 @@ public abstract class AbsJCPClient implements JCPClient {
         } catch (IOException e) {
             throw new ResponseParsingException(reqUrl, secure, e);
         }
+    }
+
+    /**
+     * If current client has a valid <code>sessionId</code> then it will be
+     * added to given request.
+     *
+     * @param request the request instance to add the <code>sessionId</code> to
+     *                {@value #HEAD_COOKIE} header.
+     */
+    private void injectSession(OAuthRequest request) {
+        if (sessionId != null)
+            request.addHeader(HEAD_COOKIE, sessionId);
+    }
+
+    /**
+     * If given response has a valid <code>sessionId</code> {@value #HEAD_SET_COOKIE}
+     * header then it will store the session id for use it on next request.
+     *
+     * @param response the response instance to check for {@value #HEAD_SET_COOKIE}
+     *                 header.
+     */
+    private void storeSession(Response response) {
+        String setCookie = response.getHeader(HEAD_SET_COOKIE);
+        if (setCookie == null)
+            return;
+
+        if (setCookie.contains(SESSION_KEY))
+            sessionId = setCookie;
     }
 
 }
