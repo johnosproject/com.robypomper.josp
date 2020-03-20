@@ -17,6 +17,9 @@ dependencies {
 // Add java app's run tasks
 JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_Obj')
 JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_UsrSrv')
+
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Reg_Usr')
+
 JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Test_Keycloak')
 
 tasks.javaClientTest_Auth_ObjRun {
@@ -31,6 +34,16 @@ tasks.javaClientTest_Auth_UsrSrvRun {
     group 'application test'
     standardInput = System.in
     args = ['--authFlow', 'AuthCodeFlow',
+            '--env', 'jcp',
+            '--clientCredentials', 'jcp-test-client-srv',
+            '--disable-ssl-checks']
+}
+
+tasks.javaClientTest_Reg_UsrRun {
+    group 'application test'
+    standardInput = System.in
+    args = ['--authFlow', 'AuthCodeFlow',
+            '--reqFlow', 'usrRegistration',
             '--env', 'jcp',
             '--clientCredentials', 'jcp-test-client-srv',
             '--disable-ssl-checks']

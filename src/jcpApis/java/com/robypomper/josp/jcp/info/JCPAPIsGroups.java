@@ -56,6 +56,8 @@ public class JCPAPIsGroups {
 
     public static final String API_USRS_SG_PLACEHOLDER_NAME = "User placeholder";
     public static final APISubGroup API_USRS_SG_PLACEHOLDER = new APISubGroup(API_USRS_SG_PLACEHOLDER_NAME, "Placeholder sub-group");
+    public static final String API_USRS_SG_BASE_NAME = "User's info";
+    public static final APISubGroup API_USRS_SG_BASE = new APISubGroup(API_USRS_SG_BASE_NAME, "Placeholder sub-group");
 
     public static final String API_OBJS_SG_PLACEHOLDER_NAME = "Object placeholder";
     public static final APISubGroup API_OBJS_SG_PLACEHOLDER = new APISubGroup(API_OBJS_SG_PLACEHOLDER_NAME, "Placeholder sub-group");
@@ -79,7 +81,7 @@ public class JCPAPIsGroups {
 
     public static final APISubGroup[] API_EXMPL_SUBGROUPS = {API_EXMPL_SG_METHODS, API_EXMPL_SG_DB, API_EXMPL_SG_AUTHENTICATION, API_EXMPL_SG_AUTHORIZATION};
     public static final APISubGroup[] API_LOGIN_SUBGROUPS = {API_LOGIN_SG_PLACEHOLDER};
-    public static final APISubGroup[] API_USRS_SUBGROUPS = {API_USRS_SG_PLACEHOLDER};
+    public static final APISubGroup[] API_USRS_SUBGROUPS = {API_USRS_SG_PLACEHOLDER, API_USRS_SG_BASE};
     public static final APISubGroup[] API_OBJS_SUBGROUPS = {API_OBJS_SG_PLACEHOLDER, API_OBJS_SG_OBJINFO_GEN};
     public static final APISubGroup[] API_SRVS_SUBGROUPS = {API_SRVS_SG_PLACEHOLDER};
     public static final APISubGroup[] API_PERM_SUBGROUPS = {API_PERM_SG_PLACEHOLDER};
