@@ -37,8 +37,15 @@ dockerCompose {
 
 // Source Sets declaration
 sourceSets {
+    jcpApisPublic {
+        java {
+            srcDirs 'src/jcpApisPublic/java_public'
+        }
+    }
+
     jcpApis {
         java {
+            srcDirs 'src/jcpApis/java_public'
             srcDirs 'src/jcpAPIs_Login/java'
             srcDirs 'src/jcpAPIs_User/java'
             srcDirs 'src/jcpAPIs_Object/java'
@@ -57,14 +64,19 @@ SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpApis)
 
 
 dependencies {
+    jcpApisPublicImplementation sourceSets.jospCommons.output
+    jcpApisPublicImplementation sourceSets.jospCommons.runtimeClasspath
+    jcpApisPublicCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
+    jcpApisPublicAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
     // Micro service's dependencies
-    jcpApisImplementation sourceSets.jospCommons.output
-    jcpApisImplementation sourceSets.jospCommons.runtimeClasspath
+    jcpApisImplementation sourceSets.jcpApisPublic.output
+    jcpApisImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    jcpApisCompileOnly 'org.projectlombok:lombok:1.18.12'                               // Lombok annotations
+    jcpApisAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
     jcpApisImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpApisImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'       // Database support
     jcpApisImplementation 'mysql:mysql-connector-java'
-    jcpApisCompileOnly 'org.projectlombok:lombok:1.18.12'                                   // Lombok annotations
-    jcpApisAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
     jcpApisImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
     jcpApisImplementation 'org.springframework.security:spring-security-oauth2-jose'    // OAuth (Resource) support
     jcpApisImplementation 'org.springframework.security:spring-security-oauth2-resource-server'

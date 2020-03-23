@@ -1,17 +1,15 @@
 package com.robypomper.josp.jcp.db.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import java.util.Date;
+
 
 /**
  * Entity class for <code>user</code> table of the <code>jcp_apis</code> database.

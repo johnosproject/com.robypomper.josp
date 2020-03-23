@@ -8,6 +8,12 @@ sourceSets {
 dependencies {
     clientTestImplementation sourceSets.jospCommons.output
     clientTestImplementation sourceSets.jospCommons.runtimeClasspath
+    clientTestImplementation sourceSets.jcpApisPublic.output
+    clientTestImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    clientTestImplementation sourceSets.jospJOD.output
+    clientTestImplementation sourceSets.jospJOD.runtimeClasspath
+    clientTestImplementation sourceSets.jospJSL.output
+    clientTestImplementation sourceSets.jospJSL.runtimeClasspath
     clientTestImplementation 'com.github.scribejava:scribejava-core:6.9.0'
     clientTestImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
     clientTestImplementation 'commons-cli:commons-cli:1.4'
