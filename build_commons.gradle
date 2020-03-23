@@ -1,0 +1,17 @@
+
+sourceSets {
+    jospCommons {
+        java {
+            srcDirs 'src/jospCommons/java_public'
+            srcDirs 'src/jospCommons/java'
+        }
+    }
+}
+
+dependencies {
+    // Commons - Internal
+    jospCommonsImplementation 'com.github.scribejava:scribejava-core:6.9.0'
+    jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
+    jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
+    jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}

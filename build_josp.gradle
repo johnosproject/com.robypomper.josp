@@ -1,13 +1,6 @@
 import com.robypomper.build.java.JavaRunnableUtils
 
 sourceSets {
-    jospCommons {
-        java {
-            srcDirs 'src/jospCommons/java_public'   // interfaces only
-            srcDirs 'src/jospCommons/java'          // main jcp classes
-            srcDirs 'src/jospCommons/java_impl002'  // implementations for v 0.0.2
-        }
-    }
     jospCore {
         java {
             srcDirs 'src/jospCore/java_public'   // interfaces only
@@ -34,24 +27,16 @@ sourceSets {
 }
 
 dependencies {
-    // Commons - Internal
-    jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                                   // Lombok annotations
-    jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
-    jospCommonsImplementation 'org.hibernate:hibernate-core:5.4.10.Final'
-    jospCommonsImplementation 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
-    jospCommonsImplementation 'com.github.scribejava:scribejava-core:6.9.0'
-    jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
-
-
-    // Core - Internal
+    // Core - All
     jospCoreImplementation sourceSets.jospCommons.output
     jospCoreImplementation sourceSets.jospCommons.runtimeClasspath
 
     // JOD - All
     jospJODImplementation sourceSets.jospCore.output
     jospJODImplementation configurations.jospCoreImplementation
-    // JOD - Impls
-    jospJODImplementation 'org.yaml:snakeyaml:1.21'
+    jospJODImplementation sourceSets.jcpApisPublic.output
+    jospJODImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    jospJODImplementation 'org.yaml:snakeyaml:1.25'
     // JOD - Mains
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
@@ -59,6 +44,9 @@ dependencies {
     // JSL - All
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
+    // JSL - Impls
+    jospJODImplementation sourceSets.jcpApisPublic.output
+    jospJODImplementation sourceSets.jcpApisPublic.runtimeClasspath
 }
 
 // Add java app's run tasks

@@ -18,7 +18,8 @@ repositories {
 
 apply from: 'spring_support.gradle'
 
-apply from: 'build_josp.gradle'
+apply from: 'build_commons.gradle'
 apply from: 'build_jcpMngm.gradle'
 apply from: 'build_jcpApis.gradle'
+apply from: 'build_josp.gradle'
 apply from: 'build_tests.gradle'
