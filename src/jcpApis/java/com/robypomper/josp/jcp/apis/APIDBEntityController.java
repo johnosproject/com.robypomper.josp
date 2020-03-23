@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.apis;
 
-import com.robypomper.josp.jcp.db.db.UsernameDBService;
+import com.robypomper.josp.jcp.db.UsernameDBService;
 import com.robypomper.josp.jcp.db.entities.Username;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;

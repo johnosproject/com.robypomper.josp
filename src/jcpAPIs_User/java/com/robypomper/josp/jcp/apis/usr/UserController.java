@@ -1,7 +1,7 @@
 package com.robypomper.josp.jcp.apis.usr;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
-import com.robypomper.josp.jcp.db.db.UserDBService;
+import com.robypomper.josp.jcp.db.UserDBService;
 import com.robypomper.josp.jcp.db.entities.User;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.external.resources.auth.AuthDefault;
@@ -16,7 +16,6 @@ import io.swagger.annotations.AuthorizationScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
