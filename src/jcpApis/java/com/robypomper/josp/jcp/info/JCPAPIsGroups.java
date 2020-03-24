@@ -94,7 +94,7 @@ public class JCPAPIsGroups {
 
     public static final String PATH_EXMPL = "/apis/examples/" + VER_TEST;
     public static final String PATH_LOGIN = "/apis/login/" + VER_VER;
-    public static final String PATH_USRS = "/apis/user/" + VER_VER;
+    //public static final String PATH_USRS = "/apis/user/" + VER_VER;
     public static final String PATH_OBJS = "/apis/object/" + VER_VER;
     public static final String PATH_SRVS = "/apis/service/" + VER_VER;
     public static final String PATH_PERM = "/apis/permissions/" + VER_VER;
