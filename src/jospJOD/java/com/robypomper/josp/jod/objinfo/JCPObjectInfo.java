@@ -1,6 +1,8 @@
 package com.robypomper.josp.jod.objinfo;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
+import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 
 
@@ -8,12 +10,6 @@ import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
  * Support class for API Objs access to the Object Info generators.
  */
 public class JCPObjectInfo {
-
-    // Class constants
-
-    private final String URL_OBJINFO = "https://localhost:9001/apis/object/ver/objinfo";
-    private final String URL_OBJINFO_GENERATE = URL_OBJINFO + "/generate";
-
 
     // Internal vars
 
@@ -38,25 +34,12 @@ public class JCPObjectInfo {
      * Generate and return a valid Object's Cloud ID.
      *
      * @param objIdHw the object's Hardware ID.
-     * @param usrId   the owner's User ID.
+     * @param ownerId the owner's User ID.
      * @return the object's Cloud ID.
      */
-    public String generateObjIdCloud(String objIdHw, String usrId) throws JCPClient.RequestException, JCPClient.ConnectionException {
-        ArgsGenerateObjId params = new ArgsGenerateObjId();
-        params.objIdHw = objIdHw;
-        params.usrId = usrId;
-        return jcpClient.execPostReq(URL_OBJINFO_GENERATE + "/obj_id", String.class, params, true);
-    }
-
-
-    // Messaging classes
-
-    /**
-     * Messaging class used by {@link #generateObjIdCloud(String, String)} method.
-     */
-    private static class ArgsGenerateObjId {
-        public String objIdHw;
-        public String usrId;
+    public String generateObjIdCloud(String objIdHw, String ownerId) throws JCPClient.RequestException, JCPClient.ConnectionException {
+        GenerateObjId params = new GenerateObjId(objIdHw, ownerId);
+        return jcpClient.execPostReq(APIObjs.URL_PATH_GENERATEID, String.class, params, true);
     }
 
 }
