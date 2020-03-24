@@ -3,6 +3,7 @@ package com.robypomper.josp.jod.jcpclient;
 import com.robypomper.josp.core.jcpclient.DefaultJCPConfigs;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.core.jcpclient.JCPClient_CliCredFlow;
+import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jod.JOD_002;
 
 
@@ -34,6 +35,14 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         disableSSLChecks();
         if (settings.getJCPConnect())
             tryConnect();
+    }
+
+    @Override
+    public void setObjectId(String objId) {
+        if (objId != null)
+            addDefaultHeader(APIObjs.HEADER_OBJID, objId);
+        else
+            removeDefaultHeader(APIObjs.HEADER_OBJID);
     }
 
 }
