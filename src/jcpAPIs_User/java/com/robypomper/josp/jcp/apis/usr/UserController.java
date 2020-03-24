@@ -1,6 +1,8 @@
 package com.robypomper.josp.jcp.apis.usr;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.jcp.apis.params.usrs.UsrName;
+import com.robypomper.josp.jcp.apis.paths.APIUsrs;
 import com.robypomper.josp.jcp.db.UserDBService;
 import com.robypomper.josp.jcp.db.entities.User;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
@@ -17,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,7 +30,6 @@ import java.util.Optional;
  * Base JCP API Usrs controller, dedicated to provide current user info.
  */
 @RestController
-@RequestMapping(JCPAPIsGroups.PATH_USRS)
 @Api(tags = {JCPAPIsGroups.API_USRS_SG_BASE_NAME})
 public class UserController {
 
@@ -56,7 +56,7 @@ public class UserController {
      *
      * @return current user representation.
      */
-    @GetMapping
+    @GetMapping(path = APIUsrs.FULL_PATH_USERNAME)
     @ApiOperation(value = "Return user id and username",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -74,11 +74,11 @@ public class UserController {
             @ApiResponse(code = 503, message = "Authorization server not available"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_SRV)
-    public ResponseEntity<User> get() {
+    public ResponseEntity<UsrName> get() {
         try {
             String usrId = SecurityUser.getUserID();
             User user = getOrRegisterUser(usrId);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(new UsrName(user.getUsrId(), user.getUsername()));
         } catch (SecurityUser.UserNotAuthenticated e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated.", e);
         } catch (SecurityUser.AuthNotFoundException e) {
@@ -94,29 +94,19 @@ public class UserController {
     // User register
 
     /**
-     * Looks for <code>userId</code> on JCP db, if can't find it then calls the
-     * {@link #registerUser(String)} method.
+     * Looks for <code>userId</code> on JCP db, if can't find it then create a
+     * new user querying the auth server, store it on JCP db and finally return
+     * current user representation.
      *
      * @param usrId the <code>usrId</code> to search in the JCP db or to register.
      * @return the {@link User} object stored on the JCP db.
      */
-    private User getOrRegisterUser(String usrId) throws SecurityUser.AuthNotFoundException, SecurityUser.UserNotAuthenticated, JCPClient.ConnectionException, JCPClient.RequestException {
+    private User getOrRegisterUser(String usrId) throws JCPClient.ConnectionException, JCPClient.RequestException {
         Optional<User> optUser = userService.get(usrId);
 
         if (optUser.isPresent())
             return optUser.get();
 
-        return registerUser(usrId);
-    }
-
-    /**
-     * Request to auth server <code>usrId</code>'s user info and store them on
-     * JCP db.
-     *
-     * @param usrId the <code>usrId</code> to query at auth server.
-     * @return the {@link User} object stored on the JCP db.
-     */
-    private User registerUser(String usrId) throws JCPClient.ConnectionException, JCPClient.RequestException {
         User newUser = authDefault.queryUser(usrId);
         return userService.add(newUser);
     }
