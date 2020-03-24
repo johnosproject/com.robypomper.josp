@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.jcp.apis.paths.JcpAPI;
 import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.systems.JODCommunication;
@@ -59,7 +60,7 @@ public class JOD_002 extends AbsJOD {
 
         public static final String JCP_CONNECT = "jcp.connect";
         public static final String JCP_URL = "jcp.url";
-        public static final String JCP_URL_DEF = "https://jcp.johnosproject.com";
+        public static final String JCP_URL_DEF = JcpAPI.URL_DOM_API;
         public static final String JCP_CLIENT_ID = "jcp.client.id";
         public static final String JCP_CLIENT_ID_DEF = "";
         public static final String JCP_CLIENT_SECRET = "jcp.client.secret";

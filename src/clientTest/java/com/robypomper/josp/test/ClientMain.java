@@ -81,7 +81,6 @@ public class ClientMain {
     private static AbsClientFlow getAuth(String authFlow, String requestFlow, ClientSettings envInstance) {
         ClientRequestFlow reqFlow = null;
         if (requestFlow.compareToIgnoreCase(ClientRequestFlow.AUTH_CHECK) == 0) reqFlow = new ClientAuthCheckFlow();
-        if (requestFlow.compareToIgnoreCase(ClientRequestFlow.OBJ_REG) == 0) reqFlow = new ClientObjRegistrationFlow();
         if (requestFlow.compareToIgnoreCase(ClientRequestFlow.USR_REG) == 0) reqFlow = new ClientUsrRegistrationFlow();
         if (requestFlow.compareToIgnoreCase(ClientRequestFlow.KEYCLOAK) == 0) reqFlow = new ClientKeycloakTestFlow();
         if (reqFlow == null) return null;

@@ -1,6 +1,7 @@
 package com.robypomper.josp.jcp.external.resources.auth;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.jcp.apis.paths.APIAuth;
 import com.robypomper.josp.jcp.db.entities.User;
 import com.robypomper.josp.jcp.db.entities.UserProfile;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -16,11 +17,6 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 public class AuthKeycloak implements AuthResource {
 
-    // Class constants
-
-    private static final String API_BASE_URL = "https://localhost:8998/auth/admin/realms/jcp";
-
-
     // Internal vars
 
     @Autowired
@@ -33,7 +29,7 @@ public class AuthKeycloak implements AuthResource {
      * {@inheritDoc}
      */
     public User queryUser(String usrId) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        UserRepresentation kcUser = client.execGetReq(API_BASE_URL + "/users/" + usrId, UserRepresentation.class, true);
+        UserRepresentation kcUser = client.execGetReq(APIAuth.URL_PATH_USER + "/" + usrId, UserRepresentation.class, true);
 
         UserProfile profile = new UserProfile();
         User user = new User();

@@ -1,6 +1,7 @@
 package com.robypomper.josp.jcp.docs;
 
 import com.google.common.collect.Lists;
+import com.robypomper.josp.jcp.apis.paths.APIAuth;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import com.robypomper.josp.jcp.info.JCPContacts;
 import org.springframework.context.annotation.Bean;
@@ -60,8 +61,8 @@ public class SwaggerConfigurer {
     public static final String OAUTH_IMPL = "ImplicitCodeFlow";
     public static final String OAUTH_PASS = "AuthCodeFlow";
     public static final String OAUTH_CRED = "ClientCredentialsFlow";
-    private static final String OAUTH_URL_AUTH = "https://localhost:8998/auth/realms/jcp/protocol/openid-connect/auth";
-    private static final String OAUTH_URL_TOKEN = "https://localhost:8998/auth/realms/jcp/protocol/openid-connect/token";
+    private static final String OAUTH_URL_AUTH = APIAuth.URL_PATH_AUTH;
+    private static final String OAUTH_URL_TOKEN = APIAuth.URL_PATH_TOKEN;
     private static final String OAUTH_TOKEN_NAME = "token";
     private static final String OAUTH_CLIENT_ID = "";
     private static final String OAUTH_CLIENT_SECRET = "";
@@ -71,7 +72,7 @@ public class SwaggerConfigurer {
     public static final String OAUTH_FLOW_DEF_MNG = OAUTH_IMPL;
     public static final String OAUTH_FLOW_DEF_TEST = OAUTH_IMPL;
 
-    private static final Contact ContactJohn = new Contact(JCPContacts.getJohn().getFullName(),JCPContacts.getJohn().getUrl(),JCPContacts.getJohn().getEmail());
+    private static final Contact ContactJohn = new Contact(JCPContacts.getJohn().getFullName(), JCPContacts.getJohn().getUrl(), JCPContacts.getJohn().getEmail());
 
 
     // API's groups
@@ -207,15 +208,6 @@ public class SwaggerConfigurer {
         scopes[2] = new AuthorizationScope(ROLE_MNG_SWAGGER, ROLE_MNG_DESC);
         return scopes;
     }
-
-//    private SecurityContext securityContext() {
-//        List<SecurityReference> auths = Lists.newArrayList(new SecurityReference("JWT", getScopes()));
-//
-//        return SecurityContext.builder()
-//                .securityReferences(auths)
-//                .forPaths(PathSelectors.regex(DEFAULT_INCLUDE_PATTERN_NONE))
-//                .build();
-//    }
 
     private ApiInfo metadata(JCPAPIsGroups.APIGroup api) {
         String title = api!=null ? api.getTitle() : "JCP APIs";

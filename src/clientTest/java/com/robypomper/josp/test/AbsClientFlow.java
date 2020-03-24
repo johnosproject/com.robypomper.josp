@@ -4,6 +4,8 @@ import com.github.scribejava.apis.KeycloakApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.robypomper.josp.jcp.apis.paths.APIAuth;
+import com.robypomper.josp.jcp.apis.paths.JcpAPI;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -15,9 +17,9 @@ public abstract class AbsClientFlow {
     private final ClientRequestFlow reqFlow;
 
     // OAuth2 server configs
-    private final String authUrl;
-    private final String authRealm;
-    private final String authCallback;
+    private final String authUrl = JcpAPI.URL_DOM_AUTH;
+    private final String authRealm = APIAuth.REALM;
+    private final String authCallback = APIAuth.URL_PATH_CALLBACK;
 
     // Resource server configs
     private final String baseUrl;
@@ -35,10 +37,6 @@ public abstract class AbsClientFlow {
     protected AbsClientFlow(ClientRequestFlow reqFlow, String protocol, int clientPort, int resServerPort, int authServerPort, String authServerRealm, Pair<String, String> clientCredentials) {
         this.reqFlow = reqFlow;
         this.client = clientCredentials;
-
-        this.authUrl = "https://localhost:" + authServerPort;
-        this.authRealm = authServerRealm;
-        this.authCallback = protocol + "://localhost:" + clientPort + "/callback";
 
         this.baseUrl = protocol + "://localhost:" + resServerPort;
     }
