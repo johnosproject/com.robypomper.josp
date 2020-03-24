@@ -21,11 +21,23 @@ import java.util.concurrent.ExecutionException;
 
 
 /**
- * First implementation of {@link JCPClient} interface.
+ * Main implementation of {@link JCPClient} interface.
  * <p>
  * This class implements generic JCPClient methods and provide an authentication
  * flow injection via a sub class ({@link JCPClient_AuthFlow} and
  * {@link JCPClient_CliCredFlow}).
+ * <p>
+ * This class provide out of the box following features:
+ * <ul>
+ *     <li>
+ *         <b>Session: </b> manage HTTP sessions that use the {@value SESSION_KEY}
+ *         cookie.
+ *     </li>
+ *     <li>
+ *         <b>Default headers: </b> allow to set headers that will be added to
+ *         each request send from this client.
+ *     </li>
+ * </ul>
  * <p>
  * In addition this class provide the static protected method
  * {@link #disableSSLChecks()}, that can be used by sub classes to disable SSL
@@ -47,6 +59,7 @@ public abstract class AbsJCPClient implements JCPClient {
     private OAuth20Service service = null;
     private OAuth2AccessToken accessToken = null;
     private String sessionId = null;
+    private Map<String, String> defaultHeaders = new HashMap<>();
 
 
     // Constructor
@@ -186,6 +199,7 @@ public abstract class AbsJCPClient implements JCPClient {
         // Send request
         String reqUrl = prepareGetUrl(url, params);
         OAuthRequest request = prepareGetRequest(reqUrl);
+        injectDefaultHeaders(request);
         injectSession(request);
         Response response = null;
         try {
@@ -243,9 +257,12 @@ public abstract class AbsJCPClient implements JCPClient {
         // Send request
         String reqUrl = url;
         OAuthRequest request = preparePostRequest(reqUrl, param);
+        injectDefaultHeaders(request);
+        injectSession(request);
         Response response = null;
         try {
             response = service.execute(request);
+            storeSession(response);
             checkErrorCodes(response, reqUrl, secure);
         } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException(String.format("Error on request '%s' to JCP.", url), e);
@@ -371,7 +388,12 @@ public abstract class AbsJCPClient implements JCPClient {
      */
     private String extractBody(Response response, String url, boolean secure) throws ResponseParsingException {
         try {
-            return response.getBody();
+            String body = response.getBody();
+            if (body.startsWith("\""))
+                body = body.substring(1);
+            if (body.endsWith("\""))
+                body = body.substring(0, body.length() - 2);
+            return body;
         } catch (IOException e) {
             throw new ResponseParsingException(url, secure, e);
         }
@@ -402,6 +424,9 @@ public abstract class AbsJCPClient implements JCPClient {
         }
     }
 
+
+    // Session
+
     /**
      * If current client has a valid <code>sessionId</code> then it will be
      * added to given request.
@@ -428,6 +453,38 @@ public abstract class AbsJCPClient implements JCPClient {
 
         if (setCookie.contains(SESSION_KEY))
             sessionId = setCookie;
+    }
+
+
+    // Default headers
+
+    /**
+     * Add given params as default header.
+     *
+     * @param headerName  the header's name.
+     * @param headerValue the header's value.
+     */
+    protected void addDefaultHeader(String headerName, String headerValue) {
+        defaultHeaders.put(headerName, headerValue);
+    }
+
+    /**
+     * Remove the default header corresponding to given name.
+     *
+     * @param headerName the header to remove name.
+     */
+    protected void removeDefaultHeader(String headerName) {
+        defaultHeaders.remove(headerName);
+    }
+
+    /**
+     * Add default header to given request.
+     *
+     * @param request the request to add the default headers.
+     */
+    private void injectDefaultHeaders(OAuthRequest request) {
+        for (Map.Entry<String, String> h : defaultHeaders.entrySet())
+            request.addHeader(h.getKey(), h.getValue());
     }
 
 }
