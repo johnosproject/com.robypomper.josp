@@ -30,6 +30,10 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     private final JOD_002.Settings locSettings;
     private final JCPObjectInfo jcpObjInfo;
+    private JODStructure structure;
+    private JODExecutorMngr executorMngr;
+    private JODCommunication comm;
+    private JODPermissions permissions;
 
 
     // Constructor
@@ -53,6 +57,19 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         getObjName();
 
         System.out.println("DEB: JOD Object Info initialized");
+    }
+
+
+    // Object's systems
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setSystems(JODStructure structure, JODExecutorMngr executorMngr, JODCommunication comm, JODPermissions permissions) {
+        this.structure = structure;
+        this.executorMngr = executorMngr;
+        this.comm = comm;
+        this.permissions = permissions;
     }
 
 
@@ -99,8 +116,36 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * {@inheritDoc}
      */
     @Override
-    public String getStructureStr() throws IOException {
-        return readFile(locSettings.getStructurePath());
+    public String getStructureStr() {
+        try {
+            return readFile(locSettings.getStructurePath());
+        } catch (IOException e) {
+            throw new RuntimeException("Error on structure string loading, check JOD configs.");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getBrand() {
+        return structure.getRoot().getBrand();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getModel() {
+        return structure.getRoot().getModel();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getLongDescr() {
+        return structure.getRoot().getDescr();
     }
 
 

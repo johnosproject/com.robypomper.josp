@@ -23,6 +23,7 @@ public class JODStructure_002 implements JODStructure {
     private final JODRoot root;
     private JODCommunication comm;
 
+
     // Constructor
 
     /**
@@ -40,11 +41,7 @@ public class JODStructure_002 implements JODStructure {
         this.objInfo = objInfo;
         this.executorMngr = executorMngr;
 
-        try {
-            root = loadStructure(objInfo.getStructureStr());
-        } catch (IOException e) {
-            throw new ParsingException("Can't read JOD configs file.", e);
-        }
+        root = loadStructure(objInfo.getStructureStr());
 
         System.out.println("DEB: JOD Structure initialized");
     }
@@ -126,8 +123,6 @@ public class JODStructure_002 implements JODStructure {
      * Load object's structure from data file.
      */
     private JODRoot loadStructure(String structureStr) throws ParsingException {
-        System.out.println("DEB: JODStructure_002::loadStructureAutoRefresh()");
-
         try {
             ObjectMapper objMapper = new ObjectMapper();
 

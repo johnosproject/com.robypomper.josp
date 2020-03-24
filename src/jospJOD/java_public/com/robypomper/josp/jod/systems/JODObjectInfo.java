@@ -14,6 +14,20 @@ import java.io.IOException;
  */
 public interface JODObjectInfo {
 
+    // Object's systems
+
+    /**
+     * Set object's systems so ObjectInfo can access to systems info and provide
+     * them as a unique point of reference.
+     *
+     * @param structure   the JOD structure system.
+     * @param executor    the JOD executor system.
+     * @param comm        the JOD communication system.
+     * @param permissions the JOD permissions system.
+     */
+    void setSystems(JODStructure structure, JODExecutorMngr executor, JODCommunication comm, JODPermissions permissions);
+
+
     // Obj's info
 
     /**
@@ -48,7 +62,28 @@ public interface JODObjectInfo {
      *
      * @return object's structure definition.
      */
-    String getStructureStr() throws IOException;
+    String getStructureStr();
+
+    /**
+     * The object's brand.
+     *
+     * @return object's brand.
+     */
+    String getBrand();
+
+    /**
+     * The object's model.
+     *
+     * @return object's model.
+     */
+    String getModel();
+
+    /**
+     * The object's description.
+     *
+     * @return object's description.
+     */
+    String getLongDescr();
 
 
     // Mngm methods
