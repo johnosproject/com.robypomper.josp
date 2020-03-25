@@ -1,7 +1,5 @@
 package com.robypomper.josp.jod.systems;
 
-import java.io.IOException;
-
 
 /**
  * Interface for Object's info system.
@@ -44,6 +42,7 @@ public interface JODObjectInfo {
      * @return the object's name
      */
     String getObjName();
+
 
     // Users's info
 

@@ -53,8 +53,11 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         this.jcpObjInfo = new JCPObjectInfo(jcpClient);
 
         // force value caching
-        getObjId();
+        getObjIdHw();
+        String objId = getObjId();
         getObjName();
+
+        jcpClient.setObjectId(objId);
 
         System.out.println("DEB: JOD Object Info initialized");
     }
@@ -80,7 +83,12 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getObjId() {
-        return String.format("%s-%s", getObjIdHw(), getObjIdCloud());
+        if (!locSettings.getObjIdCloud().isEmpty())
+            return locSettings.getObjIdCloud();
+
+        String gen = generateObjId();
+        locSettings.setObjIdCloud(gen);
+        return gen;
     }
 
     /**
@@ -156,8 +164,30 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void startAutoRefresh() {
-        System.out.println("WAR: JOD Object Info AutoRefresh can't started:");
-        System.out.println("     AutoRefresh not implemented, info are static");
+        assert structure != null
+                && executorMngr != null
+                && comm != null
+                && permissions != null;
+
+        try {
+            if (!jcpObjInfo.isRegistered()) {
+                if (jcpObjInfo.register(this))
+                    System.out.println(String.format("INF: object '%s' registered to JCP successfully.", getObjId()));
+                else
+                    System.out.println(String.format("ERR: error on register object '%s' to JCP successfully.", getObjId()));
+            } else {
+                if (jcpObjInfo.update(this))
+                    System.out.println(String.format("INF: object '%s' updated to JCP successfully.", getObjId()));
+                else
+                    System.out.println(String.format("ERR: error on update object '%s' to JCP successfully.", getObjId()));
+            }
+
+        } catch (JCPClient.ConnectionException e) {
+            System.out.println("WAR: Can't check if objects is registred on JCP, because JCP not available.");
+        } catch (JCPClient.RequestException e) {
+            System.out.println("ERR: Error on JCP request for object registration check.");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -165,8 +195,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void stopAutoRefresh() {
-        System.out.println("WAR: JOD Object Info AutoRefresh can't stopped:");
-        System.out.println("     AutoRefresh not implemented, info are static");
+        System.out.println("WAR: JOD Object Info AutoRefresh can't stopped: not implemented");
+        // ToDo: implement object disconnection to API (send disconnect status...)
     }
 
 
@@ -205,21 +235,15 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      *
      * @return the object's Cloud ID.
      */
-    private String getObjIdCloud() {
+    private String generateObjId() {
         String generated;
 
-        if (!locSettings.getObjIdCloud().isEmpty()) {
-            generated = locSettings.getObjIdCloud();
-
-        } else {
-            generated = "00000-00000";
-            if (!getOwnerId().isEmpty()) {
-                try {
-                    generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
-                    System.out.println(String.format("INF: generated object Cloud ID '%s'", generated));
-                    locSettings.setObjIdCloud(generated);
-                } catch (JCPClient.RequestException | JCPClient.ConnectionException ignore) {}
-            }
+        try {
+            generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
+            System.out.println(String.format("INF: generated object ID '%s'", generated));
+        } catch (JCPClient.RequestException | JCPClient.ConnectionException ignore) {
+            generated = String.format("%s-00000-00000", getObjIdHw());
+            System.out.println(String.format("INF: generated object ID (locally)'%s'", generated));
         }
 
         return generated;
