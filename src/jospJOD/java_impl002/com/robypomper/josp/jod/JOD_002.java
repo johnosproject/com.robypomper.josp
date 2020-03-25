@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.JcpAPI;
 import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
@@ -84,6 +85,13 @@ public class JOD_002 extends AbsJOD {
 
         public static final String JODSTRUCT_PATH = "jod.structure.path";
         public static final String JODSTRUCT_PATH_DEF = "struct.jod";
+
+        public static final String JODPERM_PATH = "jod.permissions.path";
+        public static final String JODPERM_PATH_DEF = "perms.jod";
+        public static final String JODPERM_REFRESH = "jod.permissions.refresh";
+        public static final String JODPERM_REFRESH_DEF = "300";
+        public static final String JODPERM_GENSTARTEGY = "jod.permissions.generation_strategy";
+        public static final String JODPERM_GENSTARTEGY_DEF = "standard";
 
         private final File file;
         private final Map<String, String> properties;
@@ -236,6 +244,33 @@ public class JOD_002 extends AbsJOD {
             return new File(fileName);
         }
 
+        //@Override
+        public File getPermissionsPath() {
+            String fileName = properties.get(JODPERM_PATH) != null ? properties.get(JODPERM_PATH) :
+                    JODPERM_PATH_DEF;
+            return new File(fileName);
+        }
+
+        //@Override
+        public int getPermissionsRefreshTime() {
+            try {
+                String val = properties.get(JODPERM_REFRESH) != null ?
+                        properties.get(JODPERM_REFRESH) :
+                        JODPERM_REFRESH_DEF;
+                return Integer.parseInt(val);
+
+            } catch (ClassCastException e) {
+                return (int) (Object) properties.get(JODPERM_REFRESH);
+            }
+        }
+
+        //@Override
+        public PermissionsTypes.GenerateStrategy getPermissionsGenerationStrategy() {
+            String val = properties.get(JODPERM_GENSTARTEGY) != null ?
+                    properties.get(JODPERM_GENSTARTEGY) :
+                    JODPERM_GENSTARTEGY_DEF;
+            return PermissionsTypes.GenerateStrategy.valueOf(val.toUpperCase());
+        }
     }
 
     @Override

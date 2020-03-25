@@ -85,6 +85,16 @@ public interface JODObjectInfo {
     String getLongDescr();
 
 
+    // Permissions's info
+
+    /**
+     * The object's permissions stored on local file.
+     *
+     * @return object's locally stored permissions.
+     */
+    String getPermissionsStr();
+
+
     // Mngm methods
 
     /**

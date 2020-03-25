@@ -157,6 +157,21 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
 
+    // Permissions's info
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getPermissionsStr() {
+        try {
+            return readFile(locSettings.getPermissionsPath());
+        } catch (IOException e) {
+            throw new RuntimeException("Error on permissions string loading, check JOD configs.");
+        }
+    }
+
+
     // Mngm methods
 
     /**
