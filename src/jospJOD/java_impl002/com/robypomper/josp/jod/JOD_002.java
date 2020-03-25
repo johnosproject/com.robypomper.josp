@@ -50,6 +50,8 @@ public class JOD_002 extends AbsJOD {
             assert false;
         }
 
+        objInfo.setSystems(structure, executor, comm, permissions);
+
         return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
