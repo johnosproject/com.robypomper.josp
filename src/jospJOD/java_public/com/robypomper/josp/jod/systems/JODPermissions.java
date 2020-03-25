@@ -1,6 +1,9 @@
 package com.robypomper.josp.jod.systems;
 
+import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
+
+import java.util.List;
 
 
 /**
@@ -49,6 +52,44 @@ public interface JODPermissions {
      * receive the status update from current object.
      */
     boolean canSendUpdate(String srvId, String usrId, PermissionsTypes.Connection connection);
+
+    /**
+     * Start object's permission syncronization between local and cloud permissions.
+     */
+    void syncObjPermissions();
+
+    // Access methods
+
+    /**
+     * The list of object's permissions.
+     *
+     * @return object's permissions.
+     */
+    List<ObjPermission> getPermissions();
+
+    /**
+     * Add given permission to object's permissions.
+     * <p>
+     * If a permission with same <code>usrId</code> and <code>srvId</code> already
+     * exist, then it will be updated.
+     *
+     * @param usrId      the user's id.
+     * @param srvId      the user's id.
+     * @param connection the connection type allow by created permission.
+     * @param type       the permission type of created permission.
+     * @return true if the permission was added successfully, false otherwise.
+     */
+    boolean addPermissions(String usrId, String srvId, PermissionsTypes.Connection connection, PermissionsTypes.Type type);
+
+    /**
+     * Set permission corresponding to given <code>usrId</code> and <code>srvId</code>
+     * to be deleted.
+     *
+     * @param usrId the user's id.
+     * @param srvId the user's id.
+     * @return true if the permission is set to delete successfully, false otherwise.
+     */
+    boolean deletePermissions(String usrId, String srvId);
 
 
     // Mngm methods

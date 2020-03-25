@@ -11,6 +11,7 @@ import com.robypomper.josp.jod.permissions.JCPPermObj;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,13 @@ public class JODPermissions_002 implements JODPermissions {
 
     // Constructor
 
+    /**
+     * Defautl constructor.
+     *
+     * @param settings  the JOD settings.
+     * @param objInfo   the object's info.
+     * @param jcpClient the jcp object client.
+     */
     public JODPermissions_002(JOD_002.Settings settings, JODObjectInfo objInfo, JCPClient_Object jcpClient) {
         System.out.println("DEB: JOD Permissions initialization...");
 
@@ -64,8 +72,11 @@ public class JODPermissions_002 implements JODPermissions {
     }
 
 
-    // ...
+    // JOD Component's interaction methods (from communication)
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canExecuteAction(String srvId, String usrId, PermissionsTypes.Connection connection) {
         ObjPermission p = search(srvId, usrId);
@@ -81,6 +92,9 @@ public class JODPermissions_002 implements JODPermissions {
                 || p.type == PermissionsTypes.Type.CoOwner;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canSendUpdate(String srvId, String usrId, PermissionsTypes.Connection connection) {
         ObjPermission p = search(srvId, usrId);
@@ -97,9 +111,80 @@ public class JODPermissions_002 implements JODPermissions {
                 || p.type == PermissionsTypes.Type.CoOwner;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void syncObjPermissions() {
+        try {
+            refreshPermissionsFromJCP();
+        } catch (JCPClient.ConnectionException e) {
+            System.out.println("WAR: Connection error on refresh permissions on JCP");
+            return;
+        } catch (JCPClient.RequestException e) {
+            System.out.println(String.format("WAR: Error on refresh permissions on JCP (%s)", e.getMessage()));
+            return;
+        }
 
-    // ...
+        try {
+            savePermissionsToFile();
+        } catch (FileException e) {
+            System.out.println(String.format("WAR: error on save permission locally (%s).", e.getMessage()));
+        }
+    }
 
+
+    // Access methods
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<ObjPermission> getPermissions() {
+        return Collections.unmodifiableList(permissions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean addPermissions(String usrId, String srvId, PermissionsTypes.Connection connection, PermissionsTypes.Type type) {
+        if (usrId == null || usrId.isEmpty())
+            return false;
+        if (srvId == null || srvId.isEmpty())
+            return false;
+
+        ObjPermission duplicate = search(srvId, usrId);
+        if (duplicate != null) {
+            ObjPermission newPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, connection, type, new Date());
+            permissions.remove(duplicate);
+            permissions.add(newPerm);
+            return false;
+        }
+
+        ObjPermission newPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, connection, type, new Date());
+        permissions.add(newPerm);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean deletePermissions(String usrId, String srvId) {
+        ObjPermission duplicate = search(srvId, usrId);
+        if (duplicate == null)
+            return false;
+
+        ObjPermission newDelPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, duplicate.connection, duplicate.type, new Date(0));
+        permissions.remove(duplicate);
+        permissions.add(newDelPerm);
+        return true;
+    }
+
+
+    // Mngm methods
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void startAutoRefresh() {
         if (timer != null)
@@ -110,28 +195,15 @@ public class JODPermissions_002 implements JODPermissions {
             @Override
             public void run() {
                 System.out.println(String.format("DEB: refresh object's permission each %d seconds.", settings.getPermissionsRefreshTime()));
-
-                try {
-                    refreshPermissionsFromJCP();
-                } catch (JCPClient.ConnectionException e) {
-                    System.out.println("WAR: Connection error on refresh permissions on JCP");
-                    return;
-                } catch (JCPClient.RequestException e) {
-                    System.out.println(String.format("WAR: Error on refresh permissions on JCP (%s)", e.getMessage()));
-                    return;
-                }
-
-                try {
-                    savePermissionsToFile();
-                } catch (FileException e) {
-                    System.out.println(String.format("WAR: error on save permission locally (%s).", e.getMessage()));
-                    return;
-                }
+                syncObjPermissions();
             }
         }, 0, settings.getPermissionsRefreshTime() * 1000);
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void stopAutoRefresh() {
         if (timer == null)
@@ -142,8 +214,13 @@ public class JODPermissions_002 implements JODPermissions {
     }
 
 
-    // ...
+    // Permission mngm
 
+    /**
+     * Load permissions from file specified from
+     * {@link com.robypomper.josp.jod.JOD_002.Settings#getPermissionsPath()}
+     * to the local {@link #permissions} field.
+     */
     private void loadPermissionsFromFile() throws FileException {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -160,6 +237,10 @@ public class JODPermissions_002 implements JODPermissions {
         }
     }
 
+    /**
+     * Save {@link #permissions} field to file specified from
+     * {@link com.robypomper.josp.jod.JOD_002.Settings#getPermissionsPath()}.
+     */
     private void savePermissionsToFile() throws FileException {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -169,23 +250,43 @@ public class JODPermissions_002 implements JODPermissions {
         }
     }
 
+    /**
+     * Request to JCP a valid set of object's permissions and set them to
+     * {@link #permissions} field.
+     */
     private void generatePermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
         List<ObjPermission> newPerms = jcpPermissions.generatePermissionsFromJCP();
         permissions.clear();
         permissions.addAll(newPerms);
     }
 
+    /**
+     * Generate a valid set of object's permissions and set them to
+     * {@link #permissions} field.
+     */
     private void generatePermissionsLocally() {
         permissions.add(new ObjPermission(objInfo.getObjId(), PermissionsTypes.WildCards.USR_OWNER.toString(), PermissionsTypes.WildCards.SRV_ALL.toString(), PermissionsTypes.Connection.LocalAndCloud, PermissionsTypes.Type.CoOwner, new Date()));
         permissions.add(new ObjPermission(objInfo.getObjId(), PermissionsTypes.WildCards.USR_ALL.toString(), PermissionsTypes.WildCards.SRV_ALL.toString(), PermissionsTypes.Connection.OnlyLocal, PermissionsTypes.Type.CoOwner, new Date()));
     }
 
+    /**
+     * Sync object's permissions with JCP object's permissions.
+     */
     private void refreshPermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
         List<ObjPermission> newPerms = jcpPermissions.refreshPermissionsFromJCP(permissions);
         permissions.clear();
         permissions.addAll(newPerms);
     }
 
+    /**
+     * Return the object's permission with the same srvId and usrId like that
+     * once passed as params.
+     *
+     * @param srvId the service's id.
+     * @param usrId the user's id.
+     * @return the object's permission reference or null if no permission
+     * correspond to given params.
+     */
     private ObjPermission search(String srvId, String usrId) {
         for (ObjPermission p : permissions) {
             if (
