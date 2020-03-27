@@ -1,6 +1,8 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.systems.JODPermissions;
@@ -9,7 +11,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 // pl
-// pa user1 service1 LocalAndCloud Status
+// pa user1 service2 LocalAndCloud Actions
 // pd user1 service1
 public class CmdsJODPermissions {
 
@@ -93,5 +95,28 @@ public class CmdsJODPermissions {
 
         return "Permission sync terminated";
     }
+
+    @Command(description = "Set object's owner.")
+    public String permissionSetOwner(String usrId) {
+        try {
+            if (permission.setOwner(usrId))
+                return "Owner set successfully.";
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException | JsonProcessingException e) {
+            return "Error on setting owner: " + e.getMessage();
+        }
+        return "Unknown error on setting owner.";
+    }
+
+    @Command(description = "Reset object's owner to unset.")
+    public String permissionResetOwner() {
+        try {
+            if (permission.resetOwner())
+                return "Owner reset successfully.";
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException | JsonProcessingException e) {
+            return "Error on resetting owner: " + e.getMessage();
+        }
+        return "Unknown error on resetting owner.";
+    }
+
 
 }
