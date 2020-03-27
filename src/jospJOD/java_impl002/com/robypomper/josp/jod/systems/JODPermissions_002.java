@@ -158,7 +158,7 @@ public class JODPermissions_002 implements JODPermissions {
             ObjPermission newPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, connection, type, new Date());
             permissions.remove(duplicate);
             permissions.add(newPerm);
-            return false;
+            return true;
         }
 
         ObjPermission newPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, connection, type, new Date());
