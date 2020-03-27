@@ -160,6 +160,61 @@ public interface JCPClient {
     <T> T execPostReq(String url, Class<T> reqObject, Object param, boolean secure) throws RequestException, ConnectionException;
 
 
+    // Delete requests
+
+    /**
+     * Exec the POST request specified from given params.
+     * <p>
+     * This method implementation must send the request, check for errors HTTP
+     * status codes and cast response to desired object type.
+     *
+     * @param url    request's full url.
+     * @param secure true if the request must be executed on secure channel.
+     */
+    void execDeleteReq(String url, boolean secure) throws RequestException, ConnectionException;
+
+    /**
+     * Exec the POST request specified from given params.
+     * <p>
+     * This method implementation must send the request, check for errors HTTP
+     * status codes and cast response to desired object type.
+     *
+     * @param url    request's full url.
+     * @param param  object to send as request body, JSON formatted.
+     * @param secure true if the request must be executed on secure channel.
+     */
+    void execDeleteReq(String url, Object param, boolean secure) throws RequestException, ConnectionException;
+
+    /**
+     * Exec the POST request specified from given params.
+     * <p>
+     * This method implementation must send the request, check for errors HTTP
+     * status codes and cast response to desired object type.
+     *
+     * @param url       request's full url.
+     * @param reqObject class of the returned object.
+     * @param secure    true if the request must be executed on secure channel.
+     * @param <T>       cast destination type.
+     * @return the object created parsing the obtained response.
+     */
+    <T> T execDeleteReq(String url, Class<T> reqObject, boolean secure) throws RequestException, ConnectionException;
+
+    /**
+     * Exec the POST request specified from given params.
+     * <p>
+     * This method implementation must send the request, check for errors HTTP
+     * status codes and cast response to desired object type.
+     *
+     * @param url       request's full url.
+     * @param reqObject class of the returned object.
+     * @param param     object to send as request body, JSON formatted.
+     * @param secure    true if the request must be executed on secure channel.
+     * @param <T>       cast destination type.
+     * @return the object created parsing the obtained response.
+     */
+    <T> T execDeleteReq(String url, Class<T> reqObject, Object param, boolean secure) throws RequestException, ConnectionException;
+
+
     // Exceptions
 
     /**
