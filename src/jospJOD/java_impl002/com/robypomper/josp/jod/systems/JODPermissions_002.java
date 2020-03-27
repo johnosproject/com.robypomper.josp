@@ -183,15 +183,28 @@ public class JODPermissions_002 implements JODPermissions {
     /**
      * {@inheritDoc}
      */
+    public String getOwner() throws JCPClient.ConnectionException, JCPClient.RequestException {
+        return jcpPermissions.getOwner();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public boolean setOwner(String ownerId) throws JCPClient.ConnectionException, JCPClient.RequestException, JsonProcessingException {
-        return jcpPermissions.setOwner(ownerId);
+        if (!jcpPermissions.setOwner(ownerId))
+            return false;
+        settings.setOwnerId(ownerId);
+        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean resetOwner() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException {
-        return jcpPermissions.resetOwner();
+        if (!jcpPermissions.resetOwner())
+            return false;
+        settings.setOwnerId("");
+        return true;
     }
 
 

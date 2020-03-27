@@ -94,6 +94,13 @@ public interface JODPermissions {
     boolean deletePermissions(String usrId, String srvId);
 
     /**
+     * The object owner id.
+     *
+     * @return object owner id.
+     */
+    String getOwner() throws JCPClient.ConnectionException, JCPClient.RequestException;
+
+    /**
      * Set object's owner.
      *
      * @param ownerId the user's id.

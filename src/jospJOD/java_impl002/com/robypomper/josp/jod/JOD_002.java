@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,6 +93,8 @@ public class JOD_002 extends AbsJOD {
         public static final String JODPERM_REFRESH_DEF = "300";
         public static final String JODPERM_GENSTARTEGY = "jod.permissions.generation_strategy";
         public static final String JODPERM_GENSTARTEGY_DEF = "standard";
+        public static final String JODPERM_OWNER = "jod.permissions.owner";
+        public static final String JODPERM_OWNER_DEF = "";
 
         private final File file;
         private final Map<String, String> properties;
@@ -237,12 +240,18 @@ public class JOD_002 extends AbsJOD {
                     JODEXECUTOR_IMPLS_DEF;
         }
 
+
+        // Structure
+
         //@Override
         public File getStructurePath() {
             String fileName = properties.get(JODSTRUCT_PATH) != null ? properties.get(JODSTRUCT_PATH) :
                     JODSTRUCT_PATH_DEF;
             return new File(fileName);
         }
+
+
+        // Permissions
 
         //@Override
         public File getPermissionsPath() {
@@ -271,6 +280,18 @@ public class JOD_002 extends AbsJOD {
                     JODPERM_GENSTARTEGY_DEF;
             return PermissionsTypes.GenerateStrategy.valueOf(val.toUpperCase());
         }
+
+        //@Override
+        public String getOwnerId() {
+            return properties.get(JODPERM_OWNER) != null ? properties.get(JODPERM_OWNER) :
+                    JODPERM_OWNER_DEF;
+        }
+
+        //@Override
+        public void setOwnerId(String ownerId) {
+            store(JODPERM_OWNER, ownerId);
+        }
+
     }
 
     @Override
