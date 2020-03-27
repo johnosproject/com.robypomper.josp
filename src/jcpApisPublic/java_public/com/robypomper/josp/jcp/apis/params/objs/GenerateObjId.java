@@ -22,7 +22,7 @@ public class GenerateObjId {
 
     @JsonCreator
     public GenerateObjId(@JsonProperty("objIdHw") String objIdHw,
-                         @JsonProperty("usrId") String ownerId) {
+                         @JsonProperty("ownerId") String ownerId) {
         this.objIdHw = objIdHw;
         this.ownerId = ownerId;
     }
