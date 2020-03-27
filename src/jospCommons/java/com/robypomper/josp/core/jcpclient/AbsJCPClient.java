@@ -278,6 +278,64 @@ public abstract class AbsJCPClient implements JCPClient {
     }
 
 
+    // Delete requests
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void execDeleteReq(String url, boolean secure) throws RequestException, ConnectionException {
+        execDeleteReq(url, null, new HashMap<>(), secure);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void execDeleteReq(String url, Object param, boolean secure) throws RequestException, ConnectionException {
+        execDeleteReq(url, null, param, secure);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T execDeleteReq(String url, Class<T> reqObject, boolean secure) throws RequestException, ConnectionException {
+        return execDeleteReq(url, reqObject, new HashMap<>(), secure);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T execDeleteReq(String url, Class<T> reqObject, Object param, boolean secure) throws RequestException, ConnectionException {
+        if (!isConnected())
+            throw new ConnectionException("Client not connected");
+
+        // Send request
+        String reqUrl = url;
+        OAuthRequest request = prepareDeleteRequest(reqUrl, param);
+        injectDefaultHeaders(request);
+        injectSession(request);
+        Response response = null;
+        try {
+            response = service.execute(request);
+            storeSession(response);
+            checkErrorCodes(response, reqUrl, secure);
+        } catch (InterruptedException | ExecutionException | IOException e) {
+            throw new RequestException(String.format("Error on request '%s' to JCP.", url), e);
+        }
+
+        // Parsing response
+        String body = extractBody(response, reqUrl, secure);
+        if (reqObject == null)
+            return null;
+        if (reqObject.equals(String.class))
+            return (T) body;
+        return parseJSON(body, reqObject, reqUrl, secure);
+    }
+
+
     // Abstract authentication function
 
     /**
@@ -348,6 +406,26 @@ public abstract class AbsJCPClient implements JCPClient {
             req.setPayload(mapper.writeValueAsString(param));
         } catch (JsonProcessingException e) {
             throw new RequestException(String.format("Error on formatting POST request '%s' to JCP", url), e);
+        }
+
+        service.signRequest(accessToken, req);
+        return req;
+    }
+
+    /**
+     * Create and sign OAuth2 DELETE request.
+     *
+     * @param url request's full url.
+     * @return an executable OAuth2 request.
+     */
+    private OAuthRequest prepareDeleteRequest(String url, Object param) throws RequestException {
+        OAuthRequest req = new OAuthRequest(Verb.DELETE, url);
+        req.addHeader("Content-Type", "application/json;charset=UTF-8");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            req.setPayload(mapper.writeValueAsString(param));
+        } catch (JsonProcessingException e) {
+            throw new RequestException(String.format("Error on formatting DELETE request '%s' to JCP", url), e);
         }
 
         service.signRequest(accessToken, req);

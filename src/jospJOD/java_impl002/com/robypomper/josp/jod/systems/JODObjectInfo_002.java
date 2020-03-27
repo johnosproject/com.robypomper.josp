@@ -113,8 +113,12 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getOwnerId() {
-        return "";
-        // ToDo: implement JODObjectInfo_002::getOwnerId()
+        if (locSettings.getOwnerId().isEmpty()) {
+            try {
+                locSettings.setOwnerId(permissions.getOwner());
+            } catch (Throwable ignore) {}
+        }
+        return locSettings.getOwnerId();
     }
 
 
@@ -154,6 +158,21 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     @Override
     public String getLongDescr() {
         return structure.getRoot().getDescr();
+    }
+
+
+    // Permissions's info
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getPermissionsStr() {
+        try {
+            return readFile(locSettings.getPermissionsPath());
+        } catch (IOException e) {
+            throw new RuntimeException("Error on permissions string loading, check JOD configs.");
+        }
     }
 
 

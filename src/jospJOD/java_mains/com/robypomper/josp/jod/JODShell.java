@@ -7,6 +7,7 @@ import com.robypomper.josp.jod.shell.CmdsJCPClient;
 import com.robypomper.josp.jod.shell.CmdsJOD;
 import com.robypomper.josp.jod.shell.CmdsJODExecutorMngr;
 import com.robypomper.josp.jod.shell.CmdsJODObjectInfo;
+import com.robypomper.josp.jod.shell.CmdsJODPermissions;
 import com.robypomper.josp.jod.shell.CmdsJODStructure;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -19,7 +20,7 @@ import java.io.IOException;
 
 /**
  * Runnable class for JOD Shell.
- *
+ * <p>
  * For more details on accepted cmdLine params check the method {@link #createArgsParser()}.
  */
 public class JODShell {
@@ -55,7 +56,7 @@ public class JODShell {
 
     /**
      * Initialize a Shell object and execute it.
-     *
+     * <p>
      * Each operation is wrapped in a <code>try...catch</code> block that manage
      * and print application exceptions.
      *
@@ -67,17 +68,17 @@ public class JODShell {
 
         // Get cmdLine args
         Options options = createArgsParser();
-        CommandLine parsedArgs = parseArgs(options,args);
-        String configsFile = parsedArgs.getOptionValue(ARG_CONFIGS_FILE,ARGS_DEF_CONFIGS_FILE);
-        String jodVer = parsedArgs.getOptionValue(ARG_JOD_VERSION,"");
+        CommandLine parsedArgs = parseArgs(options, args);
+        String configsFile = parsedArgs.getOptionValue(ARG_CONFIGS_FILE, ARGS_DEF_CONFIGS_FILE);
+        String jodVer = parsedArgs.getOptionValue(ARG_JOD_VERSION, "");
 
         // Initialize JOD
         System.out.println("INF: Load JOD Obj.");
         try {
-            JOD.Settings settings = FactoryJOD.loadSettings(configsFile,jodVer);
-            shell.createJOD(settings,jodVer);
+            JOD.Settings settings = FactoryJOD.loadSettings(configsFile, jodVer);
+            shell.createJOD(settings, jodVer);
         } catch (JODShell.Exception | JOD.FactoryException e) {
-            shell.fatal(e,EXIT_ERROR_CONFIG);
+            shell.fatal(e, EXIT_ERROR_CONFIG);
             return;
         }
 
@@ -86,7 +87,7 @@ public class JODShell {
         try {
             shell.startJOD();
         } catch (JODShell.Exception | JOD.RunException e) {
-            shell.fatal(e,EXIT_ERROR_START);
+            shell.fatal(e, EXIT_ERROR_START);
             return;
         }
 
@@ -95,7 +96,7 @@ public class JODShell {
         try {
             shell.startShell();
         } catch (IOException e) {
-            shell.fatal(e,EXIT_ERROR_SHELL);
+            shell.fatal(e, EXIT_ERROR_SHELL);
             return;
         }
 
@@ -119,7 +120,7 @@ public class JODShell {
     /**
      * Manage fatal errors, also recursively.
      *
-     * @param e exception that thrown error.
+     * @param e        exception that thrown error.
      * @param exitCode exit code assigned to the error.
      */
     private void fatal(Throwable e, int exitCode) {
@@ -128,11 +129,21 @@ public class JODShell {
 
         String msg;
         switch (exitCode) {
-            case EXIT_ERROR_CONFIG: msg = String.format("Can't load JOD Object because configuration error: '%s'", e.getMessage()); break;
-            case EXIT_ERROR_START: msg = String.format("Can't start JOD Object because startup error: '%s'", e.getMessage()); break;
-            case EXIT_ERROR_STOP: msg = String.format("Error on stopping JOD Object because: '%s'", e.getMessage()); break;
-            case EXIT_ERROR_SHELL: msg = String.format("Error on JOD Shell execution: '%s'", e.getMessage()); break;
-            default: msg = "Unknown error on JOD Shell"; break;
+            case EXIT_ERROR_CONFIG:
+                msg = String.format("Can't load JOD Object because configuration error: '%s'", e.getMessage());
+                break;
+            case EXIT_ERROR_START:
+                msg = String.format("Can't start JOD Object because startup error: '%s'", e.getMessage());
+                break;
+            case EXIT_ERROR_STOP:
+                msg = String.format("Error on stopping JOD Object because: '%s'", e.getMessage());
+                break;
+            case EXIT_ERROR_SHELL:
+                msg = String.format("Error on JOD Shell execution: '%s'", e.getMessage());
+                break;
+            default:
+                msg = "Unknown error on JOD Shell";
+                break;
         }
 
 
@@ -154,21 +165,21 @@ public class JODShell {
      * Create new instance of the JOD object.
      *
      * @param settings settings used by the JOD object returned.
-     * @param jodVer used to force JOD Object version to create, if empty latest
-     *               version is used.
+     * @param jodVer   used to force JOD Object version to create, if empty latest
+     *                 version is used.
      */
     public void createJOD(JOD.Settings settings, String jodVer) throws JODShell.Exception, JOD.FactoryException {
-        if (jod!=null)
+        if (jod != null)
             throw new JODShell.Exception("Can't initialize JOD object twice.");
 
-        jod = FactoryJOD.createJOD(settings,jodVer);
+        jod = FactoryJOD.createJOD(settings, jodVer);
     }
 
     /**
      * Start internal JOD object and all his sub-systems.
      */
     public void startJOD() throws JODShell.Exception, JOD.RunException {
-        if (jod==null)
+        if (jod == null)
             throw new JODShell.Exception("Can't start JOD object because was not initialized.");
 
         jod.start();
@@ -178,10 +189,10 @@ public class JODShell {
      * Stop internal JOD object and all his sub-systems.
      */
     public void stopJOD() throws JODShell.Exception, JOD.RunException {
-        if (jod==null)
+        if (jod == null)
             throw new JODShell.Exception("Can't stop JOD object because was not initialized.");
 
-        if (jod.status()==JOD.Status.STOPPED || jod.status()==JOD.Status.SHUTDOWN)
+        if (jod.status() == JOD.Status.STOPPED || jod.status() == JOD.Status.SHUTDOWN)
             throw new JODShell.Exception("Can't stop JOD object because was is already stopped or it's shouting down.");
 
         jod.stop();
@@ -200,7 +211,8 @@ public class JODShell {
                 new CmdsJCPClient(jod.getJCPClient()),
                 new CmdsJODObjectInfo(jod.getObjectInfo()),
                 new CmdsJODExecutorMngr(jod.getObjectStructure(), jod.getExecutor()),
-                new CmdsJODStructure(jod.getObjectStructure())
+                new CmdsJODStructure(jod.getObjectStructure()),
+                new CmdsJODPermissions(jod.getPermission())
         );
         shell.commandLoop();
     }
@@ -243,7 +255,7 @@ public class JODShell {
      * Parse <code>args</code> with <code>options</code>.
      *
      * @param options object to use for args parsing.
-     * @param args args to be parsed.
+     * @param args    args to be parsed.
      * @return {@link CommandLine} object to use to get cmdLine args.
      */
     private static CommandLine parseArgs(Options options, String[] args) {
@@ -253,7 +265,8 @@ public class JODShell {
         } catch (ParseException e) {
             System.out.println(e.getMessage());
             new HelpFormatter().printHelp(JODInfo.APP_NAME, options);
-            System.exit(1);return null;
+            System.exit(1);
+            return null;
         }
         return cmd;
     }
@@ -268,8 +281,9 @@ public class JODShell {
         public Exception(String msg) {
             super(msg);
         }
+
         public Exception(String msg, Exception e) {
-            super(msg,e);
+            super(msg, e);
         }
     }
 }

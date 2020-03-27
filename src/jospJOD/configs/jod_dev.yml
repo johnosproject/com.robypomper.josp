@@ -16,3 +16,7 @@ jod.executor_mngr.executors:
   ciao://com.robypomper.josp.jod.executor.ExecutorTest
 
 jod.structure.path: src/jospJOD/configs/struct.jod
+
+jod.permissions.path: src/jospJOD/configs/perms.jod
+jod.permissions.refresh: 10
+jod.permissions.generation_strategy: standard
