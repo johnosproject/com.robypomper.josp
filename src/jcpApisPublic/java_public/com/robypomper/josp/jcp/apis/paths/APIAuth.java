@@ -21,9 +21,9 @@ public class APIAuth {
 
     public static final String PATH_BASE = "";
 
-    public static final String FULL_PATH_BASE = JcpAPI.PATH_AUTH_BASE + PATH_BASE;
+    public static final String FULL_PATH_BASE   = JcpAPI.PATH_AUTH_BASE + PATH_BASE;
 
-    public static final String URL_PATH_BASE = JcpAPI.URL_PATH_AUTH_BASE + PATH_BASE;
+    public static final String URL_PATH_BASE    = JcpAPI.URL_PATH_AUTH_BASE + PATH_BASE;
 
 
     // Keycloak APIs
@@ -45,9 +45,9 @@ public class APIAuth {
     public static final String FULL_PATH_TOKEN      = FULL_PATH_BASE + PATH_TOKEN;
     public static final String FULL_PATH_CALLBACK   = "/callback";
 
-    public static final String URL_PATH_AUTH    = URL_PATH_BASE + PATH_AUTH;
-    public static final String URL_PATH_TOKEN   = URL_PATH_BASE + PATH_TOKEN;
-    public static final String URL_PATH_CALLBACK   = JcpAPI.URL_DOM_API + PATH_CALLBACK;
+    public static final String URL_PATH_AUTH        = URL_PATH_BASE + PATH_AUTH;
+    public static final String URL_PATH_TOKEN       = URL_PATH_BASE + PATH_TOKEN;
+    public static final String URL_PATH_CALLBACK    = JcpAPI.URL_DOM_API + PATH_CALLBACK;
 
 //@formatter:on
 }

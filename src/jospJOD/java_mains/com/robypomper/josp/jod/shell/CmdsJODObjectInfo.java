@@ -18,6 +18,9 @@ public class CmdsJODObjectInfo {
         s += "OBJECT'S INFO \n";
         s += String.format("  ObjId . . . . . %s\n", objInfo.getObjId());
         s += String.format("  ObjName . . . . %s\n", objInfo.getObjName());
+        s += String.format("  Model . . . . . %s\n", objInfo.getModel());
+        s += String.format("  Brand . . . . . %s\n", objInfo.getBrand());
+        s += String.format("  Descr . . . . . %s\n", objInfo.getLongDescr());
 
         return s;
     }

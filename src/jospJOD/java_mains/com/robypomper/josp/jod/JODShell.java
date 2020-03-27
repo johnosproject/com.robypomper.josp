@@ -73,6 +73,7 @@ public class JODShell {
         String jodVer = parsedArgs.getOptionValue(ARG_JOD_VERSION, "");
 
         // Initialize JOD
+        System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
         System.out.println("INF: Load JOD Obj.");
         try {
             JOD.Settings settings = FactoryJOD.loadSettings(configsFile, jodVer);
@@ -83,6 +84,7 @@ public class JODShell {
         }
 
         // Start JOD
+        System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
         System.out.println("INF: Start JOD Obj.");
         try {
             shell.startJOD();
@@ -92,16 +94,18 @@ public class JODShell {
         }
 
         // Run interactive shell
+        System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
         System.out.println("INF: Run JOD Shell.");
         try {
-            shell.startShell();
+            shell.startShell(shell.jod.getObjectInfo().getObjName());
         } catch (IOException e) {
             shell.fatal(e, EXIT_ERROR_SHELL);
             return;
         }
 
         // Stop JOD
-        if (shell.jod.status()!=JOD.Status.STOPPED) {
+        System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
+        if (shell.jod.status() != JOD.Status.STOPPED) {
             System.out.println("INF: Stop JOD Obj.");
             try {
                 shell.stopJOD();
@@ -113,6 +117,7 @@ public class JODShell {
             System.out.println("INF: JOD Obj already stopped.");
         }
 
+        System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
         System.out.println("INF: EXIT");
         System.exit(EXIT_OK);
     }
@@ -204,8 +209,8 @@ public class JODShell {
     /**
      * Start interactive shell.
      */
-    public void startShell() throws IOException {
-        shell = ShellFactory.createConsoleShell(JODInfo.APP_NAME, JODInfo.APP_NAME_FULL,
+    public void startShell(String objName) throws IOException {
+        shell = ShellFactory.createConsoleShell(JODInfo.APP_NAME + "-" + objName, JODInfo.APP_NAME_FULL,
                 this,
                 new CmdsJOD(jod),
                 new CmdsJCPClient(jod.getJCPClient()),
