@@ -34,4 +34,8 @@ public class ObjectOwnerDBService {
         return objOwners.save(stock);
     }
 
+    public void delete(ObjectOwner stock) throws DataIntegrityViolationException {
+        objOwners.delete(stock);
+    }
+
 }
