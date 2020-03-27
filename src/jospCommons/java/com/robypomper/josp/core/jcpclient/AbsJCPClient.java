@@ -470,7 +470,7 @@ public abstract class AbsJCPClient implements JCPClient {
             if (body.startsWith("\""))
                 body = body.substring(1);
             if (body.endsWith("\""))
-                body = body.substring(0, body.length() - 2);
+                body = body.substring(0, body.length() - 1);
             return body;
         } catch (IOException e) {
             throw new ResponseParsingException(url, secure, e);
