@@ -97,7 +97,7 @@ public class CmdsJODPermissions {
     }
 
     @Command(description = "Set object's owner.")
-    public String permissionSetOwner(String usrId) {
+    public String permissionOwnerSet(String usrId) {
         try {
             if (permission.setOwner(usrId))
                 return "Owner set successfully.";
@@ -108,7 +108,7 @@ public class CmdsJODPermissions {
     }
 
     @Command(description = "Reset object's owner to unset.")
-    public String permissionResetOwner() {
+    public String permissionOwnerReset() {
         try {
             if (permission.resetOwner())
                 return "Owner reset successfully.";
