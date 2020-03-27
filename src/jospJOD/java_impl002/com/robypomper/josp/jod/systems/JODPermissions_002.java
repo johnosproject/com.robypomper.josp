@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.systems;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.core.jcpclient.JCPClient;
@@ -177,6 +178,20 @@ public class JODPermissions_002 implements JODPermissions {
         permissions.remove(duplicate);
         permissions.add(newDelPerm);
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean setOwner(String ownerId) throws JCPClient.ConnectionException, JCPClient.RequestException, JsonProcessingException {
+        return jcpPermissions.setOwner(ownerId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean resetOwner() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException {
+        return jcpPermissions.resetOwner();
     }
 
 

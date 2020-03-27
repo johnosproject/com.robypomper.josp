@@ -1,5 +1,7 @@
 package com.robypomper.josp.jod.systems;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 
@@ -90,6 +92,21 @@ public interface JODPermissions {
      * @return true if the permission is set to delete successfully, false otherwise.
      */
     boolean deletePermissions(String usrId, String srvId);
+
+    /**
+     * Set object's owner.
+     *
+     * @param ownerId the user's id.
+     * @return true if the owner is set successfully, false otherwise.
+     */
+    boolean setOwner(String ownerId) throws JCPClient.ConnectionException, JCPClient.RequestException, JsonProcessingException;
+
+    /**
+     * Set object's owner to unset.
+     *
+     * @return true if the owner was reset successfully, false otherwise.
+     */
+    boolean resetOwner() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException;
 
 
     // Mngm methods
