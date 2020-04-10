@@ -1,7 +1,6 @@
 package com.robypomper.josp.jod.objinfo;
 
 import com.robypomper.java.JavaRandomStrings;
-import com.robypomper.josp.jod.JOD;
 
 import java.util.Random;
 

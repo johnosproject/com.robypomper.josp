@@ -59,42 +59,43 @@ public class JOD_002 extends AbsJOD {
 
     public static class Settings implements JOD.Settings {
 
+        //@formatter:off
         public static final String JODVERSION_REQUIRED = "jod.version";
         public static final String JODVERSION_REQUIRED_DEF = JOD_002.VERSION;
 
-        public static final String JCP_CONNECT = "jcp.connect";
-        public static final String JCP_URL = "jcp.url";
-        public static final String JCP_URL_DEF = JcpAPI.URL_DOM_API;
-        public static final String JCP_CLIENT_ID = "jcp.client.id";
-        public static final String JCP_CLIENT_ID_DEF = "";
-        public static final String JCP_CLIENT_SECRET = "jcp.client.secret";
-        public static final String JCP_CLIENT_SECRET_DEF = "";
+        public static final String JCP_CONNECT              = "jcp.connect";
+        public static final String JCP_URL                  = "jcp.url";
+        public static final String JCP_URL_DEF              = JcpAPI.URL_DOM_API;
+        public static final String JCP_CLIENT_ID            = "jcp.client.id";
+        public static final String JCP_CLIENT_ID_DEF        = "";
+        public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";
+        public static final String JCP_CLIENT_SECRET_DEF    = "";
 
-        public static final String JODOBJ_NAME = "jod.obj.name";
-        public static final String JODOBJ_NAME_DEF = "";
-        public static final String JODOBJ_IDCLOUD = "jod.obj.id_cloud";
-        public static final String JODOBJ_IDCLOUD_DEF = "";
-        public static final String JODOBJ_IDHW = "jod.obj.id_hw";
-        public static final String JODOBJ_IDHW_DEF = "";
+        public static final String JODOBJ_NAME              = "jod.obj.name";
+        public static final String JODOBJ_NAME_DEF          = "";
+        public static final String JODOBJ_IDCLOUD           = "jod.obj.id_cloud";
+        public static final String JODOBJ_IDCLOUD_DEF       = "";
+        public static final String JODOBJ_IDHW              = "jod.obj.id_hw";
+        public static final String JODOBJ_IDHW_DEF          = "";
 
-        public static final String JODPULLER_IMPLS = "jod.executor_mngr.pullers";
-        public static final String JODPULLER_IMPLS_DEF = "";
-        public static final String JODLISTENER_IMPLS = "jod.executor_mngr.listeners";
-        public static final String JODLISTENER_IMPLS_DEF = "";
-        public static final String JODEXECUTOR_IMPLS = "jod.executor_mngr.executors";
-        public static final String JODEXECUTOR_IMPLS_DEF = "";
+        public static final String JODPULLER_IMPLS          = "jod.executor_mngr.pullers";
+        public static final String JODPULLER_IMPLS_DEF      = "";
+        public static final String JODLISTENER_IMPLS        = "jod.executor_mngr.listeners";
+        public static final String JODLISTENER_IMPLS_DEF    = "";
+        public static final String JODEXECUTOR_IMPLS        = "jod.executor_mngr.executors";
+        public static final String JODEXECUTOR_IMPLS_DEF    = "";
 
-        public static final String JODSTRUCT_PATH = "jod.structure.path";
-        public static final String JODSTRUCT_PATH_DEF = "struct.jod";
+        public static final String JODSTRUCT_PATH           = "jod.structure.path";
+        public static final String JODSTRUCT_PATH_DEF       = "struct.jod";
 
-        public static final String JODPERM_PATH = "jod.permissions.path";
-        public static final String JODPERM_PATH_DEF = "perms.jod";
-        public static final String JODPERM_REFRESH = "jod.permissions.refresh";
-        public static final String JODPERM_REFRESH_DEF = "300";
-        public static final String JODPERM_GENSTARTEGY = "jod.permissions.generation_strategy";
-        public static final String JODPERM_GENSTARTEGY_DEF = "standard";
-        public static final String JODPERM_OWNER = "jod.permissions.owner";
-        public static final String JODPERM_OWNER_DEF = "";
+        public static final String JODPERM_PATH             = "jod.permissions.path";
+        public static final String JODPERM_PATH_DEF         = "perms.jod";
+        public static final String JODPERM_REFRESH          = "jod.permissions.refresh";
+        public static final String JODPERM_REFRESH_DEF      = "300";
+        public static final String JODPERM_GENSTARTEGY      = "jod.permissions.generation_strategy";
+        public static final String JODPERM_GENSTARTEGY_DEF  = "standard";
+        public static final String JODPERM_OWNER            = "jod.permissions.owner";
+        public static final String JODPERM_OWNER_DEF        = "";
 
         private final File file;
         private final Map<String, String> properties;
@@ -102,11 +103,6 @@ public class JOD_002 extends AbsJOD {
 
         public static JOD.Settings instance(File file) {
             return new Settings(file);
-        }
-
-        @Override
-        public String version() {
-            return VERSION;
         }
 
         public Settings(File file) {
@@ -142,6 +138,11 @@ public class JOD_002 extends AbsJOD {
 
 
         // JOD
+
+        @Override
+        public String version() {
+            return VERSION;
+        }
 
         @Override
         public String getJODVersion_Required() {

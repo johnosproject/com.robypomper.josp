@@ -70,8 +70,7 @@ public interface JODStructure {
     // Exceptions
 
     /**
-     * Exceptions for {@link JODStructure#setCommunication(JODCommunication)}
-     * called twice.
+     * Exceptions for {@link #setCommunication(JODCommunication)} called twice.
      */
     class CommunicationSetException extends Throwable {
         private static final String MSG = "Communication already set for current Structure.";

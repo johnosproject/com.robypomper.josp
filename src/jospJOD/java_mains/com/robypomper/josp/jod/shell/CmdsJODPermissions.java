@@ -101,9 +101,11 @@ public class CmdsJODPermissions {
         try {
             if (permission.setOwner(usrId))
                 return "Owner set successfully.";
+
         } catch (JCPClient.ConnectionException | JCPClient.RequestException | JsonProcessingException e) {
             return "Error on setting owner: " + e.getMessage();
         }
+
         return "Unknown error on setting owner.";
     }
 
@@ -117,6 +119,5 @@ public class CmdsJODPermissions {
         }
         return "Unknown error on resetting owner.";
     }
-
 
 }

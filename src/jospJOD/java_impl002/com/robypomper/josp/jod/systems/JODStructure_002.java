@@ -9,8 +9,6 @@ import com.robypomper.josp.jod.structure.JODComponentPath;
 import com.robypomper.josp.jod.structure.JODRoot;
 import com.robypomper.josp.jod.structure.JODRoot_Jackson;
 
-import java.io.IOException;
-
 /**
  * ToDo: doc JODStructure_002
  */
@@ -101,7 +99,7 @@ public class JODStructure_002 implements JODStructure {
      */
     @Override
     public void setCommunication(JODCommunication comm) throws CommunicationSetException {
-        if (comm != null)
+        if (this.comm != null)
             throw new CommunicationSetException();
         this.comm = comm;
     }
@@ -111,9 +109,9 @@ public class JODStructure_002 implements JODStructure {
      */
     @Override
     public JODCommunication getCommunication() throws CommunicationSetException {
-        if (comm == null)
+        if (this.comm == null)
             throw new CommunicationSetException();
-        return comm;
+        return this.comm;
     }
 
 

@@ -50,10 +50,9 @@ dependencies {
 }
 
 // Add java app's run tasks
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJOD,'com.robypomper.josp.jod.JODShell')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJSL,'com.robypomper.josp.jsl.JODShell')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJOD,'com.robypomper.josp.jod.JODShell','Shell')
 
-tasks.javaJospJODRun {
+tasks.javaJospJOD_ShellRun {
     standardInput = System.in
     args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
 }

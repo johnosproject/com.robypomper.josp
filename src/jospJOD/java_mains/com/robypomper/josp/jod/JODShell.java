@@ -29,7 +29,7 @@ public class JODShell {
 
     private JOD jod;
     private Shell shell;
-    private boolean fatalThroned = false;
+    private boolean fatalThrown = false;
 
 
     // CmdLine Args
@@ -129,8 +129,8 @@ public class JODShell {
      * @param exitCode exit code assigned to the error.
      */
     private void fatal(Throwable e, int exitCode) {
-        boolean firstFatal = !fatalThroned;
-        fatalThroned = true;
+        boolean firstFatal = !fatalThrown;
+        fatalThrown = true;
 
         String msg;
         switch (exitCode) {

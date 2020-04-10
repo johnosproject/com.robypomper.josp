@@ -27,8 +27,8 @@ public interface JOD {
      * return sub-class instance.
      *
      * @param settings JOD.Settings containing JOD settings. Sub-classes can
-     *                 extend JOD.Settings and used as <code>instance</code>
-     *                 param.
+     *                 extend JOD.Settings and and used extended class as
+     *                 <code>instance</code> param.
      * @return null pointer.
      */
     static JOD instance(Settings settings) {
@@ -82,7 +82,6 @@ public interface JOD {
     // JOD Systems
 
     JCPClient_Object getJCPClient();
-
     JODObjectInfo getObjectInfo();
     JODStructure getObjectStructure();
     JODCommunication getCommunication();
@@ -129,8 +128,8 @@ public interface JOD {
         STOPPED,
 
         /**
-         * JOD object is shouting down.
-         *
+         * JOD object is shouting down and restarted.
+         * <p>
          * The method {@link #restart()} was called, when finish the status become
          * {@link #RUNNING} or {@link #STOPPED} if error occurs.
          */
@@ -225,4 +224,5 @@ public interface JOD {
             super(msg,e);
         }
     }
+
 }
