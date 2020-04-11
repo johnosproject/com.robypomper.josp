@@ -60,8 +60,8 @@ public class JCPAPIsGroups {
     public static final String API_OBJS_SG_BASE_NAME = "Object's info";
     public static final APISubGroup API_OBJS_SG_BASE = new APISubGroup(API_OBJS_SG_BASE_NAME, "Register/get object info, generate object ids...");
 
-    public static final String API_SRVS_SG_PLACEHOLDER_NAME = "Service placeholder";
-    public static final APISubGroup API_SRVS_SG_PLACEHOLDER = new APISubGroup(API_SRVS_SG_PLACEHOLDER_NAME, "Placeholder sub-group");
+    public static final String API_SRVS_SG_BASE_NAME = "Service's info'";
+    public static final APISubGroup API_SRVS_SG_BASE = new APISubGroup(API_SRVS_SG_BASE_NAME, "Get service info...");
 
     //public static final String API_PERM_SG_BASE_NAME = "Permissions's info";
     //public static final APISubGroup API_PERM_SG_BASE = new APISubGroup(API_PERM_SG_BASE_NAME, "empty...");
@@ -81,7 +81,7 @@ public class JCPAPIsGroups {
     public static final APISubGroup[] API_LOGIN_SUBGROUPS = {API_LOGIN_SG_PLACEHOLDER};
     public static final APISubGroup[] API_USRS_SUBGROUPS = {API_USRS_SG_BASE};
     public static final APISubGroup[] API_OBJS_SUBGROUPS = {API_OBJS_SG_BASE};
-    public static final APISubGroup[] API_SRVS_SUBGROUPS = {API_SRVS_SG_PLACEHOLDER};
+    public static final APISubGroup[] API_SRVS_SUBGROUPS = {API_SRVS_SG_BASE};
     public static final APISubGroup[] API_PERM_SUBGROUPS = {/*API_PERM_SG_BASE, */API_PERM_SG_OBJ};
     public static final APISubGroup[] API_CONF_SUBGROUPS = {API_CONF_SG_PLACEHOLDER};
     public static final APISubGroup[] API_UPDS_SUBGROUPS = {API_UPDS_SG_PLACEHOLDER};
