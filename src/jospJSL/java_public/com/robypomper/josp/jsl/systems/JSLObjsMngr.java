@@ -1,0 +1,104 @@
+package com.robypomper.josp.jsl.systems;
+
+import com.robypomper.josp.jsl.comm.JSLCloudConnection;
+import com.robypomper.josp.jsl.comm.JSLConnection;
+import com.robypomper.josp.jsl.comm.JSLLocalConnection;
+import com.robypomper.josp.jsl.objs.JSLObjectSearchPattern;
+import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+
+import java.util.List;
+
+
+/**
+ * Interface for JSL Objects management system.
+ * <p>
+ * This system manage and provide all available JOD objects as
+ * {@link JSLRemoteObject} instances.
+ * <p>
+ * Available JOD objects list depends on user/service permissions. A service can
+ * access to an object if and only if that objects grant the permission to the
+ * pair user/service.
+ * <p>
+ * Each {@link JSLRemoteObject} is initialized from {@link JSLConnection} instance
+ * provided by the {@link JSLCommunication} system. An Object can be associated
+ * to multiple {@link JSLLocalConnection} and to the {@link JSLCloudConnection}
+ * at the same time.<br>
+ * For every message tx between services and objects is send preferring local
+ * connections and, only if no local connection is available is choose the
+ * cloud connection.
+ */
+public interface JSLObjsMngr {
+
+    // Object's access
+
+    /**
+     * @return an array containing all known objects.
+     */
+    List<JSLRemoteObject> getAllObjects();
+
+    /**
+     * @return an array containing all connected objects.
+     */
+    List<JSLRemoteObject> getAllConnectedObjects();
+
+    /**
+     * @param objId id of object required.
+     * @return the object corresponding to given id, null if not found.
+     */
+    JSLRemoteObject getById(String objId);
+
+    /**
+     * @param localConnection required object's local connection.
+     * @return the object associated to given local connection, null if not found.
+     */
+    JSLRemoteObject getByConnection(JSLLocalConnection localConnection);
+
+    /**
+     * @param pattern object's search pattern.
+     * @return an array containing all object's corresponding to given search
+     * pattern.
+     */
+    List<JSLRemoteObject> searchObjects(JSLObjectSearchPattern pattern);
+
+
+    // Connections mngm
+
+    /**
+     * Associate given connection to corresponding {@link JSLRemoteObject}.
+     * <p>
+     * This method is call by {@link JSLCommunication} system when it opens a
+     * local connection with a JOD Object.
+     * <p>
+     * If there is no {@link JSLRemoteObject} yet, it will be created.
+     *
+     * @param localConnection the open local connection to JOD object.
+     */
+    void addNewConnection(JSLLocalConnection localConnection);
+
+    /**
+     * Remove given connection to corresponding {@link JSLRemoteObject}.
+     * <p>
+     * This method is call by {@link JSLCommunication} system when it close (or
+     * detect that is closed) a local connection with a JOD Object.
+     * <p>
+     * If there is no {@link JSLRemoteObject} yet, it will be created anyway and
+     * set offline.
+     *
+     * @param localConnection the closed local connection to JOD object.
+     */
+    void removeConnection(JSLLocalConnection localConnection);
+
+    /**
+     * Set the JOSP Gw Service2Object connection.
+     * <p>
+     * This connection allow to communicate with multiple objects trought the
+     * JCP Cloud. Moreover the object's messages, this connection send information
+     * on added and removed objects. So this instances can handle cloud objects
+     * connections and disconnections.
+     *
+     * @param cloudConnection the JOSP Gw S2O connection. If null, then it
+     *                        disable the cloud communication.
+     */
+    void setCloudConnection(JSLCloudConnection cloudConnection);
+
+}
