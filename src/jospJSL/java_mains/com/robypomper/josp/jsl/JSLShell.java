@@ -216,7 +216,8 @@ public class JSLShell {
         shell = ShellFactory.createConsoleShell(JSLInfo.APP_NAME + "-" + objName, JSLInfo.APP_NAME_FULL,
                 this,
                 new CmdsJSL(jsl),
-                new CmdsJCPClient(jsl.getJCPClient())
+                new CmdsJCPClient(jsl.getJCPClient()),
+                new CmdsJSLServiceInfo(jsl.getServiceInfo())
         );
         shell.commandLoop();
     }
