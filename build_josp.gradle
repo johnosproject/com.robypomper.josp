@@ -44,15 +44,26 @@ dependencies {
     // JSL - All
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
+    jospJSLImplementation 'org.yaml:snakeyaml:1.25'
     // JSL - Impls
-    jospJODImplementation sourceSets.jcpApisPublic.output
-    jospJODImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    jospJSLImplementation sourceSets.jcpApisPublic.output
+    jospJSLImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    // JSL - Mains
+    jospJSLImplementation 'commons-cli:commons-cli:1.4'
+    jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
 }
 
 // Add java app's run tasks
 JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJOD,'com.robypomper.josp.jod.JODShell','Shell')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJSL,'com.robypomper.josp.jsl.JSLShell','Shell')
 
 tasks.javaJospJOD_ShellRun {
     standardInput = System.in
     args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
+}
+
+tasks.javaJospJSL_ShellRun {
+    standardInput = System.in
+    args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
+    //jvmArgs = ['-Djavax.net.debug=ssl']
 }
