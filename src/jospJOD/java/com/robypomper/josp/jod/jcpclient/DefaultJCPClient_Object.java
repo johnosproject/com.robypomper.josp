@@ -15,6 +15,8 @@ import com.robypomper.josp.jod.JOD_002;
 public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         implements JCPClient_Object {
 
+    // Constructor
+
     /**
      * Object JCPClient constructor, it setup the client for Object's requests.
      * <p>
@@ -24,7 +26,7 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
      *
      * @param settings the JOD settings.
      */
-    public DefaultJCPClient_Object(JOD_002.Settings settings) {
+    public DefaultJCPClient_Object(JOD_002.Settings settings) throws ConnectionException {
         super(new DefaultJCPConfigs(settings.getJCPId(),
                         settings.getJCPSecret(),
                         "openid",
@@ -36,6 +38,8 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         if (settings.getJCPConnect())
             tryConnect();
     }
+
+    // Headers default values setters
 
     @Override
     public void setObjectId(String objId) {
