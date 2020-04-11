@@ -172,6 +172,8 @@ public class JSL_002 extends AbsJSL {
             store(JCP_CLIENT_TOKEN, refreshToken);
         }
 
+        // Service info
+
         public String getSrvId() {
             return properties.get(JSLSRV_ID) != null ? properties.get(JSLSRV_ID) :
                     JSLSRV_ID_DEF;
