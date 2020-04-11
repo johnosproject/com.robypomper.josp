@@ -1,19 +1,16 @@
 package com.robypomper.josp.core.jcpclient;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.apis.KeycloakApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.robypomper.java.JavaSSLIgnoreChecks;
 
-import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +34,10 @@ import java.util.concurrent.ExecutionException;
  *         <b>Default headers: </b> allow to set headers that will be added to
  *         each request send from this client.
  *     </li>
+ *     <li>
+ *         <b>Auto-refresh access token: </b> when given access token expire,
+ *         this class renew it automatically.
+ *     </li>
  * </ul>
  * <p>
  * In addition this class provide the static protected method
@@ -58,6 +59,7 @@ public abstract class AbsJCPClient implements JCPClient {
     private boolean connected = false;
     private OAuth20Service service = null;
     private OAuth2AccessToken accessToken = null;
+    private String refreshToken = null;
     private String sessionId = null;
     private Map<String, String> defaultHeaders = new HashMap<>();
 
@@ -71,8 +73,20 @@ public abstract class AbsJCPClient implements JCPClient {
      * @param autoConnect if <code>true</code>, then the client will connect to
      *                    JCP immediately after clienti initialization.
      */
-    protected AbsJCPClient(JCPConfigs configs, boolean autoConnect) {
+    protected AbsJCPClient(JCPConfigs configs, boolean autoConnect) throws ConnectionException {
         this.configs = configs;
+
+        // Setup OAuth2 layer
+        try {
+            service = new ServiceBuilder(configs.getClientId())
+                    .apiSecret(configs.getClientSecrets())
+                    .defaultScope(configs.getScopes())
+                    .callback(configs.getCallback())
+                    .build(KeycloakApi.instance(configs.getBaseUrl(), configs.getRealm()));
+
+        } catch (IllegalArgumentException e) {
+            throw new ConnectionException("Wrong JCP configurations.", e);
+        }
 
         if (autoConnect) {
             tryConnect();
@@ -99,29 +113,11 @@ public abstract class AbsJCPClient implements JCPClient {
             return;
 
         System.out.println("DEB: JCP Client connecting...");
-        // Setup OAuth2 layer
-        try {
-            service = new ServiceBuilder(configs.getClientId())
-                    .apiSecret(configs.getClientSecrets())
-                    .defaultScope(configs.getScopes())
-                    .callback(configs.getCallback())
-                    .build(KeycloakApi.instance(configs.getBaseUrl(), configs.getRealm()));
-        } catch (IllegalArgumentException e) {
-            throw new ConnectionException("Wrong JCP configurations.", e);
-        }
 
         // Start Auth flow
-        try {
-            accessToken = getAccessToken(service);
-        } catch (SSLHandshakeException e) {
-            throw new ConnectionException("Error on SSL JCP host checks.", e);
-        } catch (JsonParseException e) {
-            throw new ConnectionException("Token response from JCP not valid, check JCP url.", e);
-        } catch (OAuth2AccessTokenErrorResponse e) {
-            throw new ConnectionException("Client not authorized to access to JCP resources.", e);
-        } catch (InterruptedException | ExecutionException | IOException e) {
-            throw new ConnectionException(String.format("Error on getting access token from JCP: '%s'", e.getMessage()), e);
-        }
+        accessToken = getAccessToken(service);
+        refreshToken = accessToken.getRefreshToken();
+        System.out.println("ATTENZIONE: get Refresh Token: " + refreshToken);
 
         connected = true;
         System.out.println("DEB: JCP Client connected");
@@ -161,6 +157,10 @@ public abstract class AbsJCPClient implements JCPClient {
         disconnect();
     }
 
+    protected OAuth20Service getOAuthService() {
+        return service;
+    }
+
 
     // Get requests
 
@@ -198,12 +198,21 @@ public abstract class AbsJCPClient implements JCPClient {
 
         // Send request
         String reqUrl = prepareGetUrl(url, params);
-        OAuthRequest request = prepareGetRequest(reqUrl);
-        injectDefaultHeaders(request);
-        injectSession(request);
-        Response response = null;
+        Response response;
         try {
+            OAuthRequest request = prepareGetRequest(reqUrl);
+            injectDefaultHeaders(request);
+            injectSession(request);
             response = service.execute(request);
+
+            if (response.getCode() == 401) {
+                accessToken = service.refreshAccessToken(refreshToken);
+                request = prepareGetRequest(reqUrl);
+                injectDefaultHeaders(request);
+                injectSession(request);
+                response = service.execute(request);
+            }
+
             storeSession(response);
             checkErrorCodes(response, reqUrl, secure);
         } catch (InterruptedException | ExecutionException | IOException e) {
@@ -256,12 +265,21 @@ public abstract class AbsJCPClient implements JCPClient {
 
         // Send request
         String reqUrl = url;
-        OAuthRequest request = preparePostRequest(reqUrl, param);
-        injectDefaultHeaders(request);
-        injectSession(request);
-        Response response = null;
+        Response response;
         try {
+            OAuthRequest request = preparePostRequest(reqUrl, param);
+            injectDefaultHeaders(request);
+            injectSession(request);
             response = service.execute(request);
+
+            if (response.getCode() == 401) {
+                accessToken = service.refreshAccessToken(refreshToken);
+                request = preparePostRequest(reqUrl, param);
+                injectDefaultHeaders(request);
+                injectSession(request);
+                response = service.execute(request);
+            }
+
             storeSession(response);
             checkErrorCodes(response, reqUrl, secure);
         } catch (InterruptedException | ExecutionException | IOException e) {
@@ -314,12 +332,21 @@ public abstract class AbsJCPClient implements JCPClient {
 
         // Send request
         String reqUrl = url;
-        OAuthRequest request = prepareDeleteRequest(reqUrl, param);
-        injectDefaultHeaders(request);
-        injectSession(request);
-        Response response = null;
+        Response response;
         try {
+            OAuthRequest request = prepareDeleteRequest(reqUrl, param);
+            injectDefaultHeaders(request);
+            injectSession(request);
             response = service.execute(request);
+
+            if (response.getCode() == 401) {
+                accessToken = service.refreshAccessToken(refreshToken);
+                request = prepareDeleteRequest(reqUrl, param);
+                injectDefaultHeaders(request);
+                injectSession(request);
+                response = service.execute(request);
+            }
+
             storeSession(response);
             checkErrorCodes(response, reqUrl, secure);
         } catch (InterruptedException | ExecutionException | IOException e) {
@@ -345,7 +372,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * @param service OAuth2 service representation.
      * @return the OAuth2 access token.
      */
-    protected abstract OAuth2AccessToken getAccessToken(OAuth20Service service) throws SSLHandshakeException, InterruptedException, ExecutionException, IOException;
+    protected abstract OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException;
 
 
     // Sub classes utils
@@ -354,7 +381,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * Init java SSLContext with fake {@link javax.net.ssl.TrustManager} and
      * replace the SSL HostnameVerifier that accept only <code>localhost</code>.
      */
-    protected void disableSSLChecks() {
+    public static void disableSSLChecks() {
         try {
             JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
         } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
@@ -542,7 +569,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * @param headerName  the header's name.
      * @param headerValue the header's value.
      */
-    protected void addDefaultHeader(String headerName, String headerValue) {
+    public void addDefaultHeader(String headerName, String headerValue) {
         defaultHeaders.put(headerName, headerValue);
     }
 
@@ -551,7 +578,7 @@ public abstract class AbsJCPClient implements JCPClient {
      *
      * @param headerName the header to remove name.
      */
-    protected void removeDefaultHeader(String headerName) {
+    public void removeDefaultHeader(String headerName) {
         defaultHeaders.remove(headerName);
     }
 
@@ -563,6 +590,18 @@ public abstract class AbsJCPClient implements JCPClient {
     private void injectDefaultHeaders(OAuthRequest request) {
         for (Map.Entry<String, String> h : defaultHeaders.entrySet())
             request.addHeader(h.getKey(), h.getValue());
+    }
+
+
+    // Refresh token
+
+    public void setRefreshToken(String refreshToken) {
+        System.out.println("ATTENZIONE: set Refresh Token: " + refreshToken);
+        this.refreshToken = refreshToken;
+    }
+
+    public String getRefreshToken() {
+        return this.refreshToken;
     }
 
 }
