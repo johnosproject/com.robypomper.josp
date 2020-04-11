@@ -3,11 +3,19 @@ package com.robypomper.josp.core.jcpclient;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
 
 /**
  * JCPClient implementation for OAuth2 Authentication Code Flow.
  */
-public abstract class JCPClient_AuthFlow extends AbsJCPClient {
+public class JCPClient_AuthFlow extends AbsJCPClient {
+
+    // Internal vars
+
+    private String code = null;
+
 
     // Constructor
 
@@ -18,7 +26,7 @@ public abstract class JCPClient_AuthFlow extends AbsJCPClient {
      * @param autoConnect if <code>true</code>, then the client will connect to
      *                    JCP immediately after clienti initialization.
      */
-    protected JCPClient_AuthFlow(JCPConfigs configs, boolean autoConnect) {
+    public JCPClient_AuthFlow(JCPConfigs configs, boolean autoConnect) throws ConnectionException {
         super(configs, autoConnect);
     }
 
@@ -27,11 +35,22 @@ public abstract class JCPClient_AuthFlow extends AbsJCPClient {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * ToDo: implement JCPClient_AuthFlow#getAccessToken method
      */
     @Override
-    protected OAuth2AccessToken getAccessToken(OAuth20Service service) {
-        throw new RuntimeException("JCPClient_AuthFlow::getAccessToken() not yet implemented");
+    protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException {
+        if (code == null)
+            throw new ConnectionException("Before request the access token, must be set the authentication token.");
+        final String code = this.code;
+
+        final OAuth2AccessToken accessToken;
+        try {
+            accessToken = service.getAccessToken(code);
+
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            throw new ConnectionException(String.format("Error requiring the access token because %s.", e.getMessage()), e);
+        }
+
+        return accessToken;
     }
+
 }

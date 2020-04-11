@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * JCPClient implementation for OAuth2 Client Credentials Flow.
  */
-public abstract class JCPClient_CliCredFlow extends AbsJCPClient {
+public class JCPClient_CliCredFlow extends AbsJCPClient {
 
     // Constructor
 
@@ -21,7 +21,7 @@ public abstract class JCPClient_CliCredFlow extends AbsJCPClient {
      * @param autoConnect if <code>true</code>, then the client will connect to
      *                    JCP immediately after clienti initialization.
      */
-    protected JCPClient_CliCredFlow(JCPConfigs configs, boolean autoConnect) {
+    public JCPClient_CliCredFlow(JCPConfigs configs, boolean autoConnect) throws ConnectionException {
         super(configs, autoConnect);
     }
 
@@ -34,9 +34,14 @@ public abstract class JCPClient_CliCredFlow extends AbsJCPClient {
      * Send an access token request to authorization server.
      */
     @Override
-    protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws InterruptedException, ExecutionException, IOException {
+    protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException {
         final OAuth2AccessToken accessToken;
-        accessToken = service.getAccessTokenClientCredentialsGrant();
+        try {
+            accessToken = service.getAccessTokenClientCredentialsGrant();
+
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            throw new ConnectionException(String.format("Error requiring the access token because %s.", e.getMessage()), e);
+        }
         return accessToken;
     }
 
