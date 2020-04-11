@@ -1,6 +1,7 @@
 package com.robypomper.josp.core.jcpclient;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
 import java.io.IOException;
@@ -46,15 +47,18 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      */
     @Override
     protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException {
-        if (code == null)
-            throw new ConnectionException("Before request the access token, must be set the authentication token.");
-        final String code = this.code;
+        if (getLoginCode() == null && getRefreshToken() == null)
+            throw new ConnectionException("Before request the access token, must be set the authentication code or the refresh token.");
+        final String code = getLoginCode();
 
         final OAuth2AccessToken accessToken;
         try {
-            accessToken = service.getAccessToken(code);
+            if (code != null)
+                accessToken = service.getAccessToken(code);
+            else
+                accessToken = service.refreshAccessToken(getRefreshToken());
 
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (IOException | InterruptedException | ExecutionException | OAuth2AccessTokenErrorResponse e) {
             throw new ConnectionException(String.format("Error requiring the access token because %s.", e.getMessage()), e);
         }
 
@@ -76,6 +80,13 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      */
     public String getLoginUrl() {
         return getOAuthService().getAuthorizationUrl();
+    }
+
+    /**
+     * @return the login code received after user login.
+     */
+    public String getLoginCode() {
+        return code;
     }
 
     /**
