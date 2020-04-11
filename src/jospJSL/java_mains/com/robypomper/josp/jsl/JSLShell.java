@@ -215,7 +215,8 @@ public class JSLShell {
     public void startShell(String objName) throws IOException {
         shell = ShellFactory.createConsoleShell(JSLInfo.APP_NAME + "-" + objName, JSLInfo.APP_NAME_FULL,
                 this,
-                new CmdsJSL(jsl)
+                new CmdsJSL(jsl),
+                new CmdsJCPClient(jsl.getJCPClient())
         );
         shell.commandLoop();
     }
