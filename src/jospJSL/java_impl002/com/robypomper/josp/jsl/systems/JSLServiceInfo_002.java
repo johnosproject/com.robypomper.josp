@@ -5,7 +5,16 @@ import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.srvinfo.JCPServiceInfo;
 
 
+/**
+ *
+ */
 public class JSLServiceInfo_002 implements JSLServiceInfo {
+
+    // Class constants
+
+    private static final String SRVNAME_OFFLINE = "NoSrvName-Offline";
+    private static final String SRVID_OFFLINE = "ZZZZZ-ZZZZZ-ZZZZZ";
+
 
     // Internal vars
 
@@ -34,7 +43,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
 
         // force value caching
         String srvId = getSrvId();
-        getSrvName();
+        getSrvName(!jcpClient.isConnected());
 
         jcpClient.setServiceId(srvId);
 
@@ -65,8 +74,14 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
         if (locSettings.getSrvId().isEmpty()) {
             try {
                 locSettings.setSrvId(jcpSrvInfo.getId());
+
             } catch (Throwable ignore) {
+                if (!locSettings.getSrvId().isEmpty())
+                    return locSettings.getSrvId();
+
+                System.out.println("Service must be online at his first boot to get his id and other service's staffs.");
                 ignore.printStackTrace();
+                return SRVID_OFFLINE;
             }
         }
 
@@ -78,11 +93,29 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public String getSrvName() {
-        if (locSettings.getSrvName().isEmpty()) {
+        return getSrvName(true);
+    }
+
+    /**
+     * Human readable service's name from cache if given param is <code>true</code>.
+     * Otherwise it require the service's name from the JCP cloud.
+     *
+     * @param cached if <code>true</code>, then it get the value from local cache copy.
+     * @return the service's name.
+     */
+    public String getSrvName(boolean cached) {
+        if (!cached || locSettings.getSrvName().isEmpty())
             try {
                 locSettings.setSrvName(jcpSrvInfo.getName());
-            } catch (Throwable ignore) {}
-        }
+
+            } catch (Throwable ignore) {
+                if (!locSettings.getSrvName().isEmpty())
+                    return locSettings.getSrvName();
+
+                System.out.println("Service must be online at his first boot to get his name and other service's staffs.");
+                ignore.printStackTrace();
+                return SRVNAME_OFFLINE;
+            }
 
         return locSettings.getSrvName();
     }
