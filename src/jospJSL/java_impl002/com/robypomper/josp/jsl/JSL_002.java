@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,6 +68,11 @@ public class JSL_002 extends AbsJSL {
         public static final String JSLSRV_NAME_DEF          = "";
         public static final String JSLSRV_ID                = "jsl.srv.id";
         public static final String JSLSRV_ID_DEF            = "";
+
+        public static final String JSLUSR_NAME              = "jsl.usr.name";
+        public static final String JSLUSR_NAME_DEF          = "";
+        public static final String JSLUSR_ID                = "jsl.usr.id";
+        public static final String JSLUSR_ID_DEF            = "";
         //@formatter:on
 
         private final File file;
@@ -192,6 +196,25 @@ public class JSL_002 extends AbsJSL {
             store(JSLSRV_NAME, srvName);
         }
 
+        // User info
+
+        public String getUsrId() {
+            return properties.get(JSLUSR_ID) != null ? properties.get(JSLUSR_ID) :
+                    JSLUSR_ID_DEF;
+        }
+
+        public void setUsrId(String userId) {
+            store(JSLUSR_ID, userId);
+        }
+
+        public String getUsrName() {
+            return properties.get(JSLUSR_NAME) != null ? properties.get(JSLUSR_NAME) :
+                    JSLUSR_NAME_DEF;
+        }
+
+        public void setUsrName(String username) {
+            store(JSLUSR_NAME, username);
+        }
     }
 
     @Override
