@@ -217,7 +217,8 @@ public class JSLShell {
                 this,
                 new CmdsJSL(jsl),
                 new CmdsJCPClient(jsl.getJCPClient()),
-                new CmdsJSLServiceInfo(jsl.getServiceInfo())
+                new CmdsJSLServiceInfo(jsl.getServiceInfo()),
+                new CmdsJSLUserMngr(jsl.getUserMngr())
         );
         shell.commandLoop();
     }
