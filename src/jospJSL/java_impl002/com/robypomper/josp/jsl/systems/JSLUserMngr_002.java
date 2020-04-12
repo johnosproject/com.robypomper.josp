@@ -6,6 +6,9 @@ import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.user.JCPUserSrv;
 
 
+/**
+ *
+ */
 public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginManager {
 
     // Class constants
@@ -13,13 +16,12 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
     public static final String ANONYMOUS_ID = "00000-00000-00000";
     public static final String ANONYMOUS_USERNAME = "Anonymous";
 
+
     // Internal vars
 
     private final JSL_002.Settings settings;
     private final JCPClient_Service jcpClient;
     private final JCPUserSrv jcpUser;
-    private String usrId;
-    private String username;
 
 
     // Constructor
@@ -29,6 +31,9 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         this.jcpClient = jcpClient;
         this.jcpClient.setLoginManager(this);
         jcpUser = new JCPUserSrv(jcpClient);
+
+        if (jcpClient.isAuthCodeFlowEnabled())
+            onLogin();
     }
 
 
@@ -50,9 +55,10 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         if (jcpClient.isCliCredFlowEnabled())
             return ANONYMOUS_ID;
 
-        if (usrId != null) {
+        if (settings.getUsrId().isEmpty()) {
             try {
-                usrId = jcpUser.getUserId();
+                settings.setUsrId(jcpUser.getUserId());
+
             } catch (JCPClient.ConnectionException e) {
                 System.out.println(String.format("WAR: can't get user id because %s", e.getMessage())); // No connection error???
                 e.printStackTrace();
@@ -65,7 +71,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
             }
         }
 
-        return usrId;
+        return settings.getUsrId();
     }
 
     /**
@@ -73,60 +79,83 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
      */
     @Override
     public String getUsername() {
+        return getUsername(true);
+    }
+
+    /**
+     * Service user's username from cache if given param is <code>true</code>.
+     * Otherwise it require the username from the JCP cloud.
+     *
+     * @param cached if <code>true</code>, then it get the value from local cache copy.
+     * @return the service user's username.
+     */
+    public String getUsername(boolean cached) {
         if (jcpClient.isCliCredFlowEnabled())
             return ANONYMOUS_USERNAME;
 
-        if (username != null) {
+        if (!cached || settings.getUsrName().isEmpty()) {
             try {
-                username = jcpUser.getUserId();
+                settings.setUsrName(jcpUser.getUsername());
+
             } catch (JCPClient.ConnectionException e) {
-                System.out.println(String.format("WAR: can't get user id because %s", e.getMessage())); // No connection error???
+                System.out.println(String.format("WAR: can't get username because %s", e.getMessage())); // No connection error???
                 e.printStackTrace();
                 return ANONYMOUS_USERNAME;
 
             } catch (JCPClient.RequestException e) {
-                System.out.println(String.format("WAR: can't get user id because %s", e.getMessage())); // User not authenticated error???
+                System.out.println(String.format("WAR: can't get username because %s", e.getMessage())); // User not authenticated error???
                 e.printStackTrace();
                 return ANONYMOUS_USERNAME;
             }
         }
 
-        return username;
-    }
-
-    /**
-     * Reset all user's cached info.
-     * <p>
-     * This method is call on user logout.
-     */
-    private void invalidateCachedData() {
-        usrId = null;
-        username = null;
+        return settings.getUsrName();
     }
 
 
     // LoginManager impl
 
+    /**
+     * Method to handle the user login.
+     * <p>
+     * This method is called onLogin event from
+     * {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service.LoginManager}
+     * and update the current user of JSL library.
+     */
     public void onLogin() {
         // Cache user's info
         String loggedUsrId = getUserId();
-        getUsername();
-
-        System.out.println(String.format("INF: user '%s' logged in.", loggedUsrId));
+        String username = getUsername(!jcpClient.isConnected());
 
         // Set JCP Client user id header
         jcpClient.setUserId(loggedUsrId);
+
+        // Store user refresh token
+        settings.setRefreshToken(jcpClient.getRefreshToken());
+
+        System.out.println(String.format("INF: user '%s' logged in.", username));
     }
 
+    /**
+     * Method to handle the user logout.
+     * <p>
+     * This method is called onLogout event from
+     * {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service.LoginManager}
+     * and reset the current user of JSL library to anonymous user.
+     */
     public void onLogout() {
-        String loggedUsrId = getUserId();
+        String username = getUsername();
 
-        invalidateCachedData();
+        settings.setUsrId("");
+        settings.setUsrName("");
 
         // Set JCP Client user id header
         jcpClient.setUserId(null);
 
-        System.out.println(String.format("INF: user '%s' logged out.", loggedUsrId));
+        // Reset user refresh token
+        settings.setRefreshToken(jcpClient.getRefreshToken());
+
+        System.out.println(String.format("INF: user '%s' logged out.", username));
     }
 
 }
