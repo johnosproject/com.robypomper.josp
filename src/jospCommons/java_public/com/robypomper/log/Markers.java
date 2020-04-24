@@ -16,6 +16,13 @@ public class Markers {
     public static final Marker SPACER   = MarkerManager.getMarker("SPACER");        // log spacer and bars
 
 
+    // Sub-Components: Communication
+
+    public static final Marker COMM             = MarkerManager.getMarker("COMM").setParents(SUB_COMP);             // all communication component logs
+
+
+    // Tests
+
     public static final Marker TEST_METHODS     = MarkerManager.getMarker("TEST_METHODS").setParents(TEST).setParents(METHODS);
     public static final Marker TEST_SPACER      = MarkerManager.getMarker("TEST_SEPARATOR").setParents(TEST).setParents(SPACER);
     //@formatter: on
