@@ -18,3 +18,37 @@ dependencies {
     jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
     jospCommonsImplementation 'org.jmdns:jmdns:3.5.5'                                 // mDNS
 }
+
+
+// Tests
+
+sourceSets {
+    jospCommonsTest {
+        compileClasspath += sourceSets.jospCommons.output
+        runtimeClasspath += sourceSets.jospCommons.output
+    }
+}
+
+configurations {
+    jospCommonsTestImplementation.extendsFrom jospCommonsImplementation
+    jospCommonsTestRuntimeOnly.extendsFrom jospCommonsRuntimeOnly
+}
+
+dependencies {
+    // Commons test
+    jospCommonsTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    jospCommonsTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+}
+
+task jospCommonsTest(type: Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.jospCommonsTest.output.classesDirs
+    classpath = sourceSets.jospCommonsTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+
+check.dependsOn jospCommonsTest
