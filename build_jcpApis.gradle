@@ -62,6 +62,9 @@ sourceSets {
 // Micro service's run tasks
 SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpApis)
 
+tasks.bootJcpApisRun {
+    //jvmArgs = ['-Djavax.net.debug=ssl']
+}
 
 dependencies {
     jcpApisPublicImplementation sourceSets.jospCommons.output

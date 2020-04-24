@@ -60,6 +60,7 @@ JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJSL,'com.robypomp
 tasks.javaJospJOD_ShellRun {
     standardInput = System.in
     args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
+    //jvmArgs = ['-Djavax.net.debug=ssl']
 }
 
 tasks.javaJospJSL_ShellRun {
