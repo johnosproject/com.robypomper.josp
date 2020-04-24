@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Appenders>
+
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <!-- see com.robypomper.log.Markers
+            <Filters>
+                <MarkerFilter marker="COMM_SRV" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <MarkerFilter marker="COMM_CLI" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <MarkerFilter marker="COMM" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <MarkerFilter marker="TEST_METHOD" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <MarkerFilter marker="TEST" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            -->
+            <PatternLayout pattern="%highlight{%d{DEFAULT} [ %-5level | %-15.15markerSimpleName | %-15.-15threadName | %-30.30logger{1.} ] - %msg}%n"/>
+        </Console>
+
+    </Appenders>
+
+
+    <Loggers>
+
+        <Root level="debug">
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+
+    </Loggers>
+
+</Configuration>
