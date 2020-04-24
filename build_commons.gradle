@@ -14,4 +14,5 @@ dependencies {
     jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
     jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
     jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    jospCommonsImplementation 'org.jmdns:jmdns:3.5.5'                                 // mDNS
 }
