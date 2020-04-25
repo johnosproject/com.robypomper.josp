@@ -7,6 +7,8 @@ import com.robypomper.communication.server.Server;
  */
 public interface ServerEvents {
 
+    // Setter
+
     /**
      * Set the server instance to current event listener instance.
      *
