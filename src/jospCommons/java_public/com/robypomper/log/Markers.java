@@ -21,6 +21,7 @@ public class Markers {
     public static final Marker COMM             = MarkerManager.getMarker("COMM").setParents(SUB_COMP);             // all communication component logs
     public static final Marker COMM_SRV         = MarkerManager.getMarker("COMM_SRV").setParents(COMM);             // all server component logs
     public static final Marker COMM_SRV_IMPL    = MarkerManager.getMarker("COMM_SRV_IMPL").setParents(COMM);        // all server implementations logs
+    public static final Marker COMM_SSL_CERTSRV = MarkerManager.getMarker("COMM_SSL_CERTSRV").setParents(COMM);     // all ssl certificate server logs
 
 
     // Tests
