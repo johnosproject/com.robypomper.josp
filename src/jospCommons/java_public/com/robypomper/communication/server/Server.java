@@ -67,7 +67,7 @@ public interface Server {
      * Return <code>true</code> if given param is a "good bye" message from the
      * client.
      */
-    boolean isByeMsg(byte[] data);
+    boolean isCliByeMsg(byte[] data);
 
 
     // Clients mngm

@@ -1,5 +1,6 @@
 package com.robypomper.communication.server;
 
+import com.robypomper.communication.client.DefaultClient;
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
@@ -249,8 +250,8 @@ public class DefaultServer implements Server {
      * {@inheritDoc}
      */
     @Override
-    public boolean isByeMsg(byte[] data) {
-        return Arrays.equals(MSG_BYE_SRV, data);
+    public boolean isCliByeMsg(byte[] data) {
+        return Arrays.equals(DefaultClient.MSG_BYE_CLI, data);
     }
 
 
@@ -422,7 +423,7 @@ public class DefaultServer implements Server {
 
                 // Process received data
                 try {
-                    if (isByeMsg(dataRead)) {
+                    if (isCliByeMsg(dataRead)) {
                         clientSendByeMsg = true;
                         break;
                     }
@@ -453,14 +454,18 @@ public class DefaultServer implements Server {
         }
 
         // Client disconnection events
-        client.closeConnection();
         if (sce != null) {
-            if (clientSendByeMsg)
+            if (clientSendByeMsg) {
                 sce.onClientGoodbye(client);
-            else if (mustShutdown)
+                if (client.isConnected()) client.closeConnection();
+
+            } else if (mustShutdown) {
                 sce.onClientServerDisconnected(client);
-            else
+            }
+            else {
                 sce.onClientTerminated(client);
+                if (client.isConnected()) client.closeConnection();
+            }
             sce.onClientDisconnection(client);
         }
 

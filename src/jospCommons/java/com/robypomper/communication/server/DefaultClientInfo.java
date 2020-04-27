@@ -66,6 +66,12 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
             return true;
 
         try {
+            getSocket().getOutputStream().write(DefaultServer.MSG_BYE_SRV);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
             getSocket().close();
         } catch (IOException e) {
             return false;

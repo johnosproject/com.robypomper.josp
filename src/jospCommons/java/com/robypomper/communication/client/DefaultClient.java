@@ -193,7 +193,13 @@ public class DefaultClient implements Client {
             return;
         }
 
-        log.info(Markers.COMM_CL, String.format("Disconnecting server '%s'", getClientId()));
+        log.info(Markers.COMM_CL, String.format("Disconnecting client '%s'", getClientId()));
+        try {
+            clientSocket.getOutputStream().write(MSG_BYE_CLI);
+        } catch (IOException e) {
+            log.warn(Markers.COMM_CL, String.format("Client '%s' can't send BYE message", getClientId()));
+            if (cle != null) cle.onDisconnectionError(e);
+        }
 
         // Terminate server thread
         mustShutdown = true;
@@ -377,8 +383,10 @@ public class DefaultClient implements Client {
             if (serverSendByeMsg) {
                 cse.onServerGoodbye();
                 if (isConnected()) disconnect(true);
+
             } else if (mustShutdown)
                 cse.onServerClientDisconnected();
+
             else {
                 cse.onServerTerminated();
                 if (isConnected()) disconnect(true);

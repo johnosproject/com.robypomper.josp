@@ -1,5 +1,6 @@
 package com.robypomper.communication.server;
 
+import com.robypomper.communication.client.DefaultClient;
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.events.LogServerLocalEventsListener;
 import com.robypomper.communication.server.events.LogServerMessagingEventsListener;
@@ -61,7 +62,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         Socket s = connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
 
         // Disconnect client (terminate)
-        clientSend(s, DefaultServer.MSG_BYE_SRV);
+        clientSend(s, DefaultClient.MSG_BYE_CLI);
         s.close();
         Assertions.assertTrue(latchSCE.onClientDisconnection.await(1, TimeUnit.SECONDS));
         Assertions.assertTrue(latchSCE.onClientGoodbye.await(1, TimeUnit.SECONDS));
