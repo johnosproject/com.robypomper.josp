@@ -121,7 +121,8 @@ public class SSLCertClientTest {
         Assertions.assertEquals(1, clientCertTrustManager.getAcceptedIssuers().length);
         Assertions.assertEquals(0, serverCertTrustManager.getAcceptedIssuers().length);
 
-        clientSSLCert.disconnect();
+        //clientSSLCert.disconnect();
+        Assertions.assertFalse(clientSSLCert.isConnected());
 
         // Stop test server
         stopServer(serverSSLCert);
@@ -139,7 +140,8 @@ public class SSLCertClientTest {
         Assertions.assertEquals(1, clientCertTrustManager.getAcceptedIssuers().length);
         Assertions.assertEquals(1, serverCertTrustManager.getAcceptedIssuers().length);
 
-        clientSSLCert.disconnect();
+        //clientSSLCert.disconnect();
+        Assertions.assertFalse(clientSSLCert.isConnected());
 
         // Stop test server
         stopServer(serverSSLCert);

@@ -215,7 +215,8 @@ public class DefaultClient implements Client {
 
         // Join server thread
         try {
-            clientThread.join(1000);
+            if (Thread.currentThread()!=clientThread)
+                clientThread.join(1000);
 
 
         } catch (InterruptedException e) {
@@ -254,7 +255,7 @@ public class DefaultClient implements Client {
             throw new ServerNotConnectedException(getServerInfo().getServerId(), e);
         }
 
-        log.debug(Markers.COMM_CL, String.format("Client '%s' send to server '%s' data '%s...'", getClientId(), getServerInfo().getServerId(), new String(data, PeerInfo.CHARSET).substring(0, 10)));
+        log.debug(Markers.COMM_CL, String.format("Client '%s' send to server '%s' data '%s...'", getClientId(), getServerInfo().getServerId(), new String(data, PeerInfo.CHARSET).substring(0, Math.min(data.length,10))));
         cme.onDataSend(data);
         cme.onDataSend(new String(data, PeerInfo.CHARSET));
     }
