@@ -142,8 +142,9 @@ public class SSLCertServer extends DefaultServer {
 
         try {
             certTrustManager.addCertificateByte(clientCertBytes);
+
         } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
-            log.warn(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' can't add certificate from client '%s'", getServerId(), client.getClientId()));
+            log.warn(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' can't add certificate from client '%s' because %s", getServerId(), client.getClientId(), e.getMessage()));
         }
     }
 

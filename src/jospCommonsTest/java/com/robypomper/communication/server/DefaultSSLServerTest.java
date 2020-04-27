@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 import java.io.File;
 import java.io.IOException;
@@ -222,7 +223,7 @@ public class DefaultSSLServerTest {
 
         // Connect client
         SSLSocket s = (SSLSocket) clientSSLContext.getSocketFactory().createSocket(LOCALHOST, PORT);
-        s.startHandshake();
+        Assertions.assertThrows(SSLHandshakeException.class,s::startHandshake);
         Assertions.assertFalse(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
         Assertions.assertTrue(s.isConnected()); // Client result connected even the server closed connection on his side
 

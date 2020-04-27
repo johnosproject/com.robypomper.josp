@@ -45,7 +45,7 @@ public class DefaultSSLServer extends DefaultServer {
      *                    certificate).
      * @param serverMessagingEventsListener the tx and rx messaging listener.
      */
-    protected DefaultSSLServer(SSLContext sslCtx, String serverId, int port, boolean requireAuth, ServerMessagingEvents serverMessagingEventsListener) {
+    public DefaultSSLServer(SSLContext sslCtx, String serverId, int port, boolean requireAuth, ServerMessagingEvents serverMessagingEventsListener) {
         super(serverId, port, serverMessagingEventsListener);
         this.sslCtx = sslCtx;
         this.requireAuth = requireAuth;
@@ -66,7 +66,7 @@ public class DefaultSSLServer extends DefaultServer {
      * @param serverClientEventsListener the clients events listener.
      * @param serverMessagingEventsListener the tx and rx messaging listener.
      */
-    protected DefaultSSLServer(SSLContext sslCtx, String serverId, int port, boolean requireAuth, ServerLocalEvents serverLocalEventsListener, ServerClientEvents serverClientEventsListener, ServerMessagingEvents serverMessagingEventsListener) {
+    public DefaultSSLServer(SSLContext sslCtx, String serverId, int port, boolean requireAuth, ServerLocalEvents serverLocalEventsListener, ServerClientEvents serverClientEventsListener, ServerMessagingEvents serverMessagingEventsListener) {
         super(serverId, port, serverLocalEventsListener, serverClientEventsListener, serverMessagingEventsListener);
         this.sslCtx = sslCtx;
         this.requireAuth = requireAuth;

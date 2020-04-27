@@ -32,6 +32,7 @@ public class SSLCertServerTest {
 
     final static String ID_SERVER = "TestSSLCertServer";
     final static int PORT = 1234;
+    final static String ID_CLIENT = "TestCustomClient";
     final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
     final static String SRV_CERT_PUB_PATH = String.format("server-%s.crt", SSLCertServerTest.class.getSimpleName());
     final static String CLI_CERT_PUB_PATH = String.format("client-%s.crt", SSLCertServerTest.class.getSimpleName());
@@ -56,7 +57,7 @@ public class SSLCertServerTest {
         UtilsJKS.exportCertificate(serverKs, SRV_CERT_PUB_PATH, "serverCertificateAlias");
 
         log.debug(Markers.TEST, String.format("Generation of client keystore and export certificate to file '%s'", CLI_CERT_PUB_PATH));
-        KeyStore clientKs = UtilsJKS.generateKeyStore(ID_SERVER, "ksPass", "clientCertificateAlias");
+        KeyStore clientKs = UtilsJKS.generateKeyStore(ID_CLIENT, "ksPass", "clientCertificateAlias");
         UtilsJKS.exportCertificate(clientKs, CLI_CERT_PUB_PATH, "clientCertificateAlias");
     }
 
@@ -68,6 +69,11 @@ public class SSLCertServerTest {
             log.debug(Markers.TEST, String.format("Public certificate file '%s' delete successfully", SRV_CERT_PUB_PATH));
         else
             log.debug(Markers.TEST, String.format("Error on deleting public certificate file '%s'", SRV_CERT_PUB_PATH));
+
+        if (new File(CLI_CERT_PUB_PATH).delete())
+            log.debug(Markers.TEST, String.format("Public certificate file '%s' delete successfully", CLI_CERT_PUB_PATH));
+        else
+            log.debug(Markers.TEST, String.format("Error on deleting public certificate file '%s'", CLI_CERT_PUB_PATH));
     }
 
     @BeforeEach
