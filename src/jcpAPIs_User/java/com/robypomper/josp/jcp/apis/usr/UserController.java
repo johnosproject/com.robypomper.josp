@@ -26,6 +26,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
+
 /**
  * Base JCP API Usrs controller, dedicated to provide current user info.
  */
@@ -48,7 +49,7 @@ public class UserController {
     // Methods
 
     /**
-     * Return current {@link User} instance.
+     * Return current user id and username.
      * <p>
      * This method afterwards check if the user is registered in the JCP db. If
      * not, the it query the auth's server and register current user in the JCP
@@ -67,7 +68,7 @@ public class UserController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "User's id and username", response = User.class),
+            @ApiResponse(code = 200, message = "User's id and username", response = UsrName.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 404, message = "User with specified id not found"),
             @ApiResponse(code = 500, message = "Authorization not setup"),

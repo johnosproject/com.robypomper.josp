@@ -5,6 +5,7 @@ import com.robypomper.communication.peer.DefaultPeerInfo;
 import java.io.IOException;
 import java.net.Socket;
 
+
 /**
  * Default implementation of ClientInfo interface.
  */
@@ -23,7 +24,7 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
      *
      * @param socket the communication channel socket.
      * @param clientId the represented client's id.
-     * @param thread the thread encarghed to process all client requests.
+     * @param thread the thread charged to process all client requests.
      */
     public DefaultClientInfo(Socket socket, String clientId, Thread thread) {
         super(socket);

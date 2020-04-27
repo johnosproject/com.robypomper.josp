@@ -83,7 +83,7 @@ public class DefaultServer implements Server {
         this.sce = serverClientEventsListener;
         this.sce.setServer(this);
         if (serverMessagingEventsListener == null)
-            throw new IllegalArgumentException("AbsServer can't be initialized with a null ServerMessagingEvents param.");
+            throw new IllegalArgumentException("DefaultServer can't be initialized with a null ServerMessagingEvents param.");
         this.sme = serverMessagingEventsListener;
         this.sme.setServer(this);
     }
@@ -294,9 +294,9 @@ public class DefaultServer implements Server {
     /**
      * Generate a {@link ServerSocket} and bound it on server's port.
      *
-     * Subclasses can override this method to set a differente ServerSocket instance.
+     * Subclasses can override this method to set a different ServerSocket instance.
      *
-     * @return the ServerSocket isntance.
+     * @return the ServerSocket instance.
      */
     protected ServerSocket generateAndBoundServerSocket() throws IOException {
         log.debug(Markers.COMM_SRV, String.format("server '%s' initialized as TCP server on port '%d'", getServerId(), getPort()));
@@ -306,7 +306,7 @@ public class DefaultServer implements Server {
     /**
      * Generate a {@link ClientInfo} based on give socket.
      *
-     * @return the ClientInfo isntance rapresenting given client's socket.
+     * @return the ClientInfo instance representing given client's socket.
      */
     protected ClientInfo generateAndStartClientInfo(Socket socket) {
         String clientId = String.format(ID_CLI_FORMAT, socket.getInetAddress(), socket.getPort());

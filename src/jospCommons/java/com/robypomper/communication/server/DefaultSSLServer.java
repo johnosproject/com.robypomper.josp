@@ -76,7 +76,7 @@ public class DefaultSSLServer extends DefaultServer {
     // Subclassing customization
 
     /**
-     * Generate a {@link ServerSocket} and bound it on server's port.
+     * {@inheritDoc}
      *
      * This implementation use set {@link SSLContext} to initialize a new
      * {@link SSLServerSocket}.
@@ -91,7 +91,7 @@ public class DefaultSSLServer extends DefaultServer {
     }
 
     /**
-     * Generate a {@link ClientInfo} based on give socket.
+     * {@inheritDoc}
      *
      * This implementation use the client's certificate commonName as client
      * id. This value is read from SSL session, so client must start the handshake

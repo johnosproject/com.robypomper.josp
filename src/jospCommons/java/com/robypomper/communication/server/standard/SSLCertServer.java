@@ -22,12 +22,12 @@ import java.util.Map;
 /**
  * SSL sharing Certificate server.
  * <p>
- * This is a {@link DefaultServer} implementation that hallow client to share
- * SSL certificates. For each new client this server send his public key, and,
- * if the client need authentication, then it can send his certificate and this
- * server store it to associated TrustManager.
+ * This is a {@link DefaultServer} implementation that allow server to share
+ * SSL certificates with the client. For each new client this server send his
+ * public certificate, and, if the client need authentication, then it can send
+ * his certificate and this server store it to associated TrustManager.
  * <p>
- * The managed TrustManager provided by this class can be used to initialize a
+ * The TrustManager managed by this class can be used to initialize a
  * {@link javax.net.ssl.SSLContext} so a client can register him self to the
  * server without previously key sharing.
  */
