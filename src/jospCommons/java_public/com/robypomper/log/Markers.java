@@ -26,6 +26,7 @@ public class Markers {
     public static final Marker COMM_CL          = MarkerManager.getMarker("COMM_CL").setParents(COMM);              // all client component logs
     public static final Marker COMM_CL_IMPL     = MarkerManager.getMarker("COMM_CL_IMPL").setParents(COMM);         // all client implementations logs
     public static final Marker COMM_SSL_CERTCLI = MarkerManager.getMarker("COMM_SSL_CERTCLI").setParents(COMM_CL_IMPL);         // all ssl certificate client logs
+    public static final Marker COMM_SSL_CL      = MarkerManager.getMarker("COMM_SSL_CL").setParents(COMM);          // all ssl client component logs
 
 
     // Tests
