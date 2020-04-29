@@ -39,6 +39,7 @@ public class SSLCertServer extends DefaultServer {
     private final File certPubFile;
     private final AbsCustomTrustManager certTrustManager;
     private final Map<String, byte[]> clientCertBuffer = new HashMap<>();
+    private final SSLCertServerListener listener;
 
 
     // Constructor
@@ -53,6 +54,21 @@ public class SSLCertServer extends DefaultServer {
      *                         be stored.
      */
     public SSLCertServer(String serverId, int port, String certPubPath, AbsCustomTrustManager certTrustManager) throws SSLCertServerException {
+        this(serverId,port,certPubPath,certTrustManager,null);
+    }
+
+    /**
+     * Default constructor.
+     *
+     * @param serverId         the server id.
+     * @param port             the server's port.
+     * @param certPubPath      server's public certificate file's path.
+     * @param certTrustManager instance of TrustManager where client's keys will
+     *                         be stored.
+     * @param listener         listener for certificate events (send and stored).
+     */
+    public SSLCertServer(String serverId, int port, String certPubPath, AbsCustomTrustManager certTrustManager,
+                         SSLCertServerListener listener) throws SSLCertServerException {
         super(serverId, port,
                 new LogServerLocalEventsListener(),
                 new SSLCertServerClientEventsListener(),
@@ -62,6 +78,7 @@ public class SSLCertServer extends DefaultServer {
         if (!certPubFile.exists())
             throw new SSLCertServerException(String.format("Public cert file '%s' not found.", certPubPath));
         this.certTrustManager = certTrustManager;
+        this.listener = listener;
     }
 
 
@@ -87,6 +104,7 @@ public class SSLCertServer extends DefaultServer {
                 sendData(client, dataRead);
             }
             log.debug(Markers.COMM_SSL_CERTSRV, String.format("Server send local certificate to client '%s'", client.getClientId()));
+            if (listener!=null) listener.onCertificateSend(client);
             Thread.sleep(100);
 
         } catch (ServerStoppedException e) {
@@ -141,7 +159,8 @@ public class SSLCertServer extends DefaultServer {
         log.debug(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' add certificate from client '%s' to trust store", getServerId(), client.getClientId()));
 
         try {
-            certTrustManager.addCertificateByte(clientCertBytes);
+            certTrustManager.addCertificateByte(client.getClientId(),clientCertBytes);
+            if (listener!=null) listener.onCertificateStored(certTrustManager,client);
 
         } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
             log.warn(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' can't add certificate from client '%s' because %s", getServerId(), client.getClientId(), e.getMessage()));
@@ -285,6 +304,33 @@ public class SSLCertServer extends DefaultServer {
         public boolean onDataReceived(ClientInfo client, String readData) {
             return false;
         }
+
+    }
+
+
+    // SSLCertServer event listeners
+
+    /**
+     * Interface for SSLCertServer listeners.
+     */
+    public interface SSLCertServerListener {
+
+        /**
+         * Event triggered when the server send his certificate to the client.
+         *
+         * @param client the client that received the server's certificate.
+         */
+        void onCertificateSend(ClientInfo client);
+
+        /**
+         * Event triggered when the server received and stored the client's
+         * certificate.
+         *
+         * @param certTrustManager the {@link javax.net.ssl.TrustManager} where
+         *                         received certificate was stored.
+         * @param client the client that own stored certificate.
+         */
+        void onCertificateStored(AbsCustomTrustManager certTrustManager, ClientInfo client);
 
     }
 

@@ -59,13 +59,13 @@ public class AutoAddTrustManager extends AbsCustomTrustManager {
     public void checkTrusted(X509Certificate[] chain, String authType) throws CertificateException {
         try {
             if (getTrustManager().getAcceptedIssuers().length == 0)
-                addCertificate(chain[0]);
+                addCertificate("Client#" + chain[0].getSubjectDN(), chain[0]);
 
             try {
                 getTrustManager().checkClientTrusted(chain, authType);
 
             } catch (CertificateException cx) {
-                addCertificate(chain[0]);
+                addCertificate("Client#" + chain[0].getSubjectDN(), chain[0]);
                 getTrustManager().checkClientTrusted(chain, authType);
             }
 
