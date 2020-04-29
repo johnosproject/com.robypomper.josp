@@ -360,7 +360,8 @@ public class DefaultClient implements Client {
 
                 } catch (Throwable e) {
                     log.warn(Markers.COMM_CL, String.format("Server processor can't process data from '%s' because %s", getServerInfo().getServerId(), e.getMessage()));
-                    log.debug(Markers.COMM_CL, String.format("(dataRx: '%s')", new String(dataRead, PeerInfo.CHARSET)));
+                    String dataStr = new String(dataRead, PeerInfo.CHARSET);
+                    log.warn(Markers.COMM_CL, String.format("(dataRx: '%s')", dataStr.substring(0,Math.min(dataStr.length(),10))));
                     if (cse != null) cse.onServerError(e);
                 }
 

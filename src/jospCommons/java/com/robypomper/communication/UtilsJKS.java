@@ -58,22 +58,23 @@ public class UtilsJKS {
     /**
      * Generate new Java Key Store containing the Key Pair and the corresponding
      * Certificate Chain.
-     *
+     * <p>
      * The certificate chain contain only the Key Pair certificate with given id.
      *
      * @param certificateID the string used as certificate commonName (this will
      *                      be visible also to other peer side).
-     * @param ksPass the JKS password.
-     * @param ksAlias the alias associated to the generated certificate.
+     * @param ksPass        the JKS password.
+     * @param certAlias     the alias associated to the generated certificate.
      * @return a valid Key Store with Key Pair and Certificate Chain.
      */
-    public static KeyStore generateKeyStore(String certificateID, String ksPass, String ksAlias) throws GenerationException {
+    public static KeyStore generateKeyStore(String certificateID, String ksPass, String certAlias) throws GenerationException {
+        if (ksPass == null) ksPass = "";
         KeyPair localKP = UtilsJKS.generateKeyPair();
         Certificate localCert = UtilsJKS.generateCertificate(certificateID, localKP);
         Certificate[] localCertChain = UtilsJKS.toCertificateChain(localCert);
 
         KeyStore localKS = UtilsJKS.generateNewKeyStore();
-        UtilsJKS.addPrivateCertificateToKeyStore(localKS, localKP, localCertChain, ksPass, ksAlias);
+        UtilsJKS.addPrivateCertificateToKeyStore(localKS, localKP, localCertChain, ksPass, certAlias);
         return localKS;
     }
 
@@ -172,9 +173,9 @@ public class UtilsJKS {
      * Add given certificate chain as private certificate to the KeyStore
      * (given certificate require private key).
      */
-    private static void addPrivateCertificateToKeyStore(KeyStore keyStore, KeyPair keyPair, Certificate[] certChain, String ksPass, String ksAlias) throws GenerationException {
+    private static void addPrivateCertificateToKeyStore(KeyStore keyStore, KeyPair keyPair, Certificate[] certChain, String ksPass, String certAlias) throws GenerationException {
         try {
-            keyStore.setKeyEntry(ksAlias, keyPair.getPrivate(), ksPass.toCharArray(), certChain);
+            keyStore.setKeyEntry(certAlias, keyPair.getPrivate(), ksPass.toCharArray(), certChain);
 
         } catch (GeneralSecurityException e) {
             throw new GenerationException(String.format("Error adding certificate to key store because %s", e.getMessage()), e);
@@ -238,7 +239,7 @@ public class UtilsJKS {
 
     /**
      * Create directory for given path.
-     *
+     * <p>
      * The path can define a directory or a file. If it represent a file, then
      * this method will create the parent directory.
      *

@@ -125,7 +125,7 @@ public class CommunicationIntegration {
 
     private int countConnectedClients(Server server) {
         int count = 0;
-        for (ClientInfo cl : serverLog.getClients())
+        for (ClientInfo cl : server.getClients())
             if (cl.isConnected())
                 count++;
         return count;

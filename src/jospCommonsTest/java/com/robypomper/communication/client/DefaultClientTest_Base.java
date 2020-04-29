@@ -38,7 +38,7 @@ public class DefaultClientTest_Base {
         log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
         log.debug(Markers.TEST_METHODS, "setUp");
 
-        // Init test server
+        // Init test client
         clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
 
         latchCLE = new LatchClientLocalEventsListener();

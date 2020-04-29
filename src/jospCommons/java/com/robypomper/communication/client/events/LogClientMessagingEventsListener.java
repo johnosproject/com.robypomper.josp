@@ -25,7 +25,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public void onDataSend(byte[] writtenData) {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDataSend( byte[] %s)", getClient().getClientId(), new String(writtenData, PeerInfo.CHARSET)));
+        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDataSend(byte[] %s)", getClient().getClientId(), new String(writtenData, PeerInfo.CHARSET)));
     }
 
     /**

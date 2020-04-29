@@ -52,6 +52,7 @@ public class UtilsSSL {
      * @return the generated {@link SSLContext}.
      */
     public static SSLContext generateSSLContext(KeyStore keyStore, String ksPass, TrustManager trustManager) throws GenerationException {
+        if (ksPass==null) ksPass = "";
         try {
             TrustManager[] tms = trustManager != null ? new TrustManager[]{trustManager} : generateTrustManagers(keyStore);
             KeyManager[] kms = generateKeyManager(keyStore,ksPass);
@@ -131,9 +132,9 @@ public class UtilsSSL {
             Certificate[] cchain = session.getPeerCertificates();
             return ((X500Name) ((X509Certificate) cchain[cchain.length - 1]).getSubjectDN()).getCommonName();
         } catch (SSLPeerUnverifiedException e) {
-            throw new PeerException("Can't access to peer certificate", e);
+            throw new PeerException(String.format("Can't access to peer certificate because %s", e.getMessage()), e);
         } catch (IOException e) {
-            throw new PeerException("Can't access to peer CommonName", e);
+            throw new PeerException(String.format("Can't access to peer CommonName because %s", e.getMessage()), e);
         }
     }
 
