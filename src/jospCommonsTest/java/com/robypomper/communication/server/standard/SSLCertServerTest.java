@@ -2,6 +2,7 @@ package com.robypomper.communication.server.standard;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.server.Server;
+import com.robypomper.communication.server.events.LatchSSLCertServerListener;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import com.robypomper.log.Markers;
 import org.apache.logging.log4j.LogManager;
@@ -41,6 +42,7 @@ public class SSLCertServerTest {
     // Internal vars
 
     protected static Logger log = LogManager.getLogger();
+    protected LatchSSLCertServerListener latchSSLCertServer;
     protected Server serverSSLCert = null;
     protected DynAddTrustManager serverCertTrustManager = null;
 
@@ -83,7 +85,8 @@ public class SSLCertServerTest {
 
         // Init test server
         serverCertTrustManager = new DynAddTrustManager();
-        serverSSLCert = new SSLCertServer(ID_SERVER, PORT, SRV_CERT_PUB_PATH, serverCertTrustManager);
+        latchSSLCertServer = new LatchSSLCertServerListener();
+        serverSSLCert = new SSLCertServer(ID_SERVER, PORT, SRV_CERT_PUB_PATH, serverCertTrustManager, latchSSLCertServer);
 
         log.debug(Markers.TEST_METHODS, "test");
     }
@@ -125,6 +128,9 @@ public class SSLCertServerTest {
         s.close();
         Assertions.assertNotEquals(0, allDataRead.length);
 
+        Assertions.assertTrue(latchSSLCertServer.onCertificateSend.await(1, TimeUnit.SECONDS));
+        Assertions.assertFalse(latchSSLCertServer.onCertificateStored.await(1, TimeUnit.SECONDS));
+
         // Load and validate certificate
         Certificate serverPubCert = null;
         try {
@@ -141,31 +147,6 @@ public class SSLCertServerTest {
         // Start server and connect client
         startServer(serverSSLCert);
         Socket s = connectClient(LOCALHOST, PORT, null);
-
-//        // Wait for server data
-//        DataInputStream in = new DataInputStream(s.getInputStream());
-//        while (in.available()==0) ;
-//        Assertions.assertNotEquals(in.available(),0);
-//
-//        // Read all data from server
-//        byte[] allDataRead = new byte[0];
-//        while(in.available()>0) {
-//            byte[] dataRead = new byte[in.available()];
-//            in.read(dataRead);
-//            allDataRead = concatenate(allDataRead,dataRead);
-//        }
-//        s.close();
-//        Assertions.assertNotEquals(0,allDataRead.length);
-//
-//        // Load and validate certificate
-//        Certificate serverPubCert = null;
-//        try {
-//            serverPubCert = UtilsJKS.loadCertificateFromBytes(allDataRead);
-//        } catch (UtilsJKS.LoadingException ignore) {
-//            ignore.printStackTrace();
-//        }
-//        Assertions.assertNotNull(serverPubCert);
-
 
         Assertions.assertEquals(0, serverCertTrustManager.getAcceptedIssuers().length);
 
@@ -184,6 +165,9 @@ public class SSLCertServerTest {
         // Wait that server read all send bytes and close connection
         Thread.sleep(100);
         s.close();
+
+        Assertions.assertTrue(latchSSLCertServer.onCertificateSend.await(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(latchSSLCertServer.onCertificateStored.await(1, TimeUnit.SECONDS));
 
         // Wait that server store certificate and check added certificate
         Thread.sleep(100);
