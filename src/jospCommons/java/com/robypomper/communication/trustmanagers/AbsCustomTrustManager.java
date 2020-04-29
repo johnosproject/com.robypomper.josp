@@ -18,8 +18,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -38,6 +39,7 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
 
     private X509TrustManager trustManager;
     private final List<Certificate> certList = new ArrayList<>();
+    private final Map<String, Certificate> certsMap = new HashMap<>();
 
 
     // Constructor
@@ -49,7 +51,7 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
         try {
             reloadTrustManager();
         } catch (UpdateException e) {
-            assert true;    // no exceptions are thrown on empty certList
+            assert true;    // no exceptions are thrown on empty certMap
         }
     }
 
@@ -61,12 +63,12 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      *
      * @param certFile the certificate to load in to the TrustManager.
      */
-    public void addCertificate(File certFile) throws UpdateException {
+    public void addCertificate(String alias, File certFile) throws UpdateException {
         CertificateFactory certFactory;
         try {
             certFactory = CertificateFactory.getInstance(UtilsJKS.CERT_TYPE);
             Collection<? extends Certificate> certs = certFactory.generateCertificates(new FileInputStream(certFile));
-            addCertificate(certs);
+            addCertificate(alias, certs);
         } catch (CertificateException | FileNotFoundException e) {
             throw new UpdateException(String.format("Certificate '%s' can't be loaded because %s.", certFile.getPath(), e.getMessage()), e);
         }
@@ -76,10 +78,10 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      * Add given string as certificate to the current TrustManager.
      *
      * @param byteCert the byte array containing the certificate to add in to the
-     *                TrustManager.
+     *                 TrustManager.
      */
-    public void addCertificateByte(byte[] byteCert) throws UpdateException, UtilsJKS.LoadingException {
-        addCertificate(UtilsJKS.loadCertificateFromBytes(byteCert));
+    public void addCertificateByte(String alias, byte[] byteCert) throws UpdateException, UtilsJKS.LoadingException {
+        addCertificate(alias, UtilsJKS.loadCertificateFromBytes(byteCert));
     }
 
     /**
@@ -87,8 +89,10 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      *
      * @param cert the certificate to load in to the TrustManager.
      */
-    public void addCertificate(Certificate cert) throws UpdateException {
-        addCertificate(Collections.singletonList(cert));
+    public void addCertificate(String alias, Certificate cert) throws UpdateException {
+        certList.add(cert);
+        certsMap.put(alias, cert);
+        reloadTrustManager();
     }
 
     /**
@@ -96,11 +100,17 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      *
      * @param certs the certificates list to load in to the TrustManager
      */
-    public void addCertificate(Collection<? extends Certificate> certs) throws UpdateException {
+    public void addCertificate(String alias, Collection<? extends Certificate> certs) throws UpdateException {
         certList.addAll(certs);
+        int count = 0;
+        for (Certificate cert : certs)
+            certsMap.put(String.format("%s#%d", alias, ++count), cert);
         reloadTrustManager();
     }
 
+    public Map<String, Certificate> getCertificates() {
+        return certsMap;
+    }
 
     // Subclasses utils
 

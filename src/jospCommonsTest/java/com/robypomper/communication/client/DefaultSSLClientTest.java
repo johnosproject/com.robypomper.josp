@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.security.KeyStore;
 import java.util.List;
@@ -91,12 +90,12 @@ public class DefaultSSLClientTest {
         DynAddTrustManager serverTrustManager = new DynAddTrustManager();
         serverSSLContext = UtilsSSL.generateSSLContext(serverKeyStore, SRV_KS_PASS, serverTrustManager);
         DynAddTrustManager serverTrustManagerWithCliCert = new DynAddTrustManager();
-        serverTrustManagerWithCliCert.addCertificate(new File(CLI_CERT_PUB_PATH));
+        serverTrustManagerWithCliCert.addCertificate(CLI_CERT_ALIAS, new File(CLI_CERT_PUB_PATH));
         serverSSLContextWithCliCert = UtilsSSL.generateSSLContext(serverKeyStore, SRV_KS_PASS, serverTrustManagerWithCliCert);
 
         // Generate TrustManagers and SSLContexts for clients
         DynAddTrustManager clientTrustManager = new DynAddTrustManager();
-        clientTrustManager.addCertificate(new File(SRV_CERT_PUB_PATH));
+        clientTrustManager.addCertificate(SRV_CERT_ALIAS, new File(SRV_CERT_PUB_PATH));
         clientSSLContext = UtilsSSL.generateSSLContext(null, CLI_KS_PASS, clientTrustManager);
         clientSSLContextWithCliKeyStore = UtilsSSL.generateSSLContext(clientKeyStore, CLI_KS_PASS, clientTrustManager);
 
@@ -229,7 +228,7 @@ public class DefaultSSLClientTest {
     }
 
     @Test
-    public void testClientConnectionAndDisconnectionWithAuthOnlyReq_FAIL() throws Server.ListeningException, InterruptedException, Client.ConnectionException {
+    public void testClientConnectionAndDisconnectionWithAuthOnlyReq_FAIL() throws Server.ListeningException, InterruptedException {
         // Start test server
         DefaultServerTest_Base.startServer(serverLatchWithAuth);
 

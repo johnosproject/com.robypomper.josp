@@ -77,12 +77,12 @@ public class DefaultSSLServerTest {
         DynAddTrustManager serverTrustManager = new DynAddTrustManager();
         serverSSLContext = UtilsSSL.generateSSLContext(serverKeyStore, SRV_KS_PASS, serverTrustManager);
         DynAddTrustManager serverTrustManagerWithCliCert = new DynAddTrustManager();
-        serverTrustManagerWithCliCert.addCertificate(new File(CLI_CERT_PUB_PATH));
+        serverTrustManagerWithCliCert.addCertificate(CLI_CERT_ALIAS, new File(CLI_CERT_PUB_PATH));
         serverSSLContextWithCliCert = UtilsSSL.generateSSLContext(serverKeyStore, SRV_KS_PASS, serverTrustManagerWithCliCert);
 
         // Generate TrustManagers and SSLContexts for clients
         DynAddTrustManager clientTrustManager = new DynAddTrustManager();
-        clientTrustManager.addCertificate(new File(SRV_CERT_PUB_PATH));
+        clientTrustManager.addCertificate(SRV_CERT_ALIAS, new File(SRV_CERT_PUB_PATH));
         clientSSLContext = UtilsSSL.generateSSLContext(null, CLI_KS_PASS, clientTrustManager);
         clientSSLContextWithCliKeyStore = UtilsSSL.generateSSLContext(clientKeyStore, CLI_KS_PASS, clientTrustManager);
 
@@ -223,7 +223,7 @@ public class DefaultSSLServerTest {
 
         // Connect client
         SSLSocket s = (SSLSocket) clientSSLContext.getSocketFactory().createSocket(LOCALHOST, PORT);
-        Assertions.assertThrows(SSLHandshakeException.class,s::startHandshake);
+        Assertions.assertThrows(SSLHandshakeException.class, s::startHandshake);
         Assertions.assertFalse(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
         Assertions.assertTrue(s.isConnected()); // Client result connected even the server closed connection on his side
 
