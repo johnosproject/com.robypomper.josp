@@ -6,7 +6,6 @@ import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
-import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.log.Markers;
@@ -41,6 +40,8 @@ public class SSLCertClient extends DefaultClient {
     private final File certPubFile;
     private final AbsCustomTrustManager certTrustManager;
     private byte[] serverCertBuffer = new byte[0];
+    private final SSLCertClientListener listener;
+
 
     // Constructor
 
@@ -48,42 +49,79 @@ public class SSLCertClient extends DefaultClient {
      * Default constructor for SSLCertClient instance that don't share his
      * certificate (client side) with the server.
      *
-     * @param clientId            the client id.
-     * @param serverAddr          the server's address.
-     * @param serverPort          the server's port.
-     * @param certTrustManager    instance of TrustManager where client's keys will
-     *                            be stored.
+     * @param clientId         the client id.
+     * @param serverAddr       the server's address.
+     * @param serverPort       the server's port.
+     * @param certTrustManager instance of TrustManager where client's keys will
+     *                         be stored.
      */
-    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort, AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
-        this(clientId,serverAddr,serverPort,null,certTrustManager);
+    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort,
+                            AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
+        this(clientId, serverAddr, serverPort, null, certTrustManager, null);
     }
 
+    /**
+     * Default constructor for SSLCertClient instance that don't share his
+     * certificate (client side) with the server.
+     *
+     * @param clientId         the client id.
+     * @param serverAddr       the server's address.
+     * @param serverPort       the server's port.
+     * @param certPubPath      server's public certificate file's path, if
+     *                         <code>null</code> then the {@link SSLCertClient}
+     *                         don't send his certificate to the server.
+     * @param certTrustManager instance of TrustManager where client's keys will
+     *                         be stored.
+     */
+    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort, String certPubPath,
+                            AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
+        this(clientId, serverAddr, serverPort, certPubPath, certTrustManager, null);
+    }
+
+    /**
+     * Default constructor for SSLCertClient instance that don't share his
+     * certificate (client side) with the server.
+     *
+     * @param clientId         the client id.
+     * @param serverAddr       the server's address.
+     * @param serverPort       the server's port.
+     * @param certTrustManager instance of TrustManager where client's keys will
+     *                         be stored.
+     * @param listener         listener for certificate events (send and stored).
+     */
+    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort,
+                            AbsCustomTrustManager certTrustManager, SSLCertClientListener listener) throws SSLCertClientException {
+        this(clientId, serverAddr, serverPort, null, certTrustManager, listener);
+    }
 
     /**
      * Default constructor.
      *
-     * @param clientId            the client id.
-     * @param serverAddr          the server's address.
-     * @param serverPort          the server's port.
-     * @param certPubPath         server's public certificate file's path, if
-     *                            <code>null</code> then the {@link SSLCertClient}
-     *                            don't send his certificate to the server.
-     * @param certTrustManager    instance of TrustManager where client's keys will
-     *                            be stored.
+     * @param clientId         the client id.
+     * @param serverAddr       the server's address.
+     * @param serverPort       the server's port.
+     * @param certPubPath      server's public certificate file's path, if
+     *                         <code>null</code> then the {@link SSLCertClient}
+     *                         don't send his certificate to the server.
+     * @param certTrustManager instance of TrustManager where client's keys will
+     *                         be stored.
+     * @param listener         listener for certificate events (send and stored).
      */
-    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort, String certPubPath, AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
+    public SSLCertClient(String clientId, InetAddress serverAddr, int serverPort, String certPubPath,
+                         AbsCustomTrustManager certTrustManager, SSLCertClientListener listener) throws SSLCertClientException {
         super(clientId, serverAddr, serverPort,
                 new LogClientLocalEventsListener(),
                 new SSLCertClientServerEventsListener(),
                 new SSLCertClientMessagingEventsListener());
 
-        if (certPubPath!=null) {
+        if (certPubPath != null) {
             this.certPubFile = new File(certPubPath);
             if (!certPubFile.exists())
                 throw new SSLCertClientException(String.format("Public cert file '%s' not found.", certPubPath));
         } else
             this.certPubFile = null;
         this.certTrustManager = certTrustManager;
+        this.listener = listener;
     }
 
 
@@ -98,7 +136,7 @@ public class SSLCertClient extends DefaultClient {
      * Read certificate file and tx to the server.
      */
     private void sendClientCertificate() {
-        if (certPubFile==null)
+        if (certPubFile == null)
             return;
 
         try {
@@ -110,6 +148,7 @@ public class SSLCertClient extends DefaultClient {
                 sendData(dataRead);
             }
             log.debug(Markers.COMM_SSL_CERTCLI, String.format("Client send local certificate to server '%s'", getServerInfo().getServerId()));
+            if (listener != null) listener.onCertificateSend();
             Thread.sleep(100);
 
         } catch (ServerNotConnectedException e) {
@@ -151,7 +190,7 @@ public class SSLCertClient extends DefaultClient {
 
     /**
      * Support method for {@link #bufferServerCertificate(byte[])}
-     *
+     * <p>
      * Every time climent receive data from the server, this method is called
      * and try to load certificate and store in the TrustManager.
      */
@@ -164,7 +203,8 @@ public class SSLCertClient extends DefaultClient {
         log.debug(Markers.COMM_SSL_CERTCLI, String.format("Client '%s' try add certificate from server '%s' to trust store", getClientId(), getServerInfo().getServerId()));
 
         try {
-            certTrustManager.addCertificateByte(serverCertBuffer);
+            certTrustManager.addCertificateByte(String.format("SRV@%s:%d", getServerAddr(), getServerPort()), serverCertBuffer);
+            if (listener != null) listener.onCertificateStored(certTrustManager);
             return true;
 
         } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
@@ -299,6 +339,29 @@ public class SSLCertClient extends DefaultClient {
 
     }
 
+
+    // SSLCertClient event listeners
+
+    /**
+     * Interface for SSLCertClient listeners.
+     */
+    public interface SSLCertClientListener {
+
+        /**
+         * Event triggered when the client send his certificate to the server.
+         */
+        void onCertificateSend();
+
+        /**
+         * Event triggered when the client received and stored the server's
+         * certificate.
+         *
+         * @param certTrustManager the {@link javax.net.ssl.TrustManager} where
+         *                         received certificate was stored.
+         */
+        void onCertificateStored(AbsCustomTrustManager certTrustManager);
+
+    }
 
     // Exception
 

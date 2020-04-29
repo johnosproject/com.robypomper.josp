@@ -2,6 +2,7 @@ package com.robypomper.communication.client.standard;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.client.Client;
+import com.robypomper.communication.client.events.LatchSSLCertClientListener;
 import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.net.InetAddress;
 import java.security.KeyStore;
+import java.util.concurrent.TimeUnit;
 
 
 public class SSLCertClientTest {
@@ -35,6 +37,7 @@ public class SSLCertClientTest {
     // Internal vars
 
     protected static Logger log = LogManager.getLogger();
+    protected LatchSSLCertClientListener latchSSLCertClient;
     protected Client clientSSLCert = null;
     protected Client clientSSLCertSelfSend = null;
     protected DynAddTrustManager clientCertTrustManager = null;
@@ -80,8 +83,9 @@ public class SSLCertClientTest {
 
         // Init test client
         clientCertTrustManager = new DynAddTrustManager();
-        clientSSLCert = new SSLCertClient(ID_CLIENT, LOCALHOST, PORT, clientCertTrustManager);
-        clientSSLCertSelfSend = new SSLCertClient(ID_CLIENT, LOCALHOST, PORT, CLI_CERT_PUB_PATH, clientCertTrustManager);
+        latchSSLCertClient = new LatchSSLCertClientListener();
+        clientSSLCert = new SSLCertClient(ID_CLIENT, LOCALHOST, PORT, clientCertTrustManager, latchSSLCertClient);
+        clientSSLCertSelfSend = new SSLCertClient(ID_CLIENT, LOCALHOST, PORT, CLI_CERT_PUB_PATH, clientCertTrustManager, latchSSLCertClient);
 
         // Init test server
         serverCertTrustManager = new DynAddTrustManager();
@@ -116,7 +120,8 @@ public class SSLCertClientTest {
 
         clientSSLCert.connect();
 
-        Thread.sleep(100);
+        Assertions.assertFalse(latchSSLCertClient.onCertificateSend.await(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(latchSSLCertClient.onCertificateStored.await(1, TimeUnit.SECONDS));
 
         Assertions.assertEquals(1, clientCertTrustManager.getAcceptedIssuers().length);
         Assertions.assertEquals(0, serverCertTrustManager.getAcceptedIssuers().length);
@@ -134,6 +139,9 @@ public class SSLCertClientTest {
         startServer(serverSSLCert);
 
         clientSSLCertSelfSend.connect();
+
+        Assertions.assertTrue(latchSSLCertClient.onCertificateSend.await(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(latchSSLCertClient.onCertificateStored.await(1, TimeUnit.SECONDS));
 
         Thread.sleep(100);
 
