@@ -68,7 +68,8 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
         try {
             getSocket().getOutputStream().write(DefaultServer.MSG_BYE_SRV);
         } catch (IOException e) {
-            e.printStackTrace();
+            //throw new Server.ClientNotConnectedException(getClientId(),e);
+            // log warn cant send bye msg
         }
 
         try {

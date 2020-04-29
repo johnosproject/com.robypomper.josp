@@ -9,6 +9,7 @@ import com.robypomper.log.Markers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -55,8 +56,8 @@ public class DefaultServer implements Server {
      * Default constructor that initialize a server on <code>port</code> port
      * and with given id.
      *
-     * @param serverId the server id.
-     * @param port the server's port.
+     * @param serverId                      the server id.
+     * @param port                          the server's port.
      * @param serverMessagingEventsListener the tx and rx messaging listener.
      */
     protected DefaultServer(String serverId, int port, ServerMessagingEvents serverMessagingEventsListener) {
@@ -67,10 +68,10 @@ public class DefaultServer implements Server {
      * Full constructor that initialize a server on <code>port</code> port
      * and with given id.
      *
-     * @param serverId the server id.
-     * @param port the server's port.
-     * @param serverLocalEventsListener the local server events listener.
-     * @param serverClientEventsListener the clients events listener.
+     * @param serverId                      the server id.
+     * @param port                          the server's port.
+     * @param serverLocalEventsListener     the local server events listener.
+     * @param serverClientEventsListener    the clients events listener.
      * @param serverMessagingEventsListener the tx and rx messaging listener.
      */
     protected DefaultServer(String serverId, int port,
@@ -188,11 +189,12 @@ public class DefaultServer implements Server {
 
         // Disconnect clients
         for (ClientInfo c : getClients())
-            if (c.isConnected())
+            if (c.isConnected()) {
                 if (c.closeConnection())
                     log.debug(Markers.COMM_SRV, String.format("Client '%s' disconnected", c.getClientId()));
                 else
                     log.debug(Markers.COMM_SRV, String.format("Client '%s' not disconnected", c.getClientId()));
+            }
 
         // Reset internal vars
         serverSocket = null;
@@ -294,7 +296,7 @@ public class DefaultServer implements Server {
 
     /**
      * Generate a {@link ServerSocket} and bound it on server's port.
-     *
+     * <p>
      * Subclasses can override this method to set a different ServerSocket instance.
      *
      * @return the ServerSocket instance.
@@ -324,7 +326,7 @@ public class DefaultServer implements Server {
 
     /**
      * The server infinite loop.
-     *
+     * <p>
      * This method loop until the server must shutdown and wait for new clients
      * connections. For each connection, it generate ClientInfo and start his
      * process thread. Then add or update the client in the {@link #clients}
@@ -364,7 +366,7 @@ public class DefaultServer implements Server {
 
     /**
      * The client's process thread.
-     *
+     * <p>
      * This tread receive all data rx from the client and emit the
      * {@link ServerMessagingEvents#onDataReceived()} event.
      *
@@ -444,6 +446,8 @@ public class DefaultServer implements Server {
                 if (!client.isConnected()
                         || (e instanceof SocketException && e.getMessage().equals("Connection reset"))
                         || (e instanceof SSLHandshakeException && e.getMessage().equals("Remote host closed connection during handshake"))
+                        || (e instanceof SSLException && e.getMessage().startsWith("Connection has been shutdown"))
+                        || (e instanceof SSLException && e.getMessage().startsWith("Received fatal alert"))
                 )
                     break;
 
@@ -461,8 +465,7 @@ public class DefaultServer implements Server {
 
             } else if (mustShutdown) {
                 sce.onClientServerDisconnected(client);
-            }
-            else {
+            } else {
                 sce.onClientTerminated(client);
                 if (client.isConnected()) client.closeConnection();
             }
