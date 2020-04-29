@@ -1,5 +1,6 @@
 package com.robypomper.communication;
 
+import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
 import sun.security.x509.CertificateSerialNumber;
@@ -12,6 +13,7 @@ import sun.security.x509.X509CertInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Map;
 
 
 /**
@@ -170,6 +174,40 @@ public class UtilsJKS {
     // JKS import and exports
 
     /**
+     * Load {@link KeyStore} from given path and use given password.
+     *
+     * @param ksPath the file path containing the KeyStore to load.
+     * @param ksPass the string containing the KeyStore password.
+     * @return the loaded KeyStore.
+     */
+    public static KeyStore loadKeyStore(String ksPath, String ksPass) throws LoadingException {
+        try {
+            KeyStore ks = KeyStore.getInstance(KEYSTORE_TYPE);
+            InputStream keyStoreInputStream = new FileInputStream(ksPath);
+            ks.load(keyStoreInputStream, ksPass.toCharArray());
+            return ks;
+        } catch (Exception e) {
+            throw new LoadingException(String.format("Error loading key store from '%s' file because %s", ksPath, e.getMessage()), e);
+        }
+    }
+
+    /**
+     * Save given KeyStore to given file path and use given password.
+     *
+     * @param ks     the KeyStore to store.
+     * @param ksPath the file path where to store the KeyStore.
+     * @param ksPass the string containing the KeyStore password.
+     */
+    public static void storeKeyStore(KeyStore ks, String ksPath, String ksPass) throws LoadingException {
+        try {
+            FileOutputStream keyStoreOutputStream = new FileOutputStream(ksPath);
+            ks.store(keyStoreOutputStream, ksPass.toCharArray());
+        } catch (Exception e) {
+            throw new LoadingException(String.format("Error storing key store from '%s' file because %s", ksPath, e.getMessage()), e);
+        }
+    }
+
+    /**
      * Add given certificate chain as private certificate to the KeyStore
      * (given certificate require private key).
      */
@@ -231,6 +269,54 @@ public class UtilsJKS {
 
         } catch (Exception e) {
             throw new LoadingException(String.format("Error loading certificate from bytes because %s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * Copy all certificates from given {@link javax.net.ssl.TrustManager} to given
+     * {@link KeyStore}.
+     * <p>
+     * It copies all certificates without duplicates. Certificates are duplicated
+     * if their alias is already present in the destination.
+     *
+     * @param keyStore     the certificates source.
+     * @param trustManager the certificates destination.
+     */
+    public static void copyCertsFromTrustManagerToKeyStore(KeyStore keyStore, AbsCustomTrustManager trustManager) throws StoreException {
+        for (Map.Entry<String, Certificate> aliasAndCert : trustManager.getCertificates().entrySet())
+            try {
+                keyStore.setCertificateEntry(aliasAndCert.getKey(), aliasAndCert.getValue());
+            } catch (KeyStoreException e) {
+                if (!e.getMessage().startsWith("Cannot overwrite own certificate"))
+                    throw new StoreException(String.format("Error coping certificate from trust manager to key store because %s", e.getMessage()), e);
+            }
+    }
+
+    /**
+     * Copy all certificates from given {@link KeyStore} to given
+     * {@link javax.net.ssl.TrustManager}.
+     * <p>
+     * It copies all certificates without duplicates. Certificates are duplicated
+     * if their alias is already present in the destination.
+     *
+     * @param keyStore     the certificates destination.
+     * @param trustManager the certificates source.
+     */
+    public static void copyCertsFromKeyStoreToTrustManager(KeyStore keyStore, AbsCustomTrustManager trustManager) {
+        try {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                Certificate cert = keyStore.getCertificate(alias);
+                if (cert == null) {
+                    System.out.println(String.format("certificate per l'alias %s non trovato", alias));
+                    continue;
+                }
+                trustManager.addCertificate(alias, cert);
+            }
+
+        } catch (KeyStoreException | AbsCustomTrustManager.UpdateException e) {
+            e.printStackTrace();
         }
     }
 
