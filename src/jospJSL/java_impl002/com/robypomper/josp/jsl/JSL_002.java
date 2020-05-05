@@ -75,9 +75,10 @@ public class JSL_002 extends AbsJSL {
         public static final String JSLUSR_ID_DEF            = "";
         //@formatter:on
 
-        private final File file;
+        private File file;
         private final Map<String, String> properties;
         private String jslVer = null;
+        private boolean errorAlreadyPrinted = false;
 
         public static JSL.Settings instance(File file) {
             return new Settings(file);
@@ -99,7 +100,18 @@ public class JSL_002 extends AbsJSL {
             properties = tmpProp;
         }
 
+        public Settings(Map<String, String> properties) {
+            this.properties = properties;
+        }
+
         private void store(String property, String value) {
+            if (file == null) {
+                if (!errorAlreadyPrinted) {
+                    System.out.println("ERR: Can't store on file, because settings are loaded from properties.");
+                    errorAlreadyPrinted = true;
+                }
+                return;
+            }
             properties.put(property, value);
 
             FileWriter writer = null;
