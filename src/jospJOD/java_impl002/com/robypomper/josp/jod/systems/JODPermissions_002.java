@@ -26,8 +26,9 @@ public class JODPermissions_002 implements JODPermissions {
 
     // Internal vars
 
-    private final JODObjectInfo objInfo;
     private final JOD_002.Settings settings;
+    private final JODObjectInfo objInfo;
+    private final JCPClient_Object jcpClient;
     private final JCPPermObj jcpPermissions;
     private final List<ObjPermission> permissions = new LinkedList<>();
     private Timer timer = null;
@@ -47,6 +48,7 @@ public class JODPermissions_002 implements JODPermissions {
 
         this.objInfo = objInfo;
         this.settings = settings;
+        this.jcpClient = jcpClient;
         jcpPermissions = new JCPPermObj(jcpClient, settings);
 
         try {
@@ -224,8 +226,8 @@ public class JODPermissions_002 implements JODPermissions {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                System.out.println(String.format("DEB: refresh object's permission each %d seconds.", settings.getPermissionsRefreshTime()));
-                syncObjPermissions();
+                if (jcpClient.isConnected())
+                    syncObjPermissions();
             }
         }, 0, settings.getPermissionsRefreshTime() * 1000);
 
