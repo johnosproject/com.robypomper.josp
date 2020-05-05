@@ -181,7 +181,7 @@ public class SSLCertClient extends DefaultClient {
         //System.out.println(String.format("%s -> %s", clientCertPath, new String(readData).substring(0, 10)));
 
         if (tryStoreServerCertificate()) {
-            log.debug(Markers.COMM_SSL_CERTCLI, String.format("Client '%s' added certificate from server '%s' to trust store, disconnect", getClientId(), getServerInfo().getServerId()));
+            log.info(Markers.COMM_SSL_CERTCLI, String.format("Client '%s' added certificate from server '%s' to trust store, disconnect", getClientId(), getServerInfo().getServerId()));
             disconnect();
         }
 

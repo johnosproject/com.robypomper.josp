@@ -85,7 +85,7 @@ public abstract class AbsJCPClient implements JCPClient {
                     .build(KeycloakApi.instance(configs.getBaseUrl(), configs.getRealm()));
 
         } catch (IllegalArgumentException e) {
-            throw new ConnectionException("Wrong JCP configurations.", e);
+            throw new ConnectionException(String.format("Wrong JCP configurations: %s", e.getMessage()), e);
         }
 
         if (autoConnect) {
@@ -169,7 +169,7 @@ public abstract class AbsJCPClient implements JCPClient {
      */
     @Override
     public void execGetReq(String url, boolean secure) throws RequestException, ConnectionException {
-        execGetReq(url, null, new HashMap<String, String>(), secure);
+        execGetReq(url, null, new HashMap<>(), secure);
     }
 
     /**

@@ -4,9 +4,7 @@ import com.robypomper.communication.client.events.ClientLocalEvents;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.peer.PeerInfo;
-import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.DefaultServer;
-import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.log.Markers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +14,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
@@ -147,7 +144,7 @@ public class DefaultClient implements Client {
     @Override
     public void connect() throws ConnectionException {
         if (isConnected()) {
-            log.warn(Markers.COMM_CL, String.format("Client '%s' already conneted", getClientId()));
+            log.warn(Markers.COMM_CL, String.format("Client '%s' already connected", getClientId()));
             return;
         }
 
@@ -180,7 +177,7 @@ public class DefaultClient implements Client {
 
     /**
      * Internal version of {@link #disconnect()} method.
-     *
+     * <p>
      * With param <code>internalCaller</code> set to <code>true</code> disable
      * exceptions and warning messages in the method.
      *
@@ -215,7 +212,7 @@ public class DefaultClient implements Client {
 
         // Join server thread
         try {
-            if (Thread.currentThread()!=clientThread)
+            if (Thread.currentThread() != clientThread)
                 clientThread.join(1000);
 
 
@@ -255,7 +252,7 @@ public class DefaultClient implements Client {
             throw new ServerNotConnectedException(getServerInfo().getServerId(), e);
         }
 
-        log.debug(Markers.COMM_CL, String.format("Client '%s' send to server '%s' data '%s...'", getClientId(), getServerInfo().getServerId(), new String(data, PeerInfo.CHARSET).substring(0, Math.min(data.length,10))));
+        log.debug(Markers.COMM_CL, String.format("Client '%s' send to server '%s' data '%s...'", getClientId(), getServerInfo().getServerId(), new String(data, PeerInfo.CHARSET).substring(0, Math.min(data.length, 10))));
         cme.onDataSend(data);
         cme.onDataSend(new String(data, PeerInfo.CHARSET));
     }
@@ -281,7 +278,7 @@ public class DefaultClient implements Client {
 
     /**
      * Generate a {@link Socket} and connect to server's address:port.
-     *
+     * <p>
      * Subclasses can override this method to set a different Socket instance.
      *
      * @return the Socket instance.
@@ -311,7 +308,7 @@ public class DefaultClient implements Client {
 
     /**
      * The server's process thread.
-     *
+     * <p>
      * This tread receive all data rx from the server and emit the
      * {@link ClientMessagingEvents#onDataReceived()} event.
      */
@@ -361,7 +358,7 @@ public class DefaultClient implements Client {
                 } catch (Throwable e) {
                     log.warn(Markers.COMM_CL, String.format("Server processor can't process data from '%s' because %s", getServerInfo().getServerId(), e.getMessage()));
                     String dataStr = new String(dataRead, PeerInfo.CHARSET);
-                    log.warn(Markers.COMM_CL, String.format("(dataRx: '%s')", dataStr.substring(0,Math.min(dataStr.length(),10))));
+                    log.warn(Markers.COMM_CL, String.format("(dataRx: '%s')", dataStr.substring(0, Math.min(dataStr.length(), 10))));
                     if (cse != null) cse.onServerError(e);
                 }
 
