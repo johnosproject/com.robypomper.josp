@@ -70,6 +70,8 @@ public class JODPermissions_002 implements JODPermissions {
                 generatePermissionsLocally();
             }
         }
+
+        System.out.println("DEB: JOD Permissions initialized");
     }
 
 

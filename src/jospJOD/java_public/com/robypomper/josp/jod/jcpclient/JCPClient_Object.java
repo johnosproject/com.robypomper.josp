@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.jcpclient;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.jcp.apis.paths.APIObjs;
 
 
 /**
@@ -8,9 +9,11 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
  */
 public interface JCPClient_Object extends JCPClient {
 
+    // Headers default values setters
+
     /**
-     * When set the objId will used as header value for each request send to the
-     * server.
+     * When set the objId will used as {@value APIObjs#HEADER_OBJID} header
+     * value for each request send to the server.
      *
      * @param objId the current object id, or null to reset it.
      */

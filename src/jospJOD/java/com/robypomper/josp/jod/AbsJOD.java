@@ -8,19 +8,19 @@ import com.robypomper.josp.jod.systems.JODPermissions;
 import com.robypomper.josp.jod.systems.JODStructure;
 
 /**
- * Default JOD implementation, initialization excluded.
+ * Default {@link JOD} implementation, initialization excluded.
  *
  * This class fully manage a JOD object (start,stop,status...) for all JOD systems.
  * But JOD systems initialization is delegate to his sub-classes. That allow to
- * implement multiple JOD objects using different systems implementations. Helping
- * develop new JOD versions and flavours.
+ * initialize multiple JOD objects using different systems implementations.
+ * Helping provide new JOD versions and flavours.
  *
  * The JOD and {@link AbsJOD} hierarchy is design to allow sub-classes to initialize
  * JOD systems (structure, comm, executor...) and delegate JOD systems orchestration
  * to AbsJOD class. AbsJOD class manage JOD system using only their interfaces,
  * that make system implementation completely interoperable (at JOD level). So
  * AbsJOD sub-classes (like {@link JOD_002} can switch to different systems
- * implementations/versions keeping full compatibility with all others of JOD
+ * implementations/versions keeping full compatibility with all others JOD
  * systems.
  *
  * All AbsJOD sub-classes must implement the <code>instance(...)</code> method
@@ -28,9 +28,10 @@ import com.robypomper.josp.jod.systems.JODStructure;
  * implemented using {@link JOD.Settings} param or his sub-class.
  * Returned class from {@link FactoryJOD#getJODClass(String)} must implement a
  * <code>instance(...)</code> method with a param corresponding to class returned
- * by {@link FactoryJOD#getJODSettingsClass(String)}. Both method are call using
- * same String param corresponding to
+ * by {@link FactoryJOD#getJODSettingsClass(String)}. Both method are called using
+ * same String param corresponding to JOD version
  */
+@SuppressWarnings("JavadocReference")
 public abstract class AbsJOD implements JOD {
 
     // Private systems references
@@ -54,7 +55,8 @@ public abstract class AbsJOD implements JOD {
     /**
      * Default constructor, set all private systems references.
      *
-     * @param settings    object containing current JOD configs.
+     * @param settings    instance containing current JOD configs.
+     * @param jcpClient   instance of JCP client for objects.
      * @param objInfo     {@link JODObjectInfo} reference.
      * @param structure   {@link JODStructure} reference.
      * @param comm        {@link JODCommunication} reference.
@@ -206,4 +208,5 @@ public abstract class AbsJOD implements JOD {
     public JODPermissions getPermission() {
         return permissions;
     }
+
 }
