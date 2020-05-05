@@ -100,6 +100,7 @@ public class JOD_002 extends AbsJOD {
         private final File file;
         private final Map<String, String> properties;
         private String jodVer = null;
+        private boolean errorAlreadyPrinted = false;
 
         public static JOD.Settings instance(File file) {
             return new Settings(file);
@@ -121,7 +122,18 @@ public class JOD_002 extends AbsJOD {
             properties = tmpProp;
         }
 
+        public Settings(Map<String, String> properties) {
+            this.properties = properties;
+        }
+
         private void store(String property, String value) {
+            if (file == null) {
+                if (!errorAlreadyPrinted) {
+                    System.out.println("ERR: Can't store on file, because settings are loaded from properties.");
+                    errorAlreadyPrinted = true;
+                }
+                return;
+            }
             properties.put(property, value);
 
             FileWriter writer = null;
