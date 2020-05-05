@@ -46,7 +46,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         // Check client list
         clients = serverLatch.getClients();
         printClientInfoList(clients);
-        Assertions.assertEquals(1, clients.size());
+        Assertions.assertEquals(0, clients.size());
 
         // Check client status
         Assertions.assertFalse(client.isConnected());
@@ -138,7 +138,8 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         List<ClientInfo> clients = serverLatch.getClients();
         printClientInfoList(clients);
         Assertions.assertEquals(1, clients.size());
-        Assertions.assertTrue(clients.get(0).isConnected());
+        ClientInfo client = clients.get(0);
+        Assertions.assertTrue(client.isConnected());
 
         // Disconnect client
         s.close();
@@ -147,8 +148,8 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         // Check client list
         clients = serverLatch.getClients();
         printClientInfoList(clients);
-        Assertions.assertEquals(1, clients.size());
-        Assertions.assertFalse(clients.get(0).isConnected());
+        Assertions.assertEquals(0, clients.size());
+        Assertions.assertFalse(client.isConnected());
 
         // Reconnect client
         latchSCE.onClientConnection = new CountDownLatch(1);
@@ -158,7 +159,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         // Check client list
         clients = serverLatch.getClients();
         printClientInfoList(clients);
-        Assertions.assertEquals(2, clients.size());
+        Assertions.assertEquals(1, clients.size());
 
         // Stop test server
         s.close();

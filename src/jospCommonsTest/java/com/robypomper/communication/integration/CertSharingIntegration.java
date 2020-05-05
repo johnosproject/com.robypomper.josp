@@ -174,9 +174,8 @@ public class CertSharingIntegration {
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
         // Check client registered in the server
-        // (client attempt 2 connections, so 2 client are registered in the server)
-        Assertions.assertEquals(2, server.getClients().size());
-        ClientInfo clientInfo = server.getClients().get(1);
+        Assertions.assertEquals(1, server.getClients().size());
+        ClientInfo clientInfo = server.getClients().get(0);
         Assertions.assertEquals(String.format(DefaultServer.ID_CLI_FORMAT, client.getServerInfo().getLocalAddress(), client.getServerInfo().getLocalPort()), clientInfo.getClientId());
 
         clientSendTestData(client);
@@ -216,9 +215,8 @@ public class CertSharingIntegration {
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
         // Check client registered in the server
-        // (client attempt 2 connections, so 2 client are registered in the server)
-        Assertions.assertEquals(2, server.getClients().size());
-        ClientInfo clientInfo = server.getClients().get(1);
+        Assertions.assertEquals(1, server.getClients().size());
+        ClientInfo clientInfo = server.getClients().get(0);
         Assertions.assertEquals(String.format(DefaultServer.ID_CLI_FORMAT, client.getServerInfo().getLocalAddress(), client.getServerInfo().getLocalPort()), clientInfo.getClientId());
 
         clientSendTestData(client);
@@ -261,9 +259,8 @@ public class CertSharingIntegration {
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
         // Check client registered in the server
-        // (client attempt 2 connections, so 2 client are registered in the server)
-        Assertions.assertEquals(2, server.getClients().size());
-        ClientInfo clientInfo = server.getClients().get(1);
+        Assertions.assertEquals(1, server.getClients().size());
+        ClientInfo clientInfo = server.getClients().get(0);
         Assertions.assertEquals(String.format(DefaultServer.ID_CLI_FORMAT, client.getServerInfo().getLocalAddress(), client.getServerInfo().getLocalPort()), clientInfo.getClientId());
 
         clientSendTestData(client);

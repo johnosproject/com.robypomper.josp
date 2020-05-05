@@ -81,9 +81,9 @@ public class DefaultServer implements Server {
         this.serverId = serverId;
         this.port = port;
         this.sle = serverLocalEventsListener;
-        this.sle.setServer(this);
+        if (this.sle != null) this.sle.setServer(this);
         this.sce = serverClientEventsListener;
-        this.sce.setServer(this);
+        if (this.sce != null) this.sce.setServer(this);
         if (serverMessagingEventsListener == null)
             throw new IllegalArgumentException("DefaultServer can't be initialized with a null ServerMessagingEvents param.");
         this.sme = serverMessagingEventsListener;
@@ -261,10 +261,12 @@ public class DefaultServer implements Server {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * This method returns a copy of internal client list.
      */
     @Override
     public List<ClientInfo> getClients() {
-        return clients;
+        return new ArrayList<>(clients);
     }
 
     /**
@@ -314,11 +316,13 @@ public class DefaultServer implements Server {
     protected ClientInfo generateAndStartClientInfo(Socket socket) {
         String clientId = String.format(ID_CLI_FORMAT, socket.getInetAddress(), socket.getPort());
 
-        Thread clientThread = new Thread(() -> processClient(clientId));
+        DefaultClientInfo clientInfo = new DefaultClientInfo(socket, clientId);
+        Thread clientThread = new Thread(() -> processClient(clientInfo));
+        clientInfo.setThread(clientThread);
         clientThread.setName(String.format(TH_CLI_NAME_FORMAT, clientId.substring(3), getServerId()));
         clientThread.start();
 
-        return new DefaultClientInfo(socket, clientId, clientThread);
+        return new DefaultClientInfo(socket, clientId);
     }
 
 
@@ -343,12 +347,6 @@ public class DefaultServer implements Server {
                 if (newClient == null)
                     continue;
 
-                if (clients.contains(newClient)) {
-                    log.debug(Markers.COMM_SRV, String.format("client '%s' reconnected", newClient.getClientId()));
-                    clients.remove(newClient);
-                } else
-                    log.debug(Markers.COMM_SRV, String.format("new client '%s' connected", newClient.getClientId()));
-
                 clients.add(newClient);
                 if (sce != null) sce.onClientConnection(newClient);
 
@@ -370,32 +368,18 @@ public class DefaultServer implements Server {
      * This tread receive all data rx from the client and emit the
      * {@link ServerMessagingEvents#onDataReceived()} event.
      *
-     * @param clientId the id of the client that send data to current server.
+     * @param client the reference of client that send data to current server.
      */
     @SuppressWarnings("JavadocReference")
-    protected void processClient(String clientId) {
-        log.debug(Markers.COMM_SRV, String.format("client '%s' processor thread '%s' started", clientId, Thread.currentThread().getName()));
-
-        // Get client
-        ClientInfo client = findClientById(clientId);
-        if (client == null) {
-            // wait that server add the clientinfo to clients array
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ignore) {}
-            client = findClientById(clientId);
-            if (client == null) {
-                log.error(Markers.COMM_SRV, String.format("Client processor can't find client info for '%s' id", clientId));
-                return;
-            }
-        }
+    protected void processClient(DefaultClientInfo client) {
+        log.debug(Markers.COMM_SRV, String.format("client '%s' processor thread '%s' started", client.getClientId(), Thread.currentThread().getName()));
 
         // Get client's input stream
         DataInputStream in;
         try {
             in = client.getInStream();
         } catch (PeerInfo.PeerNotConnectedException | PeerInfo.PeerStreamsException e) {
-            log.error(Markers.COMM_SRV, String.format("Client processor can't get input stream from client '%s' because %s", clientId, e.getMessage()));
+            log.error(Markers.COMM_SRV, String.format("Client processor can't get input stream from client '%s' because %s", client, e.getMessage()));
             if (sce != null) sce.onClientError(client, e);
             return;
         }
@@ -432,12 +416,12 @@ public class DefaultServer implements Server {
 
                     if (!sme.onDataReceived(client, dataRead))
                         if (!sme.onDataReceived(client, new String(dataRead, PeerInfo.CHARSET))) {
-                            log.warn(Markers.COMM_SRV, String.format("Client processor can't process data from '%s' data because unknown data", clientId));
+                            log.warn(Markers.COMM_SRV, String.format("Client processor can't process data from '%s' data because unknown data", client));
                             log.debug(Markers.COMM_SRV, String.format("(dataRx: %s)", new String(dataRead, PeerInfo.CHARSET)));
                         }
 
                 } catch (Throwable e) {
-                    log.warn(Markers.COMM_SRV, String.format("Client processor can't process data from '%s' because %s", clientId, e.getMessage()));
+                    log.warn(Markers.COMM_SRV, String.format("Client processor can't process data from '%s' because %s", client, e.getMessage()));
                     log.debug(Markers.COMM_SRV, String.format("(dataRx: '%s')", new String(dataRead, PeerInfo.CHARSET)));
                     if (sce != null) sce.onClientError(client, e);
                 }
@@ -452,12 +436,13 @@ public class DefaultServer implements Server {
                     break;
 
                 // Rx error, but not client closed
-                log.warn(Markers.COMM_SRV, String.format("Server can't read data from client '%s' because %s", clientId, e.getMessage()));
+                log.warn(Markers.COMM_SRV, String.format("Server can't read data from client '%s' because %s", client, e.getMessage()));
                 if (sce != null) sce.onClientError(client, e);
             }
         }
 
         // Client disconnection events
+        clients.remove(client);
         if (sce != null) {
             if (clientSendByeMsg) {
                 sce.onClientGoodbye(client);
@@ -472,7 +457,7 @@ public class DefaultServer implements Server {
             sce.onClientDisconnection(client);
         }
 
-        log.debug(Markers.COMM_SRV, String.format("client '%s' processor thread terminated", clientId));
+        log.debug(Markers.COMM_SRV, String.format("client '%s' processor thread terminated", client));
     }
 
 }

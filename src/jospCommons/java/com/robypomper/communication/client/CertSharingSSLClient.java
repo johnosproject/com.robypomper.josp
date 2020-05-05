@@ -212,7 +212,7 @@ public class CertSharingSSLClient implements Client {
         }
 
         // Export certPath
-        if (certPubPath != null && !new File(certPubPath).exists())
+        if (certPubPath != null)
             UtilsJKS.exportCertificate(clientKeyStore, certPubPath, certAlias);
 
         // Init ssl instances

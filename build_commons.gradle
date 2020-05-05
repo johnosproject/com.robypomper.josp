@@ -52,3 +52,11 @@ task jospCommonsTest(type: Test) {
 }
 
 check.dependsOn jospCommonsTest
+
+// gradle > intellij settings
+idea {
+    module {
+        testSourceDirs += project.sourceSets.jospCommonsTest.java.srcDirs
+        testSourceDirs += project.sourceSets.jospCommonsTest.resources.srcDirs
+    }
+}

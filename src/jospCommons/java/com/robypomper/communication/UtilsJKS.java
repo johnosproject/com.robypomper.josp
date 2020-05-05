@@ -200,6 +200,7 @@ public class UtilsJKS {
      */
     public static void storeKeyStore(KeyStore ks, String ksPath, String ksPass) throws LoadingException {
         try {
+            dirExistOrCreate(ksPath);
             FileOutputStream keyStoreOutputStream = new FileOutputStream(ksPath);
             ks.store(keyStoreOutputStream, ksPass.toCharArray());
         } catch (Exception e) {

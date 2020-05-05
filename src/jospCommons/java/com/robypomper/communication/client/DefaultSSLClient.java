@@ -64,10 +64,10 @@ public class DefaultSSLClient extends DefaultClient {
      * @param clientServerEventsListener    the server events listener.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    protected DefaultSSLClient(SSLContext sslCtx, String clientId, InetAddress serverAddr, int serverPort,
-                               ClientLocalEvents clientLocalEventsListener,
-                               ClientServerEvents clientServerEventsListener,
-                               ClientMessagingEvents clientMessagingEventsListener) {
+    public DefaultSSLClient(SSLContext sslCtx, String clientId, InetAddress serverAddr, int serverPort,
+                            ClientLocalEvents clientLocalEventsListener,
+                            ClientServerEvents clientServerEventsListener,
+                            ClientMessagingEvents clientMessagingEventsListener) {
         super(clientId, serverAddr, serverPort, clientLocalEventsListener, clientServerEventsListener, clientMessagingEventsListener);
 
         this.sslCtx = sslCtx;

@@ -124,11 +124,13 @@ public class DefaultSSLServer extends DefaultServer {
         String clientId4ThName = clientId.startsWith("CL-") ? clientId.substring(3) : clientId;
         String thName = String.format(TH_CLI_NAME_FORMAT, clientId4ThName, getServerId());
 
-        Thread clientThread = new Thread(() -> processClient(clientId));
+        DefaultClientInfo clientInfo = new DefaultClientInfo(socket, clientId);
+        Thread clientThread = new Thread(() -> processClient(clientInfo));
+        clientInfo.setThread(clientThread);
         clientThread.setName(thName);
         clientThread.start();
 
-        return new DefaultClientInfo(socket, clientId, clientThread);
+        return clientInfo;
     }
 
 }

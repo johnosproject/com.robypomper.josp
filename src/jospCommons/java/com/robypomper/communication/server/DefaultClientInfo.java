@@ -4,6 +4,7 @@ import com.robypomper.communication.peer.DefaultPeerInfo;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 
 
 /**
@@ -14,22 +15,23 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
     // Internal vars
 
     private final String clientId;
-    private final Thread thread;
+    private Thread thread = null;
 
 
     // Constructor
 
     /**
      * Default constructor that initialize the ClientInfo.
+     * <p>
+     * Remember to set the corresponding thread, immediately after call this
+     * constructor and create the thread.
      *
-     * @param socket the communication channel socket.
+     * @param socket   the communication channel socket.
      * @param clientId the represented client's id.
-     * @param thread the thread charged to process all client requests.
      */
-    public DefaultClientInfo(Socket socket, String clientId, Thread thread) {
+    public DefaultClientInfo(Socket socket, String clientId) {
         super(socket);
         this.clientId = clientId;
-        this.thread = thread;
     }
 
 
@@ -45,6 +47,19 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
 
 
     // Thread getters
+
+    /**
+     * Set the client processor thread.
+     * <p>
+     * This method can be called only one time.
+     *
+     * @param thread the thread that process data received from the client.
+     */
+    public void setThread(Thread thread) {
+        if (this.thread != null)
+            throw new IllegalArgumentException("Thread can be set only once");
+        this.thread = thread;
+    }
 
     /**
      * {@inheritDoc}

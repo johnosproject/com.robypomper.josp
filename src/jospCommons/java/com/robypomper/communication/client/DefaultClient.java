@@ -83,9 +83,9 @@ public class DefaultClient implements Client {
         this.serverAddr = serverAddr;
         this.serverPort = serverPort;
         this.cle = clientLocalEventsListener;
-        this.cle.setClient(this);
+        if (this.cle != null) this.cle.setClient(this);
         this.cse = clientServerEventsListener;
-        this.cse.setClient(this);
+        if (this.cse != null) this.cse.setClient(this);
         if (clientMessagingEventsListener == null)
             throw new IllegalArgumentException("DefaultClient can't be initialized with a null ClientMessagingEvents param.");
         this.cme = clientMessagingEventsListener;

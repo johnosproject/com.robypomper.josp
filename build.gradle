@@ -7,6 +7,8 @@ plugins {
     id 'org.springframework.boot' //version '2.2.4.RELEASE'                     version not required because specified in buildSrc/build.gradle
     id 'io.spring.dependency-management' //version '1.0.9.RELEASE'              version not required because specified in buildSrc/build.gradle
     id 'java'
+
+    id 'idea'
 }
 
 group = 'com.robypomper.josp.jcp'

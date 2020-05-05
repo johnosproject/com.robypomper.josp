@@ -175,7 +175,7 @@ public class DefaultSSLClientTest {
         // Check client list
         clients = serverLatch.getClients();
         DefaultServerTest_Base.printClientInfoList(clients);
-        Assertions.assertEquals(1, clients.size());
+        Assertions.assertEquals(0, clients.size());
 
         // Check client status
         Assertions.assertFalse(client.isConnected());
@@ -218,7 +218,7 @@ public class DefaultSSLClientTest {
         // Check client list
         clients = serverLatchWithAuth.getClients();
         DefaultServerTest_Base.printClientInfoList(clients);
-        Assertions.assertEquals(1, clients.size());
+        Assertions.assertEquals(0, clients.size());
 
         // Check client status
         Assertions.assertFalse(client.isConnected());
