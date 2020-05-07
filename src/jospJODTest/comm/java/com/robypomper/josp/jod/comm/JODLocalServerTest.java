@@ -122,7 +122,7 @@ public class JODLocalServerTest {
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
-        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId"), LOCALHOST, port,
+        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
 
@@ -153,10 +153,10 @@ public class JODLocalServerTest {
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
-        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId"), LOCALHOST, port,
+        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
-        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId_2/instId"), LOCALHOST, port,
+        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId_2/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
@@ -197,10 +197,10 @@ public class JODLocalServerTest {
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
-        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId"), LOCALHOST, port,
+        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
-        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId"), LOCALHOST, port,
+        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
@@ -233,10 +233,10 @@ public class JODLocalServerTest {
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
-        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId_A"), LOCALHOST, port,
+        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId_A", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
-        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId_B"), LOCALHOST, port,
+        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId_B", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
@@ -269,7 +269,7 @@ public class JODLocalServerTest {
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
-        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId"), LOCALHOST, port,
+        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
 
@@ -297,10 +297,10 @@ public class JODLocalServerTest {
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
-        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId/instId"), LOCALHOST, port,
+        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
-        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), new MockJSLServiceInfo("srvId/usrId_2/instId"), LOCALHOST, port,
+        JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId_2/instId", LOCALHOST, port,
                 TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
