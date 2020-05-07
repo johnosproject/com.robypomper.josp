@@ -106,8 +106,18 @@ public abstract class AbsJOD implements JOD {
         executor.activateAll();
 
         // Service comm
-        comm.startCloudComm();
-        comm.startLocalComm();
+        try {
+            if (((JOD_002.Settings) settings).getLocalEnabled())    // ToDo: move getLocalEnabled to JOD.Settings
+                comm.startLocal();
+        } catch (JODCommunication.LocalCommunicationException e) {
+            System.out.println(String.format("WAR: error on starting local communication because %s", e.getMessage()));
+        }
+        try {
+            if (((JOD_002.Settings) settings).getCloudEnabled())    // ToDo: move getCloudEnabled to JOD.Settings
+                comm.connectCloud();
+        } catch (JODCommunication.CloudCommunicationException e) {
+            System.out.println(String.format("WAR: error on starting cloud communication because %s", e.getMessage()));
+        }
 
         if (status != Status.REBOOTING) status = Status.RUNNING;
         System.out.println("INF: JOD Obj is running.");
@@ -134,14 +144,20 @@ public abstract class AbsJOD implements JOD {
     public void stop() throws RunException {
         System.out.println("INF: JOD Obj shutdown...");
 
-        if (status()!=Status.RUNNING)
+        if (status() != Status.RUNNING)
             throw new RunException(String.format("Can't stop JOD object because his state is '%s'.", status()));
 
-        if (status!=Status.REBOOTING) status = Status.SHUTDOWN;
+        if (status != Status.REBOOTING) status = Status.SHUTDOWN;
 
         // Service comm
-        comm.stopCloudComm();
-        comm.stopLocalComm();
+        if (comm.isCloudConnected())
+            comm.disconnectCloud();
+        try {
+            if (comm.isLocalRunning())
+                comm.stopLocal();
+        } catch (JODCommunication.LocalCommunicationException e) {
+            System.out.println(String.format("WAR: error on stopping local communication because %s", e.getMessage()));
+        }
 
         // HW interface
         executor.deactivateAll();
@@ -151,7 +167,7 @@ public abstract class AbsJOD implements JOD {
         permissions.stopAutoRefresh();
         structure.stopAutoRefresh();
 
-        if (status!=Status.REBOOTING) status = Status.STOPPED;
+        if (status != Status.REBOOTING) status = Status.STOPPED;
         System.out.println("INF: JOD Obj stopped.");
     }
 
