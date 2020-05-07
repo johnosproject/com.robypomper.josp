@@ -1,11 +1,11 @@
 package com.robypomper.josp.jsl.systems;
 
-import com.robypomper.josp.jsl.comm.JSLCloudConnection;
-import com.robypomper.josp.jsl.comm.JSLConnection;
-import com.robypomper.josp.jsl.comm.JSLLocalConnection;
+import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
+import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
 import java.util.List;
+
 
 /**
  * Interface for JSL Communication system.
@@ -17,17 +17,39 @@ import java.util.List;
  */
 public interface JSLCommunication {
 
+    // Action cmd flow (objMng - comm)
+
+    /**
+     * Forward <code>component</code> <code>action</code> to corresponding object.
+     * <p>
+     * This method is required by {@link JSLAction} when must send a command to
+     * the corresponding object.
+     *
+     * @param object    the object to send the action command.
+     * @param component the object's component to send the action command.
+     * @param command   the action command info.
+     */
+    void forwardAction(JSLRemoteObject object/*, JSLAction component, JSLActionCommand command*/);
+
+    /**
+     * Parse and update component status according to given <code>msg</code>.
+     *
+     * @param msg the JOSP message to parse.
+     */
+    void forwardUpdate(String msg);
+
+
     // Connections access
 
     /**
      * @return the Gw S2O connection, null if not connected.
      */
-    JSLCloudConnection getCloudConnection();
+    JSLGwS2OClient getCloudConnection();
 
     /**
      * @return an array containing all local connections.
      */
-    List<JSLLocalConnection> getAllLocalConnection();
+    List<JSLLocalClient> getAllLocalClients();
 
 
     // Mngm methods
@@ -35,17 +57,17 @@ public interface JSLCommunication {
     /**
      * @return <code>true</code> if the local search system is active.
      */
-    boolean isLocalSearchActive();
+    boolean isLocalRunning();
 
     /**
      * Start local Object's server and publish it.
      */
-    void startSearchLocalObjects();
+    void startLocal() throws LocalCommunicationException;
 
     /**
      * Stop local Object's server and de-publish it, then close all opened connections.
      */
-    void stopSearchLocalObjects();
+    void stopLocal() throws LocalCommunicationException;
 
     /**
      * @return <code>true</code> if current JSL library is connected to the Gw S2O.
@@ -55,11 +77,40 @@ public interface JSLCommunication {
     /**
      * Start JOSP Gw S2O Client.
      */
-    void connectCloud();
+    void connectCloud() throws CloudCommunicationException;
 
     /**
      * Stop JOSP Gw S2O Client.
      */
     void disconnectCloud();
+
+
+    // Exceptions
+
+    /**
+     * Exceptions for local communication errors.
+     */
+    class LocalCommunicationException extends Throwable {
+        public LocalCommunicationException(String msg) {
+            super(msg);
+        }
+
+        public LocalCommunicationException(String msg, Throwable e) {
+            super(msg, e);
+        }
+    }
+
+    /**
+     * Exceptions for cloud communication errors.
+     */
+    class CloudCommunicationException extends Throwable {
+        public CloudCommunicationException(String msg) {
+            super(msg);
+        }
+
+        public CloudCommunicationException(String msg, Throwable e) {
+            super(msg, e);
+        }
+    }
 
 }
