@@ -222,7 +222,7 @@ public class DiscoveryAvahi {
                             String name = fields[3];
                             String type = fields[4];
                             String extra = fields[9];
-                            String nameUnique = name + "@" + intf + "/" + proto;
+                            String nameUnique = type + ":" + name + "@" + intf + "/" + proto;
                             InetAddress inetAddr = InetAddress.getByName(fields[7]);
                             int port = Integer.parseInt(fields[8]);
 
@@ -241,7 +241,7 @@ public class DiscoveryAvahi {
                             String proto = fields[2];
                             String name = fields[3];
                             String type = fields[4];
-                            String nameUnique = name + "@" + intf + "/" + proto;
+                            String nameUnique = type + ":" + name + "@" + intf + "/" + proto;
 
                             if (knownServices.contains(nameUnique)) {
                                 emitOnServiceLost(type, name);
@@ -251,6 +251,13 @@ public class DiscoveryAvahi {
                     }
 
                     LogDiscovery.logSubSystem(String.format("DEB: terminating process '%s'", cmd));
+
+                    for (String srv : knownServices) {
+                        String type = srv.substring(0, srv.indexOf(":"));
+                        String name = srv.substring(srv.indexOf(":") + 1, srv.indexOf("@"));
+                        emitOnServiceLost(type, name);
+                    }
+                    knownServices.clear();
 
                 } catch (IOException e) {
 

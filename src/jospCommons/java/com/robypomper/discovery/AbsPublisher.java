@@ -220,7 +220,7 @@ public abstract class AbsPublisher implements Publisher {
                 count++;
             }
             if (!isPublished())
-                throw new PublishException(String.format("ERR: service '%s' not published after %d seconds", getServiceName(), WAIT_MAX_COUNT * WAIT_LOOP_TIME));
+                throw new PublishException(String.format("ERR: service '%s' not published after %d seconds", getServiceName(), WAIT_MAX_COUNT * WAIT_LOOP_TIME / 1000));
 
         } catch (InterruptedException e) {
             if (!isPublished())
