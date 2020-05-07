@@ -427,17 +427,21 @@ public class DefaultServer implements Server {
                 }
 
             } catch (IOException e) {
-                if (!client.isConnected()
-                        || (e instanceof SocketException && e.getMessage().equals("Connection reset"))
-                        || (e instanceof SSLHandshakeException && e.getMessage().equals("Remote host closed connection during handshake"))
-                        || (e instanceof SSLException && e.getMessage().startsWith("Connection has been shutdown"))
-                        || (e instanceof SSLException && e.getMessage().startsWith("Received fatal alert"))
-                )
+                if (mustShutdown || !client.isConnected())
                     break;
 
+                if ((e instanceof SSLException && e.getMessage().startsWith("Received fatal alert: internal_error"))) {
+                    log.warn(Markers.COMM_SRV, String.format("Client '%s' can't connect, wait for sharing certificate with server '%s'", client.getClientId(), getServerId()));
+                    break;
+                }
+
                 // Rx error, but not client closed
-                log.warn(Markers.COMM_SRV, String.format("Server can't read data from client '%s' because %s", client, e.getMessage()));
+                log.warn(Markers.COMM_SRV, String.format("Server can't read data from client '%s' because %s", client.getClientId(), e.getMessage()));
                 if (sce != null) sce.onClientError(client, e);
+
+                if ((e instanceof SocketException && e.getMessage().equals("Connection reset"))) {
+                    break;
+                }
             }
         }
 

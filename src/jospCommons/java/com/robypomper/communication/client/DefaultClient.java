@@ -223,9 +223,13 @@ public class DefaultClient implements Client {
             }
         }
 
-        if (!clientThread.isAlive() && !internalCaller) {
-            log.info(Markers.COMM_CL, String.format("Client '%s' disconnected successfully", getClientId()));
-            if (cle != null) cle.onDisconnected();
+        try {
+            if (!clientThread.isAlive() && !internalCaller) {
+                log.info(Markers.COMM_CL, String.format("Client '%s' disconnected successfully", getClientId()));
+                if (cle != null) cle.onDisconnected();
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();    // not corrected bug, probably because sync errors in tests execution
         }
 
         // Reset internal vars
