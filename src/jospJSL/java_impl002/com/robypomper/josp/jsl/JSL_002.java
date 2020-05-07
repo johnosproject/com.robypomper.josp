@@ -23,25 +23,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class JSL_002 extends AbsJSL {
 
     private static final String VERSION = FactoryJSL.JSL_VER_002;
+    private static final int MAX_INSTANCE_ID = 10000;
 
     public JSL_002(Settings settings, JCPClient_Service jcpClient, JSLServiceInfo srvInfo, JSLUserMngr usr, JSLObjsMngr objs, JSLCommunication comm) {
         super(settings, jcpClient, srvInfo, usr, objs, comm);
     }
 
-    public static JSL instance(Settings settings) throws JCPClient.ConnectionException {
+    public static JSL instance(Settings settings) throws JCPClient.ConnectionException, JSLCommunication.LocalCommunicationException {
+        String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
+
         JCPClient_Service jcpClient = new DefaultJCPClient_Service(settings);
-        JSLServiceInfo srvInfo = new JSLServiceInfo_002(settings, jcpClient);
+        JSLServiceInfo srvInfo = new JSLServiceInfo_002(settings, jcpClient, instanceId);
 
         JSLUserMngr usr = new JSLUserMngr_002(settings, jcpClient);
         JSLObjsMngr objs = new JSLObjsMngr_002(settings);
+        srvInfo.setSystems(usr, objs);
 
-        JSLCommunication comm = new JSLCommunication_002(settings, srvInfo, usr, objs, jcpClient);
+        JSLCommunication comm = new JSLCommunication_002(settings, srvInfo, jcpClient, usr, objs);
 
-        srvInfo.setSystems(usr, objs, comm);
+        srvInfo.setCommunication(comm);
 
         return new JSL_002(settings, jcpClient, srvInfo, usr, objs, comm);
     }
@@ -73,6 +78,24 @@ public class JSL_002 extends AbsJSL {
         public static final String JSLUSR_NAME_DEF          = "";
         public static final String JSLUSR_ID                = "jsl.usr.id";
         public static final String JSLUSR_ID_DEF            = "";
+
+        public static final String JSLCOMM_LOCAL_ENABLED        = "jsl.comm.local.enabled";
+        public static final String JSLCOMM_LOCAL_ENABLED_DEF    = "true";
+        public static final String JSLCOMM_LOCAL_DISCOVERY      = "jsl.comm.local.impl";
+        public static final String JSLCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
+        public static final String JSLCOMM_LOCAL_KS_FILE        = "jsl.comm.local.keystore.path";
+        public static final String JSLCOMM_LOCAL_KS_FILE_DEF    = "certs/private/client.p12";
+        public static final String JSLCOMM_LOCAL_KS_PASS        = "jsl.comm.local.keystore.pass";
+        public static final String JSLCOMM_LOCAL_KS_PASS_DEF    = "servicePass";
+
+        public static final String JSLCOMM_CLOUD_ENABLED        = "jsl.comm.cloud.enabled";
+        public static final String JSLCOMM_CLOUD_ENABLED_DEF    = "true";
+        public static final String JSLCOMM_CLOUD_CERT           = "jsl.comm.cloud.cert.path";
+        public static final String JSLCOMM_CLOUD_CERT_DEF       = "certs/public/clientCloud.crt";
+        public static final String JSLCOMM_CLOUD_CERT_REMOTE    = "jsl.comm.cloud.remote.cert.path";
+        public static final String JSLCOMM_CLOUD_CERT_REMOTE_DEF= "certs/public/mainServer@GwObjService.crt";
+
+
         //@formatter:on
 
         private File file;
@@ -227,6 +250,67 @@ public class JSL_002 extends AbsJSL {
         public void setUsrName(String username) {
             store(JSLUSR_NAME, username);
         }
+
+        // JSL Comm
+
+        //@Override
+        public boolean getLocalEnabled() {
+            try {
+                String val = properties.get(JSLCOMM_LOCAL_ENABLED) != null ?
+                        properties.get(JSLCOMM_LOCAL_ENABLED) :
+                        JSLCOMM_LOCAL_ENABLED_DEF;
+                return Boolean.parseBoolean(val);
+
+            } catch (ClassCastException e) {
+                return (boolean) (Object) properties.get(JSLCOMM_LOCAL_ENABLED);
+            }
+        }
+
+        public String getJSLDiscovery() {
+            return properties.get(JSLCOMM_LOCAL_DISCOVERY) != null ? properties.get(JSLCOMM_LOCAL_DISCOVERY) :
+                    JSLCOMM_LOCAL_DISCOVERY_DEF;
+        }
+
+        //@Override
+        public String getLocalClientKeyStore() {
+            return properties.get(JSLCOMM_LOCAL_KS_FILE) != null ? properties.get(JSLCOMM_LOCAL_KS_FILE) :
+                    JSLCOMM_LOCAL_KS_FILE_DEF;
+        }
+
+        //@Override
+        public String getLocalClientKeyStorePass() {
+            return properties.get(JSLCOMM_LOCAL_KS_PASS) != null ? properties.get(JSLCOMM_LOCAL_KS_PASS) :
+                    JSLCOMM_LOCAL_KS_PASS_DEF;
+        }
+
+
+        // Communication cloud
+
+        //@Override
+        public boolean getCloudEnabled() {
+            try {
+                String val = properties.get(JSLCOMM_CLOUD_ENABLED) != null ?
+                        properties.get(JSLCOMM_CLOUD_ENABLED) :
+                        JSLCOMM_CLOUD_ENABLED_DEF;
+                return Boolean.parseBoolean(val);
+
+            } catch (ClassCastException e) {
+                return (boolean) (Object) properties.get(JSLCOMM_CLOUD_ENABLED);
+            }
+        }
+
+        //@Override
+        public String getCloudClientPublicCertificate() {
+            return properties.get(JSLCOMM_CLOUD_CERT) != null ? properties.get(JSLCOMM_CLOUD_CERT) :
+                    JSLCOMM_CLOUD_CERT_DEF;
+        }
+
+        //@Override
+        public String getCloudServerPublicCertificate() {
+            return properties.get(JSLCOMM_CLOUD_CERT_REMOTE) != null ? properties.get(JSLCOMM_CLOUD_CERT_REMOTE) :
+                    JSLCOMM_CLOUD_CERT_REMOTE_DEF;
+        }
+
     }
 
     @Override

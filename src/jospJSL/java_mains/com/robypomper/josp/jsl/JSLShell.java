@@ -2,13 +2,12 @@ package com.robypomper.josp.jsl;
 
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
-import com.robypomper.josp.jsl.shell.CmdsJCPClient;
-import com.robypomper.josp.jsl.shell.CmdsJSLCommunication;
-import com.robypomper.josp.jsl.shell.CmdsJSLObjsMngr;
-import com.robypomper.josp.jsl.shell.CmdsJSLServiceInfo;
-import com.robypomper.josp.jsl.shell.CmdsJSL;
-import com.robypomper.josp.jsl.shell.CmdsJSLUserMngr;
 import com.robypomper.josp.jsl.info.JSLInfo;
+import com.robypomper.josp.jsl.shell.CmdsJCPClient;
+import com.robypomper.josp.jsl.shell.CmdsJSL;
+import com.robypomper.josp.jsl.shell.CmdsJSLCommunication;
+import com.robypomper.josp.jsl.shell.CmdsJSLServiceInfo;
+import com.robypomper.josp.jsl.shell.CmdsJSLUserMngr;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -218,7 +217,8 @@ public class JSLShell {
                 new CmdsJSL(jsl),
                 new CmdsJCPClient(jsl.getJCPClient()),
                 new CmdsJSLServiceInfo(jsl.getServiceInfo()),
-                new CmdsJSLUserMngr(jsl.getUserMngr())
+                new CmdsJSLUserMngr(jsl.getUserMngr()),
+                new CmdsJSLCommunication(jsl.getCommunication())
         );
         shell.commandLoop();
     }

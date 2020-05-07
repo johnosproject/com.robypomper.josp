@@ -1,6 +1,6 @@
 package com.robypomper.josp.jsl;
 
-import com.robypomper.josp.jsl.comm.JSLLocalConnection;
+import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.systems.JSLCommunication;
 import com.robypomper.josp.jsl.systems.JSLObjsMngr;
@@ -85,24 +85,26 @@ public abstract class AbsJSL implements JSL {
 
         // Start local discovery
         try {
-            comm.startSearchLocalObjects();
+            if (((JSL_002.Settings) settings).getLocalEnabled())    // ToDo: move getLocalEnabled to JSL.Settings
+                comm.startLocal();
 
-        } catch (Exception e) {
+        } catch (JSLCommunication.LocalCommunicationException e) {
             System.out.println(String.format("WAR: can't start local objects search because %s", e.getMessage()));
             e.printStackTrace();
         }
 
         // Connect Gw S2O
         try {
-            comm.connectCloud();
+            if (((JSL_002.Settings) settings).getCloudEnabled())    // ToDo: move getCloudEnabled to JSL.Settings
+                comm.connectCloud();
 
-        } catch (Exception e) {
+        } catch (JSLCommunication.CloudCommunicationException e) {
             System.out.println(String.format("WAR: can't connect to cloud Gw S2O because %s", e.getMessage()));
             e.printStackTrace();
         }
 
         // Update JSL status
-        if (comm.isLocalSearchActive() || comm.isCloudConnected())
+        if (comm.isLocalRunning() || comm.isCloudConnected())
             status = Status.CONNECTED;
         else
             status = Status.DISCONNECTED;
@@ -119,30 +121,27 @@ public abstract class AbsJSL implements JSL {
 
         // Stop local discovery
         try {
-            comm.stopSearchLocalObjects();
+            if (comm.isLocalRunning())
+                comm.stopLocal();
 
-        } catch (Exception e) {
+        } catch (JSLCommunication.LocalCommunicationException e) {
             System.out.println(String.format("WAR: can't start local objects search because %s", e.getMessage()));
             e.printStackTrace();
         }
 
         // Close all local connections
-        List<JSLLocalConnection> locConns = comm.getAllLocalConnection();
-        for (JSLLocalConnection conn : locConns) {
-            conn.disconnect();
+        List<JSLLocalClient> locConns = comm.getAllLocalClients();
+        for (JSLLocalClient conn : locConns) {
+            if (conn.isConnected())
+                conn.disconnect();
         }
 
         // Disconnect Gw S2O
-        try {
+        if (comm.isCloudConnected())
             comm.disconnectCloud();
 
-        } catch (Exception e) {
-            System.out.println(String.format("WAR: can't connect to cloud Gw S2O because %s", e.getMessage()));
-            e.printStackTrace();
-        }
-
         // Update JSL status
-        if (!comm.isLocalSearchActive() && !comm.isCloudConnected())
+        if (!comm.isLocalRunning() && !comm.isCloudConnected())
             status = Status.DISCONNECTED;
         else
             status = Status.CONNECTED;
