@@ -14,15 +14,21 @@ public interface JSLServiceInfo {
     // Service's systems
 
     /**
-     * Set service's systems so ServiceInfo can access to systems info and provide
-     * them as a unique point of reference.
+     * Set service's systems (UserMngr and ObjsMngr) so ServiceInfo can access
+     * to systems info and provide them as a unique point of reference.
      *
      * @param user the JSL user mngm system.
      * @param objs the JSL objects mngm system.
+     */
+    void setSystems(JSLUserMngr user, JSLObjsMngr objs);
+
+    /**
+     * Set service's systems (Communication) so ServiceInfo can access to systems
+     * info and provide them as a unique point of reference.
+     *
      * @param comm the JSL communication system.
      */
-    void setSystems(JSLUserMngr user, JSLObjsMngr objs, JSLCommunication comm);
-
+    void setCommunication(JSLCommunication comm);
 
     // Srv's info
 
@@ -64,6 +70,23 @@ public interface JSLServiceInfo {
      * <code>null</code>.
      */
     String getUsername();
+
+
+    // Instance and fullId
+
+    /**
+     * The current instance ID.
+     *
+     * @return current instance ID.
+     */
+    String getInstanceId();
+
+    /**
+     * The full service id is composed by service and user ids.
+     *
+     * @return an id composed by service and user id.
+     */
+    String getFullId();
 
 
     // Objects's info

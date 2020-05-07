@@ -12,6 +12,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
 
     // Class constants
 
+    String FULL_ID_FORMATTER = "%s/%s/%s";
     private static final String SRVNAME_OFFLINE = "NoSrvName-Offline";
     private static final String SRVID_OFFLINE = "ZZZZZ-ZZZZZ-ZZZZZ";
 
@@ -23,6 +24,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
     private JSLUserMngr userMngr;
     private JSLObjsMngr objs;
     private JSLCommunication comm;
+    private String instanceId;
 
 
     // Constructor
@@ -33,13 +35,15 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      * This constructor create an instance of {@link JCPServiceInfo} and request
      * common/mandatory info for caching them.
      *
-     * @param settings  the JSL settings.
-     * @param jcpClient the JCP client.
+     * @param settings   the JSL settings.
+     * @param jcpClient  the JCP client.
+     * @param instanceId the service instance id.
      */
-    public JSLServiceInfo_002(JSL_002.Settings settings, JCPClient_Service jcpClient) {
+    public JSLServiceInfo_002(JSL_002.Settings settings, JCPClient_Service jcpClient, String instanceId) {
         System.out.println("DEB: JSL Service Info initialization...");
         this.locSettings = settings;
         this.jcpSrvInfo = new JCPServiceInfo(jcpClient);
+        this.instanceId = instanceId;
 
         // force value caching
         String srvId = getSrvId();
@@ -57,9 +61,16 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      * {@inheritDoc}
      */
     @Override
-    public void setSystems(JSLUserMngr userMngr, JSLObjsMngr objs, JSLCommunication comm) {
+    public void setSystems(JSLUserMngr userMngr, JSLObjsMngr objs) {
         this.userMngr = userMngr;
         this.objs = objs;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setCommunication(JSLCommunication comm) {
         this.comm = comm;
     }
 
@@ -80,7 +91,6 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
                     return locSettings.getSrvId();
 
                 System.out.println("Service must be online at his first boot to get his id and other service's staffs.");
-                ignore.printStackTrace();
                 return SRVID_OFFLINE;
             }
         }
@@ -145,6 +155,27 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
     @Override
     public String getUsername() {
         return userMngr.getUsername();
+    }
+
+
+    // Instance and fullId
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+
+    /**
+     * The full service id is composed by service and user ids.
+     *
+     * @return an id composed by service and user id.
+     */
+    public String getFullId() {
+        return String.format(FULL_ID_FORMATTER, getSrvId(), getUserId(), getInstanceId());
     }
 
 
