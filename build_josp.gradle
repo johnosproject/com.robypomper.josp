@@ -68,3 +68,58 @@ tasks.javaJospJSL_ShellRun {
     args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
     //jvmArgs = ['-Djavax.net.debug=ssl']
 }
+
+
+
+// Tests
+
+sourceSets {
+    jospJODCommTest {
+        java {
+            compileClasspath += sourceSets.jospJOD.output
+            runtimeClasspath += sourceSets.jospJOD.output
+            compileClasspath += sourceSets.jospJSL.output
+            runtimeClasspath += sourceSets.jospJSL.output
+            srcDirs = ['src/jospJODTest/comm/java']
+        }
+    }
+}
+
+configurations {
+    jospJODCommTestImplementation.extendsFrom jospJODImplementation
+    jospJODCommTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
+}
+
+dependencies {
+    jospJODCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    jospJODCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+}
+
+task jospJODTest {
+    description = 'Runs all JOD tests.'
+    group = 'verification'
+}
+
+task jospJODCommTest(type: Test) {
+    description = 'Runs JOD Communication tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.jospJODCommTest.output.classesDirs
+    classpath = sourceSets.jospJODCommTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+
+
+jospJODTest.dependsOn jospJODCommTest
+check.dependsOn jospJODTest
+
+
+// gradle > intellij settings
+idea {
+    module {
+        testSourceDirs += project.sourceSets.jospJODCommTest.java.srcDirs
+        testSourceDirs += project.sourceSets.jospJODCommTest.resources.srcDirs
+    }
+}
