@@ -1,6 +1,6 @@
 package com.robypomper.josp.jsl.objs;
 
-import com.robypomper.josp.jsl.comm.JSLLocalConnection;
+import com.robypomper.josp.jsl.comm.JSLLocalClient;
 
 import java.util.List;
 
@@ -21,10 +21,19 @@ public interface JSLRemoteObject {
     String getId();
 
     /**
+     * @return the object's name.
+     */
+    String getName();
+
+    /**
      * @return an array containing all available local connections to the object.
      * if the object is disconnected or works only via cloud, then the
      * returned array will be empty.
      */
-    List<JSLLocalConnection> getLocalConnections();
+    List<JSLLocalClient> getLocalClients();
 
+
+    void addLocalConnection(JSLLocalClient localClient);
+
+    void replaceLocalConnection(JSLLocalClient oldConnection, JSLLocalClient newConnection);
 }

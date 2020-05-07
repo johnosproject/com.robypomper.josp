@@ -1,8 +1,7 @@
 package com.robypomper.josp.jsl.systems;
 
-import com.robypomper.josp.jsl.comm.JSLCloudConnection;
-import com.robypomper.josp.jsl.comm.JSLConnection;
-import com.robypomper.josp.jsl.comm.JSLLocalConnection;
+import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
+import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjectSearchPattern;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
@@ -48,10 +47,10 @@ public interface JSLObjsMngr {
     JSLRemoteObject getById(String objId);
 
     /**
-     * @param localConnection required object's local connection.
+     * @param client required object's local connection.
      * @return the object associated to given local connection, null if not found.
      */
-    JSLRemoteObject getByConnection(JSLLocalConnection localConnection);
+    JSLRemoteObject getByConnection(JSLLocalClient client);
 
     /**
      * @param pattern object's search pattern.
@@ -72,8 +71,9 @@ public interface JSLObjsMngr {
      * If there is no {@link JSLRemoteObject} yet, it will be created.
      *
      * @param localConnection the open local connection to JOD object.
+     * @return
      */
-    void addNewConnection(JSLLocalConnection localConnection);
+    void addNewConnection(JSLLocalClient localConnection);
 
     /**
      * Remove given connection to corresponding {@link JSLRemoteObject}.
@@ -86,7 +86,7 @@ public interface JSLObjsMngr {
      *
      * @param localConnection the closed local connection to JOD object.
      */
-    void removeConnection(JSLLocalConnection localConnection);
+    boolean removeConnection(JSLLocalClient localConnection);
 
     /**
      * Set the JOSP Gw Service2Object connection.
@@ -99,6 +99,6 @@ public interface JSLObjsMngr {
      * @param cloudConnection the JOSP Gw S2O connection. If null, then it
      *                        disable the cloud communication.
      */
-    void setCloudConnection(JSLCloudConnection cloudConnection);
+    void setCloudConnection(JSLGwS2OClient cloudConnection);
 
 }

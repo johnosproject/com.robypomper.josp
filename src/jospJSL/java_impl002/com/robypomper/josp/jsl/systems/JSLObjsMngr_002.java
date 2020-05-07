@@ -2,7 +2,6 @@ package com.robypomper.josp.jsl.systems;
 
 import com.robypomper.josp.jsl.JSL_002;
 import com.robypomper.josp.jsl.comm.JSLCloudConnection;
-import com.robypomper.josp.jsl.comm.JSLLocalConnection;
 import com.robypomper.josp.jsl.objs.JSLObjectSearchPattern;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
@@ -65,7 +64,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * {@inheritDoc}
      */
     @Override
-    public JSLRemoteObject getByConnection(JSLLocalConnection localConnection) {
+    public JSLRemoteObject getByConnection(JSLLocalClient client) {
         for (JSLRemoteObject obj : objs)
             if (obj.getLocalConnections().contains(localConnection))
                 return obj;
@@ -89,23 +88,24 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * {@inheritDoc}
      */
     @Override
-    public void addNewConnection(JSLLocalConnection localConnection) {
-        System.out.println("DEB: JSLObjMngr_002::addNewConnection()");
+    public void addNewConnection(JSLLocalClient localConnection) {
+
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void removeConnection(JSLLocalConnection localConnection) {
+    public boolean removeConnection(JSLLocalClient client) {
         System.out.println("DEB: JSLObjMngr_002::removeConnection()");
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setCloudConnection(JSLCloudConnection cloudConnection) {
+    public void setCloudConnection(JSLGwS2OClient cloudConnection) {
         this.cloudConnection = cloudConnection;
     }
 
