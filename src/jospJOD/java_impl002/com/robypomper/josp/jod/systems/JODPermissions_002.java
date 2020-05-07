@@ -37,7 +37,7 @@ public class JODPermissions_002 implements JODPermissions {
     // Constructor
 
     /**
-     * Defautl constructor.
+     * Default constructor.
      *
      * @param settings  the JOD settings.
      * @param objInfo   the object's info.

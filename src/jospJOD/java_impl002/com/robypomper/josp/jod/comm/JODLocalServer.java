@@ -11,8 +11,6 @@ import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.josp.jod.systems.JODCommunication;
-import com.robypomper.josp.jod.systems.JODCommunication_002;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +42,7 @@ public class JODLocalServer implements Server {
     /**
      * Default constructor that initialize the internal {@link CertSharingSSLServer}.
      *
-     * @param communication instance of the {@link com.robypomper.josp.jod.systems.JODCommunication}
+     * @param communication instance of the {@link JODCommunication}
      *                      that initialized this client. It will used to
      *                      process data received from the O2S Gw.
      * @param objId         the represented object's id.
@@ -153,7 +151,7 @@ public class JODLocalServer implements Server {
     // Process incoming messages
 
     /**
-     * Forward received data to the {@link com.robypomper.josp.jod.systems.JODCommunication}
+     * Forward received data to the {@link JODCommunication}
      * instance.
      *
      * @param client   the sender client's info.
