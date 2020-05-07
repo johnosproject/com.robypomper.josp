@@ -26,12 +26,13 @@ public class SSLCertClientTest {
 
     // Class constants
 
+    final static String TEST_FILES_PREFIX = "tmp/tests/";
     final static String ID_CLIENT = "TestCustomClient";
     final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
     final static int PORT = 1234;
     final static String ID_SERVER = "TestSSLCertServer";
-    final static String CLI_CERT_PUB_PATH = String.format("client-%s.crt", SSLCertClientTest.class.getSimpleName());
-    final static String SRV_CERT_PUB_PATH = String.format("server-%s.crt", SSLCertClientTest.class.getSimpleName());
+    final static String CLI_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("client-%s.crt", SSLCertClientTest.class.getSimpleName());
+    final static String SRV_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("server-%s.crt", SSLCertClientTest.class.getSimpleName());
 
 
     // Internal vars

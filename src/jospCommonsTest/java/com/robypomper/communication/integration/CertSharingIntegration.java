@@ -32,18 +32,19 @@ public class CertSharingIntegration {
 
     // Class constants
 
+    static final String TEST_FILES_PREFIX = "tmp/tests/";
     final static String ID_SERVER = "TestServer";
     final static String ID_CLIENT = "TestClient";
     final static int PORT = 1234;
     final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
-    final static String SERVER_KS_PATH = String.format("server-%s.p12", CertSharingIntegration.class.getSimpleName());
+    final static String SERVER_KS_PATH = TEST_FILES_PREFIX + String.format("server-%s.p12", CertSharingIntegration.class.getSimpleName());
     final static String SERVER_KS_PASS = "ksPass";
     final static String SERVER_CERT_ALIAS = "serverLocalCert";
-    final static String SERVER_CERT_PATH = String.format("server-%s.crt", CertSharingIntegration.class.getSimpleName());
-    final static String CLIENT_KS_PATH = String.format("client-%s.p12", CertSharingIntegration.class.getSimpleName());
+    final static String SERVER_CERT_PATH = TEST_FILES_PREFIX + String.format("server-%s.crt", CertSharingIntegration.class.getSimpleName());
+    final static String CLIENT_KS_PATH = TEST_FILES_PREFIX + String.format("client-%s.p12", CertSharingIntegration.class.getSimpleName());
     final static String CLIENT_KS_PASS = "ksPass";
     final static String CLIENT_CERT_ALIAS = "clientLocalCert";
-    final static String CLIENT_CERT_PATH = String.format("client-%s.crt", CertSharingIntegration.class.getSimpleName());
+    final static String CLIENT_CERT_PATH = TEST_FILES_PREFIX + String.format("client-%s.crt", CertSharingIntegration.class.getSimpleName());
 
 
     // Internal vars

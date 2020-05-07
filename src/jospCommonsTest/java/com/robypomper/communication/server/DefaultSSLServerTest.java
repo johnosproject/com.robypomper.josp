@@ -30,16 +30,17 @@ public class DefaultSSLServerTest {
 
     // Class constants
 
+    final static String TEST_FILES_PREFIX = "tmp/tests/";
     final static String ID_SERVER = "TestServer";
     final static int PORT = 1234;
     final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
 
     final static String SRV_ID_CERTIFICATE = "TestSSLCertServer";
-    final static String SRV_CERT_PUB_PATH = String.format("server-%s.crt", SSLCertServerTest.class.getSimpleName());
+    final static String SRV_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("server-%s.crt", SSLCertServerTest.class.getSimpleName());
     final static String SRV_CERT_ALIAS = "certAliasServer";
     final static String SRV_KS_PASS = "ksPassServer";
     final static String CLI_ID_CERTIFICATE = "TestSSLCertClient";
-    final static String CLI_CERT_PUB_PATH = String.format("client-%s.crt", SSLCertServerTest.class.getSimpleName());
+    final static String CLI_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("client-%s.crt", SSLCertServerTest.class.getSimpleName());
     final static String CLI_CERT_ALIAS = "certAliasClient";
     final static String CLI_KS_PASS = "ksPassClient";
 
