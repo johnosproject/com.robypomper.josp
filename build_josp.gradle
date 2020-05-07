@@ -83,16 +83,29 @@ sourceSets {
             srcDirs = ['src/jospJODTest/comm/java']
         }
     }
+    jospJSLCommTest {
+        compileClasspath += sourceSets.jospJSL.output
+        runtimeClasspath += sourceSets.jospJSL.output
+        compileClasspath += sourceSets.jospJOD.output
+        runtimeClasspath += sourceSets.jospJOD.output
+        java.srcDirs = ['src/jospJSLTest/comm/java']
+    }
 }
 
 configurations {
     jospJODCommTestImplementation.extendsFrom jospJODImplementation
     jospJODCommTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
+
+    jospJSLCommTestImplementation.extendsFrom jospJSLImplementation
+    jospJSLCommTestRuntimeOnly.extendsFrom jospJSLRuntimeOnly
 }
 
 dependencies {
     jospJODCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     jospJODCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+
+    jospJSLCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    jospJSLCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
 }
 
 task jospJODTest {
@@ -112,8 +125,28 @@ task jospJODCommTest(type: Test) {
 }
 
 
+task jospJSLTest {
+    description = 'Runs all JSL tests.'
+    group = 'verification'
+}
+
+task jospJSLCommTest(type: Test) {
+    description = 'Runs JSL Communication tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.jospJSLCommTest.output.classesDirs
+    classpath = sourceSets.jospJSLCommTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+
+
 jospJODTest.dependsOn jospJODCommTest
 check.dependsOn jospJODTest
+
+jospJSLTest.dependsOn jospJSLCommTest
+check.dependsOn jospJSLTest
 
 
 // gradle > intellij settings
@@ -121,5 +154,7 @@ idea {
     module {
         testSourceDirs += project.sourceSets.jospJODCommTest.java.srcDirs
         testSourceDirs += project.sourceSets.jospJODCommTest.resources.srcDirs
+        testSourceDirs += project.sourceSets.jospJSLCommTest.java.srcDirs
+        testSourceDirs += project.sourceSets.jospJSLCommTest.resources.srcDirs
     }
 }
