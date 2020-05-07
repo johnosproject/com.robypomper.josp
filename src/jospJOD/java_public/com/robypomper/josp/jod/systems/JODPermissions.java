@@ -53,7 +53,7 @@ public interface JODPermissions {
      * @return true if and only if the pair <code>service/user</code>) can
      * receive the status update from current object.
      */
-    boolean canSendUpdate(String srvId, String usrId, PermissionsTypes.Connection connection);
+    boolean canSendLocalUpdate(String srvId, String usrId);
 
     /**
      * Start object's permission syncronization between local and cloud permissions.
