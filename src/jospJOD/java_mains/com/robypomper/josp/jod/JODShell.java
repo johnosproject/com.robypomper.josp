@@ -5,6 +5,7 @@ import asg.cliche.ShellFactory;
 import com.robypomper.josp.jod.info.JODInfo;
 import com.robypomper.josp.jod.shell.CmdsJCPClient;
 import com.robypomper.josp.jod.shell.CmdsJOD;
+import com.robypomper.josp.jod.shell.CmdsJODCommunication;
 import com.robypomper.josp.jod.shell.CmdsJODExecutorMngr;
 import com.robypomper.josp.jod.shell.CmdsJODObjectInfo;
 import com.robypomper.josp.jod.shell.CmdsJODPermissions;
@@ -217,7 +218,8 @@ public class JODShell {
                 new CmdsJODObjectInfo(jod.getObjectInfo()),
                 new CmdsJODExecutorMngr(jod.getObjectStructure(), jod.getExecutor()),
                 new CmdsJODStructure(jod.getObjectStructure()),
-                new CmdsJODPermissions(jod.getPermission())
+                new CmdsJODPermissions(jod.getPermission()),
+                new CmdsJODCommunication(jod.getCommunication())
         );
         shell.commandLoop();
     }

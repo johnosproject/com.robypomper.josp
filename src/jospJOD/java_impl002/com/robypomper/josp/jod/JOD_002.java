@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.JcpAPI;
 import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
@@ -23,32 +24,39 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class JOD_002 extends AbsJOD {
 
     private static final String VERSION = FactoryJOD.JOD_VER_002;
+    private static final int MAX_INSTANCE_ID = 10000;
 
     protected JOD_002(Settings settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
-    public static JOD instance(Settings settings) throws JODStructure.ParsingException {
+    public static JOD instance(Settings settings) throws JCPClient.ConnectionException, JODStructure.ParsingException, JODCommunication.CloudCommunicationException, JODCommunication.LocalCommunicationException {
+        String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
+
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
         JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient);
-        JODExecutorMngr executor = new JODExecutorMngr_002(settings);
 
+        JODExecutorMngr executor = new JODExecutorMngr_002(settings);
         JODStructure structure = new JODStructure_002(objInfo, executor);
 
         JODPermissions permissions = new JODPermissions_002(settings, objInfo, jcpClient);
-        JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions);
+        JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions, instanceId);
 
-        comm.setStructure(structure);
+        try {
+            comm.setStructure(structure);
+        } catch (JODCommunication.StructureSetException ignore) {
+            assert false;
+        }
         try {
             structure.setCommunication(comm);
-        } catch (JODStructure_002.CommunicationSetException ignore) {
+        } catch (JODStructure.CommunicationSetException ignore) {
             assert false;
         }
 
@@ -97,7 +105,28 @@ public class JOD_002 extends AbsJOD {
         public static final String JODPERM_OWNER            = "jod.permissions.owner";
         public static final String JODPERM_OWNER_DEF        = "";
 
-        private final File file;
+        public static final String JODCOMM_LOCAL_ENABLED        = "jod.comm.local.enabled";
+        public static final String JODCOMM_LOCAL_ENABLED_DEF    = "true";
+        public static final String JODCOMM_LOCAL_DISCOVERY      = "jod.comm.local.discovery";
+        public static final String JODCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
+        public static final String JODCOMM_LOCAL_PORT           = "jod.comm.local.port";
+        public static final String JODCOMM_LOCAL_PORT_DEF       = "1234";
+        public static final String JODCOMM_LOCAL_KS_FILE        = "jod.comm.local.keystore.path";
+        public static final String JODCOMM_LOCAL_KS_FILE_DEF    = "certs/private/server.p12";
+        public static final String JODCOMM_LOCAL_KS_PASS        = "jod.comm.local.keystore.pass";
+        public static final String JODCOMM_LOCAL_KS_PASS_DEF    = "objectPass";
+        public static final String JODCOMM_LOCAL_CERT           = "jod.comm.local.cert.path";
+        public static final String JODCOMM_LOCAL_CERT_DEF       = "certs/public/server.crt";
+
+        public static final String JODCOMM_CLOUD_ENABLED        = "jod.comm.cloud.enabled";
+        public static final String JODCOMM_CLOUD_ENABLED_DEF    = "true";
+        public static final String JODCOMM_CLOUD_CERT           = "jod.comm.cloud.cert.path";
+        public static final String JODCOMM_CLOUD_CERT_DEF       = "certs/public/clientCloud.crt";
+        public static final String JODCOMM_CLOUD_CERT_REMOTE    = "jod.comm.cloud.remote.cert.path";
+        public static final String JODCOMM_CLOUD_CERT_REMOTE_DEF= "certs/public/mainServer@GwObjService.crt";
+        //@formatter:on
+
+        private File file;
         private final Map<String, String> properties;
         private String jodVer = null;
         private boolean errorAlreadyPrinted = false;
@@ -303,6 +332,87 @@ public class JOD_002 extends AbsJOD {
         //@Override
         public void setOwnerId(String ownerId) {
             store(JODPERM_OWNER, ownerId);
+        }
+
+
+        // Communication local
+
+        //@Override
+        public boolean getLocalEnabled() {
+            try {
+                String val = properties.get(JODCOMM_LOCAL_ENABLED) != null ?
+                        properties.get(JODCOMM_LOCAL_ENABLED) :
+                        JODCOMM_LOCAL_ENABLED_DEF;
+                return Boolean.parseBoolean(val);
+
+            } catch (ClassCastException e) {
+                return (boolean) (Object) properties.get(JODCOMM_LOCAL_ENABLED);
+            }
+        }
+
+        //@Override
+        public String getLocalDiscovery() {
+            return properties.get(JODCOMM_LOCAL_DISCOVERY) != null ? properties.get(JODCOMM_LOCAL_DISCOVERY) :
+                    JODCOMM_LOCAL_DISCOVERY_DEF;
+        }
+
+        //@Override
+        public int getLocalServerPort() {
+            try {
+                String val = properties.get(JODCOMM_LOCAL_PORT) != null ?
+                        properties.get(JODCOMM_LOCAL_PORT) :
+                        JODCOMM_LOCAL_PORT_DEF;
+                return Integer.parseInt(val);
+
+            } catch (ClassCastException e) {
+                return (int) (Object) properties.get(JODCOMM_LOCAL_PORT);
+            }
+        }
+
+        //@Override
+        public String getLocalServerKeyStore() {
+            return properties.get(JODCOMM_LOCAL_KS_FILE) != null ? properties.get(JODCOMM_LOCAL_KS_FILE) :
+                    JODCOMM_LOCAL_KS_FILE_DEF;
+        }
+
+        //@Override
+        public String getLocalServerKeyStorePass() {
+            return properties.get(JODCOMM_LOCAL_KS_PASS) != null ? properties.get(JODCOMM_LOCAL_KS_PASS) :
+                    JODCOMM_LOCAL_KS_PASS_DEF;
+        }
+
+        //@Override
+        public String getLocalServerPublicCertificate() {
+            return properties.get(JODCOMM_LOCAL_CERT) != null ? properties.get(JODCOMM_LOCAL_CERT) :
+                    JODCOMM_LOCAL_CERT_DEF;
+        }
+
+
+        // Communication cloud
+
+        //@Override
+        public boolean getCloudEnabled() {
+            try {
+                String val = properties.get(JODCOMM_CLOUD_ENABLED) != null ?
+                        properties.get(JODCOMM_CLOUD_ENABLED) :
+                        JODCOMM_CLOUD_ENABLED_DEF;
+                return Boolean.parseBoolean(val);
+
+            } catch (ClassCastException e) {
+                return (boolean) (Object) properties.get(JODCOMM_CLOUD_ENABLED);
+            }
+        }
+
+        //@Override
+        public String getCloudClientPublicCertificate() {
+            return properties.get(JODCOMM_CLOUD_CERT) != null ? properties.get(JODCOMM_CLOUD_CERT) :
+                    JODCOMM_CLOUD_CERT_DEF;
+        }
+
+        //@Override
+        public String getCloudServerPublicCertificate() {
+            return properties.get(JODCOMM_CLOUD_CERT_REMOTE) != null ? properties.get(JODCOMM_CLOUD_CERT_REMOTE) :
+                    JODCOMM_CLOUD_CERT_REMOTE_DEF;
         }
 
     }
