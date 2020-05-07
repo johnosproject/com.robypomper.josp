@@ -54,7 +54,7 @@ public class DefaultServerTest_CommSrv extends DefaultServerTest_Base {
         startServer(serverLog);
 
         // Init 2nd test server with same port of test server
-        Server secondServer = new LogServer(ID_SERVER + "2nd", PORT);
+        Server secondServer = new LogServer(ID_SERVER + "2nd", port);
 
         // Start 2nd test server and catch exception
         assert !secondServer.isRunning();

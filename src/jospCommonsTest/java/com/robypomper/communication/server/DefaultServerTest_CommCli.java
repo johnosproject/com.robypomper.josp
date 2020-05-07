@@ -25,7 +25,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         startServer(serverLatch);
 
         // Connect client
-        Socket s = new Socket(LOCALHOST, PORT);
+        Socket s = new Socket(LOCALHOST, port);
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
         // Check client list
@@ -59,7 +59,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
     public void testClientDisconnectionGoodbye() throws Server.ListeningException, IOException, InterruptedException {
         // Start test server and connect client
         startServer(serverLatch);
-        Socket s = connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
+        Socket s = connectClient(LOCALHOST, port, latchSCE.onClientConnection);
 
         // Disconnect client (terminate)
         clientSend(s, DefaultClient.MSG_BYE_CLI);
@@ -75,7 +75,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
     public void testClientDisconnectionTerminate() throws Server.ListeningException, IOException, InterruptedException {
         // Start test server and connect client
         startServer(serverLatch);
-        Socket s = connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
+        Socket s = connectClient(LOCALHOST, port, latchSCE.onClientConnection);
 
         // Disconnect client (terminate)
         s.close();
@@ -90,7 +90,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
     public void testClientDisconnectionFromServerStopServer() throws Server.ListeningException, IOException, InterruptedException {
         // Start test server and connect client
         startServer(serverLatch);
-        connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
+        connectClient(LOCALHOST, port, latchSCE.onClientConnection);
 
         // Stop test server
         stopServer(serverLatch);
@@ -105,7 +105,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
     public void testClientDisconnectionFromServerCloseConnection() throws Server.ListeningException, IOException, InterruptedException {
         // Start test server and connect client
         startServer(serverLatch);
-        connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
+        connectClient(LOCALHOST, port, latchSCE.onClientConnection);
 
         // Disconnect client (terminate)
         ClientInfo client = serverLatch.getClients().get(0);
@@ -131,7 +131,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         Assertions.assertTrue(latchSLE.onStarted.await(1000, TimeUnit.SECONDS));
 
         // Connect client
-        Socket s = new Socket(LOCALHOST, PORT);
+        Socket s = new Socket(LOCALHOST, port);
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
         // Check client list
@@ -153,7 +153,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
 
         // Reconnect client
         latchSCE.onClientConnection = new CountDownLatch(1);
-        s = new Socket(LOCALHOST, PORT);
+        s = new Socket(LOCALHOST, port);
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
         // Check client list
@@ -180,7 +180,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
 
     @Test
     public void testClientErrorOnProcessRequest() throws Server.ListeningException, IOException, InterruptedException {
-        Server server = new DefaultServer(ID_SERVER, PORT,
+        Server server = new DefaultServer(ID_SERVER, port,
                 new LogServerLocalEventsListener(),
                 latchSCE,
                 new LogServerMessagingEventsListener() {
@@ -195,7 +195,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
 
         // Start server and connect client
         startServer(server);
-        Socket s = connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
+        Socket s = connectClient(LOCALHOST, port, latchSCE.onClientConnection);
 
         // Client send data
         clientSend(s, "ExampleData".getBytes(PeerInfo.CHARSET));

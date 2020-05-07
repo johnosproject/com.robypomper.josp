@@ -24,7 +24,7 @@ public class DefaultServerTest_Msg extends DefaultServerTest_Base {
         CountDownLatch onDataReceivedBytes = new CountDownLatch(1);
         CountDownLatch onDataReceivedString = new CountDownLatch(1);
 
-        Server server = new DefaultServer(ID_SERVER, PORT,
+        Server server = new DefaultServer(ID_SERVER, port,
                 new LogServerLocalEventsListener(),
                 latchSCE,
                 new LogServerMessagingEventsListener() {
@@ -55,7 +55,7 @@ public class DefaultServerTest_Msg extends DefaultServerTest_Base {
 
         // Start server and connect client
         startServer(server);
-        Socket s = connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
+        Socket s = connectClient(LOCALHOST, port, latchSCE.onClientConnection);
 
         // Client send byte data
         clientSend(s, originalDataByte);
@@ -75,7 +75,7 @@ public class DefaultServerTest_Msg extends DefaultServerTest_Base {
         CountDownLatch onDataSendBytes = new CountDownLatch(1);
         CountDownLatch onDataSendString = new CountDownLatch(1);
 
-        Server server = new DefaultServer(ID_SERVER, PORT,
+        Server server = new DefaultServer(ID_SERVER, port,
                 new LogServerLocalEventsListener(),
                 latchSCE,
                 new LogServerMessagingEventsListener() {
@@ -96,7 +96,7 @@ public class DefaultServerTest_Msg extends DefaultServerTest_Base {
 
         // Start server and connect client
         startServer(server);
-        Socket s = connectClient(LOCALHOST, PORT, latchSCE.onClientConnection);
+        Socket s = connectClient(LOCALHOST, port, latchSCE.onClientConnection);
         ClientInfo client = server.getClients().get(0);
 
         // Server send byte data

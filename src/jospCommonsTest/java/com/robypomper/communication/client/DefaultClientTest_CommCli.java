@@ -19,7 +19,7 @@ public class DefaultClientTest_CommCli extends DefaultClientTest_Base {
         assert !clientLatch.isConnected();
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Start test client and check isConnected==true
         clientLatch.connect();
@@ -55,7 +55,7 @@ public class DefaultClientTest_CommCli extends DefaultClientTest_Base {
         Assertions.assertNull(clientLatch.getServerInfo());
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Start test client and check isConnected==true
         clientLatch.connect();

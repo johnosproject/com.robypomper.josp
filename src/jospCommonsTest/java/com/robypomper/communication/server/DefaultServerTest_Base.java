@@ -26,13 +26,13 @@ public class DefaultServerTest_Base {
     // Class constants
 
     final static String ID_SERVER = "TestServer";
-    final static int PORT = 1234;
     final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
 
 
     // Internal vars
 
     protected static Logger log = LogManager.getLogger();
+    protected static int port = 1234;
     protected Server serverLog = null;
     protected Server serverEcho = null;
     protected Server serverLatch = null;
@@ -49,13 +49,13 @@ public class DefaultServerTest_Base {
         log.debug(Markers.TEST_METHODS, "setUp");
 
         // Init test server
-        serverLog = new LogServer(ID_SERVER, PORT);
-        serverEcho = new EchoServer(ID_SERVER, PORT);
+        serverLog = new LogServer(ID_SERVER, ++port);
+        serverEcho = new EchoServer(ID_SERVER, port);
 
         latchSLE = new LatchServerLocalEventsListener();
         latchSCE = new LatchServerClientEventsListener();
         latchSME = new LatchServerMessagingEventsListener();
-        serverLatch = new DefaultServer(ID_SERVER, PORT, latchSLE, latchSCE, latchSME);
+        serverLatch = new DefaultServer(ID_SERVER, port, latchSLE, latchSCE, latchSME);
 
         log.debug(Markers.TEST_METHODS, "test");
     }

@@ -25,7 +25,7 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
         CountDownLatch onDataReceivedBytes = new CountDownLatch(1);
         CountDownLatch onDataReceivedString = new CountDownLatch(1);
 
-        Client client = new DefaultClient(ID_CLIENT, LOCALHOST, PORT,
+        Client client = new DefaultClient(ID_CLIENT, LOCALHOST, port,
                 new LogClientLocalEventsListener(),
                 latchCSE,
                 new LogClientMessagingEventsListener() {
@@ -56,7 +56,7 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
 
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Connect client
         client.connect();
@@ -83,7 +83,7 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
         CountDownLatch onDataSendBytes = new CountDownLatch(1);
         CountDownLatch onDataSendString = new CountDownLatch(1);
 
-        Client client = new DefaultClient(ID_CLIENT, LOCALHOST, PORT,
+        Client client = new DefaultClient(ID_CLIENT, LOCALHOST, port,
                 new LogClientLocalEventsListener(),
                 latchCSE,
                 new LogClientMessagingEventsListener() {
@@ -103,7 +103,7 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
                 });
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Connect client
         client.connect();

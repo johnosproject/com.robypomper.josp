@@ -18,12 +18,12 @@ public class DefaultClientTest_Base {
 
     final static String ID_CLIENT = "TestClient";
     final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
-    final static int PORT = 1234;
 
 
     // Internal vars
 
     protected static Logger log = LogManager.getLogger();
+    protected static int port = 1234;
     protected Client clientLog = null;
     protected Client clientLatch = null;
     protected LatchClientLocalEventsListener latchCLE = null;
@@ -39,12 +39,12 @@ public class DefaultClientTest_Base {
         log.debug(Markers.TEST_METHODS, "setUp");
 
         // Init test client
-        clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
+        clientLog = new LogClient(ID_CLIENT, LOCALHOST, ++port);
 
         latchCLE = new LatchClientLocalEventsListener();
         latchCSE = new LatchClientServerEventsListener();
         latchCME = new LatchClientMessagingEventsListener();
-        clientLatch = new DefaultClient(ID_CLIENT, LOCALHOST, PORT, latchCLE, latchCSE, latchCME);
+        clientLatch = new DefaultClient(ID_CLIENT, LOCALHOST, port, latchCLE, latchCSE, latchCME);
 
         log.debug(Markers.TEST_METHODS, "test");
     }

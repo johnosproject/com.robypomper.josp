@@ -24,7 +24,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
         assert !clientLatch.isConnected();
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Start test client and check isConnected==true
         clientLatch.connect();
@@ -46,7 +46,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
         assert !clientLatch.isConnected();
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Start test client and check isConnected==true
         clientLatch.connect();
@@ -72,7 +72,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
         assert !clientLatch.isConnected();
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Start test client and check isConnected==true
         clientLatch.connect();
@@ -94,7 +94,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
         assert !clientLatch.isConnected();
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Start test client and check isConnected==true
         clientLatch.connect();
@@ -121,7 +121,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
 
     @Test
     public void testServerErrorOnProcessRequest() throws IOException, Client.ConnectionException, InterruptedException {
-        Client client = new DefaultClient(ID_CLIENT, LOCALHOST, PORT,
+        Client client = new DefaultClient(ID_CLIENT, LOCALHOST, port,
                 new LogClientLocalEventsListener(),
                 latchCSE,
                 new LogClientMessagingEventsListener() {
@@ -135,7 +135,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
                 });
 
         // Start server
-        ServerSocket server = new ServerSocket(PORT);
+        ServerSocket server = new ServerSocket(port);
 
         // Start test client and check isConnected==true
         client.connect();
