@@ -37,8 +37,8 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param name         the name of the component.
      * @param descr        the description of the component.
      */
-    protected AbsJSLContainer(JSLRemoteObject remoteObject, String name, String descr) {
-        super(remoteObject, name, descr);
+    protected AbsJSLContainer(JSLRemoteObject remoteObject, String name, String descr, String type) {
+        super(remoteObject, name, descr, type);
     }
 
 
@@ -51,8 +51,8 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param descr        the description of the component.
      * @param subComps     the list of container's sub components.
      */
-    public AbsJSLContainer(JSLRemoteObject remoteObject, String name, String descr, Collection<JSLComponent> subComps) {
-        super(remoteObject, name, descr);
+    public AbsJSLContainer(JSLRemoteObject remoteObject, String name, String descr, String type, Collection<JSLComponent> subComps) {
+        super(remoteObject, name, descr, type);
 
         try {
             setComponents(subComps);
@@ -95,7 +95,7 @@ public class AbsJSLContainer extends AbsJSLComponent
      * method is called.
      * <p>
      * Protected method used by {@link AbsJSLContainer} sub classes in conjunction
-     * with the protected {@link AbsJSLContainer#AbsJSLContainer(JSLRemoteObject, String, String)}
+     * with the protected {@link AbsJSLContainer#AbsJSLContainer(JSLRemoteObject, String, String, String)}
      * constructor.
      */
     protected void setComponents(Collection<JSLComponent> subComps) throws JSLRemoteObject.ComponentInitException {
@@ -125,13 +125,13 @@ public class AbsJSLContainer extends AbsJSLComponent
         String compType = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_TYPE);
 
         if (StructureDefinitions.TYPE_CONTAINER.compareToIgnoreCase(compType) == 0)
-            return createContainer(compName, compSettings);
+            return createContainer(compName, compType, compSettings);
 
         if (StructureDefinitions.TYPE_STATE.compareToIgnoreCase(compType) == 0)
-            return createState(compName, compSettings);
+            return createState(compName, compType, compSettings);
 
         if (StructureDefinitions.TYPE_ACTION.compareToIgnoreCase(compType) == 0)
-            return createAction(compName, compSettings);
+            return createAction(compName, compType, compSettings);
 
         throw new JSLRemoteObject.ParsingUnknownTypeException(getRemoteObject(), compType, compName);
     }
@@ -143,9 +143,9 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JSLState createState(String compName, Map<String, Object> compSettings) {
+    protected JSLState createState(String compName, String compType, Map<String, Object> compSettings) {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
-        return new AbsJSLState(getRemoteObject(), compName, descr);
+        return new AbsJSLState(getRemoteObject(), compName, descr, compType);
     }
 
     /**
@@ -155,9 +155,9 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JSLAction createAction(String compName, Map<String, Object> compSettings) {
+    protected JSLAction createAction(String compName, String compType, Map<String, Object> compSettings) {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
-        return new AbsJSLAction(getRemoteObject(), compName, descr);
+        return new AbsJSLAction(getRemoteObject(), compName, descr, compType);
     }
 
     /**
@@ -167,14 +167,14 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JSLContainer createContainer(String compName, Map<String, Object> compSettings) throws JSLRemoteObject.ParsingException {
+    protected JSLContainer createContainer(String compName, String compType, Map<String, Object> compSettings) throws JSLRemoteObject.ParsingException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
 
         @SuppressWarnings("unchecked")
         Collection<Object> contains = (Collection<Object>) compSettings.get("components");
         Collection<JSLComponent> subComps = createFromContains(contains);
 
-        return new AbsJSLContainer(getRemoteObject(), compName, descr, subComps);
+        return new AbsJSLContainer(getRemoteObject(), compName, descr, compType, subComps);
     }
 
     /**

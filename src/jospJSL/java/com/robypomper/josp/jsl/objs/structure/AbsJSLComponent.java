@@ -22,6 +22,7 @@ public class AbsJSLComponent implements JSLComponent {
     private JSLContainer parent = null;
     private final String name;
     private final String descr;
+    private String type;
 
 
     // Constructor
@@ -35,10 +36,11 @@ public class AbsJSLComponent implements JSLComponent {
      * @param name         the name of the component.
      * @param descr        the description of the component.
      */
-    public AbsJSLComponent(JSLRemoteObject remoteObject, String name, String descr) {
+    public AbsJSLComponent(JSLRemoteObject remoteObject, String name, String descr, String type) {
         this.remoteObject = remoteObject;
         this.name = name;
         this.descr = descr != null ? descr : "";
+        this.type = type;
     }
 
 
@@ -66,6 +68,14 @@ public class AbsJSLComponent implements JSLComponent {
     @Override
     public JSLContainer getParent() {
         return parent;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getType() {
+        return type;
     }
 
     /**

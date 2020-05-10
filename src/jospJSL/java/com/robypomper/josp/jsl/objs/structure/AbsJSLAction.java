@@ -22,8 +22,8 @@ public class AbsJSLAction extends AbsJSLState
      * @param name         the name of the component.
      * @param descr        the description of the component.
      */
-    public AbsJSLAction(JSLRemoteObject remoteObject, String name, String descr) {
-        super(remoteObject, name, descr);
+    public AbsJSLAction(JSLRemoteObject remoteObject, String name, String descr, String type) {
+        super(remoteObject, name, descr, type);
     }
 
 
