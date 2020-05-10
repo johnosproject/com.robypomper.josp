@@ -39,11 +39,31 @@ public interface JODCommunication {
      */
     void dispatchUpdate(JODState component, JODStateUpdate update);
 
+
+    // Action cmd flow (comm - objStruct)
+
     /**
      * Parse and exec given action (in the <code>msg</code> string) to the right
      * object's component.
      */
-    void forwardAction(String msg);
+    boolean forwardAction(String msg);
+
+
+    // Local service requests
+
+    /**
+     * Method to process all requests received from local services.
+     * <p>
+     * If received data are NOT a local service request, then this method return
+     * null pointer. Otherwise it return a String containing the response to
+     * replay to the sender JSL.
+     *
+     * @param client the sender JSL info.
+     * @param msg    the local service request received from <code>client</code>.
+     * @return a String containing the response to reply or null if <code>msg</code>
+     * doesn't contain a valid local service request.
+     */
+    String processServiceRequest(JODLocalClientInfo client, String msg);
 
 
     // Connections access
@@ -145,6 +165,18 @@ public interface JODCommunication {
 
         public CloudCommunicationException(String msg, Throwable e) {
             super(msg, e);
+        }
+    }
+
+
+    /**
+     * Exceptions for cloud communication errors.
+     */
+    class MissingPermissionException extends Throwable {
+        private static final String MSG = "Can't elaborate '%s' request because missing permission on service '%s' / user '%s'";
+
+        public MissingPermissionException(String reqType, String srvId, String usrId) {
+            super(String.format(MSG, reqType, srvId, usrId));
         }
     }
 

@@ -151,16 +151,36 @@ public class JODLocalServer implements Server {
     // Process incoming messages
 
     /**
-     * Forward received data to the {@link JODCommunication}
-     * instance.
+     * Forward received data to the {@link JODCommunication} instance.
+     * <p>
+     * All data received by this method are send from local JSL services and
+     * include action commands and service requests (like objectStruct or
+     * objectInfo requests).
      *
      * @param client   the sender client's info.
      * @param readData the message string received from <code>client</code> client.
      * @return always true.
      */
     private boolean onDataReceived(ClientInfo client, String readData) {
-        communication.forwardAction(readData);
-        return true;
+        // Action requests
+        if (communication.forwardAction(readData))
+            return true;
+
+        // Service requests
+        String responseOrError = communication.processServiceRequest(getLocalConnectionByClientId(client.getClientId()), readData);
+        if (responseOrError != null) {
+            try {
+                sendData(client, responseOrError);
+                return true;
+            } catch (ServerStoppedException | ClientNotConnectedException e) {
+                System.out.println(String.format("ERR: can't send response to client '%s'", client.getClientId()));
+                return false;
+            }
+        }
+
+        // Unknown request
+        System.out.println(String.format("WAR: unknown request from client '%s'", client.getClientId()));
+        return false;
     }
 
 
@@ -239,7 +259,6 @@ public class JODLocalServer implements Server {
     @Override
     public void sendData(ClientInfo client, String data) throws ServerStoppedException, ClientNotConnectedException {
         server.sendData(client, data);
-
     }
 
     /**

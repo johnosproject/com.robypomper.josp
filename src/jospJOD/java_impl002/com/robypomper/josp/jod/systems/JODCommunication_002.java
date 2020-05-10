@@ -128,7 +128,7 @@ public class JODCommunication_002 implements JODCommunication {
      * {@inheritDoc}
      */
     @Override
-    public void forwardAction(String msg) {
+    public boolean forwardAction(String msg) {
         JOSPProtocol.ActionCmd cmd = JOSPProtocol.fromMsgToCmd(msg);
 
         // ToDo: implement forwardAction(String) method
@@ -140,6 +140,57 @@ public class JODCommunication_002 implements JODCommunication {
 
         // exec component's action
 
+        return false;
+    }
+
+
+    // Local service requests
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String processServiceRequest(JODLocalClientInfo client, String msg) {
+        //try {
+        String response = null;
+        String error = "";
+
+        return response != null ? response : error;
+
+        //} catch (MissingPermissionException e) {
+        //    return e.getMessage();
+        //}
+    }
+
+    /**
+     * This method check if given <code>client</code> can send local service
+     * requests about object info (read permission).
+     * <p>
+     * Local service have "read permissions" on current object if it has the
+     * permission at least to receive status updates.
+     * <p>
+     * If the client (srv+usr) don't have the permission to send requests, then
+     * a MissingPermissionException is thrown. Otherwise this method dose nothing.
+     *
+     * @param client the sender JSL info.
+     */
+    private void checkServiceRequest_ReadPermission(JODLocalClientInfo client) throws MissingPermissionException {
+        if (!permissions.canSendLocalUpdate(client.getSrvId(), client.getUsrId()))
+            throw new MissingPermissionException("LocalServiceRequest", client.getSrvId(), client.getUsrId());
+    }
+
+    /**
+     * This method check if given <code>client</code> can send local service
+     * requests about object settings (coOwner permission).
+     * <p>
+     * If the client (srv+usr) don't have the permission to send requests, then
+     * a MissingPermissionException is thrown. Otherwise this method dose nothing.
+     *
+     * @param client the sender JSL info.
+     */
+    private void checkServiceRequest_OwnerPermission(JODLocalClientInfo client) throws MissingPermissionException {
+        if (!permissions.canActAsLocalCoOwner(client.getSrvId(), client.getUsrId()))
+            throw new MissingPermissionException("LocalServiceRequest", client.getSrvId(), client.getUsrId());
     }
 
 
