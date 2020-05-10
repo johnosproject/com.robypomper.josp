@@ -37,11 +37,11 @@ public class JOD_002 extends AbsJOD {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
-    public static JOD instance(Settings settings) throws JCPClient.ConnectionException, JODStructure.ParsingException, JODCommunication.CloudCommunicationException, JODCommunication.LocalCommunicationException {
+    public static JOD instance(Settings settings) throws JCPClient.ConnectionException, JODStructure.ParsingException, JODCommunication.LocalCommunicationException {
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
 
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
-        JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient);
+        JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient, VERSION);
 
         JODExecutorMngr executor = new JODExecutorMngr_002(settings);
         JODStructure structure = new JODStructure_002(objInfo, executor);

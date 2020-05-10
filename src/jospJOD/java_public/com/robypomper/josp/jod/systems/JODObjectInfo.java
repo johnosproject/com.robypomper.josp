@@ -29,6 +29,14 @@ public interface JODObjectInfo {
     // Obj's info
 
     /**
+     * The JOD version represent the object's agent version and define witch
+     * JOSP protocol version can be used to communicate with this JOD instance.
+     *
+     * @return the current JOD implementation version.
+     */
+    String getJODVersion();
+
+    /**
      * The Object's ID is the main id used to identifiy the Object in the JOSP
      * Eco-System. When it be reset, then must re-register the Object.
      *
