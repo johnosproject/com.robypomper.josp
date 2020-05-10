@@ -122,6 +122,25 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
+    public boolean canActAsLocalCoOwner(String srvId, String usrId) {
+        ObjPermission p = search(srvId, usrId);
+
+        // If not found, no permission to given srvId + usrId
+        if (p == null)
+            return false;
+
+        // True only if local is allowed
+        if (p.connection != PermissionsTypes.Connection.LocalAndCloud
+                && p.connection != PermissionsTypes.Connection.OnlyLocal)
+            return false;
+
+        return p.type == PermissionsTypes.Type.CoOwner;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void syncObjPermissions() {
         try {
             refreshPermissionsFromJCP();

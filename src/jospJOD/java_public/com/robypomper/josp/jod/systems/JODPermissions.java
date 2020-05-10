@@ -10,15 +10,15 @@ import java.util.List;
 
 /**
  * Interface for Object's permissions system.
- *
+ * <p>
  * According to JCP APIs Permission, this interface implementations check if the
  * pair Service/User can exec action or receive updates to/from current object.
- *
+ * <p>
  * This system is based on data read from permission files and JCP APIs Permission,
  * then when activated with {@link #startAutoRefresh()} this class periodically
  * checks for permission updates from both sources (file and APIs). Then, on
  * permissions changes, it update also internal permission representations.
- *
+ * <p>
  * When permissions changes, it update also local permissions file. Permissions
  * files and JCP APIs Permissions must be always sync by JODPermissions
  * implementations.
@@ -46,14 +46,29 @@ public interface JODPermissions {
      * updates from current object.
      * <p>
      * This check is perform by {@link JODCommunication} when need to send an
-     * update to connected services.
+     * update to connected services or when the object receive a local service
+     * request.
      *
      * @param srvId service's id that can receive the update.
      * @param usrId logged user's id in the service that can receive the update.
-     * @return true if and only if the pair <code>service/user</code>) can
+     * @return true if and only if the pair <code>service/user</code> can
      * receive the status update from current object.
      */
     boolean canSendLocalUpdate(String srvId, String usrId);
+
+    /**
+     * Check if given identities (<code>service/user</code>) can act as object's
+     * coOwner.
+     * <p>
+     * This check is perform by {@link JODCommunication} when receive a service
+     * request that need coOwner permission.
+     *
+     * @param srvId service's id that send the request.
+     * @param usrId logged user's id in the service that send the request.
+     * @return true if and only if the pair <code>service/user</code> can
+     * act as object's owner.
+     */
+    boolean canActAsLocalCoOwner(String srvId, String usrId);
 
     /**
      * Start object's permission syncronization between local and cloud permissions.
