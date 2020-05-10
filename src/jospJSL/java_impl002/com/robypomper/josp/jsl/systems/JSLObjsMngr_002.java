@@ -1,7 +1,9 @@
 package com.robypomper.josp.jsl.systems;
 
 import com.robypomper.josp.jsl.JSL_002;
-import com.robypomper.josp.jsl.comm.JSLCloudConnection;
+import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
+import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.DefaultJSLRemoteObject;
 import com.robypomper.josp.jsl.objs.JSLObjectSearchPattern;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
@@ -9,19 +11,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
+/**
+ * Implementation of the {@link JSLObjsMngr} interface.
+ */
 public class JSLObjsMngr_002 implements JSLObjsMngr {
 
     // Internal vars
 
     private final JSL_002.Settings locSettings;
+    private final JSLServiceInfo srvInfo;
     private final List<JSLRemoteObject> objs = new ArrayList<>();
-    private JSLCloudConnection cloudConnection = null;
+    private JSLGwS2OClient cloudConnection = null;
 
 
     // Constructor
 
-    public JSLObjsMngr_002(JSL_002.Settings settings) {
+    /**
+     * Default objects manager constructor.
+     *
+     * @param settings the JSL settings.
+     * @param srvInfo  the service's info.
+     */
+    public JSLObjsMngr_002(JSL_002.Settings settings, JSLServiceInfo srvInfo) {
         this.locSettings = settings;
+        this.srvInfo = srvInfo;
     }
 
 
@@ -66,7 +80,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     @Override
     public JSLRemoteObject getByConnection(JSLLocalClient client) {
         for (JSLRemoteObject obj : objs)
-            if (obj.getLocalConnections().contains(localConnection))
+            if (obj.getLocalClients().contains(client))
                 return obj;
 
         return null;
@@ -89,7 +103,18 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      */
     @Override
     public void addNewConnection(JSLLocalClient localConnection) {
+        String locConnObjId = localConnection.getObjId();
+        JSLRemoteObject remObj = getById(locConnObjId);
 
+        if (remObj == null) {
+            remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, localConnection);
+            System.out.println(String.format("INF: registered object %s and add connection", locConnObjId));
+            objs.add(remObj);
+
+        } else {
+            System.out.println(String.format("INF: add connection to already registered object '%s'", locConnObjId));
+            remObj.addLocalClient(localConnection);
+        }
     }
 
     /**

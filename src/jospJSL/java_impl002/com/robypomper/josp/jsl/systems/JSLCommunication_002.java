@@ -106,27 +106,6 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     }
 
 
-    // Status upd flow (comm - objMng)
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void forwardUpdate(String msg) {
-        JOSPProtocol.StatusUpd upd = JOSPProtocol.fromMsgToUpd(msg);
-
-        // ToDo: implement forwardAction(String) method
-        // parse received data (here or in prev methods)
-
-        // search destination object/components
-
-        // package params
-
-        // set object/component's update
-
-    }
-
-
     // Connections access
 
     /**
@@ -277,7 +256,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
                     System.out.println(String.format("DEB: local connection to '%s' object already known but not connected, connect.", locCli.getObjId()));  // probably caused by a bad DNS discovery
                     localClients.remove(cl);
                     localClients.add(locCli);
-                    obj.replaceLocalConnection(cl, locCli);
+                    obj.replaceLocalClient(cl, locCli);
                 } else {
                     System.out.println(String.format("DEB: local connection to '%s' object already known, discarded.", locCli.getObjId()));  // probably caused by a bad DNS discovery
                     if (locCli.isConnected())
