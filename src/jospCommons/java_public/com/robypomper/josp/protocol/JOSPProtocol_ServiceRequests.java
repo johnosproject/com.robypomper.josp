@@ -1,7 +1,9 @@
 package com.robypomper.josp.protocol;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 
@@ -18,6 +20,10 @@ public class JOSPProtocol_ServiceRequests {
     private static final String OBJ_INFO_REQ = OBJ_INFO_REQ_BASE + " %s\n%s";
     private static final String OBJ_INFO_RES_BASE = JOSP_PROTO + " OBJ_INFO_RES";
     private static final String OBJ_INFO_RES = OBJ_INFO_RES_BASE + " %s\n%s\nobjName:%s\nowner:%s\njodVer:%s";
+    private static final String OBJ_STRUCT_REQ_BASE = JOSP_PROTO + " OBJ_STRUCT_REQ";
+    private static final String OBJ_STRUCT_REQ = OBJ_STRUCT_REQ_BASE + " %s\n%s\nlastKnowUpd:%s";
+    private static final String OBJ_STRUCT_RES_BASE = JOSP_PROTO + " OBJ_STRUCT_RES";
+    private static final String OBJ_STRUCT_RES = OBJ_STRUCT_RES_BASE + " %s\n%s\nlastUpd:%s\nstructure:%s";
 
     private static final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
     private static final Calendar calendar = Calendar.getInstance(gmtTimeZone);
@@ -64,6 +70,47 @@ public class JOSPProtocol_ServiceRequests {
 
     public static String extractObjectInfoJodVersionFromResponse(String msg) throws JOSPProtocol.ParsingException {
         return extractFieldFromResponse(msg, 5, 4, "ObjectInfoResponse");
+    }
+
+
+    // Object structure (Req+Res)
+
+    public static String createObjectStructureRequest(String fullSrvId, Date lastKnowUpdate) {
+        String lastStr = lastKnowUpdate != null ? formatter.format(lastKnowUpdate) : getNow();
+        return String.format(OBJ_STRUCT_REQ, getNow(), fullSrvId, lastStr);
+    }
+
+    public static boolean isObjectStructureRequest(String msg) {
+        return msg.startsWith(OBJ_STRUCT_REQ_BASE);
+    }
+
+    public static String createObjectStructureResponse(String objId, Date lastUpdate, String structureStr) {
+        return String.format(OBJ_STRUCT_RES, getNow(), objId, formatter.format(lastUpdate), structureStr);
+    }
+
+    public static boolean isObjectStructureRequestResponse(String msg) {
+        return msg.startsWith(OBJ_STRUCT_RES_BASE);
+    }
+
+    public static Date extractObjectStructureLastUpdateFromResponse(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 4)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
+
+        String dateStr = lines[2].substring(lines[2].indexOf(":") + 1);
+        try {
+            return formatter.parse(dateStr);
+        } catch (ParseException e) {
+            throw new JOSPProtocol.ParsingException(String.format("Invalid 'lastUpd' field in ObjectStructureResponse ('%s')", dateStr));
+        }
+    }
+
+    public static String extractObjectStructureFromResponse(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 3)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
+
+        return lines[3].substring(lines[3].indexOf(":") + 1);
     }
 
 }
