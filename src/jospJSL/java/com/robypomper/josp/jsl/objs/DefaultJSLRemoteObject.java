@@ -1,11 +1,15 @@
 package com.robypomper.josp.jsl.objs;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.communication.client.Client;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
+import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
 import com.robypomper.josp.jsl.objs.structure.JSLState;
 import com.robypomper.josp.jsl.systems.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPProtocol;
@@ -159,6 +163,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         if (!wasConnected)
             try {
                 requestObjectInfo();
+                requestObjectStructure();
             } catch (ObjectNotConnected e) {
                 System.out.println("ERR: can't send 'objectStructureRequest' because object is not connected");
             }
@@ -222,6 +227,13 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         send(JOSPProtocol_ServiceRequests.createObjectInfoRequest(srvInfo.getFullId()));
     }
 
+    /**
+     * Send ObjectStruct request to represented object.
+     */
+    private void requestObjectStructure() throws ObjectNotConnected {
+        send(JOSPProtocol_ServiceRequests.createObjectStructureRequest(srvInfo.getFullId(), lastStructureUpdate));
+    }
+
 
     // Process object's data
 
@@ -269,7 +281,45 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
             }
         }
 
+        // Object structure request's response
+        if (JOSPProtocol_ServiceRequests.isObjectStructureRequestResponse(msg)) {
+            try {
+                Date lastUpdated = JOSPProtocol_ServiceRequests.extractObjectStructureLastUpdateFromResponse(msg);
+                if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0)
+                    return true;
+
+                String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureFromResponse(msg);
+                loadStructure(structStr);
+                return true;
+
+            } catch (JOSPProtocol.ParsingException | ParsingException e) {
+                System.out.println(String.format("ERR: can't parse ObjectStructureResponse because %s", e.getMessage()));
+                return false;
+            }
+        }
+
         return false;
+    }
+
+    /**
+     * Parse given string as JSL's object structure.
+     *
+     * @param structStr the string containing the object's structure.
+     */
+    private void loadStructure(String structStr) throws ParsingException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            InjectableValues.Std injectVars = new InjectableValues.Std();
+            injectVars.addValue(JSLRemoteObject.class, this);
+            mapper.setInjectableValues(injectVars);
+            root = mapper.readValue(structStr, JSLRoot_Jackson.class);
+
+            lastStructureUpdate = new Date();
+
+        } catch (JsonProcessingException e) {
+            throw new ParsingException(this, String.format("Can't init JOD Structure, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+        }
     }
 
 }
