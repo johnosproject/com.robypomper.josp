@@ -37,6 +37,21 @@ public class CmdsJSLObjsMngr {
 
     // Single object
 
+    @Command(description = "Print object's info.")
+    public String objPrintObjectInfo(String objId) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        String s = "";
+        s += "Obj. Id:          " + obj.getId() + "\n";
+        s += "Obj. Name:        " + obj.getName() + "\n";
+        s += "Owner Id:         " + obj.getOwnerId() + "\n";
+        s += "Obj. JOD version: " + obj.getJODVersion() + "\n";
+
+        return s;
+    }
+
     @Command(description = "Print all connection of given objId.")
     public String objPrintObjectConnections(String objId) {
         JSLRemoteObject obj = objs.getById(objId);

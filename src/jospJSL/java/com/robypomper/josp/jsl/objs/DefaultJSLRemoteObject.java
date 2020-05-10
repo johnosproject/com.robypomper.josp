@@ -159,7 +159,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         if (!wasConnected)
             try {
                 requestObjectInfo();
-                requestObjectStructure();
             } catch (ObjectNotConnected e) {
                 System.out.println("ERR: can't send 'objectStructureRequest' because object is not connected");
             }
@@ -207,12 +206,12 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     private void send(String msg) throws ObjectNotConnected {
         JSLLocalClient cli = getConnectedClient();
         if (cli == null)
-            throw new JSLRemoteObject.ObjectNotConnected(this);
+            throw new ObjectNotConnected(this);
 
         try {
             cli.sendData(msg);
         } catch (Client.ServerNotConnectedException e) {
-            throw new JSLRemoteObject.ObjectNotConnected(this, e);
+            throw new ObjectNotConnected(this, e);
         }
     }
 
@@ -221,13 +220,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     private void requestObjectInfo() throws ObjectNotConnected {
         send(JOSPProtocol_ServiceRequests.createObjectInfoRequest(srvInfo.getFullId()));
-    }
-
-    /**
-     * Send ObjectStruct request to represented object.
-     */
-    private void requestObjectStructure() throws ObjectNotConnected {
-        send(JOSPProtocol_ServiceRequests.createObjectStructureRequest(srvInfo.getFullId(), lastStructureUpdate));
     }
 
 
@@ -263,6 +255,20 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public boolean processServiceRequestResponse(String msg) {
+        // Object info request's response
+        if (JOSPProtocol_ServiceRequests.isObjectInfoRequestResponse(msg)) {
+            try {
+                setName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
+                setOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
+                setJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
+                return true;
+
+            } catch (JOSPProtocol.ParsingException e) {
+                System.out.println(String.format("ERR: can't parse ObjectInfoResponse because %s", e.getMessage()));
+                return false;
+            }
+        }
+
         return false;
     }
 

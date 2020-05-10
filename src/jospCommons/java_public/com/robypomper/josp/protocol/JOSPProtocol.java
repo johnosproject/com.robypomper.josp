@@ -1,5 +1,10 @@
 package com.robypomper.josp.protocol;
 
+// {PROTOCOL} {REQUEST/RESPONSE_TYPE} {SEND_TIME}
+// {FULL_SRV_ID/OBJ_ID}
+// [{key} {value}]
+// [...]
+
 
 /**
  * Utils class to render and parse the JOSP protocol messages.
@@ -120,6 +125,22 @@ public class JOSPProtocol {
             return command;
         }
 
+    }
+
+
+    // Exceptions
+
+    /**
+     * Exceptions for local communication errors.
+     */
+    public static class ParsingException extends Throwable {
+        public ParsingException(String msg) {
+            super(msg);
+        }
+
+        public ParsingException(String msg, Throwable e) {
+            super(msg, e);
+        }
     }
 
 }

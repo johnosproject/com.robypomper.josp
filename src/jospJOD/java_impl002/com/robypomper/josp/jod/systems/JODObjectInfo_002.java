@@ -34,6 +34,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private JODExecutorMngr executorMngr;
     private JODCommunication comm;
     private JODPermissions permissions;
+    private final String jodVersion;
 
 
     // Constructor
@@ -44,13 +45,15 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * This constructor create an instance of {@link JCPObjectInfo} and request
      * common/mandatory info for caching them.
      *
-     * @param settings  the JOD settings.
-     * @param jcpClient the JCP client.
+     * @param settings   the JOD settings.
+     * @param jcpClient  the JCP client.
+     * @param jodVersion the current JOD implementation version.
      */
-    public JODObjectInfo_002(JOD_002.Settings settings, JCPClient_Object jcpClient) {
+    public JODObjectInfo_002(JOD_002.Settings settings, JCPClient_Object jcpClient, String jodVersion) {
         System.out.println("DEB: JOD Object Info initialization...");
         this.locSettings = settings;
         this.jcpObjInfo = new JCPObjectInfo(jcpClient);
+        this.jodVersion = jodVersion;
 
         // force value caching
         getObjIdHw();
@@ -77,6 +80,14 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
 
     // Obj's info
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getJODVersion() {
+        return jodVersion;
+    }
 
     /**
      * {@inheritDoc}
