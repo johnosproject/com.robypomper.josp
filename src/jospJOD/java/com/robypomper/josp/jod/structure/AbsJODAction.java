@@ -61,6 +61,17 @@ public class AbsJODAction extends AbsJODState
     }
 
 
+    // Getters
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getType() {
+        return StructureDefinitions.TYPE_ACTION;
+    }
+
+
     // Status upd flow (struct)
 
     /**

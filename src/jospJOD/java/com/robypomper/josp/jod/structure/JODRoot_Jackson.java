@@ -50,6 +50,7 @@ public class JODRoot_Jackson extends AbsJODRoot {
      * @param structure the JOD Structure system.
      * @param execMngr  the JOD Executor Mngr system.
      */
+    @SuppressWarnings("JavadocReference")
     public JODRoot_Jackson(@JacksonInject final JODStructure structure, @JacksonInject final JODExecutorMngr execMngr) {
         super(structure, execMngr);
     }

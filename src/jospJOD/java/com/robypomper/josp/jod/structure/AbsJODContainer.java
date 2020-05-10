@@ -73,6 +73,17 @@ public class AbsJODContainer extends AbsJODComponent
     }
 
 
+    // Getters
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getType() {
+        return StructureDefinitions.TYPE_CONTAINER;
+    }
+
+
     // Sub components
 
     /**
@@ -137,13 +148,13 @@ public class AbsJODContainer extends AbsJODComponent
      * @return the created component.
      */
     protected JODComponent createComponent(String compType, String compName, Map<String, Object> compSettings) throws JODStructure.ParsingException {
-        if (StructureDefinitions.TYPE_CONTAINER.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_JOD_CONTAINER.compareToIgnoreCase(compType) == 0)
             return createContainer(compName, compSettings);
 
-        if (StructureDefinitions.TYPE_STATE.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_JOD_STATE.compareToIgnoreCase(compType) == 0)
             return createState(compName, compSettings);
 
-        if (StructureDefinitions.TYPE_ACTION.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_JOD_ACTION.compareToIgnoreCase(compType) == 0)
             return createAction(compName, compSettings);
 
         throw new JODStructure.ParsingUnknownTypeException(compType, compName);

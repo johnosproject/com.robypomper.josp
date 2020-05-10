@@ -13,7 +13,7 @@ import java.util.Map;
  * components to initialize other components. Also the state components use
  * this reference to propagate the status updates to the JOD Communication system.
  */
-public class AbsJODComponent implements JODComponent {
+public abstract class AbsJODComponent implements JODComponent {
 
     // Internal vars
 
