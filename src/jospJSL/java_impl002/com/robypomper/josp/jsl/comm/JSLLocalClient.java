@@ -10,6 +10,7 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.standard.SSLCertClient;
+import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.systems.JSLCommunication;
 
 import java.net.InetAddress;
@@ -32,6 +33,7 @@ public class JSLLocalClient implements Client {
 
     private final JSLCommunication communication;
     private final CertSharingSSLClient client;
+    private JSLRemoteObject remoteObject = null;
 
 
     // Constructor
@@ -67,6 +69,18 @@ public class JSLLocalClient implements Client {
         }
     }
 
+    /**
+     * When created, add corresponding JSLRemoteObject to current local client.
+     *
+     * @param remoteObject the JSLRemoteObject instance that use current local client
+     *                     to communicate with object.
+     */
+    public void setRemoteObject(JSLRemoteObject remoteObject) {
+        if (this.remoteObject != null)
+            throw new IllegalArgumentException("Can't set JSLRemoteObject twice for JSLLocalClient.");
+        this.remoteObject = remoteObject;
+    }
+
 
     // Object info
 
@@ -100,8 +114,14 @@ public class JSLLocalClient implements Client {
      * @return always true.
      */
     private boolean onDataReceived(String readData) {
-        communication.forwardUpdate(readData);
-        return true;
+        if (remoteObject.processUpdate(readData))
+            return true;
+
+        if (remoteObject.processServiceRequestResponse(readData))
+            return true;
+
+        System.out.println(String.format("WAR: unknown message from object '%s'", remoteObject.getId()));
+        return false;
     }
 
 

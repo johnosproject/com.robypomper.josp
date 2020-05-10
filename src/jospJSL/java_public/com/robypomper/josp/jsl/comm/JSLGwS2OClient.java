@@ -88,7 +88,8 @@ public class JSLGwS2OClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        communication.forwardUpdate(readData);
+        //communication.forwardUpdate(readData);
+        // ToDo: fix JSLGwS2OClient.onDataReceived method
         return true;
     }
 

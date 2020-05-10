@@ -41,7 +41,7 @@ public class JSL_002 extends AbsJSL {
         JSLServiceInfo srvInfo = new JSLServiceInfo_002(settings, jcpClient, instanceId);
 
         JSLUserMngr usr = new JSLUserMngr_002(settings, jcpClient);
-        JSLObjsMngr objs = new JSLObjsMngr_002(settings);
+        JSLObjsMngr objs = new JSLObjsMngr_002(settings, srvInfo);
         srvInfo.setSystems(usr, objs);
 
         JSLCommunication comm = new JSLCommunication_002(settings, srvInfo, jcpClient, usr, objs);

@@ -6,6 +6,7 @@ import com.robypomper.josp.jsl.info.JSLInfo;
 import com.robypomper.josp.jsl.shell.CmdsJCPClient;
 import com.robypomper.josp.jsl.shell.CmdsJSL;
 import com.robypomper.josp.jsl.shell.CmdsJSLCommunication;
+import com.robypomper.josp.jsl.shell.CmdsJSLObjsMngr;
 import com.robypomper.josp.jsl.shell.CmdsJSLServiceInfo;
 import com.robypomper.josp.jsl.shell.CmdsJSLUserMngr;
 import org.apache.commons.cli.CommandLine;
@@ -218,7 +219,8 @@ public class JSLShell {
                 new CmdsJCPClient(jsl.getJCPClient()),
                 new CmdsJSLServiceInfo(jsl.getServiceInfo()),
                 new CmdsJSLUserMngr(jsl.getUserMngr()),
-                new CmdsJSLCommunication(jsl.getCommunication())
+                new CmdsJSLCommunication(jsl.getCommunication()),
+                new CmdsJSLObjsMngr(jsl.getObjsMngr())
         );
         shell.commandLoop();
     }

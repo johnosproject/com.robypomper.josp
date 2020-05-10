@@ -31,13 +31,6 @@ public interface JSLCommunication {
      */
     void forwardAction(JSLRemoteObject object/*, JSLAction component, JSLActionCommand command*/);
 
-    /**
-     * Parse and update component status according to given <code>msg</code>.
-     *
-     * @param msg the JOSP message to parse.
-     */
-    void forwardUpdate(String msg);
-
 
     // Connections access
 

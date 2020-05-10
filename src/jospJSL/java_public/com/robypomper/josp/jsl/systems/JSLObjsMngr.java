@@ -18,9 +18,9 @@ import java.util.List;
  * access to an object if and only if that objects grant the permission to the
  * pair user/service.
  * <p>
- * Each {@link JSLRemoteObject} is initialized from {@link JSLConnection} instance
+ * Each {@link JSLRemoteObject} is initialized from {@link JSLLocalClient} instance
  * provided by the {@link JSLCommunication} system. An Object can be associated
- * to multiple {@link JSLLocalConnection} and to the {@link JSLCloudConnection}
+ * to multiple {@link JSLLocalClient} and to the {@link JSLGwS2OClient}
  * at the same time.<br>
  * For every message tx between services and objects is send preferring local
  * connections and, only if no local connection is available is choose the
@@ -71,7 +71,6 @@ public interface JSLObjsMngr {
      * If there is no {@link JSLRemoteObject} yet, it will be created.
      *
      * @param localConnection the open local connection to JOD object.
-     * @return
      */
     void addNewConnection(JSLLocalClient localConnection);
 
