@@ -102,6 +102,9 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public boolean canSendLocalUpdate(String srvId, String usrId) {
+        if (objInfo.getOwnerId().isEmpty())
+            return true;
+
         ObjPermission p = search(srvId, usrId);
 
         // If not found, no permission to given srvId + usrId
@@ -123,6 +126,9 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public boolean canActAsLocalCoOwner(String srvId, String usrId) {
+        if (objInfo.getOwnerId().isEmpty())
+            return true;
+
         ObjPermission p = search(srvId, usrId);
 
         // If not found, no permission to given srvId + usrId
