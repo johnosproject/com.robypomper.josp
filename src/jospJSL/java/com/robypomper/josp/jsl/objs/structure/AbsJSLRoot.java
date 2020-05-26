@@ -35,7 +35,7 @@ public class AbsJSLRoot extends AbsJSLContainer
      * @param remoteObject the {@link JSLRemoteObject} representing JOD object.
      */
     protected AbsJSLRoot(JSLRemoteObject remoteObject) {
-        super(remoteObject, StructureDefinitions.ROOT_NAME, StructureDefinitions.ROOT_DESCR);
+        super(remoteObject, StructureDefinitions.ROOT_NAME, StructureDefinitions.ROOT_DESCR, "");    // root type is set by jackson parser
     }
 
     /**

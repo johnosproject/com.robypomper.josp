@@ -11,7 +11,8 @@ import com.robypomper.josp.jod.executor.factories.AbsFactoryJODWorker;
 import com.robypomper.josp.jod.executor.factories.FactoryJODExecutor;
 import com.robypomper.josp.jod.executor.factories.FactoryJODListener;
 import com.robypomper.josp.jod.executor.factories.FactoryJODPuller;
-import com.robypomper.josp.jod.structure.AbsJODComponent;
+import com.robypomper.josp.jod.structure.AbsJODAction;
+import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
@@ -114,8 +115,8 @@ public class CmdsJODExecutorMngr {
     @Command(description = "Add JOD Puller.")
     public String execAddPuller(@Param(name = "name", description = "Name of the puller to create") String name,
                                 @Param(name = "proto", description = "Protocol of the puller to create") String proto,
-                                @Param(name = "configStr", description = "String containing puller configs with format 'k1=v1[;k2=v2][...]") String conf_str) {
-        JODComponentPuller compPuller = new JODComponentPuller(new AbsJODComponent(structure, "comp-" + name, "com's description"), name, proto, conf_str);
+                                @Param(name = "configStr", description = "String containing puller configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
+        JODComponentPuller compPuller = new JODComponentPuller(new AbsJODState(structure, executorMngr, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
 
         try {
             JODPuller puller = executorMngr.initPuller(compPuller);
@@ -131,8 +132,8 @@ public class CmdsJODExecutorMngr {
     @Command(description = "Add JOD Listener.")
     public String execAddListener(@Param(name = "name", description = "Name of the listener to create") String name,
                                   @Param(name = "proto", description = "Protocol of the listener to create") String proto,
-                                  @Param(name = "configStr", description = "String containing listener configs with format 'k1=v1[;k2=v2][...]") String conf_str) {
-        JODComponentListener compListener = new JODComponentListener(new AbsJODComponent(structure, "comp-" + name, "com's description"), name, proto, conf_str);
+                                  @Param(name = "configStr", description = "String containing listener configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
+        JODComponentListener compListener = new JODComponentListener(new AbsJODState(structure, executorMngr, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null), name, proto, conf_str);
 
         try {
             JODListener listener = executorMngr.initListener(compListener);
@@ -147,8 +148,8 @@ public class CmdsJODExecutorMngr {
     @Command(description = "Add JOD Executor.")
     public String execAddExecutor(@Param(name = "name", description = "Name of the executor to create") String name,
                                   @Param(name = "proto", description = "Protocol of the executor to create") String proto,
-                                  @Param(name = "configStr", description = "String containing executor configs with format 'k1=v1[;k2=v2][...]") String conf_str) {
-        JODComponentExecutor compExecutor = new JODComponentExecutor(new AbsJODComponent(structure, "comp-" + name, "com's description"), name, proto, conf_str);
+                                  @Param(name = "configStr", description = "String containing executor configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
+        JODComponentExecutor compExecutor = new JODComponentExecutor(new AbsJODAction(structure, executorMngr, "comp-" + name, "com's description", null, null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
 
         try {
             JODExecutor executor = executorMngr.initExecutor(compExecutor);

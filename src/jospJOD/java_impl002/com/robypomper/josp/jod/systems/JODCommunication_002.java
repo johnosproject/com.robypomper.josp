@@ -16,6 +16,7 @@ import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceRequests;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -160,6 +161,17 @@ public class JODCommunication_002 implements JODCommunication {
             if (JOSPProtocol_ServiceRequests.isObjectInfoRequest(msg)) {
                 checkServiceRequest_ReadPermission(client);
                 response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
+            }
+
+            // Object structure request
+            if (JOSPProtocol_ServiceRequests.isObjectStructureRequest(msg)) {
+                checkServiceRequest_ReadPermission(client);
+                try {
+                    String structStr = structure.getStringForJSL();
+                    response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
+                } catch (JODStructure.ParsingException e) {
+                    error = String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+                }
             }
 
             return response != null ? response : error;

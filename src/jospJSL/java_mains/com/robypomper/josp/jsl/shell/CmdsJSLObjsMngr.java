@@ -3,6 +3,8 @@ package com.robypomper.josp.jsl.shell;
 import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.JSLComponent;
+import com.robypomper.josp.jsl.objs.structure.JSLContainer;
 import com.robypomper.josp.jsl.systems.JSLObjsMngr;
 
 public class CmdsJSLObjsMngr {
@@ -50,6 +52,31 @@ public class CmdsJSLObjsMngr {
         s += "Obj. JOD version: " + obj.getJODVersion() + "\n";
 
         return s;
+    }
+
+
+    @Command(description = "Print object's info.")
+    public String objPrintObjectStruct(String objId) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        if (obj.getStructure() == null)
+            return String.format("Object '%s' not presented to current service", objId);
+
+        String s = printRecursive(obj.getStructure(), 0);
+        return s;
+    }
+
+    private String printRecursive(JSLComponent comp, int indent) {
+        String indentStr = new String(new char[indent]).replace('\0', ' ');
+        String compStr = String.format("%s- %s", indentStr, comp.getName());
+        System.out.println(String.format("%-30s %s", compStr, comp.getType()));
+
+        if (comp instanceof JSLContainer)
+            for (JSLComponent subComp : ((JSLContainer) comp).getComponents())
+                printRecursive(subComp, indent + 2);
+        return null;
     }
 
     @Command(description = "Print all connection of given objId.")

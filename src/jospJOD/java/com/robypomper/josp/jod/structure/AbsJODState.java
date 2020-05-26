@@ -73,6 +73,17 @@ public class AbsJODState extends AbsJODComponent
     }
 
 
+    // Getters
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getType() {
+        return StructureDefinitions.TYPE_STATE;
+    }
+
+
     // Status upd flow (struct)
 
     /**

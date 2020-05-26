@@ -34,4 +34,9 @@ public interface JSLComponent {
     @JsonIgnore
     JSLContainer getParent();
 
+    /**
+     * @return the component type.
+     */
+    String getType();
+
 }

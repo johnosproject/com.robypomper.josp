@@ -9,6 +9,8 @@ import com.robypomper.josp.jod.structure.JODComponentPath;
 import com.robypomper.josp.jod.structure.JODRoot;
 import com.robypomper.josp.jod.structure.JODRoot_Jackson;
 
+import java.util.Date;
+
 /**
  * ToDo: doc JODStructure_002
  */
@@ -73,25 +75,26 @@ public class JODStructure_002 implements JODStructure {
         return DefaultJODComponentPath.searchComponent(getRoot(), path);
     }
 
-
-    // Mngm methods
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void startAutoRefresh() {
-        System.out.println("WAR: JOD Structure AutoRefresh can't started:");
-        System.out.println("     AutoRefresh not implemented, structure are static");
+    public String getStringForJSL() throws ParsingException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.writeValueAsString(getRoot());
+
+        } catch (JsonProcessingException e) {
+            throw new ParsingException(String.format("Can't get JOD Structure string, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void stopAutoRefresh() {
-        System.out.println("WAR: JOD Structure AutoRefresh can't stopped:");
-        System.out.println("     AutoRefresh not implemented, structure are static");
+    public Date getLastStructureUpdate() {
+        return new Date(0);
     }
 
     /**
@@ -112,6 +115,27 @@ public class JODStructure_002 implements JODStructure {
         if (this.comm == null)
             throw new CommunicationSetException();
         return this.comm;
+    }
+
+
+    // Mngm methods
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void startAutoRefresh() {
+        System.out.println("WAR: JOD Structure AutoRefresh can't started:");
+        System.out.println("     AutoRefresh not implemented, structure are static");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stopAutoRefresh() {
+        System.out.println("WAR: JOD Structure AutoRefresh can't stopped:");
+        System.out.println("     AutoRefresh not implemented, structure are static");
     }
 
 

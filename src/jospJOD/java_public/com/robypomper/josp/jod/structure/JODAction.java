@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.structure;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.robypomper.josp.jod.executor.JODExecutor;
 
 
@@ -18,6 +19,7 @@ public interface JODAction extends JODState {
      *
      * @return the string representing current action's executor.
      */
+    @JsonIgnore
     String getExecutor();
 
 

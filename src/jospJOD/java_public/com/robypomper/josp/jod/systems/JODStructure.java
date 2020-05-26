@@ -4,6 +4,8 @@ import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODComponentPath;
 import com.robypomper.josp.jod.structure.JODRoot;
 
+import java.util.Date;
+
 
 /**
  * Interface for Object's structure system.
@@ -35,6 +37,18 @@ public interface JODStructure {
      * @return component corresponding to given path, or null if not found.
      */
     JODComponent getComponent(JODComponentPath path);
+
+    /**
+     * Transform current structure in a String that can be parsed from JSL.
+     *
+     * @return current structure string representation.
+     */
+    String getStringForJSL() throws ParsingException;
+
+    /**
+     * @return date and time of the last structure update.
+     */
+    Date getLastStructureUpdate();
 
     /**
      * Return the JOD Communication system to state component to dispatch state

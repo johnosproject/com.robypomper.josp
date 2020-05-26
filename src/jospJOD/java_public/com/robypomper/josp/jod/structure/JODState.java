@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.structure;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.robypomper.josp.jod.systems.JODStructure;
 
 
@@ -10,6 +11,7 @@ import com.robypomper.josp.jod.systems.JODStructure;
  * This is allow by the method {@link #propagateState(JODStateUpdate)} that can
  * be called from {@link com.robypomper.josp.jod.executor.AbsJODWorker#sendUpdate(JODStateUpdate)}.
  */
+@SuppressWarnings("JavadocReference")
 public interface JODState extends JODComponent {
 
     // Status's properties
@@ -19,6 +21,7 @@ public interface JODState extends JODComponent {
      *
      * @return the string representing current state's worker.
      */
+    @JsonIgnore
     String getWorker();
 
 

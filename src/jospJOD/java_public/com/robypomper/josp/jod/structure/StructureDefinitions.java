@@ -28,9 +28,12 @@ public interface StructureDefinitions {
 
     // Component types
 
-    String TYPE_CONTAINER = "JODContainer";
-    String TYPE_STATE = "JODState";
-    String TYPE_ACTION = "JODAction";
+    String TYPE_CONTAINER = "Container";
+    String TYPE_STATE = "State";
+    String TYPE_ACTION = "Action";
+    String TYPE_JOD_CONTAINER = "JODContainer";
+    String TYPE_JOD_STATE = "JODState";
+    String TYPE_JOD_ACTION = "JODAction";
 
     // Path's elements
 
