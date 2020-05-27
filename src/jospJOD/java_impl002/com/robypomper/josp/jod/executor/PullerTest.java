@@ -2,6 +2,7 @@ package com.robypomper.josp.jod.executor;
 
 
 import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.log.Mrk_JOD;
 
 /**
  * JOD Puller test.
@@ -23,7 +24,7 @@ public class PullerTest extends AbsJODPuller {
      */
     public PullerTest(String name, String proto, String configsStr) {
         super(name, proto);
-        System.out.println(String.format("JOD Puller init %s://%s.", proto, configsStr));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest for component '%s' init with config string '%s://%s'.", getName(), proto, configsStr));
     }
 
     // Mngm
@@ -34,7 +35,7 @@ public class PullerTest extends AbsJODPuller {
      */
     @Override
     public void pull() {
-        //System.out.println(String.format("JOD Puller pull %s://%s.", getProto(), getName()));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest '%s' of proto '%s' pulling", getName(), getProto()));
         sendUpdate(new JODStateUpdate() {});
     }
 

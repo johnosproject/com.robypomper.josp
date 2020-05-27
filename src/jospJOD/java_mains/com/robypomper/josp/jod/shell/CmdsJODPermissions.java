@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
-import com.robypomper.josp.jod.systems.JODPermissions;
+import com.robypomper.josp.jod.permissions.JODPermissions;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,7 +28,6 @@ public class CmdsJODPermissions {
         StringBuilder s = new StringBuilder();
         s.append("OBJECT'S PERMISSIONS\n");
         s.append("User       Service    Connection Type       UpdatedAt\n");
-        System.out.println("PERM# " + permission.getPermissions().size());
         for (ObjPermission p : permission.getPermissions())
             s.append(String.format("%-10s %-10s %-10s %-10s %s\n",
                     p.usrId.substring(0, Math.min(p.usrId.length(), 10)),

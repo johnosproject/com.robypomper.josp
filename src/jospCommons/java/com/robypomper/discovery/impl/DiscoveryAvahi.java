@@ -2,7 +2,9 @@ package com.robypomper.discovery.impl;
 
 import com.robypomper.discovery.AbsDiscover;
 import com.robypomper.discovery.AbsPublisher;
-import com.robypomper.discovery.LogDiscovery;
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +21,11 @@ public class DiscoveryAvahi {
     // Class constants
 
     public static final String IMPL_NAME = "Avahi";
+
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
 
 
     // Publisher and discover implementations
@@ -46,6 +53,7 @@ public class DiscoveryAvahi {
          */
         public Publisher(String srvType, String srvName, int srvPort, String extraText) {
             super(srvType, srvName, srvPort, extraText);
+            log.debug(Mrk_Commons.DISC_PUB_IMPL, String.format("Initialized Avahi::Publisher instance for '%s:%s' service on port '%d'", srvType, srvName, srvPort));
         }
 
 
@@ -56,7 +64,7 @@ public class DiscoveryAvahi {
          */
         @Override
         public void publish(boolean waitForPublished) throws PublishException {
-            LogDiscovery.logPub(String.format("INF: publishing service '%s'", getServiceName()));
+            log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Publish service '%s' on '%d'", getServiceName(), getServicePort()));
             if (!setIsPublishing(true)) {return;}
 
             // Init discovery system for service publication checks
@@ -82,7 +90,7 @@ public class DiscoveryAvahi {
          */
         @Override
         public void hide(boolean waitForDepublished) throws PublishException {
-            LogDiscovery.logPub(String.format("INF: hiding service '%s'", getServiceName()));
+            log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Hide service '%s'", getServiceName()));
             if (!setIsDepublishing(true)) {return;}
 
             // Stop avahi cmd used to publish the service
@@ -124,6 +132,7 @@ public class DiscoveryAvahi {
          */
         public Discover(String srvType) {
             super(srvType);
+            log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Initialized Avahi::Discover instance for '%s' service type", srvType));
         }
 
 
@@ -143,13 +152,15 @@ public class DiscoveryAvahi {
         @Override
         public void start() throws DiscoveryException {
             if (isRunning()) {
-                LogDiscovery.logPub(String.format("WAR: can't start discovery services '%s' because already started", getServiceType()));
+                log.warn(Mrk_Commons.DISC_DISC_IMPL, String.format("Can't start discovery services '%s' because already started", getServiceType()));
                 return;
             }
-            LogDiscovery.logPub(String.format("INF: start discovery services '%s'", getServiceType()));
+            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Start discovery services '%s'", getServiceType()));
 
             // Start AvahiRunnable thread
             avahiThread = new Thread(new AvahiRunnable());
+            avahiThread.setName("DiscoveryAvahiProcess");
+            log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Starting thread avahi browser for '%s' service's type", getServiceType()));
             avahiThread.start();
 
             // wait some time, to catch startup error on AvahiRunnable thread
@@ -168,10 +179,10 @@ public class DiscoveryAvahi {
         @Override
         public void stop() throws DiscoveryException {
             if (!isRunning()) {
-                LogDiscovery.logPub(String.format("WAR: can't stop discovery services '%s' because already stopped", getServiceType()));
+                log.warn(Mrk_Commons.DISC_DISC_IMPL, String.format("Can't stop discovery services '%s' because already stopped", getServiceType()));
                 return;
             }
-            LogDiscovery.logDisc(String.format("INF: stop discovery services '%s'", getServiceType()));
+            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Stop discovery services '%s'", getServiceType()));
 
             isShutingDown = true;
 
@@ -186,6 +197,7 @@ public class DiscoveryAvahi {
 
             try {
                 avahiThread.join(1000);
+                log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Thread avhai browse '%s' stopped", avahiThread.getName()));
             } catch (InterruptedException e) {
                 throw new DiscoveryException(String.format("ERR: can't stop discovery system '%s' thread because %s", getServiceType(), avahiStartException.getMessage()), avahiStartException);
             }
@@ -202,17 +214,17 @@ public class DiscoveryAvahi {
             public void run() {
                 try {
                     String cmd = String.format("avahi-browse -pr %s.", getServiceType());
-                    LogDiscovery.logSubSystem(String.format("DEB: starting process '%s'", cmd));
                     avahiProcess = Runtime.getRuntime().exec(cmd);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(avahiProcess.getInputStream()));
+                    log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Thread avahi browser '%s' started with command '%s'", Thread.currentThread().getName(), cmd));
                     String line;
                     while ((line = reader.readLine()) != null) {
 
                         if (line.startsWith("+;")) {
-                            LogDiscovery.logSubSystem(String.format("DEB: detected service string '%s'", line));
+                            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Detected service string '%s'", line));
 
                         } else if (line.startsWith("=;")) {
-                            LogDiscovery.logSubSystem(String.format("DEB: resolved service string '%s'", line));
+                            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Resolved service string '%s'", line));
                             //=;docker0;IPv4;JOD_Gw_Test_\040\123PROTOCOL_NAME\125\041-1625630496;_josp._tcp;local;roby-hp.local;172.17.0.1;42175;"robypomper"
                             //=;lo;IPv4;SrvName;_http._tcp;local;localhost;127.0.0.1;1234;"robypomper"
 
@@ -226,13 +238,15 @@ public class DiscoveryAvahi {
                             InetAddress inetAddr = InetAddress.getByName(fields[7]);
                             int port = Integer.parseInt(fields[8]);
 
+                            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Discover service '%s'", nameUnique));
+
                             if (!knownServices.contains(nameUnique)) {
                                 emitOnServiceDiscovered(type, name, inetAddr, port, extra);
                                 knownServices.add(nameUnique);
                             }
 
                         } else if (line.startsWith("-;")) {
-                            LogDiscovery.logSubSystem(String.format("DEB: lost service string '%s'", line));
+                            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", line));
                             //-;wlo1;IPv6;JOD_Gw_Test_\040\123PROTOCOL_NAME\125\041-1769875233;_josp._tcp;local
                             //-;lo;IPv4;SrvName;_http._tcp;local
 
@@ -243,6 +257,8 @@ public class DiscoveryAvahi {
                             String type = fields[4];
                             String nameUnique = type + ":" + name + "@" + intf + "/" + proto;
 
+                            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", nameUnique));
+
                             if (knownServices.contains(nameUnique)) {
                                 emitOnServiceLost(type, name);
                                 knownServices.remove(nameUnique);
@@ -250,7 +266,7 @@ public class DiscoveryAvahi {
                         }
                     }
 
-                    LogDiscovery.logSubSystem(String.format("DEB: terminating process '%s'", cmd));
+                    log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Terminating thread avahi browser '%s'", Thread.currentThread().getName()));
 
                     for (String srv : knownServices) {
                         String type = srv.substring(0, srv.indexOf(":"));
@@ -265,8 +281,10 @@ public class DiscoveryAvahi {
                         return; // stop() method called
 
                     avahiStartException = e;
-                    LogDiscovery.logDisc(String.format("ERR: IOException during discovering service '%s'.", getServiceType()));
+                    log.error(Mrk_Commons.DISC_DISC_IMPL, String.format("Thrown IOException during discovering service '%s'.", getServiceType()));
                 }
+
+                log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Thread avahi browser '%s' terminated", Thread.currentThread().getName()));
             }
         }
 

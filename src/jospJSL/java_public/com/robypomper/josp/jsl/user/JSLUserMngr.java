@@ -1,4 +1,4 @@
-package com.robypomper.josp.jsl.systems;
+package com.robypomper.josp.jsl.user;
 
 
 /**

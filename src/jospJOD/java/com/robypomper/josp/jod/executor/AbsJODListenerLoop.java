@@ -1,14 +1,24 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Convenient Listener class used by {@link JODListener} implementations that
  * provide server basic class.
  */
 public abstract class AbsJODListenerLoop extends AbsJODListener {
 
+    // Class constants
+
+    public static final String TH_LISTENER_NAME_FORMAT = "_LIST_%s";
+
+
     // Internal vars
 
+    protected static final Logger log = LogManager.getLogger();
     private Thread thread;
     private boolean mustStop = false;
 
@@ -54,6 +64,7 @@ public abstract class AbsJODListenerLoop extends AbsJODListener {
      * on listener stop. On stop, the server's thread receive an interrupt and
      * the method {@link #mustShoutingDown()} return <code>true</code>.
      */
+    @SuppressWarnings("JavadocReference")
     protected abstract void getServerLoop();
 
     /**
@@ -74,20 +85,27 @@ public abstract class AbsJODListenerLoop extends AbsJODListener {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings({"Anonymous2MethodRef", "Convert2Lambda"})
     @Override
     public void listen() {
-        System.out.println(String.format("DEB: Start '%s' JOD Listener server.", getName()));
+        log.info(Mrk_JOD.JOD_EXEC_SUB, String.format("Start '%s' listener", getName()));
         if (isEnabled()) return;
 
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Starting listener server");
         mustStop = false;
+        //noinspection Convert2Lambda
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Thread listener server '%s' started", Thread.currentThread().getName()));
                 getServerLoop();
+                log.trace(Mrk_JOD.JOD_EXEC_SUB, String.format("Thread listener server '%s' terminated", Thread.currentThread().getName()));
             }
         });
+        thread.setName(String.format(TH_LISTENER_NAME_FORMAT, getName()));
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Starting thread listener server '%s'", thread.getName()));
         thread.start();
+
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Listener server started");
     }
 
     /**
@@ -95,15 +113,25 @@ public abstract class AbsJODListenerLoop extends AbsJODListener {
      */
     @Override
     public void halt() {
-        System.out.println(String.format("DEB: Halt '%s' JOD Listener server.", getName()));
+        log.info(Mrk_JOD.JOD_EXEC_SUB, String.format("Stop '%s' listener server", getName()));
         if (!isEnabled()) return;
 
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Stopping listener server");
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Terminating thread listener server '%s'", thread.getName()));
         mustStop = true;
         thread.interrupt();
         try {
             thread.join(getJoinTime());
+
         } catch (InterruptedException e) {
-            System.out.println(String.format("WAR: Forced halt of '%s' JOD Listener server.", getName()));
+            if (thread.isAlive())
+                log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Thread server loop '%s' not terminated", thread.getName()));
         }
+
+        if (!thread.isAlive())
+            log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Thread listener server '%s' stopped", thread.getName()));
+
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Listener server stopped");
     }
+
 }

@@ -1,7 +1,7 @@
 package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 
 public class CmdsJSLServiceInfo {
 

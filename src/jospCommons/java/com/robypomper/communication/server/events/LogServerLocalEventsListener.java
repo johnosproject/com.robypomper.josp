@@ -1,6 +1,6 @@
 package com.robypomper.communication.server.events;
 
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Log implementation of the {@link ServerLocalEvents}.
  * <p>
- * The log implementations log all events with {@link Markers#COMM_SRV_IMPL} marker.
+ * The log implementations log all events with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
  */
 public class LogServerLocalEventsListener extends DefaultServerEvent implements ServerLocalEvents {
 
@@ -22,11 +22,11 @@ public class LogServerLocalEventsListener extends DefaultServerEvent implements 
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public void onStarted() {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onStarted()", getServer().getServerId()));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onStarted()", getServer().getServerId()));
     }
 
 
@@ -35,21 +35,21 @@ public class LogServerLocalEventsListener extends DefaultServerEvent implements 
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public void onStopped() {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onStopped()", getServer().getServerId()));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onStopped()", getServer().getServerId()));
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public void onStopError(Exception e) {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onStopError(%s)", getServer().getServerId(), e.getMessage()));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onStopError(%s)", getServer().getServerId(), e.getMessage()));
     }
 
 
@@ -58,11 +58,11 @@ public class LogServerLocalEventsListener extends DefaultServerEvent implements 
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public void onServerError(Exception e) {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onServerError(%s)", getServer().getServerId(), e.getMessage()));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onServerError(%s)", getServer().getServerId(), e.getMessage()));
     }
 
 }

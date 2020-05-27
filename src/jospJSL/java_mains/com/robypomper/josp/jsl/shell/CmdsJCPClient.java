@@ -3,7 +3,7 @@ package com.robypomper.josp.jsl.shell;
 import asg.cliche.Command;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.jsl.systems.JSLUserMngr_002;
+import com.robypomper.josp.jsl.user.JSLUserMngr_002;
 
 import java.util.Scanner;
 

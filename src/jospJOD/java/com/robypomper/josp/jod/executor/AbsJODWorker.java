@@ -3,11 +3,17 @@ package com.robypomper.josp.jod.executor;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
- * Default basic implementation class for JOD executor manager worker representations.
+ * Default basic implementation class for JOD executor's worker representations.
  */
 public abstract class AbsJODWorker implements JODWorker {
 
@@ -17,10 +23,10 @@ public abstract class AbsJODWorker implements JODWorker {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final String proto;
     private final String name;
     private JODComponent component;
-    private int warnsCount = 0;
 
 
     // Constructor
@@ -52,7 +58,7 @@ public abstract class AbsJODWorker implements JODWorker {
      */
     public void setComponent(JODComponent component) {
         if (this.component != null)
-            throw new IllegalStateException(String.format("JOD Worker '%s' already have a JOD Component owner.", getName()));
+            throw new IllegalStateException(String.format("JOD Worker for component '%s' already have a JOD Component owner.", getName()));
         this.component = component;
     }
 
@@ -83,17 +89,21 @@ public abstract class AbsJODWorker implements JODWorker {
      * status update to associated {@link JODComponent}.
      */
     protected boolean sendUpdate(JODStateUpdate stateUpd) {
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Sending state update from worker for component '%s'", component.getName()));
+
         if (component instanceof JODState) {
             try {
                 ((JODState) component).propagateState(stateUpd);
+                log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Worker for component '%s' send state update", component.getName()));
                 return true;
+
             } catch (JODStructure.CommunicationSetException e) {
-                warnsCount++;
-                if (warnsCount < 10 || warnsCount % 10 == 0)
-                    System.out.println(String.format("WAR: Can't propagate status update from '%s' component, because Communication System not set. (%d)", component.getName(), warnsCount));
+                log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Error on propagate status update from worker for component '%s' because Communication System not set", component.getName()));
                 return false;
             }
         }
+
+        log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Error sending state update worker for component '%s' because component is %s instance but JODState expected", component.getName(), this.getClass().getSimpleName()));
         return false;
     }
 

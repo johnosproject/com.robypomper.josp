@@ -5,16 +5,13 @@ import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
-import com.robypomper.josp.jod.systems.JODCommunication;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
-import com.robypomper.josp.jsl.systems.JSLUserMngr;
-import com.robypomper.log.Markers;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -49,8 +46,8 @@ public class JODLocalServerTest {
 
     @BeforeEach
     public void setUp() {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Create test dir
         File testDirFiles = new File(TEST_FILES_PREFIX);
@@ -59,7 +56,7 @@ public class JODLocalServerTest {
 
         port += 2;
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
@@ -365,7 +362,12 @@ public class JODLocalServerTest {
         }
 
         @Override
-        public void forwardAction(String msg) {}
+        public boolean forwardAction(String msg) { return false; }
+
+        @Override
+        public String processServiceRequest(JODLocalClientInfo client, String msg) {
+            return null;
+        }
 
         @Override
         public JODGwO2SClient getGwO2SClient() {
@@ -419,13 +421,9 @@ public class JODLocalServerTest {
     }
 
     public static class MockJSLCommunication implements JSLCommunication {
-        @Override
-        public void forwardAction(JSLRemoteObject object) {
-
-        }
 
         @Override
-        public void forwardUpdate(String msg) {
+        public void forwardAction(JSLRemoteObject object, JSLAction component) {
 
         }
 
@@ -435,8 +433,13 @@ public class JODLocalServerTest {
         }
 
         @Override
-        public List<JSLLocalClient> getAllLocalClients() {
+        public List<JSLLocalClient> getAllLocalServers() {
             return null;
+        }
+
+        @Override
+        public void removeServer(JSLLocalClient server) {
+
         }
 
         @Override
@@ -469,80 +472,6 @@ public class JODLocalServerTest {
 
         }
 
-    }
-
-    public static class MockJSLServiceInfo implements JSLServiceInfo {
-
-        private final String fullId;
-
-        public MockJSLServiceInfo(String fullId) {
-            this.fullId = fullId;
-        }
-
-        @Override
-        public void setSystems(JSLUserMngr user, JSLObjsMngr objs) {
-
-        }
-
-        @Override
-        public void setCommunication(JSLCommunication comm) {
-
-        }
-
-        @Override
-        public String getSrvId() {
-            return null;
-        }
-
-        @Override
-        public String getSrvName() {
-            return null;
-        }
-
-        @Override
-        public boolean isUserLogged() {
-            return false;
-        }
-
-        @Override
-        public String getUserId() {
-            return null;
-        }
-
-        @Override
-        public String getUsername() {
-            return null;
-        }
-
-        @Override
-        public String getInstanceId() {
-            return null;
-        }
-
-        @Override
-        public String getFullId() {
-            return fullId;
-        }
-
-        @Override
-        public int getConnectedObjectsCount() {
-            return 0;
-        }
-
-        @Override
-        public int getKnownObjectsCount() {
-            return 0;
-        }
-
-        @Override
-        public void startAutoRefresh() {
-
-        }
-
-        @Override
-        public void stopAutoRefresh() {
-
-        }
     }
 
 }

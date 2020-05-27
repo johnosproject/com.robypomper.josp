@@ -1,7 +1,6 @@
 package com.robypomper.josp.jod.structure;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.robypomper.josp.jod.systems.JODStructure;
 
 
 /**

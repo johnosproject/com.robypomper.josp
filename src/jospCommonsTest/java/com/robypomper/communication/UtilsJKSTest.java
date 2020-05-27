@@ -2,7 +2,7 @@ package com.robypomper.communication;
 
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -71,9 +71,9 @@ public class UtilsJKSTest {
 
         // Delete exported certificate files
         if (new File(EXPORT_KS_PATH).delete())
-            log.debug(Markers.TEST, String.format("Public certificate file '%s' delete successfully", EXPORT_CERT_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Public certificate file '%s' delete successfully", EXPORT_CERT_PATH));
         else
-            log.debug(Markers.TEST, String.format("Error on deleting public certificate file '%s'", EXPORT_CERT_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Error on deleting public certificate file '%s'", EXPORT_CERT_PATH));
     }
 
     @Test
@@ -123,9 +123,9 @@ public class UtilsJKSTest {
 
         // Delete exported certificate files
         if (exportedCertFile.delete())
-            log.debug(Markers.TEST, String.format("Public certificate file '%s' delete successfully", EXPORT_CERT_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Public certificate file '%s' delete successfully", EXPORT_CERT_PATH));
         else
-            log.debug(Markers.TEST, String.format("Error on deleting public certificate file '%s'", EXPORT_CERT_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Error on deleting public certificate file '%s'", EXPORT_CERT_PATH));
     }
 
 }

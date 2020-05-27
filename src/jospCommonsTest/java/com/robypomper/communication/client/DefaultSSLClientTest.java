@@ -16,7 +16,7 @@ import com.robypomper.communication.server.events.LatchServerMessagingEventsList
 import com.robypomper.communication.server.standard.SSLCertServerTest;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -78,8 +78,8 @@ public class DefaultSSLClientTest {
 
     @BeforeEach
     public void setUp() throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, AbsCustomTrustManager.UpdateException {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Init KeyStores (server and client)
         KeyStore serverKeyStore = UtilsJKS.generateKeyStore(SRV_ID_CERTIFICATE, SRV_KS_PASS, SRV_CERT_ALIAS);
@@ -114,22 +114,22 @@ public class DefaultSSLClientTest {
         serverLatch = new DefaultSSLServer(serverSSLContext, ID_SERVER, PORT, false, latchSLE, latchSCE, latchSME);
         serverLatchWithAuth = new DefaultSSLServer(serverSSLContextWithCliCert, ID_SERVER, PORT, true, latchSLE, latchSCE, latchSME);
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
     public void tearDown() {
-        log.debug(Markers.TEST_METHODS, "tearDown");
+        log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         if (new File(SRV_CERT_PUB_PATH).delete())
-            log.debug(Markers.TEST, String.format("Public server certificate file '%s' delete successfully", SRV_CERT_PUB_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Public server certificate file '%s' delete successfully", SRV_CERT_PUB_PATH));
         else
-            log.debug(Markers.TEST, String.format("Error on deleting public server certificate file '%s'", SRV_CERT_PUB_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Error on deleting public server certificate file '%s'", SRV_CERT_PUB_PATH));
 
         if (new File(CLI_CERT_PUB_PATH).delete())
-            log.debug(Markers.TEST, String.format("Public client certificate file '%s' delete successfully", CLI_CERT_PUB_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Public client certificate file '%s' delete successfully", CLI_CERT_PUB_PATH));
         else
-            log.debug(Markers.TEST, String.format("Error on deleting public client certificate file '%s'", CLI_CERT_PUB_PATH));
+            log.debug(Mrk_Test.TEST, String.format("Error on deleting public client certificate file '%s'", CLI_CERT_PUB_PATH));
 
         // If still running, stop test server
         if (serverLatch.isRunning())

@@ -1,6 +1,10 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Default Executor class used by {@link JODExecutor} implementations.
  */
@@ -8,6 +12,7 @@ public abstract class AbsJODExecutor extends AbsJODWorker implements JODExecutor
 
     // Internal vars
 
+    protected static final Logger log = LogManager.getLogger();
     private boolean enabled = false;
 
 
@@ -39,11 +44,19 @@ public abstract class AbsJODExecutor extends AbsJODWorker implements JODExecutor
      */
     @Override
     public boolean exec() {
-        System.out.println(String.format("DEB: Exec '%s' JOD Executor action.", getName()));
-        if (!enabled)
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Executing '%s' executor", getName()));
+        if (!enabled) {
+            log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Error on exec '%s' executor because disabled", getName()));
             return false;
+        }
 
-        return subExec();
+        if (!subExec()) {
+            log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Error on executing '%s' executor action because returned false", getName()));
+            return false;
+        }
+
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Executor '%s' executed", getName()));
+        return true;
     }
 
     protected abstract boolean subExec();
@@ -56,10 +69,13 @@ public abstract class AbsJODExecutor extends AbsJODWorker implements JODExecutor
      */
     @Override
     public void enable() {
-        System.out.println(String.format("DEB: Enable '%s' JOD Executor action.", getName()));
+        log.info(Mrk_JOD.JOD_EXEC_SUB, String.format("Enable '%s' executor", getName()));
         if (isEnabled()) return;
 
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Enabling executor");
         enabled = true;
+
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Executor enabled");
     }
 
     /**
@@ -67,9 +83,11 @@ public abstract class AbsJODExecutor extends AbsJODWorker implements JODExecutor
      */
     @Override
     public void disable() {
-        System.out.println(String.format("DEB: Disable '%s' JOD Executor action.", getName()));
+        log.info(Mrk_JOD.JOD_EXEC_SUB, String.format("Disable '%s' executor", getName()));
         if (!isEnabled()) return;
 
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Disabling executor");
         enabled = false;
+        log.debug(Mrk_JOD.JOD_EXEC_SUB, "Executor disabled");
     }
 }

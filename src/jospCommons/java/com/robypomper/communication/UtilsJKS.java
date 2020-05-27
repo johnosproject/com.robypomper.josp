@@ -1,6 +1,9 @@
 package com.robypomper.communication;
 
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateAlgorithmId;
 import sun.security.x509.CertificateSerialNumber;
@@ -57,6 +60,11 @@ public class UtilsJKS {
     public static final String EXT_CERTIFICATE = ".crt";
 
 
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
+
+
     // JKS, Keys, cert generators
 
     /**
@@ -72,6 +80,8 @@ public class UtilsJKS {
      * @return a valid Key Store with Key Pair and Certificate Chain.
      */
     public static KeyStore generateKeyStore(String certificateID, String ksPass, String certAlias) throws GenerationException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, String.format("Generating KeyStore for '%s' certificate with '%s' id", certAlias, certificateID));
+
         if (ksPass == null) ksPass = "";
         KeyPair localKP = UtilsJKS.generateKeyPair();
         Certificate localCert = UtilsJKS.generateCertificate(certificateID, localKP);
@@ -181,6 +191,8 @@ public class UtilsJKS {
      * @return the loaded KeyStore.
      */
     public static KeyStore loadKeyStore(String ksPath, String ksPass) throws LoadingException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, String.format("Loading KeyStore from '%s' file", ksPath));
+
         try {
             KeyStore ks = KeyStore.getInstance(KEYSTORE_TYPE);
             InputStream keyStoreInputStream = new FileInputStream(ksPath);
@@ -199,6 +211,8 @@ public class UtilsJKS {
      * @param ksPass the string containing the KeyStore password.
      */
     public static void storeKeyStore(KeyStore ks, String ksPath, String ksPass) throws LoadingException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, String.format("Storing KeyStore on '%s' file", ksPath));
+
         try {
             dirExistOrCreate(ksPath);
             FileOutputStream keyStoreOutputStream = new FileOutputStream(ksPath);
@@ -226,6 +240,8 @@ public class UtilsJKS {
      * to <code>exportCertFile</code>given certificate chain as public certificate to the KeyStore.
      */
     public static void exportCertificate(KeyStore keyStore, String exportCertFile, String ksAlias) throws GenerationException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, String.format("Exporting certificate '%s' on '%s' file", ksAlias, exportCertFile));
+
         try {
             Certificate cert = keyStore.getCertificate(ksAlias);
             byte[] buf = cert.getEncoded();
@@ -247,6 +263,8 @@ public class UtilsJKS {
      * @return the loaded certificate.
      */
     public static Certificate loadCertificateFromFile(File file) throws LoadingException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, String.format("Loading certificate from '%s' file", file.getPath()));
+
         try {
             byte[] fileBytes = Files.readAllBytes(file.toPath());
             return loadCertificateFromBytes(fileBytes);
@@ -263,6 +281,8 @@ public class UtilsJKS {
      * @return the loaded certificate.
      */
     public static Certificate loadCertificateFromBytes(byte[] bytesCert) throws LoadingException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, "Loading certificate from bytes");
+
         try {
             CertificateFactory certFactory = CertificateFactory.getInstance(CERT_TYPE);
             InputStream inputStream = new ByteArrayInputStream(bytesCert);
@@ -284,6 +304,8 @@ public class UtilsJKS {
      * @param trustManager the certificates destination.
      */
     public static void copyCertsFromTrustManagerToKeyStore(KeyStore keyStore, AbsCustomTrustManager trustManager) throws StoreException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, "Synchronizing certificate from trust manager to key store");
+
         for (Map.Entry<String, Certificate> aliasAndCert : trustManager.getCertificates().entrySet())
             try {
                 keyStore.setCertificateEntry(aliasAndCert.getKey(), aliasAndCert.getValue());
@@ -304,13 +326,15 @@ public class UtilsJKS {
      * @param trustManager the certificates source.
      */
     public static void copyCertsFromKeyStoreToTrustManager(KeyStore keyStore, AbsCustomTrustManager trustManager) {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, "Synchronizing certificate from key store to trust manager");
+
         try {
             Enumeration<String> aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
                 Certificate cert = keyStore.getCertificate(alias);
                 if (cert == null) {
-                    System.out.println(String.format("certificate per l'alias %s non trovato", alias));
+                    log.error(Mrk_Commons.COMM_SSL_UTILS, String.format("Can't find certificate for alias '%s'", alias));
                     continue;
                 }
                 trustManager.addCertificate(alias, cert);

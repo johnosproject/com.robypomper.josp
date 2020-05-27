@@ -8,10 +8,11 @@ import com.robypomper.communication.client.ServerInfo;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
-import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.standard.SSLCertClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.InetAddress;
 
@@ -31,6 +32,7 @@ public class JSLLocalClient implements Client {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JSLCommunication communication;
     private final CertSharingSSLClient client;
     private JSLRemoteObject remoteObject = null;
@@ -58,7 +60,7 @@ public class JSLLocalClient implements Client {
         try {
             client = new CertSharingSSLClient(srvFullId, address, port,
                     ksFile, ksPass, CERT_ALIAS, pubCertFile,
-                    new LogClientLocalEventsListener(),
+                    null,
                     new JSLLocalClientServerListener(),
                     new JSLLocalClientMessagingListener()
             );
@@ -67,6 +69,9 @@ public class JSLLocalClient implements Client {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLLocalClient instance for '%s'", srvFullId));
+        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                                    on server '%s:%d'", address, port));
     }
 
     /**
@@ -114,13 +119,15 @@ public class JSLLocalClient implements Client {
      * @return always true.
      */
     private boolean onDataReceived(String readData) {
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' received from object '%s' to '%s' service", readData.substring(0, readData.indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
+
         if (remoteObject.processUpdate(readData))
             return true;
 
         if (remoteObject.processServiceRequestResponse(readData))
             return true;
 
-        System.out.println(String.format("WAR: unknown message from object '%s'", remoteObject.getId()));
+        log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on processing received data '%s...' from server '%s' to '%s' service because unknown request", readData.substring(0, 10), getServerInfo().getServerId(), client.getClientId()));
         return false;
     }
 
@@ -155,6 +162,22 @@ public class JSLLocalClient implements Client {
      * {@inheritDoc}
      */
     @Override
+    public InetAddress getClientAddr() {
+        return client.getClientAddr();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getClientPort() {
+        return client.getClientPort();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getClientId() {
         return client.getClientId();
     }
@@ -180,6 +203,7 @@ public class JSLLocalClient implements Client {
      */
     @Override
     public void disconnect() {
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnect local communication service '%s''s client from address '%s:%d'", getClientId(), getClientAddr(), getClientPort()));
         client.disconnect();
     }
 
@@ -188,6 +212,7 @@ public class JSLLocalClient implements Client {
      */
     @Override
     public void sendData(byte[] data) throws ServerNotConnectedException {
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to server '%s' from '%s' service", new String(data).substring(0, new String(data).indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
         client.sendData(data);
     }
 
@@ -196,6 +221,7 @@ public class JSLLocalClient implements Client {
      */
     @Override
     public void sendData(String data) throws ServerNotConnectedException {
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to server '%s' from '%s' service", data.substring(0, data.indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
         client.sendData(data);
     }
 

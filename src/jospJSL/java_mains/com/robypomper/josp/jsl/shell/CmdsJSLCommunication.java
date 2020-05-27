@@ -1,8 +1,8 @@
 package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
 
 public class CmdsJSLCommunication {
 
@@ -62,7 +62,7 @@ public class CmdsJSLCommunication {
     @Command(description = "Print all local connections.")
     public String commPrintAllLocalConnections() {
         StringBuilder s = new StringBuilder("LOCAL CONNECTIONS LIST\n");
-        for (JSLLocalClient client : comm.getAllLocalClients()) {
+        for (JSLLocalClient client : comm.getAllLocalServers()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
             s.append(String.format("- %-30s (obj: %s; status: %s; local: %s)\n", fullAddr, client.getObjId(), client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
         }

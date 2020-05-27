@@ -1,8 +1,7 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.structure;
 
-import com.robypomper.josp.jod.structure.JODComponent;
-import com.robypomper.josp.jod.structure.JODComponentPath;
-import com.robypomper.josp.jod.structure.JODRoot;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.robypomper.josp.jod.comm.JODCommunication;
 
 import java.util.Date;
 
@@ -108,8 +107,8 @@ public interface JODStructure {
             super(msg, e);
         }
 
-        public ParsingException(String msg, Throwable e, int line, int col) {
-            super(msg + String.format(MSG, line, col), e);
+        public ParsingException(String msg, JsonProcessingException e) {
+            super(msg + String.format(MSG, e.getLocation().getLineNr(), e.getLocation().getColumnNr()), e);
         }
     }
 
@@ -118,10 +117,10 @@ public interface JODStructure {
      * unknown component type.
      */
     class ParsingUnknownTypeException extends ParsingException {
-        private static final String MSG = "Unknown type '%s' for '%s' JOD Component.";
+        private static final String MSG = "Unknown type '%s' for '%s' JOD Component of parent component %s";
 
-        public ParsingUnknownTypeException(String compType, String compName) {
-            super(String.format(MSG, compType, compName));
+        public ParsingUnknownTypeException(String parentCompName, String compType, String compName) {
+            super(String.format(MSG, compType, compName, parentCompName));
         }
     }
 

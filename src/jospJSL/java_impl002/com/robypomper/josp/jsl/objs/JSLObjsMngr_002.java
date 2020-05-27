@@ -3,9 +3,10 @@ package com.robypomper.josp.jsl.systems;
 import com.robypomper.josp.jsl.JSL_002;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.jsl.objs.DefaultJSLRemoteObject;
-import com.robypomper.josp.jsl.objs.JSLObjectSearchPattern;
-import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +20,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JSL_002.Settings locSettings;
     private final JSLServiceInfo srvInfo;
     private final List<JSLRemoteObject> objs = new ArrayList<>();
@@ -36,6 +38,8 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     public JSLObjsMngr_002(JSL_002.Settings settings, JSLServiceInfo srvInfo) {
         this.locSettings = settings;
         this.srvInfo = srvInfo;
+
+        log.info(Mrk_JSL.JSL_OBJS, "Initialized JSLObjsMngr");
     }
 
 
@@ -91,7 +95,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      */
     @Override
     public List<JSLRemoteObject> searchObjects(JSLObjectSearchPattern pattern) {
-        System.out.println("DEB: JSLObjMngr_002::searchObjects()");
+        log.warn(Mrk_JSL.JSL_OBJS, "Method searchObjects(...) not implemented, return empty objects list");
         return new ArrayList<>();
     }
 
@@ -122,7 +126,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      */
     @Override
     public boolean removeConnection(JSLLocalClient client) {
-        System.out.println("DEB: JSLObjMngr_002::removeConnection()");
+        log.warn(Mrk_JSL.JSL_OBJS, "Method removeConnection(...) not implemented, return false");
         return false;
     }
 

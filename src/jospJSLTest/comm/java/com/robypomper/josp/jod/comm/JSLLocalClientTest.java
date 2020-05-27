@@ -4,16 +4,16 @@ import com.robypomper.communication.client.Client;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
-import com.robypomper.josp.jod.systems.JODCommunication;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
-import com.robypomper.josp.jsl.systems.JSLUserMngr;
-import com.robypomper.log.Markers;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -50,8 +50,8 @@ public class JSLLocalClientTest {
 
     @BeforeEach
     public void setUp() throws Server.ListeningException {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Create test dir
         File testDirFiles = new File(TEST_FILES_PREFIX);
@@ -65,7 +65,7 @@ public class JSLLocalClientTest {
                 TEST_FILES_PREFIX + "jodSr-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jodSr-" + PUB_CERT_PATH);
         jodServer.start();
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
@@ -128,8 +128,13 @@ public class JSLLocalClientTest {
         }
 
         @Override
-        public void forwardAction(String msg) {
+        public boolean forwardAction(String msg) {
+            return false;
+        }
 
+        @Override
+        public String processServiceRequest(JODLocalClientInfo client, String msg) {
+            return null;
         }
 
         @Override
@@ -185,12 +190,7 @@ public class JSLLocalClientTest {
 
     public static class MockJSLCommunication implements JSLCommunication {
         @Override
-        public void forwardAction(JSLRemoteObject object) {
-
-        }
-
-        @Override
-        public void forwardUpdate(String msg) {
+        public void forwardAction(JSLRemoteObject object, JSLAction component) {
 
         }
 
@@ -200,8 +200,13 @@ public class JSLLocalClientTest {
         }
 
         @Override
-        public List<JSLLocalClient> getAllLocalClients() {
+        public List<JSLLocalClient> getAllLocalServers() {
             return null;
+        }
+
+        @Override
+        public void removeServer(JSLLocalClient server) {
+
         }
 
         @Override

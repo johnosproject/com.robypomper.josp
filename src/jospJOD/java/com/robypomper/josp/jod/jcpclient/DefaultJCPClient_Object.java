@@ -5,6 +5,9 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.core.jcpclient.JCPClient_CliCredFlow;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -14,6 +17,11 @@ import com.robypomper.josp.jod.JOD_002;
  */
 public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         implements JCPClient_Object {
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
+
 
     // Constructor
 
@@ -34,9 +42,14 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
                         settings.getJCPUrl(),
                         "jcp"),
                 false);
-        disableSSLChecks();
-        if (settings.getJCPConnect())
-            tryConnect();
+
+        try {
+            log.debug(Mrk_JOD.JOD_COMM_JCPCL, "Connecting JCPClient to JCP with client credential flow");
+            connect();
+            log.debug(Mrk_JOD.JOD_COMM_JCPCL, "JCPClient connected to JCP with client credential flow");
+        } catch (ConnectionException e) {
+            log.warn(Mrk_JOD.JOD_COMM_JCPCL, String.format("Error on connecting JCPClient to JCP because %s", e.getMessage()), e);
+        }
     }
 
     // Headers default values setters

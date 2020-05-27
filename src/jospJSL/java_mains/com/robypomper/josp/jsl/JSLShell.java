@@ -88,7 +88,7 @@ public class JSLShell {
         System.out.println("INF: Connect JSL Lib.");
         try {
             shell.connectJSL();
-        } catch (Exception e) {
+        } catch (Exception | JSL.ConnectException e) {
             shell.fatal(e, EXIT_ERROR_START);
             return;
         }
@@ -109,7 +109,7 @@ public class JSLShell {
             System.out.println("INF: Disconnect JSL Lib.");
             try {
                 shell.disconnectJSL();
-            } catch (Exception e) {
+            } catch (Exception | JSL.ConnectException e) {
                 shell.fatal(e, EXIT_ERROR_STOP);
                 return;
             }
@@ -183,7 +183,7 @@ public class JSLShell {
     /**
      * Connect internal JSL library and start all his sub-systems.
      */
-    public void connectJSL() throws Exception {
+    public void connectJSL() throws Exception, JSL.ConnectException {
         if (jsl == null)
             throw new Exception("Can't connect JSL object because was not initialized.");
 
@@ -196,7 +196,7 @@ public class JSLShell {
     /**
      * Disconnect internal JSL library and stops all his sub-systems.
      */
-    public void disconnectJSL() throws Exception {
+    public void disconnectJSL() throws Exception, JSL.ConnectException {
         if (jsl == null)
             throw new Exception("Can't disconnect JSL object because was not initialized.");
 

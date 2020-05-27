@@ -2,16 +2,19 @@ package com.robypomper.josp.jsl;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.paths.JcpAPI;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
+import com.robypomper.josp.jsl.comm.JSLCommunication_002;
 import com.robypomper.josp.jsl.jcpclient.DefaultJCPClient_Service;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
-import com.robypomper.josp.jsl.systems.JSLCommunication_002;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr_002;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo_002;
-import com.robypomper.josp.jsl.systems.JSLUserMngr;
-import com.robypomper.josp.jsl.systems.JSLUserMngr_002;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo_002;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.jsl.user.JSLUserMngr_002;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -27,8 +30,18 @@ import java.util.Random;
 
 public class JSL_002 extends AbsJSL {
 
+    // Class constants
+
     private static final String VERSION = FactoryJSL.JSL_VER_002;
     private static final int MAX_INSTANCE_ID = 10000;
+
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
+
+
+    // Constructor
 
     public JSL_002(Settings settings, JCPClient_Service jcpClient, JSLServiceInfo srvInfo, JSLUserMngr usr, JSLObjsMngr objs, JSLCommunication comm) {
         super(settings, jcpClient, srvInfo, usr, objs, comm);
@@ -36,12 +49,16 @@ public class JSL_002 extends AbsJSL {
 
     public static JSL instance(Settings settings) throws JCPClient.ConnectionException, JSLCommunication.LocalCommunicationException {
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("Init JSL instance id '%s'", instanceId));
 
         JCPClient_Service jcpClient = new DefaultJCPClient_Service(settings);
+
         JSLServiceInfo srvInfo = new JSLServiceInfo_002(settings, jcpClient, instanceId);
 
         JSLUserMngr usr = new JSLUserMngr_002(settings, jcpClient);
+
         JSLObjsMngr objs = new JSLObjsMngr_002(settings, srvInfo);
+
         srvInfo.setSystems(usr, objs);
 
         JSLCommunication comm = new JSLCommunication_002(settings, srvInfo, jcpClient, usr, objs);
@@ -54,7 +71,7 @@ public class JSL_002 extends AbsJSL {
     public static class Settings implements JSL.Settings {
 
         //@formatter:off
-        public static final String JSLVERSION_REQUIRED = "jod.version";
+        public static final String JSLVERSION_REQUIRED = "jsl.version";
         public static final String JSLVERSION_REQUIRED_DEF = JSL_002.VERSION;
 
         public static final String JCP_CONNECT              = "jcp.connect";
@@ -130,7 +147,7 @@ public class JSL_002 extends AbsJSL {
         private void store(String property, String value) {
             if (file == null) {
                 if (!errorAlreadyPrinted) {
-                    System.out.println("ERR: Can't store on file, because settings are loaded from properties.");
+                    log.error(Mrk_JSL.JSL_MAIN, "Can't store configs on file, because settings are loaded from properties.");
                     errorAlreadyPrinted = true;
                 }
                 return;
@@ -150,7 +167,7 @@ public class JSL_002 extends AbsJSL {
         }
 
 
-        // JOD
+        // JSL
 
         @Override
         public String version() {

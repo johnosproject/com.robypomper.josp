@@ -93,6 +93,14 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      * {@inheritDoc}
      */
     @Override
+    public String getClientFullAddress() {
+        return client.getPeerFullAddress();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getLocalFullAddress() {
         return client.getLocalFullAddress();
     }

@@ -1,6 +1,8 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.log.Mrk_JOD;
+
 /**
  * JOD Executor test.
  * <p>
@@ -23,7 +25,7 @@ public class ExecutorTest extends AbsJODExecutor {
      */
     public ExecutorTest(String name, String proto, String configsStr) {
         super(name, proto);
-        System.out.println(String.format("JOD Executor init %s://%s.", getProto(), configsStr));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorTest for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
     }
 
     // Mngm
@@ -33,7 +35,7 @@ public class ExecutorTest extends AbsJODExecutor {
      */
     @Override
     protected boolean subExec() {
-        System.out.println(String.format("JOD Executor exec %s://%s.", getProto(), getName()));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorTest for component '%s' of proto '%s' exec", getName(), getProto()));
         return true;
     }
 }

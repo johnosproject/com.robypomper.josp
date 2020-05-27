@@ -11,9 +11,12 @@ import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
 import com.robypomper.josp.jsl.objs.structure.JSLState;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceRequests;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,6 +30,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JSLServiceInfo srvInfo;
     private final String objId;
     private final List<JSLLocalClient> localConnections = new ArrayList<>();
@@ -52,6 +56,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         this.srvInfo = srvInfo;
         this.objId = objId;
         addLocalClient(localClient);
+
+        log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: %s:%d) on '%s' service (from: '%s:%d')", objId, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
     }
 
 
@@ -143,30 +149,38 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public void addLocalClient(JSLLocalClient localClient) {
-//        // Connected if called from constructor
-//        // Disconnected if called from JSLObjMngr::addNewConnection()
-//        localConnections.add(localClient);
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
 
-        boolean wasConnected = isConnected();
-
-        if (!isConnected() && !localClient.isConnected())
+        boolean wasObjectConnected = isConnected();
+        if (!isConnected() && !localClient.isConnected()) {
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getObjId()));
             try {
                 localClient.connect();
             } catch (Client.ConnectionException ignore) {}
-
-        else if (isConnected() && localClient.isConnected())
+        }
+        if (isConnected() && localClient.isConnected()) {
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' already connected", localClient.getObjId()));
+            // Force switch thread, to allow starting client's thread
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignore) {}
             localClient.disconnect();
-
+        }
         localConnections.add(localClient);
         localClient.setRemoteObject(this);
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection added for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
 
-        if (!wasConnected)
+        if (!wasObjectConnected) {
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Requesting object's '%s' presentation", localClient.getObjId()));
             try {
                 requestObjectInfo();
                 requestObjectStructure();
             } catch (ObjectNotConnected e) {
-                System.out.println("ERR: can't send 'objectStructureRequest' because object is not connected");
+                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on requesting object's '%s' presentations because %s", localClient.getObjId(), e.getMessage()), e);
+                return;
             }
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' info and structure requested", localClient.getObjId()));
+        }
     }
 
     /**
@@ -174,8 +188,10 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public void replaceLocalClient(JSLLocalClient oldClient, JSLLocalClient newClient) {
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Replacing local connection for '%s' object (from: '%s:%d' to: '%s:%d')", oldClient.getObjId(), oldClient.getClientAddr(), oldClient.getClientPort(), oldClient.getServerAddr(), oldClient.getServerPort()));
         localConnections.remove(oldClient);
         localConnections.add(newClient);
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Local connection replaced for '%s' object (from: '%s:%d' to: '%s:%d')", newClient.getObjId(), newClient.getClientAddr(), newClient.getClientPort(), newClient.getServerAddr(), newClient.getServerPort()));
     }
 
     /**
@@ -191,13 +207,11 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public JSLLocalClient getConnectedClient() {
-        //synchronized (localConnections) {
         for (JSLLocalClient client : localConnections) {
             if (client.isConnected())
                 return client;
         }
         return null;
-        //}
     }
 
     /**
@@ -244,58 +258,85 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     public boolean processUpdate(String msg) {
         // parse received data (here or in prev methods)
         JOSPProtocol.StatusUpd upd = JOSPProtocol.fromMsgToUpd(msg);
+        if (upd == null)
+            return false;
+
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing update '%s...' for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
 
         // search destination object/components
         JSLComponentPath compPath = new DefaultJSLComponentPath(upd.getComponentPath());
         JSLComponent comp = DefaultJSLComponentPath.searchComponent(root, compPath);
+
+        log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing update on '%s' component for '%s' object", compPath, objId));
         if (comp == null) {
-            System.out.println(String.format("WAR: received status update for unknown component '%s'", upd.getComponentPath()));
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object because component not found", compPath, objId));
             return false;
         }
         if (!(comp instanceof JSLState)) {
-            System.out.println(String.format("WAR: received status update for not status component '%s'", upd.getComponentPath()));
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object because component not a status component", compPath, objId));
             return false;
         }
         JSLState stateComp = (JSLState) comp;
 
         // set object/component's update
-        return stateComp.updateStatus(upd);
+        if (stateComp.updateStatus(upd)) {
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Updated status of '%s' component for '%s' object", compPath, objId));
+
+        } else {
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object", compPath, objId));
+            return false;
+        }
+
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Update '%s...' processed for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
+        return true;
     }
 
     /**
      * {@inheritDoc}
+     * <p>
+     * // ToDo: remove 'return false;' on processing errors and substitute with 'thrown new ProcessingException()'
      */
     @Override
     public boolean processServiceRequestResponse(String msg) {
         // Object info request's response
         if (JOSPProtocol_ServiceRequests.isObjectInfoRequestResponse(msg)) {
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectInfo message for '%s' object", objId));
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectInfo response for '%s' object", objId));
+
             try {
                 setName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
                 setOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
                 setJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
-                return true;
 
             } catch (JOSPProtocol.ParsingException e) {
-                System.out.println(String.format("ERR: can't parse ObjectInfoResponse because %s", e.getMessage()));
+                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
                 return false;
             }
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectInfo message processed for '%s' object", objId));
+            return true;
         }
 
         // Object structure request's response
         if (JOSPProtocol_ServiceRequests.isObjectStructureRequestResponse(msg)) {
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectStructure message for '%s' object", objId));
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectStructure response for '%s' object", objId));
+
             try {
                 Date lastUpdated = JOSPProtocol_ServiceRequests.extractObjectStructureLastUpdateFromResponse(msg);
-                if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0)
+                if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0) {
+                    log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message '%s...' for object '%s' object older than local object structure", msg.substring(0, Math.min(10, msg.length())), objId));
                     return true;
+                }
 
                 String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureFromResponse(msg);
                 loadStructure(structStr);
-                return true;
 
             } catch (JOSPProtocol.ParsingException | ParsingException e) {
-                System.out.println(String.format("ERR: can't parse ObjectStructureResponse because %s", e.getMessage()));
+                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, Math.min(10, msg.length())), objId, e.getMessage()), e);
                 return false;
             }
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message processed for '%s' object", objId));
+            return true;
         }
 
         return false;

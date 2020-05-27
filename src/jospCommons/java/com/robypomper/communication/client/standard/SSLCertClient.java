@@ -8,7 +8,7 @@ import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -147,15 +147,15 @@ public class SSLCertClient extends DefaultClient {
                 //dataRead = trim(dataRead);
                 sendData(dataRead);
             }
-            log.debug(Markers.COMM_SSL_CERTCLI, String.format("Client send local certificate to server '%s'", getServerInfo().getServerId()));
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client send local certificate to server '%s'", getServerInfo().getServerId()));
             if (listener != null) listener.onCertificateSend();
             Thread.sleep(100);
 
         } catch (ServerNotConnectedException e) {
-            log.warn(Markers.COMM_SSL_CERTCLI, String.format("Client disconnected, can't transmit local certificate to server '%s'", getServerInfo().getServerId()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client disconnected, can't transmit local certificate to server '%s'", getServerInfo().getServerId()));
 
         } catch (IOException e) {
-            log.warn(Markers.COMM_SSL_CERTCLI, String.format("Can't read public certificate '%s' because %s", certPubFile, e.getMessage()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Can't read public certificate '%s' because %s", certPubFile, e.getMessage()));
 
         } catch (InterruptedException ignore) {
         }
@@ -181,7 +181,7 @@ public class SSLCertClient extends DefaultClient {
         //System.out.println(String.format("%s -> %s", clientCertPath, new String(readData).substring(0, 10)));
 
         if (tryStoreServerCertificate()) {
-            log.info(Markers.COMM_SSL_CERTCLI, String.format("Client '%s' added certificate from server '%s' to trust store, disconnect", getClientId(), getServerInfo().getServerId()));
+            log.info(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' added certificate from server '%s' to trust store, disconnect", getClientId(), getServerInfo().getServerId()));
             disconnect();
         }
 
@@ -196,11 +196,11 @@ public class SSLCertClient extends DefaultClient {
      */
     private boolean tryStoreServerCertificate() {
         if (serverCertBuffer.length == 0) {
-            log.debug(Markers.COMM_SSL_CERTCLI, String.format("Client '%s' don't received certificate from server '%s'", getClientId(), getServerInfo().getServerId()));
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' don't received certificate from server '%s'", getClientId(), getServerInfo().getServerId()));
             return false;
         }
 
-        log.debug(Markers.COMM_SSL_CERTCLI, String.format("Client '%s' try add certificate from server '%s' to trust store", getClientId(), getServerInfo().getServerId()));
+        log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' try add certificate from server '%s' to trust store", getClientId(), getServerInfo().getServerId()));
 
         try {
             certTrustManager.addCertificateByte(String.format("SRV@%s:%d", getServerAddr(), getServerPort()), serverCertBuffer);
@@ -208,7 +208,7 @@ public class SSLCertClient extends DefaultClient {
             return true;
 
         } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
-            log.debug(Markers.COMM_SSL_CERTCLI, String.format("Client '%s' can't add certificate from server '%s' because %s", getClientId(), getServerInfo().getServerId(), e.getMessage()));
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't add certificate from server '%s' because %s", getClientId(), getServerInfo().getServerId(), e.getMessage()));
             return false;
         }
     }

@@ -2,7 +2,7 @@ package com.robypomper.communication.server.events;
 
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Log implementation of the {@link ServerMessagingEvents}.
  * <p>
- * The log implementations log all events with {@link Markers#COMM_SRV_IMPL} marker.
+ * The log implementations log all events with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
  */
 public class LogServerMessagingEventsListener extends DefaultServerEvent implements ServerMessagingEvents {
 
@@ -24,21 +24,21 @@ public class LogServerMessagingEventsListener extends DefaultServerEvent impleme
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public void onDataSend(ClientInfo client, byte[] writtenData) {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onDataSend(%s, byte[] %s)", getServer().getServerId(), client.getClientId(), new String(writtenData, PeerInfo.CHARSET)));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataSend(%s, byte[] %s)", getServer().getServerId(), client.getClientId(), new String(writtenData, PeerInfo.CHARSET)));
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public void onDataSend(ClientInfo client, String writtenData) {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onDataSend(%s, String %s)", getServer().getServerId(), client.getClientId(), writtenData));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataSend(%s, String %s)", getServer().getServerId(), client.getClientId(), writtenData));
     }
 
 
@@ -47,22 +47,22 @@ public class LogServerMessagingEventsListener extends DefaultServerEvent impleme
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public boolean onDataReceived(ClientInfo client, byte[] readData) throws Throwable {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onDataReceived(%s, byte[] %s)", getServer().getServerId(), client.getClientId(), new String(readData, PeerInfo.CHARSET)));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataReceived(%s, byte[] %s)", getServer().getServerId(), client.getClientId(), new String(readData, PeerInfo.CHARSET)));
         return false;
     }
 
     /**
      * {@inheritDoc}
      * <p>
-     * Log the event with {@link Markers#COMM_SRV_IMPL} marker.
+     * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker.
      */
     @Override
     public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
-        log.info(Markers.COMM_SRV_IMPL, String.format("%s.onDataReceived(%s, String %s)", getServer().getServerId(), client.getClientId(), readData));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataReceived(%s, String %s)", getServer().getServerId(), client.getClientId(), readData));
         return true;
     }
 }

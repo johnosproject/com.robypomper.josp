@@ -1,13 +1,14 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.structure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.robypomper.josp.jod.structure.DefaultJODComponentPath;
-import com.robypomper.josp.jod.structure.JODComponent;
-import com.robypomper.josp.jod.structure.JODComponentPath;
-import com.robypomper.josp.jod.structure.JODRoot;
-import com.robypomper.josp.jod.structure.JODRoot_Jackson;
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
 
@@ -18,6 +19,7 @@ public class JODStructure_002 implements JODStructure {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JODObjectInfo objInfo;
     private final JODExecutorMngr executorMngr;
     private final JODRoot root;
@@ -36,8 +38,6 @@ public class JODStructure_002 implements JODStructure {
      * @param executorMngr the Executor Manager system.
      */
     public JODStructure_002(JODObjectInfo objInfo, JODExecutorMngr executorMngr) throws ParsingException {
-        System.out.println("DEB: JOD Structure initialization...");
-
         this.objInfo = objInfo;
         this.executorMngr = executorMngr;
 
@@ -85,7 +85,7 @@ public class JODStructure_002 implements JODStructure {
             return mapper.writeValueAsString(getRoot());
 
         } catch (JsonProcessingException e) {
-            throw new ParsingException(String.format("Can't get JOD Structure string, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+            throw new ParsingException(String.format("Can't get JOD Structure string, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e);
         }
     }
 
@@ -125,8 +125,7 @@ public class JODStructure_002 implements JODStructure {
      */
     @Override
     public void startAutoRefresh() {
-        System.out.println("WAR: JOD Structure AutoRefresh can't started:");
-        System.out.println("     AutoRefresh not implemented, structure are static");
+        log.warn(Mrk_JOD.JOD_STRU, "JODStructure AutoRefresh can't started: not implemented");
     }
 
     /**
@@ -134,8 +133,7 @@ public class JODStructure_002 implements JODStructure {
      */
     @Override
     public void stopAutoRefresh() {
-        System.out.println("WAR: JOD Structure AutoRefresh can't stopped:");
-        System.out.println("     AutoRefresh not implemented, structure are static");
+        log.warn(Mrk_JOD.JOD_STRU, "JODStructure AutoRefresh can't stopped: not implemented");
     }
 
 
@@ -145,6 +143,9 @@ public class JODStructure_002 implements JODStructure {
      * Load object's structure from data file.
      */
     private JODRoot loadStructure(String structureStr) throws ParsingException {
+        log.debug(Mrk_JOD.JOD_STRU, "Loading object structure");
+
+        JODRoot root;
         try {
             ObjectMapper objMapper = new ObjectMapper();
 
@@ -153,11 +154,16 @@ public class JODStructure_002 implements JODStructure {
             injectVars.addValue(JODExecutorMngr.class, executorMngr);
             objMapper.setInjectableValues(injectVars);
 
-            return objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
+            log.trace(Mrk_JOD.JOD_STRU, String.format("Parsing '%s' object structure '%s...'", objInfo.getObjId(), structureStr.substring(0, 100).replace("\n", " ")));
+            root = objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
 
         } catch (JsonProcessingException e) {
-            throw new ParsingException(String.format("Can't init JOD Structure, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+            log.warn(Mrk_JOD.JOD_STRU, String.format("Error on loading object structure because %s", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e);
+            throw new ParsingException("Error on parsing JOD Structure", e);
         }
+
+        log.debug(Mrk_JOD.JOD_STRU, "Object structure loaded");
+        return root;
     }
 
 }

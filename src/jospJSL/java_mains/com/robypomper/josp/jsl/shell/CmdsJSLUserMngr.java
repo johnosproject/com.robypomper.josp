@@ -1,6 +1,6 @@
 package com.robypomper.josp.jsl.shell;
 
-import com.robypomper.josp.jsl.systems.JSLUserMngr;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
 
 public class CmdsJSLUserMngr {
 

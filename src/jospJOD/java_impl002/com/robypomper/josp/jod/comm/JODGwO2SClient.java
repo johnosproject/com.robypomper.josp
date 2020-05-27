@@ -9,8 +9,9 @@ import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.josp.jod.systems.JODCommunication_002;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
@@ -33,6 +34,7 @@ public class JODGwO2SClient implements Client {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JODCommunication_002 communication;
     private final DefaultSSLClient client;
 
@@ -44,7 +46,7 @@ public class JODGwO2SClient implements Client {
      * It use the object's id as certificate id and load the O2S Gw certificate
      * to the {@link javax.net.ssl.TrustManager} used for the SSL context.
      *
-     * @param communication     instance of the {@link com.robypomper.josp.jod.systems.JODCommunication}
+     * @param communication     instance of the {@link JODCommunication}
      *                          that initialized this client. It will used to
      *                          process data received from the O2S Gw.
      * @param objInfo           the info of the represented object.
@@ -81,7 +83,7 @@ public class JODGwO2SClient implements Client {
     // Processing incoming data
 
     /**
-     * Forward received data to the {@link com.robypomper.josp.jod.systems.JODCommunication}
+     * Forward received data to the {@link JODCommunication}
      * instance.
      *
      * @param readData the message string received from the O2S Gw.
@@ -117,6 +119,22 @@ public class JODGwO2SClient implements Client {
     @Override
     public ServerInfo getServerInfo() {
         return client.getServerInfo();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public InetAddress getClientAddr() {
+        return client.getClientAddr();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getClientPort() {
+        return client.getClientPort();
     }
 
     /**

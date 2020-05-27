@@ -3,18 +3,21 @@ package com.robypomper.josp.jod;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.JcpAPI;
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.comm.JODCommunication_002;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.executor.JODExecutorMngr_002;
 import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.systems.JODCommunication;
-import com.robypomper.josp.jod.systems.JODCommunication_002;
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODExecutorMngr_002;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
-import com.robypomper.josp.jod.systems.JODObjectInfo_002;
-import com.robypomper.josp.jod.systems.JODPermissions;
-import com.robypomper.josp.jod.systems.JODPermissions_002;
-import com.robypomper.josp.jod.systems.JODStructure;
-import com.robypomper.josp.jod.systems.JODStructure_002;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo_002;
+import com.robypomper.josp.jod.permissions.JODPermissions;
+import com.robypomper.josp.jod.permissions.JODPermissions_002;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.jod.structure.JODStructure_002;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -30,8 +33,18 @@ import java.util.Random;
 
 public class JOD_002 extends AbsJOD {
 
+    // Class constants
+
     private static final String VERSION = FactoryJOD.JOD_VER_002;
     private static final int MAX_INSTANCE_ID = 10000;
+
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
+
+
+    // Constructor
 
     protected JOD_002(Settings settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
@@ -39,14 +52,18 @@ public class JOD_002 extends AbsJOD {
 
     public static JOD instance(Settings settings) throws JCPClient.ConnectionException, JODStructure.ParsingException, JODCommunication.LocalCommunicationException {
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("Init JOD instance id '%s'", instanceId));
 
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
+
         JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient, VERSION);
 
-        JODExecutorMngr executor = new JODExecutorMngr_002(settings);
+        JODExecutorMngr executor = new JODExecutorMngr_002(settings, objInfo);
+
         JODStructure structure = new JODStructure_002(objInfo, executor);
 
         JODPermissions permissions = new JODPermissions_002(settings, objInfo, jcpClient);
+
         JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions, instanceId);
 
         try {
@@ -126,6 +143,9 @@ public class JOD_002 extends AbsJOD {
         public static final String JODCOMM_CLOUD_CERT_REMOTE_DEF= "certs/public/mainServer@GwObjService.crt";
         //@formatter:on
 
+
+        // Internal vars
+
         private File file;
         private final Map<String, String> properties;
         private String jodVer = null;
@@ -158,7 +178,7 @@ public class JOD_002 extends AbsJOD {
         private void store(String property, String value) {
             if (file == null) {
                 if (!errorAlreadyPrinted) {
-                    System.out.println("ERR: Can't store on file, because settings are loaded from properties.");
+                    log.error(Mrk_JOD.JOD_MAIN, "Can't store configs on file, because settings are loaded from properties.");
                     errorAlreadyPrinted = true;
                 }
                 return;

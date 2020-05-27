@@ -1,8 +1,8 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
+import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
-import com.robypomper.josp.jod.systems.JODCommunication;
 
 public class CmdsJODCommunication {
 

@@ -10,6 +10,9 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.robypomper.java.JavaSSLIgnoreChecks;
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,6 +58,7 @@ public abstract class AbsJCPClient implements JCPClient {
 
     // Private vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JCPConfigs configs;
     private boolean connected = false;
     private OAuth20Service service = null;
@@ -88,9 +92,10 @@ public abstract class AbsJCPClient implements JCPClient {
             throw new ConnectionException(String.format("Wrong JCP configurations: %s", e.getMessage()), e);
         }
 
-        if (autoConnect) {
+        log.info(Mrk_Commons.COMM_JCPCL, String.format("Initialized AbsJCPClient/%s instance and%s connected to JCP", this.getClass().getSimpleName(), isConnected() ? "" : " NOT"));
+
+        if (autoConnect)
             tryConnect();
-        }
     }
 
 
@@ -112,15 +117,20 @@ public abstract class AbsJCPClient implements JCPClient {
         if (isConnected())
             return;
 
-        System.out.println("DEB: JCP Client connecting...");
+        log.info(Mrk_Commons.COMM_JCPCL, String.format("Connecting JCPClient to the JCP platform at '%s'", configs.getBaseUrl()));
 
         // Start Auth flow
-        accessToken = getAccessToken(service);
+        log.debug(Mrk_Commons.COMM_JCPCL, "Getting tokens for JCPClient");
+        try {
+            accessToken = getAccessToken(service);
+        } catch (ConnectionException e) {
+            log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on getting tokens for JCPClient because %s", e.getMessage()), e);
+            throw e;
+        }
         refreshToken = accessToken.getRefreshToken();
-        System.out.println("ATTENZIONE: get Refresh Token: " + refreshToken);
+        log.debug(Mrk_Commons.COMM_JCPCL, "Tokens got for JCPClient");
 
         connected = true;
-        System.out.println("DEB: JCP Client connected");
     }
 
     /**
@@ -145,7 +155,7 @@ public abstract class AbsJCPClient implements JCPClient {
         try {
             connect();
         } catch (ConnectionException e) {
-            System.out.println(String.format("WAR: Can't connect to the JCP because: '%s'", e.getMessage()));
+            log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on connecting JCPClient to the JCP because %s", e.getMessage()), e);
         }
     }
 
@@ -385,7 +395,7 @@ public abstract class AbsJCPClient implements JCPClient {
         try {
             JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
         } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            System.out.println(String.format("WAR: Can't disable SSL checks on localhost: '%s'", e.getMessage()));
+            log.warn(Mrk_Commons.COMM_JCPCL, String.format("WAR: Can't disable SSL checks on localhost: '%s'", e.getMessage()), e);
         }
     }
 
@@ -596,7 +606,7 @@ public abstract class AbsJCPClient implements JCPClient {
     // Refresh token
 
     public void setRefreshToken(String refreshToken) {
-        System.out.println("ATTENZIONE: set Refresh Token: " + refreshToken);
+        log.trace(Mrk_Commons.COMM_JCPCL, "Set refresh tokens for JCPClient");
         this.refreshToken = refreshToken;
     }
 

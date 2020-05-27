@@ -1,4 +1,4 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.permissions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,7 +8,10 @@ import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JOD_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.permissions.JCPPermObj;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,14 +27,23 @@ import java.util.TimerTask;
  */
 public class JODPermissions_002 implements JODPermissions {
 
+    // Class constants
+
+    public static final String TH_SYNC_NAME_FORMAT = "_PERM_SYNC_%s";
+    public static final String ANONYMOUS_ID = "00000-00000-00000";
+    public static final String ANONYMOUS_USERNAME = "Anonymous";
+
+
     // Internal vars
 
-    private final JOD_002.Settings settings;
+    private static final Logger log = LogManager.getLogger();
+    private final JOD_002.Settings locSettings;
     private final JODObjectInfo objInfo;
     private final JCPClient_Object jcpClient;
     private final JCPPermObj jcpPermissions;
     private final List<ObjPermission> permissions = new LinkedList<>();
     private Timer timer = null;
+    private boolean jcpPrintNotConnected = false;
 
 
     // Constructor
@@ -44,10 +56,8 @@ public class JODPermissions_002 implements JODPermissions {
      * @param jcpClient the jcp object client.
      */
     public JODPermissions_002(JOD_002.Settings settings, JODObjectInfo objInfo, JCPClient_Object jcpClient) {
-        System.out.println("DEB: JOD Permissions initialization...");
-
         this.objInfo = objInfo;
-        this.settings = settings;
+        this.locSettings = settings;
         this.jcpClient = jcpClient;
         jcpPermissions = new JCPPermObj(jcpClient, settings);
 
@@ -55,29 +65,50 @@ public class JODPermissions_002 implements JODPermissions {
         setOwnerId(getOwnerId());
 
 
+        log.debug(Mrk_JOD.JOD_PERM, "Loading object's permissions");
+        boolean loadLocally = false;
+        boolean genCloud = false;
         try {
             loadPermissionsFromFile();
-            System.out.println(String.format("DEB: Loaded %s permissions (obj-srv-usr):", permissions.size()));
-            for (ObjPermission p : permissions) {
-                System.out.println(String.format("DEB: %s - %s - %s: %s and %s", p.objId, p.srvId, p.usrId, p.connection, p.type));
-            }
+            loadLocally = true;
+            log.trace(Mrk_JOD.JOD_PERM, String.format("JODPermissions %d permissions loaded from file:", permissions.size()));
 
         } catch (FileException e) {
-            if (e.getCause() instanceof FileNotFoundException)
-                System.out.println("INF: No permission saved locally, it will generate them on JCP.");
-            else
-                System.out.println("WAR: Error on load permission locally.");
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on loading permissions from file '%s' because %s", settings.getPermissionsPath().getPath(), e.getMessage()), e);
         }
 
-        if (permissions.size() == 0) {
+        if (!loadLocally) {
             try {
                 generatePermissionsFromJCP();
+                genCloud = true;
+                log.trace(Mrk_JOD.JOD_PERM, String.format("JODPermissions %d permissions generated on cloud:", permissions.size()));
+
             } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-                generatePermissionsLocally();
+                log.warn(Mrk_JOD.JOD_PERM, String.format("Error generating permission from JCP because %s", e.getMessage()), e);
             }
         }
 
-        System.out.println("DEB: JOD Permissions initialized");
+        if (!loadLocally && !genCloud) {
+            generatePermissionsLocally();
+            log.trace(Mrk_JOD.JOD_PERM, String.format("JODPermissions %d permissions generated locally:", permissions.size()));
+        }
+
+        logPermissions(permissions);
+        log.debug(Mrk_JOD.JOD_PERM, "Object's permissions loaded");
+
+        log.info(Mrk_JOD.JOD_PERM, String.format("Initialized JODPermissions instance for '%s' ('%s') object with '%s' owner", objInfo.getObjName(), objInfo.getObjId(), getOwnerId()));
+        log.debug(Mrk_JOD.JOD_PERM, String.format("                                    %s '%d' permissions", loadLocally ? "loaded locally" : genCloud ? "generated from cloud" : "generated locally", permissions.size()));
+        if (loadLocally)
+            log.debug(Mrk_JOD.JOD_PERM, String.format("                                    permissions loaded from file '%s'", locSettings.getPermissionsPath()));
+    }
+
+    private static void logPermissions(List<ObjPermission> permissions) {
+        log.trace(Mrk_JOD.JOD_PERM, "  +--------------------+----------------------+----------------------+---------------------------+");
+        log.trace(Mrk_JOD.JOD_PERM, "  | ObjID              | SrvId                | UsrId                | Connection and Perm.Type  |");
+        log.trace(Mrk_JOD.JOD_PERM, "  +--------------------+----------------------+----------------------+---------------------------+");
+        for (ObjPermission p : permissions)
+            log.trace(Mrk_JOD.JOD_PERM, String.format("  | %-18s | %-20s | %-20s | %-13s, %-10s |", p.objId, p.srvId, p.usrId, p.connection, p.type));
+        log.trace(Mrk_JOD.JOD_PERM, "  +--------------------+----------------------+----------------------+---------------------------+");
     }
 
 
@@ -90,15 +121,22 @@ public class JODPermissions_002 implements JODPermissions {
     public boolean canExecuteAction(String srvId, String usrId, PermissionsTypes.Connection connection) {
         ObjPermission p = search(srvId, usrId);
 
-        if (p == null)
+        if (p == null) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED  because not found", srvId, usrId));
             return false;
+        }
 
         if (connection == PermissionsTypes.Connection.LocalAndCloud)
-            if (p.connection == PermissionsTypes.Connection.OnlyLocal)
+            if (p.connection == PermissionsTypes.Connection.OnlyLocal) {
+                log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED  because connection type not allowed", srvId, usrId));
                 return false;
+            }
 
-        return p.type == PermissionsTypes.Type.Actions
+        boolean perm = p.type == PermissionsTypes.Type.Actions
                 || p.type == PermissionsTypes.Type.CoOwner;
+
+        log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s %s", srvId, usrId, perm ? "GRANTED" : "DENIED "));
+        return perm;
     }
 
     /**
@@ -114,17 +152,24 @@ public class JODPermissions_002 implements JODPermissions {
         ObjPermission p = search(srvId, usrId);
 
         // If not found, no permission to given srvId + usrId
-        if (p == null)
+        if (p == null) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED  because not found", srvId, usrId));
             return false;
+        }
 
         // True only if local is allowed
         if (p.connection != PermissionsTypes.Connection.LocalAndCloud
-                && p.connection != PermissionsTypes.Connection.OnlyLocal)
+                && p.connection != PermissionsTypes.Connection.OnlyLocal) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED  because only local connection allowed", srvId, usrId));
             return false;
+        }
 
-        return p.type == PermissionsTypes.Type.Status
+        boolean perm = p.type == PermissionsTypes.Type.Status
                 || p.type == PermissionsTypes.Type.Actions
                 || p.type == PermissionsTypes.Type.CoOwner;
+
+        log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s %s", srvId, usrId, perm ? "GRANTED" : "DENIED "));
+        return perm;
     }
 
     /**
@@ -132,21 +177,30 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public boolean canActAsLocalCoOwner(String srvId, String usrId) {
-        if (objInfo.getOwnerId().isEmpty())
+        if (getOwnerId().isEmpty()) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
+        }
 
         ObjPermission p = search(srvId, usrId);
 
         // If not found, no permission to given srvId + usrId
-        if (p == null)
+        if (p == null) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED  because not found", srvId, usrId));
             return false;
+        }
 
         // True only if local is allowed
         if (p.connection != PermissionsTypes.Connection.LocalAndCloud
-                && p.connection != PermissionsTypes.Connection.OnlyLocal)
+                && p.connection != PermissionsTypes.Connection.OnlyLocal) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED  because only local connection allowed", srvId, usrId));
             return false;
+        }
 
-        return p.type == PermissionsTypes.Type.CoOwner;
+        boolean perm = p.type == PermissionsTypes.Type.CoOwner;
+
+        log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s %s", srvId, usrId, perm ? "GRANTED" : "DENIED "));
+        return perm;
     }
 
     /**
@@ -154,20 +208,25 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public void syncObjPermissions() {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Sync permission for '%s' object with JCP", objInfo.getObjId()));
+
         try {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Synchronizing permission for object '%s' from JCP", objInfo.getObjId()));
             refreshPermissionsFromJCP();
-        } catch (JCPClient.ConnectionException e) {
-            System.out.println("WAR: Connection error on refresh permissions on JCP");
-            return;
-        } catch (JCPClient.RequestException e) {
-            System.out.println(String.format("WAR: Error on refresh permissions on JCP (%s)", e.getMessage()));
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Permission synchronized for object '%s' from JCP", objInfo.getObjId()));
+
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on synchronizing permissions for object '%s' from JCP because %s", objInfo.getObjId(), e.getMessage()), e);
             return;
         }
 
         try {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Storing permission for object '%s' to local file '%s'", objInfo.getObjId(), locSettings.getPermissionsPath().getPath()));
             savePermissionsToFile();
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Permission stored for object '%s' to local file '%s'", objInfo.getObjId(), locSettings.getPermissionsPath().getPath()));
         } catch (FileException e) {
-            System.out.println(String.format("WAR: error on save permission locally (%s).", e.getMessage()));
+
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on storing permissions for object '%s' to local file because %s", objInfo.getObjId(), e.getMessage()), e);
         }
     }
 
@@ -185,13 +244,20 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     public boolean addPermissions(String usrId, String srvId, PermissionsTypes.Connection connection, PermissionsTypes.Type type) {
-        if (usrId == null || usrId.isEmpty())
+        log.info(Mrk_JOD.JOD_PERM, String.format("Add permission to '%s' object with srvID %s, usrID %s connection '%s' and type '%s'", objInfo.getObjId(), srvId, usrId, connection, type));
+
+        if (usrId == null || usrId.isEmpty()) {
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on adding permission for '%s' object because usrId not set", objInfo.getObjId()));
             return false;
-        if (srvId == null || srvId.isEmpty())
+        }
+        if (srvId == null || srvId.isEmpty()) {
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on adding permission for '%s' object because srvId not set", objInfo.getObjId()));
             return false;
+        }
 
         ObjPermission duplicate = search(srvId, usrId);
         if (duplicate != null) {
+            log.trace(Mrk_JOD.JOD_PERM, String.format("Updating existing permission to '%s' object with srvID %s, usrID %s connection '%s' and type '%s'", objInfo.getObjId(), srvId, usrId, connection, type));
             ObjPermission newPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, connection, type, new Date());
             permissions.remove(duplicate);
             permissions.add(newPerm);
@@ -207,10 +273,22 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     public boolean deletePermissions(String usrId, String srvId) {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Remove permission to '%s' object with srvID %s and usrID %s", objInfo.getObjId(), srvId, usrId));
+
+        if (usrId == null || usrId.isEmpty()) {
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on removing permission for '%s' object because usrId not set", objInfo.getObjId()));
+            return false;
+        }
+        if (srvId == null || srvId.isEmpty()) {
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on removing permission for '%s' object because srvId not set", objInfo.getObjId()));
+            return false;
+        }
+
         ObjPermission duplicate = search(srvId, usrId);
         if (duplicate == null)
             return false;
 
+        // replace existing with (toDELETE) permission
         ObjPermission newDelPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, duplicate.connection, duplicate.type, new Date(0));
         permissions.remove(duplicate);
         permissions.add(newDelPerm);
@@ -247,7 +325,7 @@ public class JODPermissions_002 implements JODPermissions {
 
         if (!jcpPermissions.resetOwner())
             return false;
-        settings.setOwnerId("");
+        locSettings.setOwnerId("");
         return true;
     }
 
@@ -259,18 +337,29 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public void startAutoRefresh() {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Start JODPermissions auto-refresh for '%s' object", objInfo.getObjId()));
+
         if (timer != null)
             return;
 
+        log.debug(Mrk_JOD.JOD_PERM, "Starting auto-refresh permission's timer");
         timer = new Timer(true);
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (jcpClient.isConnected())
+                Thread.currentThread().setName(String.format(TH_SYNC_NAME_FORMAT, objInfo.getObjId()));
+                if (jcpClient.isConnected()) {
+                    log.debug(Mrk_JOD.JOD_PERM, "Synchronizing object's permission to JCP");
                     syncObjPermissions();
+                    log.debug(Mrk_JOD.JOD_PERM, "Object's permission synchronized to JCP");
+                    jcpPrintNotConnected = false;
+                } else if (!jcpPrintNotConnected) {
+                    log.warn(Mrk_JOD.JOD_PERM, String.format("Error on sync object '%s''s permissions to JCP because JCP client not connected", objInfo.getObjId()));
+                    jcpPrintNotConnected = true;
+                }
             }
-        }, 0, settings.getPermissionsRefreshTime() * 1000);
-
+        }, 0, locSettings.getPermissionsRefreshTime() * 1000);
+        log.debug(Mrk_JOD.JOD_PERM, "Auto-refresh permission's timer started");
     }
 
     /**
@@ -278,11 +367,15 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public void stopAutoRefresh() {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Stop JODPermissions auto-refresh for '%s' object", objInfo.getObjId()));
+
         if (timer == null)
             return;
 
+        log.debug(Mrk_JOD.JOD_PERM, "Stopping auto-refresh permission's timer");
         timer.cancel();
         timer = null;
+        log.debug(Mrk_JOD.JOD_PERM, "Auto-refresh permission's timer stopped");
     }
 
 
@@ -296,16 +389,16 @@ public class JODPermissions_002 implements JODPermissions {
     private void loadPermissionsFromFile() throws FileException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            List<ObjPermission> loadedPerms = mapper.readValue(settings.getPermissionsPath(), new TypeReference<List<ObjPermission>>() {});
+            List<ObjPermission> loadedPerms = mapper.readValue(locSettings.getPermissionsPath(), new TypeReference<List<ObjPermission>>() {});
             List<ObjPermission> validatedPerms = new LinkedList<>();
             for (ObjPermission p : loadedPerms)
                 if (p.objId.compareTo(objInfo.getObjId()) == 0)
                     validatedPerms.add(p);
             permissions.addAll(validatedPerms);
         } catch (FileNotFoundException e) {
-            throw new FileException(String.format("Can't find permission file at '%s' path.", settings.getPermissionsPath().getAbsolutePath()), e);
+            throw new FileException(String.format("Can't find permission file at '%s' path.", locSettings.getPermissionsPath().getAbsolutePath()), e);
         } catch (IOException e) {
-            throw new FileException(String.format("Error reading permission file '%s'.", settings.getPermissionsPath().getAbsolutePath()), e);
+            throw new FileException(String.format("Error reading permission file '%s'.", locSettings.getPermissionsPath().getAbsolutePath()), e);
         }
     }
 
@@ -316,9 +409,9 @@ public class JODPermissions_002 implements JODPermissions {
     private void savePermissionsToFile() throws FileException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            mapper.writerWithDefaultPrettyPrinter().writeValue(settings.getPermissionsPath(), permissions);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(locSettings.getPermissionsPath(), permissions);
         } catch (IOException e) {
-            throw new FileException(String.format("Error writing permission file '%s'.", settings.getPermissionsPath().getAbsolutePath()), e);
+            throw new FileException(String.format("Error writing permission file '%s'.", locSettings.getPermissionsPath().getAbsolutePath()), e);
         }
     }
 

@@ -8,7 +8,7 @@ import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -146,16 +146,16 @@ public class CertSharingSSLServer implements Server {
         SSLCertServer.SSLCertServerListener certListener = new SSLCertServer.SSLCertServerListener() {
             @Override
             public void onCertificateSend(ClientInfo client) {
-                log.debug(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' send certificate to client '%s'", getServerId(), client.getClientId()));
+                log.debug(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server '%s' send certificate to client '%s'", getServerId(), client.getClientId()));
             }
 
             @Override
             public void onCertificateStored(AbsCustomTrustManager certTrustManager, ClientInfo client) {
-                log.debug(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' stored certificate from client '%s'", getServerId(), client.getClientId()));
+                log.debug(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server '%s' stored certificate from client '%s'", getServerId(), client.getClientId()));
                 try {
                     updateAndStoreKeyStore();
                 } catch (UtilsJKS.LoadingException | UtilsJKS.StoreException e) {
-                    log.warn(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' can't store keystore on file '%s'", getServerId(), keyStorePath));
+                    log.warn(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server '%s' can't store keystore on file '%s'", getServerId(), keyStorePath));
                 }
             }
         };

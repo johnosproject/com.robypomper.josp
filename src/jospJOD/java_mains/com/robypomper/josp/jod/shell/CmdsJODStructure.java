@@ -5,8 +5,8 @@ import com.robypomper.josp.jod.structure.DefaultJODComponentPath;
 import com.robypomper.josp.jod.structure.JODAction;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODComponentPath;
+import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jod.structure.UtilsStructure;
-import com.robypomper.josp.jod.systems.JODStructure;
 
 public class CmdsJODStructure {
 

@@ -1,8 +1,13 @@
-package com.robypomper.josp.jsl.systems;
+package com.robypomper.josp.jsl.srvinfo;
 
 import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.jsl.srvinfo.JCPServiceInfo;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -19,6 +24,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JSL_002.Settings locSettings;
     private final JCPServiceInfo jcpSrvInfo;
     private JSLUserMngr userMngr;
@@ -40,18 +46,21 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      * @param instanceId the service instance id.
      */
     public JSLServiceInfo_002(JSL_002.Settings settings, JCPClient_Service jcpClient, String instanceId) {
-        System.out.println("DEB: JSL Service Info initialization...");
         this.locSettings = settings;
-        this.jcpSrvInfo = new JCPServiceInfo(jcpClient);
         this.instanceId = instanceId;
+        this.jcpSrvInfo = new JCPServiceInfo(jcpClient);
 
         // force value caching
+        log.debug(Mrk_JSL.JSL_INFO, "Getting service's id and name");
         String srvId = getSrvId();
         getSrvName(!jcpClient.isConnected());
+        log.debug(Mrk_JSL.JSL_INFO, "Service's id and name got");
 
+        log.debug(Mrk_JSL.JSL_INFO, "Setting service's id to JCPClient");
         jcpClient.setServiceId(srvId);
+        log.debug(Mrk_JSL.JSL_INFO, "Service's id set to JCPClient");
 
-        System.out.println("DEB: JSL Service Info initialized");
+        log.info(Mrk_JSL.JSL_INFO, String.format("Initialized JSLServiceInfo instance for '%s' service with '%s' id", getSrvName(), getSrvId()));
     }
 
 
@@ -82,20 +91,22 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public String getSrvId() {
-        if (locSettings.getSrvId().isEmpty()) {
-            try {
-                locSettings.setSrvId(jcpSrvInfo.getId());
+        if (!locSettings.getSrvId().isEmpty())
+            return locSettings.getSrvId();
 
-            } catch (Throwable ignore) {
-                if (!locSettings.getSrvId().isEmpty())
-                    return locSettings.getSrvId();
+        String gen;
+        try {
+            log.debug(Mrk_JSL.JSL_INFO, "Getting service id from JCP");
+            gen = jcpSrvInfo.getId();
+            log.debug(Mrk_JSL.JSL_INFO, String.format("Service id '%s' get from JCP", gen));
 
-                System.out.println("Service must be online at his first boot to get his id and other service's staffs.");
-                return SRVID_OFFLINE;
-            }
+        } catch (Throwable e) {
+            log.warn(Mrk_JSL.JSL_INFO, String.format("Error on getting service id from JCP because %s", e.getMessage()), e);
+            return SRVID_OFFLINE;
         }
 
-        return locSettings.getSrvId();
+        locSettings.setSrvId(gen);
+        return gen;
     }
 
     /**
@@ -114,20 +125,22 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      * @return the service's name.
      */
     public String getSrvName(boolean cached) {
-        if (!cached || locSettings.getSrvName().isEmpty())
-            try {
-                locSettings.setSrvName(jcpSrvInfo.getName());
+        if (!locSettings.getSrvName().isEmpty() && cached)
+            return locSettings.getSrvName();
 
-            } catch (Throwable ignore) {
-                if (!locSettings.getSrvName().isEmpty())
-                    return locSettings.getSrvName();
+        String gen;
+        try {
+            log.debug(Mrk_JSL.JSL_INFO, "Getting service name from JCP");
+            gen = jcpSrvInfo.getName();
+            log.debug(Mrk_JSL.JSL_INFO, String.format("Service name '%s' get from JCP", gen));
 
-                System.out.println("Service must be online at his first boot to get his name and other service's staffs.");
-                ignore.printStackTrace();
-                return SRVNAME_OFFLINE;
-            }
+        } catch (Throwable e) {
+            log.warn(Mrk_JSL.JSL_INFO, String.format("Error on getting service name from JCP because %s", e.getMessage()), e);
+            return SRVNAME_OFFLINE;
+        }
 
-        return locSettings.getSrvName();
+        locSettings.setSrvName(gen);
+        return gen;
     }
 
 
@@ -138,6 +151,9 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public boolean isUserLogged() {
+        if (userMngr == null)
+            throw new SystemNotSetException("UserMngr");
+
         return userMngr.isUserAuthenticated();
     }
 
@@ -146,6 +162,9 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public String getUserId() {
+        if (userMngr == null)
+            throw new SystemNotSetException("UserMngr");
+
         return userMngr.getUserId();
     }
 
@@ -154,6 +173,9 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public String getUsername() {
+        if (userMngr == null)
+            throw new SystemNotSetException("UserMngr");
+
         return userMngr.getUsername();
     }
 
@@ -186,6 +208,9 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public int getConnectedObjectsCount() {
+        if (objs == null)
+            throw new SystemNotSetException("ObjsMngr");
+
         return objs.getAllConnectedObjects().size();
     }
 
@@ -194,6 +219,9 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public int getKnownObjectsCount() {
+        if (objs == null)
+            throw new SystemNotSetException("ObjsMngr");
+
         return objs.getAllObjects().size();
     }
 

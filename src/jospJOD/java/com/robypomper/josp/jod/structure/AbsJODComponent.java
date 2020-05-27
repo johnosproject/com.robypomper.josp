@@ -1,6 +1,8 @@
 package com.robypomper.josp.jod.structure;
 
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -17,6 +19,7 @@ public abstract class AbsJODComponent implements JODComponent {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JODStructure structure;
     private JODContainer parent = null;
     private final String name;
@@ -38,6 +41,8 @@ public abstract class AbsJODComponent implements JODComponent {
         this.structure = structure;
         this.name = name;
         this.descr = descr != null ? descr : "";
+
+        log.info(Mrk_JOD.JOD_STRU_SUB, String.format("Initialized JODComponent/%s instance for '%s' component", this.getClass().getSimpleName(), name));
     }
 
 

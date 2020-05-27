@@ -3,23 +3,21 @@ package com.robypomper.josp.jod.comm;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.systems.JODCommunication;
-import com.robypomper.josp.jod.systems.JODCommunication_002;
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
-import com.robypomper.josp.jod.systems.JODPermissions;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.permissions.JODPermissions;
+import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
+import com.robypomper.josp.jsl.comm.JSLCommunication_002;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
-import com.robypomper.josp.jsl.systems.JSLCommunication_002;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr_002;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
-import com.robypomper.josp.jsl.systems.JSLUserMngr;
-import com.robypomper.log.Markers;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -62,8 +60,8 @@ public class JOSPCommunicationIntegration {
 
     @BeforeEach
     public void setUp() {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Create test dir
         File testDirFiles = new File(TEST_FILES_PREFIX);
@@ -86,7 +84,7 @@ public class JOSPCommunicationIntegration {
         //jslObjsMngr = new MockJSLObjsMngr_002();
         jslObjsMngr = new JSLObjsMngr_002(jslSettings, srvInfo);
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
@@ -257,7 +255,7 @@ public class JOSPCommunicationIntegration {
             }
         } catch (InterruptedException ignore) {}
 
-        for (JSLLocalClient c : jslComm.getAllLocalClients())
+        for (JSLLocalClient c : jslComm.getAllLocalServers())
             System.out.println(c.getClientId() + "\t" + c.getObjId() + "\t" + c.getServerAddr() + "\t" + c.getServerPort() + "\t" + c.isConnected());
 
 //        Assertions.assertEquals(ntwkIntfs, getJODLocConnCount(jodComm));
@@ -287,12 +285,12 @@ public class JOSPCommunicationIntegration {
     }
 
     private int getJSLLocConnCount(JSLCommunication jslComm) {
-        return jslComm.getAllLocalClients().size();
+        return jslComm.getAllLocalServers().size();
     }
 
     private int getJSLLocConnConnectedCount(JSLCommunication jslComm) {
         int count = 0;
-        for (JSLLocalClient conn : jslComm.getAllLocalClients())
+        for (JSLLocalClient conn : jslComm.getAllLocalServers())
             if (conn.isConnected())
                 count++;
         return count;

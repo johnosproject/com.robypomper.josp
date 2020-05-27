@@ -5,7 +5,7 @@ import com.robypomper.communication.server.events.LatchServerLocalEventsListener
 import com.robypomper.communication.server.events.LatchServerMessagingEventsListener;
 import com.robypomper.communication.server.standard.EchoServer;
 import com.robypomper.communication.server.standard.LogServer;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -45,8 +45,8 @@ public class DefaultServerTest_Base {
 
     @BeforeEach
     public void setUp() {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Init test server
         serverLog = new LogServer(ID_SERVER, ++port);
@@ -57,12 +57,12 @@ public class DefaultServerTest_Base {
         latchSME = new LatchServerMessagingEventsListener();
         serverLatch = new DefaultServer(ID_SERVER, port, latchSLE, latchSCE, latchSME);
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
     public void tearDown() {
-        log.debug(Markers.TEST_METHODS, "tearDown");
+        log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still running, stop test server
         if (serverLog.isRunning())
@@ -87,9 +87,9 @@ public class DefaultServerTest_Base {
     }
 
     public static void printClientInfoList(List<ClientInfo> clients) {
-        log.debug(Markers.TEST_METHODS, "Client list:");
+        log.debug(Mrk_Test.TEST_METHODS, "Client list:");
         for (ClientInfo c : clients)
-            log.debug(Markers.TEST_METHODS, String.format("\t%s @ %s", c.getClientId(), c.getPeerFullAddress()));
+            log.debug(Mrk_Test.TEST_METHODS, String.format("\t%s @ %s", c.getClientId(), c.getPeerFullAddress()));
     }
 
     @SuppressWarnings("SameParameterValue")

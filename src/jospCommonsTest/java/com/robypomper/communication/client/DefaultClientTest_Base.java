@@ -4,7 +4,7 @@ import com.robypomper.communication.client.events.LatchClientLocalEventsListener
 import com.robypomper.communication.client.events.LatchClientMessagingEventsListener;
 import com.robypomper.communication.client.events.LatchClientServerEventsListener;
 import com.robypomper.communication.client.standard.LogClient;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -35,8 +35,8 @@ public class DefaultClientTest_Base {
 
     @BeforeEach
     public void setUp() {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Init test client
         clientLog = new LogClient(ID_CLIENT, LOCALHOST, ++port);
@@ -46,12 +46,12 @@ public class DefaultClientTest_Base {
         latchCME = new LatchClientMessagingEventsListener();
         clientLatch = new DefaultClient(ID_CLIENT, LOCALHOST, port, latchCLE, latchCSE, latchCME);
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
     public void tearDown() {
-        log.debug(Markers.TEST_METHODS, "tearDown");
+        log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still running, stop test server
         if (clientLog.isConnected())

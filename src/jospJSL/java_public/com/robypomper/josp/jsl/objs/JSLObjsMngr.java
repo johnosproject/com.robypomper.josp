@@ -1,9 +1,8 @@
-package com.robypomper.josp.jsl.systems;
+package com.robypomper.josp.jsl.objs;
 
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.jsl.objs.JSLObjectSearchPattern;
-import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
 import java.util.List;
 
@@ -70,9 +69,9 @@ public interface JSLObjsMngr {
      * <p>
      * If there is no {@link JSLRemoteObject} yet, it will be created.
      *
-     * @param localConnection the open local connection to JOD object.
+     * @param serverConnection the open local connection to JOD object.
      */
-    void addNewConnection(JSLLocalClient localConnection);
+    void addNewConnection(JSLLocalClient serverConnection);
 
     /**
      * Remove given connection to corresponding {@link JSLRemoteObject}.
