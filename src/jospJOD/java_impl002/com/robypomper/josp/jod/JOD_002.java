@@ -176,6 +176,7 @@ public class JOD_002 extends AbsJOD {
         }
 
         private void store(String property, String value) {
+            properties.put(property, value);
             if (file == null) {
                 if (!errorAlreadyPrinted) {
                     log.error(Mrk_JOD.JOD_MAIN, "Can't store configs on file, because settings are loaded from properties.");
@@ -183,7 +184,6 @@ public class JOD_002 extends AbsJOD {
                 }
                 return;
             }
-            properties.put(property, value);
 
             FileWriter writer = null;
             try {
