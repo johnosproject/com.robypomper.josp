@@ -121,15 +121,10 @@ public class DefaultSSLServer extends DefaultServer {
         if (clientId == null)
             clientId = String.format(ID_CLI_FORMAT, socket.getInetAddress(), socket.getPort());
 
-        String clientId = id;
-        String clientId4ThName = clientId.startsWith("CL-") ? clientId.substring(3) : clientId;
-        String thName = String.format(TH_CLI_NAME_FORMAT, clientId4ThName, getServerId());
-
-        DefaultClientInfo clientInfo = new DefaultClientInfo(socket, clientId);
+        log.info(Mrk_Commons.COMM_SSL_SRV, String.format("Connect client '%s' to '%s' server", clientId, getServerId()));
+        DefaultClientInfo clientInfo = new DefaultClientInfo(socket, clientId, getServerId());
         Thread clientThread = new Thread(() -> processClient(clientInfo));
-        clientInfo.setThread(clientThread);
-        clientThread.setName(thName);
-        clientThread.start();
+        clientInfo.startThread(clientThread);
 
         return clientInfo;
     }

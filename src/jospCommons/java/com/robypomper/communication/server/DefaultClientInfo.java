@@ -14,6 +14,11 @@ import java.net.Socket;
  */
 public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
 
+    // Class constants
+
+    public static final String TH_CLI_NAME_FORMAT = "_CLI_%s@%s";
+
+
     // Internal vars
 
     protected static final Logger log = LogManager.getLogger();
@@ -57,16 +62,20 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
     // Thread getters
 
     /**
-     * Set the client processor thread.
+     * Set and start the client processor thread.
      * <p>
      * This method can be called only one time.
      *
      * @param thread the thread that process data received from the client.
      */
-    public void setThread(Thread thread) {
+    public void startThread(Thread thread) {
         if (this.thread != null)
             throw new IllegalArgumentException("Thread can be set only once");
+
         this.thread = thread;
+        thread.setName(String.format(TH_CLI_NAME_FORMAT, getClientId(), serverId));
+        log.debug(Mrk_Commons.COMM_SRV, String.format("Starting thread client processor for '%s' client", clientId));
+        thread.start();
     }
 
     /**
@@ -103,7 +112,26 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
             log.trace(Mrk_Commons.COMM_SRV, String.format("Closing client '%s' socket", getClientId()));
             getSocket().close();
         } catch (IOException e) {
-            return false;
+            log.warn(Mrk_Commons.COMM_SRV, String.format("Error on close client '%s' socket because %s ", getClientId(), e.getMessage()), e);
+        }
+
+        // Join server thread
+        if (!Thread.currentThread().equals(thread)) {
+
+            log.debug(Mrk_Commons.COMM_SRV, String.format("Terminating thread client processor '%s'", thread.getName()));
+
+            try {
+                thread.join(1000);
+
+            } catch (InterruptedException e) {
+                if (thread.isAlive())
+                    log.warn(Mrk_Commons.COMM_SRV, String.format("Thread client processor '%s' not terminated because %s", thread.getName(), e.getMessage()), e);
+            }
+
+            if (!thread.isAlive())
+                log.debug(Mrk_Commons.COMM_SRV, String.format("Thread client processor '%s' stopped", thread.getName()));
+            else
+                log.warn(Mrk_Commons.COMM_SRV, String.format("Thread client processor '%s' NOT stopped", thread.getName()));
         }
 
 

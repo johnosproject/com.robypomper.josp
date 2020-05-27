@@ -324,11 +324,9 @@ public class DefaultServer implements Server {
 
         DefaultClientInfo clientInfo = new DefaultClientInfo(socket, clientId, getServerId());
         Thread clientThread = new Thread(() -> processClient(clientInfo));
-        clientInfo.setThread(clientThread);
-        clientThread.setName(String.format(TH_CLI_NAME_FORMAT, clientId.substring(3), getServerId()));
-        clientThread.start();
+        clientInfo.startThread(clientThread);
 
-        return new DefaultClientInfo(socket, clientId);
+        return clientInfo;
     }
 
 
