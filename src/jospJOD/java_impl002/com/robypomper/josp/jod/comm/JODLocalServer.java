@@ -90,6 +90,21 @@ public class JODLocalServer implements Server {
     }
 
     /**
+     * Return the {@link JODLocalClientInfo} of the given <code>serviceId</code>.
+     *
+     * @param serviceId the required service's id.
+     * @return the {@link JODLocalClientInfo} or <code>null</code> if given id
+     * not found.
+     */
+    private JODLocalClientInfo getLocalConnectionByServiceId(String serviceId) {
+        for (JODLocalClientInfo conn : localClients)
+            if (conn.getClientId().equals(serviceId))
+                return conn;
+
+        return null;
+    }
+
+    /**
      * Return the {@link JODLocalClientInfo} of the given <code>clientId</code>.
      *
      * @param clientFullAddress the required client's id.
@@ -153,7 +168,9 @@ public class JODLocalServer implements Server {
      * @param client the disconnected client's info.
      */
     private void onClientDisconnection(ClientInfo client) {
-        JODLocalClientInfo locConn = getLocalConnectionByClientId(client.getClientId());
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' from '%s' object", client.getPeerFullAddress(), client.getClientId(), objId));
+
+        JODLocalClientInfo locConn = getLocalConnectionByServiceId(client.getClientId());
         if (locConn == null) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' was not present in '%s' object registered clients list", client.getPeerFullAddress(), client.getClientId(), objId));
             return;
@@ -187,7 +204,7 @@ public class JODLocalServer implements Server {
             return true;
 
         // Service requests
-        String responseOrError = communication.processServiceRequest(getLocalConnectionByClientId(client.getClientId()), readData);
+        String responseOrError = communication.processServiceRequest(getLocalConnectionByServiceId(client.getClientId()), readData);
         if (responseOrError != null) {
             log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Sending response for service request '%s...' to client '%s' from '%s' object", readData.substring(0, 10), client.getClientId(), objId));
             try {
