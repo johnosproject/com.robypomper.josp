@@ -1,4 +1,4 @@
-package com.robypomper.josp.jsl.systems;
+package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;

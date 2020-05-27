@@ -1,4 +1,4 @@
-package com.robypomper.josp.jsl.systems;
+package com.robypomper.josp.jsl.objs;
 
 import com.robypomper.josp.jsl.JSL_002;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
