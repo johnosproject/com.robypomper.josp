@@ -1,6 +1,6 @@
 package com.robypomper.communication.client.events;
 
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Log implementation of the {@link ClientLocalEvents}.
  * <p>
- * The log implementations log all events with {@link Markers#COMM_CL_IMPL} marker.
+ * The log implementations log all events with {@link Mrk_Commons#COMM_CL_IMPL} marker.
  */
 public class LogClientLocalEventsListener extends DefaultClientEvents implements ClientLocalEvents {
 
@@ -24,7 +24,7 @@ public class LogClientLocalEventsListener extends DefaultClientEvents implements
      */
     @Override
     public void onConnected() {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onConnected()", getClient().getClientId()));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onConnected()", getClient().getClientId()));
     }
 
 
@@ -35,7 +35,7 @@ public class LogClientLocalEventsListener extends DefaultClientEvents implements
      */
     @Override
     public void onDisconnected() {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDisconnected()", getClient().getClientId()));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDisconnected()", getClient().getClientId()));
     }
 
     /**
@@ -43,7 +43,7 @@ public class LogClientLocalEventsListener extends DefaultClientEvents implements
      */
     @Override
     public void onDisconnectionError(Exception e) {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDisconnectionError([%s] %s)", getClient().getClientId(), e.getClass(), e.getMessage()));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDisconnectionError([%s] %s)", getClient().getClientId(), e.getClass(), e.getMessage()));
     }
 
 }

@@ -3,6 +3,9 @@ package com.robypomper.josp.core.jcpclient;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -23,6 +26,7 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private String code = null;
 
 
@@ -47,6 +51,8 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      */
     @Override
     protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException {
+        log.debug(Mrk_Commons.COMM_JCPCL, "Getting the JCPClient access token");
+
         if (getLoginCode() == null && getRefreshToken() == null)
             throw new ConnectionException("Before request the access token, must be set the authentication code or the refresh token.");
         final String code = getLoginCode();
@@ -59,9 +65,11 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
                 accessToken = service.refreshAccessToken(getRefreshToken());
 
         } catch (IOException | InterruptedException | ExecutionException | OAuth2AccessTokenErrorResponse e) {
-            throw new ConnectionException(String.format("Error requiring the access token because %s.", e.getMessage()), e);
+            log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on getting the JCPClient access token because %s", e.getMessage()), e);
+            throw new ConnectionException("Error on getting the access token", e);
         }
 
+        log.debug(Mrk_Commons.COMM_JCPCL, "JCPClient access token got");
         return accessToken;
     }
 
@@ -96,14 +104,19 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      * {@link #getLoginUrl()} method, it must be set to the JCPClient instance.
      */
     public boolean setLoginCode(String code) {
+        log.debug(Mrk_Commons.COMM_JCPCL, "Setting JCPClient login code");
+
         this.code = code;
         try {
             connect();
 
         } catch (ConnectionException e) {
+            log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on connecting after code set because %s", e.getMessage()), e);
+            this.code = null;
             return false;
         }
 
+        log.debug(Mrk_Commons.COMM_JCPCL, String.format("JCPClient login code set and%s connected", isConnected() ? "" : "NOT "));
         return isConnected();
     }
 

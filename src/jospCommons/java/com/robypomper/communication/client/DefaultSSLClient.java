@@ -4,7 +4,7 @@ import com.robypomper.communication.UtilsSSL;
 import com.robypomper.communication.client.events.ClientLocalEvents;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -85,7 +85,7 @@ public class DefaultSSLClient extends DefaultClient {
      * @return the ServerSocket instance.
      */
     protected Socket generateAndBoundClientSocket() throws IOException {
-        log.debug(Markers.COMM_CL, String.format("client '%s' initialized as SSL TCP client for '%s:%d' server", getClientId(), getServerAddr(), getServerPort()));
+        log.debug(Mrk_Commons.COMM_SSL_CL, String.format("client '%s' initialized as SSL TCP client for '%s:%d' server", getClientId(), getServerAddr(), getServerPort()));
         SSLSocket s = (SSLSocket) sslCtx.getSocketFactory().createSocket(getServerAddr(), getServerPort());
         s.startHandshake();
         return s;
@@ -107,8 +107,8 @@ public class DefaultSSLClient extends DefaultClient {
             id = UtilsSSL.getPeerId(sslSocket, log);
 
         } catch (Throwable t) {
-            log.warn(Markers.COMM_SSL_CL, String.format("Can't get server id from SSL session because %s", t.getMessage()));
-            log.debug(Markers.COMM_SSL_CL, "Close connection to server");
+            log.warn(Mrk_Commons.COMM_SSL_CL, String.format("Can't get server id from SSL session because %s", t.getMessage()));
+            log.debug(Mrk_Commons.COMM_SSL_CL, "Close connection to server");
             try {
                 socket.close();
             } catch (IOException ignore) {}

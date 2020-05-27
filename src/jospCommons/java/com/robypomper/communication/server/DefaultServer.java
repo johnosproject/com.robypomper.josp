@@ -5,12 +5,11 @@ import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,8 +28,7 @@ public class DefaultServer implements Server {
 
     // Class constants
 
-    public static final String TH_SRV_NAME_FORMAT = "SRV-%s";
-    public static final String TH_CLI_NAME_FORMAT = "CLI-%s@%s";
+    public static final String TH_SRV_NAME_FORMAT = "_SRV_%s";
     public static final String ID_CLI_FORMAT = "CL-%s:%d";
     public static final String MSG_BYE_SRV_STR = "byesrv";
     public static final byte[] MSG_BYE_SRV = MSG_BYE_SRV_STR.getBytes(PeerInfo.CHARSET);
@@ -88,6 +86,13 @@ public class DefaultServer implements Server {
             throw new IllegalArgumentException("DefaultServer can't be initialized with a null ServerMessagingEvents param.");
         this.sme = serverMessagingEventsListener;
         this.sme.setServer(this);
+
+        log.info(Mrk_Commons.COMM_SRV, String.format("Initialized DefaultServer/%s instance for '%s' server on '%d' port", this.getClass().getSimpleName(), getServerId(), getPort()));
+        log.debug(Mrk_Commons.COMM_SRV, String.format("                                          with %s, %s and %s listeners",
+                sle != null ? sle.getClass() : "no SLE",
+                sce != null ? sce.getClass() : "no SCE",
+                sme.getClass()
+        ));
     }
 
 
@@ -126,23 +131,24 @@ public class DefaultServer implements Server {
     @Override
     public void start() throws ListeningException {
         if (isRunning()) {
-            log.warn(Markers.COMM_SRV, String.format("Server '%s' already started", getServerId()));
+            log.warn(Mrk_Commons.COMM_SRV, String.format("Server '%s' already started", getServerId()));
             return;
         }
 
-        log.info(Markers.COMM_SRV, String.format("Starting server '%s'", getServerId()));
+        log.info(Mrk_Commons.COMM_SRV, String.format("Start server '%s' of '%s' on port '%d'", getServerId(), this.getClass().getSimpleName(), getPort()));
 
         try {
             serverSocket = generateAndBoundServerSocket();
         } catch (IOException e) {
+            log.warn(Mrk_Commons.COMM_SRV, String.format("Error on starting server '%s' because %s", getServerId(), e.getMessage()), e);
             throw new ListeningException(String.format("Can't start server '%s' because %s", getServerId(), e.getMessage()));
         }
 
         serverThread = new Thread(this::infiniteLoop);
         serverThread.setName(String.format(TH_SRV_NAME_FORMAT, getServerId()));
+        log.debug(Mrk_Commons.COMM_SRV, String.format("Starting thread server loop for '%s' server", getServerId()));
         serverThread.start();
 
-        log.info(Markers.COMM_SRV, String.format("Server '%s' started successfully", getServerId()));
         if (sle != null) sle.onStarted();
     }
 
@@ -152,11 +158,11 @@ public class DefaultServer implements Server {
     @Override
     public void stop() {
         if (!isRunning()) {
-            log.warn(Markers.COMM_SRV, String.format("Server '%s' already stopped", getServerId()));
+            log.warn(Mrk_Commons.COMM_SRV, String.format("Server '%s' already stopped", getServerId()));
             return;
         }
 
-        log.info(Markers.COMM_SRV, String.format("Stopping server '%s'", getServerId()));
+        log.info(Mrk_Commons.COMM_SRV, String.format("Halt server '%s'", getServerId()));
 
         // Terminate server thread
         mustShutdown = true;
@@ -166,7 +172,7 @@ public class DefaultServer implements Server {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            log.warn(Markers.COMM_SRV, String.format("Lister socket for server '%s' not closed", getServerId()));
+            log.warn(Mrk_Commons.COMM_SRV, String.format("Lister socket for server '%s' not closed", getServerId()));
             if (sle != null) sle.onStopError(e);
         }
 
@@ -174,27 +180,23 @@ public class DefaultServer implements Server {
         try {
             serverThread.join(1000);
 
-
         } catch (InterruptedException e) {
             if (serverThread.isAlive()) {
-                log.warn(Markers.COMM_SRV, String.format("Thread for server '%s' not terminated", getServerId()));
+                log.warn(Mrk_Commons.COMM_SRV, String.format("Thread server loop '%s' not terminated", serverThread.getName()));
                 if (sle != null) sle.onStopError(e);
             }
         }
 
         if (!serverThread.isAlive()) {
-            log.info(Markers.COMM_SRV, String.format("Server '%s' stopped successfully", getServerId()));
             if (sle != null) sle.onStopped();
+            log.debug(Mrk_Commons.COMM_SRV, String.format("Thread server loop '%s' stopped", serverThread.getName()));
         }
 
         // Disconnect clients
         for (ClientInfo c : getClients())
-            if (c.isConnected()) {
-                if (c.closeConnection())
-                    log.debug(Markers.COMM_SRV, String.format("Client '%s' disconnected", c.getClientId()));
-                else
-                    log.debug(Markers.COMM_SRV, String.format("Client '%s' not disconnected", c.getClientId()));
-            }
+            if (c.isConnected())
+                if (!c.closeConnection())
+                    log.warn(Mrk_Commons.COMM_SRV, String.format("Client '%s' NOT disconnected", c.getClientId()));
 
         // Reset internal vars
         serverSocket = null;
@@ -227,7 +229,8 @@ public class DefaultServer implements Server {
             throw new ClientNotConnectedException(client.getClientId(), e);
         }
 
-        log.debug(Markers.COMM_SRV, String.format("Server '%s' send to client '%s' data '%s...'", getServerId(), client.getClientId(), new String(data, PeerInfo.CHARSET).substring(0, 10)));
+        String dataStr = new String(data, PeerInfo.CHARSET);
+        log.trace(Mrk_Commons.COMM_SRV, String.format("Server '%s' send to client '%s' data '%s...'", getServerId(), client.getClientId(), dataStr.substring(0, Math.min(dataStr.length(), 10))));
         sme.onDataSend(client, data);
         sme.onDataSend(client, new String(data, PeerInfo.CHARSET));
     }
@@ -304,8 +307,10 @@ public class DefaultServer implements Server {
      * @return the ServerSocket instance.
      */
     protected ServerSocket generateAndBoundServerSocket() throws IOException {
-        log.debug(Markers.COMM_SRV, String.format("server '%s' initialized as TCP server on port '%d'", getServerId(), getPort()));
-        return new ServerSocket(getPort());
+        log.debug(Mrk_Commons.COMM_SRV, String.format("Bounding server '%s' as TCP server on port '%d'", getServerId(), getPort()));
+        ServerSocket s = new ServerSocket(getPort());
+        log.debug(Mrk_Commons.COMM_SRV, String.format("Server '%s' bounded", getServerId()));
+        return s;
     }
 
     /**
@@ -315,8 +320,9 @@ public class DefaultServer implements Server {
      */
     protected ClientInfo generateAndStartClientInfo(Socket socket) {
         String clientId = String.format(ID_CLI_FORMAT, socket.getInetAddress(), socket.getPort());
+        log.info(Mrk_Commons.COMM_SRV, String.format("Connect client '%s' to '%s' server", clientId, getServerId()));
 
-        DefaultClientInfo clientInfo = new DefaultClientInfo(socket, clientId);
+        DefaultClientInfo clientInfo = new DefaultClientInfo(socket, clientId, getServerId());
         Thread clientThread = new Thread(() -> processClient(clientInfo));
         clientInfo.setThread(clientThread);
         clientThread.setName(String.format(TH_CLI_NAME_FORMAT, clientId.substring(3), getServerId()));
@@ -337,10 +343,8 @@ public class DefaultServer implements Server {
      * array.
      */
     private void infiniteLoop() {
-        log.debug(Markers.COMM_SRV, String.format("server '%s' loop thread '%s' started", getServerId(), Thread.currentThread().getName()));
-
+        log.debug(Mrk_Commons.COMM_SRV, String.format("Thread server loop '%s' started for '%s' server", Thread.currentThread().getName(), getServerId()));
         mustShutdown = false;
-
         while (!mustShutdown) {
             try {
                 ClientInfo newClient = generateAndStartClientInfo(serverSocket.accept());
@@ -352,14 +356,16 @@ public class DefaultServer implements Server {
 
             } catch (IOException e) {
                 if (!mustShutdown && !serverSocket.isClosed()) {
-                    log.warn(Markers.COMM_SRV, String.format("Server '%s' loop interrupted because %s", getServerId(), e.getMessage()));
+                    log.warn(Mrk_Commons.COMM_SRV, String.format("Thread server loop '%s' interrupted because %s", getServerId(), e.getMessage()));
                     if (sle != null) sle.onServerError(e);
                 }
+
+                log.debug(Mrk_Commons.COMM_SRV, String.format("Terminating thread server loop '%s'", Thread.currentThread().getName()));
                 break;
             }
         }
 
-        log.debug(Markers.COMM_SRV, String.format("server '%s' loop thread terminated", getServerId()));
+        log.trace(Mrk_Commons.COMM_SRV, String.format("Thread server loop '%s' terminated", Thread.currentThread().getName()));
     }
 
     /**
@@ -372,18 +378,17 @@ public class DefaultServer implements Server {
      */
     @SuppressWarnings("JavadocReference")
     protected void processClient(DefaultClientInfo client) {
-        log.debug(Markers.COMM_SRV, String.format("client '%s' processor thread '%s' started", client.getClientId(), Thread.currentThread().getName()));
-
         // Get client's input stream
         DataInputStream in;
         try {
             in = client.getInStream();
         } catch (PeerInfo.PeerNotConnectedException | PeerInfo.PeerStreamsException e) {
-            log.error(Markers.COMM_SRV, String.format("Client processor can't get input stream from client '%s' because %s", client, e.getMessage()));
+            log.error(Mrk_Commons.COMM_SRV, String.format("Client processor can't get input stream from client '%s' because %s", client, e.getMessage()));
             if (sce != null) sce.onClientError(client, e);
             return;
         }
 
+        log.debug(Mrk_Commons.COMM_SRV, String.format("Thread client processor '%s'  started for client '%s'", Thread.currentThread().getName(), client.getClientId()));
         boolean clientSendByeMsg = false;
         while (!mustShutdown) {
             try {
@@ -416,13 +421,13 @@ public class DefaultServer implements Server {
 
                     if (!sme.onDataReceived(client, dataRead))
                         if (!sme.onDataReceived(client, new String(dataRead, PeerInfo.CHARSET))) {
-                            log.warn(Markers.COMM_SRV, String.format("Client processor can't process data from '%s' data because unknown data", client));
-                            log.debug(Markers.COMM_SRV, String.format("(dataRx: %s)", new String(dataRead, PeerInfo.CHARSET)));
+                            log.warn(Mrk_Commons.COMM_SRV, String.format("Client processor can't process data from '%s' data because unknown data", client));
+                            log.debug(Mrk_Commons.COMM_SRV, String.format("                                   (dataRx: %s)", new String(dataRead, PeerInfo.CHARSET)));
                         }
 
                 } catch (Throwable e) {
-                    log.warn(Markers.COMM_SRV, String.format("Client processor can't process data from '%s' because %s", client, e.getMessage()));
-                    log.debug(Markers.COMM_SRV, String.format("(dataRx: '%s')", new String(dataRead, PeerInfo.CHARSET)));
+                    log.warn(Mrk_Commons.COMM_SRV, String.format("Client processor can't process data from '%s' because %s", client, e.getMessage()));
+                    log.debug(Mrk_Commons.COMM_SRV, String.format("                                   (dataRx: '%s')", new String(dataRead, PeerInfo.CHARSET)));
                     if (sce != null) sce.onClientError(client, e);
                 }
 
@@ -431,12 +436,12 @@ public class DefaultServer implements Server {
                     break;
 
                 if ((e instanceof SSLException && e.getMessage().startsWith("Received fatal alert: internal_error"))) {
-                    log.warn(Markers.COMM_SRV, String.format("Client '%s' can't connect, wait for sharing certificate with server '%s'", client.getClientId(), getServerId()));
+                    log.warn(Mrk_Commons.COMM_SRV, String.format("Client '%s' can't connect, wait for sharing certificate with server '%s'", client.getClientId(), getServerId()));
                     break;
                 }
 
                 // Rx error, but not client closed
-                log.warn(Markers.COMM_SRV, String.format("Server can't read data from client '%s' because %s", client.getClientId(), e.getMessage()));
+                log.warn(Mrk_Commons.COMM_SRV, String.format("Server can't read data from client '%s' because %s", client.getClientId(), e.getMessage()));
                 if (sce != null) sce.onClientError(client, e);
 
                 if ((e instanceof SocketException && e.getMessage().equals("Connection reset"))) {
@@ -445,7 +450,11 @@ public class DefaultServer implements Server {
             }
         }
 
+        if (!mustShutdown)
+            log.debug(Mrk_Commons.COMM_SRV, String.format("Self terminating thread client processor '%s'", Thread.currentThread().getName()));
+
         // Client disconnection events
+        log.info(Mrk_Commons.COMM_SRV, String.format("Disconnect client '%s' to '%s' server", client.getClientId(), getServerId()));
         clients.remove(client);
         if (sce != null) {
             if (clientSendByeMsg) {
@@ -461,7 +470,10 @@ public class DefaultServer implements Server {
             sce.onClientDisconnection(client);
         }
 
-        log.debug(Markers.COMM_SRV, String.format("client '%s' processor thread terminated", client));
+        log.trace(Mrk_Commons.COMM_SRV, String.format("Thread client processor '%s' terminated", Thread.currentThread().getName()));
+
+        if (!mustShutdown)
+            log.debug(Mrk_Commons.COMM_SRV, String.format("Thread client processor '%s' stopped", Thread.currentThread().getName()));
     }
 
 }

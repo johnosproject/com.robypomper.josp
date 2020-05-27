@@ -1,5 +1,9 @@
 package com.robypomper.discovery;
 
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,7 @@ public abstract class AbsDiscover implements Discover {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final String srvType;
     private final List<DiscoverListener> listeners = new ArrayList<>();
 
@@ -29,6 +34,7 @@ public abstract class AbsDiscover implements Discover {
      */
     protected AbsDiscover(String srvType) {
         this.srvType = srvType;
+        log.info(Mrk_Commons.DISC_DISC, String.format("Initialized AbsDiscover instance for '%s' service type", srvType));
     }
 
 

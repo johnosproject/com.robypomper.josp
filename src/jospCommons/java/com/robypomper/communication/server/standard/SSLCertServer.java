@@ -4,11 +4,10 @@ import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.DefaultServer;
 import com.robypomper.communication.server.events.DefaultServerEvent;
-import com.robypomper.communication.server.events.LogServerLocalEventsListener;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,7 +53,7 @@ public class SSLCertServer extends DefaultServer {
      *                         be stored.
      */
     public SSLCertServer(String serverId, int port, String certPubPath, AbsCustomTrustManager certTrustManager) throws SSLCertServerException {
-        this(serverId,port,certPubPath,certTrustManager,null);
+        this(serverId, port, certPubPath, certTrustManager, null);
     }
 
     /**
@@ -70,7 +69,7 @@ public class SSLCertServer extends DefaultServer {
     public SSLCertServer(String serverId, int port, String certPubPath, AbsCustomTrustManager certTrustManager,
                          SSLCertServerListener listener) throws SSLCertServerException {
         super(serverId, port,
-                new LogServerLocalEventsListener(),
+                null,
                 new SSLCertServerClientEventsListener(),
                 new SSLCertServerMessagingEventsListener());
 
@@ -103,18 +102,18 @@ public class SSLCertServer extends DefaultServer {
                 //dataRead = trim(dataRead);
                 sendData(client, dataRead);
             }
-            log.debug(Markers.COMM_SSL_CERTSRV, String.format("Server send local certificate to client '%s'", client.getClientId()));
-            if (listener!=null) listener.onCertificateSend(client);
+            log.debug(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server send local certificate to client '%s'", client.getClientId()));
+            if (listener != null) listener.onCertificateSend(client);
             Thread.sleep(100);
 
         } catch (ServerStoppedException e) {
-            log.warn(Markers.COMM_SSL_CERTSRV, String.format("Server disconnected, can't transmit local certificate to client '%s'", client.getClientId()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server disconnected, can't transmit local certificate to client '%s'", client.getClientId()));
 
         } catch (ClientNotConnectedException e) {
-            log.warn(Markers.COMM_SSL_CERTSRV, String.format("Can't transmit local certificate to client '%s' because not connected", client.getClientId()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Can't transmit local certificate to client '%s' because not connected", client.getClientId()));
 
         } catch (IOException e) {
-            log.warn(Markers.COMM_SSL_CERTSRV, String.format("Can't read public certificate '%s' because %s", certPubFile, e.getMessage()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Can't read public certificate '%s' because %s", certPubFile, e.getMessage()));
 
         } catch (InterruptedException ignore) {
         }
@@ -151,19 +150,19 @@ public class SSLCertServer extends DefaultServer {
      */
     private void storeClientCertificate(ClientInfo client) {
         if (!clientCertBuffer.containsKey(client.getClientId())) {
-            log.warn(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' don't received certificate from client '%s'", getServerId(), client.getClientId()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server '%s' don't received certificate from client '%s'", getServerId(), client.getClientId()));
             return;
         }
 
         byte[] clientCertBytes = clientCertBuffer.get(client.getClientId());
-        log.debug(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' add certificate from client '%s' to trust store", getServerId(), client.getClientId()));
+        log.debug(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server '%s' add certificate from client '%s' to trust store", getServerId(), client.getClientId()));
 
         try {
-            certTrustManager.addCertificateByte(client.getClientId(),clientCertBytes);
-            if (listener!=null) listener.onCertificateStored(certTrustManager,client);
+            certTrustManager.addCertificateByte(client.getClientId(), clientCertBytes);
+            if (listener != null) listener.onCertificateStored(certTrustManager, client);
 
         } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
-            log.warn(Markers.COMM_SSL_CERTSRV, String.format("Server '%s' can't add certificate from client '%s' because %s", getServerId(), client.getClientId(), e.getMessage()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server '%s' can't add certificate from client '%s' because %s", getServerId(), client.getClientId(), e.getMessage()));
         }
     }
 
@@ -328,7 +327,7 @@ public class SSLCertServer extends DefaultServer {
          *
          * @param certTrustManager the {@link javax.net.ssl.TrustManager} where
          *                         received certificate was stored.
-         * @param client the client that own stored certificate.
+         * @param client           the client that own stored certificate.
          */
         void onCertificateStored(AbsCustomTrustManager certTrustManager, ClientInfo client);
 

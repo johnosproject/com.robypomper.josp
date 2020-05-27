@@ -16,7 +16,7 @@ import com.robypomper.communication.server.events.LatchServerClientEventsListene
 import com.robypomper.communication.server.events.LatchServerLocalEventsListener;
 import com.robypomper.communication.server.events.LatchServerMessagingEventsListener;
 import com.robypomper.communication.server.standard.SSLCertServer;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -72,8 +72,8 @@ public class CertSharingIntegration {
 
     @BeforeEach
     public void setUp() throws UtilsJKS.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, SSLCertServer.SSLCertServerException, UtilsJKS.StoreException {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Init test servers
         latchSLE = new LatchServerLocalEventsListener();
@@ -111,12 +111,12 @@ public class CertSharingIntegration {
                 latchCLE, latchCSE, latchCME);
 
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
     public void tearDown() {
-        log.debug(Markers.TEST_METHODS, "tearDown");
+        log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still connected, disconnect test clients
         if (clientLatch.isConnected())
@@ -137,27 +137,27 @@ public class CertSharingIntegration {
         // Delete exported certificate files
         for (int n = 1; n <= 2; n++)
             if (new File(SERVER_KS_PATH + n).delete())
-                log.debug(Markers.TEST, String.format("Public client certificate file '%s' delete successfully", SERVER_KS_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Public client certificate file '%s' delete successfully", SERVER_KS_PATH + n));
             else
-                log.debug(Markers.TEST, String.format("Error on deleting public client certificate file '%s'", SERVER_KS_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Error on deleting public client certificate file '%s'", SERVER_KS_PATH + n));
 
         for (int n = 1; n <= 4; n++)
             if (new File(SERVER_CERT_PATH + n).delete())
-                log.debug(Markers.TEST, String.format("Public client certificate file '%s' delete successfully", SERVER_CERT_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Public client certificate file '%s' delete successfully", SERVER_CERT_PATH + n));
             else
-                log.debug(Markers.TEST, String.format("Error on deleting public client certificate file '%s'", SERVER_CERT_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Error on deleting public client certificate file '%s'", SERVER_CERT_PATH + n));
 
         for (int n = 1; n <= 2; n++)
             if (new File(CLIENT_KS_PATH + n).delete())
-                log.debug(Markers.TEST, String.format("Public client certificate file '%s' delete successfully", CLIENT_KS_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Public client certificate file '%s' delete successfully", CLIENT_KS_PATH + n));
             else
-                log.debug(Markers.TEST, String.format("Error on deleting public client certificate file '%s'", CLIENT_KS_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Error on deleting public client certificate file '%s'", CLIENT_KS_PATH + n));
 
         for (int n = 2; n <= 4; n = n + 2)
             if (new File(CLIENT_CERT_PATH + n).delete())
-                log.debug(Markers.TEST, String.format("Public client certificate file '%s' delete successfully", CLIENT_CERT_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Public client certificate file '%s' delete successfully", CLIENT_CERT_PATH + n));
             else
-                log.debug(Markers.TEST, String.format("Error on deleting public client certificate file '%s'", CLIENT_CERT_PATH + n));
+                log.debug(Mrk_Test.TEST, String.format("Error on deleting public client certificate file '%s'", CLIENT_CERT_PATH + n));
     }
 
 

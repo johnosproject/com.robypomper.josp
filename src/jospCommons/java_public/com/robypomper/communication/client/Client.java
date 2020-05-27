@@ -39,6 +39,21 @@ public interface Client {
     ServerInfo getServerInfo();
 
     /**
+     * This method return the client address or null if it's not connected.
+     *
+     * @return the client address.
+     */
+    InetAddress getClientAddr();
+
+    /**
+     * This method return always the client port or <code>-1</code> until first
+     * connection.
+     *
+     * @return the client port.
+     */
+    int getClientPort();
+
+    /**
      * @return the client id.
      */
     String getClientId();
@@ -101,7 +116,7 @@ public interface Client {
      */
     class ServerNotConnectedException extends Throwable {
         private static final String MSG = "Server '%s' not connected.";
-        private static final String MSG_E = "Server '%s' not connected because '%s'.";
+        private static final String MSG_E = "Server '%s' not connected because %s.";
 
         public ServerNotConnectedException(String clientId) {
             super(String.format(MSG, clientId));

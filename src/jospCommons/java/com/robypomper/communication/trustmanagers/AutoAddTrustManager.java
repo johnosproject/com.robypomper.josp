@@ -1,5 +1,9 @@
 package com.robypomper.communication.trustmanagers;
 
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -8,6 +12,11 @@ import java.security.cert.X509Certificate;
  * TrustManager that add and accept any certificate to check.
  */
 public class AutoAddTrustManager extends AbsCustomTrustManager {
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
+
 
     // Constructor
 
@@ -70,8 +79,7 @@ public class AutoAddTrustManager extends AbsCustomTrustManager {
             }
 
         } catch (UpdateException e) {
-            System.out.println("ERRRORE");
-            e.printStackTrace();
+            log.error(Mrk_Commons.COMM_SSL_UTILS, String.format("Error on add client certificate dynamically because %s", e.getMessage()));
         }
     }
 

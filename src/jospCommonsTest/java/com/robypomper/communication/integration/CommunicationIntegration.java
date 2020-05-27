@@ -5,7 +5,7 @@ import com.robypomper.communication.client.standard.LogClient;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.standard.LogServer;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -37,19 +37,19 @@ public class CommunicationIntegration {
 
     @BeforeEach
     public void setUp() {
-        log.debug(Markers.TEST_SPACER, "########## ########## ########## ########## ##########");
-        log.debug(Markers.TEST_METHODS, "setUp");
+        log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
+        log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Init test server
         serverLog = new LogServer(ID_SERVER, PORT);
         clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
 
-        log.debug(Markers.TEST_METHODS, "test");
+        log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
     public void tearDown() {
-        log.debug(Markers.TEST_METHODS, "tearDown");
+        log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still running, stop test server
         if (clientLog.isConnected())

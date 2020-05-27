@@ -8,7 +8,7 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.standard.SSLCertClient;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -221,16 +221,16 @@ public class CertSharingSSLClient implements Client {
         SSLCertClient.SSLCertClientListener certListener = new SSLCertClient.SSLCertClientListener() {
             @Override
             public void onCertificateSend() {
-                log.debug(Markers.COMM_SSL_CERTSRV, String.format("Client '%s' send certificate to server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
+                log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' send certificate to server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
             }
 
             @Override
             public void onCertificateStored(AbsCustomTrustManager certTrustManager) {
-                log.debug(Markers.COMM_SSL_CERTSRV, String.format("Client '%s' stored certificate from server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
+                log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' stored certificate from server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
                 try {
                     updateAndStoreKeyStore();
                 } catch (UtilsJKS.LoadingException | UtilsJKS.StoreException e) {
-                    log.warn(Markers.COMM_SSL_CERTSRV, String.format("Client '%s' can't store keystore on file '%s'", getClientId(), keyStorePath));
+                    log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't store keystore on file '%s'", getClientId(), keyStorePath));
                 }
                 certStoredLatch.countDown();
             }
@@ -239,7 +239,7 @@ public class CertSharingSSLClient implements Client {
                 clientLocalEventsListener,
                 clientServerEventsListener,
                 clientMessagingEventsListener);
-        this.certClient = new SSLCertClient(clientId + "-CERT", serverAddr, serverPort + 1, certPubPath, trustManager, certListener);
+        this.certClient = new SSLCertClient("_CERT_" + clientId, serverAddr, serverPort + 1, certPubPath, trustManager, certListener);
     }
 
 
@@ -288,6 +288,22 @@ public class CertSharingSSLClient implements Client {
      * {@inheritDoc}
      */
     @Override
+    public InetAddress getClientAddr() {
+        return sslClient.getClientAddr();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getClientPort() {
+        return sslClient.getClientPort();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getClientId() {
         return sslClient.getClientId();
     }
@@ -311,7 +327,7 @@ public class CertSharingSSLClient implements Client {
         try {
             sslClient.connect();
         } catch (ConnectionException ignore) {
-            log.debug(Markers.COMM_SSL_CERTSRV, String.format("Client '%s' can't connect, sharing certificate with server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't connect, sharing certificate with server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
 
             // Get server's cert
             certClient.connect();

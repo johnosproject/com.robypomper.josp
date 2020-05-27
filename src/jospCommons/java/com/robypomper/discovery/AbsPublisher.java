@@ -1,5 +1,9 @@
 package com.robypomper.discovery;
 
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.InetAddress;
 
 /**
@@ -18,6 +22,7 @@ public abstract class AbsPublisher implements Publisher {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final String srvName;
     private final String srvType;
     private final int srvPort;
@@ -44,6 +49,7 @@ public abstract class AbsPublisher implements Publisher {
         this.srvName = srvName;
         this.srvPort = srvPort;
         this.srvText = extraText;
+        log.info(Mrk_Commons.DISC_PUB, String.format("Initialized AbsPublisher instance for '%s:%s' service on port '%d'", srvType, srvName, srvPort));
     }
 
 
@@ -116,11 +122,11 @@ public abstract class AbsPublisher implements Publisher {
         // Checks on publishing
         if (enable) {
             if (isPublished()) {
-                LogDiscovery.logPub(String.format("WAR: can't publish service '%s' because already published", getServiceName()));
+                log.warn(Mrk_Commons.DISC_PUB, String.format("Can't publish service '%s' because already published", getServiceName()));
                 return false;
             }
             if (isPublishing() || isDepublishing()) {
-                LogDiscovery.logPub(String.format("WAR: can't publish service '%s' because is publishing/hiding", getServiceName()));
+                log.warn(Mrk_Commons.DISC_PUB, String.format("Can't publish service '%s' because is publishing/hiding", getServiceName()));
                 return false;
             }
         }
@@ -141,11 +147,11 @@ public abstract class AbsPublisher implements Publisher {
     protected boolean setIsDepublishing(boolean enable) {
         if (enable) {
             if (!isPublished()) {
-                LogDiscovery.logPub(String.format("WAR: can't hide service '%s' because already hided", getServiceName()));
+                log.warn(Mrk_Commons.DISC_PUB, String.format("Can't hide service '%s' because already hided", getServiceName()));
                 return false;
             }
             if (isPublishing || isDepublishing) {
-                LogDiscovery.logPub(String.format("WAR: can't publish service '%s' because is publishing/hiding", getServiceName()));
+                log.warn(Mrk_Commons.DISC_PUB, String.format("Can't publish service '%s' because is publishing/hiding", getServiceName()));
                 return false;
             }
         }
@@ -199,7 +205,7 @@ public abstract class AbsPublisher implements Publisher {
         try {
             discover.stop();
         } catch (Discover.DiscoveryException e) {
-            LogDiscovery.logPub(String.format("WAR: can't destroy service's published checks '%s' because %s", getServiceName(), e.getMessage()));
+            log.warn(Mrk_Commons.DISC_PUB, String.format("Can't destroy service's published checks '%s' because %s", getServiceName(), e.getMessage()));
         }
         discover = null;
     }

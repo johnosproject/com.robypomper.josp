@@ -1,7 +1,7 @@
 package com.robypomper.communication.client.events;
 
 import com.robypomper.communication.peer.PeerInfo;
-import com.robypomper.log.Markers;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Log implementation of the {@link ClientMessagingEvents}.
  * <p>
- * The log implementations log all events with {@link Markers#COMM_CL_IMPL} marker.
+ * The log implementations log all events with {@link Mrk_Commons#COMM_CL_IMPL} marker.
  */
 public class LogClientMessagingEventsListener extends DefaultClientEvents implements ClientMessagingEvents {
 
@@ -25,7 +25,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public void onDataSend(byte[] writtenData) {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDataSend(byte[] %s)", getClient().getClientId(), new String(writtenData, PeerInfo.CHARSET)));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataSend(byte[] %s)", getClient().getClientId(), new String(writtenData, PeerInfo.CHARSET)));
     }
 
     /**
@@ -33,7 +33,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public void onDataSend(String writtenData) {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDataSend(String %s)", getClient().getClientId(), writtenData));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataSend(String %s)", getClient().getClientId(), writtenData));
     }
 
 
@@ -44,7 +44,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public boolean onDataReceived(byte[] readData) throws Throwable {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDataReceived(byte[] %s)", getClient().getClientId(), new String(readData, PeerInfo.CHARSET)));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataReceived(byte[] %s)", getClient().getClientId(), new String(readData, PeerInfo.CHARSET)));
         return false;
     }
 
@@ -53,7 +53,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public boolean onDataReceived(String readData) throws Throwable {
-        log.info(Markers.COMM_CL_IMPL, String.format("%s.onDataReceived(String %s)", getClient().getClientId(), readData));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataReceived(String %s)", getClient().getClientId(), readData));
         return true;
     }
 

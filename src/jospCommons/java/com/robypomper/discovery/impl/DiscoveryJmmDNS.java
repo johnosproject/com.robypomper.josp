@@ -2,7 +2,9 @@ package com.robypomper.discovery.impl;
 
 import com.robypomper.discovery.AbsDiscover;
 import com.robypomper.discovery.AbsPublisher;
-import com.robypomper.discovery.LogDiscovery;
+import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.jmdns.JmmDNS;
 import javax.jmdns.ServiceEvent;
@@ -19,6 +21,11 @@ public class DiscoveryJmmDNS {
     // Class constants
 
     public static final String IMPL_NAME = "JmmDNS";
+
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
 
 
     // Publisher and discover implementations
@@ -45,6 +52,7 @@ public class DiscoveryJmmDNS {
          */
         public Publisher(String srvType, String srvName, int srvPort, String extraText) {
             super(srvType, srvName, srvPort, extraText);
+            log.debug(Mrk_Commons.DISC_PUB_IMPL, String.format("Initialized JmmDNS::Publisher instance for '%s:%s' service on port '%d'", srvType, srvName, srvPort));
         }
 
 
@@ -55,7 +63,7 @@ public class DiscoveryJmmDNS {
          */
         @Override
         public void publish(boolean waitForPublished) throws PublishException {
-            LogDiscovery.logPub(String.format("INF: publishing service '%s'", getServiceName()));
+            log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Publish service '%s' on '%d'", getServiceName(), getServicePort()));
             if (!setIsPublishing(true)) {return;}
 
             // Init discovery system for service publication checks
@@ -81,7 +89,7 @@ public class DiscoveryJmmDNS {
          */
         @Override
         public void hide(boolean waitForDepublished) throws PublishException {
-            LogDiscovery.logPub(String.format("INF: hiding service '%s'", getServiceName()));
+            log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Hide service '%s'", getServiceName()));
             if (!setIsDepublishing(true)) {return;}
 
             // Halt JmmDNS instance used to publish the service
@@ -133,6 +141,7 @@ public class DiscoveryJmmDNS {
          */
         public Discover(String srvType) {
             super(srvType);
+            log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Initialized JmmDNS::Discover instance for '%s' service type", srvType));
         }
 
 
@@ -152,11 +161,11 @@ public class DiscoveryJmmDNS {
         @Override
         public void start() {
             if (isRunning()) {
-                LogDiscovery.logPub(String.format("WAR: can't start discovery services '%s' because already started", getServiceType()));
+                log.warn(Mrk_Commons.DISC_DISC_IMPL, String.format("Can't start discovery services '%s' because already started", getServiceType()));
                 return;
             }
 
-            LogDiscovery.logDisc(String.format("INF: start discovery services '%s'", getServiceType()));
+            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Start discovery services '%s'", getServiceType()));
             jmmDNS = JmmDNS.Factory.getInstance();
             jmmDNS.addServiceListener(getServiceType() + ".local.", this);
         }
@@ -167,11 +176,11 @@ public class DiscoveryJmmDNS {
         @Override
         public void stop() throws DiscoveryException {
             if (!isRunning()) {
-                LogDiscovery.logPub(String.format("WAR: can't stop discovery services '%s' because already stopped", getServiceType()));
+                log.warn(Mrk_Commons.DISC_DISC_IMPL, String.format("Can't stop discovery services '%s' because already stopped", getServiceType()));
                 return;
             }
 
-            LogDiscovery.logDisc(String.format("INF: stop discovery services '%s'", getServiceType()));
+            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Stop discovery services '%s'", getServiceType()));
             jmmDNS.removeServiceListener(getServiceType(), this);
 
             try {
@@ -189,7 +198,7 @@ public class DiscoveryJmmDNS {
          */
         @Override
         public void serviceAdded(ServiceEvent event) {
-            LogDiscovery.logSubSystem(String.format("DEB: detected service string '%s'", event.getName()));
+            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Detected service string '%s'", event.getName()));
             jmmDNS.requestServiceInfo(getServiceType(), event.getName());
         }
 
@@ -199,8 +208,9 @@ public class DiscoveryJmmDNS {
         @Override
         public void serviceResolved(ServiceEvent event) {
             ServiceInfo si = event.getInfo();
-            LogDiscovery.logSubSystem(String.format("DEB: resolved service string '%s'", si.getNiceTextString()));
+            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Resolved service string '%s'", si.getNiceTextString()));
             String extraText = new String(si.getTextBytes()).trim();
+            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Discover service '%s'", si.getNiceTextString()));
             emitOnServiceDiscovered(event.getType(), event.getName(), si.getInetAddresses()[0], si.getPort(), extraText);
         }
 
@@ -209,7 +219,8 @@ public class DiscoveryJmmDNS {
          */
         @Override
         public void serviceRemoved(ServiceEvent event) {
-            LogDiscovery.logSubSystem(String.format("DEB: lost service string '%s'", event.getName()));
+            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", event.getName()));
+            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", event.getInfo().getNiceTextString()));
             emitOnServiceLost(event.getType(), event.getName());
         }
 
