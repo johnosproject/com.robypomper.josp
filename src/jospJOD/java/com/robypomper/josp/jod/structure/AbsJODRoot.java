@@ -1,7 +1,6 @@
 package com.robypomper.josp.jod.structure;
 
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 
 
 /**

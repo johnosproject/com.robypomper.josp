@@ -2,6 +2,7 @@ package com.robypomper.josp.jod.executor;
 
 
 import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.log.Mrk_JOD;
 
 /**
  * JOD Listener test.
@@ -25,7 +26,7 @@ public class ListenerTest extends AbsJODListenerLoop {
      */
     public ListenerTest(String name, String proto, String configsStr) {
         super(name, proto);
-        System.out.println(String.format("JOD Listener init %s://%s.", proto, configsStr));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
     }
 
     // Mngm
@@ -36,18 +37,20 @@ public class ListenerTest extends AbsJODListenerLoop {
      */
     @Override
     protected void getServerLoop() {
-        System.out.println(String.format("JOD Listener server run %s://%s.", getProto(), getName()));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' of proto '%s' running", getName(), getProto()));
 
         while (!mustShoutingDown()) {
+            log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' of proto '%s' listened", getName(), getProto()));
             sendUpdate(new JODStateUpdate() {});
             try {
+                //noinspection BusyWait
                 Thread.sleep(1000 * 10);
             } catch (InterruptedException e) {
                 break;
             }
         }
 
-        System.out.println(String.format("JOD Listener server terminated %s://%s.", getProto(), getName()));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' terminated", getName()));
     }
 
 }

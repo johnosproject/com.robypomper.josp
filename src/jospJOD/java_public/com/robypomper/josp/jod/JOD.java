@@ -1,11 +1,11 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.systems.JODCommunication;
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
-import com.robypomper.josp.jod.systems.JODPermissions;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.permissions.JODPermissions;
+import com.robypomper.josp.jod.structure.JODStructure;
 
 import java.io.File;
 

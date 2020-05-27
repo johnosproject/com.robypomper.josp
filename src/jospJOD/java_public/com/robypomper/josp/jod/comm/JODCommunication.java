@@ -1,9 +1,8 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.comm;
 
-import com.robypomper.josp.jod.comm.JODGwO2SClient;
-import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.josp.jod.structure.JODStructure;
 
 import java.util.List;
 

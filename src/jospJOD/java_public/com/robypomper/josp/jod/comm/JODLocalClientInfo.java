@@ -1,7 +1,5 @@
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.josp.jod.systems.JODCommunication;
-
 import java.net.InetAddress;
 
 
@@ -59,6 +57,14 @@ public interface JODLocalClientInfo {
      * @return the represented client's port.
      */
     int getClientPort();
+
+    /**
+     * A string containing the local client (JSL) address and port that the
+     * represented client is connected from.
+     *
+     * @return the string containing the local client address and port.
+     */
+    String getClientFullAddress();
 
     /**
      * A string containing the local server (JOD) address and port that the

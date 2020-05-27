@@ -49,7 +49,6 @@ public interface JODWorker {
      */
     class MissingPropertyException extends Throwable {
         private static final String MSG_MISSING_PROP = "Mandatory property '%s' for '%s://%s' %s is missing.";
-        private static final String MSG_WRONG_VAL = "Property '%s' for '%s://%s' value '%s' not valid ('%s').";
 
         public MissingPropertyException(String property, String proto, String workerName, String workerType) {
             super(String.format(MSG_MISSING_PROP, property, proto, workerName, workerType));
@@ -58,12 +57,20 @@ public interface JODWorker {
         public MissingPropertyException(String property, String proto, String workerName, String workerType, Exception e) {
             super(String.format(MSG_MISSING_PROP, property, proto, workerName, workerType), e);
         }
+    }
 
-        public MissingPropertyException(String property, String proto, String workerName, String workerType, String value) {
+    /**
+     * Exceptions for missing mandatory property or with wrong value from the
+     * configs string during the {@link JODWorker} object initialization.
+     */
+    class ParsingPropertyException extends Throwable {
+        private static final String MSG_WRONG_VAL = "Property '%s' for '%s://%s' value '%s' not valid ('%s').";
+
+        public ParsingPropertyException(String property, String proto, String workerName, String workerType, String value) {
             super(String.format(MSG_WRONG_VAL, property, proto, workerName, workerType, value));
         }
 
-        public MissingPropertyException(String property, String proto, String workerName, String workerType, String value, Exception e) {
+        public ParsingPropertyException(String property, String proto, String workerName, String workerType, String value, Exception e) {
             super(String.format(MSG_WRONG_VAL, property, proto, workerName, workerType, value), e);
         }
     }

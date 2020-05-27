@@ -1,9 +1,11 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.permissions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.structure.JODStructure;
 
 import java.util.List;
 

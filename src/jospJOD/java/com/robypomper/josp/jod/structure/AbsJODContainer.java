@@ -1,7 +1,9 @@
 package com.robypomper.josp.jod.structure;
 
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +31,7 @@ public class AbsJODContainer extends AbsJODComponent
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private Map<String, JODComponent> components = null;
     private JODExecutorMngr executorMngr = null;
 
@@ -60,16 +63,9 @@ public class AbsJODContainer extends AbsJODComponent
      * @param structure the JOD Structure system.
      * @param name      the name of the component.
      * @param descr     the description of the component.
-     * @param subComps  the list of container's sub components.
      */
-    public AbsJODContainer(JODStructure structure, String name, String descr, Map<String, JODComponent> subComps) {
+    private AbsJODContainer(JODStructure structure, String name, String descr) {
         super(structure, name, descr);
-
-        try {
-            setComponents(subComps);
-        } catch (JODStructure.ComponentInitException e) {
-            assert false;   // This should be implementation error
-        }
     }
 
 
@@ -147,17 +143,17 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created component.
      */
-    protected JODComponent createComponent(String compType, String compName, Map<String, Object> compSettings) throws JODStructure.ParsingException {
+    protected JODComponent createComponent(String parentCompName, String compType, String compName, Map<String, Object> compSettings) throws JODStructure.ParsingException {
         if (StructureDefinitions.TYPE_JOD_CONTAINER.compareToIgnoreCase(compType) == 0)
-            return createContainer(compName, compSettings);
+            return createContainer(parentCompName, compName, compSettings);
 
         if (StructureDefinitions.TYPE_JOD_STATE.compareToIgnoreCase(compType) == 0)
-            return createState(compName, compSettings);
+            return createState(parentCompName, compName, compSettings);
 
         if (StructureDefinitions.TYPE_JOD_ACTION.compareToIgnoreCase(compType) == 0)
-            return createAction(compName, compSettings);
+            return createAction(parentCompName, compName, compSettings);
 
-        throw new JODStructure.ParsingUnknownTypeException(compType, compName);
+        throw new JODStructure.ParsingUnknownTypeException(parentCompName, compType, compName);
     }
 
     /**
@@ -167,16 +163,23 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JODState createState(String compName, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException {
+    protected JODState createState(String parentCompName, String compName, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
         String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
         String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
 
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating state component '%s' for parent container '%s'", compName, parentCompName));
+        AbsJODState state;
         try {
-            return new AbsJODState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
+            state = new AbsJODState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
+
         } catch (JODStructure.ComponentInitException e) {
+            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating state component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
             throw new JODStructure.InstantiationParsedDataException(compName, listener, puller, e);
         }
+
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("State component '%s' created for parent container '%s'", compName, parentCompName));
+        return state;
     }
 
     /**
@@ -186,17 +189,24 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JODAction createAction(String compName, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException {
+    protected JODAction createAction(String parentCompName, String compName, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
         String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
         String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
         String executor = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_EXECUTOR);
 
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating action component '%s' for parent container '%s'", compName, parentCompName));
+        AbsJODAction action;
         try {
-            return new AbsJODAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
+            action = new AbsJODAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
+
         } catch (JODStructure.ComponentInitException e) {
+            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating action component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
             throw new JODStructure.InstantiationParsedDataException(compName, listener, puller, executor, e);
         }
+
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Action component '%s' created for parent container '%s'", compName, parentCompName));
+        return action;
     }
 
     /**
@@ -206,14 +216,26 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JODContainer createContainer(String compName, Map<String, Object> compSettings) throws JODStructure.ParsingException {
+    protected JODContainer createContainer(String parentCompName, String compName, Map<String, Object> compSettings) throws JODStructure.ParsingException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
 
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating container component '%s' for parent container '%s'", compName, parentCompName));
+
+
+        AbsJODContainer cont = new AbsJODContainer(getStructure(), compName, descr);
+
+        log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Create and set container '%s''s sub components", compName));
         @SuppressWarnings("unchecked")
         Map<String, Object> contains = (Map<String, Object>) compSettings.get("contains");
-        Map<String, JODComponent> subComps = createFromContains(contains);
+        Map<String, JODComponent> subComps = createFromContains(compName, contains);
+        try {
+            cont.setComponents(subComps);
+        } catch (JODStructure.ComponentInitException ignore) {
+            // container's components not set during container initialization
+        }
 
-        return new AbsJODContainer(getStructure(), compName, descr, subComps);
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Container component '%s' created for parent container '%s'", compName, parentCompName));
+        return cont;
     }
 
     /**
@@ -226,24 +248,27 @@ public class AbsJODContainer extends AbsJODComponent
      * <p>
      * The <code>compProps</code> must be a {@link Map} of {@link String}-{@link Object}s.
      *
-     * @param comps the map containing the pairs name/comp's properties.
+     * @param subComps the map containing the pairs name/comp's properties.
      * @return a map containing the pairs name/component.
      */
-    protected Map<String, JODComponent> createFromContains(Map<String, Object> comps) throws JODStructure.ParsingException {
+    protected Map<String, JODComponent> createFromContains(String compName, Map<String, Object> subComps) throws JODStructure.ParsingException {
+        log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Creating sub components '%s' for container '%s'", subComps.keySet(), compName));
+
         Map<String, JODComponent> components = new HashMap<>();
-        for (Map.Entry<String, Object> compJson : comps.entrySet()) {
-            String compName = compJson.getKey();
+        for (Map.Entry<String, Object> compJson : subComps.entrySet()) {
+            String subCompName = compJson.getKey();
             try {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> compSettings = (Map<String, Object>) compJson.getValue();
-                String compType = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_TYPE);
-                JODComponent compInstance = createComponent(compType, compName, compSettings);
-                components.put(compName, compInstance);
+                String subCompType = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_TYPE);
+                JODComponent compInstance = createComponent(compName, subCompType, subCompName, compSettings);
+                components.put(subCompName, compInstance);
 
             } catch (Exception e) {
-                throw new JODStructure.ParsingException(String.format("---malformed component %s---", compName), e);
+                throw new JODStructure.ParsingException(String.format("---malformed component %s---", subCompName), e);
             }
         }
+
         return components;
     }
 

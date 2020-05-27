@@ -1,19 +1,18 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.executor;
 
 import com.robypomper.josp.jod.JOD_002;
-import com.robypomper.josp.jod.executor.AbsJODWorker;
-import com.robypomper.josp.jod.executor.JODExecutor;
-import com.robypomper.josp.jod.executor.JODListener;
-import com.robypomper.josp.jod.executor.JODPuller;
-import com.robypomper.josp.jod.executor.JODWorker;
 import com.robypomper.josp.jod.executor.factories.AbsFactoryJODWorker;
 import com.robypomper.josp.jod.executor.factories.FactoryJODExecutor;
 import com.robypomper.josp.jod.executor.factories.FactoryJODListener;
 import com.robypomper.josp.jod.executor.factories.FactoryJODPuller;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -75,7 +74,9 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JOD_002.Settings settings;
+    private final JODObjectInfo objInfo;
     private final Map<JODComponent, JODPuller> pullers = new HashMap<>();
     private final Map<JODComponent, JODListener> listeners = new HashMap<>();
     private final Map<JODComponent, JODExecutor> executors = new HashMap<>();
@@ -91,16 +92,26 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      * pairs are read from <code>settings</code>.
      *
      * @param settings the JOD settings.
+     * @param objInfo  the object's info.
      */
-    public JODExecutorMngr_002(JOD_002.Settings settings) {
-        System.out.println("DEB: JOD Execution Mngr initialization...");
-
+    public JODExecutorMngr_002(JOD_002.Settings settings, JODObjectInfo objInfo) {
         this.settings = settings;
+        this.objInfo = objInfo;
+
         loadPullerImpls();
         loadListenerImpls();
         loadExecutorImpls();
 
-        System.out.println("DEB: JOD Execution Mngr initialized");
+        int protocolsCount = FactoryJODListener.instance().getProtocols().size();
+        protocolsCount += FactoryJODPuller.instance().getProtocols().size();
+        protocolsCount += FactoryJODExecutor.instance().getProtocols().size();
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Initialized JODExecutorMngr instance with '%d' protocols", protocolsCount));
+        for (Map.Entry<String, Class<? extends AbsJODPuller>> proto : FactoryJODPuller.instance().getProtocols().entrySet())
+            log.debug(Mrk_JOD.JOD_EXEC, String.format("                                     Puller   '%s'\t (%s)", proto.getKey(), proto.getValue().getName()));
+        for (Map.Entry<String, Class<? extends AbsJODListener>> proto : FactoryJODListener.instance().getProtocols().entrySet())
+            log.debug(Mrk_JOD.JOD_EXEC, String.format("                                     Listener '%s'\t (%s)", proto.getKey(), proto.getValue().getName()));
+        for (Map.Entry<String, Class<? extends AbsJODExecutor>> proto : FactoryJODExecutor.instance().getProtocols().entrySet())
+            log.debug(Mrk_JOD.JOD_EXEC, String.format("                                     Executor '%s'\t (%s)", proto.getKey(), proto.getValue().getName()));
     }
 
 
@@ -148,30 +159,35 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     private void loadWorkerImpls(String implsString, AbsFactoryJODWorker<? extends AbsJODWorker> factory) {
         String workName = factory.getType();
+        log.debug(Mrk_JOD.JOD_EXEC, String.format("Loading %s workers", workName));
+        log.trace(Mrk_JOD.JOD_EXEC, String.format("Loading %ss from '%s' config strings ", workName, implsString));
 
         if (implsString.isEmpty()) {
-            System.out.println(String.format("WAR: No JOD %ss implementations loaded", workName));
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("No %s worker config strings", workName));
             return;
         }
 
         String[] implClasses = implsString.split(";|\\s");
-
         for (String iClass : implClasses) {
             if (iClass.isEmpty()) continue;
 
             if (!iClass.contains(AbsJODWorker.CONFIG_STR_SEP)) {
-                System.out.println(String.format("WAR: String '%s' don't contain a valid protocol/implementation pair ({proto}://{impl})", iClass));
+                log.warn(Mrk_JOD.JOD_EXEC, String.format("Error loading %s worker because wrong config string '%s', expected format '{proto}://{impl}'", workName, iClass));
                 continue;
             }
 
             String proto = AbsJODWorker.extractProto(iClass);
             String iClassName = AbsJODWorker.extractConfigsStr(iClass);
             try {
+                log.trace(Mrk_JOD.JOD_EXEC, String.format("Instantiating %s worker protocol '%s' with class '%s'", workName, proto, iClassName));
                 factory.register(proto, iClassName);
+
             } catch (JODWorker.FactoryException e) {
-                System.out.println("WAR: " + e.getMessage());
+                log.warn(Mrk_JOD.JOD_EXEC, String.format("Error instantiating %s worker protocol '%s' with class '%s' because %s", workName, proto, iClassName, e.getMessage()), e);
             }
         }
+
+        log.debug(Mrk_JOD.JOD_EXEC, String.format("%s workers (%d) loaded", workName, factory.getProtocols().size()));
     }
 
 
@@ -182,6 +198,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public JODPuller initPuller(JODComponentPuller component) throws JODPuller.FactoryException {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's puller with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), FactoryJODPuller.instance().getProtocols().get(component.getProto()).getName()));
         JODPuller puller = FactoryJODPuller.instance().create(component);
         pullers.put(component.getComponent(), puller);
         return puller;
@@ -192,6 +209,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public JODListener initListener(JODComponentListener component) throws JODListener.FactoryException {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's listener with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), FactoryJODListener.instance().getProtocols().get(component.getProto()).getName()));
         JODListener listener = FactoryJODListener.instance().create(component);
         listeners.put(component.getComponent(), listener);
         return listener;
@@ -202,6 +220,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public JODExecutor initExecutor(JODComponentExecutor component) throws JODExecutor.FactoryException {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's executor with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), FactoryJODExecutor.instance().getProtocols().get(component.getProto()).getName()));
         JODExecutor executor = FactoryJODExecutor.instance().create(component);
         executors.put(component.getComponent(), executor);
         return executor;
@@ -259,7 +278,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public void startAllPullers() {
-        System.out.println("INF: Start all pullers timers");
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Start all object '%s' pullers", objInfo.getObjId()));
         for (JODPuller p : getPullers()) {
             p.startTimer();
         }
@@ -270,10 +289,9 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public void stopAllPullers() {
-        System.out.println("INF: Stop all pullers timers");
-        for (JODPuller p : getPullers()) {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Stop all object '%s' pullers", objInfo.getObjId()));
+        for (JODPuller p : getPullers())
             p.stopTimer();
-        }
     }
 
     /**
@@ -281,10 +299,9 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public void connectAllListeners() {
-        System.out.println("INF: Start all listeners servers");
-        for (JODListener l : getListeners()) {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Start all object '%s' listeners", objInfo.getObjId()));
+        for (JODListener l : getListeners())
             l.listen();
-        }
     }
 
     /**
@@ -292,10 +309,9 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public void disconnectAllListeners() {
-        System.out.println("INF: Stop all listeners servers");
-        for (JODListener l : getListeners()) {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Stop all object '%s' listeners", objInfo.getObjId()));
+        for (JODListener l : getListeners())
             l.halt();
-        }
     }
 
     /**
@@ -303,10 +319,9 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public void enableAllExecutors() {
-        System.out.println("INF: Enable all executors");
-        for (JODExecutor e : getExecutors()) {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Enable all object '%s' executors", objInfo.getObjId()));
+        for (JODExecutor e : getExecutors())
             e.enable();
-        }
     }
 
     /**
@@ -314,10 +329,9 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public void disableAllExecutors() {
-        System.out.println("INF: Disable all executors");
-        for (JODExecutor e : getExecutors()) {
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Disable all object '%s' executors", objInfo.getObjId()));
+        for (JODExecutor e : getExecutors())
             e.disable();
-        }
     }
 
     /**
@@ -326,8 +340,13 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
     @Override
     public void startPuller(JODComponent comp) {
         JODPuller p = pullers.get(comp);
-        if (p != null)
+
+        if (p != null) {
+            log.info(Mrk_JOD.JOD_EXEC, String.format("Start puller '%s' of component '%s'", p.getName(), comp.getName()));
             p.startTimer();
+        } else {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("Error on disable puller of '%s' component because no puller found", comp.getName()));
+        }
     }
 
     /**
@@ -336,8 +355,13 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
     @Override
     public void stopPuller(JODComponent comp) {
         JODPuller p = pullers.get(comp);
-        if (p != null)
+
+        if (p != null) {
+            log.info(Mrk_JOD.JOD_EXEC, String.format("Stop puller '%s' of component '%s'", p.getName(), comp.getName()));
             p.stopTimer();
+        } else {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("Error on disable puller of '%s' component because no puller found", comp.getName()));
+        }
     }
 
     /**
@@ -346,8 +370,13 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
     @Override
     public void connectListener(JODComponent comp) {
         JODListener l = listeners.get(comp);
-        if (l != null)
+
+        if (l != null) {
+            log.info(Mrk_JOD.JOD_EXEC, String.format("Start listener servers '%s' of component '%s'", l.getName(), comp.getName()));
             l.listen();
+        } else {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("Error on disable listener server of '%s' component because no listener found", comp.getName()));
+        }
     }
 
     /**
@@ -356,8 +385,12 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
     @Override
     public void disconnectListener(JODComponent comp) {
         JODListener l = listeners.get(comp);
-        if (l != null)
+        if (l != null) {
+            log.info(Mrk_JOD.JOD_EXEC, String.format("Stop listener servers '%s' of component '%s'", l.getName(), comp.getName()));
             l.halt();
+        } else {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("Error on disable listener server of '%s' component because no listener found", comp.getName()));
+        }
     }
 
     /**
@@ -366,8 +399,12 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
     @Override
     public void enableExecutor(JODComponent comp) {
         JODExecutor e = executors.get(comp);
-        if (e != null)
+        if (e != null) {
+            log.info(Mrk_JOD.JOD_EXEC, String.format("Enable executor '%s' of component '%s'", e.getName(), comp.getName()));
             e.disable();
+        } else {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("Error on disable executor of '%s' component because no executor found", comp.getName()));
+        }
     }
 
     /**
@@ -376,8 +413,13 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
     @Override
     public void disableExecutor(JODComponent comp) {
         JODExecutor e = executors.get(comp);
-        if (e != null)
+
+        if (e != null) {
+            log.info(Mrk_JOD.JOD_EXEC, String.format("Disable executor '%s' of component '%s'", e.getName(), comp.getName()));
             e.disable();
+        } else {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("Error on disable executor of '%s' component because no executor found", comp.getName()));
+        }
     }
 
 }

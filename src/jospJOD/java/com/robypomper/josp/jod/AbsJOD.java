@@ -1,20 +1,23 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.systems.JODCommunication;
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
-import com.robypomper.josp.jod.systems.JODPermissions;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.permissions.JODPermissions;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Default {@link JOD} implementation, initialization excluded.
- *
+ * <p>
  * This class fully manage a JOD object (start,stop,status...) for all JOD systems.
  * But JOD systems initialization is delegate to his sub-classes. That allow to
  * initialize multiple JOD objects using different systems implementations.
  * Helping provide new JOD versions and flavours.
- *
+ * <p>
  * The JOD and {@link AbsJOD} hierarchy is design to allow sub-classes to initialize
  * JOD systems (structure, comm, executor...) and delegate JOD systems orchestration
  * to AbsJOD class. AbsJOD class manage JOD system using only their interfaces,
@@ -22,7 +25,7 @@ import com.robypomper.josp.jod.systems.JODStructure;
  * AbsJOD sub-classes (like {@link JOD_002} can switch to different systems
  * implementations/versions keeping full compatibility with all others JOD
  * systems.
- *
+ * <p>
  * All AbsJOD sub-classes must implement the <code>instance(...)</code> method
  * and return a self instance. <code>instance(...)</code> method can be
  * implemented using {@link JOD.Settings} param or his sub-class.
@@ -47,6 +50,7 @@ public abstract class AbsJOD implements JOD {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private Status status = Status.STOPPED;
 
 
@@ -71,6 +75,8 @@ public abstract class AbsJOD implements JOD {
         this.comm = comm;
         this.executor = executor;
         this.permissions = permissions;
+
+        log.info(Mrk_JOD.JOD_MAIN, String.format("Initialized AbsJOD/%s instance for '%s' ('%s') object", this.getClass().getSimpleName(), objInfo.getObjName(), objInfo.getObjId()));
     }
 
 
@@ -78,7 +84,7 @@ public abstract class AbsJOD implements JOD {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Activate autoRefresh from {@link JODObjectInfo}, {@link JODPermissions}
      * and {@link JODStructure} systems. Then activate the firmware's
      * interfaces {@link com.robypomper.josp.jod.executor.JODPuller},
@@ -90,47 +96,65 @@ public abstract class AbsJOD implements JOD {
      */
     @Override
     public void start() throws RunException {
-        System.out.println("INF: JOD Obj startup...");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("Start JOD instance for '%s' object", objInfo.getObjId()));
 
-        if (status()!=Status.STOPPED)
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD status is %s", status()));
+        if (status() != Status.STOPPED
+                && status() != Status.REBOOTING)
             throw new RunException(String.format("Can't start JOD object because his state is '%s'.", status()));
 
-        if (status!=Status.REBOOTING) status = Status.STARTING;
+        if (status != Status.REBOOTING) {
+            status = Status.STARTING;
+            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.STARTING));
+        }
 
-        // Info auto refresh
+        log.trace(Mrk_JOD.JOD_MAIN, "JODObjectInfo starting");
         objInfo.startAutoRefresh();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODPermissions starting");
         permissions.startAutoRefresh();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODStructure starting");
         structure.startAutoRefresh();
 
-        // HW interface
+        log.trace(Mrk_JOD.JOD_MAIN, "JODExecutor enable all workers");
         executor.activateAll();
 
-        // Service comm
+        log.trace(Mrk_JOD.JOD_MAIN, "JODCommunication start server and connect to JCP");
         try {
-            if (((JOD_002.Settings) settings).getLocalEnabled())    // ToDo: move getLocalEnabled to JOD.Settings
+            boolean startLocal = ((JOD_002.Settings) settings).getLocalEnabled();       // ToDo: move getLocalEnabled to JOD.Settings
+            log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication local communication %s", startLocal ? "enabled" : "disabled"));
+            if (startLocal)
                 comm.startLocal();
         } catch (JODCommunication.LocalCommunicationException e) {
-            System.out.println(String.format("WAR: error on starting local communication because %s", e.getMessage()));
+            log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on starting local communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
         }
         try {
-            if (((JOD_002.Settings) settings).getCloudEnabled())    // ToDo: move getCloudEnabled to JOD.Settings
+            boolean startCloud = ((JOD_002.Settings) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JOD.Settings
+            log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
+            if (startCloud)
                 comm.connectCloud();
         } catch (JODCommunication.CloudCommunicationException e) {
-            System.out.println(String.format("WAR: error on starting cloud communication because %s", e.getMessage()));
+            log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on connecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
         }
 
-        if (status != Status.REBOOTING) status = Status.RUNNING;
-        System.out.println("INF: JOD Obj is running.");
-        System.out.println(String.format("INF: JOD Obj version          = %s", version()));
-        System.out.println(String.format("INF: JOD Obj settings version = %s", settings.version()));
-        System.out.println(String.format("INF: JOD Obj id               = %s", objInfo.getObjId()));
-        System.out.println(String.format("INF: JOD Obj name             = %s", objInfo.getObjName()));
-        //System.out.println(String.format("INF: JOD Obj structure model = %s", structure.getRoot()...));
+        if (status != Status.REBOOTING) {
+            status = Status.RUNNING;
+            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.RUNNING));
+        }
+
+        log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' started", objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj status           = %s", status()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj version          = %s", version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj settings version = %s", settings.version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj id               = %s", objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj name             = %s", objInfo.getObjName()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj owner id         = %s", objInfo.getOwnerId()));
     }
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Stop local and cloud communication. Then deactivate the firmware's
      * interfaces {@link com.robypomper.josp.jod.executor.JODPuller},
      * {@link com.robypomper.josp.jod.executor.JODListener} and
@@ -142,33 +166,45 @@ public abstract class AbsJOD implements JOD {
      */
     @Override
     public void stop() throws RunException {
-        System.out.println("INF: JOD Obj shutdown...");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("Shutdown JOD instance for '%s' object", objInfo.getObjId()));
 
-        if (status() != Status.RUNNING)
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD status is %s", status()));
+        if (status() != Status.RUNNING
+                && status() != Status.REBOOTING)
             throw new RunException(String.format("Can't stop JOD object because his state is '%s'.", status()));
 
-        if (status != Status.REBOOTING) status = Status.SHUTDOWN;
-
-        // Service comm
-        if (comm.isCloudConnected())
-            comm.disconnectCloud();
-        try {
-            if (comm.isLocalRunning())
-                comm.stopLocal();
-        } catch (JODCommunication.LocalCommunicationException e) {
-            System.out.println(String.format("WAR: error on stopping local communication because %s", e.getMessage()));
+        if (status != Status.REBOOTING) {
+            status = Status.SHUTDOWN;
+            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.SHUTDOWN));
         }
 
-        // HW interface
+        log.trace(Mrk_JOD.JOD_MAIN, "JODCommunication stop server and disconnect from JCP");
+        try {
+            comm.stopLocal();
+
+        } catch (JODCommunication.LocalCommunicationException e) {
+            log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on hiding local communication object's server '%s' because %s", objInfo.getObjId(), e.getMessage()), e);
+        }
+        comm.disconnectCloud();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODExecutor disable all workers");
         executor.deactivateAll();
 
-        // Info auto refresh
+        log.trace(Mrk_JOD.JOD_MAIN, "JODObjectInfo stopping");
         objInfo.stopAutoRefresh();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODPermission stopping");
         permissions.stopAutoRefresh();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODStructure stopping");
         structure.stopAutoRefresh();
 
-        if (status != Status.REBOOTING) status = Status.STOPPED;
-        System.out.println("INF: JOD Obj stopped.");
+        if (status != Status.REBOOTING) {
+            status = Status.STOPPED;
+            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.STOPPED));
+        }
+
+        log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' stopped", objInfo.getObjId()));
     }
 
     /**
@@ -179,9 +215,16 @@ public abstract class AbsJOD implements JOD {
     @Override
     public void restart() throws RunException {
         status = Status.REBOOTING;
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.REBOOTING));
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JOD stop for rebooting");
         stop();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JOD start for rebooting");
         start();
+
         status = Status.RUNNING;
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.RUNNING));
     }
 
     /**

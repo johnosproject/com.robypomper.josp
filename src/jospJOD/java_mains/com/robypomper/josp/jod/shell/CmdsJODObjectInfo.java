@@ -1,7 +1,7 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 
 public class CmdsJODObjectInfo {
 

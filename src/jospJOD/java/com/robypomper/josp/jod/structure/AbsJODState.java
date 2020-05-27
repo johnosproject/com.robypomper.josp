@@ -1,11 +1,13 @@
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.executor.AbsJODWorker;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODWorker;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -22,6 +24,7 @@ public class AbsJODState extends AbsJODComponent
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JODWorker state;
 
 
@@ -48,16 +51,23 @@ public class AbsJODState extends AbsJODComponent
 
         try {
             if (listener != null && puller == null) {
+                log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Setting state component '%s' listener '%s'", getName(), listener));
                 JODComponentListener compWorker = new JODComponentListener(this, name, AbsJODWorker.extractProto(listener), AbsJODWorker.extractConfigsStr(listener));
                 state = execMngr.initListener(compWorker);
+
             } else if (puller != null && listener == null) {
+                log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Setting state component '%s' puller '%s'", getName(), puller));
                 JODComponentPuller compWorker = new JODComponentPuller(this, name, AbsJODWorker.extractProto(puller), AbsJODWorker.extractConfigsStr(puller));
                 state = execMngr.initPuller(compWorker);
-            } else
+
+            } else {
+                log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on setting state component '%s' listener or puller because no listener nor puller given", getName()));
                 throw new JODStructure.ComponentInitException(String.format("Can't initialize '%s' component action, one of listener or puller params must set.", getName()));
+            }
 
         } catch (JODWorker.FactoryException e) {
-            throw new JODStructure.ComponentInitException(String.format("Error on initialize '%s' component status '%s' worker.", getName(), getWorker()), e);
+            log.warn(String.format("Error on setting state component '%s' listener or puller because %s", getName(), e.getMessage()), e);
+            throw new JODStructure.ComponentInitException(String.format("Error on setting state component '%s' listener/puller", getName()), e);
         }
     }
 
@@ -91,7 +101,9 @@ public class AbsJODState extends AbsJODComponent
      */
     @Override
     public void propagateState(JODStateUpdate statusUpd) throws JODStructure.CommunicationSetException {
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Propagating component '%s' state", getName()));
         getStructure().getCommunication().dispatchUpdate(this, statusUpd);
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state", getName()));
     }
 
 }

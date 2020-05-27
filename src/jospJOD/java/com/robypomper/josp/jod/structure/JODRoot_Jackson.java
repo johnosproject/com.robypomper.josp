@@ -2,8 +2,7 @@ package com.robypomper.josp.jod.structure;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 
 import java.util.Map;
 
@@ -44,7 +43,7 @@ public class JODRoot_Jackson extends AbsJODRoot {
      * return objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
      * </code>
      * <p>
-     * This constructor is used by the {@link com.robypomper.josp.jod.systems.JODStructure_002#loadStructure(String)}
+     * This constructor is used by the {@link JODStructure_002#loadStructure(String)}
      * method.
      *
      * @param structure the JOD Structure system.
@@ -69,7 +68,7 @@ public class JODRoot_Jackson extends AbsJODRoot {
     @JsonProperty(CONTAINS)
     public void setContains(Map<String, Object> containsMap) throws JODStructure.ParsingException {
         try {
-            setComponents(createFromContains(containsMap));
+            setComponents(createFromContains(getName(), containsMap));
         } catch (JODStructure.ComponentInitException e) {
             assert false;   // This is an implementation error
         }

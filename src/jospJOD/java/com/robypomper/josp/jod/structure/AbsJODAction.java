@@ -2,10 +2,12 @@ package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODExecutor;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODWorker;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
-import com.robypomper.josp.jod.systems.JODExecutorMngr;
-import com.robypomper.josp.jod.systems.JODStructure;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -23,6 +25,7 @@ public class AbsJODAction extends AbsJODState
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JODExecutor exec;
 
 
@@ -50,13 +53,18 @@ public class AbsJODAction extends AbsJODState
 
         try {
             if (executor != null) {
+                log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Setting action component '%s' executor '%s'", getName(), listener));
                 JODComponentExecutor compWorker = new JODComponentExecutor(this, name, AbsJODWorker.extractProto(executor), AbsJODWorker.extractConfigsStr(executor));
                 exec = execMngr.initExecutor(compWorker);
-            } else
-                throw new JODStructure.ComponentInitException(String.format("Can't initialize '%s' component action, executor param must set.", getName()));
+
+            } else {
+                log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on setting action component '%s' executor because no executor given", getName()));
+                throw new JODStructure.ComponentInitException(String.format("Error on setting action component '%s' executor because not set", getName()));
+            }
 
         } catch (JODWorker.FactoryException e) {
-            throw new JODStructure.ComponentInitException(String.format("Error on initialize '%s' component action '%s' executor.", getName(), getExecutor()), e);
+            log.warn(String.format("Error on setting action component '%s' executor because %s", getName(), e.getMessage()), e);
+            throw new JODStructure.ComponentInitException(String.format("Error on setting action component '%s' executor", getName()), e);
         }
     }
 
@@ -79,7 +87,15 @@ public class AbsJODAction extends AbsJODState
      */
     @Override
     public boolean execAction(JODActionParams params) {
-        return exec.exec();
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Executing component '%s' action", getName()));
+
+        if (!exec.exec()) {
+            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on executing component '%s' action", getName()));
+            return false;
+        }
+
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' executed action", getName()));
+        return true;
     }
 
 

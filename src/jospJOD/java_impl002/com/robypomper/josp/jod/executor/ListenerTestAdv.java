@@ -2,6 +2,9 @@ package com.robypomper.josp.jod.executor;
 
 
 import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.log.Mrk_JOD;
+
+import java.util.Map;
 
 /**
  * JOD Listener advanced test.
@@ -46,13 +49,9 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
      * @param configsStr configs string, parse {@value #PROP_FREQUENCY}(int) and
      *                   {@value #PROP_SLEEP_TIME}(int)properties.
      */
-    public ListenerTestAdv(String name, String proto, String configsStr) throws MissingPropertyException {
+    public ListenerTestAdv(String name, String proto, String configsStr) throws MissingPropertyException, ParsingPropertyException {
         super(name, proto);
-        System.out.println(String.format("JOD Listener init %s://%s.", proto, configsStr));
-
-        for (String keyAndProp : configsStr.split(";")) {
-            if (keyAndProp.indexOf('=') < 0) {
-                // Boolean properties
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
             } else {
                 // Key = Value properties
@@ -89,23 +88,24 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
      */
     @Override
     protected void getServerLoop() {
-        System.out.println(String.format("JOD Listener server run %s://%s.", getProto(), getName()));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' with frequency='%d' and sleepTime='%d'ms", getName(), frequency, sleepTime));
 
         int count = 0;
         while (!mustShoutingDown()) {
             count++;
             if (count % frequency == 0) {
-                System.out.print(".");
+                log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' of proto '%s' listened", getName(), getProto()));
                 sendUpdate(new JODStateUpdate() {});
             }
             try {
+                //noinspection BusyWait
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 break;
             }
         }
 
-        System.out.println(String.format("JOD Listener server terminated %s://%s.", getProto(), getName()));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' terminated", getName()));
     }
 
 }

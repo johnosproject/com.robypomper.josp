@@ -1,5 +1,10 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.objinfo;
 
+
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.permissions.JODPermissions;
+import com.robypomper.josp.jod.structure.JODStructure;
 
 /**
  * Interface for Object's info system.

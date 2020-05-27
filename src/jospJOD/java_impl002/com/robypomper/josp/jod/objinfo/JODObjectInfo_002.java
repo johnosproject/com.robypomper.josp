@@ -1,10 +1,15 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.objinfo;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.objinfo.JCPObjectInfo;
-import com.robypomper.josp.jod.objinfo.LocalObjectInfo;
+import com.robypomper.josp.jod.permissions.JODPermissions;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.log.Mrk_JOD;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +33,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JOD_002.Settings locSettings;
     private final JCPObjectInfo jcpObjInfo;
     private JODStructure structure;
@@ -50,7 +56,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * @param jodVersion the current JOD implementation version.
      */
     public JODObjectInfo_002(JOD_002.Settings settings, JCPClient_Object jcpClient, String jodVersion) {
-        System.out.println("DEB: JOD Object Info initialization...");
         this.locSettings = settings;
         this.jcpObjInfo = new JCPObjectInfo(jcpClient);
         this.jodVersion = jodVersion;
@@ -62,7 +67,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         jcpClient.setObjectId(objId);
 
-        System.out.println("DEB: JOD Object Info initialized");
+        log.info(Mrk_JOD.JOD_INFO, String.format("Initialized JODObjectInfo instance for '%s' object with '%s' id", getObjName(), objId));
+        log.debug(Mrk_JOD.JOD_INFO, String.format("                                   and '%s' id HW ", getObjIdHw()));
     }
 
 
@@ -72,6 +78,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * {@inheritDoc}
      */
     public void setSystems(JODStructure structure, JODExecutorMngr executorMngr, JODCommunication comm, JODPermissions permissions) {
+        log.trace(Mrk_JOD.JOD_INFO, String.format("JODObjectInfo for object '%s' set JOD's systems", getObjId()));
+
         this.structure = structure;
         this.executorMngr = executorMngr;
         this.comm = comm;
@@ -108,9 +116,10 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     @Override
     public String getObjName() {
         if (locSettings.getObjName().isEmpty()) {
+            log.debug(Mrk_JOD.JOD_INFO, "Generating locally object name");
             String generated = LocalObjectInfo.generateObjName();
-            System.out.println(String.format("INF: locally generated object name '%s'.", generated));
             locSettings.setObjName(generated);
+            log.debug(Mrk_JOD.JOD_INFO, String.format("Object name generated locally '%s'", generated));
         }
 
         return locSettings.getObjName();
@@ -194,24 +203,26 @@ public class JODObjectInfo_002 implements JODObjectInfo {
                 && comm != null
                 && permissions != null;
 
+        log.info(Mrk_JOD.JOD_INFO, String.format("Start JODObjectInfo auto-refresh for '%s' object", getObjId()));
+
         try {
             if (!jcpObjInfo.isRegistered()) {
+                log.debug(Mrk_JOD.JOD_INFO, "Registering object to JCP");
                 if (jcpObjInfo.register(this))
-                    System.out.println(String.format("INF: object '%s' registered to JCP successfully.", getObjId()));
+                    log.debug(Mrk_JOD.JOD_INFO, "Object registered to JCP");
                 else
-                    System.out.println(String.format("ERR: error on register object '%s' to JCP successfully.", getObjId()));
+                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on register object '%s' to JCP", getObjId()));
+
             } else {
+                log.debug(Mrk_JOD.JOD_INFO, "Updating object registration to JCP");
                 if (jcpObjInfo.update(this))
-                    System.out.println(String.format("INF: object '%s' updated to JCP successfully.", getObjId()));
+                    log.debug(Mrk_JOD.JOD_INFO, "Object registration updated to JCP successfully");
                 else
-                    System.out.println(String.format("ERR: error on update object '%s' to JCP successfully.", getObjId()));
+                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on update object '%s' registration to JCP", getObjId()));
             }
 
-        } catch (JCPClient.ConnectionException e) {
-            System.out.println("WAR: Can't check if objects is registred on JCP, because JCP not available.");
-        } catch (JCPClient.RequestException e) {
-            System.out.println("ERR: Error on JCP request for object registration check.");
-            e.printStackTrace();
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on check object '%s''s registration on JCP because %s", getObjId(), e.getMessage()), e);
         }
     }
 
@@ -220,7 +231,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void stopAutoRefresh() {
-        System.out.println("WAR: JOD Object Info AutoRefresh can't stopped: not implemented");
+        log.warn(Mrk_JOD.JOD_INFO, "JODObjectInfo AutoRefresh can't stopped: not implemented");
         // ToDo: implement object disconnection to API (send disconnect status...)
     }
 
@@ -246,9 +257,10 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     private String getObjIdHw() {
         if (locSettings.getObjIdHw().isEmpty()) {
+            log.debug(Mrk_JOD.JOD_INFO, "Generating locally object HW ID");
             String generated = LocalObjectInfo.generateObjIdHw();
-            System.out.println(String.format("INF: locally generated object Hardware ID '%s'.", generated));
             locSettings.setObjIdHw(generated);
+            log.debug(Mrk_JOD.JOD_INFO, String.format("Object HW ID generated locally '%s'", generated));
         }
 
         return locSettings.getObjIdHw();
@@ -264,13 +276,15 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         String generated;
 
         try {
+            log.debug(Mrk_JOD.JOD_INFO, "Generating on cloud object HW ID");
             generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
-            System.out.println(String.format("INF: generated object ID '%s'", generated));
-        } catch (JCPClient.RequestException | JCPClient.ConnectionException ignore) {
+            locSettings.setObjIdHw(generated);
+        } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
             generated = String.format("%s-00000-00000", getObjIdHw());
-            System.out.println(String.format("INF: generated object ID (locally)'%s'", generated));
+            log.debug(Mrk_JOD.JOD_INFO, String.format("Error generating object HW ID on cloud  because %s", e.getMessage()), e);
         }
 
+        log.debug(Mrk_JOD.JOD_INFO, String.format("Object HW ID generated on cloud '%s'", generated));
         return generated;
     }
 

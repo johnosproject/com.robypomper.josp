@@ -1,9 +1,7 @@
-package com.robypomper.josp.jod.systems;
+package com.robypomper.josp.jod.executor;
 
-import com.robypomper.josp.jod.executor.JODExecutor;
-import com.robypomper.josp.jod.executor.JODListener;
-import com.robypomper.josp.jod.executor.JODPuller;
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
