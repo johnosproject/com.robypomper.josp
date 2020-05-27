@@ -103,7 +103,7 @@ public class JOD_002 extends AbsJOD {
         public static final String JODPERM_GENSTARTEGY      = "jod.permissions.generation_strategy";
         public static final String JODPERM_GENSTARTEGY_DEF  = "standard";
         public static final String JODPERM_OWNER            = "jod.permissions.owner";
-        public static final String JODPERM_OWNER_DEF        = "";
+        public static final String JODPERM_OWNER_DEF        = "00000-00000-00000";
 
         public static final String JODCOMM_LOCAL_ENABLED        = "jod.comm.local.enabled";
         public static final String JODCOMM_LOCAL_ENABLED_DEF    = "true";
@@ -323,6 +323,26 @@ public class JOD_002 extends AbsJOD {
             return PermissionsTypes.GenerateStrategy.valueOf(val.toUpperCase());
         }
 
+        /**
+         * Object startup
+         * - init jod
+         * - read from local configs                             when: owner set
+         * on error                                            when: owner not set
+         * - set default anonymous owner on local configs
+         * - read from local configs
+         * - start jod
+         * <p>
+         * <p>
+         * Owner set from service 2 object
+         * - store on local configs
+         * - set owner on cloud
+         * <p>
+         * Owner set from service 2 object via cloud
+         * - jcp: store on cloud object's temporary properties
+         * - jcp: set owner on object
+         * - store on local configs
+         * - set owner on cloud
+         */
         //@Override
         public String getOwnerId() {
             return properties.get(JODPERM_OWNER) != null ? properties.get(JODPERM_OWNER) :

@@ -124,12 +124,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getOwnerId() {
-        if (locSettings.getOwnerId().isEmpty()) {
-            try {
-                locSettings.setOwnerId(permissions.getOwner());
-            } catch (Throwable ignore) {}
-        }
-        return locSettings.getOwnerId();
+        return permissions.getOwnerId();
     }
 
 

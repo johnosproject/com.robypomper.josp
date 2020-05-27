@@ -462,17 +462,15 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public String getOwner() {
+        public String getOwnerId() {
             return null;
         }
 
         @Override
-        public boolean setOwner(String ownerId) {
-            return false;
-        }
+        public void setOwnerId(String ownerId) { }
 
         @Override
-        public boolean resetOwner() {
+        public boolean resetOwnerId() {
             return false;
         }
 

@@ -51,6 +51,10 @@ public class JODPermissions_002 implements JODPermissions {
         this.jcpClient = jcpClient;
         jcpPermissions = new JCPPermObj(jcpClient, settings);
 
+        log.trace(Mrk_JOD.JOD_PERM, "Try to sync owner id to cloud");
+        setOwnerId(getOwnerId());
+
+
         try {
             loadPermissionsFromFile();
             System.out.println(String.format("DEB: Loaded %s permissions (obj-srv-usr):", permissions.size()));
@@ -102,8 +106,10 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public boolean canSendLocalUpdate(String srvId, String usrId) {
-        if (objInfo.getOwnerId().isEmpty())
+        if (getOwnerId().equals(JOD_002.Settings.JODPERM_OWNER_DEF)) {
+            log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
+        }
 
         ObjPermission p = search(srvId, usrId);
 
@@ -214,24 +220,31 @@ public class JODPermissions_002 implements JODPermissions {
     /**
      * {@inheritDoc}
      */
-    public String getOwner() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpPermissions.getOwner();
+    public String getOwnerId() {
+        return locSettings.getOwnerId();
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean setOwner(String ownerId) throws JCPClient.ConnectionException, JCPClient.RequestException, JsonProcessingException {
-        if (!jcpPermissions.setOwner(ownerId))
-            return false;
-        settings.setOwnerId(ownerId);
-        return true;
+    public void setOwnerId(String ownerId) {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Permission for '%s' object set ownerID '%s'", objInfo.getObjId(), ownerId));
+
+        try {
+            jcpPermissions.setOwnerId(ownerId);
+        } catch (JsonProcessingException | JCPClient.ConnectionException | JCPClient.RequestException e) {
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on setting object's owner id because %s", e.getMessage()), e);
+        }
+
+        locSettings.setOwnerId(ownerId);
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean resetOwner() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException {
+    public boolean resetOwnerId() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Permission for '%s' object reset ownerID", objInfo.getObjId()));
+
         if (!jcpPermissions.resetOwner())
             return false;
         settings.setOwnerId("");
@@ -353,7 +366,7 @@ public class JODPermissions_002 implements JODPermissions {
                             || p.usrId.compareTo(PermissionsTypes.WildCards.USR_ALL.toString()) == 0
                             || (
                             p.usrId.compareTo(PermissionsTypes.WildCards.USR_OWNER.toString()) == 0
-                                    && p.usrId.compareTo(objInfo.getOwnerId()) == 0
+                                    && p.usrId.compareTo(getOwnerId()) == 0
                     )
             ) {
                 if (

@@ -98,21 +98,14 @@ public class CmdsJODPermissions {
 
     @Command(description = "Set object's owner.")
     public String permissionOwnerSet(String usrId) {
-        try {
-            if (permission.setOwner(usrId))
-                return "Owner set successfully.";
-
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException | JsonProcessingException e) {
-            return "Error on setting owner: " + e.getMessage();
-        }
-
-        return "Unknown error on setting owner.";
+        permission.setOwnerId(usrId);
+        return "Owner set successfully.";
     }
 
     @Command(description = "Reset object's owner to unset.")
     public String permissionOwnerReset() {
         try {
-            if (permission.resetOwner())
+            if (permission.resetOwnerId())
                 return "Owner reset successfully.";
         } catch (JCPClient.ConnectionException | JCPClient.RequestException | JsonProcessingException e) {
             return "Error on resetting owner: " + e.getMessage();

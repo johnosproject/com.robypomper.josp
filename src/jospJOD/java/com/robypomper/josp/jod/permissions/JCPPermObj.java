@@ -65,14 +65,14 @@ public class JCPPermObj {
     }
 
     public boolean isOwnerSet() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return !getOwner().isEmpty();
+        return !getOwnerId().isEmpty();
     }
 
-    public String getOwner() throws JCPClient.ConnectionException, JCPClient.RequestException {
+    public String getOwnerId() throws JCPClient.ConnectionException, JCPClient.RequestException {
         return jcpClient.execGetReq(APIPermissions.URL_PATH_OBJOWNERGET, String.class, true);
     }
 
-    public boolean setOwner(String ownerId) throws JsonProcessingException, JCPClient.ConnectionException, JCPClient.RequestException {
+    public boolean setOwnerId(String ownerId) throws JsonProcessingException, JCPClient.ConnectionException, JCPClient.RequestException {
         return jcpClient.execPostReq(APIPermissions.URL_PATH_OBJOWNER, Boolean.class, ownerId, true);
     }
 

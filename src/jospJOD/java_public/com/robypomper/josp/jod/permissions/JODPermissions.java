@@ -113,22 +113,21 @@ public interface JODPermissions {
      *
      * @return object owner id.
      */
-    String getOwner() throws JCPClient.ConnectionException, JCPClient.RequestException;
+    String getOwnerId();
 
     /**
      * Set object's owner.
      *
      * @param ownerId the user's id.
-     * @return true if the owner is set successfully, false otherwise.
      */
-    boolean setOwner(String ownerId) throws JCPClient.ConnectionException, JCPClient.RequestException, JsonProcessingException;
+    void setOwnerId(String ownerId);
 
     /**
      * Set object's owner to unset.
      *
      * @return true if the owner was reset successfully, false otherwise.
      */
-    boolean resetOwner() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException;
+    boolean resetOwnerId() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException;
 
 
     // Mngm methods
