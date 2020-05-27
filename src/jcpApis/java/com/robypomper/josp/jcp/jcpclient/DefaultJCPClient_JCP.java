@@ -47,10 +47,8 @@ public class DefaultJCPClient_JCP extends JCPClient_CliCredFlow {
     @Autowired
     public DefaultJCPClient_JCP(@Value("${jcp.client.id}") String client,
                                 @Value("${jcp.client.secret}") String secret,
-                                @Value("${jcp.urlAuth}") String urlAuth) throws ConnectionException {
-        super(new DefaultJCPConfigs(client, secret, "openid", "", urlAuth, "jcp"), false);
-        disableSSLChecks();
-        tryConnect();
+                                @Value("${jcp.urlAuth}") String urlAuth) throws ConnectionSettingsException {
+        super(new DefaultJCPConfigs(client, secret, "openid", "", urlAuth, "jcp"), true);
     }
 
 }

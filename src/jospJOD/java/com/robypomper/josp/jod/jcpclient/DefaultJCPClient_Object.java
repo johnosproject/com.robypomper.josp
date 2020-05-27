@@ -34,7 +34,7 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
      *
      * @param settings the JOD settings.
      */
-    public DefaultJCPClient_Object(JOD_002.Settings settings) throws ConnectionException {
+    public DefaultJCPClient_Object(JOD_002.Settings settings) throws ConnectionSettingsException {
         super(new DefaultJCPConfigs(settings.getJCPId(),
                         settings.getJCPSecret(),
                         "openid",

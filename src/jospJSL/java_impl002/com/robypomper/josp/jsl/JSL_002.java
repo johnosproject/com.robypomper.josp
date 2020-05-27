@@ -47,7 +47,7 @@ public class JSL_002 extends AbsJSL {
         super(settings, jcpClient, srvInfo, usr, objs, comm);
     }
 
-    public static JSL instance(Settings settings) throws JCPClient.ConnectionException, JSLCommunication.LocalCommunicationException {
+    public static JSL instance(Settings settings) throws JCPClient.ConnectionSettingsException, JSLCommunication.LocalCommunicationException {
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JSL.JSL_MAIN, String.format("Init JSL instance id '%s'", instanceId));
 

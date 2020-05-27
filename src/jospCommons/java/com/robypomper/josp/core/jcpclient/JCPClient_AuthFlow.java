@@ -39,7 +39,7 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      * @param autoConnect if <code>true</code>, then the client will connect to
      *                    JCP immediately after clienti initialization.
      */
-    public JCPClient_AuthFlow(JCPConfigs configs, boolean autoConnect) throws ConnectionException {
+    public JCPClient_AuthFlow(JCPConfigs configs, boolean autoConnect) throws ConnectionSettingsException {
         super(configs, autoConnect);
     }
 

@@ -231,6 +231,17 @@ public interface JCPClient {
     }
 
     /**
+     * Exceptions for JCPClient connection errors (include security related errors).
+     */
+    class ConnectionSettingsException extends Throwable {
+        private static final String MSG = "Wrong or missing settings for JCPClient: %s";
+
+        public ConnectionSettingsException(String details, Exception e) {
+            super(String.format(MSG, details), e);
+        }
+    }
+
+    /**
      * Exceptions for errors during request setup or execution.
      */
     class RequestException extends Throwable {

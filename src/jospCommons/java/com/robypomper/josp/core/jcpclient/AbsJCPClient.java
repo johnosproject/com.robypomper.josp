@@ -77,7 +77,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * @param autoConnect if <code>true</code>, then the client will connect to
      *                    JCP immediately after clienti initialization.
      */
-    protected AbsJCPClient(JCPConfigs configs, boolean autoConnect) throws ConnectionException {
+    protected AbsJCPClient(JCPConfigs configs, boolean autoConnect) throws ConnectionSettingsException {
         this.configs = configs;
 
         // Setup OAuth2 layer
@@ -89,7 +89,7 @@ public abstract class AbsJCPClient implements JCPClient {
                     .build(KeycloakApi.instance(configs.getBaseUrl(), configs.getRealm()));
 
         } catch (IllegalArgumentException e) {
-            throw new ConnectionException(String.format("Wrong JCP configurations: %s", e.getMessage()), e);
+            throw new ConnectionSettingsException(e.getMessage(), e);
         }
 
         log.info(Mrk_Commons.COMM_JCPCL, String.format("Initialized AbsJCPClient/%s instance and%s connected to JCP", this.getClass().getSimpleName(), isConnected() ? "" : " NOT"));

@@ -40,9 +40,7 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
      *
      * @param settings the JOD settings.
      */
-    public DefaultJCPClient_Service(JSL_002.Settings settings) throws ConnectionException {
-        AbsJCPClient.disableSSLChecks(); // ToDo necessario??
-
+    public DefaultJCPClient_Service(JSL_002.Settings settings) throws ConnectionSettingsException {
         DefaultJCPConfigs jclClientConfigs = new DefaultJCPConfigs(settings.getJCPId(),
                 settings.getJCPSecret(),
                 "openid",
