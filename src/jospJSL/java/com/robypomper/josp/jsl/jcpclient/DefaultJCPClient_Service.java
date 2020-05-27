@@ -1,12 +1,14 @@
 package com.robypomper.josp.jsl.jcpclient;
 
-import com.robypomper.josp.core.jcpclient.AbsJCPClient;
 import com.robypomper.josp.core.jcpclient.DefaultJCPConfigs;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.core.jcpclient.JCPClient_AuthFlow;
 import com.robypomper.josp.core.jcpclient.JCPClient_CliCredFlow;
 import com.robypomper.josp.jcp.apis.paths.APISrvs;
 import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -20,6 +22,7 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JCPClient_CliCredFlow cliCredFlowClient;
     private final JCPClient_AuthFlow authFlowClient;
     private boolean isAuthFlow = false;
@@ -46,18 +49,37 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
                 settings.getJCPCallback(),
                 settings.getJCPUrl(),
                 "jcp");
-
         cliCredFlowClient = new JCPClient_CliCredFlow(jclClientConfigs, false);
-        cliCredFlowClient.tryConnect();
-
         authFlowClient = new JCPClient_AuthFlow(jclClientConfigs, false);
 
+        log.debug(Mrk_JSL.JSL_COMM_JCPCL, "Connecting JCPClient to JCP");
         if (!settings.getRefreshToken().isEmpty()) {
-            System.out.println(String.format("DEB: loaded stored refresh token '%s'.", settings.getRefreshToken()));
-            isAuthFlow = true;
             authFlowClient.setRefreshToken(settings.getRefreshToken());
-            authFlowClient.tryConnect();
+            try {
+                log.debug(Mrk_JSL.JSL_COMM_JCPCL, "Connecting JCPClient to JCP with authentication flow");
+                authFlowClient.connect();
+                log.debug(Mrk_JSL.JSL_COMM_JCPCL, "JCPClient connected to JCP with authentication flow");
+                isAuthFlow = true;
+            } catch (ConnectionException e) {
+                log.warn(Mrk_JSL.JSL_COMM_JCPCL, String.format("Error on connecting JCPClient to JCP with authentication flow because %s", e.getMessage()), e);
+            }
         }
+
+        if (!authFlowClient.isConnected()) {
+            try {
+                log.debug(Mrk_JSL.JSL_COMM_JCPCL, "Connecting JCPClient to JCP with client credential flow");
+                cliCredFlowClient.connect();
+                log.debug(Mrk_JSL.JSL_COMM_JCPCL, "JCPClient connected to JCP with client credential flow");
+            } catch (ConnectionException e) {
+                log.warn(Mrk_JSL.JSL_COMM_JCPCL, String.format("Error on connecting JCPClient to JCP with client credential flow because %s", e.getMessage()), e);
+            }
+        }
+
+        log.debug(Mrk_JSL.JSL_COMM_JCPCL, String.format("JCPClient%s connected to JCP", isConnected() ? "" : " NOT"));
+        if (isConnected()) {
+            log.info(Mrk_JSL.JSL_COMM_JCPCL, String.format("Initialized DefaultJCPClient_Service and connected to JCP via %s flow", isAuthFlow ? "authentication" : "client credential"));
+        } else
+            log.info(Mrk_JSL.JSL_COMM_JCPCL, "Initialized DefaultJCPClient_Service and NOT connected to JCP");
     }
 
 

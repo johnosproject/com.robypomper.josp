@@ -12,9 +12,9 @@ public class CmdsJSL {
     }
 
     /**
-     * Print current JOD Object status.
+     * Print current JSL Service status.
      *
-     * @return the JOD Object status.
+     * @return the JSL Service status.
      */
     @Command(description = "Print current JSL Object status.")
     public JSL.Status jslStatus() {
@@ -22,30 +22,40 @@ public class CmdsJSL {
     }
 
     /**
-     * Connect current JOD Object.
+     * Connect current JSL Service.
      *
      * @return success or error message.
      */
     @Command(description = "Connect current JSL library.")
     public String jslConnect() {
-        jsl.connect();
-        if (jsl.status() != JSL.Status.CONNECTED)
-            return "JOD Object NOT connected.";
+        try {
+            jsl.connect();
+        } catch (JSL.ConnectException e) {
+            return "Error on connecting JSL service because " + e.getMessage();
+        }
 
-        return "JOD Object connected successfully.";
+        if (jsl.status() != JSL.Status.CONNECTED)
+            return "JSL service NOT connected.";
+
+        return "JSL service connected successfully.";
     }
 
     /**
-     * Disconnect current JOD Object.
+     * Disconnect current JSL Service.
      *
      * @return success or error message.
      */
     @Command(description = "Disconnect current JSL library.")
     public String jslDisconnect() {
-        jsl.disconnect();
-        if (jsl.status() != JSL.Status.DISCONNECTED)
-            return "JOD Object NOT disconnected.";
+        try {
+            jsl.disconnect();
+        } catch (JSL.ConnectException e) {
+            return "Error on disconnecting JSL service because " + e.getMessage();
+        }
 
-        return "JOD Object disconnected successfully.";
+        if (jsl.status() != JSL.Status.DISCONNECTED)
+            return "JSL Service NOT disconnected.";
+
+        return "JSL Service disconnected successfully.";
     }
 }

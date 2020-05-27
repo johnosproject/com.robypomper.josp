@@ -1,13 +1,13 @@
 package com.robypomper.josp.jsl;
 
-import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
-import com.robypomper.josp.jsl.systems.JSLUserMngr;
-
-import java.util.List;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -49,6 +49,7 @@ public abstract class AbsJSL implements JSL {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private Status status = Status.DISCONNECTED;
 
 
@@ -71,6 +72,8 @@ public abstract class AbsJSL implements JSL {
         this.user = user;
         this.objs = objs;
         this.comm = comm;
+
+        log.info(Mrk_JSL.JSL_MAIN, String.format("Initialized AbsJSL/%s instance for '%s' ('%s') service", this.getClass().getSimpleName(), srvInfo.getSrvName(), srvInfo.getFullId()));
     }
 
 
@@ -80,83 +83,107 @@ public abstract class AbsJSL implements JSL {
      * {@inheritDoc}
      */
     @Override
-    public boolean connect() {
-        status = Status.CONNECTING;
+    public void connect() throws ConnectException {
+        log.info(Mrk_JSL.JSL_MAIN, String.format("Connect JSL instance for '%s' service", srvInfo.getSrvId()));
+        log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL status is %s", status()));
 
-        // Start local discovery
+        if (status() != Status.DISCONNECTED
+                && status() != Status.RECONNECTING)
+            throw new ConnectException(String.format("Can't connect JSL service '%s' because his state is '%s'.", srvInfo.getSrvId(), status()));
+
+        if (status != Status.RECONNECTING) {
+            status = Status.CONNECTING;
+            log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL set status %s", Status.CONNECTING));
+        }
+
+        log.trace(Mrk_JSL.JSL_MAIN, "JSLCommunication start discovery and connect to JCP");
         try {
-            if (((JSL_002.Settings) settings).getLocalEnabled())    // ToDo: move getLocalEnabled to JSL.Settings
+            boolean startLocal = ((JSL_002.Settings) settings).getLocalEnabled();       // ToDo: move getLocalEnabled to JSL.Settings
+            log.info(Mrk_JSL.JSL_MAIN, String.format("JSLCommunication local communication %s", startLocal ? "enabled" : "disabled"));
+            if (startLocal)
                 comm.startLocal();
-
         } catch (JSLCommunication.LocalCommunicationException e) {
-            System.out.println(String.format("WAR: can't start local objects search because %s", e.getMessage()));
-            e.printStackTrace();
+            log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on starting local communication of '%s' service because %s", srvInfo.getSrvId(), e.getMessage()), e);
         }
-
-        // Connect Gw S2O
         try {
-            if (((JSL_002.Settings) settings).getCloudEnabled())    // ToDo: move getCloudEnabled to JSL.Settings
+            boolean startCloud = ((JSL_002.Settings) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JSL.Settings
+            log.info(Mrk_JSL.JSL_MAIN, String.format("JSLCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
+            if (startCloud)
                 comm.connectCloud();
-
         } catch (JSLCommunication.CloudCommunicationException e) {
-            System.out.println(String.format("WAR: can't connect to cloud Gw S2O because %s", e.getMessage()));
-            e.printStackTrace();
+            log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on connecting cloud communication of '%s' service because %s", srvInfo.getSrvId(), e.getMessage()), e);
         }
 
-        // Update JSL status
-        if (comm.isLocalRunning() || comm.isCloudConnected())
-            status = Status.CONNECTED;
-        else
-            status = Status.DISCONNECTED;
+        if (status != Status.RECONNECTING) {
+            if (comm.isLocalRunning() || comm.isCloudConnected())
+                status = Status.CONNECTED;
+            else
+                status = Status.DISCONNECTED;
+            log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL set status %s", status()));
+        }
 
-        return status == Status.CONNECTED;
+        log.info(Mrk_JSL.JSL_MAIN, "JSL Srv is started");
+        log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv status           = %s", status()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv version          = %s", version()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv settings version = %s", settings.version()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv id               = %s", srvInfo.getSrvId()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv name             = %s", srvInfo.getSrvName()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean disconnect() {
-        status = Status.DISCONNECTING;
+    public void disconnect() throws ConnectException {
+        log.info(Mrk_JSL.JSL_MAIN, String.format("Disconnect JSL instance for '%s' service", srvInfo.getSrvId()));
 
-        // Stop local discovery
+
+        log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL status is %s", status()));
+        if (status() != Status.CONNECTED
+                && status() != Status.RECONNECTING)
+            throw new ConnectException(String.format("Can't disconnect JSL service '%s' because his state is '%s'.", srvInfo.getSrvId(), status()));
+
+        if (status != Status.RECONNECTING) {
+            status = Status.DISCONNECTING;
+            log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL set status %s", Status.DISCONNECTING));
+        }
+
+        log.trace(Mrk_JSL.JSL_MAIN, "JSLCommunication stop discovery and disconnect from JCP");
         try {
-            if (comm.isLocalRunning())
-                comm.stopLocal();
+            comm.stopLocal();
 
         } catch (JSLCommunication.LocalCommunicationException e) {
-            System.out.println(String.format("WAR: can't start local objects search because %s", e.getMessage()));
-            e.printStackTrace();
+            log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on stopping local communication service '%s''s objects discovery because %s", srvInfo.getSrvId(), e.getMessage()), e);
+        }
+        comm.disconnectCloud();
+
+        if (status != Status.RECONNECTING) {
+            if (comm.isLocalRunning() || comm.isCloudConnected())
+                status = Status.CONNECTED;
+            else
+                status = Status.DISCONNECTED;
+            log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL set status %s", status()));
         }
 
-        // Close all local connections
-        List<JSLLocalClient> locConns = comm.getAllLocalClients();
-        for (JSLLocalClient conn : locConns) {
-            if (conn.isConnected())
-                conn.disconnect();
-        }
-
-        // Disconnect Gw S2O
-        if (comm.isCloudConnected())
-            comm.disconnectCloud();
-
-        // Update JSL status
-        if (!comm.isLocalRunning() && !comm.isCloudConnected())
-            status = Status.DISCONNECTED;
-        else
-            status = Status.CONNECTED;
-
-        return status == Status.DISCONNECTED;
+        log.info(Mrk_JSL.JSL_MAIN, String.format("JSL Service '%s' disconnected", srvInfo.getSrvId()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean reconnect() {
+    public boolean reconnect() throws ConnectException {
+        status = Status.RECONNECTING;
+        log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL set status %s", Status.RECONNECTING));
+
+        log.trace(Mrk_JSL.JSL_MAIN, "JSL disconnect for reconnecting");
         disconnect();
+
+        log.trace(Mrk_JSL.JSL_MAIN, "JSL start for rebooting");
         connect();
 
+        status = Status.CONNECTED;
+        log.trace(Mrk_JSL.JSL_MAIN, String.format("JSL set status %s", Status.CONNECTED));
         return status == Status.CONNECTED;
     }
 

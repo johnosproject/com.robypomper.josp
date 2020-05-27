@@ -2,10 +2,10 @@ package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr;
 
 public class CmdsJSLObjsMngr {
 

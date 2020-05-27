@@ -4,6 +4,8 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.usrs.UsrName;
 import com.robypomper.josp.jcp.apis.paths.APIUsrs;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -13,6 +15,7 @@ public class JCPUserSrv {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JCPClient_Service jcpClient;
 
 

@@ -9,8 +9,7 @@ import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.josp.jsl.systems.JSLCommunication_002;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
@@ -44,7 +43,7 @@ public class JSLGwS2OClient implements Client {
      * It use the object's id as certificate id and load the S2O Gw certificate
      * to the {@link javax.net.ssl.TrustManager} used for the SSL context.
      *
-     * @param communication     instance of the {@link com.robypomper.josp.jsl.systems.JSLCommunication}
+     * @param communication     instance of the {@link JSLCommunication}
      *                          that initialized this client. It will used to
      *                          process data received from the O2S Gw.
      * @param srvInfo           the info of the represented service.
@@ -81,7 +80,7 @@ public class JSLGwS2OClient implements Client {
     // Processing incoming data
 
     /**
-     * Forward received data to the {@link com.robypomper.josp.jsl.systems.JSLCommunication}
+     * Forward received data to the {@link JSLCommunication}
      * instance.
      *
      * @param readData the message string received from the S2O Gw.
@@ -118,6 +117,22 @@ public class JSLGwS2OClient implements Client {
     @Override
     public ServerInfo getServerInfo() {
         return client.getServerInfo();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public InetAddress getClientAddr() {
+        return client.getClientAddr();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getClientPort() {
+        return client.getClientPort();
     }
 
     /**

@@ -1,10 +1,10 @@
 package com.robypomper.josp.jsl;
 
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.jsl.systems.JSLCommunication;
-import com.robypomper.josp.jsl.systems.JSLObjsMngr;
-import com.robypomper.josp.jsl.systems.JSLServiceInfo;
-import com.robypomper.josp.jsl.systems.JSLUserMngr;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
 
 import java.io.File;
 
@@ -49,20 +49,14 @@ public interface JSL {
     /**
      * Starts JSL library and his systems, then connect current JSL library
      * instance to the Gw S2O and to all available local JOD objects.
-     *
-     * @return <code>true</code> if connected to Gw O2S or if started the local
-     * discovery system, or both.
      */
-    boolean connect();
+    void connect() throws ConnectException;
 
     /**
      * Disconnect current JSL library instance from the JCP cloud and from all
      * local JOD objects, then stops JSL and all his systems.
-     *
-     * @return <code>true</code> if disconnected from Gw O2S and stopped the local
-     * discovery system.
      */
-    boolean disconnect();
+    void disconnect() throws ConnectException;
 
     /**
      * Disconnect and connect again current JSL library instance from the
@@ -72,7 +66,7 @@ public interface JSL {
      *
      * @return <code>true</code> if the JSL library result connected.
      */
-    boolean reconnect();
+    boolean reconnect() throws ConnectException;
 
     /**
      * @return the JSL library's status.
@@ -213,12 +207,12 @@ public interface JSL {
     /**
      * Exceptions for JSL object connection and disconnection down errors.
      */
-    class ConnectionException extends Throwable {
-        public ConnectionException(String msg) {
+    class ConnectException extends Throwable {
+        public ConnectException(String msg) {
             super(msg);
         }
 
-        public ConnectionException(String msg, Exception e) {
+        public ConnectException(String msg, Exception e) {
             super(msg, e);
         }
     }

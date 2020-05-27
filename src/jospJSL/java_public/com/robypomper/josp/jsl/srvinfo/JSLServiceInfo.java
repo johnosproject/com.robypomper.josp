@@ -1,5 +1,9 @@
-package com.robypomper.josp.jsl.systems;
+package com.robypomper.josp.jsl.srvinfo;
 
+
+import com.robypomper.josp.jsl.comm.JSLCommunication;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
 
 /**
  * Interface for JSL Service's info system.
@@ -116,4 +120,20 @@ public interface JSLServiceInfo {
      */
     void stopAutoRefresh();
 
+
+    // Exceptions
+
+    /**
+     * Exceptions thrown on accessing JSL systems from JSLServiceInfo when are
+     * not yet set.
+     * <p>
+     * This exception is thrown on implementation errors.
+     */
+    class SystemNotSetException extends RuntimeException {
+        private static final String MSG = "System %s not yet set";
+
+        public SystemNotSetException(String systemName) {
+            super(String.format(MSG, systemName));
+        }
+    }
 }

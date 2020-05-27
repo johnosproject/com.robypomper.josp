@@ -1,8 +1,8 @@
 package com.robypomper.josp.jsl.systems;
 
-import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
-import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
 
 import java.util.List;
 
@@ -27,9 +27,9 @@ public interface JSLCommunication {
      *
      * @param object    the object to send the action command.
      * @param component the object's component to send the action command.
-     * @param command   the action command info.
+     *                  //@param command   the action command info.
      */
-    void forwardAction(JSLRemoteObject object/*, JSLAction component, JSLActionCommand command*/);
+    void forwardAction(JSLRemoteObject object, JSLAction component/*, JSLActionCommand command*/);
 
 
     // Connections access
@@ -42,7 +42,7 @@ public interface JSLCommunication {
     /**
      * @return an array containing all local connections.
      */
-    List<JSLLocalClient> getAllLocalClients();
+    List<JSLLocalClient> getAllLocalServers();
 
 
     // Mngm methods
