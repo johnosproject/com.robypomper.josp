@@ -145,6 +145,7 @@ public class JSL_002 extends AbsJSL {
         }
 
         private void store(String property, String value) {
+            properties.put(property, value);
             if (file == null) {
                 if (!errorAlreadyPrinted) {
                     log.error(Mrk_JSL.JSL_MAIN, "Can't store configs on file, because settings are loaded from properties.");
@@ -152,7 +153,6 @@ public class JSL_002 extends AbsJSL {
                 }
                 return;
             }
-            properties.put(property, value);
 
             FileWriter writer = null;
             try {
