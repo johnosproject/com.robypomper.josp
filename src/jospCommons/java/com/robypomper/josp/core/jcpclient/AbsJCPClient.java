@@ -204,7 +204,7 @@ public abstract class AbsJCPClient implements JCPClient {
     @Override
     public <T> T execGetReq(String url, Class<T> reqObject, Map<String, String> params, boolean secure) throws RequestException, ConnectionException {
         if (!isConnected())
-            throw new ConnectionException("Client not connected");
+            throw new ConnectionException("JCPClient not connected");
 
         // Send request
         String reqUrl = prepareGetUrl(url, params);
@@ -271,7 +271,7 @@ public abstract class AbsJCPClient implements JCPClient {
     @Override
     public <T> T execPostReq(String url, Class<T> reqObject, Object param, boolean secure) throws RequestException, ConnectionException {
         if (!isConnected())
-            throw new ConnectionException("Client not connected");
+            throw new ConnectionException("JCPClient not connected");
 
         // Send request
         String reqUrl = url;
@@ -301,6 +301,7 @@ public abstract class AbsJCPClient implements JCPClient {
         if (reqObject == null)
             return null;
         if (reqObject.equals(String.class))
+            //noinspection unchecked
             return (T) body;
         return parseJSON(body, reqObject, reqUrl, secure);
     }
@@ -338,7 +339,7 @@ public abstract class AbsJCPClient implements JCPClient {
     @Override
     public <T> T execDeleteReq(String url, Class<T> reqObject, Object param, boolean secure) throws RequestException, ConnectionException {
         if (!isConnected())
-            throw new ConnectionException("Client not connected");
+            throw new ConnectionException("JCPClient not connected");
 
         // Send request
         String reqUrl = url;

@@ -19,18 +19,19 @@ import java.util.Map;
 
 /**
  * Utils class that return the user id of the user authenticated with JCP security.
- *
+ * <p>
  * The user id returned refers to original user logged in to application client
  * even if the method {@link #getUserID()} was call from the Resource Server.
  */
 public class SecurityUser {
 
-    public static final String USER_ANONYMOUS = "AnonymousUser";
+    public static final String ANONYMOUS_ID = "00000-00000-00000";
+    public static final String ANONYMOUS_USERNAME = "Anonymous";
 
 
     // Current user getters
 
-    private static Map<String,Object> getUserAttrs() throws AuthNotFoundException, UserNotAuthenticated {
+    private static Map<String, Object> getUserAttrs() throws AuthNotFoundException, UserNotAuthenticated {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth instanceof OAuth2AuthenticationToken) {

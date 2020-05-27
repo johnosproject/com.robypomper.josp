@@ -50,9 +50,7 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
     public AbsCustomTrustManager() {
         try {
             reloadTrustManager();
-        } catch (UpdateException e) {
-            assert true;    // no exceptions are thrown on empty certMap
-        }
+        } catch (UpdateException ignore) {}
     }
 
 

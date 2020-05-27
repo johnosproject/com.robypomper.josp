@@ -163,7 +163,7 @@ public class CertSharingSSLServer implements Server {
                 serverLocalEventsListener,
                 serverClientEventsListener,
                 serverMessagingEventsListener);
-        this.certServer = new SSLCertServer(serverId + "-CERT", port + 1, certPubPath, trustManager, certListener);
+        this.certServer = new SSLCertServer("_CERT_" + serverId, port + 1, certPubPath, trustManager, certListener);
     }
 
 

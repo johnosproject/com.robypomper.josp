@@ -118,7 +118,7 @@ public class DiscoveryAvahi {
 
         private Thread avahiThread = null;
         private Process avahiProcess = null;
-        private List<String> knownServices = new ArrayList<>();
+        private final List<String> knownServices = new ArrayList<>();
         private IOException avahiStartException = null;
         private boolean isShutingDown = false;
 
