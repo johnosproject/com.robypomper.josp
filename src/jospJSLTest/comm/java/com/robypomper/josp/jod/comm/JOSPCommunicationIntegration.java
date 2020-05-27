@@ -84,7 +84,7 @@ public class JOSPCommunicationIntegration {
         srvInfo = new JSLLocalClientTest.MockJSLServiceInfo("srvId/usrId/instId");
         jslUserMngr = new MockJSLUserMngr_002();
         //jslObjsMngr = new MockJSLObjsMngr_002();
-        jslObjsMngr = new JSLObjsMngr_002(jslSettings);
+        jslObjsMngr = new JSLObjsMngr_002(jslSettings, srvInfo);
 
         log.debug(Markers.TEST_METHODS, "test");
     }
@@ -442,6 +442,11 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
+        public boolean canActAsLocalCoOwner(String srvId, String usrId) {
+            return false;
+        }
+
+        @Override
         public void syncObjPermissions() {
 
         }
@@ -650,6 +655,11 @@ public class JOSPCommunicationIntegration {
         @Override
         public void setSystems(JODStructure structure, JODExecutorMngr executor, JODCommunication comm, JODPermissions permissions) {
 
+        }
+
+        @Override
+        public String getJODVersion() {
+            return null;
         }
 
         @Override
