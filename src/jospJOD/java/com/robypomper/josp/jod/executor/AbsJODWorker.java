@@ -141,4 +141,40 @@ public abstract class AbsJODWorker implements JODWorker {
         return proto + CONFIG_STR_SEP + config;
     }
 
+    public static Map<String, String> splitConfigsStrings(String config) {
+        Map<String, String> configMap = new HashMap<>();
+
+        for (String keyAndProp : config.split(";")) {
+
+            // Boolean props
+            if (keyAndProp.indexOf('=') < 0) {
+                configMap.put(keyAndProp, "true");
+                continue;
+            }
+
+            // Key = Value properties
+            String key = keyAndProp.substring(0, keyAndProp.indexOf('='));
+            String value = keyAndProp.substring(keyAndProp.indexOf('=') + 1);
+            configMap.put(key, value);
+        }
+
+        return configMap;
+    }
+
+    public int parseConfigInt(Map<String, String> configMap, String key, Integer defValue) throws MissingPropertyException, ParsingPropertyException {
+        String value = configMap.get(key);
+
+        if (value == null && defValue == null)
+            throw new MissingPropertyException(key, getProto(), getName(), "Listener");
+
+        if (value == null)
+            return defValue;
+
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            throw new ParsingPropertyException(key, getProto(), getName(), "Listener", value, e);
+        }
+    }
+
 }

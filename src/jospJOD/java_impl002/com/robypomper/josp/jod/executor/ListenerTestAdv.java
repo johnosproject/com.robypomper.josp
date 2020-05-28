@@ -53,27 +53,9 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
         super(name, proto);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-            } else {
-                // Key = Value properties
-                String key = keyAndProp.substring(0, keyAndProp.indexOf('='));
-                String value = keyAndProp.substring(keyAndProp.indexOf('=') + 1);
-                if (key.compareToIgnoreCase(PROP_FREQUENCY) == 0)
-                    try {
-                        frequency = Integer.parseInt(value);
-                    } catch (Exception e) {
-                        throw new MissingPropertyException(PROP_FREQUENCY, getProto(), getName(), value, "Listener");
-                    }
-                else if (key.compareToIgnoreCase(PROP_SLEEP_TIME) == 0)
-                    try {
-                        sleepTime = Integer.parseInt(value);
-                    } catch (Exception e) {
-                        throw new MissingPropertyException(PROP_FREQUENCY, getProto(), getName(), value, "Listener");
-                    }
-            }
-        }
-
-        if (frequency == -1)
-            throw new MissingPropertyException(PROP_FREQUENCY, getProto(), getName(), "Listener");
+        Map<String, String> properties = splitConfigsStrings(configsStr);
+        frequency = parseConfigInt(properties, PROP_FREQUENCY, 1);
+        sleepTime = parseConfigInt(properties, PROP_SLEEP_TIME, 1000);
     }
 
     // Mngm
