@@ -108,6 +108,15 @@ public class JSLLocalClient implements Client {
         // ToDo: implement onServerConnection method
     }
 
+    /**
+     * Placeholder method
+     */
+    private void onServerDisconnection() {
+        if (remoteObject != null)
+            log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnected object '%s' server '%s:%d' by '%s' service", remoteObject.getId(), getServerAddr(), getServerPort(), getClientId()));
+        communication.removeServer(this);
+    }
+
 
     // Process incoming messages
 
@@ -258,7 +267,9 @@ public class JSLLocalClient implements Client {
          * Does nothing.
          */
         @Override
-        public void onServerDisconnection() {}
+        public void onServerDisconnection() {
+            JSLLocalClient.this.onServerDisconnection();
+        }
 
         /**
          * {@inheritDoc}

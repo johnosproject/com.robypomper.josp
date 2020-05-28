@@ -44,6 +44,15 @@ public interface JSLCommunication {
      */
     List<JSLLocalClient> getAllLocalServers();
 
+    /**
+     * Remove given server connection from internal server connections list.
+     * <p>
+     * This method is called from {@link JSLLocalClient} on server disconnection.
+     *
+     * @param server the server connection to remove.
+     */
+    void removeServer(JSLLocalClient server);
+
 
     // Mngm methods
 

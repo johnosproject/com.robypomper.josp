@@ -139,6 +139,14 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         return Collections.unmodifiableList(localServers);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeServer(JSLLocalClient server) {
+        localServers.remove(server);
+    }
+
 
     // Mngm methods
 
