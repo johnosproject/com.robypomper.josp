@@ -139,14 +139,6 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         return Collections.unmodifiableList(localServers);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeServer(JSLLocalClient server) {
-        localServers.remove(server);
-    }
-
 
     // Mngm methods
 
@@ -284,18 +276,6 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             log.warn(Mrk_JSL.JSL_COMM, String.format("Error on connecting to '%s' object on server '%s:%d' from '%s' service because %s", name, address, port, srvInfo.getSrvId(), e.getMessage()), e);
             return;
         }
-
-        log.debug(Mrk_JSL.JSL_COMM, String.format("Checking object '%s' connection from '%s' service already known", locConn.getServerInfo().getServerId(), srvInfo.getSrvId()));
-        for (JSLLocalClient cl : localServers)
-            if (cl.getServerAddr().equals(locConn.getServerAddr())
-                    && cl.getServerPort() == locConn.getServerPort()
-                    && cl.getClientAddr().equals(locConn.getClientAddr())
-                    && cl.getClientPort() == locConn.getClientPort()
-            ) {
-                log.debug(Mrk_JSL.JSL_COMM, String.format("Connection already known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, address, port, srvInfo.getSrvId(), locConn.getClientAddr(), locConn.getClientPort()));
-                return;
-            }
-        log.debug(Mrk_JSL.JSL_COMM, String.format("Connection NOT known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, address, port, srvInfo.getSrvId(), locConn.getClientAddr(), locConn.getClientPort()));
 
         localServers.add(locConn);
         objs.addNewConnection(locConn);

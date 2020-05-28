@@ -149,8 +149,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public void addLocalClient(JSLLocalClient localClient) {
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
-
         boolean wasObjectConnected = isConnected();
         if (!isConnected() && !localClient.isConnected()) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getObjId()));
@@ -166,20 +164,47 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
             } catch (InterruptedException ignore) {}
             localClient.disconnect();
         }
-        localConnections.add(localClient);
+
+        log.debug(Mrk_JSL.JSL_COMM, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerInfo().getServerId(), srvInfo.getSrvId()));
+        JSLLocalClient toUpdate = null;
+        for (JSLLocalClient cl : localConnections)
+            if (cl.getServerAddr().equals(localClient.getServerAddr())
+                    && cl.getServerPort() == localClient.getServerPort()
+                //&& cl.getClientAddr().equals(locConn.getClientAddr()) // client's address and port vary on socket disconnection
+                //&& cl.getClientPort() == locConn.getClientPort()
+            ) {
+                log.debug(Mrk_JSL.JSL_COMM, String.format("Connection already known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+                if (!cl.isConnected()) {
+                    toUpdate = cl;
+                    break;
+                }
+                log.trace(Mrk_JSL.JSL_COMM, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+                cl.disconnect();
+                return;
+            }
+        if (toUpdate == null)
+            log.debug(Mrk_JSL.JSL_COMM, String.format("Connection NOT known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+
+        if (toUpdate == null) {
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding new connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
+            localConnections.add(localClient);
+        } else {
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Updating existing connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
+            localConnections.remove(toUpdate);
+            localConnections.add(localClient);
+        }
         localClient.setRemoteObject(this);
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection added for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
 
         if (!wasObjectConnected) {
             log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Requesting object's '%s' presentation", localClient.getObjId()));
             try {
                 requestObjectInfo();
                 requestObjectStructure();
+                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' info and structure requested", localClient.getObjId()));
+
             } catch (ObjectNotConnected e) {
                 log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on requesting object's '%s' presentations because %s", localClient.getObjId(), e.getMessage()), e);
-                return;
             }
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' info and structure requested", localClient.getObjId()));
         }
     }
 

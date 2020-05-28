@@ -106,18 +106,21 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * {@inheritDoc}
      */
     @Override
-    public void addNewConnection(JSLLocalClient localConnection) {
-        String locConnObjId = localConnection.getObjId();
-        JSLRemoteObject remObj = getById(locConnObjId);
+    public void addNewConnection(JSLLocalClient serverConnection) {
+        String locConnObjId = serverConnection.getObjId();
+        String serverAddr = String.format("%s:%d", serverConnection.getServerAddr(), serverConnection.getServerPort());
+        String clientAddr = String.format("%s:%d", serverConnection.getClientAddr(), serverConnection.getClientPort());
 
-        if (remObj == null) {
-            remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, localConnection);
-            System.out.println(String.format("INF: registered object %s and add connection", locConnObjId));
+        JSLRemoteObject remObj = getById(locConnObjId);
+        boolean toRegObj = remObj == null;
+        if (toRegObj) {
+            log.info(Mrk_JSL.JSL_OBJS, String.format("Register new object '%s' and add connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
+            remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection);
             objs.add(remObj);
 
         } else {
-            System.out.println(String.format("INF: add connection to already registered object '%s'", locConnObjId));
-            remObj.addLocalClient(localConnection);
+            log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
+            remObj.addLocalClient(serverConnection);
         }
     }
 
