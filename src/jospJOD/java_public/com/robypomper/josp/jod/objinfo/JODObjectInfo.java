@@ -70,11 +70,18 @@ public interface JODObjectInfo {
     // Structure's info
 
     /**
+     * The object's structure local file.
+     *
+     * @return object's structure file's path.
+     */
+    String getStructurePath();
+
+    /**
      * The object's structure definition in a String object.
      *
      * @return object's structure definition.
      */
-    String getStructureStr();
+    String readStructureStr();
 
     /**
      * The object's brand.
@@ -105,7 +112,7 @@ public interface JODObjectInfo {
      *
      * @return object's locally stored permissions.
      */
-    String getPermissionsStr();
+    String readPermissionsStr();
 
 
     // Mngm methods

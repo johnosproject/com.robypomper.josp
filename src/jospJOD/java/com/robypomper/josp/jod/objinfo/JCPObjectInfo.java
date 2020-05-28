@@ -5,7 +5,6 @@ import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
 import com.robypomper.josp.jcp.apis.params.objs.RegisterObj;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.systems.JODObjectInfo;
 
 
 /**
@@ -49,7 +48,7 @@ public class JCPObjectInfo {
     }
 
     public boolean register(JODObjectInfo objectInfo) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        RegisterObj regObjParam = new RegisterObj(objectInfo.getObjName(), objectInfo.getStructureStr());
+        RegisterObj regObjParam = new RegisterObj(objectInfo.getObjName(), objectInfo.readStructureStr());
         regObjParam.setModel(objectInfo.getModel());
         regObjParam.setBrand(objectInfo.getBrand());
         regObjParam.setLongDescr(objectInfo.getLongDescr());

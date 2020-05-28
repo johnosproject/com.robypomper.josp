@@ -676,7 +676,12 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public String getStructureStr() {
+        public String getStructurePath() {
+            return null;
+        }
+
+        @Override
+        public String readStructureStr() {
             return null;
         }
 
@@ -696,7 +701,7 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public String getPermissionsStr() {
+        public String readPermissionsStr() {
             return null;
         }
 

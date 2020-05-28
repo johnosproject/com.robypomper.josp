@@ -143,7 +143,15 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * {@inheritDoc}
      */
     @Override
-    public String getStructureStr() {
+    public String getStructurePath() {
+        return locSettings.getStructurePath().getPath();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String readStructureStr() {
         try {
             return readFile(locSettings.getStructurePath());
         } catch (IOException e) {
@@ -182,7 +190,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * {@inheritDoc}
      */
     @Override
-    public String getPermissionsStr() {
+    public String readPermissionsStr() {
         try {
             return readFile(locSettings.getPermissionsPath());
         } catch (IOException e) {

@@ -41,9 +41,24 @@ public class JODStructure_002 implements JODStructure {
         this.objInfo = objInfo;
         this.executorMngr = executorMngr;
 
-        root = loadStructure(objInfo.getStructureStr());
+        root = loadStructure(objInfo.readStructureStr());
 
-        System.out.println("DEB: JOD Structure initialized");
+        log.info(Mrk_JOD.JOD_STRU, String.format("Initialized JODStructure instance for '%s' object from '%s' file", objInfo.getObjName(), objInfo.getStructurePath()));
+        logStructure(root, 34, 64);
+    }
+
+    private static void logStructure(JODComponent component, int level, int space) {
+        String indentStr = "> ";
+        if (level > 0) {
+            String indentFormat = "%" + (level + 2) + "s";
+            indentStr = String.format(indentFormat, "> ");
+        }
+        log.debug(Mrk_JOD.JOD_STRU, String.format("%-" + space + "s (%s)", indentStr + component.getName(), component.getType()));
+
+        if (component instanceof JODContainer) {
+            for (JODComponent subComp : ((JODContainer) component).getComponents())
+                logStructure(subComp, level + 2, space);
+        }
     }
 
 
