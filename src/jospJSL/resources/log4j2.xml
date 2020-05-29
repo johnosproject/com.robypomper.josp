@@ -163,6 +163,12 @@
             <AppenderRef ref="FileFull"/>
         </Logger>
 
+        <Logger name="com.robypomper.josp.jsl.jcpclient" additivity="false">
+            <AppenderRef ref="ConsoleJOSP"/>
+            <AppenderRef ref="FileInfo"/>
+            <AppenderRef ref="FileFull"/>
+        </Logger>
+
         <Logger name="com.robypomper.josp.jsl.srvinfo" additivity="false">
             <AppenderRef ref="ConsoleJOSP"/>
             <AppenderRef ref="FileInfo"/>

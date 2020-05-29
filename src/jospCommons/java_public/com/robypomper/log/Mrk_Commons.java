@@ -9,21 +9,21 @@ public class Mrk_Commons extends Markers {
 
     // Commons-Components
 
-    protected static final Marker COMM          = MarkerManager.getMarker("COMM").setParents(EXT_COMP);                 // all communication component logs
+    protected static final Marker COMM          = MarkerManager.getMarker("COMM");                                                  // all communication component logs
     // Comm - Server
-    public static final Marker COMM_SRV         = MarkerManager.getMarker("COMM_SRV").setParents(COMM);                 // all server component logs
-    public static final Marker COMM_SRV_IMPL    = MarkerManager.getMarker("COMM_SRV_IMPL").setParents(COMM);            // all server implementations logs
+    public static final Marker COMM_SRV         = MarkerManager.getMarker("COMM_SRV").setParents(COMM,EXT_COMP);                    // all server component logs
+    public static final Marker COMM_SRV_IMPL    = MarkerManager.getMarker("COMM_SRV_IMPL").setParents(COMM,EXT_COMP);               // all server implementations logs
     // Comm - Client
-    public static final Marker COMM_CL          = MarkerManager.getMarker("COMM_CL").setParents(COMM);                  // all client component logs
-    public static final Marker COMM_CL_IMPL     = MarkerManager.getMarker("COMM_CL_IMPL").setParents(COMM);             // all client implementations logs
+    public static final Marker COMM_CL          = MarkerManager.getMarker("COMM_CL").setParents(COMM,EXT_COMP);                     // all client component logs
+    public static final Marker COMM_CL_IMPL     = MarkerManager.getMarker("COMM_CL_IMPL").setParents(COMM,EXT_COMP);                // all client implementations logs
     // SSL Utils, Server and Client
-    public static final Marker COMM_SSL_UTILS   = MarkerManager.getMarker("COMM_SSL_UTILS").setParents(COMM);           // all ssl utils logs
-    public static final Marker COMM_SSL_CERTSRV = MarkerManager.getMarker("COMM_SSL_CERTSRV").setParents(COMM_SRV_IMPL);// all ssl certificate server logs
-    public static final Marker COMM_SSL_SRV     = MarkerManager.getMarker("COMM_SSL_SRV").setParents(COMM);             // all ssl server component logs
-    public static final Marker COMM_SSL_CERTCL  = MarkerManager.getMarker("COMM_SSL_CERTCL").setParents(COMM_CL_IMPL);  // all ssl certificate client logs
-    public static final Marker COMM_SSL_CL      = MarkerManager.getMarker("COMM_SSL_CL").setParents(COMM);              // all ssl client component logs
+    public static final Marker COMM_SSL_UTILS   = MarkerManager.getMarker("COMM_SSL_UTILS").setParents(COMM,EXT_COMP);              // all ssl utils logs
+    public static final Marker COMM_SSL_CERTSRV = MarkerManager.getMarker("COMM_SSL_CERTSRV").setParents(COMM_SRV_IMPL,EXT_COMP);   // all ssl certificate server logs
+    public static final Marker COMM_SSL_SRV     = MarkerManager.getMarker("COMM_SSL_SRV").setParents(COMM,EXT_COMP);                // all ssl server component logs
+    public static final Marker COMM_SSL_CERTCL  = MarkerManager.getMarker("COMM_SSL_CERTCL").setParents(COMM_CL_IMPL,EXT_COMP);     // all ssl certificate client logs
+    public static final Marker COMM_SSL_CL      = MarkerManager.getMarker("COMM_SSL_CL").setParents(COMM,EXT_COMP);                 // all ssl client component logs
     // JCPClient
-    public static final Marker COMM_JCPCL       = MarkerManager.getMarker("COMM_JCPCL").setParents(COMM);               // all JOSP Client Platform logs
+    public static final Marker COMM_JCPCL       = MarkerManager.getMarker("COMM_JCPCL").setParents(COMM);                           // all JOSP Client Platform's clients logs
 
 
     // Commons-Components: Discovery
