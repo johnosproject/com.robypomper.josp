@@ -13,6 +13,7 @@ import javax.net.ssl.SSLException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -97,6 +98,14 @@ public class DefaultServer implements Server {
 
 
     // Server getter
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public InetAddress getAddress() {
+        return serverSocket.getInetAddress();
+    }
 
     /**
      * {@inheritDoc}

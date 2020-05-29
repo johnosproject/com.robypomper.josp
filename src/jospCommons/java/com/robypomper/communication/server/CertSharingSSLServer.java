@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
+import java.net.InetAddress;
 import java.security.KeyStore;
 import java.util.List;
 
@@ -183,6 +184,14 @@ public class CertSharingSSLServer implements Server {
 
 
     // Server getter
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public InetAddress getAddress() {
+        return sslServer.getAddress();
+    }
 
     /**
      * {@inheritDoc}
