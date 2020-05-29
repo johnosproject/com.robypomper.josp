@@ -1,5 +1,6 @@
 package com.robypomper.communication.server;
 
+import java.net.InetAddress;
 import java.util.List;
 
 
@@ -11,7 +12,14 @@ public interface Server {
     // Server getter
 
     /**
-     * Return the port binded by current server.
+     * Return the address bounded by current server.
+     *
+     * @return port used by the server.
+     */
+    InetAddress getAddress();
+
+    /**
+     * Return the port bounded by current server.
      *
      * @return port used by the server.
      */
