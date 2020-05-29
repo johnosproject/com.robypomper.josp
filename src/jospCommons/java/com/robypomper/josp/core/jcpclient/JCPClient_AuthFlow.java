@@ -1,7 +1,6 @@
 package com.robypomper.josp.core.jcpclient;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.robypomper.java.JavaSSLIgnoreChecks;
 import com.robypomper.log.Mrk_Commons;
@@ -62,11 +61,7 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
         OAuth2AccessToken tmpAccessToken;
         try {
             try {
-                try {
-                    tmpAccessToken = code != null ? service.getAccessToken(code) : service.refreshAccessToken(getRefreshToken());
-                } catch (OAuth2AccessTokenErrorResponse eAccToken) {
-                    tmpAccessToken = service.refreshAccessToken(getRefreshToken());
-                }
+                tmpAccessToken = code != null ? service.getAccessToken(code) : service.refreshAccessToken(getRefreshToken());
 
             } catch (SSLHandshakeException e) {
                 log.trace(Mrk_Commons.COMM_JCPCL, String.format("Error on SSL handshaking with JCP because %s", e.getMessage()));
@@ -76,11 +71,7 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
                     JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
                     log.debug(Mrk_Commons.COMM_JCPCL, "Localhost JCP verifier added");
 
-                    try {
-                        tmpAccessToken = code != null ? service.getAccessToken(code) : service.refreshAccessToken(getRefreshToken());
-                    } catch (OAuth2AccessTokenErrorResponse eAccToken) {
-                        tmpAccessToken = service.refreshAccessToken(getRefreshToken());
-                    }
+                    tmpAccessToken = code != null ? service.getAccessToken(code) : service.refreshAccessToken(getRefreshToken());
 
                 } catch (SSLHandshakeException e1) {
                     log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on SSL handshaking with localhost JCP because %s", e.getMessage()), e);
