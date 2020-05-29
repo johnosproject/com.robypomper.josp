@@ -74,8 +74,8 @@ public class JCPAPIsGroups {
     public static final String API_UPDS_SG_PLACEHOLDER_NAME = "Updates placeholder";
     public static final APISubGroup API_UPDS_SG_PLACEHOLDER = new APISubGroup(API_UPDS_SG_PLACEHOLDER_NAME, "Placeholder sub-group");
 
-    public static final String API_JGWS_SG_PLACEHOLDER_NAME = "JOSPGWs placeholder";
-    public static final APISubGroup API_JGWS_SG_PLACEHOLDER = new APISubGroup(API_JGWS_SG_PLACEHOLDER_NAME, "Placeholder sub-group");
+    public static final String API_JGWS_SG_O2S_NAME = "JOSPGWs";
+    public static final APISubGroup API_JGWS_SG_O2S = new APISubGroup(API_JGWS_SG_O2S_NAME, "Object2Service and Service2Object Gateway's APIs");
 
     public static final APISubGroup[] API_EXMPL_SUBGROUPS = {API_EXMPL_SG_METHODS, API_EXMPL_SG_DB, API_EXMPL_SG_AUTHENTICATION, API_EXMPL_SG_AUTHORIZATION};
     public static final APISubGroup[] API_LOGIN_SUBGROUPS = {API_LOGIN_SG_PLACEHOLDER};
@@ -85,7 +85,7 @@ public class JCPAPIsGroups {
     public static final APISubGroup[] API_PERM_SUBGROUPS = {/*API_PERM_SG_BASE, */API_PERM_SG_OBJ};
     public static final APISubGroup[] API_CONF_SUBGROUPS = {API_CONF_SG_PLACEHOLDER};
     public static final APISubGroup[] API_UPDS_SUBGROUPS = {API_UPDS_SG_PLACEHOLDER};
-    public static final APISubGroup[] API_JGWS_SUBGROUPS = {API_JGWS_SG_PLACEHOLDER};
+    public static final APISubGroup[] API_JGWS_SUBGROUPS = {API_JGWS_SG_O2S};
 
 
     // API's paths (only for @RequestMapping annotations)
@@ -98,7 +98,7 @@ public class JCPAPIsGroups {
     public static final String PATH_PERM = "/apis/permissions/" + VER_VER;
     public static final String PATH_CONF = "/apis/configs/" + VER_VER;
     public static final String PATH_UPDS = "/apis/updates/" + VER_VER;
-    public static final String PATH_JGWS = "/apis/jospgws/" + VER_VER;
+    //public static final String PATH_JGWS = "/apis/jospgws/" + VER_VER;
 
 
     // Static declarations and initializations
