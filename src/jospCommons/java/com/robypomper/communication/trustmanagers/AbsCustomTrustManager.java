@@ -133,14 +133,14 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
         }
 
         // add all temporary certs to KeyStore (ts)
-        for (Certificate cert : certList)
+        for (Map.Entry<String, Certificate> cert : certsMap.entrySet())
             try {
-                ks.setCertificateEntry(String.valueOf(UUID.randomUUID()), cert);
+                ks.setCertificateEntry(String.valueOf(UUID.randomUUID()), cert.getValue());
             } catch (KeyStoreException e) {
                 throw new UpdateException("add certificate", e);
             }
 
-        // initialize a new TMF with the ts we just loaded
+        // initialize a new TMF with the ks we just loaded
         TrustManagerFactory tmf;      //TrustManagerFactory.getDefaultAlgorithm()
         try {
             tmf = TrustManagerFactory.getInstance(UtilsSSL.TRUSTMNGR_ALG);

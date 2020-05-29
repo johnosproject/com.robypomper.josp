@@ -257,6 +257,21 @@ public class UtilsJKS {
     }
 
     /**
+     * Save <code>ksAlias</code> certificate contained in <code>ksFile</code>
+     * to <code>exportCertFile</code>given certificate chain as public certificate to the KeyStore.
+     */
+    public static Certificate extractCertificate(KeyStore keyStore, String ksAlias) throws GenerationException {
+        log.trace(Mrk_Commons.COMM_SSL_UTILS, String.format("Extracting certificate '%s'", ksAlias));
+
+        try {
+            return keyStore.getCertificate(ksAlias);
+
+        } catch (KeyStoreException e) {
+            throw new GenerationException(String.format("Error extracting certificate because %s", e.getMessage()), e);
+        }
+    }
+
+    /**
      * Load the Certificate from given string.
      *
      * @param file the file containing the certificate.
