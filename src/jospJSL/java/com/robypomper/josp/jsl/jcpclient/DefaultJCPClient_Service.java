@@ -1,5 +1,6 @@
 package com.robypomper.josp.jsl.jcpclient;
 
+import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.robypomper.josp.core.jcpclient.DefaultJCPConfigs;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.core.jcpclient.JCPClient_AuthFlow;
@@ -60,6 +61,8 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
                 isAuthFlow = true;
             } catch (ConnectionException e) {
                 log.warn(Mrk_JSL.JSL_COMM_JCPCL, String.format("Error on connecting JCPClient to JCP with authentication flow because %s", e.getMessage()), e);
+            } catch (OAuth2AccessTokenErrorResponse e) {
+                log.warn(Mrk_JSL.JSL_COMM_JCPCL, String.format("Error on accessing JCPClient to JCP with authentication flow because %s", e.getMessage()), e);
             }
         }
 
