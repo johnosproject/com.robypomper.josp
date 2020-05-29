@@ -2,10 +2,12 @@ package com.robypomper.josp.core.jcpclient;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.robypomper.java.JavaSSLIgnoreChecks;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -45,14 +47,37 @@ public class JCPClient_CliCredFlow extends AbsJCPClient {
     protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException {
         log.debug(Mrk_Commons.COMM_JCPCL, "Getting the JCPClient access token");
 
-        final OAuth2AccessToken accessToken;
+        OAuth2AccessToken tmpAccessToken;
         try {
-            accessToken = service.getAccessTokenClientCredentialsGrant();
+            try {
+                tmpAccessToken = service.getAccessTokenClientCredentialsGrant();
+
+            } catch (SSLHandshakeException e) {
+                log.trace(Mrk_Commons.COMM_JCPCL, String.format("Error on SSL handshaking with JCP because %s", e.getMessage()));
+
+                try {
+                    log.debug(Mrk_Commons.COMM_JCPCL, "Add localhost JCP verifier");
+                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                    log.debug(Mrk_Commons.COMM_JCPCL, "Localhost JCP verifier added");
+
+                    tmpAccessToken = service.getAccessTokenClientCredentialsGrant();
+
+                } catch (SSLHandshakeException e1) {
+                    log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on SSL handshaking with localhost JCP because %s", e.getMessage()), e);
+                    throw new ConnectionException("Error on SSL handshaking with localhost JCP", e);
+
+                } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException javaSSLIgnoreChecksException) {
+                    log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on add localhost JCP verifier because %s", e.getMessage()), e);
+                    throw new ConnectionException("Error on add localhost JCP verifier", e);
+                }
+            }
 
         } catch (IOException | InterruptedException | ExecutionException e) {
             log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on getting the JCPClient access token because %s", e.getMessage()), e);
             throw new ConnectionException("Error on getting the access token", e);
         }
+
+        final OAuth2AccessToken accessToken = tmpAccessToken;
 
         log.debug(Mrk_Commons.COMM_JCPCL, "JCPClient access token got");
         return accessToken;
