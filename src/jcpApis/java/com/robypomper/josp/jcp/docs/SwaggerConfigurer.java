@@ -127,6 +127,11 @@ public class SwaggerConfigurer {
         return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_UPDS));
     }
 
+    @Bean
+    public Docket jospgwsApis() {
+        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_JGWS));
+    }
+
 
     // Private configurers
 
