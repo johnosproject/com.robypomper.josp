@@ -9,12 +9,14 @@ import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.jvm.tasks.Jar;
 
+import java.io.File;
+
 
 /**
  * Add support pure java applications.
- *
+ * <p>
  * This class register 2 tasks: jar and run tasks.
- *
+ * <p>
  * First one, the jar, task assemble in a single jar all source set java sources.
  * Second one, the run task, allow to execute the main class specified as a java
  * application.
@@ -29,8 +31,8 @@ public class JavaRunnableUtils {
      * @param mainClass
      */
     static public void makeJavaFromSourceSet(Project project, SourceSet ss, String mainClass) {
-        JavaRunnableUtils.configureJavaJarTask(project,ss,"");
-        JavaRunnableUtils.configureJavaRunTask(project,ss,mainClass,"");
+        JavaRunnableUtils.configureJavaJarTask(project, ss, "");
+        JavaRunnableUtils.configureJavaRunTask(project, ss, mainClass, "", project.getProjectDir());
     }
 
     /**
@@ -39,37 +41,61 @@ public class JavaRunnableUtils {
      * @param project
      * @param ss
      * @param mainClass
-     * @param taskPostName
+     * @param taskBaseName
      */
-    static public void makeJavaFromSourceSet(Project project, SourceSet ss, String mainClass, String taskPostName) {
-        JavaRunnableUtils.configureJavaJarTask(project,ss,taskPostName);
-        JavaRunnableUtils.configureJavaRunTask(project,ss,mainClass,taskPostName);
+    static public void makeJavaFromSourceSet(Project project, SourceSet ss, String mainClass, String taskBaseName) {
+        JavaRunnableUtils.configureJavaJarTask(project, ss, taskBaseName);
+        JavaRunnableUtils.configureJavaRunTask(project, ss, mainClass, taskBaseName, project.getProjectDir());
     }
 
-    static private Jar configureJavaJarTask(Project project, SourceSet ss, String taskPostName) {
-        if (!taskPostName.isEmpty() && !taskPostName.startsWith("_"))
-            taskPostName = "_" + taskPostName;
+    /**
+     * Create java application build and run tasks for given source set.
+     *
+     * @param project
+     * @param ss
+     * @param mainClass
+     * @param taskBaseName
+     * @param workingDir
+     */
+    static public void makeJavaFromSourceSet(Project project, SourceSet ss, String mainClass, String taskBaseName, File workingDir) {
+        JavaRunnableUtils.configureJavaJarTask(project, ss, taskBaseName);
+        JavaRunnableUtils.configureJavaRunTask(project, ss, mainClass, taskBaseName, workingDir);
+    }
 
-        String taskName = String.format("java%sJar", Naming.capitalize(ss.getName() + taskPostName));
-        Jar javaJar = project.getTasks().create(taskName, Jar.class);
-        javaJar.setDescription(String.format("Assembles an executable jar archive containing the %s classes and their dependencies.",ss.getName()));
+    static private Jar configureJavaJarTask(Project project, SourceSet ss, String taskName) {
+        if (taskName.isEmpty())
+            taskName = ss.getName();
+        else if (taskName.startsWith("_"))
+            taskName = String.format("%s%s", ss.getName(), taskName);
+
+        String jarTaskName = String.format("java%sJar", Naming.capitalize(taskName));
+        Jar javaJar = project.getTasks().create(jarTaskName, Jar.class);
+        javaJar.setDescription(String.format("Assembles an executable jar archive containing the %s classes and their dependencies.", ss.getName()));
         javaJar.setGroup(BasePlugin.BUILD_GROUP);
         javaJar.from(ss.getOutput());
         return javaJar;
     }
 
-    static private JavaExec configureJavaRunTask(Project project, SourceSet ss, String mainClass, String taskPostName) {
-        if (!taskPostName.isEmpty() && !taskPostName.startsWith("_"))
-            taskPostName = "_" + taskPostName;
+    static private JavaExec configureJavaRunTask(Project project, SourceSet ss, String mainClass, String taskName, File workingDir) {
+        if (taskName.isEmpty())
+            taskName = ss.getName();
+        else if (taskName.startsWith("_"))
+            taskName = String.format("%s%s", ss.getName(), taskName);
 
-        String taskName = String.format("java%sRun", Naming.capitalize(ss.getName() + taskPostName));
-        String buildTaskName = String.format("java%sJar", Naming.capitalize(ss.getName() + taskPostName));
+        String runTaskName = String.format("java%sRun", Naming.capitalize(taskName));
+        String buildTaskName = String.format("java%sJar", Naming.capitalize(taskName));
         JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-        JavaExec run = project.getTasks().create(taskName, JavaExec.class);
-        run.setDescription(String.format("Runs this project %s sources as a Java application.",ss.getName()));
+        JavaExec run = project.getTasks().create(runTaskName, JavaExec.class);
+        run.setDescription(String.format("Runs this project %s sources as a Java application.", ss.getName()));
         run.setGroup(ApplicationPlugin.APPLICATION_GROUP);
         run.classpath(ss.getRuntimeClasspath());
         run.setMain(mainClass);
+        run.setWorkingDir(workingDir);
+        run.doFirst(task -> {
+            if (!workingDir.exists())
+                workingDir.mkdirs();
+        });
+
         return run;
     }
 

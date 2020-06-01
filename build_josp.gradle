@@ -54,8 +54,8 @@ dependencies {
 }
 
 // Add java app's run tasks
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJOD,'com.robypomper.josp.jod.JODShell','Shell')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJSL,'com.robypomper.josp.jsl.JSLShell','Shell')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJOD,'com.robypomper.josp.jod.JODShell','_Shell')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJSL,'com.robypomper.josp.jsl.JSLShell','_Shell')
 
 tasks.javaJospJOD_ShellRun {
     standardInput = System.in

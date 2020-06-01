@@ -21,13 +21,13 @@ dependencies {
 }
 
 // Add java app's run tasks
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_Obj')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Auth_UsrSrv')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Auth_Obj')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Auth_UsrSrv')
 
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Reg_Usr')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Reg_Obj')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Reg_Usr')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Reg_Obj')
 
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','Test_Keycloak')
+JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Test_Keycloak')
 
 tasks.javaClientTest_Auth_ObjRun {
     group 'application test'
