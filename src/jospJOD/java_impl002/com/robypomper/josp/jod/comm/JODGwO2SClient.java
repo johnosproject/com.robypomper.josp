@@ -9,14 +9,19 @@ import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.log.Mrk_JOD;
+import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
-import java.io.File;
 import java.net.InetAddress;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 
 
 /**
@@ -36,47 +41,74 @@ public class JODGwO2SClient implements Client {
 
     private static final Logger log = LogManager.getLogger();
     private final JODCommunication_002 communication;
+    private final JODObjectInfo objInfo;
     private final DefaultSSLClient client;
 
 
     // Constructor
 
     /**
-     * Generate the SSL context to use for O2S Gw connection.
+     * Default constructor for JOSP GW O2S client.
+     * <p>
+     * Generate the SSL context, request the GW's access info and  to use for O2S Gw connection.
      * It use the object's id as certificate id and load the O2S Gw certificate
      * to the {@link javax.net.ssl.TrustManager} used for the SSL context.
      *
-     * @param communication     instance of the {@link JODCommunication}
-     *                          that initialized this client. It will used to
-     *                          process data received from the O2S Gw.
-     * @param objInfo           the info of the represented object.
-     * @param serverAddress     the O2S Gw address.
-     * @param serverPort        the O2S Gw port.
-     * @param clientPubCertFile the file path for current client's public certificate.
-     * @param serverPubCertFile the file path for O2S Gw server's public certificate.
+     * @param communication instance of the {@link JODCommunication}
+     *                      that initialized this client. It will used to
+     *                      process data received from the O2S Gw.
+     * @param objInfo       the info of the represented object.
+     * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JODGwO2SClient(JODCommunication_002 communication, JODObjectInfo objInfo,
-                          InetAddress serverAddress, int serverPort,
-                          String clientPubCertFile, String serverPubCertFile) {
+    public JODGwO2SClient(JODCommunication_002 communication, JODObjectInfo objInfo, JCPCommObj jcpComm) throws JODCommunication.CloudCommunicationException {
         this.communication = communication;
+        this.objInfo = objInfo;
 
-        // Create ssl context
+        Certificate clientCert;
+        DynAddTrustManager clientTrustManager;
         SSLContext sslCtx;
         try {
+            log.trace(Mrk_JOD.JOD_COMM_SUB, "Generating ssl context for object's cloud client");
             KeyStore clientKeyStore = UtilsJKS.generateKeyStore(objInfo.getObjId(), "", CERT_ALIAS);
-            UtilsJKS.exportCertificate(clientKeyStore, clientPubCertFile, CERT_ALIAS);
-            DynAddTrustManager clientTrustManager = new DynAddTrustManager();
-            clientTrustManager.addCertificate(JCP_CERT_ALIAS, new File(serverPubCertFile));
+            clientCert = UtilsJKS.extractCertificate(clientKeyStore, CERT_ALIAS);
+            clientTrustManager = new DynAddTrustManager();
             sslCtx = UtilsSSL.generateSSLContext(clientKeyStore, "", clientTrustManager);
 
-        } catch (UtilsSSL.GenerationException | UtilsJKS.GenerationException | AbsCustomTrustManager.UpdateException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        } catch (UtilsSSL.GenerationException | UtilsJKS.GenerationException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on generating ssl context for object's cloud client because %s", e.getMessage()), e);
+            throw new JODCommunication.CloudCommunicationException("Error on generating ssl context for object's cloud client", e);
+        }
+
+        O2SAccessInfo o2sAccess;
+        try {
+            log.trace(Mrk_JOD.JOD_COMM_SUB, "Getting JOSP Gw O2S access info for object's cloud client");
+            o2sAccess = jcpComm.getO2SAccessInfo(clientCert);
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on getting JOSP Gw O2S access info for object's cloud client because %s", e.getMessage()), e);
+            throw new JODCommunication.CloudCommunicationException("Error on getting JOSP Gw O2S access info for object's cloud client", e);
+        } catch (CertificateEncodingException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on request JOSP Gw O2S access info for object's cloud client because %s", e.getMessage()), e);
+            throw new JODCommunication.CloudCommunicationException("Error on request JOSP Gw O2S access info for object's cloud client", e);
+        }
+
+        Certificate gwCertificate;
+        try {
+            log.trace(Mrk_JOD.JOD_COMM_SUB, "Registering JOSP Gw O2S certificate for object's cloud client");
+            gwCertificate = UtilsJKS.loadCertificateFromBytes(o2sAccess.gwCertificate);
+            clientTrustManager.addCertificate(JCP_CERT_ALIAS, gwCertificate);
+
+        } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on registering JOSP Gw O2S certificate to object's cloud client because %s", e.getMessage()), e);
+            throw new JODCommunication.CloudCommunicationException("Error on registering JOSP Gw O2S certificate to object's cloud client", e);
         }
 
         // Init SSL client
-        client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), serverAddress, serverPort,
+        client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), o2sAccess.gwAddress, o2sAccess.gwPort,
                 null, null, new GwO2SClientMessagingEventsListener());
+
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwS2OClient for service '%s'", objInfo.getObjId()));
+        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", o2sAccess.gwAddress, o2sAccess.gwPort));
+        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           with certificate '%d'", gwCertificate.hashCode()));
     }
 
 
@@ -90,8 +122,30 @@ public class JODGwO2SClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        communication.forwardAction(readData);
-        return true;
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from GWs O2S to '%s' object", readData.substring(0, readData.indexOf("\n")), objInfo.getObjId()));
+
+        // Action requests
+        if (communication.forwardAction(readData))
+            return true;
+
+        // Service requests
+        String responseOrError = communication.processCloudRequest(readData);
+        if (responseOrError != null) {
+            log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Sending response for cloud request '%s...' to GWs O2S from '%s' object", readData.substring(0, 10), objInfo.getObjId()));
+            try {
+                sendData(responseOrError);
+                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Response for service request '%s...' send to GWs O2S from '%s' object", readData.substring(0, 10), objInfo.getObjId()));
+                return true;
+
+            } catch (ServerNotConnectedException e) {
+                log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending response for service request '%s...' to GWs O2S from '%s' object because %s", readData.substring(0, 10), objInfo.getObjId(), e.getMessage()), e);
+                return false;
+            }
+        }
+
+        // Unknown request
+        log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on processing received data '%s...' from GWs O2S to '%s' object because unknown request", readData.substring(0, 10), objInfo.getObjId()));
+        return false;
     }
 
 
