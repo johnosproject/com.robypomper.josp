@@ -1,0 +1,14 @@
+{
+    "model": "Mx Ergo",
+    "brand": "Logitech",
+    "descr": "Wireless trackball",
+    "descr_long": "Economical trackball pointing device with wireless capabilities and many additional buttons (rolling click, rolling hor scroll, slow pointer...).",
+
+    "contains": {
+        "SubSubComp" : {
+            "type": "JODState",
+            "listener" : "tstLAdv://sleep=1000;frequency=60;"
+        }
+    }
+
+}

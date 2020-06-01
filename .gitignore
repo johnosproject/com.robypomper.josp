@@ -1,5 +1,6 @@
 # JCP Project
 /docker_envs*
+/envs*
 .idea
 /src/jospJOD/configs/perms.jod
 
