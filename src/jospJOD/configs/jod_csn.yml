@@ -1,0 +1,26 @@
+jod.version: 0.0.2
+
+# JOD's IDs
+jcp.client.id: test-client-obj
+jcp.client.secret: 2d1f9b96-70d3-443b-b21b-08a401ddc16c
+jod.obj.id_hw: CSNXX
+jod.obj.id_cloud: CSNXX-KETUH-YNKBG
+jod.obj.name: 'Config Test Object CSNXX'
+jod.permissions.owner: AAAAA-00000-00000
+
+# JCP Client
+#jcp.connect: false
+jcp.url: 'https://localhost:8998'
+
+# Communication
+#jod.comm.local.enabled: false
+#jod.comm.cloud.enabled: false
+
+# Executor
+jod.executor_mngr.pullers:
+  'tstP://com.robypomper.josp.jod.executor.PullerTest'
+jod.executor_mngr.listeners:
+  'tstL://com.robypomper.josp.jod.executor.ListenerTest
+   tstLAdv://com.robypomper.josp.jod.executor.ListenerTestAdv'
+jod.executor_mngr.executors:
+  'tstE://com.robypomper.josp.jod.executor.ExecutorTest'
