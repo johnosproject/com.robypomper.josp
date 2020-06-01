@@ -40,6 +40,7 @@ public class JCPAPIsGroups {
     public static final String API_UPDS = "Updates";
     public static final String API_JGWS = "JOSPGWs";
 
+
     // API's Sub-Groups
 
     public static final String API_EXMPL_SG_METHODS_NAME = "Method examples";
@@ -63,8 +64,6 @@ public class JCPAPIsGroups {
     public static final String API_SRVS_SG_BASE_NAME = "Service's info'";
     public static final APISubGroup API_SRVS_SG_BASE = new APISubGroup(API_SRVS_SG_BASE_NAME, "Get service info...");
 
-    //public static final String API_PERM_SG_BASE_NAME = "Permissions's info";
-    //public static final APISubGroup API_PERM_SG_BASE = new APISubGroup(API_PERM_SG_BASE_NAME, "empty...");
     public static final String API_PERM_SG_OBJ_NAME = "Object's permissions";
     public static final APISubGroup API_PERM_SG_OBJ = new APISubGroup(API_PERM_SG_OBJ_NAME, "Get/merge permissions, set owner...");
 
@@ -82,20 +81,20 @@ public class JCPAPIsGroups {
     public static final APISubGroup[] API_USRS_SUBGROUPS = {API_USRS_SG_BASE};
     public static final APISubGroup[] API_OBJS_SUBGROUPS = {API_OBJS_SG_BASE};
     public static final APISubGroup[] API_SRVS_SUBGROUPS = {API_SRVS_SG_BASE};
-    public static final APISubGroup[] API_PERM_SUBGROUPS = {/*API_PERM_SG_BASE, */API_PERM_SG_OBJ};
+    public static final APISubGroup[] API_PERM_SUBGROUPS = {API_PERM_SG_OBJ};
     public static final APISubGroup[] API_CONF_SUBGROUPS = {API_CONF_SG_PLACEHOLDER};
     public static final APISubGroup[] API_UPDS_SUBGROUPS = {API_UPDS_SG_PLACEHOLDER};
     public static final APISubGroup[] API_JGWS_SUBGROUPS = {API_JGWS_SG_O2S};
 
 
-    // API's paths (only for @RequestMapping annotations)
+    // API's paths (only for @RequestMapping annotations) DEPRECATED
 
     public static final String PATH_EXMPL = "/apis/examples/" + VER_TEST;
     public static final String PATH_LOGIN = "/apis/login/" + VER_VER;
     //public static final String PATH_USRS = "/apis/user/" + VER_VER;
     //public static final String PATH_OBJS = "/apis/object/" + VER_VER;
-    public static final String PATH_SRVS = "/apis/service/" + VER_VER;
-    public static final String PATH_PERM = "/apis/permissions/" + VER_VER;
+    //public static final String PATH_SRVS = "/apis/service/" + VER_VER;
+    //public static final String PATH_PERM = "/apis/permissions/" + VER_VER;
     public static final String PATH_CONF = "/apis/configs/" + VER_VER;
     public static final String PATH_UPDS = "/apis/updates/" + VER_VER;
     //public static final String PATH_JGWS = "/apis/jospgws/" + VER_VER;
@@ -168,8 +167,8 @@ public class JCPAPIsGroups {
     public static class APISubGroup {
 
         private final String name;
-
         private final String description;
+
     }
 
 }

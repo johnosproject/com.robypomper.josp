@@ -59,7 +59,6 @@ public class ObjectPermissionsController {
 
     // Methods
 
-
     /**
      * Generate and return a valid Object's permission set depending on required
      * <code>strategy</code>.

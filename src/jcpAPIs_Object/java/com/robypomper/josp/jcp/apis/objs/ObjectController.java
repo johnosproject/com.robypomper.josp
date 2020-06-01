@@ -72,7 +72,7 @@ public class ObjectController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = ObjectId.class),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
