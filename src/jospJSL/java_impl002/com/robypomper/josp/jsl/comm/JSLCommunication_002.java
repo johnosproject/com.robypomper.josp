@@ -13,6 +13,7 @@ import com.robypomper.josp.jsl.objs.structure.JSLAction;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,12 +35,13 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JSL_002.Settings settings;
+    private final JSL_002.Settings locSettings;
     private final JSLServiceInfo srvInfo;
     private final JSLUserMngr usr;
     private final JSLObjsMngr objs;
     private final JCPClient_Service jcpClient;
-    private final String discoveryImpl;
+    private final JCPCommSrv jcpComm;
+    private final String instanceId;
     private final Discover localServerDiscovery;
     private final List<JSLLocalClient> localServers = new ArrayList<>();
     private final JSLGwS2OClient gwClient;
@@ -55,15 +57,17 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      * @param objs      the {@link JSLObjsMngr} instance used to update component
      *                  status.
      */
-    public JSLCommunication_002(JSL_002.Settings settings, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JSLUserMngr usr, JSLObjsMngr objs) throws LocalCommunicationException {
-        this.settings = settings;
+    public JSLCommunication_002(JSL_002.Settings settings, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JSLUserMngr usr, JSLObjsMngr objs, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
+        this.locSettings = settings;
         this.srvInfo = srvInfo;
+        this.jcpClient = jcpClient;
+        this.jcpComm = new JCPCommSrv(jcpClient, settings, instanceId);
         this.usr = usr;
         this.objs = objs;
-        this.jcpClient = jcpClient;
+        this.instanceId = instanceId;
 
         // Init local service client and discovery
-        discoveryImpl = settings.getJSLDiscovery();
+        String discoveryImpl = locSettings.getJSLDiscovery();
         try {
             log.debug(Mrk_JSL.JSL_COMM, String.format("Creating discovery '%s' service for local object's servers", discoveryImpl));
             // If required JmDNS implementation, start his sub-system
@@ -80,16 +84,14 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         }
 
         // Init cloud service client
-        InetAddress cloudAddr = InetAddress.getLoopbackAddress();           // from APIs
-        int cloudPort = 9014;                                               // from APIs
-        log.debug(Mrk_JSL.JSL_COMM, "Creating communication cloud client for Service2Object Gateway");
-        String cloudClientPubCertFile = settings.getCloudClientPublicCertificate();
-        String cloudServerPubCertFile = settings.getCloudServerPublicCertificate();
-        log.trace(Mrk_JSL.JSL_COMM, String.format("Service2Object Gateway client use local certificate file '%s'", cloudClientPubCertFile));
-        log.trace(Mrk_JSL.JSL_COMM, String.format("Service2Object Gateway client use public cloud certificate file '%s'", cloudServerPubCertFile));
-        log.debug(Mrk_JSL.JSL_COMM, String.format("Service2Object Gateway client use address '%s:%d'", cloudAddr, cloudPort));
-        gwClient = new JSLGwS2OClient(this, srvInfo, cloudAddr, cloudPort, cloudClientPubCertFile, cloudServerPubCertFile);
-        log.debug(Mrk_JSL.JSL_COMM, "Communication cloud client created for Service2Object Gateway");
+        try {
+            log.debug(Mrk_JOD.JOD_COMM, "Creating communication cloud client for Object2Service Gateway");
+            gwClient = new JSLGwS2OClient(this, srvInfo, jcpComm);
+            log.debug(Mrk_JOD.JOD_COMM, "Communication cloud client created for Object2Service Gateway");
+        } catch (CloudCommunicationException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on creating service's cloud client because %s", e.getMessage()), e);
+            throw new CloudCommunicationException("Error on creating service's cloud client", e);
+        }
 
         log.info(Mrk_JSL.JSL_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') service", srvInfo.getSrvName(), srvInfo.getSrvId()));
     }
@@ -198,7 +200,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
 
         } catch (Discover.DiscoveryException e) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Error on stopping local communication service's discovery '%s' because %s", srvInfo.getSrvId(), e.getMessage()), e);
-            throw new LocalCommunicationException(String.format("Error on stopping local communication service's discovery '%s' system '%s'", srvInfo.getSrvId(), discoveryImpl), e);
+            throw new LocalCommunicationException(String.format("Error on stopping local communication service's discovery '%s' system '%s'", srvInfo.getSrvId(), locSettings.getJSLDiscovery()), e);
         }
 
         log.debug(Mrk_JSL.JSL_COMM, "Disconnecting local communication service's clients");
@@ -267,8 +269,8 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             return;
         }
 
-        String ksFile = settings.getLocalClientKeyStore();
-        String ksPass = settings.getLocalClientKeyStorePass();
+        String ksFile = locSettings.getLocalClientKeyStore();
+        String ksPass = locSettings.getLocalClientKeyStorePass();
 
         JSLLocalClient locConn;
         try {
