@@ -50,7 +50,7 @@ public class JOD_002 extends AbsJOD {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
-    public static JOD instance(Settings settings) throws JCPClient.ConnectionSettingsException, JODStructure.ParsingException, JODCommunication.LocalCommunicationException {
+    public static JOD instance(Settings settings) throws JCPClient.ConnectionSettingsException, JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException {
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JOD.JOD_MAIN, String.format("Init JOD instance id '%s'", instanceId));
 
