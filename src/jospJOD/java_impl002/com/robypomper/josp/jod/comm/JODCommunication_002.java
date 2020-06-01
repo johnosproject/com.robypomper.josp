@@ -5,8 +5,8 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODState;
@@ -18,7 +18,6 @@ import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,10 +34,12 @@ public class JODCommunication_002 implements JODCommunication {
     private final JODObjectInfo objInfo;
     private final JODPermissions permissions;
     private JODStructure structure;
+    private final JCPClient_Object jcpClient;
+    private final JCPCommObj jcpComm;
+    private final String instanceId;
     private final JODLocalServer localServer;
     private final Publisher localServerPublisher;
     private final JODGwO2SClient gwClient;
-    private final String instanceId;
 
 
     // Constructor
@@ -54,10 +55,12 @@ public class JODCommunication_002 implements JODCommunication {
      *                    connected services's permissions to receive updates or
      *                    exec actions.
      */
-    public JODCommunication_002(JOD_002.Settings settings, JODObjectInfo objInfo, JCPClient jcpClient, JODPermissions permissions, String instanceId) throws LocalCommunicationException {
+    public JODCommunication_002(JOD_002.Settings settings, JODObjectInfo objInfo, JCPClient_Object jcpClient, JODPermissions permissions, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
         this.locSettings = settings;
         this.objInfo = objInfo;
         this.permissions = permissions;
+        this.jcpClient = jcpClient;
+        this.jcpComm = new JCPCommObj(jcpClient, settings, instanceId);
         this.instanceId = instanceId;
 
         // Init local object server
@@ -92,16 +95,14 @@ public class JODCommunication_002 implements JODCommunication {
         }
 
         // Init cloud object client
-        InetAddress cloudAddr = InetAddress.getLoopbackAddress();           // from APIs
-        int cloudPort = 9014;                                               // from APIs
-        log.debug(Mrk_JOD.JOD_COMM, "Creating communication cloud client for Object2Service Gateway");
-        String cloudClientPubCertFile = locSettings.getCloudClientPublicCertificate();
-        String cloudServerPubCertFile = locSettings.getCloudServerPublicCertificate();
-        log.trace(Mrk_JOD.JOD_COMM, String.format("Object2Service Gateway client use local certificate file '%s'", cloudClientPubCertFile));
-        log.trace(Mrk_JOD.JOD_COMM, String.format("Object2Service Gateway client use public cloud certificate file '%s'", cloudServerPubCertFile));
-        log.debug(Mrk_JOD.JOD_COMM, String.format("Object2Service Gateway client use address '%s:%d'", cloudAddr, cloudPort));
-        gwClient = new JODGwO2SClient(this, objInfo, cloudAddr, cloudPort, cloudClientPubCertFile, cloudServerPubCertFile);
-        log.debug(Mrk_JOD.JOD_COMM, "Communication cloud client created for Object2Service Gateway");
+        try {
+            log.debug(Mrk_JOD.JOD_COMM, "Creating communication cloud client for Object2Service Gateway");
+            gwClient = new JODGwO2SClient(this, objInfo, jcpComm);
+            log.debug(Mrk_JOD.JOD_COMM, "Communication cloud client created for Object2Service Gateway");
+        } catch (CloudCommunicationException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on creating object's cloud client because %s", e.getMessage()), e);
+            throw new CloudCommunicationException("Error on creating object's cloud client", e);
+        }
 
         log.info(Mrk_JOD.JOD_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') object", objInfo.getObjName(), objInfo.getObjId()));
         log.debug(Mrk_JOD.JOD_COMM, String.format("                                    local server%s started and%s published", localServer.isRunning() ? "" : " NOT", localServerPublisher.isPublished() ? "" : " NOT"));
@@ -258,6 +259,56 @@ public class JODCommunication_002 implements JODCommunication {
     private void checkServiceRequest_OwnerPermission(JODLocalClientInfo client) throws MissingPermissionException {
         if (!permissions.canActAsLocalCoOwner(client.getSrvId(), client.getUsrId()))
             throw new MissingPermissionException("LocalServiceRequest", client.getSrvId(), client.getUsrId());
+    }
+
+
+    // Cloud requests
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String processCloudRequest(String msg) {
+        log.warn(Mrk_JOD.JOD_COMM, "Process cloud request not implemented");
+        return "Not implemented";
+
+//        log.trace(Mrk_JOD.JOD_COMM, String.format("Process service request from '%s' service", client.getClientId()));
+//
+//        try {
+//            String response = null;
+//            String error = null;
+//
+//            // Object info request
+//            if (JOSPProtocol_ServiceRequests.isObjectInfoRequest(msg)) {
+//                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectInfoRequest");
+//                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectInfoRequest request for service '%s'", client.getClientId()));
+//                checkServiceRequest_ReadPermission(client);
+//                response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
+//                log.debug(Mrk_JOD.JOD_COMM, "Service request ObjectInfoRequest processed");
+//            }
+//
+//            // Object structure request
+//            if (JOSPProtocol_ServiceRequests.isObjectStructureRequest(msg)) {
+//                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectStructureRequest");
+//                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectStructureRequest request for service '%s'", client.getClientId()));
+//                checkServiceRequest_ReadPermission(client);
+//                try {
+//                    String structStr = structure.getStringForJSL();
+//                    response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
+//                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' request ObjectStructureRequest processed", client.getClientId()));
+//
+//                } catch (JODStructure.ParsingException e) {
+//                    log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request ObjectStructureRequest because %s", client.getClientId(), e.getMessage()), e);
+//                    error = String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+//                }
+//            }
+//
+//            return response != null ? response : error;
+//
+//        } catch (MissingPermissionException e) {
+//            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request because client missing permissions", client.getClientId()), e);
+//            return e.getMessage();
+//        }
     }
 
 

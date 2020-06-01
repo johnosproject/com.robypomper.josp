@@ -65,6 +65,22 @@ public interface JODCommunication {
     String processServiceRequest(JODLocalClientInfo client, String msg);
 
 
+    // Cloud requests
+
+    /**
+     * Method to process all requests received from GW's O2S.
+     * <p>
+     * If received data are NOT a cloud request, then this method return
+     * null pointer. Otherwise it return a String containing the response to
+     * replay to the sender JSL.
+     *
+     * @param msg the cloud request received.
+     * @return a String containing the response to reply or null if <code>msg</code>
+     * doesn't contain a valid cloud request.
+     */
+    String processCloudRequest(String msg);
+
+
     // Connections access
 
     /**
