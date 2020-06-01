@@ -9,12 +9,18 @@ import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
-import java.io.File;
 import java.net.InetAddress;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 
 
 /**
@@ -32,6 +38,7 @@ public class JSLGwS2OClient implements Client {
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final JSLCommunication_002 communication;
     private final DefaultSSLClient client;
 
@@ -43,37 +50,61 @@ public class JSLGwS2OClient implements Client {
      * It use the object's id as certificate id and load the S2O Gw certificate
      * to the {@link javax.net.ssl.TrustManager} used for the SSL context.
      *
-     * @param communication     instance of the {@link JSLCommunication}
-     *                          that initialized this client. It will used to
-     *                          process data received from the O2S Gw.
-     * @param srvInfo           the info of the represented service.
-     * @param serverAddress     the S2O Gw address.
-     * @param serverPort        the S2O Gw port.
-     * @param clientPubCertFile the file path for current client's public certificate.
-     * @param serverPubCertFile the file path for O2S Gw server's public certificate.
+     * @param communication instance of the {@link JSLCommunication}
+     *                      that initialized this client. It will used to
+     *                      process data received from the O2S Gw.
+     * @param srvInfo       the info of the represented service.
+     * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JSLGwS2OClient(JSLCommunication_002 communication, JSLServiceInfo srvInfo,
-                          InetAddress serverAddress, int serverPort,
-                          String clientPubCertFile, String serverPubCertFile) {
+    public JSLGwS2OClient(JSLCommunication_002 communication, JSLServiceInfo srvInfo, JCPCommSrv jcpComm) throws JSLCommunication.CloudCommunicationException {
         this.communication = communication;
 
         // Create ssl context
+        Certificate clientCert;
+        DynAddTrustManager clientTrustManager;
         SSLContext sslCtx;
         try {
-            KeyStore clientKeyStore = UtilsJKS.generateKeyStore(srvInfo.getFullId(), "", CERT_ALIAS);
-            UtilsJKS.exportCertificate(clientKeyStore, clientPubCertFile, CERT_ALIAS);
-            DynAddTrustManager clientTrustManager = new DynAddTrustManager();
-            clientTrustManager.addCertificate(JCP_CERT_ALIAS, new File(serverPubCertFile));
+            log.trace(Mrk_JSL.JSL_COMM_SUB, "Generating ssl context for service's cloud client");
+            KeyStore clientKeyStore = UtilsJKS.generateKeyStore(srvInfo.getSrvId(), "", CERT_ALIAS);
+            clientCert = UtilsJKS.extractCertificate(clientKeyStore, CERT_ALIAS);
+            clientTrustManager = new DynAddTrustManager();
             sslCtx = UtilsSSL.generateSSLContext(clientKeyStore, "", clientTrustManager);
 
-        } catch (UtilsSSL.GenerationException | UtilsJKS.GenerationException | AbsCustomTrustManager.UpdateException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        } catch (UtilsSSL.GenerationException | UtilsJKS.GenerationException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on generating ssl context for service's cloud client because %s", e.getMessage()), e);
+            throw new JSLCommunication.CloudCommunicationException("Error on generating ssl context for service's cloud client", e);
+        }
+
+        S2OAccessInfo s2oAccess;
+        try {
+            log.trace(Mrk_JSL.JSL_COMM_SUB, "Getting JOSP Gw S2O access info for service's cloud client");
+            s2oAccess = jcpComm.getS2OAccessInfo(clientCert);
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on getting JOSP GW S2O access info for service's cloud client because %s", e.getMessage()), e);
+            throw new JSLCommunication.CloudCommunicationException("Error on getting JOSP GW S2O access info for service's cloud client", e);
+        } catch (CertificateEncodingException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on request JOSP GW S2O access info for service's cloud client because %s", e.getMessage()), e);
+            throw new JSLCommunication.CloudCommunicationException("Error on request JOSP GW S2O access info for service's cloud client", e);
+        }
+
+        Certificate gwCertificate;
+        try {
+            log.trace(Mrk_JSL.JSL_COMM_SUB, "Registering JOSP Gw S2O certificate for service's cloud client");
+            gwCertificate = UtilsJKS.loadCertificateFromBytes(s2oAccess.gwCertificate);
+            clientTrustManager.addCertificate(JCP_CERT_ALIAS, gwCertificate);
+
+        } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on registering JOSP GW S2O certificate to object's cloud client because %s", e.getMessage()), e);
+            throw new JSLCommunication.CloudCommunicationException("Error on registering JOSP GW S2O certificate to object's cloud client", e);
         }
 
         // Init SSL client
-        client = new DefaultSSLClient(sslCtx, srvInfo.getFullId(), serverAddress, serverPort,
+        client = new DefaultSSLClient(sslCtx, srvInfo.getFullId(), s2oAccess.gwAddress, s2oAccess.gwPort,
                 null, null, new GwS2OClientMessagingEventsListener());
+
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwS2OClient for service '%s'", srvInfo.getSrvId()));
+        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", s2oAccess.gwAddress, s2oAccess.gwPort));
+        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           with certificate '%d'", gwCertificate.hashCode()));
     }
 
 
@@ -87,6 +118,7 @@ public class JSLGwS2OClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
+        log.warn(Mrk_JSL.JSL_COMM_SUB, "Not implemented");
         //communication.forwardUpdate(readData);
         // ToDo: fix JSLGwS2OClient.onDataReceived method
         return true;
