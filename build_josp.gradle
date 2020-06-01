@@ -53,21 +53,107 @@ dependencies {
     jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
 }
 
-// Add java app's run tasks
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJOD,'com.robypomper.josp.jod.JODShell','_Shell')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.jospJSL,'com.robypomper.josp.jsl.JSLShell','_Shell')
 
-tasks.javaJospJOD_ShellRun {
-    standardInput = System.in
-    args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
-    //jvmArgs = ['-Djavax.net.debug=ssl']
+// Make Java Runnable
+
+def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod) {
+    runnableName = "JOD${runnableName}"
+    String mainClass = 'com.robypomper.josp.jod.JODShell'
+    File workingDir = file("envs/runnables/jod/${runnableName}")
+
+    JavaRunnableUtils.makeJavaFromSourceSet(project, sourceSets.jospJOD, mainClass, runnableName, workingDir)
+    String jarTaskName = "java${runnableName}Run"
+
+    tasks.getByName(jarTaskName) {
+        group 'application jod'
+        standardInput = System.in
+        //args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
+        //jvmArgs = ['-Djavax.net.debug=ssl']
+
+        doFirst {
+            delete workingDir
+            copy {
+                from "src/jospJOD/configs/${config_yml}"
+                from "src/jospJOD/configs/${struct_jod}"
+                from "src/jospJOD/configs/${perms_jod}"
+                rename 'jod(.+).yml', 'jod.yml'
+                rename 'struct(.+).jod', 'struct.jod'
+                rename 'perms(.+).jod', 'perms.jod'
+                into workingDir
+            }
+        }
+    }
 }
 
-tasks.javaJospJSL_ShellRun {
-    standardInput = System.in
-    args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
-    //jvmArgs = ['-Djavax.net.debug=ssl']
+def makeJSLJavaRunnable(String runnableName, String config_yml) {
+    runnableName = "JSL${runnableName}"
+    String mainClass = 'com.robypomper.josp.jsl.JSLShell'
+    File workingDir = file("envs/runnables/jsl/${runnableName}")
+
+    JavaRunnableUtils.makeJavaFromSourceSet(project, sourceSets.jospJSL, mainClass, runnableName, workingDir)
+    String jarTaskName = "java${runnableName}Run"
+
+    tasks.getByName(jarTaskName) {
+        group 'application jsl'
+        standardInput = System.in
+        //args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
+        //jvmArgs = ['-Djavax.net.debug=ssl']
+
+        doFirst {
+            delete workingDir
+            copy {
+                from "src/jospJSL/configs/${config_yml}"
+                rename 'jsl(.+).yml', 'jsl.yml'
+                into workingDir
+            }
+        }
+    }
 }
+
+
+
+// JOD
+/*
+ * ObjId    =>  unset   local   cloud
+ * Owner    =>  unset   set
+ *
+ * Configs (ObjId, OwnerId, Off/Online)
+ */
+
+makeJODJavaRunnable('uuf','jod_uuf.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('uun','jod_uun.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('usf','jod_usf.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('usn','jod_usn.yml','struct_default.jod','perms_default.jod')
+
+makeJODJavaRunnable('luf','jod_luf.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('lun','jod_lun.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('lsf','jod_lsf.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('lsn','jod_lsn.yml','struct_default.jod','perms_default.jod')
+
+makeJODJavaRunnable('cuf','jod_cuf.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('cun','jod_cun.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('csf','jod_csf.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('csn','jod_csn.yml','struct_default.jod','perms_default.jod')
+
+
+// JSL
+
+/**
+ * UsrId    =>  unset   set
+ * Token    =>  unset   set
+ *
+ * Configs (UsrId, Token, Off/Online)
+ */
+
+makeJSLJavaRunnable('uuf','jsl_uuf.yml')
+makeJSLJavaRunnable('uun','jsl_uun.yml')
+makeJSLJavaRunnable('usf','jsl_usf.yml')
+makeJSLJavaRunnable('usn','jsl_usn.yml')
+
+makeJSLJavaRunnable('suf','jsl_suf.yml')
+makeJSLJavaRunnable('sun','jsl_sun.yml')
+makeJSLJavaRunnable('ssf','jsl_ssf.yml')
+makeJSLJavaRunnable('ssn','jsl_ssn.yml')
 
 
 
