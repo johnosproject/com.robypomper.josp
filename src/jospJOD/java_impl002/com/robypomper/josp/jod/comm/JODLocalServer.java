@@ -300,7 +300,11 @@ public class JODLocalServer implements Server {
      */
     @Override
     public void sendData(String clientId, String data) throws ServerStoppedException, ClientNotFoundException, ClientNotConnectedException {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' send to client '%s' from '%s' object", data.substring(0, data.indexOf("\n")), clientId, objId));
+        try {
+            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' send to client '%s' from '%s' object", data.substring(0, data.indexOf("\n")), clientId, objId));
+        } catch (StringIndexOutOfBoundsException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Invalid data to send to client '%s' from '%s' object (string size: %d)", clientId, objId, data.length()));
+        }
         server.sendData(clientId, data);
     }
 
