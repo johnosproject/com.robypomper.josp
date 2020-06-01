@@ -86,8 +86,10 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         StringBuilder s = new StringBuilder("KNOWN OBJECTS LIST\n");
-        for (JSLLocalClient client : obj.getLocalClients())
-            s.append(String.format("- %s:%d (%s)\n", client.getServerAddr(), client.getServerPort(), client.isConnected() ? "connected" : "disconnected"));
+        for (JSLLocalClient client : obj.getLocalClients()) {
+            String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
+            s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
+        }
 
         return s.toString();
     }
