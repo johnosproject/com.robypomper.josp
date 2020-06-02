@@ -1,7 +1,7 @@
 package com.robypomper.josp.jsl.user;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
-import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -22,14 +22,14 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JSL_002.Settings locSettings;
+    private final JSLSettings_002 locSettings;
     private final JCPClient_Service jcpClient;
     private final JCPUserSrv jcpUser;
 
 
     // Constructor
 
-    public JSLUserMngr_002(JSL_002.Settings settings, JCPClient_Service jcpClient) {
+    public JSLUserMngr_002(JSLSettings_002 settings, JCPClient_Service jcpClient) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
         jcpUser = new JCPUserSrv(jcpClient);

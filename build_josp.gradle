@@ -36,7 +36,6 @@ dependencies {
     jospJODImplementation configurations.jospCoreImplementation
     jospJODImplementation sourceSets.jcpApisPublic.output
     jospJODImplementation sourceSets.jcpApisPublic.runtimeClasspath
-    jospJODImplementation 'org.yaml:snakeyaml:1.25'
     // JOD - Mains
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
@@ -44,7 +43,6 @@ dependencies {
     // JSL - All
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
-    jospJSLImplementation 'org.yaml:snakeyaml:1.25'
     // JSL - Impls
     jospJSLImplementation sourceSets.jcpApisPublic.output
     jospJSLImplementation sourceSets.jcpApisPublic.runtimeClasspath

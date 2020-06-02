@@ -1,7 +1,7 @@
 package com.robypomper.josp.jod.objinfo;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
-import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
@@ -34,7 +34,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JOD_002.Settings locSettings;
+    private final JODSettings_002 locSettings;
     private final JCPObjectInfo jcpObjInfo;
     private JODStructure structure;
     private JODExecutorMngr executorMngr;
@@ -55,7 +55,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * @param jcpClient  the JCP client.
      * @param jodVersion the current JOD implementation version.
      */
-    public JODObjectInfo_002(JOD_002.Settings settings, JCPClient_Object jcpClient, String jodVersion) {
+    public JODObjectInfo_002(JODSettings_002 settings, JCPClient_Object jcpClient, String jodVersion) {
         this.locSettings = settings;
         this.jcpObjInfo = new JCPObjectInfo(jcpClient);
         this.jodVersion = jodVersion;

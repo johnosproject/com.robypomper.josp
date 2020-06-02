@@ -135,7 +135,7 @@ public class FactoryJSL {
     /**
      * <ul>
      *     <li>
-     *         {@value JSL_VER_002} => {@link JSL_002.Settings}
+     *         {@value JSL_VER_002} => {@link JSLSettings_002}
      *     </li>
      * </ul>
      *
@@ -143,7 +143,7 @@ public class FactoryJSL {
      * @return JSL.Settings class corresponding to given <code>jslVer</code> version.
      */
     private static Class<? extends JSL.Settings> getJSLSettingsClass(String jslVer) throws JSL.FactoryException {
-        if (JSL_VER_002.compareToIgnoreCase(jslVer) == 0) return JSL_002.Settings.class;
+        if (JSL_VER_002.compareToIgnoreCase(jslVer) == 0) return JSLSettings_002.class;
 
         throw new JSL.FactoryException(String.format("JSL.Settings '%s' version not found.", jslVer));
     }

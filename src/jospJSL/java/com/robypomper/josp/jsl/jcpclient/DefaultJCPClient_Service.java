@@ -6,7 +6,7 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.core.jcpclient.JCPClient_AuthFlow;
 import com.robypomper.josp.core.jcpclient.JCPClient_CliCredFlow;
 import com.robypomper.josp.jcp.apis.paths.APISrvs;
-import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +41,7 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
      *
      * @param settings the JOD settings.
      */
-    public DefaultJCPClient_Service(JSL_002.Settings settings) throws ConnectionSettingsException {
+    public DefaultJCPClient_Service(JSLSettings_002 settings) throws ConnectionSettingsException {
         DefaultJCPConfigs jclClientConfigs = new DefaultJCPConfigs(settings.getJCPId(),
                 settings.getJCPSecret(),
                 "openid",

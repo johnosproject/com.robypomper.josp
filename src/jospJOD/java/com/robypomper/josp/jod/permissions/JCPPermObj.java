@@ -5,7 +5,7 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
-import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ public class JCPPermObj {
     // Internal vars
 
     private final JCPClient_Object jcpClient;
-    private final JOD_002.Settings settings;
+    private final JODSettings_002 settings;
 
 
     // Constructor
@@ -31,7 +31,7 @@ public class JCPPermObj {
      * @param jcpClient the JCP client.
      * @param settings  the JOD settings.
      */
-    public JCPPermObj(JCPClient_Object jcpClient, JOD_002.Settings settings) {
+    public JCPPermObj(JCPClient_Object jcpClient, JODSettings_002 settings) {
         this.jcpClient = jcpClient;
         this.settings = settings;
     }

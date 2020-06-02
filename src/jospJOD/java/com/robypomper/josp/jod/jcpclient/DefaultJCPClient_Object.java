@@ -4,7 +4,7 @@ import com.robypomper.josp.core.jcpclient.DefaultJCPConfigs;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.core.jcpclient.JCPClient_CliCredFlow;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
-import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +34,7 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
      *
      * @param settings the JOD settings.
      */
-    public DefaultJCPClient_Object(JOD_002.Settings settings) throws ConnectionSettingsException {
+    public DefaultJCPClient_Object(JODSettings_002 settings) throws ConnectionSettingsException {
         super(new DefaultJCPConfigs(settings.getJCPId(),
                         settings.getJCPSecret(),
                         "openid",

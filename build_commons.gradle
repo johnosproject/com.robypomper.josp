@@ -12,6 +12,7 @@ dependencies {
     // Commons - Internal
     jospCommonsImplementation 'org.apache.logging.log4j:log4j-api:2.13.1'
     jospCommonsImplementation 'org.apache.logging.log4j:log4j-core:2.13.1'
+    jospCommonsImplementation 'org.yaml:snakeyaml:1.25'
     jospCommonsImplementation 'com.github.scribejava:scribejava-core:6.9.0'           // HTTP & OAuth2
     jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
     jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations

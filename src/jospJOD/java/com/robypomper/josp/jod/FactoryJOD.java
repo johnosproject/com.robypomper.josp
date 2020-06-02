@@ -134,7 +134,7 @@ public class FactoryJOD {
     /**
      * <ul>
      *     <li>
-     *         {@value JOD_VER_002} => {@link JOD_002.Settings}
+     *         {@value JOD_VER_002} => {@link JODSettings_002}
      *     </li>
      * </ul>
      *
@@ -142,7 +142,7 @@ public class FactoryJOD {
      * @return JOD.Settings class corresponding to given <code>jodVer</code> version.
      */
     private static Class<? extends JOD.Settings> getJODSettingsClass(String jodVer) throws JOD.FactoryException {
-        if (JOD_VER_002.compareToIgnoreCase(jodVer)==0) return JOD_002.Settings.class;
+        if (JOD_VER_002.compareToIgnoreCase(jodVer) == 0) return JODSettings_002.class;
 
         throw new JOD.FactoryException(String.format("JOD.Settings '%s' version not found.", jodVer));
     }

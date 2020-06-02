@@ -5,7 +5,7 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -30,7 +30,7 @@ public class JODCommunication_002 implements JODCommunication {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JOD_002.Settings locSettings;
+    private final JODSettings_002 locSettings;
     private final JODObjectInfo objInfo;
     private final JODPermissions permissions;
     private JODStructure structure;
@@ -55,7 +55,7 @@ public class JODCommunication_002 implements JODCommunication {
      *                    connected services's permissions to receive updates or
      *                    exec actions.
      */
-    public JODCommunication_002(JOD_002.Settings settings, JODObjectInfo objInfo, JCPClient_Object jcpClient, JODPermissions permissions, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
+    public JODCommunication_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPClient_Object jcpClient, JODPermissions permissions, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
         this.locSettings = settings;
         this.objInfo = objInfo;
         this.permissions = permissions;

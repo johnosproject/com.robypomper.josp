@@ -4,7 +4,7 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.jcp.apis.paths.APIJOSPGWs;
-import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 
 import java.security.cert.Certificate;
@@ -19,7 +19,7 @@ public class JCPCommSrv {
     // Internal vars
 
     private final JCPClient_Service jcpClient;
-    private final JSL_002.Settings settings;
+    private final JSLSettings_002 settings;
     private final String instanceId;
 
 
@@ -32,7 +32,7 @@ public class JCPCommSrv {
      * @param settings   the JOD settings.
      * @param instanceId the JOD instance id.
      */
-    public JCPCommSrv(JCPClient_Service jcpClient, JSL_002.Settings settings, String instanceId) {
+    public JCPCommSrv(JCPClient_Service jcpClient, JSLSettings_002 settings, String instanceId) {
         this.jcpClient = jcpClient;
         this.settings = settings;
         this.instanceId = instanceId;
