@@ -43,7 +43,6 @@ dependencies {
     // JSL - All
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
-    jospJSLImplementation 'org.yaml:snakeyaml:1.25'
     // JSL - Impls
     jospJSLImplementation sourceSets.jcpApisPublic.output
     jospJSLImplementation sourceSets.jcpApisPublic.runtimeClasspath
