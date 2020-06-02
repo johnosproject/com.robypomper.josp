@@ -122,7 +122,7 @@ public abstract class AbsJOD implements JOD {
 
         log.trace(Mrk_JOD.JOD_MAIN, "JODCommunication start server and connect to JCP");
         try {
-            boolean startLocal = ((JOD_002.Settings) settings).getLocalEnabled();       // ToDo: move getLocalEnabled to JOD.Settings
+            boolean startLocal = ((JODSettings_002) settings).getLocalEnabled();       // ToDo: move getLocalEnabled to JOD.Settings
             log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication local communication %s", startLocal ? "enabled" : "disabled"));
             if (startLocal)
                 comm.startLocal();
@@ -130,7 +130,7 @@ public abstract class AbsJOD implements JOD {
             log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on starting local communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
         }
         try {
-            boolean startCloud = ((JOD_002.Settings) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JOD.Settings
+            boolean startCloud = ((JODSettings_002) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JOD.Settings
             log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
             if (startCloud)
                 comm.connectCloud();

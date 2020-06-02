@@ -1,6 +1,6 @@
 package com.robypomper.josp.jod.executor;
 
-import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.executor.factories.AbsFactoryJODWorker;
 import com.robypomper.josp.jod.executor.factories.FactoryJODExecutor;
 import com.robypomper.josp.jod.executor.factories.FactoryJODListener;
@@ -56,8 +56,8 @@ import java.util.Map;
  * {@link com.robypomper.josp.jod.executor.AbsJODExecutor}.
  * <p>
  * During ExM startup, it register all implementations contained in
- * {@value JOD_002.Settings#JODPULLER_IMPLS}, {@value JOD_002.Settings#JODLISTENER_IMPLS}
- * and {@value JOD_002.Settings#JODEXECUTOR_IMPLS} JOD properties.<br>
+ * {@value JODSettings_002#JODPULLER_IMPLS}, {@value JODSettings_002#JODLISTENER_IMPLS}
+ * and {@value JODSettings_002#JODEXECUTOR_IMPLS} JOD properties.<br>
  * This properties contains a list of protocol/implementations pairs
  * (<code>{Proto1}://{Class1};{Proto2}://{Class2};{ProtoN}://{ClassN}</code>).
  * During registration each implementation class is associated to a specific, unique
@@ -75,7 +75,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JOD_002.Settings settings;
+    private final JODSettings_002 settings;
     private final JODObjectInfo objInfo;
     private final Map<JODComponent, JODPuller> pullers = new HashMap<>();
     private final Map<JODComponent, JODListener> listeners = new HashMap<>();
@@ -94,7 +94,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      * @param settings the JOD settings.
      * @param objInfo  the object's info.
      */
-    public JODExecutorMngr_002(JOD_002.Settings settings, JODObjectInfo objInfo) {
+    public JODExecutorMngr_002(JODSettings_002 settings, JODObjectInfo objInfo) {
         this.settings = settings;
         this.objInfo = objInfo;
 
@@ -119,7 +119,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
 
     /**
      * Load JOD Pullers implementations from
-     * {@link com.robypomper.josp.jod.JOD_002.Settings#getJODExecutorImpls()}
+     * {@link JODSettings_002#getJODExecutorImpls()}
      * JOD's property.
      */
     private void loadPullerImpls() {
@@ -128,7 +128,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
 
     /**
      * Load JOD Listeners implementations from
-     * {@link com.robypomper.josp.jod.JOD_002.Settings#getJODExecutorImpls()}
+     * {@link JODSettings_002#getJODExecutorImpls()}
      * JOD's property.
      */
     private void loadListenerImpls() {
@@ -137,7 +137,7 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
 
     /**
      * Load JOD Executors implementations from
-     * {@link com.robypomper.josp.jod.JOD_002.Settings#getJODExecutorImpls()}
+     * {@link JODSettings_002#getJODExecutorImpls()}
      * JOD's property.
      */
     private void loadExecutorImpls() {

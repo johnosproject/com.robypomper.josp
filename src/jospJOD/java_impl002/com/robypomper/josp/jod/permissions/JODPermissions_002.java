@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
-import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.log.Mrk_JOD;
@@ -37,7 +37,7 @@ public class JODPermissions_002 implements JODPermissions {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JOD_002.Settings locSettings;
+    private final JODSettings_002 locSettings;
     private final JODObjectInfo objInfo;
     private final JCPClient_Object jcpClient;
     private final JCPPermObj jcpPermissions;
@@ -55,7 +55,7 @@ public class JODPermissions_002 implements JODPermissions {
      * @param objInfo   the object's info.
      * @param jcpClient the jcp object client.
      */
-    public JODPermissions_002(JOD_002.Settings settings, JODObjectInfo objInfo, JCPClient_Object jcpClient) {
+    public JODPermissions_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPClient_Object jcpClient) {
         this.objInfo = objInfo;
         this.locSettings = settings;
         this.jcpClient = jcpClient;
@@ -144,7 +144,7 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public boolean canSendLocalUpdate(String srvId, String usrId) {
-        if (getOwnerId().equals(JOD_002.Settings.JODPERM_OWNER_DEF)) {
+        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
             log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
         }
@@ -383,7 +383,7 @@ public class JODPermissions_002 implements JODPermissions {
 
     /**
      * Load permissions from file specified from
-     * {@link com.robypomper.josp.jod.JOD_002.Settings#getPermissionsPath()}
+     * {@link JODSettings_002#getPermissionsPath()}
      * to the local {@link #permissions} field.
      */
     private void loadPermissionsFromFile() throws FileException {
@@ -404,7 +404,7 @@ public class JODPermissions_002 implements JODPermissions {
 
     /**
      * Save {@link #permissions} field to file specified from
-     * {@link com.robypomper.josp.jod.JOD_002.Settings#getPermissionsPath()}.
+     * {@link JODSettings_002#getPermissionsPath()}.
      */
     private void savePermissionsToFile() throws FileException {
         try {
