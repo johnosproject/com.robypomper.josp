@@ -1,6 +1,6 @@
 package com.robypomper.josp.jsl.objs;
 
-import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
@@ -21,7 +21,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JSL_002.Settings locSettings;
+    private final JSLSettings_002 locSettings;
     private final JSLServiceInfo srvInfo;
     private final List<JSLRemoteObject> objs = new ArrayList<>();
     private JSLGwS2OClient cloudConnection = null;
@@ -35,7 +35,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * @param settings the JSL settings.
      * @param srvInfo  the service's info.
      */
-    public JSLObjsMngr_002(JSL_002.Settings settings, JSLServiceInfo srvInfo) {
+    public JSLObjsMngr_002(JSLSettings_002 settings, JSLServiceInfo srvInfo) {
         this.locSettings = settings;
         this.srvInfo = srvInfo;
 

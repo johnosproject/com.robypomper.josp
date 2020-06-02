@@ -98,7 +98,7 @@ public abstract class AbsJSL implements JSL {
 
         log.trace(Mrk_JSL.JSL_MAIN, "JSLCommunication start discovery and connect to JCP");
         try {
-            boolean startLocal = ((JSL_002.Settings) settings).getLocalEnabled();       // ToDo: move getLocalEnabled to JSL.Settings
+            boolean startLocal = ((JSLSettings_002) settings).getLocalEnabled();       // ToDo: move getLocalEnabled to JSL.Settings
             log.info(Mrk_JSL.JSL_MAIN, String.format("JSLCommunication local communication %s", startLocal ? "enabled" : "disabled"));
             if (startLocal)
                 comm.startLocal();
@@ -106,7 +106,7 @@ public abstract class AbsJSL implements JSL {
             log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on starting local communication of '%s' service because %s", srvInfo.getSrvId(), e.getMessage()), e);
         }
         try {
-            boolean startCloud = ((JSL_002.Settings) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JSL.Settings
+            boolean startCloud = ((JSLSettings_002) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JSL.Settings
             log.info(Mrk_JSL.JSL_MAIN, String.format("JSLCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
             if (startCloud)
                 comm.connectCloud();

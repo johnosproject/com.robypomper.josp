@@ -5,7 +5,7 @@ import com.robypomper.discovery.Discover;
 import com.robypomper.discovery.DiscoverListener;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
@@ -35,7 +35,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JSL_002.Settings locSettings;
+    private final JSLSettings_002 locSettings;
     private final JSLServiceInfo srvInfo;
     private final JSLUserMngr usr;
     private final JSLObjsMngr objs;
@@ -57,7 +57,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      * @param objs      the {@link JSLObjsMngr} instance used to update component
      *                  status.
      */
-    public JSLCommunication_002(JSL_002.Settings settings, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JSLUserMngr usr, JSLObjsMngr objs, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
+    public JSLCommunication_002(JSLSettings_002 settings, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JSLUserMngr usr, JSLObjsMngr objs, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
         this.locSettings = settings;
         this.srvInfo = srvInfo;
         this.jcpClient = jcpClient;

@@ -2,13 +2,13 @@ package com.robypomper.josp.jod.comm;
 
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
-import com.robypomper.josp.jod.JOD_002;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
-import com.robypomper.josp.jsl.JSL_002;
+import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLCommunication_002;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
@@ -46,11 +46,11 @@ public class JOSPCommunicationIntegration {
 
     protected static Logger log = LogManager.getLogger();
     protected static int port = 1234;
-    JOD_002.Settings jodSettings;
+    JODSettings_002 jodSettings;
     JCPClient_Object jcpClientObj;
     JODObjectInfo objInfo;
     JODPermissions jodPermissions;
-    JSL_002.Settings jslSettings;
+    JSLSettings_002 jslSettings;
     JCPClient_Service jcpClientSrv;
     JSLServiceInfo srvInfo;
     JSLUserMngr jslUserMngr;
@@ -71,13 +71,13 @@ public class JOSPCommunicationIntegration {
         port += 2;
 
         // Init JOD Comm params
-        jodSettings = new JOD_002.Settings(getDefaultJODSettings(port));
+        jodSettings = new JODSettings_002(getDefaultJODSettings(port));
         jcpClientObj = new MockJCPClient_Object();
         objInfo = new MockJODObjectInfo("objId");
         jodPermissions = new MockJODPermissions_002();
 
         // Init JSL Comm params
-        jslSettings = new JSL_002.Settings(getDefaultJSLSettings());
+        jslSettings = new JSLSettings_002(getDefaultJSLSettings());
         jcpClientSrv = new MockJCPClient_Service();
         srvInfo = new JSLLocalClientTest.MockJSLServiceInfo("srvId/usrId/instId");
         jslUserMngr = new MockJSLUserMngr_002();
@@ -236,7 +236,7 @@ public class JOSPCommunicationIntegration {
 
         System.out.println("\nJOD LOCAL COMM START (2nd)");
         port += 2;
-        JOD_002.Settings jodSettings2 = new JOD_002.Settings(getDefaultJODSettings(port));
+        JODSettings_002 jodSettings2 = new JODSettings_002(getDefaultJODSettings(port));
         JODObjectInfo objInfo2 = new MockJODObjectInfo("objId_2");
         JODCommunication jodComm2 = new JODCommunication_002(jodSettings2, objInfo2, jcpClientObj, jodPermissions, UNIQUE_ID + "bis");
         jodComm2.startLocal();
@@ -312,13 +312,13 @@ public class JOSPCommunicationIntegration {
         Map<String, String> properties = new HashMap<>();
 
         // Comm's paths
-        properties.put(JOD_002.Settings.JODCOMM_LOCAL_ENABLED, "true");
-        properties.put(JOD_002.Settings.JODCOMM_LOCAL_PORT, Integer.toString(port));
-        properties.put(JOD_002.Settings.JODCOMM_LOCAL_KS_FILE, String.format(TEST_FILES_PREFIX + "server-%d.p12", port));
-        properties.put(JOD_002.Settings.JODCOMM_LOCAL_CERT, String.format(TEST_FILES_PREFIX + "server-%d.crt", port));
-        properties.put(JOD_002.Settings.JODCOMM_CLOUD_ENABLED, "false");
-        properties.put(JOD_002.Settings.JODCOMM_CLOUD_CERT, TEST_FILES_PREFIX + "clientJODCloud.crt");
-        properties.put(JOD_002.Settings.JODCOMM_CLOUD_CERT_REMOTE, "src/jcpJOSPGWs/certs/cloud/public/mainServer@GwObjService.crt");
+        properties.put(JODSettings_002.JODCOMM_LOCAL_ENABLED, "true");
+        properties.put(JODSettings_002.JODCOMM_LOCAL_PORT, Integer.toString(port));
+        properties.put(JODSettings_002.JODCOMM_LOCAL_KS_FILE, String.format(TEST_FILES_PREFIX + "server-%d.p12", port));
+        properties.put(JODSettings_002.JODCOMM_LOCAL_CERT, String.format(TEST_FILES_PREFIX + "server-%d.crt", port));
+        properties.put(JODSettings_002.JODCOMM_CLOUD_ENABLED, "false");
+        properties.put(JODSettings_002.JODCOMM_CLOUD_CERT, TEST_FILES_PREFIX + "clientJODCloud.crt");
+        properties.put(JODSettings_002.JODCOMM_CLOUD_CERT_REMOTE, "src/jcpJOSPGWs/certs/cloud/public/mainServer@GwObjService.crt");
         return properties;
     }
 
@@ -326,11 +326,11 @@ public class JOSPCommunicationIntegration {
         Map<String, String> properties = new HashMap<>();
 
         // Comm's paths
-        properties.put(JSL_002.Settings.JSLCOMM_LOCAL_ENABLED, "true");
-        properties.put(JSL_002.Settings.JSLCOMM_LOCAL_KS_FILE, TEST_FILES_PREFIX + "client.p12");
-        properties.put(JSL_002.Settings.JSLCOMM_CLOUD_ENABLED, "false");
-        properties.put(JSL_002.Settings.JSLCOMM_CLOUD_CERT_REMOTE, "src/jcpJOSPGWs/certs/cloud/public/mainServer@GwObjService.crt");
-        properties.put(JSL_002.Settings.JSLCOMM_CLOUD_CERT, TEST_FILES_PREFIX + "clientJSLCloud.crt");
+        properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, "true");
+        properties.put(JSLSettings_002.JSLCOMM_LOCAL_KS_FILE, TEST_FILES_PREFIX + "client.p12");
+        properties.put(JSLSettings_002.JSLCOMM_CLOUD_ENABLED, "false");
+        properties.put(JSLSettings_002.JSLCOMM_CLOUD_CERT_REMOTE, "src/jcpJOSPGWs/certs/cloud/public/mainServer@GwObjService.crt");
+        properties.put(JSLSettings_002.JSLCOMM_CLOUD_CERT, TEST_FILES_PREFIX + "clientJSLCloud.crt");
         return properties;
     }
 
