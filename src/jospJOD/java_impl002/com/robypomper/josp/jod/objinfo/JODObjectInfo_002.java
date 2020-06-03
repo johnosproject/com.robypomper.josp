@@ -357,7 +357,15 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private void saveObjId(String generatedObjId) {
         locSettings.setObjIdCloud(generatedObjId);
         jcpClient.setObjectId(generatedObjId);
-        // ToDo update obj's permissions
+
+        if (permissions != null) {
+            try {
+                permissions.regeneratePermissions();
+            } catch (JODPermissions.PermissionsFileException e) {
+                log.warn(Mrk_JOD.JOD_INFO, String.format("Error on regenerate permissions because %s", e.getMessage()), e);
+            }
+        }
+
         // ToDo update local services
     }
 

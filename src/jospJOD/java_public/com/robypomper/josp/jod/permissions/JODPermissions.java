@@ -1,11 +1,9 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.comm.JODCommunication;
-import com.robypomper.josp.jod.structure.JODStructure;
 
 import java.util.List;
 
@@ -145,16 +143,44 @@ public interface JODPermissions {
      */
     void stopAutoRefresh();
 
+    /**
+     * Delete current object's permission and genereate new one.
+     * <p>
+     * This method is called when obj's id or owner change (object's owner
+     * update cause object's id re-generation).
+     */
+    void regeneratePermissions() throws PermissionsFileException;
 
     // Exceptions
 
     /**
-     * Exceptions for {@link JODStructure#setCommunication(JODCommunication)}
-     * called twice.
+     * Base class for exception thrown on operations on permission's file (read/write).
      */
-    class FileException extends Throwable {
-        public FileException(String msg, Exception e) {
-            super(msg, e);
+    class PermissionsFileException extends Throwable {
+        protected PermissionsFileException(String msg, Throwable t) {
+            super(msg, t);
+        }
+    }
+
+    /**
+     * Exceptions for permissions file reading errors.
+     */
+    class PermissionsNotLoadedException extends PermissionsFileException {
+        private static final String MSG = "Error reading permissions from file '%s'";
+
+        public PermissionsNotLoadedException(String path, Exception e) {
+            super(String.format(MSG, path), e);
+        }
+    }
+
+    /**
+     * Exceptions for permissions file writing errors.
+     */
+    class PermissionsNotSavedException extends PermissionsFileException {
+        private static final String MSG = "Error writing permissions from file '%s'";
+
+        public PermissionsNotSavedException(String path, Exception e) {
+            super(String.format(MSG, path), e);
         }
     }
 
