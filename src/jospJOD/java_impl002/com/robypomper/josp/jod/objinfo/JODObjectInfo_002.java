@@ -36,6 +36,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     // Class constants
 
     public static final String TH_GENERATION_NAME = "_OBJID_GENERATION_";
+    public static final String TH_SYNC_NAME = "_OBJINFO_SYNC_";
 
 
     // Internal vars
@@ -50,6 +51,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private JODPermissions permissions;
     private final String jodVersion;
     private Timer generatingTimer = null;
+    private Timer syncTimer = null;
 
 
     // Constructor
@@ -217,25 +219,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         log.info(Mrk_JOD.JOD_INFO, String.format("Start JODObjectInfo auto-refresh for '%s' object", getObjId()));
 
-        try {
-            if (!jcpObjInfo.isRegistered()) {
-                log.debug(Mrk_JOD.JOD_INFO, "Registering object to JCP");
-                if (jcpObjInfo.register(this))
-                    log.debug(Mrk_JOD.JOD_INFO, "Object registered to JCP");
-                else
-                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on register object '%s' to JCP", getObjId()));
-
-            } else {
-                log.debug(Mrk_JOD.JOD_INFO, "Updating object registration to JCP");
-                if (jcpObjInfo.update(this))
-                    log.debug(Mrk_JOD.JOD_INFO, "Object registration updated to JCP successfully");
-                else
-                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on update object '%s' registration to JCP", getObjId()));
-            }
-
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on check object '%s''s registration on JCP because %s", getObjId(), e.getMessage()), e);
-        }
+        syncObjInfo();
     }
 
     /**
@@ -243,10 +227,62 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void stopAutoRefresh() {
-        log.warn(Mrk_JOD.JOD_INFO, "JODObjectInfo AutoRefresh can't stopped: not implemented");
-        // ToDo: implement object disconnection to API (send disconnect status...)
+        log.info(Mrk_JOD.JOD_INFO, String.format("Stop JODObjectInfo auto-refresh for '%s' object", getObjId()));
+
+        if (isSync())
+            stopSyncTimer();
     }
 
+    public void syncObjInfo() {
+        try {
+            log.debug(Mrk_JOD.JOD_INFO, "Sync object Info to JCP");
+            if (!jcpObjInfo.isRegistered())
+                jcpObjInfo.register(this);
+            else
+                jcpObjInfo.update(this);
+            log.debug(Mrk_JOD.JOD_INFO, "Object Info synchronized to JCP");
+
+            if (isSync())
+                stopSyncTimer();
+
+        } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on sync object Info to JCP because %s", e.getMessage()));
+            if (!isSync())
+                startSyncTimer();
+        }
+    }
+
+    // Sync timer
+
+    private boolean isSync() {
+        return syncTimer != null;
+    }
+
+    private void startSyncTimer() {
+        if (isSync())
+            return;
+
+        log.debug(Mrk_JOD.JOD_INFO, "Starting object Info sync's timer");
+        syncTimer = new Timer(true);
+        syncTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName(TH_SYNC_NAME);
+                syncObjInfo();
+            }
+        }, locSettings.getJCPRefreshTime() * 1000, locSettings.getJCPRefreshTime() * 1000);
+        log.debug(Mrk_JOD.JOD_INFO, "Object Info sync's timer started");
+    }
+
+    private void stopSyncTimer() {
+        if (!isSync())
+            return;
+
+        log.debug(Mrk_JOD.JOD_INFO, "Stopping object Info sync's timer");
+        syncTimer.cancel();
+        syncTimer = null;
+        log.debug(Mrk_JOD.JOD_INFO, "Object Info sync's timer stopped");
+    }
 
     // Private methods
 
