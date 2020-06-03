@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -31,6 +33,11 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private static final String DEF_STRUCTURE = "";
 
 
+    // Class constants
+
+    public static final String TH_GENERATION_NAME = "_OBJID_GENERATION_";
+
+
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
@@ -42,6 +49,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private JODCommunication comm;
     private JODPermissions permissions;
     private final String jodVersion;
+    private Timer generatingTimer = null;
 
 
     // Constructor
@@ -64,12 +72,11 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         // force value caching
         getObjIdHw();
-        String objId = getObjId();
+        if (!isObjIdSet())
+            generateObjId();
         getObjName();
 
-        jcpClient.setObjectId(objId);
-
-        log.info(Mrk_JOD.JOD_INFO, String.format("Initialized JODObjectInfo instance for '%s' object with '%s' id", getObjName(), objId));
+        log.info(Mrk_JOD.JOD_INFO, String.format("Initialized JODObjectInfo instance for '%s' object with '%s' id", getObjName(), getObjId()));
         log.debug(Mrk_JOD.JOD_INFO, String.format("                                   and '%s' id HW ", getObjIdHw()));
     }
 
@@ -104,12 +111,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getObjId() {
-        if (!locSettings.getObjIdCloud().isEmpty())
-            return locSettings.getObjIdCloud();
-
-        String gen = generateObjId();
-        locSettings.setObjIdCloud(gen);
-        return gen;
+        return locSettings.getObjIdCloud();
     }
 
     /**
@@ -135,7 +137,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getOwnerId() {
-        return permissions.getOwnerId();
+        return locSettings.getOwnerId();
     }
 
 
@@ -276,26 +278,89 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return locSettings.getObjIdHw();
     }
 
-    /**
-     * The Cloud ID is the id generated from the JCP using the Hardware ID and
-     * the object's owner User Id.
-     *
-     * @return the object's Cloud ID.
-     */
-    private String generateObjId() {
-        String generated;
 
+    // Obj's id
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void regenerateObjId() {
+        locSettings.setObjIdCloud("");
+        generateObjId();
+    }
+
+    private void generateObjId() {
         try {
-            log.debug(Mrk_JOD.JOD_INFO, "Generating on cloud object HW ID");
-            generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
-            locSettings.setObjIdHw(generated);
+            log.debug(Mrk_JOD.JOD_INFO, "Generating on cloud object ID");
+            String generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
+            log.debug(Mrk_JOD.JOD_INFO, "Object ID generated on cloud");
+
+            saveObjId(generated);
+            if (isGenerating())
+                stopGeneratingTimer();
+            log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
+            return;
+
         } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
-            generated = String.format("%s-00000-00000", getObjIdHw());
-            log.debug(Mrk_JOD.JOD_INFO, String.format("Error generating object HW ID on cloud  because %s", e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
+            if (!isGenerating())
+                startGeneratingTimer();
         }
 
-        log.debug(Mrk_JOD.JOD_INFO, String.format("Object HW ID generated on cloud '%s'", generated));
-        return generated;
+        if (!isObjIdSet()) {
+            log.debug(Mrk_JOD.JOD_INFO, "Generating locally a temporay object ID");
+            String generated = String.format("%s-00000-00000", getObjIdHw());
+            log.debug(Mrk_JOD.JOD_INFO, "Temporary Object ID generated locally");
+
+            saveObjId(generated);
+            log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated locally '%s'", getObjId()));
+        }
+    }
+
+    private void saveObjId(String generatedObjId) {
+        locSettings.setObjIdCloud(generatedObjId);
+        jcpClient.setObjectId(generatedObjId);
+        // ToDo update obj's permissions
+        // ToDo update local services
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isObjIdSet() {
+        return !getObjId().isEmpty();
+    }
+
+
+    // Generating timer
+
+    private boolean isGenerating() {
+        return generatingTimer != null;
+    }
+
+    private void startGeneratingTimer() {
+        if (isGenerating())
+            return;
+
+        log.debug(Mrk_JOD.JOD_INFO, "Starting object ID generation's timer");
+        generatingTimer = new Timer(true);
+        generatingTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName(TH_GENERATION_NAME);
+                generateObjId();
+            }
+        }, locSettings.getJCPRefreshTime() * 1000, locSettings.getJCPRefreshTime() * 1000);
+        log.debug(Mrk_JOD.JOD_INFO, "Object ID generation's timer started");
+    }
+
+    private void stopGeneratingTimer() {
+        if (!isGenerating())
+            return;
+
+        log.debug(Mrk_JOD.JOD_INFO, "Stopping object ID generation's timer");
+        generatingTimer.cancel();
+        generatingTimer = null;
+        log.debug(Mrk_JOD.JOD_INFO, "Object ID generation's timer stopped");
     }
 
 }

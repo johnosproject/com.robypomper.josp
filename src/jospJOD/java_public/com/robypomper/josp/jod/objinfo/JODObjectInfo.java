@@ -129,4 +129,15 @@ public interface JODObjectInfo {
      */
     void stopAutoRefresh();
 
+
+    // Obj's id
+
+    /**
+     * Delete current object's id and generate a new one.
+     * <p>
+     * This operations is called when the object's owner is changed, so it
+     * regenerate all permissions will be invalidated (and regenerated).
+     */
+    void regenerateObjId();
+
 }
