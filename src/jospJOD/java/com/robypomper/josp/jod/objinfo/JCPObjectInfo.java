@@ -4,18 +4,15 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
 import com.robypomper.josp.jcp.apis.params.objs.RegisterObj;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
+import com.robypomper.josp.jod.JODSettings_002;
+import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 
 
 /**
  * Support class for API Objs access to the Object Info generators.
  */
-public class JCPObjectInfo {
-
-    // Internal vars
-
-    private final JCPClient_Object jcpClient;
-
+public class JCPObjectInfo extends AbsJCPAPIs {
 
     // Constructor
 
@@ -24,8 +21,8 @@ public class JCPObjectInfo {
      *
      * @param jcpClient the JCP client.
      */
-    public JCPObjectInfo(JCPClient_Object jcpClient) {
-        this.jcpClient = jcpClient;
+    public JCPObjectInfo(JCPClient_Object jcpClient, JODSettings_002 settings) {
+        super(jcpClient, settings);
     }
 
 

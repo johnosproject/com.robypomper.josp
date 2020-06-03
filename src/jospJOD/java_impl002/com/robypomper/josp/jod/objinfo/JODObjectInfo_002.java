@@ -35,6 +35,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
+    private final JCPClient_Object jcpClient;
     private final JCPObjectInfo jcpObjInfo;
     private JODStructure structure;
     private JODExecutorMngr executorMngr;
@@ -57,7 +58,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     public JODObjectInfo_002(JODSettings_002 settings, JCPClient_Object jcpClient, String jodVersion) {
         this.locSettings = settings;
-        this.jcpObjInfo = new JCPObjectInfo(jcpClient);
+        this.jcpClient = jcpClient;
+        this.jcpObjInfo = new JCPObjectInfo(jcpClient, locSettings);
         this.jodVersion = jodVersion;
 
         // force value caching
