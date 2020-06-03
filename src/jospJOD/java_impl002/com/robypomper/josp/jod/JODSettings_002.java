@@ -16,6 +16,8 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
 
     public static final String JCP_CONNECT              = "jcp.connect";
     public static final String JCP_CONNECT_DEF          = "true";
+    public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
+    public static final String JCP_REFRESH_TIME_DEF     = "30";
     public static final String JCP_URL                  = "jcp.url";
     public static final String JCP_URL_DEF              = JcpAPI.URL_DOM_API;
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
@@ -117,6 +119,11 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     //@Override
     public boolean getJCPConnect() {
         return getBoolean(JCP_CONNECT, JCP_CONNECT_DEF);
+    }
+
+    //@Override
+    public int getJCPRefreshTime() {
+        return getInt(JCP_REFRESH_TIME, JCP_REFRESH_TIME_DEF);
     }
 
     //@Override
