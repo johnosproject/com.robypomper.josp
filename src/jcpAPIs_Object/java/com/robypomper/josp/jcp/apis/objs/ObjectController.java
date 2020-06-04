@@ -6,9 +6,11 @@ import com.robypomper.josp.jcp.apis.params.objs.RegisterObj;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.ObjectIdDBService;
+import com.robypomper.josp.jcp.db.ObjectOwnerDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.ObjectId;
 import com.robypomper.josp.jcp.db.entities.ObjectInfo;
+import com.robypomper.josp.jcp.db.entities.ObjectOwner;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;
@@ -47,6 +49,9 @@ public class ObjectController {
 
     @Autowired
     private ObjectDBService objectDBService;
+
+    @Autowired
+    private ObjectOwnerDBService objOwnersDBService;
 
 
     // Methods
@@ -157,8 +162,14 @@ public class ObjectController {
         if (objectDBService.find(objId).isPresent())
             throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Object '%s' already registered.", objId));
 
-        Object saved = objectDBService.add(toObject(objId, objParam));
-        return ResponseEntity.ok(saved != null);
+        Object savedObj = objectDBService.add(toObject(objId, objParam));
+
+        ObjectOwner objOwner = new ObjectOwner();
+        objOwner.setObjId(objId);
+        objOwner.setOwnerId(objParam.getOwnerId());
+        ObjectOwner savedOwner = objOwnersDBService.add(objOwner);
+
+        return ResponseEntity.ok(savedObj != null && savedOwner != null);
 
     }
 

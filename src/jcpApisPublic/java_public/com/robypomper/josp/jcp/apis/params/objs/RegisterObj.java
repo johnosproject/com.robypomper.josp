@@ -15,6 +15,8 @@ public class RegisterObj {
 
     public final String name;
 
+    public final String ownerId;
+
     public String model;
 
     public String brand;
@@ -27,9 +29,11 @@ public class RegisterObj {
     // Constructor
 
     @JsonCreator
-    public RegisterObj(@JsonProperty("objIdHw") String name,
+    public RegisterObj(@JsonProperty("name") String name,
+                       @JsonProperty("ownerId") String ownerId,
                        @JsonProperty("structure") String structure) {
         this.name = name;
+        this.ownerId = ownerId;
         this.structure = structure;
     }
 
