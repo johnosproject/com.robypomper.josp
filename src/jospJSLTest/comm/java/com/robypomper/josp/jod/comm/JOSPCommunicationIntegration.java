@@ -473,9 +473,7 @@ public class JOSPCommunicationIntegration {
         public void setOwnerId(String ownerId) { }
 
         @Override
-        public boolean resetOwnerId() {
-            return false;
-        }
+        public void resetOwnerId() {}
 
         @Override
         public void startAutoRefresh() {
@@ -486,6 +484,9 @@ public class JOSPCommunicationIntegration {
         public void stopAutoRefresh() {
 
         }
+
+        @Override
+        public void regeneratePermissions() throws PermissionsFileException {}
     }
 
     private static class MockJCPClient_Service implements JCPClient_Service {
@@ -701,6 +702,11 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
+        public String getPermissionsPath() {
+            return null;
+        }
+
+        @Override
         public String readPermissionsStr() {
             return null;
         }
@@ -714,6 +720,12 @@ public class JOSPCommunicationIntegration {
         public void stopAutoRefresh() {
 
         }
+
+        @Override
+        public void syncObjInfo() {}
+
+        @Override
+        public void regenerateObjId() {}
 
     }
 
