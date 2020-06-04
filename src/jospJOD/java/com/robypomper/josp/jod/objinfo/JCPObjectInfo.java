@@ -45,7 +45,7 @@ public class JCPObjectInfo extends AbsJCPAPIs {
     }
 
     public boolean register(JODObjectInfo objectInfo) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        RegisterObj regObjParam = new RegisterObj(objectInfo.getObjName(), objectInfo.readStructureStr());
+        RegisterObj regObjParam = new RegisterObj(objectInfo.getObjName(), objectInfo.getOwnerId(), objectInfo.readStructureStr());
         regObjParam.setModel(objectInfo.getModel());
         regObjParam.setBrand(objectInfo.getBrand());
         regObjParam.setLongDescr(objectInfo.getLongDescr());

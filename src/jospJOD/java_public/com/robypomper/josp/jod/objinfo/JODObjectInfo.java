@@ -129,6 +129,7 @@ public interface JODObjectInfo {
      */
     void stopAutoRefresh();
 
+    void syncObjInfo();
 
     // Obj's id
 

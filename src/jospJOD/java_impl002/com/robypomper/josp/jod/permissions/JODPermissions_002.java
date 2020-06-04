@@ -1,6 +1,5 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.core.jcpclient.JCPClient;
@@ -280,25 +279,16 @@ public class JODPermissions_002 implements JODPermissions {
     public void setOwnerId(String ownerId) {
         log.info(Mrk_JOD.JOD_PERM, String.format("Permission for '%s' object set ownerID '%s'", objInfo.getObjId(), ownerId));
 
-        try {
-            jcpPermissions.setOwnerId(ownerId);
-        } catch (JsonProcessingException | JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on setting object's owner id because %s", e.getMessage()), e);
-        }
-
         locSettings.setOwnerId(ownerId);
+        objInfo.regenerateObjId();
+        objInfo.syncObjInfo();
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean resetOwnerId() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException {
-        log.info(Mrk_JOD.JOD_PERM, String.format("Permission for '%s' object reset ownerID", objInfo.getObjId()));
-
-        if (!jcpPermissions.resetOwner())
-            return false;
-        locSettings.setOwnerId("");
-        return true;
+    public void resetOwnerId() {
+        setOwnerId(ANONYMOUS_ID);
     }
 
 

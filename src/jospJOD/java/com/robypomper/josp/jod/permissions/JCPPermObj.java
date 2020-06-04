@@ -1,6 +1,5 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
@@ -56,22 +55,6 @@ public class JCPPermObj extends AbsJCPAPIs {
     public List<ObjPermission> refreshPermissionsFromJCP(List<ObjPermission> localPermissions) throws JCPClient.ConnectionException, JCPClient.RequestException {
         ObjPermission[] objPermArray = jcpClient.execPostReq(APIPermissions.URL_PATH_OBJMERGE, ObjPermission[].class, localPermissions, true);
         return Arrays.asList(objPermArray);
-    }
-
-    public boolean isOwnerSet() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return !getOwnerId().isEmpty();
-    }
-
-    public String getOwnerId() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execGetReq(APIPermissions.URL_PATH_OBJOWNERGET, String.class, true);
-    }
-
-    public boolean setOwnerId(String ownerId) throws JsonProcessingException, JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execPostReq(APIPermissions.URL_PATH_OBJOWNER, Boolean.class, ownerId, true);
-    }
-
-    public boolean resetOwner() throws JCPClient.ConnectionException, JCPClient.RequestException, JsonProcessingException {
-        return jcpClient.execDeleteReq(APIPermissions.URL_PATH_OBJOWNERRESET, Boolean.class, true);
     }
 
 }

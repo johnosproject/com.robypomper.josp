@@ -1,6 +1,5 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.comm.JODCommunication;
@@ -124,10 +123,8 @@ public interface JODPermissions {
 
     /**
      * Set object's owner to unset.
-     *
-     * @return true if the owner was reset successfully, false otherwise.
      */
-    boolean resetOwnerId() throws JCPClient.ConnectionException, JsonProcessingException, JCPClient.RequestException;
+    void resetOwnerId();
 
 
     // Mngm methods

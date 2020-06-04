@@ -1,8 +1,6 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -103,13 +101,8 @@ public class CmdsJODPermissions {
 
     @Command(description = "Reset object's owner to unset.")
     public String permissionOwnerReset() {
-        try {
-            if (permission.resetOwnerId())
-                return "Owner reset successfully.";
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException | JsonProcessingException e) {
-            return "Error on resetting owner: " + e.getMessage();
-        }
-        return "Unknown error on resetting owner.";
+        permission.resetOwnerId();
+        return "Owner reset successfully.";
     }
 
 }
