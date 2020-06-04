@@ -232,7 +232,10 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         try {
             log.debug(Mrk_JSL.JSL_COMM, "Connecting cloud service's client");
             gwClient.connect();
-            log.debug(Mrk_JSL.JSL_COMM, "Cloud service's client connected");
+            if (gwClient.isConnected())
+                log.debug(Mrk_JSL.JSL_COMM, "Cloud service's client connected");
+            else
+                log.warn(Mrk_JSL.JSL_COMM, "Cloud service's client NOT connected");
 
         } catch (Client.ConnectionException e) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Error on connecting cloud communication client because %s", e.getMessage()), e);
