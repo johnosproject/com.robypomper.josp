@@ -11,6 +11,7 @@ import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
+import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
@@ -22,6 +23,8 @@ import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -35,14 +38,21 @@ public class JODGwO2SClient implements Client {
 
     public static final String CERT_ALIAS = "JOD-Cert-Cloud";
     public static final String JCP_CERT_ALIAS = "JCP-Cert-Cloud";
+    public static final String TH_INIT_NAME = "_JCPCONNECTION_";
 
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
+    private final JODSettings_002 locSettings;
     private final JODCommunication_002 communication;
     private final JODObjectInfo objInfo;
-    private final DefaultSSLClient client;
+    private final JCPCommObj jcpComm;
+    private final Certificate clientCert;
+    private final DynAddTrustManager clientTrustManager;
+    private final SSLContext sslCtx;
+    private DefaultSSLClient client;
+    private Timer initTimer = null;
 
 
     // Constructor
@@ -60,13 +70,12 @@ public class JODGwO2SClient implements Client {
      * @param objInfo       the info of the represented object.
      * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JODGwO2SClient(JODCommunication_002 communication, JODObjectInfo objInfo, JCPCommObj jcpComm) throws JODCommunication.CloudCommunicationException {
+    public JODGwO2SClient(JODSettings_002 settings, JODCommunication_002 communication, JODObjectInfo objInfo, JCPCommObj jcpComm) throws JODCommunication.CloudCommunicationException {
+        this.locSettings = settings;
         this.communication = communication;
         this.objInfo = objInfo;
+        this.jcpComm = jcpComm;
 
-        Certificate clientCert;
-        DynAddTrustManager clientTrustManager;
-        SSLContext sslCtx;
         try {
             log.trace(Mrk_JOD.JOD_COMM_SUB, "Generating ssl context for object's cloud client");
             KeyStore clientKeyStore = UtilsJKS.generateKeyStore(objInfo.getObjId(), "", CERT_ALIAS);
@@ -79,36 +88,91 @@ public class JODGwO2SClient implements Client {
             throw new JODCommunication.CloudCommunicationException("Error on generating ssl context for object's cloud client", e);
         }
 
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwS2OClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", objInfo.getObjId()));
+        if (isConnected()) {
+            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
+        }
+    }
+
+
+    // Init timer
+
+    private void initConnection() throws ConnectionException {
         O2SAccessInfo o2sAccess;
         try {
+            log.debug(Mrk_JOD.JOD_COMM_SUB, "Getting object GW client access info");
             log.trace(Mrk_JOD.JOD_COMM_SUB, "Getting JOSP Gw O2S access info for object's cloud client");
             o2sAccess = jcpComm.getO2SAccessInfo(clientCert);
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on getting JOSP Gw O2S access info for object's cloud client because %s", e.getMessage()), e);
-            throw new JODCommunication.CloudCommunicationException("Error on getting JOSP Gw O2S access info for object's cloud client", e);
-        } catch (CertificateEncodingException e) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on request JOSP Gw O2S access info for object's cloud client because %s", e.getMessage()), e);
-            throw new JODCommunication.CloudCommunicationException("Error on request JOSP Gw O2S access info for object's cloud client", e);
+            log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client access info got");
+
+            if (isInitializing())
+                stopInitTimer();
+
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException | CertificateEncodingException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing object GW client because %s", e.getMessage()));
+            if (!isInitializing())
+                startInitTimer();
+            return;
         }
 
-        Certificate gwCertificate;
         try {
+            log.debug(Mrk_JOD.JOD_COMM_SUB, "Initializing object GW client");
             log.trace(Mrk_JOD.JOD_COMM_SUB, "Registering JOSP Gw O2S certificate for object's cloud client");
-            gwCertificate = UtilsJKS.loadCertificateFromBytes(o2sAccess.gwCertificate);
+            Certificate gwCertificate = UtilsJKS.loadCertificateFromBytes(o2sAccess.gwCertificate);
             clientTrustManager.addCertificate(JCP_CERT_ALIAS, gwCertificate);
 
-        } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on registering JOSP Gw O2S certificate to object's cloud client because %s", e.getMessage()), e);
-            throw new JODCommunication.CloudCommunicationException("Error on registering JOSP Gw O2S certificate to object's cloud client", e);
+            // Init SSL client
+            client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), o2sAccess.gwAddress, o2sAccess.gwPort,
+                    null, null, new GwO2SClientMessagingEventsListener());
+            log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client initialized");
+
+        } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing object GW client because %s", e.getMessage()), e);
+            throw new ConnectionException("Error on initializing object GW client");
         }
 
-        // Init SSL client
-        client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), o2sAccess.gwAddress, o2sAccess.gwPort,
-                null, null, new GwO2SClientMessagingEventsListener());
 
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwS2OClient for service '%s'", objInfo.getObjId()));
-        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", o2sAccess.gwAddress, o2sAccess.gwPort));
-        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           with certificate '%d'", gwCertificate.hashCode()));
+        try {
+            log.debug(Mrk_JOD.JOD_COMM_SUB, "Connecting object GW client");
+            client.connect();
+            log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client connected");
+
+        } catch (ConnectionException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on connecting object GW client because %s", e.getMessage()), e);
+            throw new ConnectionException("Error on connecting object GW client");
+        }
+    }
+
+    private boolean isInitializing() {
+        return initTimer != null;
+    }
+
+    private void startInitTimer() {
+        if (isInitializing())
+            return;
+
+        log.debug(Mrk_JOD.JOD_COMM_SUB, "Starting object GW client init's timer");
+        initTimer = new Timer(true);
+        initTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName(TH_INIT_NAME);
+                try {
+                    initConnection();
+                } catch (ConnectionException ignore) {/*Exception in timer's thread*/}
+            }
+        }, locSettings.getJCPRefreshTime() * 1000, locSettings.getJCPRefreshTime() * 1000);
+        log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client init's timer started");
+    }
+
+    private void stopInitTimer() {
+        if (!isInitializing())
+            return;
+
+        log.debug(Mrk_JOD.JOD_COMM_SUB, "Stopping object GW client init's timer");
+        initTimer.cancel();
+        initTimer = null;
+        log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client init's timer stopped");
     }
 
 
@@ -156,7 +220,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public InetAddress getServerAddr() {
-        return client.getServerAddr();
+        return client != null ? client.getServerAddr() : null;
     }
 
     /**
@@ -164,7 +228,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public int getServerPort() {
-        return client.getServerPort();
+        return client != null ? client.getServerPort() : -1;
     }
 
     /**
@@ -172,7 +236,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public ServerInfo getServerInfo() {
-        return client.getServerInfo();
+        return client != null ? client.getServerInfo() : null;
     }
 
     /**
@@ -180,7 +244,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public InetAddress getClientAddr() {
-        return client.getClientAddr();
+        return client != null ? client.getClientAddr() : null;
     }
 
     /**
@@ -188,7 +252,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public int getClientPort() {
-        return client.getClientPort();
+        return client != null ? client.getClientPort() : -1;
     }
 
     /**
@@ -196,7 +260,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public String getClientId() {
-        return client.getClientId();
+        return client != null ? client.getClientId() : objInfo.getObjId();
     }
 
     /**
@@ -204,7 +268,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public boolean isConnected() {
-        return client.isConnected();
+        return client != null && client.isConnected();
     }
 
     /**
@@ -212,7 +276,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public void connect() throws ConnectionException {
-        client.connect();
+        initConnection();
     }
 
     /**
@@ -220,7 +284,11 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public void disconnect() {
-        client.disconnect();
+        if (isInitializing())
+            stopInitTimer();
+
+        if (client != null)
+            client.disconnect();
     }
 
     /**
@@ -228,6 +296,9 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public void sendData(byte[] data) throws ServerNotConnectedException {
+        if (client == null)
+            throw new ServerNotConnectedException(getClientId());
+
         client.sendData(data);
     }
 
@@ -236,6 +307,9 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public void sendData(String data) throws ServerNotConnectedException {
+        if (client == null)
+            throw new ServerNotConnectedException(getClientId());
+
         client.sendData(data);
     }
 
@@ -244,6 +318,9 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public boolean isSrvByeMsg(byte[] data) {
+        if (client == null)
+            return false;
+
         return client.isSrvByeMsg(data);
     }
 

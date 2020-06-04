@@ -97,7 +97,7 @@ public class JODCommunication_002 implements JODCommunication {
         // Init cloud object client
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Creating communication cloud client for Object2Service Gateway");
-            gwClient = new JODGwO2SClient(this, objInfo, jcpComm);
+            gwClient = new JODGwO2SClient(locSettings, this, objInfo, jcpComm);
             log.debug(Mrk_JOD.JOD_COMM, "Communication cloud client created for Object2Service Gateway");
         } catch (CloudCommunicationException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on creating object's cloud client because %s", e.getMessage()), e);
