@@ -50,16 +50,6 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
         this.instanceId = instanceId;
         this.jcpSrvInfo = new JCPServiceInfo(jcpClient, settings);
 
-        // force value caching
-        log.debug(Mrk_JSL.JSL_INFO, "Getting service's id and name");
-        String srvId = getSrvId();
-        getSrvName(!jcpClient.isConnected());
-        log.debug(Mrk_JSL.JSL_INFO, "Service's id and name got");
-
-        log.debug(Mrk_JSL.JSL_INFO, "Setting service's id to JCPClient");
-        jcpClient.setServiceId(srvId);
-        log.debug(Mrk_JSL.JSL_INFO, "Service's id set to JCPClient");
-
         log.info(Mrk_JSL.JSL_INFO, String.format("Initialized JSLServiceInfo instance for '%s' service with '%s' id", getSrvName(), getSrvId()));
     }
 
@@ -91,22 +81,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public String getSrvId() {
-        if (!locSettings.getSrvId().isEmpty())
-            return locSettings.getSrvId();
-
-        String gen;
-        try {
-            log.debug(Mrk_JSL.JSL_INFO, "Getting service id from JCP");
-            gen = jcpSrvInfo.getId();
-            log.debug(Mrk_JSL.JSL_INFO, String.format("Service id '%s' get from JCP", gen));
-
-        } catch (Throwable e) {
-            log.warn(Mrk_JSL.JSL_INFO, String.format("Error on getting service id from JCP because %s", e.getMessage()), e);
-            return SRVID_OFFLINE;
-        }
-
-        locSettings.setSrvId(gen);
-        return gen;
+        return locSettings.getSrvId();
     }
 
     /**
@@ -114,33 +89,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
      */
     @Override
     public String getSrvName() {
-        return getSrvName(true);
-    }
-
-    /**
-     * Human readable service's name from cache if given param is <code>true</code>.
-     * Otherwise it require the service's name from the JCP cloud.
-     *
-     * @param cached if <code>true</code>, then it get the value from local cache copy.
-     * @return the service's name.
-     */
-    public String getSrvName(boolean cached) {
-        if (!locSettings.getSrvName().isEmpty() && cached)
-            return locSettings.getSrvName();
-
-        String gen;
-        try {
-            log.debug(Mrk_JSL.JSL_INFO, "Getting service name from JCP");
-            gen = jcpSrvInfo.getName();
-            log.debug(Mrk_JSL.JSL_INFO, String.format("Service name '%s' get from JCP", gen));
-
-        } catch (Throwable e) {
-            log.warn(Mrk_JSL.JSL_INFO, String.format("Error on getting service name from JCP because %s", e.getMessage()), e);
-            return SRVNAME_OFFLINE;
-        }
-
-        locSettings.setSrvName(gen);
-        return gen;
+        return locSettings.getSrvName();
     }
 
 

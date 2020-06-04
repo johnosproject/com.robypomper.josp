@@ -21,15 +21,4 @@ public class JCPServiceInfo extends AbsJCPAPIs {
         super(jcpClient, settings);
     }
 
-
-    // Getter methods
-
-    public String getId() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execGetReq(APISrvs.URL_PATH_USERNAME, SrvName.class, true).getSrvId();
-    }
-
-    public String getName() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execGetReq(APISrvs.URL_PATH_USERNAME, SrvName.class, true).getSrvName();
-    }
-
 }

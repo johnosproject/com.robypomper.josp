@@ -139,7 +139,7 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     // Service info
 
     public String getSrvId() {
-        return getString(JSLSRV_ID, JSLSRV_ID_DEF);
+        return getString(JSLSRV_ID, getString(JCP_CLIENT_ID, JSLSRV_ID_DEF));
     }
 
     public void setSrvId(String srvId) {
