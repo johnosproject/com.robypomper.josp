@@ -48,7 +48,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
     public JSLServiceInfo_002(JSLSettings_002 settings, JCPClient_Service jcpClient, String instanceId) {
         this.locSettings = settings;
         this.instanceId = instanceId;
-        this.jcpSrvInfo = new JCPServiceInfo(jcpClient);
+        this.jcpSrvInfo = new JCPServiceInfo(jcpClient, settings);
 
         // force value caching
         log.debug(Mrk_JSL.JSL_INFO, "Getting service's id and name");

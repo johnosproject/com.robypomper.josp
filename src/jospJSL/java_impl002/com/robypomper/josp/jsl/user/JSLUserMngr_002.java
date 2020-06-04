@@ -32,7 +32,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
     public JSLUserMngr_002(JSLSettings_002 settings, JCPClient_Service jcpClient) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
-        jcpUser = new JCPUserSrv(jcpClient);
+        jcpUser = new JCPUserSrv(jcpClient, settings);
 
         if (jcpClient.isAuthCodeFlowEnabled()) {
             log.trace(Mrk_JSL.JSL_USR, "Perform JSLUserMngr login");
