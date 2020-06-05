@@ -65,7 +65,7 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
     }
 
     @Override
-    public void connect() {
+    public void connect() throws CredentialsException {
         if (isConnected() || isConnecting())
             return;
 
@@ -118,7 +118,11 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
                     stopConnectionTimer();
                     log.debug(Mrk_JOD.JOD_PERM, "JCP Client connected");
 
-                } catch (ConnectionException ignore) {}
+                } catch (ConnectionException ignore) {
+                } catch (CredentialsException e) {
+                    log.warn(Mrk_JOD.JOD_COMM_JCPCL, String.format("Error on authenticate JCPClient to JCP because %s", e.getMessage()), e);
+                    stopConnectionTimer();
+                }
             }
         }, 0, locSettings.getPermissionsRefreshTime() * 1000);
         log.debug(Mrk_JOD.JOD_PERM, "JCP Client connection's timer started");
