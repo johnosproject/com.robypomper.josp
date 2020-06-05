@@ -50,6 +50,10 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
         this.instanceId = instanceId;
         this.jcpSrvInfo = new JCPServiceInfo(jcpClient, settings);
 
+        log.debug(Mrk_JSL.JSL_INFO, "Setting service's id to JCPClient");
+        jcpClient.setServiceId(getSrvId());
+        log.debug(Mrk_JSL.JSL_INFO, "Service's id set to JCPClient");
+
         log.info(Mrk_JSL.JSL_INFO, String.format("Initialized JSLServiceInfo instance for '%s' service with '%s' id", getSrvName(), getSrvId()));
     }
 
