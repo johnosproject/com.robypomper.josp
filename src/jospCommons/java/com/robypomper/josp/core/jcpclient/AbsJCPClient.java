@@ -9,7 +9,6 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.robypomper.java.JavaSSLIgnoreChecks;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -120,7 +119,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * {@inheritDoc}
      */
     @Override
-    public void connect() throws ConnectionException {
+    public void connect() throws ConnectionException, CredentialsException {
         if (isConnected())
             return;
 
@@ -133,12 +132,7 @@ public abstract class AbsJCPClient implements JCPClient {
 
         } catch (ConnectionSettingsException ignore) { /*Already checked in constructor*/}
 
-        try {
-            accessToken = getAccessToken(service);
-        } catch (ConnectionException e) {
-            log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on getting tokens for JCPClient because %s", e.getMessage()), e);
-            throw e;
-        }
+        accessToken = getAccessToken(service);
         refreshToken = accessToken.getRefreshToken();
         log.debug(Mrk_Commons.COMM_JCPCL, "Tokens got for JCPClient");
 
@@ -166,7 +160,8 @@ public abstract class AbsJCPClient implements JCPClient {
     public void tryConnect() {
         try {
             connect();
-        } catch (ConnectionException e) {
+
+        } catch (ConnectionException | CredentialsException e) {
             log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on connecting JCPClient to the JCP because %s", e.getMessage()), e);
         }
     }
@@ -395,7 +390,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * @param service OAuth2 service representation.
      * @return the OAuth2 access token.
      */
-    protected abstract OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException;
+    protected abstract OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException, CredentialsException;
 
 
     // Sub classes utils

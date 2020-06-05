@@ -30,7 +30,7 @@ public interface JCPClient {
     /**
      * Authenticate and prepare current client to exec request to the JCP.
      */
-    void connect() throws ConnectionException;
+    void connect() throws ConnectionException, CredentialsException;
 
     /**
      * Reset the JCPClient to initial state.
@@ -225,7 +225,7 @@ public interface JCPClient {
             super(msg);
         }
 
-        public ConnectionException(String msg, Exception e) {
+        public ConnectionException(String msg, Throwable e) {
             super(msg, e);
         }
     }
@@ -338,4 +338,16 @@ public interface JCPClient {
         }
     }
 
+    /**
+     * Exceptions for JCPClient connection errors (include security related errors).
+     */
+    class CredentialsException extends Throwable {
+        public CredentialsException(String msg) {
+            super(msg);
+        }
+
+        public CredentialsException(String msg, Exception e) {
+            super(msg, e);
+        }
+    }
 }
