@@ -52,8 +52,12 @@ public class CmdsJCPClient {
 
         try {
             jcpClient.connect();
+
         } catch (JCPClient.ConnectionException e) {
             return String.format("Error on JCP Client connection: %s.", e.getMessage());
+
+        } catch (JCPClient.CredentialsException e) {
+            return String.format("Error on JCP Client authentication: %s.", e.getMessage());
         }
         return "JCP Client connected successfully.";
     }
@@ -97,16 +101,36 @@ public class CmdsJCPClient {
      */
     @Command(description = "Login user to JCP Client.")
     public String jcpUserLogin() {
+        if (jcpClient.isAuthCodeFlowEnabled())
+            return "User already logged in.";
+
         final Scanner in = new Scanner(System.in);
 
+        String url;
+        try {
+            url = jcpClient.getLoginUrl();
+
+        } catch (JCPClient_Service.LoginException e) {
+            return String.format("Can't perform user login because %s", e.getMessage());
+
+        } catch (JCPClient.ConnectionException e) {
+            return String.format("Can't perform user login because %s", e.getMessage());
+        }
+
         System.out.println("Please open following url and login to JCP Cloud");
-        System.out.println(jcpClient.getLoginUrl());
+        System.out.println(url);
         System.out.println("then paste the redirected url 'code' param");
         System.out.print("<<");
         String code = in.nextLine();
 
-        if (!jcpClient.setLoginCode(code))
-            return "Invalid user login";
+
+        System.out.println("Please open following url and login to JCP Cloud");
+        try {
+            if (!jcpClient.setLoginCode(code))
+                return "Invalid user login";
+        } catch (JCPClient.ConnectionException | JCPClient_Service.LoginException e) {
+            return String.format("Can't proceed with user login because %s", e.getMessage());
+        }
 
         return "User logged in successfully";
     }
@@ -121,8 +145,15 @@ public class CmdsJCPClient {
      */
     @Command(description = "Logout user to JCP Client.")
     public String jcpUserLogout() {
-        if (!jcpClient.userLogout())
-            return "Error on user logout";
+        if (!jcpClient.isAuthCodeFlowEnabled())
+            return "User already logged out.";
+
+        try {
+            if (!jcpClient.userLogout())
+                return "Error on user logout";
+        } catch (JCPClient_Service.LoginException e) {
+            return String.format("Can't proceed with user logout because %s", e.getMessage());
+        }
 
         return "User logged out successfully";
     }
