@@ -62,10 +62,21 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
 
         log.debug(Mrk_JSL.JSL_COMM_JCPCL, "Connecting JCPClient to JCP");
         if (!settings.getRefreshToken().isEmpty())
-            authFlowClient.setRefreshToken(settings.getRefreshToken());
+            setRefreshToken(settings.getRefreshToken());
 
-        if (locSettings.getJCPConnect())
-            connect();
+        if (locSettings.getJCPConnect()) {
+            try {
+                connect();
+            } catch (CredentialsException e) {
+                log.warn(Mrk_JSL.JSL_COMM_JCPCL, String.format("Error on authenticate to JCPClient because %s", e.getMessage()), e);
+                if (isAuthFlow) {
+                    try {
+                        userLogout();
+                    } catch (LoginException ignore) {/*Checked because isAuthFlow==true*/}
+                    tryConnect();
+                }
+            }
+        }
 
         log.debug(Mrk_JSL.JSL_COMM_JCPCL, String.format("JCPClient%s connected to JCP", isConnected() ? "" : " NOT"));
         if (isConnected()) {
@@ -128,7 +139,11 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
      * {@inheritDoc}
      */
     @Override
-    public String getLoginUrl() {
+    public String getLoginUrl() throws ConnectionException, LoginException {
+        if (isAuthFlow)
+            throw new LoginException("Error on get login url user already logged in");
+        if (!isConnected())
+            throw new ConnectionException("Error on get login url because JCP client is not connected");
         return authFlowClient.getLoginUrl();
     }
 
@@ -136,7 +151,12 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
      * {@inheritDoc}
      */
     @Override
-    public boolean setLoginCode(String code) {
+    public boolean setLoginCode(String code) throws ConnectionException, LoginException {
+        if (!isConnected())
+            throw new ConnectionException("Error on perform user login because JCP client is not connected");
+        if (isAuthFlow)
+            throw new LoginException("Error on perform user login because user already logged in");
+
         // set and connect
         if (!authFlowClient.setLoginCode(code))
             return false;
@@ -158,37 +178,27 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
      * {@inheritDoc}
      */
     @Override
-    public boolean setRefreshToken(String refreshToken) {
-        if (refreshToken == null)
-            refreshToken = "";
-
-        // set
+    public void setRefreshToken(String refreshToken) {
         authFlowClient.setRefreshToken(refreshToken);
-
-        if (refreshToken.isEmpty())
-            return true;
-
-        // connect
-        try {
-            authFlowClient.connect();
-        } catch (ConnectionException e) {
-            return false;
-        }
-
-        isAuthFlow = true;
-        loginMngr.onLogin();
-        return true;
+        isAuthFlow = refreshToken != null && !refreshToken.isEmpty();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean userLogout() {
-        setRefreshToken("");
+    public boolean userLogout() throws LoginException {
+        if (!isAuthFlow)
+            throw new LoginException("Error on perform user logout because user already logged out");
 
-        isAuthFlow = false;
-        loginMngr.onLogout();
+        boolean wasConnected = isConnected();
+        setRefreshToken(null);
+
+        if (loginMngr != null)
+            loginMngr.onLogout();
+
+        if (wasConnected)
+            tryConnect();
 
         return true;
     }
@@ -238,7 +248,11 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
                     stopConnectionTimer();
                     log.debug(Mrk_JSL.JSL_COMM_JCPCL, String.format("JCPClient connected to JCP with %s flow", flowName));
 
-                } catch (ConnectionException ignore) {}
+                } catch (ConnectionException ignore) {
+                } catch (CredentialsException e) {
+                    log.warn(Mrk_JSL.JSL_COMM_JCPCL, String.format("Error on authenticate JCPClient to JCP because %s", e.getMessage()), e);
+                    stopConnectionTimer();
+                }
             }
         }, 0, locSettings.getJCPRefreshTime() * 1000);
         log.debug(Mrk_JSL.JSL_COMM_JCPCL, "JCP Client connection's timer started");
@@ -262,7 +276,7 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
     }
 
     @Override
-    public void connect() {
+    public void connect() throws CredentialsException {
         if (isConnected() || isConnecting())
             return;
 
@@ -304,7 +318,12 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
 
     @Override
     public void tryConnect() {
-        connect();
+        try {
+            connect();
+
+        } catch (CredentialsException e) {
+            log.warn(Mrk_JSL.JSL_COMM_JCPCL, String.format("Error on connecting JCPClient to the JCP because %s", e.getMessage()), e);
+        }
     }
 
     @Override
