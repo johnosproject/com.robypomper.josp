@@ -108,6 +108,11 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      * @return the url to use for user authentication.
      */
     public String getLoginUrl() {
+        if (getOAuthService() == null) {
+            try {
+                setupService();
+            } catch (ConnectionSettingsException e) {/*Already testd in AbsJCPClient constructor*/}
+        }
         return getOAuthService().getAuthorizationUrl();
     }
 

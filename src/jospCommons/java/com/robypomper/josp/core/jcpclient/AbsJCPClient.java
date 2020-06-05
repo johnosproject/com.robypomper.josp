@@ -81,6 +81,18 @@ public abstract class AbsJCPClient implements JCPClient {
         this.configs = configs;
 
         // Setup OAuth2 layer
+        setupService();
+
+        log.info(Mrk_Commons.COMM_JCPCL, String.format("Initialized AbsJCPClient/%s instance and%s connected to JCP", this.getClass().getSimpleName(), isConnected() ? "" : " NOT"));
+
+        if (autoConnect)
+            tryConnect();
+    }
+
+    protected void setupService() throws ConnectionSettingsException {
+        if (service != null)
+            return;
+
         try {
             service = new ServiceBuilder(configs.getClientId())
                     .apiSecret(configs.getClientSecrets())
@@ -91,11 +103,6 @@ public abstract class AbsJCPClient implements JCPClient {
         } catch (IllegalArgumentException e) {
             throw new ConnectionSettingsException(e.getMessage(), e);
         }
-
-        log.info(Mrk_Commons.COMM_JCPCL, String.format("Initialized AbsJCPClient/%s instance and%s connected to JCP", this.getClass().getSimpleName(), isConnected() ? "" : " NOT"));
-
-        if (autoConnect)
-            tryConnect();
     }
 
 
@@ -121,6 +128,11 @@ public abstract class AbsJCPClient implements JCPClient {
 
         // Start Auth flow
         log.debug(Mrk_Commons.COMM_JCPCL, "Getting tokens for JCPClient");
+        try {
+            setupService();
+
+        } catch (ConnectionSettingsException ignore) { /*Already checked in constructor*/}
+
         try {
             accessToken = getAccessToken(service);
         } catch (ConnectionException e) {
