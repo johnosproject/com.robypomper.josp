@@ -173,7 +173,8 @@ public class JODStructure_002 implements JODStructure {
             root = objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
 
         } catch (JsonProcessingException e) {
-            log.warn(Mrk_JOD.JOD_STRU, String.format("Error on loading object structure because %s", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e);
+            String eMessage = e.getMessage().indexOf('\n') == -1 ? e.getMessage() : e.getMessage().substring(0, e.getMessage().indexOf('\n'));
+            log.warn(Mrk_JOD.JOD_STRU, String.format("Error on loading object structure because %s", eMessage), e);
             throw new ParsingException("Error on parsing JOD Structure", e);
         }
 

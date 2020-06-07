@@ -87,7 +87,7 @@ public class JODGwO2SClient implements Client {
             throw new JODCommunication.CloudCommunicationException("Error on generating ssl context for object's cloud client", e);
         }
 
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwS2OClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", objInfo.getObjId()));
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwO2SClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", objInfo.getObjId()));
         if (isConnected()) {
             log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
         }

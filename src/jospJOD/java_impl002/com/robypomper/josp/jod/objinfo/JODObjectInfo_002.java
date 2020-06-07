@@ -161,7 +161,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         try {
             return readFile(locSettings.getStructurePath());
         } catch (IOException e) {
-            throw new RuntimeException("Error on structure string loading, check JOD configs.");
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on structure string loading from '%s' file because %s check JOD configs", locSettings.getStructurePath(), e.getMessage()), e);
+            throw new RuntimeException(String.format("Error on structure string loading from '%s' file check JOD configs", locSettings.getStructurePath()), e);
         }
     }
 
@@ -191,6 +192,14 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
 
     // Permissions's info
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getPermissionsPath() {
+        return locSettings.getPermissionsPath().getPath();
+    }
 
     /**
      * {@inheritDoc}
@@ -235,6 +244,10 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void syncObjInfo() {
         try {
             log.debug(Mrk_JOD.JOD_INFO, "Sync object Info to JCP");

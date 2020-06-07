@@ -414,7 +414,10 @@ public class JODCommunication_002 implements JODCommunication {
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Connecting cloud object's client");
             gwClient.connect();
-            log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connected");
+            if (gwClient.isConnected())
+                log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connected");
+            else
+                log.warn(Mrk_JOD.JOD_COMM, "Cloud object's client NOT connected");
 
         } catch (Client.ConnectionException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on connecting cloud communication client for '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);

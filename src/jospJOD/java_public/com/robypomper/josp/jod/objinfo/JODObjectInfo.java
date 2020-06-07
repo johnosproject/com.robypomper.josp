@@ -115,6 +115,13 @@ public interface JODObjectInfo {
     // Permissions's info
 
     /**
+     * The object's permissions local file.
+     *
+     * @return object's permissions file's path.
+     */
+    String getPermissionsPath();
+
+    /**
      * The object's permissions stored on local file.
      *
      * @return object's locally stored permissions.

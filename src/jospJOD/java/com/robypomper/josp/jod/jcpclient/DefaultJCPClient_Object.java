@@ -54,6 +54,7 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         this.locSettings = settings;
     }
 
+
     // Headers default values setters
 
     @Override
@@ -63,6 +64,9 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         else
             removeDefaultHeader(APIObjs.HEADER_OBJID);
     }
+
+
+    // Client connection methods
 
     @Override
     public void connect() throws CredentialsException {
@@ -93,6 +97,9 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         super.disconnect();
     }
 
+
+    // Connection timer
+
     public boolean isConnecting() {
         return connectionTimer != null;
     }
@@ -101,7 +108,7 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
         if (isConnecting())
             return;
 
-        log.debug(Mrk_JOD.JOD_PERM, "Starting JCP Client connection's timer");
+        log.debug(Mrk_JOD.JOD_COMM_JCPCL, "Starting JCP Client connection's timer");
         connectionTimer = new Timer(true);
         connectionTimer.schedule(new TimerTask() {
             @Override
@@ -109,14 +116,14 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
                 Thread.currentThread().setName(TH_CONNECTION_NAME);
 
                 try {
-                    log.debug(Mrk_JOD.JOD_PERM, "Connecting JCP Client");
+                    log.debug(Mrk_JOD.JOD_COMM_JCPCL, "Connecting JCP Client");
                     DefaultJCPClient_Object.super.connect();
                     if (!isConnected()) {
-                        log.debug(Mrk_JOD.JOD_PERM, "JCP Client NOT connected");
+                        log.debug(Mrk_JOD.JOD_COMM_JCPCL, "JCP Client NOT connected");
                         return;
                     }
                     stopConnectionTimer();
-                    log.debug(Mrk_JOD.JOD_PERM, "JCP Client connected");
+                    log.debug(Mrk_JOD.JOD_COMM_JCPCL, "JCP Client connected");
 
                 } catch (ConnectionException ignore) {
                 } catch (CredentialsException e) {
@@ -124,14 +131,15 @@ public class DefaultJCPClient_Object extends JCPClient_CliCredFlow
                     stopConnectionTimer();
                 }
             }
-        }, 0, locSettings.getPermissionsRefreshTime() * 1000);
-        log.debug(Mrk_JOD.JOD_PERM, "JCP Client connection's timer started");
+        }, 0, locSettings.getJCPRefreshTime() * 1000);
+        log.debug(Mrk_JOD.JOD_COMM_JCPCL, "JCP Client connection's timer started");
     }
 
     private void stopConnectionTimer() {
-        log.debug(Mrk_JOD.JOD_PERM, "Stopping JCP Client connection's timer");
+        log.debug(Mrk_JOD.JOD_COMM_JCPCL, "Stopping JCP Client connection's timer");
         connectionTimer.cancel();
         connectionTimer = null;
-        log.debug(Mrk_JOD.JOD_PERM, "JCP Client connection's timer stopped");
+        log.debug(Mrk_JOD.JOD_COMM_JCPCL, "JCP Client connection's timer stopped");
     }
+
 }
