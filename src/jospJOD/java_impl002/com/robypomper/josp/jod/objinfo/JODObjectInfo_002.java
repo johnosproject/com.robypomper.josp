@@ -58,10 +58,12 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         this.jodVersion = jodVersion;
 
         // force value caching
-        getObjIdHw();
+        if (getObjIdHw().isEmpty())
+            generateObjIdHw();
         if (!isObjIdSet())
             generateObjId();
-        getObjName();
+        if (getObjName().isEmpty())
+            generateObjName();
 
         log.info(Mrk_JOD.JOD_INFO, String.format("Initialized JODObjectInfo instance for '%s' object with '%s' id", getObjName(), getObjId()));
         log.debug(Mrk_JOD.JOD_INFO, String.format("                                   and '%s' id HW ", getObjIdHw()));
@@ -94,6 +96,17 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
     /**
+     * The Hardware ID is the id that allow to identify a physical object.
+     * <p>
+     * It help to identify same physical object also when the Object ID was reset.
+     *
+     * @return the object's Hardware ID.
+     */
+    private String getObjIdHw() {
+        return locSettings.getObjIdHw();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -106,13 +119,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getObjName() {
-        if (locSettings.getObjName().isEmpty()) {
-            log.debug(Mrk_JOD.JOD_INFO, "Generating locally object name");
-            String generated = LocalObjectInfo.generateObjName();
-            locSettings.setObjName(generated);
-            log.debug(Mrk_JOD.JOD_INFO, String.format("Object name generated locally '%s'", generated));
-        }
-
         return locSettings.getObjName();
     }
 
@@ -280,24 +286,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return new String(encoded, Charset.defaultCharset());
     }
 
-    /**
-     * The Hardware ID is the id that allow to identify a physical object.
-     * <p>
-     * It help to identify same physical object also when the Object ID was reset.
-     *
-     * @return the object's Hardware ID.
-     */
-    private String getObjIdHw() {
-        if (locSettings.getObjIdHw().isEmpty()) {
-            log.debug(Mrk_JOD.JOD_INFO, "Generating locally object HW ID");
-            String generated = LocalObjectInfo.generateObjIdHw();
-            locSettings.setObjIdHw(generated);
-            log.debug(Mrk_JOD.JOD_INFO, String.format("Object HW ID generated locally '%s'", generated));
-        }
-
-        return locSettings.getObjIdHw();
-    }
-
 
     // Obj's id
 
@@ -363,7 +351,24 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
 
-    // Generating timer
+    // Generators
+
+    private void generateObjIdHw() {
+        log.debug(Mrk_JOD.JOD_INFO, "Generating locally object HW ID");
+        String generated = LocalObjectInfo.generateObjIdHw();
+        locSettings.setObjIdHw(generated);
+        log.debug(Mrk_JOD.JOD_INFO, String.format("Object HW ID generated locally '%s'", generated));
+    }
+
+    private void generateObjName() {
+        log.debug(Mrk_JOD.JOD_INFO, "Generating locally object name");
+        String generated = LocalObjectInfo.generateObjName();
+        locSettings.setObjName(generated);
+        log.debug(Mrk_JOD.JOD_INFO, String.format("Object name generated locally '%s'", generated));
+    }
+
+
+    // Generating listener
 
     private boolean isGenerating = false;
 
