@@ -43,10 +43,6 @@ import java.util.concurrent.ExecutionException;
  *         this class renew it automatically.
  *     </li>
  * </ul>
- * <p>
- * In addition this class provide the static protected method
- * {@link #disableSSLChecks()}, that can be used by sub classes to disable SSL
- * hostname checks and certificate validations only on localhost.
  */
 public abstract class AbsJCPClient implements JCPClient {
 
@@ -68,7 +64,7 @@ public abstract class AbsJCPClient implements JCPClient {
     private OAuth2AccessToken accessToken = null;
     private String refreshToken = null;
     private String sessionId = null;
-    private Map<String, String> defaultHeaders = new HashMap<>();
+    private final Map<String, String> defaultHeaders = new HashMap<>();
 
 
     // Constructor
@@ -127,7 +123,7 @@ public abstract class AbsJCPClient implements JCPClient {
         if (isConnected())
             return;
 
-        log.info(Mrk_Commons.COMM_JCPCL, String.format("Connecting JCPClient to the JCP platform at '%s'", configs.getBaseUrl()));
+        log.info(Mrk_Commons.COMM_JCPCL, String.format("Connect JCPClient to the JCP platform at '%s'", configs.getBaseUrl()));
 
         // Start Auth flow
         log.debug(Mrk_Commons.COMM_JCPCL, "Getting tokens for JCPClient");
@@ -251,7 +247,7 @@ public abstract class AbsJCPClient implements JCPClient {
      */
     @Override
     public <T> T execGetReq(String url, Class<T> reqObject, boolean secure) throws RequestException, ConnectionException {
-        return execGetReq(url, reqObject, new HashMap<String, String>(), secure);
+        return execGetReq(url, reqObject, new HashMap<>(), secure);
     }
 
     /**
@@ -290,6 +286,7 @@ public abstract class AbsJCPClient implements JCPClient {
         if (reqObject == null)
             return null;
         if (reqObject.equals(String.class))
+            //noinspection unchecked
             return (T) body;
         return parseJSON(body, reqObject, reqUrl, secure);
     }
@@ -330,36 +327,35 @@ public abstract class AbsJCPClient implements JCPClient {
             throw new ConnectionException("JCPClient not connected");
 
         // Send request
-        String reqUrl = url;
         Response response;
         try {
-            OAuthRequest request = preparePostRequest(reqUrl, param);
+            OAuthRequest request = preparePostRequest(url, param);
             injectDefaultHeaders(request);
             injectSession(request);
             response = service.execute(request);
 
             if (response.getCode() == 401) {
                 accessToken = service.refreshAccessToken(refreshToken);
-                request = preparePostRequest(reqUrl, param);
+                request = preparePostRequest(url, param);
                 injectDefaultHeaders(request);
                 injectSession(request);
                 response = service.execute(request);
             }
 
             storeSession(response);
-            checkErrorCodes(response, reqUrl, secure);
+            checkErrorCodes(response, url, secure);
         } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException(String.format("Error on request '%s' to JCP.", url), e);
         }
 
         // Parsing response
-        String body = extractBody(response, reqUrl, secure);
+        String body = extractBody(response, url, secure);
         if (reqObject == null)
             return null;
         if (reqObject.equals(String.class))
             //noinspection unchecked
             return (T) body;
-        return parseJSON(body, reqObject, reqUrl, secure);
+        return parseJSON(body, reqObject, url, secure);
     }
 
 
@@ -398,35 +394,35 @@ public abstract class AbsJCPClient implements JCPClient {
             throw new ConnectionException("JCPClient not connected");
 
         // Send request
-        String reqUrl = url;
         Response response;
         try {
-            OAuthRequest request = prepareDeleteRequest(reqUrl, param);
+            OAuthRequest request = prepareDeleteRequest(url, param);
             injectDefaultHeaders(request);
             injectSession(request);
             response = service.execute(request);
 
             if (response.getCode() == 401) {
                 accessToken = service.refreshAccessToken(refreshToken);
-                request = prepareDeleteRequest(reqUrl, param);
+                request = prepareDeleteRequest(url, param);
                 injectDefaultHeaders(request);
                 injectSession(request);
                 response = service.execute(request);
             }
 
             storeSession(response);
-            checkErrorCodes(response, reqUrl, secure);
+            checkErrorCodes(response, url, secure);
         } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException(String.format("Error on request '%s' to JCP.", url), e);
         }
 
         // Parsing response
-        String body = extractBody(response, reqUrl, secure);
+        String body = extractBody(response, url, secure);
         if (reqObject == null)
             return null;
         if (reqObject.equals(String.class))
+            //noinspection unchecked
             return (T) body;
-        return parseJSON(body, reqObject, reqUrl, secure);
+        return parseJSON(body, reqObject, url, secure);
     }
 
 
@@ -440,21 +436,6 @@ public abstract class AbsJCPClient implements JCPClient {
      * @return the OAuth2 access token.
      */
     protected abstract OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException, CredentialsException;
-
-
-    // Sub classes utils
-
-    /**
-     * Init java SSLContext with fake {@link javax.net.ssl.TrustManager} and
-     * replace the SSL HostnameVerifier that accept only <code>localhost</code>.
-     */
-    public static void disableSSLChecks() {
-        try {
-            JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
-        } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            log.warn(Mrk_Commons.COMM_JCPCL, String.format("WAR: Can't disable SSL checks on localhost: '%s'", e.getMessage()), e);
-        }
-    }
 
 
     // Request mgnm
@@ -588,9 +569,8 @@ public abstract class AbsJCPClient implements JCPClient {
      */
     private <T> T parseJSON(String body, Class<T> reqObject, String reqUrl, boolean secure) throws ResponseParsingException {
         try {
-            String jsonInString = body;
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(jsonInString, reqObject);
+            return mapper.readValue(body, reqObject);
         } catch (IOException e) {
             throw new ResponseParsingException(reqUrl, secure, e);
         }

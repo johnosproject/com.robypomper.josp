@@ -43,7 +43,7 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
         super(socket);
         this.clientId = clientId;
         this.serverId = serverId;
-        log.info(Mrk_Commons.COMM_SRV, String.format("Initialized DefaultClientInfo instance for '%s' client '%s' of '%s' server", clientId, socket.getInetAddress(), socket.getPort()));
+        log.info(Mrk_Commons.COMM_SRV, String.format("Initialized DefaultClientInfo instance for '%s' client '%s:%d' of '%s' server", clientId, socket.getInetAddress(), socket.getPort(), serverId));
         log.debug(Mrk_Commons.COMM_SRV, String.format("                                       from '%s:%d' (client) to '%s:%d' (server)", socket.getInetAddress(), socket.getPort(), socket.getLocalAddress(), socket.getLocalPort()));
     }
 

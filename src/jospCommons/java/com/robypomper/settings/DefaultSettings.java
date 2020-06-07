@@ -85,7 +85,10 @@ public class DefaultSettings {
      *                 pair on the file, otherwise not.
      */
     protected void store(String property, String value, boolean syncFile) {
-        properties.put(property, value);
+        if (value == null)
+            properties.remove(property);
+        else
+            properties.put(property, value);
 
         if (!syncFile)
             return;
