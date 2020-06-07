@@ -223,10 +223,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     public void syncObjInfo() {
         try {
             log.debug(Mrk_JOD.JOD_INFO, "Sync object Info to JCP");
-            if (!jcpObjInfo.isRegistered())
-                jcpObjInfo.register(this);
-            else
-                jcpObjInfo.update(this);
+            jcpObjInfo.registerOrUpdate(this);
             log.debug(Mrk_JOD.JOD_INFO, "Object Info synchronized to JCP");
 
             if (isSync()) {

@@ -40,15 +40,12 @@ public class JCPObjectInfo extends AbsJCPAPIs {
         return jcpClient.execPostReq(APIObjs.URL_PATH_GENERATEID, String.class, params, true);
     }
 
-    public boolean isRegistered() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execGetReq(APIObjs.URL_PATH_REGISTER_IS, Boolean.class, true);
-    }
-
-    public boolean register(JODObjectInfo objectInfo) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        RegisterObj regObjParam = new RegisterObj(objectInfo.getObjName(), objectInfo.getOwnerId(), objectInfo.readStructureStr());
+    public boolean registerOrUpdate(JODObjectInfo objectInfo) throws JCPClient.ConnectionException, JCPClient.RequestException {
+        RegisterObj regObjParam = new RegisterObj(objectInfo.getObjName(), objectInfo.getOwnerId());
         regObjParam.setModel(objectInfo.getModel());
         regObjParam.setBrand(objectInfo.getBrand());
         regObjParam.setLongDescr(objectInfo.getLongDescr());
+        regObjParam.setStructure(objectInfo.readStructureStr());
         return jcpClient.execPostReq(APIObjs.URL_PATH_REGISTER, Boolean.class, regObjParam, true);
     }
 
