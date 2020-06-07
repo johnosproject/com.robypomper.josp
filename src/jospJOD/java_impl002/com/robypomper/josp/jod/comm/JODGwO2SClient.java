@@ -12,6 +12,7 @@ import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.jod.JODSettings_002;
+import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
@@ -23,8 +24,6 @@ import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -38,7 +37,6 @@ public class JODGwO2SClient implements Client {
 
     public static final String CERT_ALIAS = "JOD-Cert-Cloud";
     public static final String JCP_CERT_ALIAS = "JCP-Cert-Cloud";
-    public static final String TH_INIT_NAME = "_JCPCONNECTION_";
 
 
     // Internal vars
@@ -48,11 +46,11 @@ public class JODGwO2SClient implements Client {
     private final JODCommunication_002 communication;
     private final JODObjectInfo objInfo;
     private final JCPCommObj jcpComm;
+    private final JCPClient_Object jcpClient;
     private final Certificate clientCert;
     private final DynAddTrustManager clientTrustManager;
     private final SSLContext sslCtx;
     private DefaultSSLClient client;
-    private Timer initTimer = null;
 
 
     // Constructor
@@ -70,10 +68,11 @@ public class JODGwO2SClient implements Client {
      * @param objInfo       the info of the represented object.
      * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JODGwO2SClient(JODSettings_002 settings, JODCommunication_002 communication, JODObjectInfo objInfo, JCPCommObj jcpComm) throws JODCommunication.CloudCommunicationException {
+    public JODGwO2SClient(JODSettings_002 settings, JODCommunication_002 communication, JODObjectInfo objInfo, JCPClient_Object jcpClient, JCPCommObj jcpComm) throws JODCommunication.CloudCommunicationException {
         this.locSettings = settings;
         this.communication = communication;
         this.objInfo = objInfo;
+        this.jcpClient = jcpClient;
         this.jcpComm = jcpComm;
 
         try {
@@ -95,7 +94,9 @@ public class JODGwO2SClient implements Client {
     }
 
 
-    // Init timer
+    // Init listener
+
+    private boolean isInit = false;
 
     private void initConnection() throws ConnectionException {
         O2SAccessInfo o2sAccess;
@@ -105,13 +106,17 @@ public class JODGwO2SClient implements Client {
             o2sAccess = jcpComm.getO2SAccessInfo(clientCert);
             log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client access info got");
 
-            if (isInitializing())
-                stopInitTimer();
+            if (isInitializing()) {
+                jcpClient.removeConnectListener(initListener);
+                isInit = false;
+            }
 
         } catch (JCPClient.ConnectionException | JCPClient.RequestException | CertificateEncodingException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing object GW client because %s", e.getMessage()));
-            if (!isInitializing())
-                startInitTimer();
+            if (!isInitializing()) {
+                jcpClient.addConnectListener(initListener);
+                isInit = true;
+            }
             return;
         }
 
@@ -144,36 +149,18 @@ public class JODGwO2SClient implements Client {
     }
 
     private boolean isInitializing() {
-        return initTimer != null;
+        return isInit;
     }
 
-    private void startInitTimer() {
-        if (isInitializing())
-            return;
-
-        log.debug(Mrk_JOD.JOD_COMM_SUB, "Starting object GW client init's timer");
-        initTimer = new Timer(true);
-        initTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(TH_INIT_NAME);
-                try {
-                    initConnection();
-                } catch (ConnectionException ignore) {/*Exception in timer's thread*/}
-            }
-        }, locSettings.getJCPRefreshTime() * 1000, locSettings.getJCPRefreshTime() * 1000);
-        log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client init's timer started");
-    }
-
-    private void stopInitTimer() {
-        if (!isInitializing())
-            return;
-
-        log.debug(Mrk_JOD.JOD_COMM_SUB, "Stopping object GW client init's timer");
-        initTimer.cancel();
-        initTimer = null;
-        log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client init's timer stopped");
-    }
+    @SuppressWarnings("Convert2Lambda")
+    private final JCPClient.ConnectListener initListener = new JCPClient.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient jcpClient) {
+            try {
+                initConnection();
+            } catch (ConnectionException ignore) {/*Exception in timer's thread*/}
+        }
+    };
 
 
     // Processing incoming data
@@ -284,8 +271,10 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public void disconnect() {
-        if (isInitializing())
-            stopInitTimer();
+        if (isInitializing()) {
+            jcpClient.removeConnectListener(initListener);
+            isInit = false;
+        }
 
         if (client != null)
             client.disconnect();

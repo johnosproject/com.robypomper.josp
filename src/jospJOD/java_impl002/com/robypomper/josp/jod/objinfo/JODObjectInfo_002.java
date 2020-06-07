@@ -15,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -27,17 +25,6 @@ import java.util.TimerTask;
  * API Objs via the support class {@link JCPObjectInfo}.
  */
 public class JODObjectInfo_002 implements JODObjectInfo {
-
-    // Class constants
-
-    private static final String DEF_STRUCTURE = "";
-
-
-    // Class constants
-
-    public static final String TH_GENERATION_NAME = "_OBJID_GENERATION_";
-    public static final String TH_SYNC_NAME = "_OBJINFO_SYNC_";
-
 
     // Internal vars
 
@@ -50,8 +37,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private JODCommunication comm;
     private JODPermissions permissions;
     private final String jodVersion;
-    private Timer generatingTimer = null;
-    private Timer syncTimer = null;
 
 
     // Constructor
@@ -229,8 +214,10 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     public void stopAutoRefresh() {
         log.info(Mrk_JOD.JOD_INFO, String.format("Stop JODObjectInfo auto-refresh for '%s' object", getObjId()));
 
-        if (isSync())
-            stopSyncTimer();
+        if (isSync()) {
+            jcpClient.removeConnectListener(syncListener);
+            isSync = false;
+        }
     }
 
     public void syncObjInfo() {
@@ -242,47 +229,38 @@ public class JODObjectInfo_002 implements JODObjectInfo {
                 jcpObjInfo.update(this);
             log.debug(Mrk_JOD.JOD_INFO, "Object Info synchronized to JCP");
 
-            if (isSync())
-                stopSyncTimer();
+            if (isSync()) {
+                jcpClient.removeConnectListener(syncListener);
+                isSync = false;
+            }
 
         } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on sync object Info to JCP because %s", e.getMessage()));
-            if (!isSync())
-                startSyncTimer();
+            if (!isSync()) {
+                jcpClient.addConnectListener(syncListener);
+                isSync = true;
+            }
         }
     }
 
-    // Sync timer
+
+    // Sync listener
+
+    private boolean isSync = false;
 
     private boolean isSync() {
-        return syncTimer != null;
+        //return syncTimer != null;
+        return isSync;
     }
 
-    private void startSyncTimer() {
-        if (isSync())
-            return;
+    @SuppressWarnings("Convert2Lambda")
+    private final JCPClient.ConnectListener syncListener = new JCPClient.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient jcpClient) {
+            syncObjInfo();
+        }
+    };
 
-        log.debug(Mrk_JOD.JOD_INFO, "Starting object Info sync's timer");
-        syncTimer = new Timer(true);
-        syncTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(TH_SYNC_NAME);
-                syncObjInfo();
-            }
-        }, locSettings.getJCPRefreshTime() * 1000, locSettings.getJCPRefreshTime() * 1000);
-        log.debug(Mrk_JOD.JOD_INFO, "Object Info sync's timer started");
-    }
-
-    private void stopSyncTimer() {
-        if (!isSync())
-            return;
-
-        log.debug(Mrk_JOD.JOD_INFO, "Stopping object Info sync's timer");
-        syncTimer.cancel();
-        syncTimer = null;
-        log.debug(Mrk_JOD.JOD_INFO, "Object Info sync's timer stopped");
-    }
 
     // Private methods
 
@@ -333,15 +311,19 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             log.debug(Mrk_JOD.JOD_INFO, "Object ID generated on cloud");
 
             saveObjId(generated);
-            if (isGenerating())
-                stopGeneratingTimer();
+            if (isGenerating()) {
+                jcpClient.removeConnectListener(generatingListener);
+                isGenerating = false;
+            }
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
             return;
 
         } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
-            if (!isGenerating())
-                startGeneratingTimer();
+            if (!isGenerating()) {
+                jcpClient.addConnectListener(generatingListener);
+                isGenerating = true;
+            }
         }
 
         if (!isObjIdSet()) {
@@ -377,34 +359,18 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     // Generating timer
 
+    private boolean isGenerating = false;
+
     private boolean isGenerating() {
-        return generatingTimer != null;
+        return isGenerating;
     }
 
-    private void startGeneratingTimer() {
-        if (isGenerating())
-            return;
-
-        log.debug(Mrk_JOD.JOD_INFO, "Starting object ID generation's timer");
-        generatingTimer = new Timer(true);
-        generatingTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(TH_GENERATION_NAME);
-                generateObjId();
-            }
-        }, locSettings.getJCPRefreshTime() * 1000, locSettings.getJCPRefreshTime() * 1000);
-        log.debug(Mrk_JOD.JOD_INFO, "Object ID generation's timer started");
-    }
-
-    private void stopGeneratingTimer() {
-        if (!isGenerating())
-            return;
-
-        log.debug(Mrk_JOD.JOD_INFO, "Stopping object ID generation's timer");
-        generatingTimer.cancel();
-        generatingTimer = null;
-        log.debug(Mrk_JOD.JOD_INFO, "Object ID generation's timer stopped");
-    }
+    @SuppressWarnings("Convert2Lambda")
+    private final JCPClient.ConnectListener generatingListener = new JCPClient.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient jcpClient) {
+            generateObjId();
+        }
+    };
 
 }
