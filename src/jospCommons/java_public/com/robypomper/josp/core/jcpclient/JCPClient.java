@@ -50,6 +50,17 @@ public interface JCPClient {
     void tryDisconnect();
 
 
+    // Connection listeners
+
+    void addConnectListener(ConnectListener listener);
+
+    void removeConnectListener(ConnectListener listener);
+
+    void addDisconnectListener(DisconnectListener listener);
+
+    void removeDisconnectListener(DisconnectListener listener);
+
+
     // Get requests
 
     /**
@@ -214,6 +225,20 @@ public interface JCPClient {
      */
     <T> T execDeleteReq(String url, Class<T> reqObject, Object param, boolean secure) throws RequestException, ConnectionException;
 
+
+    // Listeners interfaces
+
+    interface ConnectListener {
+
+        void onConnected(JCPClient jcpClient);
+
+    }
+
+    interface DisconnectListener {
+
+        void onDisconnected(JCPClient jcpClient);
+
+    }
 
     // Exceptions
 

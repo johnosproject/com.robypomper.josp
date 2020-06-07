@@ -14,7 +14,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -60,6 +62,8 @@ public abstract class AbsJCPClient implements JCPClient {
     private static final Logger log = LogManager.getLogger();
     private final JCPConfigs configs;
     private boolean connected = false;
+    private final List<ConnectListener> connectListeners = new ArrayList<>();
+    private final List<DisconnectListener> disconnectListeners = new ArrayList<>();
     private OAuth20Service service = null;
     private OAuth2AccessToken accessToken = null;
     private String refreshToken = null;
@@ -137,6 +141,7 @@ public abstract class AbsJCPClient implements JCPClient {
         log.debug(Mrk_Commons.COMM_JCPCL, "Tokens got for JCPClient");
 
         connected = true;
+        emitConnection();
     }
 
     /**
@@ -151,6 +156,7 @@ public abstract class AbsJCPClient implements JCPClient {
         accessToken = null;
 
         connected = false;
+        emitDisconnection();
     }
 
     /**
@@ -176,6 +182,49 @@ public abstract class AbsJCPClient implements JCPClient {
 
     protected OAuth20Service getOAuthService() {
         return service;
+    }
+
+
+    // Connection listeners
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addConnectListener(ConnectListener listener) {
+        connectListeners.add(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeConnectListener(ConnectListener listener) {
+        connectListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addDisconnectListener(DisconnectListener listener) {
+        disconnectListeners.add(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeDisconnectListener(DisconnectListener listener) {
+        disconnectListeners.remove(listener);
+    }
+
+    protected void emitConnection() {
+        List<ConnectListener> tmpList = new ArrayList<>(connectListeners);
+        for (ConnectListener l : tmpList)
+            l.onConnected(this);
+    }
+
+    protected void emitDisconnection() {
+        List<DisconnectListener> tmpList = new ArrayList<>(disconnectListeners);
+        for (DisconnectListener l : tmpList)
+            l.onDisconnected(this);
     }
 
 
