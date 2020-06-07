@@ -12,6 +12,7 @@ import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jsl.JSLSettings_002;
+import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -22,8 +23,6 @@ import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -37,7 +36,6 @@ public class JSLGwS2OClient implements Client {
 
     public static final String CERT_ALIAS = "JSL-Cert-Cloud";
     public static final String JCP_CERT_ALIAS = "JCP-Cert-Cloud";
-    public static final String TH_INIT_NAME = "_JCPCONNECTION_";
 
 
     // Internal vars
@@ -46,12 +44,12 @@ public class JSLGwS2OClient implements Client {
     private final JSLSettings_002 locSettings;
     private final JSLCommunication_002 communication;
     private final JSLServiceInfo srvInfo;
+    private final JCPClient_Service jcpClient;
     private final JCPCommSrv jcpComm;
     private final Certificate clientCert;
     private final DynAddTrustManager clientTrustManager;
     private final SSLContext sslCtx;
     private DefaultSSLClient client;
-    private Timer initTimer = null;
 
 
     // Constructor
@@ -67,10 +65,11 @@ public class JSLGwS2OClient implements Client {
      * @param srvInfo       the info of the represented service.
      * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JSLGwS2OClient(JSLSettings_002 settings, JSLCommunication_002 communication, JSLServiceInfo srvInfo, JCPCommSrv jcpComm) throws JSLCommunication.CloudCommunicationException {
+    public JSLGwS2OClient(JSLSettings_002 settings, JSLCommunication_002 communication, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JCPCommSrv jcpComm) throws JSLCommunication.CloudCommunicationException {
         this.locSettings = settings;
         this.communication = communication;
         this.srvInfo = srvInfo;
+        this.jcpClient = jcpClient;
         this.jcpComm = jcpComm;
 
         try {
@@ -92,7 +91,9 @@ public class JSLGwS2OClient implements Client {
     }
 
 
-    // Init timer
+    // Init listener
+
+    private boolean isInit = false;
 
     private void initConnection() throws ConnectionException {
         S2OAccessInfo s2oAccess;
@@ -102,13 +103,17 @@ public class JSLGwS2OClient implements Client {
             s2oAccess = jcpComm.getS2OAccessInfo(clientCert);
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client access info got");
 
-            if (isInitializing())
-                stopInitTimer();
+            if (isInitializing()) {
+                jcpClient.removeConnectListener(initListener);
+                isInit = false;
+            }
 
         } catch (JCPClient.ConnectionException | JCPClient.RequestException | CertificateEncodingException e) {
             log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on initializing service GW client because %s", e.getMessage()));
-            if (!isInitializing())
-                startInitTimer();
+            if (!isInitializing()) {
+                jcpClient.addConnectListener(initListener);
+                isInit = true;
+            }
             return;
         }
 
@@ -141,36 +146,18 @@ public class JSLGwS2OClient implements Client {
     }
 
     private boolean isInitializing() {
-        return initTimer != null;
+        return isInit;
     }
 
-    private void startInitTimer() {
-        if (isInitializing())
-            return;
-
-        log.debug(Mrk_JSL.JSL_COMM_SUB, "Starting service GW client init's timer");
-        initTimer = new Timer(true);
-        initTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(TH_INIT_NAME);
-                try {
-                    initConnection();
-                } catch (ConnectionException ignore) {/*Exception in timer's thread*/}
-            }
-        }, locSettings.getJCPRefreshTime() * 1000, locSettings.getJCPRefreshTime() * 1000);
-        log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client init's timer started");
-    }
-
-    private void stopInitTimer() {
-        if (!isInitializing())
-            return;
-
-        log.debug(Mrk_JSL.JSL_COMM_SUB, "Stopping service GW client init's timer");
-        initTimer.cancel();
-        initTimer = null;
-        log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client init's timer stopped");
-    }
+    @SuppressWarnings("Convert2Lambda")
+    private final JCPClient.ConnectListener initListener = new JCPClient.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient jcpClient) {
+            try {
+                initConnection();
+            } catch (ConnectionException ignore) {/*Exception in timer's thread*/}
+        }
+    };
 
 
     // Processing incoming data
@@ -261,8 +248,10 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public void disconnect() {
-        if (isInitializing())
-            stopInitTimer();
+        if (isInitializing()) {
+            jcpClient.removeConnectListener(initListener);
+            isInit = false;
+        }
 
         if (client != null)
             client.disconnect();
