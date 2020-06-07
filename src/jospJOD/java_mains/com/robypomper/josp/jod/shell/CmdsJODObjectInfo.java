@@ -43,4 +43,11 @@ public class CmdsJODObjectInfo {
         return s;
     }
 
+
+    @Command(description = "Set object's name")
+    public String infoSetObjectName(String newName) {
+        String oldName = objInfo.getObjName();
+        objInfo.setObjName(newName);
+        return String.format("Object's name changed from '%s' to '%s' successfully", oldName, newName);
+    }
 }

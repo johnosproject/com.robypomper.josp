@@ -56,6 +56,13 @@ public interface JODObjectInfo {
      */
     String getObjName();
 
+    /**
+     * Set the human readable object's name.
+     *
+     * @param newName the new obj's name to set
+     */
+    void setObjName(String newName);
+
 
     // Users's info
 

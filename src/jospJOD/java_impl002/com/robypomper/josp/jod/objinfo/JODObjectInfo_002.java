@@ -116,6 +116,15 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return locSettings.getObjName();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setObjName(String newName) {
+        locSettings.setObjName(newName);
+        syncObjInfo();
+    }
+
 
     // Users's info
 
