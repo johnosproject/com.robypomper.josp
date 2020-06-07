@@ -335,6 +335,29 @@ public class DefaultJCPClient_Service implements JCPClient_Service {
     }
 
 
+    // Connection listeners
+
+    public void addConnectListener(ConnectListener listener) {
+        cliCredFlowClient.addConnectListener(listener);
+        authFlowClient.addConnectListener(listener);
+    }
+
+    public void removeConnectListener(ConnectListener listener) {
+        cliCredFlowClient.removeConnectListener(listener);
+        authFlowClient.removeConnectListener(listener);
+    }
+
+    public void addDisconnectListener(DisconnectListener listener) {
+        cliCredFlowClient.addDisconnectListener(listener);
+        authFlowClient.addDisconnectListener(listener);
+    }
+
+    public void removeDisconnectListener(DisconnectListener listener) {
+        cliCredFlowClient.removeDisconnectListener(listener);
+        authFlowClient.removeDisconnectListener(listener);
+    }
+
+
     // Get requests
 
     @Override
