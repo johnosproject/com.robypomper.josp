@@ -60,7 +60,7 @@ public interface JCPClient_Service extends JCPClient {
      *
      * @return the url to use for user authentication.
      */
-    String getLoginUrl();
+    String getLoginUrl() throws ConnectionException, LoginException;
 
     /**
      * Set the login code received after user login.
@@ -68,7 +68,7 @@ public interface JCPClient_Service extends JCPClient {
      * When received the login code after user login at url returned by
      * {@link #getLoginUrl()} method, it must be set to the JCPClient instance.
      */
-    boolean setLoginCode(String code);
+    boolean setLoginCode(String code) throws ConnectionException, LoginException;
 
     /**
      * @return the refresh token from AuthFlow.
@@ -85,14 +85,14 @@ public interface JCPClient_Service extends JCPClient {
      * When received the login code after user login at url returned by
      * {@link #getLoginUrl()} method, it must be set to the JCPClient instance.
      */
-    boolean setRefreshToken(String refreshToken);
+    void setRefreshToken(String refreshToken);
 
     /**
      * Reset the login code and all authentication tokens and credentials.
      * <p>
      * This method allow to logout current logged user.
      */
-    boolean userLogout();
+    boolean userLogout() throws LoginException;
 
 
     // Login manager
@@ -122,6 +122,22 @@ public interface JCPClient_Service extends JCPClient {
          */
         void onLogout();
 
+    }
+
+
+    // Exceptions
+
+    /**
+     * Exceptions for JCPClient connection errors (include security related errors).
+     */
+    class LoginException extends Throwable {
+        public LoginException(String msg) {
+            super(msg);
+        }
+
+        public LoginException(String msg, Exception e) {
+            super(msg, e);
+        }
     }
 
 }

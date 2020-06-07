@@ -1,6 +1,7 @@
 package com.robypomper.josp.core.jcpclient;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.robypomper.java.JavaSSLIgnoreChecks;
 import com.robypomper.log.Mrk_Commons;
@@ -51,7 +52,7 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      * {@inheritDoc}
      */
     @Override
-    protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException {
+    protected OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException, CredentialsException {
         log.debug(Mrk_Commons.COMM_JCPCL, "Getting the JCPClient access token");
 
         if (getLoginCode() == null && getRefreshToken() == null)
@@ -63,6 +64,9 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
             try {
                 tmpAccessToken = code != null ? service.getAccessToken(code) : service.refreshAccessToken(getRefreshToken());
 
+            } catch (OAuth2AccessTokenErrorResponse e1) {
+                throw new CredentialsException("Error on refresh access token ", e1);
+
             } catch (SSLHandshakeException e) {
                 log.trace(Mrk_Commons.COMM_JCPCL, String.format("Error on SSL handshaking with JCP because %s", e.getMessage()));
 
@@ -71,15 +75,20 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
                     JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
                     log.debug(Mrk_Commons.COMM_JCPCL, "Localhost JCP verifier added");
 
+                } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e1) {
+                    log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on add localhost JCP verifier because %s", e1.getMessage()), e1);
+                    throw new ConnectionException("Error on add localhost JCP verifier", e1);
+                }
+
+                try {
                     tmpAccessToken = code != null ? service.getAccessToken(code) : service.refreshAccessToken(getRefreshToken());
 
-                } catch (SSLHandshakeException e1) {
-                    log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on SSL handshaking with localhost JCP because %s", e.getMessage()), e);
-                    throw new ConnectionException("Error on SSL handshaking with localhost JCP", e);
+                } catch (OAuth2AccessTokenErrorResponse e1) {
+                    throw new CredentialsException(String.format("Error on refresh access token because %s", e1.getMessage()), e1);
 
-                } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException javaSSLIgnoreChecksException) {
-                    log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on add localhost JCP verifier because %s", e.getMessage()), e);
-                    throw new ConnectionException("Error on add localhost JCP verifier", e);
+                } catch (SSLHandshakeException e1) {
+                    throw new ConnectionException("Error on SSL handshaking with localhost JCP", e1);
+
                 }
             }
 
@@ -108,6 +117,11 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
      * @return the url to use for user authentication.
      */
     public String getLoginUrl() {
+        if (getOAuthService() == null) {
+            try {
+                setupService();
+            } catch (ConnectionSettingsException e) {/*Already testd in AbsJCPClient constructor*/}
+        }
         return getOAuthService().getAuthorizationUrl();
     }
 
@@ -131,7 +145,7 @@ public class JCPClient_AuthFlow extends AbsJCPClient {
         try {
             connect();
 
-        } catch (ConnectionException e) {
+        } catch (ConnectionException | CredentialsException e) {
             log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on connecting after code set because %s", e.getMessage()), e);
             this.code = null;
             return false;

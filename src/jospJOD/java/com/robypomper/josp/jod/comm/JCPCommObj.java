@@ -5,6 +5,7 @@ import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessRequest;
 import com.robypomper.josp.jcp.apis.paths.APIJOSPGWs;
 import com.robypomper.josp.jod.JODSettings_002;
+import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 
 import java.security.cert.Certificate;
@@ -14,12 +15,10 @@ import java.security.cert.CertificateEncodingException;
 /**
  * Support class for API JOSP GWs for object's requests.
  */
-public class JCPCommObj {
+public class JCPCommObj extends AbsJCPAPIs {
 
     // Internal vars
 
-    private final JCPClient_Object jcpClient;
-    private final JODSettings_002 settings;
     private final String instanceId;
 
 
@@ -33,8 +32,7 @@ public class JCPCommObj {
      * @param instanceId the JOD instance id.
      */
     public JCPCommObj(JCPClient_Object jcpClient, JODSettings_002 settings, String instanceId) {
-        this.jcpClient = jcpClient;
-        this.settings = settings;
+        super(jcpClient, settings);
         this.instanceId = instanceId;
     }
 

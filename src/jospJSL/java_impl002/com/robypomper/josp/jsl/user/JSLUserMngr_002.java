@@ -25,6 +25,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
     private final JSLSettings_002 locSettings;
     private final JCPClient_Service jcpClient;
     private final JCPUserSrv jcpUser;
+    private String usrId;
+    private String usrName;
 
 
     // Constructor
@@ -32,12 +34,16 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
     public JSLUserMngr_002(JSLSettings_002 settings, JCPClient_Service jcpClient) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
-        jcpUser = new JCPUserSrv(jcpClient);
+        jcpUser = new JCPUserSrv(jcpClient, settings);
 
         if (jcpClient.isAuthCodeFlowEnabled()) {
             log.trace(Mrk_JSL.JSL_USR, "Perform JSLUserMngr login");
-            onLogin();
+            if (jcpClient.isConnected())
+                onLogin();
+            else
+                onLocalLogin();
         } else {
+            onLogout();
             log.trace(Mrk_JSL.JSL_USR, "Set JSLUserMngr with anonymous user");
         }
 
@@ -64,23 +70,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
      */
     @Override
     public String getUserId() {
-        if (jcpClient.isCliCredFlowEnabled())
-            return ANONYMOUS_ID;
-
-        if (!locSettings.getUsrId().isEmpty())
-            return locSettings.getUsrId();
-
-        String gen;
-        try {
-            gen = jcpUser.getUserId();
-
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JSL.JSL_USR, String.format("Error on getting user id from JCP because %s", e.getMessage()), e);
-            return ANONYMOUS_ID;
-        }
-
-        locSettings.setUsrId(gen);
-        return gen;
+        return usrId;
     }
 
     /**
@@ -88,78 +78,65 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
      */
     @Override
     public String getUsername() {
-        return getUsername(true);
-    }
-
-    /**
-     * Service user's username from cache if given param is <code>true</code>.
-     * Otherwise it require the username from the JCP cloud.
-     *
-     * @param cached if <code>true</code>, then it get the value from local cache copy.
-     * @return the service user's username.
-     */
-    public String getUsername(boolean cached) {
-        if (jcpClient.isCliCredFlowEnabled())
-            return ANONYMOUS_USERNAME;
-
-        if (!locSettings.getUsrName().isEmpty() && cached)
-            return locSettings.getUsrName();
-
-        String gen;
-        try {
-            log.debug(Mrk_JSL.JSL_USR, "Getting user name from JCP");
-            gen = jcpUser.getUsername();
-            log.debug(Mrk_JSL.JSL_USR, String.format("User name '%s' get from JCP", gen));
-
-        } catch (Throwable e) {
-            log.warn(Mrk_JSL.JSL_USR, String.format("Error on getting service name from JCP because %s", e.getMessage()), e);
-            return ANONYMOUS_USERNAME;
-        }
-
-        locSettings.setUsrName(gen);
-        return gen;
+        return usrName;
     }
 
 
     // LoginManager impl
 
     /**
+     * {@inheritDoc}
+     * <p>
      * Method to handle the user login.
      * <p>
      * This method is called onLogin event from
      * {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service.LoginManager}
      * and update the current user of JSL library.
      */
+    @Override
     public void onLogin() {
         // Cache user's info
         log.debug(Mrk_JSL.JSL_USR, "Caching user's info from JCP");
-        String loggedUsrId = getUserId();
-        String loggedUsername = getUsername(!jcpClient.isConnected());
-        log.debug(Mrk_JSL.JSL_USR, String.format("User's info cached as '%s' username and '%s' user id", loggedUsername, loggedUsrId));
+        try {
+            usrId = jcpUser.getUserId();
+            usrName = jcpUser.getUsername();
+            locSettings.setUsrId(usrId);
+            locSettings.setUsrName(usrName);
 
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
+            log.warn(Mrk_JSL.JSL_USR, String.format("Error on getting user id and name from JCP because %s", e.getMessage()), e);
+            log.trace(Mrk_JSL.JSL_USR, "Set anonymous user");
+            usrId = ANONYMOUS_ID;
+            usrName = ANONYMOUS_USERNAME;
+        }
 
         // Set JCP Client user id header
-        jcpClient.setUserId(loggedUsrId);
+        jcpClient.setUserId(usrId);
 
         // Store user refresh token
         locSettings.setRefreshToken(jcpClient.getRefreshToken());
 
-        log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", loggedUsername, loggedUsrId));
+        log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", usrName, usrId));
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Method to handle the user logout.
      * <p>
      * This method is called onLogout event from
      * {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service.LoginManager}
      * and reset the current user of JSL library to anonymous user.
      */
+    @Override
     public void onLogout() {
-        String loggedUsrId = getUserId();
-        String loggedUsername = getUsername(!jcpClient.isConnected());
+        String loggedUsrId = usrId;
+        String loggedUsername = usrName;
 
-        locSettings.setUsrId("");
-        locSettings.setUsrName("");
+        usrId = ANONYMOUS_ID;
+        usrName = ANONYMOUS_USERNAME;
+        locSettings.setUsrId(null);
+        locSettings.setUsrName(null);
 
         // Set JCP Client user id header
         jcpClient.setUserId(null);
@@ -168,6 +145,26 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         locSettings.setRefreshToken(jcpClient.getRefreshToken());
 
         log.info(Mrk_JSL.JSL_USR, String.format("Logged out user '%s' with id '%s'", loggedUsername, loggedUsrId));
+    }
+
+    /**
+     * Method to handle the local user login.
+     * <p>
+     * This method is called by {@link JSLUserMngr_002} constructor when user is
+     * already logged but the JCP client is not connected.
+     * <p>
+     * It read user's id and username from local settings.
+     */
+    private void onLocalLogin() {
+        // Cache user's info
+        log.debug(Mrk_JSL.JSL_USR, "Set user's info from settings");
+        usrId = locSettings.getUsrId();
+        usrName = locSettings.getUsrName();
+
+        // Set JCP Client user id header
+        jcpClient.setUserId(usrId);
+
+        log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", usrName, usrId));
     }
 
 }

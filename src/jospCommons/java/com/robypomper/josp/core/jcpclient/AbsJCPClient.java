@@ -9,13 +9,14 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.robypomper.java.JavaSSLIgnoreChecks;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -61,6 +62,8 @@ public abstract class AbsJCPClient implements JCPClient {
     private static final Logger log = LogManager.getLogger();
     private final JCPConfigs configs;
     private boolean connected = false;
+    private final List<ConnectListener> connectListeners = new ArrayList<>();
+    private final List<DisconnectListener> disconnectListeners = new ArrayList<>();
     private OAuth20Service service = null;
     private OAuth2AccessToken accessToken = null;
     private String refreshToken = null;
@@ -81,6 +84,18 @@ public abstract class AbsJCPClient implements JCPClient {
         this.configs = configs;
 
         // Setup OAuth2 layer
+        setupService();
+
+        log.info(Mrk_Commons.COMM_JCPCL, String.format("Initialized AbsJCPClient/%s instance and%s connected to JCP", this.getClass().getSimpleName(), isConnected() ? "" : " NOT"));
+
+        if (autoConnect)
+            tryConnect();
+    }
+
+    protected void setupService() throws ConnectionSettingsException {
+        if (service != null)
+            return;
+
         try {
             service = new ServiceBuilder(configs.getClientId())
                     .apiSecret(configs.getClientSecrets())
@@ -91,11 +106,6 @@ public abstract class AbsJCPClient implements JCPClient {
         } catch (IllegalArgumentException e) {
             throw new ConnectionSettingsException(e.getMessage(), e);
         }
-
-        log.info(Mrk_Commons.COMM_JCPCL, String.format("Initialized AbsJCPClient/%s instance and%s connected to JCP", this.getClass().getSimpleName(), isConnected() ? "" : " NOT"));
-
-        if (autoConnect)
-            tryConnect();
     }
 
 
@@ -113,7 +123,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * {@inheritDoc}
      */
     @Override
-    public void connect() throws ConnectionException {
+    public void connect() throws ConnectionException, CredentialsException {
         if (isConnected())
             return;
 
@@ -122,15 +132,16 @@ public abstract class AbsJCPClient implements JCPClient {
         // Start Auth flow
         log.debug(Mrk_Commons.COMM_JCPCL, "Getting tokens for JCPClient");
         try {
-            accessToken = getAccessToken(service);
-        } catch (ConnectionException e) {
-            log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on getting tokens for JCPClient because %s", e.getMessage()), e);
-            throw e;
-        }
+            setupService();
+
+        } catch (ConnectionSettingsException ignore) { /*Already checked in constructor*/}
+
+        accessToken = getAccessToken(service);
         refreshToken = accessToken.getRefreshToken();
         log.debug(Mrk_Commons.COMM_JCPCL, "Tokens got for JCPClient");
 
         connected = true;
+        emitConnection();
     }
 
     /**
@@ -145,6 +156,7 @@ public abstract class AbsJCPClient implements JCPClient {
         accessToken = null;
 
         connected = false;
+        emitDisconnection();
     }
 
     /**
@@ -154,7 +166,8 @@ public abstract class AbsJCPClient implements JCPClient {
     public void tryConnect() {
         try {
             connect();
-        } catch (ConnectionException e) {
+
+        } catch (ConnectionException | CredentialsException e) {
             log.warn(Mrk_Commons.COMM_JCPCL, String.format("Error on connecting JCPClient to the JCP because %s", e.getMessage()), e);
         }
     }
@@ -169,6 +182,49 @@ public abstract class AbsJCPClient implements JCPClient {
 
     protected OAuth20Service getOAuthService() {
         return service;
+    }
+
+
+    // Connection listeners
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addConnectListener(ConnectListener listener) {
+        connectListeners.add(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeConnectListener(ConnectListener listener) {
+        connectListeners.remove(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addDisconnectListener(DisconnectListener listener) {
+        disconnectListeners.add(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void removeDisconnectListener(DisconnectListener listener) {
+        disconnectListeners.remove(listener);
+    }
+
+    protected void emitConnection() {
+        List<ConnectListener> tmpList = new ArrayList<>(connectListeners);
+        for (ConnectListener l : tmpList)
+            l.onConnected(this);
+    }
+
+    protected void emitDisconnection() {
+        List<DisconnectListener> tmpList = new ArrayList<>(disconnectListeners);
+        for (DisconnectListener l : tmpList)
+            l.onDisconnected(this);
     }
 
 
@@ -383,7 +439,7 @@ public abstract class AbsJCPClient implements JCPClient {
      * @param service OAuth2 service representation.
      * @return the OAuth2 access token.
      */
-    protected abstract OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException;
+    protected abstract OAuth2AccessToken getAccessToken(OAuth20Service service) throws ConnectionException, CredentialsException;
 
 
     // Sub classes utils

@@ -24,9 +24,14 @@ public class CmdsJCPClient {
 
         try {
             jcpClient.connect();
+
         } catch (JCPClient.ConnectionException e) {
             return String.format("Error on JCP Client connection: %s.", e.getMessage());
+
+        } catch (JCPClient.CredentialsException e) {
+            return String.format("Error on JCP Client authentication: %s.", e.getMessage());
         }
+
         return "JCP Client connected successfully.";
     }
 

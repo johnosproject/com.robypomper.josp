@@ -11,6 +11,8 @@ import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
+import com.robypomper.josp.jsl.JSLSettings_002;
+import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -39,8 +41,15 @@ public class JSLGwS2OClient implements Client {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
+    private final JSLSettings_002 locSettings;
     private final JSLCommunication_002 communication;
-    private final DefaultSSLClient client;
+    private final JSLServiceInfo srvInfo;
+    private final JCPClient_Service jcpClient;
+    private final JCPCommSrv jcpComm;
+    private final Certificate clientCert;
+    private final DynAddTrustManager clientTrustManager;
+    private final SSLContext sslCtx;
+    private DefaultSSLClient client;
 
 
     // Constructor
@@ -56,13 +65,13 @@ public class JSLGwS2OClient implements Client {
      * @param srvInfo       the info of the represented service.
      * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JSLGwS2OClient(JSLCommunication_002 communication, JSLServiceInfo srvInfo, JCPCommSrv jcpComm) throws JSLCommunication.CloudCommunicationException {
+    public JSLGwS2OClient(JSLSettings_002 settings, JSLCommunication_002 communication, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JCPCommSrv jcpComm) throws JSLCommunication.CloudCommunicationException {
+        this.locSettings = settings;
         this.communication = communication;
+        this.srvInfo = srvInfo;
+        this.jcpClient = jcpClient;
+        this.jcpComm = jcpComm;
 
-        // Create ssl context
-        Certificate clientCert;
-        DynAddTrustManager clientTrustManager;
-        SSLContext sslCtx;
         try {
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Generating ssl context for service's cloud client");
             KeyStore clientKeyStore = UtilsJKS.generateKeyStore(srvInfo.getSrvId(), "", CERT_ALIAS);
@@ -75,37 +84,80 @@ public class JSLGwS2OClient implements Client {
             throw new JSLCommunication.CloudCommunicationException("Error on generating ssl context for service's cloud client", e);
         }
 
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwS2OClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", srvInfo.getSrvId()));
+        if (isConnected()) {
+            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
+        }
+    }
+
+
+    // Init listener
+
+    private boolean isInit = false;
+
+    private void initConnection() throws ConnectionException {
         S2OAccessInfo s2oAccess;
         try {
+            log.debug(Mrk_JSL.JSL_COMM_SUB, "Getting service GW client access info");
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Getting JOSP Gw S2O access info for service's cloud client");
             s2oAccess = jcpComm.getS2OAccessInfo(clientCert);
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on getting JOSP GW S2O access info for service's cloud client because %s", e.getMessage()), e);
-            throw new JSLCommunication.CloudCommunicationException("Error on getting JOSP GW S2O access info for service's cloud client", e);
-        } catch (CertificateEncodingException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on request JOSP GW S2O access info for service's cloud client because %s", e.getMessage()), e);
-            throw new JSLCommunication.CloudCommunicationException("Error on request JOSP GW S2O access info for service's cloud client", e);
+            log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client access info got");
+
+            if (isInitializing()) {
+                jcpClient.removeConnectListener(initListener);
+                isInit = false;
+            }
+
+        } catch (JCPClient.ConnectionException | JCPClient.RequestException | CertificateEncodingException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on initializing service GW client because %s", e.getMessage()));
+            if (!isInitializing()) {
+                jcpClient.addConnectListener(initListener);
+                isInit = true;
+            }
+            return;
         }
 
-        Certificate gwCertificate;
         try {
+            log.debug(Mrk_JSL.JSL_COMM_SUB, "Initializing service GW client");
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Registering JOSP Gw S2O certificate for service's cloud client");
-            gwCertificate = UtilsJKS.loadCertificateFromBytes(s2oAccess.gwCertificate);
+            Certificate gwCertificate = UtilsJKS.loadCertificateFromBytes(s2oAccess.gwCertificate);
             clientTrustManager.addCertificate(JCP_CERT_ALIAS, gwCertificate);
 
-        } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on registering JOSP GW S2O certificate to object's cloud client because %s", e.getMessage()), e);
-            throw new JSLCommunication.CloudCommunicationException("Error on registering JOSP GW S2O certificate to object's cloud client", e);
+            // Init SSL client
+            client = new DefaultSSLClient(sslCtx, srvInfo.getSrvId(), s2oAccess.gwAddress, s2oAccess.gwPort,
+                    null, null, new GwS2OClientMessagingEventsListener());
+            log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client initialized");
+
+        } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on initializing service GW client because %s", e.getMessage()), e);
+            throw new ConnectionException("Error on initializing service GW client");
         }
 
-        // Init SSL client
-        client = new DefaultSSLClient(sslCtx, srvInfo.getFullId(), s2oAccess.gwAddress, s2oAccess.gwPort,
-                null, null, new GwS2OClientMessagingEventsListener());
 
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwS2OClient for service '%s'", srvInfo.getSrvId()));
-        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", s2oAccess.gwAddress, s2oAccess.gwPort));
-        log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           with certificate '%d'", gwCertificate.hashCode()));
+        try {
+            log.debug(Mrk_JSL.JSL_COMM_SUB, "Connecting service GW client");
+            client.connect();
+            log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client connected");
+
+        } catch (ConnectionException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on connecting service GW client because %s", e.getMessage()), e);
+            throw new ConnectionException("Error on connecting service GW client");
+        }
     }
+
+    private boolean isInitializing() {
+        return isInit;
+    }
+
+    @SuppressWarnings("Convert2Lambda")
+    private final JCPClient.ConnectListener initListener = new JCPClient.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient jcpClient) {
+            try {
+                initConnection();
+            } catch (ConnectionException ignore) {/*Exception in timer's thread*/}
+        }
+    };
 
 
     // Processing incoming data
@@ -132,7 +184,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public InetAddress getServerAddr() {
-        return client.getServerAddr();
+        return client != null ? client.getServerAddr() : null;
     }
 
     /**
@@ -140,7 +192,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public int getServerPort() {
-        return client.getServerPort();
+        return client != null ? client.getServerPort() : -1;
     }
 
     /**
@@ -148,7 +200,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public ServerInfo getServerInfo() {
-        return client.getServerInfo();
+        return client != null ? client.getServerInfo() : null;
     }
 
     /**
@@ -156,7 +208,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public InetAddress getClientAddr() {
-        return client.getClientAddr();
+        return client != null ? client.getClientAddr() : null;
     }
 
     /**
@@ -164,7 +216,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public int getClientPort() {
-        return client.getClientPort();
+        return client != null ? client.getClientPort() : -1;
     }
 
     /**
@@ -172,7 +224,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public String getClientId() {
-        return client.getClientId();
+        return client != null ? client.getClientId() : srvInfo.getSrvId();
     }
 
     /**
@@ -180,7 +232,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public boolean isConnected() {
-        return client.isConnected();
+        return client != null && client.isConnected();
     }
 
     /**
@@ -188,7 +240,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public void connect() throws ConnectionException {
-        client.connect();
+        initConnection();
     }
 
     /**
@@ -196,7 +248,13 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public void disconnect() {
-        client.disconnect();
+        if (isInitializing()) {
+            jcpClient.removeConnectListener(initListener);
+            isInit = false;
+        }
+
+        if (client != null)
+            client.disconnect();
     }
 
     /**
@@ -204,6 +262,9 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public void sendData(byte[] data) throws ServerNotConnectedException {
+        if (client == null)
+            throw new ServerNotConnectedException(getClientId());
+
         client.sendData(data);
     }
 
@@ -212,6 +273,9 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public void sendData(String data) throws ServerNotConnectedException {
+        if (client == null)
+            throw new ServerNotConnectedException(getClientId());
+
         client.sendData(data);
     }
 
@@ -220,6 +284,9 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public boolean isSrvByeMsg(byte[] data) {
+        if (client == null)
+            return false;
+
         return client.isSrvByeMsg(data);
     }
 

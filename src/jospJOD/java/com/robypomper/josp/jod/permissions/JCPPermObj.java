@@ -1,11 +1,11 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jod.JODSettings_002;
+import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 
 import java.util.Arrays;
@@ -15,13 +15,7 @@ import java.util.List;
 /**
  * Support class for API Perm access to the object's permissions.
  */
-public class JCPPermObj {
-
-    // Internal vars
-
-    private final JCPClient_Object jcpClient;
-    private final JODSettings_002 settings;
-
+public class JCPPermObj extends AbsJCPAPIs {
 
     // Constructor
 
@@ -32,8 +26,7 @@ public class JCPPermObj {
      * @param settings  the JOD settings.
      */
     public JCPPermObj(JCPClient_Object jcpClient, JODSettings_002 settings) {
-        this.jcpClient = jcpClient;
-        this.settings = settings;
+        super(jcpClient, settings);
     }
 
 
@@ -47,7 +40,7 @@ public class JCPPermObj {
      * @return a valid permission list.
      */
     public List<ObjPermission> generatePermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        PermissionsTypes.GenerateStrategy strategy = settings.getPermissionsGenerationStrategy();
+        PermissionsTypes.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
         ObjPermission[] objPermArray = jcpClient.execGetReq(APIPermissions.URL_PATH_OBJGENERATE + "/" + strategy, ObjPermission[].class, true);
         return Arrays.asList(objPermArray);
     }
@@ -62,22 +55,6 @@ public class JCPPermObj {
     public List<ObjPermission> refreshPermissionsFromJCP(List<ObjPermission> localPermissions) throws JCPClient.ConnectionException, JCPClient.RequestException {
         ObjPermission[] objPermArray = jcpClient.execPostReq(APIPermissions.URL_PATH_OBJMERGE, ObjPermission[].class, localPermissions, true);
         return Arrays.asList(objPermArray);
-    }
-
-    public boolean isOwnerSet() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return !getOwnerId().isEmpty();
-    }
-
-    public String getOwnerId() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execGetReq(APIPermissions.URL_PATH_OBJOWNERGET, String.class, true);
-    }
-
-    public boolean setOwnerId(String ownerId) throws JsonProcessingException, JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execPostReq(APIPermissions.URL_PATH_OBJOWNER, Boolean.class, ownerId, true);
-    }
-
-    public boolean resetOwner() throws JCPClient.ConnectionException, JCPClient.RequestException, JsonProcessingException {
-        return jcpClient.execDeleteReq(APIPermissions.URL_PATH_OBJOWNERRESET, Boolean.class, true);
     }
 
 }

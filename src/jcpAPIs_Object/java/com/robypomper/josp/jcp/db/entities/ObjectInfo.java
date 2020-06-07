@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -35,12 +36,16 @@ public class ObjectInfo {
 
     // Profile
 
+    @Column(nullable = false)
     private String brand = "";
 
+    @Column(nullable = false)
     private String model = "";
 
+    @Column(nullable = false)
     private String longDescr = "";
 
+    @Column(nullable = false)
     @Lob
     private String structure = "";
 

@@ -137,21 +137,16 @@ makeJODJavaRunnable('csn','jod_csn.yml','struct_default.jod','perms_default.jod'
 // JSL
 
 /**
- * UsrId    =>  unset   set
- * Token    =>  unset   set
+ * Usr    =>  unset   set   anonymous
+ *            when set, check that set token is valid and not expired
  *
- * Configs (UsrId, Token, Off/Online)
+ * Configs (Usr, Off/Online)
  */
 
-makeJSLJavaRunnable('uuf','jsl_uuf.yml')
-makeJSLJavaRunnable('uun','jsl_uun.yml')
-makeJSLJavaRunnable('usf','jsl_usf.yml')
-makeJSLJavaRunnable('usn','jsl_usn.yml')
-
-makeJSLJavaRunnable('suf','jsl_suf.yml')
-makeJSLJavaRunnable('sun','jsl_sun.yml')
-makeJSLJavaRunnable('ssf','jsl_ssf.yml')
-makeJSLJavaRunnable('ssn','jsl_ssn.yml')
+makeJSLJavaRunnable('uf','jsl_uf.yml')
+makeJSLJavaRunnable('un','jsl_un.yml')
+makeJSLJavaRunnable('sf','jsl_sf.yml')
+makeJSLJavaRunnable('sn','jsl_sn.yml')
 
 
 

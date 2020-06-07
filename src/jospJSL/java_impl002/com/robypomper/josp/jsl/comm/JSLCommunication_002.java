@@ -86,7 +86,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         // Init cloud service client
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Creating communication cloud client for Object2Service Gateway");
-            gwClient = new JSLGwS2OClient(this, srvInfo, jcpComm);
+            gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, jcpComm);
             log.debug(Mrk_JOD.JOD_COMM, "Communication cloud client created for Object2Service Gateway");
         } catch (CloudCommunicationException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on creating service's cloud client because %s", e.getMessage()), e);
@@ -232,7 +232,10 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         try {
             log.debug(Mrk_JSL.JSL_COMM, "Connecting cloud service's client");
             gwClient.connect();
-            log.debug(Mrk_JSL.JSL_COMM, "Cloud service's client connected");
+            if (gwClient.isConnected())
+                log.debug(Mrk_JSL.JSL_COMM, "Cloud service's client connected");
+            else
+                log.warn(Mrk_JSL.JSL_COMM, "Cloud service's client NOT connected");
 
         } catch (Client.ConnectionException e) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Error on connecting cloud communication client because %s", e.getMessage()), e);

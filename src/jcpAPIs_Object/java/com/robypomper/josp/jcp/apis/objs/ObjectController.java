@@ -6,9 +6,11 @@ import com.robypomper.josp.jcp.apis.params.objs.RegisterObj;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.ObjectIdDBService;
+import com.robypomper.josp.jcp.db.ObjectOwnerDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.ObjectId;
 import com.robypomper.josp.jcp.db.entities.ObjectInfo;
+import com.robypomper.josp.jcp.db.entities.ObjectOwner;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;
@@ -20,7 +22,6 @@ import io.swagger.annotations.AuthorizationScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -47,6 +48,9 @@ public class ObjectController {
 
     @Autowired
     private ObjectDBService objectDBService;
+
+    @Autowired
+    private ObjectOwnerDBService objOwnersDBService;
 
 
     // Methods
@@ -85,41 +89,6 @@ public class ObjectController {
 
     }
 
-
-    /**
-     * Check if object with given object id is not registered in the JCP.
-     *
-     * @param objId the object id to check.
-     * @return true if the object is already registered, false otherwise.
-     */
-    @GetMapping(path = APIObjs.FULL_PATH_REGISTER_IS)
-    @ApiOperation(value = "Check if current object is registered",
-            authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
-                    scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_OBJ_DESC
-                    )
-            )
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID)
-    })
-    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<Boolean> isObjectRegister(
-            @RequestHeader(APIObjs.HEADER_OBJID)
-                    String objId) {
-
-        if (objId == null || objId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
-
-        return ResponseEntity.ok(objectDBService.find(objId).isPresent());
-
-    }
-
-
     /**
      * If not yet registered, this method register given object info to JCP and
      * associate them to given object id.
@@ -145,7 +114,7 @@ public class ObjectController {
             @ApiResponse(code = 409, message = "Object with same id already registered")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<Boolean> registerObject(
+    public ResponseEntity<Boolean> registerOrUpdateObject(
             @RequestHeader(APIObjs.HEADER_OBJID)
                     String objId,
             @RequestBody
@@ -154,12 +123,56 @@ public class ObjectController {
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
 
-        if (objectDBService.find(objId).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Object '%s' already registered.", objId));
+        Optional<Object> optObj = objectDBService.find(objId);
+        if (!optObj.isPresent()) {
+            // Register
+            Object savedObj = objectDBService.add(toObject(objId, objParam));
+            ObjectOwner savedOwner = objOwnersDBService.add(toObjectOwner(objId, objParam));
+            return ResponseEntity.ok(savedObj != null && savedOwner != null);
 
-        Object saved = objectDBService.add(toObject(objId, objParam));
-        return ResponseEntity.ok(saved != null);
+        } else {
+            // Update
+            Object obj = optObj.get();
+            Optional<ObjectOwner> optObjOwner = objOwnersDBService.find(objId);
+            if (!optObjOwner.isPresent())
+                throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Object '%s' registered but object's owner not.", objId));
+            ObjectOwner objOwner = optObjOwner.get();
 
+            updateObject(obj, objParam);
+            updateObjectOwner(objOwner, objParam);
+            objectDBService.update(obj);
+            objOwnersDBService.update(objOwner);
+
+            return ResponseEntity.ok(true);
+        }
+    }
+
+    private void updateObject(Object obj, RegisterObj objParam) {
+        ObjectInfo info = obj.getInfo();
+        if (!objParam.getModel().isEmpty())
+            info.setModel(objParam.getModel());
+        if (!objParam.getBrand().isEmpty())
+            info.setBrand(objParam.getBrand());
+        if (!objParam.getLongDescr().isEmpty())
+            info.setLongDescr(objParam.getLongDescr());
+        if (!objParam.getStructure().isEmpty())
+            info.setStructure(objParam.getStructure());
+
+        if (!objParam.getName().isEmpty())
+            obj.setName(objParam.getName());
+        obj.setInfo(info);
+    }
+
+    private void updateObjectOwner(ObjectOwner objOwner, RegisterObj objParam) {
+        if (!objParam.getOwnerId().isEmpty())
+            objOwner.setOwnerId(objParam.getOwnerId());
+    }
+
+    private ObjectOwner toObjectOwner(String objId, RegisterObj objParam) {
+        ObjectOwner objOwner = new ObjectOwner();
+        objOwner.setObjId(objId);
+        objOwner.setOwnerId(objParam.getOwnerId());
+        return objOwner;
     }
 
 
@@ -196,14 +209,14 @@ public class ObjectController {
      */
     private Object toObject(String objId, RegisterObj objParam) {
         ObjectInfo info = new ObjectInfo();
-        info.setModel(objParam.model);
-        info.setBrand(objParam.brand);
-        info.setLongDescr(objParam.longDescr);
-        info.setStructure(objParam.structure);
+        info.setModel(objParam.getModel());
+        info.setBrand(objParam.getBrand());
+        info.setLongDescr(objParam.getLongDescr());
+        info.setStructure(objParam.getStructure());
 
         Object obj = new Object();
         obj.setObjId(objId);
-        obj.setName(objParam.name);
+        obj.setName(objParam.getName());
         obj.setInfo(info);
         return obj;
     }

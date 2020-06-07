@@ -34,4 +34,8 @@ public class ObjectDBService {
         return objects.save(stock);
     }
 
+    public Object update(Object stock) throws DataIntegrityViolationException {
+        return objects.save(stock);
+    }
+
 }

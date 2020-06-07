@@ -1,0 +1,19 @@
+jsl.version: 0.0.2
+
+# JSL's IDs
+jcp.client.id: test-client-srv
+jcp.client.secret: 88bc8baf-c924-42b9-b691-b2d7c5cec696
+jsl.srv.id: test-client-srv
+jsl.srv.name: Test Client Srv Awersome!
+jsl.usr.id: 67de275c-1861-4e86-8e03-2ef643c8a592
+jsl.usr.name: pinco
+jcp.client.token: eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1Y2U2Mjg5NS1iNjljLTQ0MmMtYTMwOC04MjA3MTUwZmNmZjMifQ.eyJqdGkiOiI2NjM3ZTRhOS02NGM3LTQyMDEtOTRjYi1mY2NjNjhjZjAwMTAiLCJleHAiOjE1OTEzNjA5NDgsIm5iZiI6MCwiaWF0IjoxNTkxMzU5MTQ4LCJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo4OTk4L2F1dGgvcmVhbG1zL2pjcCIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0Ojg5OTgvYXV0aC9yZWFsbXMvamNwIiwic3ViIjoiNjdkZTI3NWMtMTg2MS00ZTg2LThlMDMtMmVmNjQzYzhhNTkyIiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InRlc3QtY2xpZW50LXNydiIsImF1dGhfdGltZSI6MCwic2Vzc2lvbl9zdGF0ZSI6IjYyOTUwMTE0LTc1YTYtNDdiMy04M2YzLTJiNmE3YzVlZDQ5MCIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJzcnYiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCByb2xlcyBlbWFpbCBwcm9maWxlIn0.9yB_x2M_ud8ghhjj8E_usPJaIxIe2oMPSrmxRUkCysg
+
+# JCP Client
+jcp.connect: false
+jcp.url: 'https://localhost:8998'
+jcp.client.callback: 'https://localhost:9001'
+
+# Communication
+#jsl.comm.local.enabled: false
+jsl.comm.cloud.enabled: false

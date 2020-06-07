@@ -56,6 +56,13 @@ public interface JODObjectInfo {
      */
     String getObjName();
 
+    /**
+     * Set the human readable object's name.
+     *
+     * @param newName the new obj's name to set
+     */
+    void setObjName(String newName);
+
 
     // Users's info
 
@@ -128,5 +135,17 @@ public interface JODObjectInfo {
      * info changes.
      */
     void stopAutoRefresh();
+
+    void syncObjInfo();
+
+    // Obj's id
+
+    /**
+     * Delete current object's id and generate a new one.
+     * <p>
+     * This operations is called when the object's owner is changed, so it
+     * regenerate all permissions will be invalidated (and regenerated).
+     */
+    void regenerateObjId();
 
 }

@@ -26,15 +26,11 @@ import java.nio.file.Files;
  */
 public class JODObjectInfo_002 implements JODObjectInfo {
 
-    // Class constants
-
-    private static final String DEF_STRUCTURE = "";
-
-
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
+    private final JCPClient_Object jcpClient;
     private final JCPObjectInfo jcpObjInfo;
     private JODStructure structure;
     private JODExecutorMngr executorMngr;
@@ -57,17 +53,17 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     public JODObjectInfo_002(JODSettings_002 settings, JCPClient_Object jcpClient, String jodVersion) {
         this.locSettings = settings;
-        this.jcpObjInfo = new JCPObjectInfo(jcpClient);
+        this.jcpClient = jcpClient;
+        this.jcpObjInfo = new JCPObjectInfo(jcpClient, locSettings);
         this.jodVersion = jodVersion;
 
         // force value caching
         getObjIdHw();
-        String objId = getObjId();
+        if (!isObjIdSet())
+            generateObjId();
         getObjName();
 
-        jcpClient.setObjectId(objId);
-
-        log.info(Mrk_JOD.JOD_INFO, String.format("Initialized JODObjectInfo instance for '%s' object with '%s' id", getObjName(), objId));
+        log.info(Mrk_JOD.JOD_INFO, String.format("Initialized JODObjectInfo instance for '%s' object with '%s' id", getObjName(), getObjId()));
         log.debug(Mrk_JOD.JOD_INFO, String.format("                                   and '%s' id HW ", getObjIdHw()));
     }
 
@@ -102,12 +98,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getObjId() {
-        if (!locSettings.getObjIdCloud().isEmpty())
-            return locSettings.getObjIdCloud();
-
-        String gen = generateObjId();
-        locSettings.setObjIdCloud(gen);
-        return gen;
+        return locSettings.getObjIdCloud();
     }
 
     /**
@@ -125,6 +116,15 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return locSettings.getObjName();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setObjName(String newName) {
+        locSettings.setObjName(newName);
+        syncObjInfo();
+    }
+
 
     // Users's info
 
@@ -133,7 +133,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public String getOwnerId() {
-        return permissions.getOwnerId();
+        return locSettings.getOwnerId();
     }
 
 
@@ -213,25 +213,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         log.info(Mrk_JOD.JOD_INFO, String.format("Start JODObjectInfo auto-refresh for '%s' object", getObjId()));
 
-        try {
-            if (!jcpObjInfo.isRegistered()) {
-                log.debug(Mrk_JOD.JOD_INFO, "Registering object to JCP");
-                if (jcpObjInfo.register(this))
-                    log.debug(Mrk_JOD.JOD_INFO, "Object registered to JCP");
-                else
-                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on register object '%s' to JCP", getObjId()));
-
-            } else {
-                log.debug(Mrk_JOD.JOD_INFO, "Updating object registration to JCP");
-                if (jcpObjInfo.update(this))
-                    log.debug(Mrk_JOD.JOD_INFO, "Object registration updated to JCP successfully");
-                else
-                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on update object '%s' registration to JCP", getObjId()));
-            }
-
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on check object '%s''s registration on JCP because %s", getObjId(), e.getMessage()), e);
-        }
+        syncObjInfo();
     }
 
     /**
@@ -239,9 +221,51 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void stopAutoRefresh() {
-        log.warn(Mrk_JOD.JOD_INFO, "JODObjectInfo AutoRefresh can't stopped: not implemented");
-        // ToDo: implement object disconnection to API (send disconnect status...)
+        log.info(Mrk_JOD.JOD_INFO, String.format("Stop JODObjectInfo auto-refresh for '%s' object", getObjId()));
+
+        if (isSync()) {
+            jcpClient.removeConnectListener(syncListener);
+            isSync = false;
+        }
     }
+
+    public void syncObjInfo() {
+        try {
+            log.debug(Mrk_JOD.JOD_INFO, "Sync object Info to JCP");
+            jcpObjInfo.registerOrUpdate(this);
+            log.debug(Mrk_JOD.JOD_INFO, "Object Info synchronized to JCP");
+
+            if (isSync()) {
+                jcpClient.removeConnectListener(syncListener);
+                isSync = false;
+            }
+
+        } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on sync object Info to JCP because %s", e.getMessage()));
+            if (!isSync()) {
+                jcpClient.addConnectListener(syncListener);
+                isSync = true;
+            }
+        }
+    }
+
+
+    // Sync listener
+
+    private boolean isSync = false;
+
+    private boolean isSync() {
+        //return syncTimer != null;
+        return isSync;
+    }
+
+    @SuppressWarnings("Convert2Lambda")
+    private final JCPClient.ConnectListener syncListener = new JCPClient.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient jcpClient) {
+            syncObjInfo();
+        }
+    };
 
 
     // Private methods
@@ -274,26 +298,85 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return locSettings.getObjIdHw();
     }
 
-    /**
-     * The Cloud ID is the id generated from the JCP using the Hardware ID and
-     * the object's owner User Id.
-     *
-     * @return the object's Cloud ID.
-     */
-    private String generateObjId() {
-        String generated;
 
+    // Obj's id
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void regenerateObjId() {
+        locSettings.setObjIdCloud("");
+        generateObjId();
+    }
+
+    private void generateObjId() {
         try {
-            log.debug(Mrk_JOD.JOD_INFO, "Generating on cloud object HW ID");
-            generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
-            locSettings.setObjIdHw(generated);
+            log.debug(Mrk_JOD.JOD_INFO, "Generating on cloud object ID");
+            String generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
+            log.debug(Mrk_JOD.JOD_INFO, "Object ID generated on cloud");
+
+            saveObjId(generated);
+            if (isGenerating()) {
+                jcpClient.removeConnectListener(generatingListener);
+                isGenerating = false;
+            }
+            log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
+            return;
+
         } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
-            generated = String.format("%s-00000-00000", getObjIdHw());
-            log.debug(Mrk_JOD.JOD_INFO, String.format("Error generating object HW ID on cloud  because %s", e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
+            if (!isGenerating()) {
+                jcpClient.addConnectListener(generatingListener);
+                isGenerating = true;
+            }
         }
 
-        log.debug(Mrk_JOD.JOD_INFO, String.format("Object HW ID generated on cloud '%s'", generated));
-        return generated;
+        if (!isObjIdSet()) {
+            log.debug(Mrk_JOD.JOD_INFO, "Generating locally a temporay object ID");
+            String generated = String.format("%s-00000-00000", getObjIdHw());
+            log.debug(Mrk_JOD.JOD_INFO, "Temporary Object ID generated locally");
+
+            saveObjId(generated);
+            log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated locally '%s'", getObjId()));
+        }
     }
+
+    private void saveObjId(String generatedObjId) {
+        locSettings.setObjIdCloud(generatedObjId);
+        jcpClient.setObjectId(generatedObjId);
+
+        if (permissions != null) {
+            try {
+                permissions.regeneratePermissions();
+            } catch (JODPermissions.PermissionsFileException e) {
+                log.warn(Mrk_JOD.JOD_INFO, String.format("Error on regenerate permissions because %s", e.getMessage()), e);
+            }
+        }
+
+        // ToDo update local services
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isObjIdSet() {
+        return !getObjId().isEmpty();
+    }
+
+
+    // Generating timer
+
+    private boolean isGenerating = false;
+
+    private boolean isGenerating() {
+        return isGenerating;
+    }
+
+    @SuppressWarnings("Convert2Lambda")
+    private final JCPClient.ConnectListener generatingListener = new JCPClient.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient jcpClient) {
+            generateObjId();
+        }
+    };
 
 }

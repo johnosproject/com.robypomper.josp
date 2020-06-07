@@ -6,8 +6,6 @@ import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jcp.db.ObjectOwnerDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
-import com.robypomper.josp.jcp.db.entities.ObjectId;
-import com.robypomper.josp.jcp.db.entities.ObjectOwner;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
@@ -18,10 +16,8 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Authorization;
 import io.swagger.annotations.AuthorizationScope;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -167,127 +162,6 @@ public class ObjectPermissionsController {
         List<Permission> savedPerms = mergeAndUpdJCPPermissions(jcpPerms, objPerms);
         return ResponseEntity.ok(toObjPerms(savedPerms));
     }
-
-    /**
-     * Check if the <code>objId</code>'s owner is set.
-     *
-     * @param objId the object id to register.
-     * @return true if the objects owner is set.
-     */
-    @GetMapping(path = APIPermissions.FULL_PATH_OBJOWNERGET)
-    @ApiOperation(value = "Check if current object is registered",
-            authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
-                    scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_OBJ_DESC
-                    )
-            )
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
-    })
-    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<String> getOwner(
-            @RequestHeader(APIObjs.HEADER_OBJID)
-                    String objId) {
-
-        if (objId == null || objId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
-
-        return ResponseEntity.ok(objOwnersDBService.find(objId).get().getOwnerId());
-
-    }
-
-    /**
-     * Set <code>objId</code> owner.
-     * <p>
-     * Read the ownerId from the body of <code>httpEntity</code>.
-     *
-     * @param objId      the object id to register.
-     * @param httpEntity the http request for current method.
-     * @return true if the owner was registered successfully.
-     */
-    @PostMapping(path = APIPermissions.FULL_PATH_OBJOWNER)
-    @ApiOperation(value = "Set current object owner",
-            authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
-                    scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_OBJ_DESC
-                    )
-            )
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = ObjectId.class),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
-            @ApiResponse(code = 409, message = "Object have already an owner set"),
-    })
-    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<Boolean> setOwner(
-            @RequestHeader(APIObjs.HEADER_OBJID)
-                    String objId,
-            HttpEntity<String> httpEntity) {
-        final String ownerId = httpEntity.getBody();
-
-        if (objId == null || objId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
-
-        if (objOwnersDBService.find(objId).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Object '%s' already set owner.", objId));
-
-        if (ownerId == null || ownerId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing mandatory param 'ownerId'.");
-
-        ObjectOwner objOwner = new ObjectOwner();
-        objOwner.setObjId(objId);
-        objOwner.setOwnerId(ownerId);
-        ObjectOwner saved = objOwnersDBService.add(objOwner);
-        return ResponseEntity.ok(saved != null);
-
-    }
-
-    /**
-     * Reset <code>objId</code> owner.
-     *
-     * @param objId the object id to register.
-     * @return true if the owner was reset successfully.
-     */
-    @DeleteMapping(path = APIPermissions.FULL_PATH_OBJOWNERRESET)
-    @ApiOperation(value = "Reset current object owner",
-            authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
-                    scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_OBJ_DESC
-                    )
-            )
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = ObjectId.class),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
-            @ApiResponse(code = 409, message = "Object haven't an owner set"),
-    })
-    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<Boolean> resetOwner(
-            @RequestHeader(APIObjs.HEADER_OBJID)
-                    String objId) {
-
-        if (objId == null || objId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
-
-        Optional<ObjectOwner> objOwner = objOwnersDBService.find(objId);
-        if (!objOwner.isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Object '%s' haven't set an owner.", objId));
-
-        objOwnersDBService.delete(objOwner.get());
-        return ResponseEntity.ok(true);
-    }
-
 
     // Obj permission mngm
 
