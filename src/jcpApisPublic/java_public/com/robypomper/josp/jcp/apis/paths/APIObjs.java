@@ -14,15 +14,12 @@ public class APIObjs {
 
 
     public static final String PATH_GENERATEID      = "/" + version + "/generate_id";
-    public static final String PATH_REGISTER_IS     = "/" + version + "/register";
     public static final String PATH_REGISTER        = "/" + version + "/register";
 
     public static final String FULL_PATH_GENERATEID     = FULL_PATH_BASE + PATH_GENERATEID;
-    public static final String FULL_PATH_REGISTER_IS    = FULL_PATH_BASE + PATH_REGISTER_IS;
     public static final String FULL_PATH_REGISTER       = FULL_PATH_BASE + PATH_REGISTER;
 
     public static final String URL_PATH_GENERATEID      = URL_PATH_BASE + PATH_GENERATEID;
-    public static final String URL_PATH_REGISTER_IS     = URL_PATH_BASE + PATH_REGISTER_IS;
     public static final String URL_PATH_REGISTER        = URL_PATH_BASE + PATH_REGISTER;
 
 

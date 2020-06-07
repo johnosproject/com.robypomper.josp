@@ -13,28 +13,26 @@ public class RegisterObj {
 
     // Params
 
-    public final String name;
+    private final String name;
 
-    public final String ownerId;
+    private final String ownerId;
 
-    public String model;
+    private String model;
 
-    public String brand;
+    private String brand;
 
-    public String longDescr;
+    private String longDescr;
 
-    public final String structure;
+    private String structure;
 
 
     // Constructor
 
     @JsonCreator
     public RegisterObj(@JsonProperty("name") String name,
-                       @JsonProperty("ownerId") String ownerId,
-                       @JsonProperty("structure") String structure) {
+                       @JsonProperty("ownerId") String ownerId) {
         this.name = name;
         this.ownerId = ownerId;
-        this.structure = structure;
     }
 
 }

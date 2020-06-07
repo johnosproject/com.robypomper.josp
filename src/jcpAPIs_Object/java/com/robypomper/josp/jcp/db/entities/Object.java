@@ -29,6 +29,7 @@ public class Object {
     @Column(nullable = false, unique = true)
     private String objId;
 
+    @Column(nullable = false)
     private String name;
 
 
