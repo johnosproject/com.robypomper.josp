@@ -41,46 +41,18 @@ public class ClientObjRegistrationFlow implements ClientRequestFlow {
         System.out.println(APIObjs.URL_PATH_GENERATEID);
         GenerateObjId objIdParam = new GenerateObjId(objIdHw, usrId);
         String objId = RequestsMaker.execAndGetReq(service, accessToken, Verb.POST, APIObjs.URL_PATH_GENERATEID, mapper.writeValueAsString(objIdParam), headers, String.class);
-        System.out.println(String.format("ObjectId: %s", objId));
-
-        // is registered () -> true if current obj is already registered on JCP db
-        System.out.println(APIObjs.URL_PATH_REGISTER_IS);
-        headers.put(APIObjs.HEADER_OBJID, objId);
-        boolean isReg = RequestsMaker.execAndGetReq(service, accessToken, Verb.GET, APIObjs.URL_PATH_REGISTER_IS, headers, Boolean.class);
-        System.out.println(String.format("isRegistered: %s", isReg));
+        System.out.printf("ObjectId: %s%n", objId);
 
         // register obj (ObjInfo) -> register given ObjInfo to current obj and return resulting Object instance from JCP db
+        headers.put(APIObjs.HEADER_OBJID, objId);
         System.out.println(APIObjs.URL_PATH_REGISTER);
-        if (isReg) {
-            System.out.println("Object already registered, registration skipped.");
-        } else {
-            RegisterObj regObjParam = new RegisterObj("Test1_ObjName", "root {...}");
-            regObjParam.setModel("Test1_ObjModel");
-            boolean registered = RequestsMaker.execAndGetReq(service, accessToken, Verb.POST, APIObjs.URL_PATH_REGISTER, mapper.writeValueAsString(regObjParam), headers, Boolean.class);
-            System.out.println(String.format("Registration success: %s", registered));
-        }
-
-
-        // is owned () -> true if current obj is already associated an owner
-        System.out.println(APIPermissions.URL_PATH_OBJOWNER_IS);
-        boolean isOwnerReg = RequestsMaker.execAndGetReq(service, accessToken, Verb.GET, APIPermissions.URL_PATH_OBJOWNER_IS, headers, Boolean.class);
-        System.out.println(String.format("isOwnerRegistered: \n%s", isOwnerReg));
-
-        // register obj owner (ownerId) -> associate given owner to current obj
-        System.out.println(APIPermissions.URL_PATH_OBJOWNER);
-        if (isOwnerReg) {
-            System.out.println("Object owner already set, owner set skipped.");
-        } else {
-            String usrIdParam = mapper.writeValueAsString(usrId);
-            boolean isOwnerSet = RequestsMaker.execAndGetReq(service, accessToken, Verb.POST, APIPermissions.URL_PATH_OBJOWNER, usrIdParam, headers, Boolean.class);
-            System.out.println(String.format("isOwnerSet: %s", isOwnerSet));
-        }
-
-        // update obj owner (ownerId) -> update associated owner to current obj with given owner
-        //objInfo.setModel("Test1_ObjModel_Updated");
-        //objParam.setName("Test1_ObjName_Updated");
-        //obj = RequestsMaker.execAndGetReq(service, accessToken, Verb.POST, urlObjReg, mapper.writeValueAsString(objParam), headers, Object.class);
-
+        RegisterObj regObjParam = new RegisterObj("Test1_ObjName", "00000-00000-00000");
+        regObjParam.setBrand("brand");
+        regObjParam.setModel("model");
+        regObjParam.setLongDescr("long descr");
+        regObjParam.setStructure("struct");
+        boolean registered = RequestsMaker.execAndGetReq(service, accessToken, Verb.POST, APIObjs.URL_PATH_REGISTER, mapper.writeValueAsString(regObjParam), headers, Boolean.class);
+        System.out.printf("Registration success: %s%n", registered);
 
         // generate obj permissions (generatePermissionsStrategy) -> return a set of valid permission (don't store them on JCP db)
         System.out.println(APIPermissions.URL_PATH_OBJGENERATE + "/{strategy}");
@@ -89,12 +61,12 @@ public class ClientObjRegistrationFlow implements ClientRequestFlow {
         System.out.println("Generated obj perms:");
         System.out.println("UsrId      SrvId      Connec.    Type       UpdatedAt");
         for (ObjPermission p : objPerms)
-            System.out.println(String.format("%-10s %-10s %-10s %-10s %s",
+            System.out.printf("%-10s %-10s %-10s %-10s %s%n",
                     p.usrId.substring(0, Math.min(p.usrId.length(), 10)),
                     p.srvId.substring(0, Math.min(p.srvId.length(), 10)),
                     p.connection.toString().substring(0, Math.min(p.connection.toString().length(), 10)),
                     p.type.toString(),
-                    dateFormat.format(p.updatedAt)));
+                    dateFormat.format(p.updatedAt));
 
         // merge obj permissions (permissions) -> merge and return given permission with those contained in the JCP db (it will update stored permission on JCP db and add new ones)
         System.out.println(APIPermissions.URL_PATH_OBJMERGE);
@@ -112,12 +84,12 @@ public class ClientObjRegistrationFlow implements ClientRequestFlow {
         System.out.println("Stored obj perms:");
         System.out.println("UsrId      SrvId      Connec.    Type       UpdatedAt");
         for (ObjPermission p : objPermsStored)
-            System.out.println(String.format("%-10s %-10s %-10s %-10s %s",
+            System.out.printf("%-10s %-10s %-10s %-10s %s%n",
                     p.usrId.substring(0, Math.min(p.usrId.length(), 10)),
                     p.srvId.substring(0, Math.min(p.srvId.length(), 10)),
                     p.connection.toString().substring(0, Math.min(p.connection.toString().length(), 10)),
                     p.type.toString(),
-                    dateFormat.format(p.updatedAt)));
+                    dateFormat.format(p.updatedAt));
     }
 
 }

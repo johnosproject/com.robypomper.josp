@@ -56,7 +56,6 @@ public abstract class AbsClientFlow {
         final OAuth2AccessToken accessToken = getAccessToken(service);
 
         reqFlow.exec(service, accessToken, baseUrl);
-        System.out.println("END");
     }
 
 
