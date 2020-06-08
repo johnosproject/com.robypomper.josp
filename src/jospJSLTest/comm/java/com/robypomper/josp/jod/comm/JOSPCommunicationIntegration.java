@@ -121,7 +121,7 @@ public class JOSPCommunicationIntegration {
 
         Assertions.assertEquals(1, getJODLocConnCount(jodComm));
         Assertions.assertEquals(1, getJODLocConnConnectedCount(jodComm));
-        Assertions.assertEquals(ntwkIntfs, getJSLLocConnCount(jslComm));
+        Assertions.assertEquals(1, getJSLLocConnCount(jslComm));
         Assertions.assertEquals(1, getJSLLocConnConnectedCount(jslComm));
 
         System.out.println("\nJOD and JSL LOCAL COM STOP");
@@ -150,7 +150,7 @@ public class JOSPCommunicationIntegration {
 
         Assertions.assertEquals(1, getJODLocConnCount(jodComm));
         Assertions.assertEquals(1, getJODLocConnConnectedCount(jodComm));
-        Assertions.assertEquals(ntwkIntfs, getJSLLocConnCount(jslComm));
+        Assertions.assertEquals(1, getJSLLocConnCount(jslComm));
         Assertions.assertEquals(1, getJSLLocConnConnectedCount(jslComm));
 
         System.out.println("\nJOD and JSL LOCAL COM STOP");
@@ -184,7 +184,7 @@ public class JOSPCommunicationIntegration {
 
         Assertions.assertEquals(1, getJODLocConnCount(jodComm));
         Assertions.assertEquals(0, getJODLocConnConnectedCount(jodComm));
-        Assertions.assertEquals(ntwkIntfs, getJSLLocConnCount(jslComm));
+        Assertions.assertEquals(0, getJSLLocConnCount(jslComm));
         Assertions.assertEquals(0, getJSLLocConnConnectedCount(jslComm));
 
         System.out.println("\nJSL LOCAL COM STOP");
@@ -215,10 +215,12 @@ public class JOSPCommunicationIntegration {
 //        for (JSLLocalClient c: jslComm.getAllLocalConnection())
 //            System.out.println("@" + c.getClientId() + "\t" + c.getObjId() + "\t" + c.getServerAddr() + "\t" + c.getServerPort() + "\t" + c.isConnected());
 //
-//        switchThread();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignore) {}
         Assertions.assertEquals(1, getJODLocConnCount(jodComm));
         Assertions.assertEquals(0, getJODLocConnConnectedCount(jodComm));
-        Assertions.assertEquals(ntwkIntfs, getJSLLocConnCount(jslComm));
+        Assertions.assertEquals(0, getJSLLocConnCount(jslComm));
         Assertions.assertEquals(0, getJSLLocConnConnectedCount(jslComm));
 
         System.out.println("\nJOD LOCAL COM STOP");
@@ -245,7 +247,7 @@ public class JOSPCommunicationIntegration {
         JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr, UNIQUE_ID + "srv");
         jslComm.startLocal();
 
-        int ntwkIntfs = getNetworkInterfacesCount();
+        int ntwkIntfs = 1;//getNetworkInterfacesCount();
         try {
             Thread.sleep(ntwkIntfs * 1000);
             if (ntwkIntfs * 2 > getJSLLocConnCount(jslComm)) {
@@ -255,14 +257,17 @@ public class JOSPCommunicationIntegration {
             }
         } catch (InterruptedException ignore) {}
 
-        for (JSLLocalClient c : jslComm.getAllLocalServers())
-            System.out.println(c.getClientId() + "\t" + c.getObjId() + "\t" + c.getServerAddr() + "\t" + c.getServerPort() + "\t" + c.isConnected());
+//        for (JSLLocalClient c : jslComm.getAllLocalServers())
+//            System.out.println(c.getClientId() + "\t" + c.getObjId() + "\t" + c.getServerAddr() + "\t" + c.getServerPort() + "\t" + c.isConnected());
 
 //        Assertions.assertEquals(ntwkIntfs, getJODLocConnCount(jodComm));
 //        Assertions.assertEquals(ntwkIntfs, getJODLocConnConnectedCount(jodComm));
 //        Assertions.assertEquals(ntwkIntfs, getJODLocConnCount(jodComm2));
 //        Assertions.assertEquals(ntwkIntfs, getJODLocConnConnectedCount(jodComm2));
-        Assertions.assertEquals(ntwkIntfs * 2, getJSLLocConnCount(jslComm));
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignore) {}
+        Assertions.assertEquals(2, getJSLLocConnCount(jslComm));
         Assertions.assertEquals(2, getJSLLocConnConnectedCount(jslComm));
 
         System.out.println("\nJOD and JSL LOCAL COM STOP");
