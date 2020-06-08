@@ -202,12 +202,12 @@ public class JODLocalServerTest {
         client2.connect();
 
         switchThread();
-        Assertions.assertEquals(2, getClientsCount(jodServer));          // JODLocalServer, DON't close clients of duplicated connections; and DefaultServer remove closed connections
-        Assertions.assertEquals(2, getClientsConnectedCount(jodServer));
+        Assertions.assertEquals(1, getClientsCount(jodServer));          // JODLocalServer, DON't close clients of duplicated connections; and DefaultServer remove closed connections
+        Assertions.assertEquals(1, getClientsConnectedCount(jodServer));
         Assertions.assertEquals(1, getLocConnCount(jodServer));          // JODLocalServer update connection from same client
         Assertions.assertEquals(1, getLocConnConnectedCount(jodServer));
         Assertions.assertTrue(client.isConnected());
-        Assertions.assertTrue(client2.isConnected());
+        Assertions.assertFalse(client2.isConnected());
 
         System.out.println("\nJSL LOCAL CLIENT DISCONNECT");
         client2.disconnect();
