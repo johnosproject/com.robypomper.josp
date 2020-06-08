@@ -138,6 +138,11 @@ public class JSLLocalClientTest {
         }
 
         @Override
+        public String processCloudRequest(String msg) {
+            return null;
+        }
+
+        @Override
         public JODGwO2SClient getGwO2SClient() {
             return null;
         }

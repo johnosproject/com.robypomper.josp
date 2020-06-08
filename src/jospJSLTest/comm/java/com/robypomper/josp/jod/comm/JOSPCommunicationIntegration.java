@@ -104,13 +104,13 @@ public class JOSPCommunicationIntegration {
     // Publish/Discovery and connect/disconnect
 
     @Test
-    public void testLocalPublishAndDiscoveryFirstJOD() throws JODCommunication.LocalCommunicationException, JSLCommunication.LocalCommunicationException, SocketException {
+    public void testLocalPublishAndDiscoveryFirstJOD() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException, SocketException {
         System.out.println("\nJOD LOCAL COMM START");
         JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
         jodComm.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");
-        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr);
+        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr, UNIQUE_ID + "srv");
         jslComm.startLocal();
 
 
@@ -130,9 +130,9 @@ public class JOSPCommunicationIntegration {
     }
 
     @Test
-    public void testLocalPublishAndDiscoveryFirstJSL() throws JODCommunication.LocalCommunicationException, JSLCommunication.LocalCommunicationException, SocketException {
+    public void testLocalPublishAndDiscoveryFirstJSL() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException, SocketException {
         System.out.println("\nJSL LOCAL COMM START");
-        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr);
+        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr, UNIQUE_ID + "srv");
         jslComm.startLocal();
 
         System.out.println("\nJOD LOCAL COMM START");
@@ -159,13 +159,13 @@ public class JOSPCommunicationIntegration {
     }
 
     @Test
-    public void testLocalPublishAndDiscoveryStopJOD() throws JODCommunication.LocalCommunicationException, JSLCommunication.LocalCommunicationException, SocketException {
+    public void testLocalPublishAndDiscoveryStopJOD() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException, SocketException {
         System.out.println("\nJOD LOCAL COMM START");
         JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
         jodComm.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");
-        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr);
+        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr, UNIQUE_ID + "srv");
         jslComm.startLocal();
 
         int ntwkIntfs = getNetworkInterfacesCount();
@@ -192,13 +192,13 @@ public class JOSPCommunicationIntegration {
     }
 
     @Test
-    public void testLocalPublishAndDiscoveryStopJSL() throws JODCommunication.LocalCommunicationException, JSLCommunication.LocalCommunicationException, SocketException {
+    public void testLocalPublishAndDiscoveryStopJSL() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException, SocketException {
         System.out.println("\nJOD LOCAL COMM START");
         JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
         jodComm.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");
-        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr);
+        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr, UNIQUE_ID + "srv");
         jslComm.startLocal();
 
         int ntwkIntfs = getNetworkInterfacesCount();
@@ -229,7 +229,7 @@ public class JOSPCommunicationIntegration {
     // Multiple server
 
     @Test()
-    public void testLocalPublishAndDiscoveryTwoJOD() throws JODCommunication.LocalCommunicationException, JSLCommunication.LocalCommunicationException, SocketException {
+    public void testLocalPublishAndDiscoveryTwoJOD() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException {
         System.out.println("\nJOD LOCAL COMM START (1st)");
         JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
         jodComm.startLocal();
@@ -242,7 +242,7 @@ public class JOSPCommunicationIntegration {
         jodComm2.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");
-        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr);
+        JSLCommunication jslComm = new JSLCommunication_002(jslSettings, srvInfo, jcpClientSrv, jslUserMngr, jslObjsMngr, UNIQUE_ID + "srv");
         jslComm.startLocal();
 
         int ntwkIntfs = getNetworkInterfacesCount();
@@ -250,7 +250,7 @@ public class JOSPCommunicationIntegration {
             Thread.sleep(ntwkIntfs * 1000);
             if (ntwkIntfs * 2 > getJSLLocConnCount(jslComm)) {
                 int extraSecs = (ntwkIntfs * 2 - getJSLLocConnCount(jslComm));
-                System.out.println(String.format("\nEXTRA TIME (%s)", extraSecs));
+                System.out.printf("\nEXTRA TIME (%s)%n", extraSecs);
                 Thread.sleep(extraSecs * 1000);
             }
         } catch (InterruptedException ignore) {}
@@ -308,8 +308,8 @@ public class JOSPCommunicationIntegration {
     }
 
 
-    private Map<String, String> getDefaultJODSettings(int port) {
-        Map<String, String> properties = new HashMap<>();
+    private Map<String, Object> getDefaultJODSettings(int port) {
+        Map<String, Object> properties = new HashMap<>();
 
         // Comm's paths
         properties.put(JODSettings_002.JODCOMM_LOCAL_ENABLED, "true");
@@ -322,8 +322,8 @@ public class JOSPCommunicationIntegration {
         return properties;
     }
 
-    private Map<String, String> getDefaultJSLSettings() {
-        Map<String, String> properties = new HashMap<>();
+    private Map<String, Object> getDefaultJSLSettings() {
+        Map<String, Object> properties = new HashMap<>();
 
         // Comm's paths
         properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, "true");
@@ -366,6 +366,18 @@ public class JOSPCommunicationIntegration {
         public void tryDisconnect() {
 
         }
+
+        @Override
+        public void addConnectListener(ConnectListener listener) {}
+
+        @Override
+        public void removeConnectListener(ConnectListener listener) {}
+
+        @Override
+        public void addDisconnectListener(DisconnectListener listener) {}
+
+        @Override
+        public void removeDisconnectListener(DisconnectListener listener) {}
 
         @Override
         public void execGetReq(String url, boolean secure) {
@@ -486,7 +498,7 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public void regeneratePermissions() throws PermissionsFileException {}
+        public void regeneratePermissions() {}
     }
 
     private static class MockJCPClient_Service implements JCPClient_Service {
@@ -526,9 +538,7 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public boolean setRefreshToken(String refreshToken) {
-            return false;
-        }
+        public void setRefreshToken(String refreshToken) {}
 
         @Override
         public boolean userLogout() {
@@ -564,6 +574,18 @@ public class JOSPCommunicationIntegration {
         public void tryDisconnect() {
 
         }
+
+        @Override
+        public void addConnectListener(ConnectListener listener) {}
+
+        @Override
+        public void removeConnectListener(ConnectListener listener) {}
+
+        @Override
+        public void addDisconnectListener(DisconnectListener listener) {}
+
+        @Override
+        public void removeDisconnectListener(DisconnectListener listener) {}
 
         @Override
         public void execGetReq(String url, boolean secure) {
@@ -670,6 +692,9 @@ public class JOSPCommunicationIntegration {
         public String getObjName() {
             return null;
         }
+
+        @Override
+        public void setObjName(String newName) {}
 
         @Override
         public String getOwnerId() {
