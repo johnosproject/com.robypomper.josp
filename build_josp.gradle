@@ -153,6 +153,18 @@ makeJSLJavaRunnable('sn','jsl_sn.yml')
 // Tests
 
 sourceSets {
+    jospJODStructTest {
+        java {
+            compileClasspath += sourceSets.jospJOD.output
+            runtimeClasspath += sourceSets.jospJOD.output
+                                                            compileClasspath += sourceSets.jospJSL.output
+                                                            runtimeClasspath += sourceSets.jospJSL.output
+            srcDirs = ['src/jospJODTest/struct/java']
+        }
+        resources {
+            srcDirs = ['src/jospJODTest/struct/resources']
+        }
+    }
     jospJODCommTest {
         java {
             compileClasspath += sourceSets.jospJOD.output
@@ -172,6 +184,9 @@ sourceSets {
 }
 
 configurations {
+    jospJODStructTestImplementation.extendsFrom jospJODImplementation
+    jospJODStructTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
+
     jospJODCommTestImplementation.extendsFrom jospJODImplementation
     jospJODCommTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
 
@@ -180,6 +195,9 @@ configurations {
 }
 
 dependencies {
+    jospJODStructTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    jospJODStructTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+
     jospJODCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     jospJODCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
 
@@ -190,6 +208,17 @@ dependencies {
 task jospJODTest {
     description = 'Runs all JOD tests.'
     group = 'verification'
+}
+
+task jospJODStructTest(type: Test) {
+    description = 'Runs JOD Communication tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.jospJODStructTest.output.classesDirs
+    classpath = sourceSets.jospJODStructTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
 }
 
 task jospJODCommTest(type: Test) {
@@ -231,6 +260,8 @@ check.dependsOn jospJSLTest
 // gradle > intellij settings
 idea {
     module {
+        testSourceDirs += project.sourceSets.jospJODStructTest.java.srcDirs
+        testSourceDirs += project.sourceSets.jospJODStructTest.resources.srcDirs
         testSourceDirs += project.sourceSets.jospJODCommTest.java.srcDirs
         testSourceDirs += project.sourceSets.jospJODCommTest.resources.srcDirs
         testSourceDirs += project.sourceSets.jospJSLCommTest.java.srcDirs
