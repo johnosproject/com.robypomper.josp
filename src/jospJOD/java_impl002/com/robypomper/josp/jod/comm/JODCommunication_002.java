@@ -195,38 +195,47 @@ public class JODCommunication_002 implements JODCommunication {
 
         try {
             String response = null;
-            String error = null;
 
             // Object info request
             if (JOSPProtocol_ServiceRequests.isObjectInfoRequest(msg)) {
-                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectInfoRequest");
                 log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectInfoRequest request for service '%s'", client.getClientId()));
-                checkServiceRequest_ReadPermission(client);
-                response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
-                log.debug(Mrk_JOD.JOD_COMM, "Service request ObjectInfoRequest processed");
+                response = processObjectInfoRequest(client, msg);
             }
 
             // Object structure request
             if (JOSPProtocol_ServiceRequests.isObjectStructureRequest(msg)) {
-                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectStructureRequest");
                 log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectStructureRequest request for service '%s'", client.getClientId()));
-                checkServiceRequest_ReadPermission(client);
-                try {
-                    String structStr = structure.getStringForJSL();
-                    response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
-                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' request ObjectStructureRequest processed", client.getClientId()));
-
-                } catch (JODStructure.ParsingException e) {
-                    log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request ObjectStructureRequest because %s", client.getClientId(), e.getMessage()), e);
-                    error = String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
-                }
+                response = processObjectStructureRequest(client, msg);
             }
 
-            return response != null ? response : error;
+            return response;
 
         } catch (MissingPermissionException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request because client missing permissions", client.getClientId()), e);
             return e.getMessage();
+        }
+    }
+
+    private String processObjectInfoRequest(JODLocalClientInfo client, String msg) throws MissingPermissionException {
+        log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectInfoRequest");
+        checkServiceRequest_ReadPermission(client);
+        String response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
+        log.debug(Mrk_JOD.JOD_COMM, "Service request ObjectInfoRequest processed");
+        return response;
+    }
+
+    private String processObjectStructureRequest(JODLocalClientInfo client, String msg) throws MissingPermissionException {
+        log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectStructureRequest");
+        checkServiceRequest_ReadPermission(client);
+        try {
+            String structStr = structure.getStringForJSL();
+            String response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
+            log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' request ObjectStructureRequest processed", client.getClientId()));
+            return response;
+
+        } catch (JODStructure.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request ObjectStructureRequest because %s", client.getClientId(), e.getMessage()), e);
+            return String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
         }
     }
 
