@@ -6,9 +6,15 @@ import com.robypomper.communication.server.events.LogServerMessagingEventsListen
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
+import com.robypomper.josp.jcp.db.GWObjectStatusDBService;
+import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_Commons;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -20,6 +26,60 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     private static final int PORT_MIN = 9101;
     private static final int PORT_MAX = 9200;
 
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
+    private static final Map<String, GWObject> objects = new HashMap<>();          // static because shared among all JOSPGWsO2S
+    @Autowired
+    private GWObjectStatusDBService gwObjectDB;
+
+
+    // Clients connection
+
+    /**
+     * Send ObjectStructure request to connected object.
+     */
+    private void onClientConnection(com.robypomper.communication.server.Server server, ClientInfo client) {
+        // Check if objects already know
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected object '%s' already know", client.getClientId()));
+        GWObject gwObj = objects.get(client.getClientId());
+        if (gwObj != null) {
+            // multiple connection at same time
+            client.closeConnection();
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Object '%s' already connected to JOSP GW, disconnecting", client.getClientId()));
+            return;
+        }
+
+        gwObj = new GWObject(server, client, gwObjectDB);
+        objects.put(client.getClientId(), gwObj);
+
+        // Send ObjectStructure request
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Send ObjectStructure request to object '%s'", client.getClientId()));
+        try {
+            server.sendData(client, JOSPProtocol_CloudRequests.createObjectStructureRequest(gwObj.getLastStructUpdate()));
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            client.closeConnection();
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on sending ObjectStructure request to object '%s'", client.getClientId()));
+            e.printStackTrace();
+        }
+    }
+
+    private void onClientDisconnection(ClientInfo client) {
+        objects.remove(client.getClientId()).setOffline();
+    }
+
+    private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
+        GWObject obj = objects.get(client.getClientId());
+
+        if (obj.processUpdate(readData))
+            return true;
+
+        if (obj.processCloudRequestResponse(readData))
+            return true;
+
+        return false;
+    }
 
     // JOSPGWsService implementations
 
@@ -38,6 +98,15 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
         return null;
     }
 
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Link the {@link ServerClientEvents#onClientConnection(ClientInfo)} and
+     * {@link ServerClientEvents#onClientDisconnection(ClientInfo)} events to
+     * {@link #onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} and
+     * {@link #onClientDisconnection(ClientInfo)} methods.
+     */
     @Override
     protected ServerClientEvents getClientEventsListener() {
         return new LogServerClientEventsListener() {
@@ -45,31 +114,47 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             /**
              * {@inheritDoc}
              * <p>
-             * Log the event with {@link Mrk_Commons#COMM_SRV_IMPL} marker and
-             * print JOSPGWs servers and clients list.
+             * Link to the {@link JOSPGWsO2SService#onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} method.
              */
             @Override
             public void onClientConnection(ClientInfo client) {
-                log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onClientConnection(%s)", getServer().getServerId(), client.getClientId()));
+                JOSPGWsO2SService.this.onClientConnection(getServer(), client);
+            }
 
-                log.info(Mrk_Commons.COMM_SRV_IMPL, "JOSPGws > Servers > Clients:");
-                for (AbsJOSPGWsService gw : getJOSPGWs()) {
-                    log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("- %s", gw));
-                    for (Map.Entry<String, JOSPGWsO2SService.Server> srv : gw.getJOSPServers().entrySet()) {
-                        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("  - %s", srv.getKey()));
-                        for (ClientInfo cl : srv.getValue().getClients()) {
-                            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("    - %s", cl.getClientId()));
-                        }
-                    }
-                }
+            /**
+             * {@inheritDoc}
+             * <p>
+             * Link to the {@link JOSPGWsO2SService#onClientDisconnection(ClientInfo)} method.
+             */
+            @Override
+            public void onClientDisconnection(ClientInfo client) {
+                JOSPGWsO2SService.this.onClientDisconnection(client);
             }
 
         };
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Link the {@link ServerMessagingEvents#onDataReceived(ClientInfo, String)}
+     * event to {@link #onDataReceived(ClientInfo, String)} method.
+     */
     @Override
     protected ServerMessagingEvents getMessagingEventsListener() {
-        return new LogServerMessagingEventsListener();
+        return new LogServerMessagingEventsListener() {
+
+            /**
+             * {@inheritDoc}
+             * <p>
+             * Link to the {@link JOSPGWsO2SService#onDataReceived(ClientInfo, String)} method.
+             */
+            @Override
+            public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
+                return JOSPGWsO2SService.this.onDataReceived(client, readData);
+            }
+
+        };
     }
 
 }
