@@ -325,67 +325,66 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     public boolean processServiceRequestResponse(String msg) {
         // Object info request's response
         if (JOSPProtocol_ServiceRequests.isObjectInfoRequestResponse(msg)) {
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectInfo message for '%s' object", objId));
             log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectInfo response for '%s' object", objId));
-
-            try {
-                setName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
-                setOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
-                setJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
-
-            } catch (JOSPProtocol.ParsingException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
-                return false;
-            }
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectInfo message processed for '%s' object", objId));
-            return true;
+            return processObjectInfoResponse(msg);
         }
 
         // Object structure request's response
         if (JOSPProtocol_ServiceRequests.isObjectStructureRequestResponse(msg)) {
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectStructure message for '%s' object", objId));
             log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectStructure response for '%s' object", objId));
-
-            try {
-                Date lastUpdated = JOSPProtocol_ServiceRequests.extractObjectStructureLastUpdateFromResponse(msg);
-                if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0) {
-                    log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message '%s...' for object '%s' object older than local object structure", msg.substring(0, Math.min(10, msg.length())), objId));
-                    return true;
-                }
-
-                String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureFromResponse(msg);
-                loadStructure(structStr);
-
-            } catch (JOSPProtocol.ParsingException | ParsingException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, Math.min(10, msg.length())), objId, e.getMessage()), e);
-                return false;
-            }
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message processed for '%s' object", objId));
-            return true;
+            return processObjectStructureResponse(msg);
         }
 
         return false;
     }
 
-    /**
-     * Parse given string as JSL's object structure.
-     *
-     * @param structStr the string containing the object's structure.
-     */
-    private void loadStructure(String structStr) throws ParsingException {
+    private boolean processObjectInfoResponse(String msg) {
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectInfo message for '%s' object", objId));
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            setName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
+            setOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
+            setJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
 
-            InjectableValues.Std injectVars = new InjectableValues.Std();
-            injectVars.addValue(JSLRemoteObject.class, this);
-            mapper.setInjectableValues(injectVars);
-            root = mapper.readValue(structStr, JSLRoot_Jackson.class);
-
-            lastStructureUpdate = new Date();
-
-        } catch (JsonProcessingException e) {
-            throw new ParsingException(this, String.format("Can't init JOD Structure, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
+            return false;
         }
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectInfo message processed for '%s' object", objId));
+        return true;
+    }
+
+    private boolean processObjectStructureResponse(String msg) {
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectStructure message for '%s' object", objId));
+
+        try {
+            Date lastUpdated = JOSPProtocol_ServiceRequests.extractObjectStructureLastUpdateFromResponse(msg);
+            if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0) {
+                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message '%s...' for object '%s' object older than local object structure", msg.substring(0, Math.min(10, msg.length())), objId));
+                return true;
+            }
+
+            String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureFromResponse(msg);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+
+                InjectableValues.Std injectVars = new InjectableValues.Std();
+                injectVars.addValue(JSLRemoteObject.class, this);
+                mapper.setInjectableValues(injectVars);
+                root = mapper.readValue(structStr, JSLRoot_Jackson.class);
+
+                lastStructureUpdate = lastUpdated;
+
+            } catch (JsonProcessingException e) {
+                throw new ParsingException(this, String.format("Can't init JOD Structure, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+            }
+
+        } catch (JOSPProtocol.ParsingException | ParsingException e) {
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, Math.min(10, msg.length())), objId, e.getMessage()), e);
+            return false;
+        }
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message processed for '%s' object", objId));
+        return true;
     }
 
 }
