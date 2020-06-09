@@ -6,6 +6,11 @@ package com.robypomper.josp.protocol;
 // [...]
 
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  * Utils class to render and parse the JOSP protocol messages.
  * <p>
@@ -16,6 +21,13 @@ public class JOSPProtocol {
     // Class constants
 
     public static final String DISCOVERY_TYPE = "_josp2._tcp";
+
+
+    // Public vars
+
+    private static final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
+    private static final Calendar calendar = Calendar.getInstance(gmtTimeZone);
+    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd-HHmmssSSS");
 
 
     // Called as:
@@ -125,6 +137,29 @@ public class JOSPProtocol {
             return command;
         }
 
+    }
+
+
+    // Utils
+
+    public static String getNow() {
+        return dateFormatter.format(calendar.getTime());
+    }
+
+    public static String getEpoch() {
+        return dateFormatter.format(new Date(0));
+    }
+
+    public static SimpleDateFormat getDateFormatter() {
+        return dateFormatter;
+    }
+
+    public static String extractFieldFromResponse(String msg, int msgMinLines, int fieldLine, String msgName) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < msgMinLines)
+            throw new JOSPProtocol.ParsingException(String.format("Few lines in %s", msgName));
+
+        return lines[fieldLine].substring(lines[fieldLine].indexOf(":") + 1);
     }
 
 

@@ -1,10 +1,7 @@
 package com.robypomper.josp.protocol;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 
 // {PROTOCOL} {REQUEST/RESPONSE_TYPE} {SEND_TIME}
@@ -25,27 +22,11 @@ public class JOSPProtocol_ServiceRequests {
     private static final String OBJ_STRUCT_RES_BASE = JOSP_PROTO + " OBJ_STRUCT_RES";
     private static final String OBJ_STRUCT_RES = OBJ_STRUCT_RES_BASE + " %s\n%s\nlastUpd:%s\nstructure:%s";
 
-    private static final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
-    private static final Calendar calendar = Calendar.getInstance(gmtTimeZone);
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd-HHmmssSSS");
-
-
-    public static String getNow() {
-        return formatter.format(calendar.getTime());
-    }
-
-    public static String extractFieldFromResponse(String msg, int msgMinLines, int fieldLine, String msgName) throws JOSPProtocol.ParsingException {
-        String[] lines = msg.split("\n");
-        if (lines.length < msgMinLines)
-            throw new JOSPProtocol.ParsingException(String.format("Few lines in %s", msgName));
-
-        return lines[fieldLine].substring(lines[fieldLine].indexOf(":") + 1);
-    }
 
     // Object structure (Req+Res)
 
     public static String createObjectInfoRequest(String fullSrvId) {
-        return String.format(OBJ_INFO_REQ, getNow(), fullSrvId);
+        return String.format(OBJ_INFO_REQ, JOSPProtocol.getNow(), fullSrvId);
     }
 
     public static boolean isObjectInfoRequest(String msg) {
@@ -53,7 +34,7 @@ public class JOSPProtocol_ServiceRequests {
     }
 
     public static String createObjectInfoResponse(String objId, String objName, String ownerId, String jodVersion) {
-        return String.format(OBJ_INFO_RES, getNow(), objId, objName, ownerId, jodVersion);
+        return String.format(OBJ_INFO_RES, JOSPProtocol.getNow(), objId, objName, ownerId, jodVersion);
     }
 
     public static boolean isObjectInfoRequestResponse(String msg) {
@@ -61,23 +42,23 @@ public class JOSPProtocol_ServiceRequests {
     }
 
     public static String extractObjectInfoObjNameFromResponse(String msg) throws JOSPProtocol.ParsingException {
-        return extractFieldFromResponse(msg, 5, 2, "ObjectInfoResponse");
+        return JOSPProtocol.extractFieldFromResponse(msg, 5, 2, "ObjectInfoResponse");
     }
 
     public static String extractObjectInfoOwnerIdFromResponse(String msg) throws JOSPProtocol.ParsingException {
-        return extractFieldFromResponse(msg, 5, 3, "ObjectInfoResponse");
+        return JOSPProtocol.extractFieldFromResponse(msg, 5, 3, "ObjectInfoResponse");
     }
 
     public static String extractObjectInfoJodVersionFromResponse(String msg) throws JOSPProtocol.ParsingException {
-        return extractFieldFromResponse(msg, 5, 4, "ObjectInfoResponse");
+        return JOSPProtocol.extractFieldFromResponse(msg, 5, 4, "ObjectInfoResponse");
     }
 
 
     // Object structure (Req+Res)
 
     public static String createObjectStructureRequest(String fullSrvId, Date lastKnowUpdate) {
-        String lastStr = lastKnowUpdate != null ? formatter.format(lastKnowUpdate) : getNow();
-        return String.format(OBJ_STRUCT_REQ, getNow(), fullSrvId, lastStr);
+        String lastKnowStr = lastKnowUpdate != null ? JOSPProtocol.getDateFormatter().format(lastKnowUpdate) : JOSPProtocol.getEpoch();
+        return String.format(OBJ_STRUCT_REQ, JOSPProtocol.getNow(), fullSrvId, lastKnowStr);
     }
 
     public static boolean isObjectStructureRequest(String msg) {
@@ -85,7 +66,7 @@ public class JOSPProtocol_ServiceRequests {
     }
 
     public static String createObjectStructureResponse(String objId, Date lastUpdate, String structureStr) {
-        return String.format(OBJ_STRUCT_RES, getNow(), objId, formatter.format(lastUpdate), structureStr);
+        return String.format(OBJ_STRUCT_RES, JOSPProtocol.getNow(), objId, JOSPProtocol.getDateFormatter().format(lastUpdate), structureStr);
     }
 
     public static boolean isObjectStructureRequestResponse(String msg) {
@@ -99,7 +80,7 @@ public class JOSPProtocol_ServiceRequests {
 
         String dateStr = lines[2].substring(lines[2].indexOf(":") + 1);
         try {
-            return formatter.parse(dateStr);
+            return JOSPProtocol.getDateFormatter().parse(dateStr);
         } catch (ParseException e) {
             throw new JOSPProtocol.ParsingException(String.format("Invalid 'lastUpd' field in ObjectStructureResponse ('%s')", dateStr));
         }
