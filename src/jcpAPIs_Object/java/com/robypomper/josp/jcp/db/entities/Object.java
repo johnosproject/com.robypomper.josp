@@ -32,6 +32,9 @@ public class Object {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String version;
+
 
     // Details
 
