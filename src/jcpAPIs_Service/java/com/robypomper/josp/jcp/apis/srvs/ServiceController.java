@@ -57,7 +57,7 @@ public class ServiceController {
      *
      * @return current service representation.
      */
-    @GetMapping(path = APISrvs.FULL_PATH_USERNAME)
+    @GetMapping(path = APISrvs.FULL_PATH_REGISTER)
     @ApiOperation(value = "Return service id and name",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
