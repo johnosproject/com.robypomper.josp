@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.db;
 
-import com.robypomper.josp.jcp.db.entities.Username;
+import com.robypomper.josp.jcp.db.entities.UserName;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +16,15 @@ public class UsernameDBService {
         this.usernames = usernames;
     }
 
-    public List<Username> findAll() {
+    public List<UserName> findAll() {
         return usernames.findAll();
     }
 
-    public Optional<Username> findById(Long id) {
+    public Optional<UserName> findById(Long id) {
         return usernames.findById(id);
     }
 
-    public Username save(Username stock) throws DataIntegrityViolationException {
+    public UserName save(UserName stock) throws DataIntegrityViolationException {
         return usernames.save(stock);
     }
 
