@@ -23,6 +23,7 @@ public class JODStructure_002 implements JODStructure {
     private final JODObjectInfo objInfo;
     private final JODExecutorMngr executorMngr;
     private final JODRoot root;
+    private Date lastStructureUpdate;
     private JODCommunication comm;
 
 
@@ -109,7 +110,7 @@ public class JODStructure_002 implements JODStructure {
      */
     @Override
     public Date getLastStructureUpdate() {
-        return new Date(0);
+        return lastStructureUpdate;
     }
 
     /**
@@ -179,6 +180,7 @@ public class JODStructure_002 implements JODStructure {
         }
 
         log.debug(Mrk_JOD.JOD_STRU, "Object structure loaded");
+        lastStructureUpdate = new Date();
         return root;
     }
 

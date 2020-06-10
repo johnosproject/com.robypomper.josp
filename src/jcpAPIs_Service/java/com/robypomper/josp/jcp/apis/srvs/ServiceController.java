@@ -29,6 +29,7 @@ import java.util.Optional;
 /**
  * Base JCP API Usrs controller, dedicated to provide current user info.
  */
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {JCPAPIsGroups.API_SRVS_SG_BASE_NAME})
 public class ServiceController {
@@ -56,7 +57,7 @@ public class ServiceController {
      *
      * @return current service representation.
      */
-    @GetMapping(path = APISrvs.FULL_PATH_USERNAME)
+    @GetMapping(path = APISrvs.FULL_PATH_REGISTER)
     @ApiOperation(value = "Return service id and name",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -102,13 +103,14 @@ public class ServiceController {
      * @return the {@link Service} object stored on the JCP db.
      */
     private Service getOrRegisterService(String srvId) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        Optional<Service> optService = serviceService.get(srvId);
+        Optional<Service> optService = serviceService.find(srvId);
 
         if (optService.isPresent())
             return optService.get();
 
         Service newService = authDefault.queryService(srvId);
-        return serviceService.add(newService);
+        serviceService.save(newService);
+        return newService;
     }
 
 }

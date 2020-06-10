@@ -17,7 +17,7 @@ import java.util.Date;
  */
 @Entity
 @Data
-public class Username {
+public class UserName {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
