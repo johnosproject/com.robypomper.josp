@@ -31,7 +31,7 @@ public class Service {
 
     @OneToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
-    private ObjectInfo details;
+    private ServiceDetails details;
 
 }
 

@@ -6,13 +6,10 @@ import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceDetails;
 import com.robypomper.josp.jcp.db.entities.User;
 import com.robypomper.josp.jcp.db.entities.UserProfile;
-import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
-
-import java.util.Set;
 
 
 /**
@@ -62,6 +59,7 @@ public class AuthKeycloak implements AuthResource {
         ServiceDetails details = new ServiceDetails();
         Service service = new Service();
 
+        details.setSrvId(srvId);
         details.setEmail("");
         details.setWeb("");
         details.setCompany("");
