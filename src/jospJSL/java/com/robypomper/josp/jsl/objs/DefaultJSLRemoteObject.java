@@ -353,7 +353,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
                     return true;
                 }
 
-                String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureFromResponse(msg);
+                String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureStructureFromResponse(msg);
                 loadStructure(structStr);
 
             } catch (JOSPProtocol.ParsingException | ParsingException e) {
