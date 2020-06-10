@@ -2,13 +2,11 @@ package com.robypomper.josp.jcp.db;
 
 import com.robypomper.josp.jcp.db.entities.Service;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.web.context.annotation.SessionScope;
 
 import java.util.Optional;
 
 
 @org.springframework.stereotype.Service
-@SessionScope
 public class ServiceDBService {
 
     // Internal vars
@@ -28,14 +26,13 @@ public class ServiceDBService {
 
     // Access methods
 
-    public Optional<Service> get(String srvId) {
-        if (!service.isPresent() || service.get().getSrvId().compareTo(srvId) != 0)
-            service = services.findById(srvId);
-        return service;
+    public Optional<Service> find(String srvId) {
+        return services.findById(srvId);
     }
 
-    public Service add(Service stock) throws DataIntegrityViolationException {
-        return services.save(stock);
+    public void save(Service srv) throws DataIntegrityViolationException {
+        srv = services.save(srv);
+        // ToDo check references returned
     }
 
 }
