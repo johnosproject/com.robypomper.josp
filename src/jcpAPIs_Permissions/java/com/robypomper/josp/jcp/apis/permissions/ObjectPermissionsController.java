@@ -4,7 +4,6 @@ import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
-import com.robypomper.josp.jcp.db.ObjectOwnerDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
@@ -39,6 +38,7 @@ import java.util.List;
  * This controller expose methods used by the JOD Objects to manage their
  * permissions.
  */
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {JCPAPIsGroups.API_PERM_SG_OBJ_NAME})
 public class ObjectPermissionsController {
@@ -47,9 +47,6 @@ public class ObjectPermissionsController {
 
     @Autowired
     private PermissionsDBService permissionsDBService;
-
-    @Autowired
-    private ObjectOwnerDBService objOwnersDBService;
 
 
     // Methods
@@ -93,10 +90,8 @@ public class ObjectPermissionsController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
     public ResponseEntity<List<ObjPermission>> generatePermissions(
-            @RequestHeader(APIObjs.HEADER_OBJID)
-                    String objId,
-            @PathVariable("strategy")
-                    PermissionsTypes.GenerateStrategy strategy) {
+            @RequestHeader(APIObjs.HEADER_OBJID) String objId,
+            @PathVariable("strategy") PermissionsTypes.GenerateStrategy strategy) {
 
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
@@ -150,10 +145,8 @@ public class ObjectPermissionsController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
     public ResponseEntity<List<ObjPermission>> mergeAndStorePermissions(
-            @RequestHeader(APIObjs.HEADER_OBJID)
-                    String objId,
-            @RequestBody
-                    List<ObjPermission> objPerms) {
+            @RequestHeader(APIObjs.HEADER_OBJID) String objId,
+            @RequestBody List<ObjPermission> objPerms) {
 
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
@@ -162,6 +155,7 @@ public class ObjectPermissionsController {
         List<Permission> savedPerms = mergeAndUpdJCPPermissions(jcpPerms, objPerms);
         return ResponseEntity.ok(toObjPerms(savedPerms));
     }
+
 
     // Obj permission mngm
 
