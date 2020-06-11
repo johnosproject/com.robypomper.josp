@@ -8,9 +8,10 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import java.util.Date;
 
+
 @Entity
 @Data
-public class GWObjectStatus {
+public class ObjectStatus {
 
     @Id
     @Column(nullable = false, unique = true)
