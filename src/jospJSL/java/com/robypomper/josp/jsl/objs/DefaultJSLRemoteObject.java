@@ -13,6 +13,7 @@ import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
 import com.robypomper.josp.jsl.objs.structure.JSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceRequests;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +43,21 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
 
     // Constructor
+
+    /**
+     * Default constructor that set reference to current {@link JSLServiceInfo},
+     * represented object's id and the first client connected to represented JOD
+     * object.
+     *
+     * @param srvInfo current service info.
+     * @param objId   represented object's id.
+     */
+    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId) {
+        this.srvInfo = srvInfo;
+        this.objId = objId;
+
+        log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: cloud) on '%s' service", objId, srvInfo.getSrvId()));
+    }
 
     /**
      * Default constructor that set reference to current {@link JSLServiceInfo},
@@ -364,7 +380,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
                 return true;
             }
 
-            String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureFromResponse(msg);
+            String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureStructureFromResponse(msg);
             try {
                 ObjectMapper mapper = new ObjectMapper();
 
@@ -387,4 +403,23 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean processCloudData(String msg) {
+        // Object info request's response
+        if (JOSPProtocol_CloudRequests.isObjectInfoRequestResponse(msg)) {
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectInfo response for '%s' object", objId));
+            return processObjectInfoResponse(msg);
+        }
+
+        // Object structure request's response
+        if (JOSPProtocol_CloudRequests.isObjectStructureRequestResponse(msg)) {
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectStructure response for '%s' object", objId));
+            return processObjectStructureResponse(msg);
+        }
+
+        return false;
+    }
 }

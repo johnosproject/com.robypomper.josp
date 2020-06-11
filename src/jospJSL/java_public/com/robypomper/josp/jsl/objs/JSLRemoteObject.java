@@ -95,13 +95,21 @@ public interface JSLRemoteObject {
     boolean processUpdate(String msg);
 
     /**
-     * Process service request's response send by by corresponding JOD object.
+     * Process service request's response send by corresponding JOD object.
      *
      * @param msg the message containing the service request's response.
      * @return <code>true</code> if the service request's response was processed
      * successfully.
      */
     boolean processServiceRequestResponse(String msg);
+
+    /**
+     * Process cloud data send by corresponding JOD object.
+     *
+     * @param msg the message containing the cloud data.
+     * @return <code>true</code> if the cloud data was processed successfully.
+     */
+    boolean processCloudData(String msg);
 
 
     // Exceptions

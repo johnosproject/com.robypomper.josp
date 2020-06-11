@@ -17,6 +17,11 @@ import java.util.List;
  */
 public interface JSLCommunication {
 
+    // Status upd flow (comm - objMng)
+
+    boolean forwardUpdate(String msg);
+
+
     // Action cmd flow (objMng - comm)
 
     /**
@@ -30,6 +35,12 @@ public interface JSLCommunication {
      *                  //@param command   the action command info.
      */
     void forwardAction(JSLRemoteObject object, JSLAction component/*, JSLActionCommand command*/);
+
+
+    // Cloud requests
+
+
+    String processCloudData(String msg);
 
 
     // Connections access

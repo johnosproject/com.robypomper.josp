@@ -13,6 +13,7 @@ import com.robypomper.josp.jsl.objs.structure.JSLAction;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -97,6 +98,31 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     }
 
 
+    // Status upd flow (comm - objMng)
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean forwardUpdate(String msg) {
+        JOSPProtocol.StatusUpd upd = JOSPProtocol.fromMsgToUpd(msg);
+        if (upd == null)
+            return false;
+
+        log.info(Mrk_JOD.JOD_COMM, String.format("Forward update to component '%s'", upd.getComponentPath()));
+        log.warn(Mrk_JOD.JOD_COMM, "Forward command to component not implemented");
+
+        // ToDo: implement forwardUpdate(String) method
+        // search destination object and component
+
+        // package params
+
+        // set component's update
+
+        return false;
+    }
+
+
     // Action cmd flow (objMng - comm)
 
     /**
@@ -120,6 +146,39 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             } catch (Client.ServerNotConnectedException e) {
                 log.warn(Mrk_JSL.JSL_COMM, String.format("Error on sending action for component '%s' of '%s' object to local client '%s' because %s", component.getName(), object.getId(), objectServer.getClientId(), e.getMessage()), e);
             }
+    }
+
+
+    // Cloud requests
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String processCloudData(String msg) {
+        log.trace(Mrk_JOD.JOD_COMM, "Process cloud data");
+
+        String response = null;
+
+        // Message 2 Remote Obj
+        if (JOSPProtocol_CloudRequests.isMsgToObject(msg)) {
+            String objId;
+            try {
+                objId = JOSPProtocol_CloudRequests.extractObjectStructureObjectIdFromResponse(msg);
+
+            } catch (JOSPProtocol.ParsingException e) {
+                log.warn(Mrk_JSL.JSL_COMM, String.format("Error on process cloud data because invalid data (%s)", e.getMessage()), e);
+                return null;        // No response (error)
+            }
+
+            if (objs.getById(objId) == null)
+                objs.addCloudObject(objId);
+            objs.getById(objId).processCloudData(msg);
+
+            return null;        // No response
+        }
+
+        return response;
     }
 
 

@@ -74,7 +74,7 @@ public class JSLGwS2OClient implements Client {
 
         try {
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Generating ssl context for service's cloud client");
-            KeyStore clientKeyStore = UtilsJKS.generateKeyStore(srvInfo.getSrvId(), "", CERT_ALIAS);
+            KeyStore clientKeyStore = UtilsJKS.generateKeyStore(srvInfo.getFullId(), "", CERT_ALIAS);
             clientCert = UtilsJKS.extractCertificate(clientKeyStore, CERT_ALIAS);
             clientTrustManager = new DynAddTrustManager();
             sslCtx = UtilsSSL.generateSSLContext(clientKeyStore, "", clientTrustManager);
@@ -124,7 +124,7 @@ public class JSLGwS2OClient implements Client {
             clientTrustManager.addCertificate(JCP_CERT_ALIAS, gwCertificate);
 
             // Init SSL client
-            client = new DefaultSSLClient(sslCtx, srvInfo.getSrvId(), s2oAccess.gwAddress, s2oAccess.gwPort,
+            client = new DefaultSSLClient(sslCtx, srvInfo.getFullId(), s2oAccess.gwAddress, s2oAccess.gwPort,
                     null, null, new GwS2OClientMessagingEventsListener());
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client initialized");
 
@@ -170,9 +170,27 @@ public class JSLGwS2OClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        log.warn(Mrk_JSL.JSL_COMM_SUB, "Not implemented");
-        //communication.forwardUpdate(readData);
-        // ToDo: fix JSLGwS2OClient.onDataReceived method
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' received from GWs S2O to '%s' service", readData.substring(0, readData.indexOf("\n")), srvInfo.getSrvId()));
+
+        // Update requests
+        if (communication.forwardUpdate(readData))
+            return true;
+
+        // Cloud requests
+        String responseOrError = communication.processCloudData(readData);
+        if (responseOrError != null) {
+            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Sending response for cloud request '%s...' to GWs S2O from '%s' service", readData.substring(0, 10), srvInfo.getSrvId()));
+            try {
+                sendData(responseOrError);
+                log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Response for service request '%s...' send to GWs S2O from '%s' service", readData.substring(0, 10), srvInfo.getSrvId()));
+                return true;
+
+            } catch (ServerNotConnectedException e) {
+                log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on sending response for service request '%s...' to GWs S2O from '%s' service because %s", readData.substring(0, 10), srvInfo.getSrvId(), e.getMessage()), e);
+                return false;
+            }
+        }
+
         return true;
     }
 

@@ -141,4 +141,15 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
         this.cloudConnection = cloudConnection;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addCloudObject(String objId) {
+        assert getById(objId) == null;
+        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new cloud object '%s' to '%s' service", objId, srvInfo.getSrvId()));
+        DefaultJSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId);
+        objs.add(remObj);
+    }
+
 }

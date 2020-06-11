@@ -99,4 +99,5 @@ public interface JSLObjsMngr {
      */
     void setCloudConnection(JSLGwS2OClient cloudConnection);
 
+    void addCloudObject(String msg);
 }
