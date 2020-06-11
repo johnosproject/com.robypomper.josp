@@ -6,7 +6,7 @@ import com.robypomper.communication.server.events.LogServerMessagingEventsListen
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
-import com.robypomper.josp.jcp.db.GWObjectStatusDBService;
+import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
@@ -32,36 +32,43 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     private static final Logger log = LogManager.getLogger();
     private static final Map<String, GWObject> objects = new HashMap<>();          // static because shared among all JOSPGWsO2S
     @Autowired
-    private GWObjectStatusDBService gwObjectDB;
+    private ObjectDBService objectDBService;
 
 
     // Clients connection
 
     /**
-     * Send ObjectStructure request to connected object.
+     * Create {@link GWObject} instance and send ObjectStructure request to
+     * connected object.
      */
     private void onClientConnection(com.robypomper.communication.server.Server server, ClientInfo client) {
         // Check if objects already know
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected object '%s' already know", client.getClientId()));
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected object '%s' already connected", client.getClientId()));
         GWObject gwObj = objects.get(client.getClientId());
         if (gwObj != null) {
-            // multiple connection at same time
             client.closeConnection();
             log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Object '%s' already connected to JOSP GW, disconnecting", client.getClientId()));
             return;
         }
 
-        gwObj = new GWObject(server, client, gwObjectDB);
+        try {
+            gwObj = new GWObject(server, client, objectDBService);
+
+        } catch (GWObject.ObjectNotRegistered e) {
+            client.closeConnection();
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Object '%s' not registered to JOSP GW, disconnecting", client.getClientId()));
+            return;
+        }
         objects.put(client.getClientId(), gwObj);
 
         // Send ObjectStructure request
         log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Send ObjectStructure request to object '%s'", client.getClientId()));
         try {
             server.sendData(client, JOSPProtocol_CloudRequests.createObjectStructureRequest(gwObj.getLastStructUpdate()));
+
         } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
             client.closeConnection();
             log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on sending ObjectStructure request to object '%s'", client.getClientId()));
-            e.printStackTrace();
         }
     }
 
@@ -81,23 +88,32 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
         return false;
     }
 
+
     // JOSPGWsService implementations
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     int getMinPort() {
         return PORT_MIN;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     int getMaxPort() {
         return PORT_MAX;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected ServerLocalEvents getServerEventsListener() {
         return null;
     }
-
 
     /**
      * {@inheritDoc}
