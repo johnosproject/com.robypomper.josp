@@ -44,8 +44,8 @@ public class PermissionsDBService {
         return permissions.findByUsrId(usrId);
     }
 
-    public void addAll(List<Permission> objPerms) {
-        objPerms = permissions.saveAll(objPerms);
+    public List<Permission> addAll(List<Permission> objPerms) {
+        return permissions.saveAll(objPerms);
     }
 
     public void removeAll(List<Permission> objPerms) {
