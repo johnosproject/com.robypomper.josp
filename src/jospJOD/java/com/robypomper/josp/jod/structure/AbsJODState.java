@@ -25,7 +25,7 @@ public class AbsJODState extends AbsJODComponent
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JODWorker state;
+    private final JODWorker stateWorker;
 
 
     // Constructor
@@ -53,12 +53,12 @@ public class AbsJODState extends AbsJODComponent
             if (listener != null && puller == null) {
                 log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Setting state component '%s' listener '%s'", getName(), listener));
                 JODComponentListener compWorker = new JODComponentListener(this, name, AbsJODWorker.extractProto(listener), AbsJODWorker.extractConfigsStr(listener));
-                state = execMngr.initListener(compWorker);
+                stateWorker = execMngr.initListener(compWorker);
 
             } else if (puller != null && listener == null) {
                 log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Setting state component '%s' puller '%s'", getName(), puller));
                 JODComponentPuller compWorker = new JODComponentPuller(this, name, AbsJODWorker.extractProto(puller), AbsJODWorker.extractConfigsStr(puller));
-                state = execMngr.initPuller(compWorker);
+                stateWorker = execMngr.initPuller(compWorker);
 
             } else {
                 log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on setting state component '%s' listener or puller because no listener nor puller given", getName()));
@@ -79,7 +79,7 @@ public class AbsJODState extends AbsJODComponent
      */
     @Override
     public String getWorker() {
-        return AbsJODWorker.mergeConfigsStr(state.getProto(), state.getName());
+        return AbsJODWorker.mergeConfigsStr(stateWorker.getProto(), stateWorker.getName());
     }
 
 
@@ -104,6 +104,44 @@ public class AbsJODState extends AbsJODComponent
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Propagating component '%s' state", getName()));
         getStructure().getCommunication().dispatchUpdate(this, statusUpd);
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state", getName()));
+    }
+
+
+    // Temporary: this method must be defined and implemented by AbsJODState sub classes
+    private int state;
+
+    public void setUpdate(int newState) {
+        int oldState = state;
+        state = newState;
+        try {
+            propagateState(new JOSPIntTest(newState, oldState));
+        } catch (JODStructure.CommunicationSetException e) {
+            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on propagating state of component '%s' to JOD Communication because %s", getName(), e.getMessage()), e);
+        }
+    }
+
+
+    // Temporary: this class must be defined and implemented by AbsJODState sub classes
+    private static class JOSPIntTest implements JODStateUpdate {
+
+        private final int newState;
+        private final int oldState;
+
+        public JOSPIntTest(int newState, int oldState) {
+            this.newState = newState;
+            this.oldState = oldState;
+        }
+
+        @Override
+        public String getType() {
+            return this.getClass().getSimpleName();
+        }
+
+        @Override
+        public String encode() {
+            return String.format("new:%d\nold:%d", newState, oldState);
+        }
+
     }
 
 }
