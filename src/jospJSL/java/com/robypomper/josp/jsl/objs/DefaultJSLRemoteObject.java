@@ -322,46 +322,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public boolean processUpdate(String msg) {
-        // parse received data (here or in prev methods)
-        JOSPProtocol.StatusUpd upd = JOSPProtocol.fromMsgToUpd(msg);
-        if (upd == null)
-            return false;
-
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing update '%s...' for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
-
-        // search destination object/components
-        JSLComponentPath compPath = new DefaultJSLComponentPath(upd.getComponentPath());
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(root, compPath);
-
-        log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing update on '%s' component for '%s' object", compPath, objId));
-        if (comp == null) {
-            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object because component not found", compPath, objId));
-            return false;
-        }
-        if (!(comp instanceof JSLState)) {
-            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object because component not a status component", compPath, objId));
-            return false;
-        }
-        JSLState stateComp = (JSLState) comp;
-
-        // set object/component's update
-        if (stateComp.updateStatus(upd)) {
-            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Updated status of '%s' component for '%s' object", compPath, objId));
-
-        } else {
-            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object", compPath, objId));
-            return false;
-        }
-
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Update '%s...' processed for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
      * <p>
      * // ToDo: remove 'return false;' on processing errors and substitute with 'thrown new ProcessingException()'
      */

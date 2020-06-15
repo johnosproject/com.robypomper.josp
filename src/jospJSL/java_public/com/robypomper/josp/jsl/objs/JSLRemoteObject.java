@@ -101,14 +101,6 @@ public interface JSLRemoteObject {
     // Process object's data
 
     /**
-     * Process status updates received by corresponding JOD object.
-     *
-     * @param msg the message containing the status update.
-     * @return <code>true</code> if the status update was processed successfully.
-     */
-    boolean processUpdate(String msg);
-
-    /**
      * Process service request's response send by corresponding JOD object.
      *
      * @param msg the message containing the service request's response.

@@ -11,6 +11,7 @@ import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
+import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
@@ -176,7 +177,7 @@ public class JODGwO2SClient implements Client {
         log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from GWs O2S to '%s' object", readData.substring(0, readData.indexOf("\n")), objInfo.getObjId()));
 
         // Action requests
-        if (communication.forwardAction(readData))
+        if (communication.forwardAction(readData, PermissionsTypes.Connection.LocalAndCloud))
             return true;
 
         // Service requests

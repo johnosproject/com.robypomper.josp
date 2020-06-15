@@ -88,9 +88,13 @@ public class GWObject {
 
     public boolean processUpdate(String msg) {
         // parse received data (here or in prev methods)
-        JOSPProtocol.StatusUpd upd = JOSPProtocol.fromMsgToUpd(msg);
-        if (upd == null)
+        JOSPProtocol.StatusUpd upd = null;
+        try {
+            upd = JOSPProtocol.fromMsgToUpdStr(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            /* Not a status update message */
             return false;
+        }
 
         log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing update '%s...' for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
 

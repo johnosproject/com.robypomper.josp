@@ -130,7 +130,7 @@ public class JSLLocalClient implements Client {
     private boolean onDataReceived(String readData) {
         log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' received from object '%s' to '%s' service", readData.substring(0, readData.indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
 
-        if (remoteObject.processUpdate(readData))
+        if (communication.forwardUpdate(readData))
             return true;
 
         if (remoteObject.processServiceRequestResponse(readData))
