@@ -1,5 +1,6 @@
 package com.robypomper.josp.jsl.objs;
 
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 
@@ -39,6 +40,8 @@ public interface JSLRemoteObject {
 
 
     // Object's communication
+
+    JSLCommunication getCommunication();
 
     /**
      * @return <code>true</code> if the objects is reachable via JCP or direct

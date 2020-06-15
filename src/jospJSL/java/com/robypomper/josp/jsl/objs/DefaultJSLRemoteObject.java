@@ -31,6 +31,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     private static final Logger log = LogManager.getLogger();
     private final JSLServiceInfo srvInfo;
     private final String objId;
+    private final JSLCommunication communication;
     private final List<JSLLocalClient> localConnections = new ArrayList<>();
     private JSLRoot root = null;
     private Date lastStructureUpdate = null;
@@ -47,12 +48,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * represented object's id and the first client connected to represented JOD
      * object.
      *
-     * @param srvInfo current service info.
-     * @param objId   represented object's id.
+     * @param srvInfo       current service info.
+     * @param objId         represented object's id.
+     * @param communication instance of the {@link JSLCommunication}.
      */
-    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId) {
+    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLCommunication communication) {
         this.srvInfo = srvInfo;
         this.objId = objId;
+        this.communication = communication;
 
         isCloudConnected = true;
 
@@ -64,13 +67,15 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * represented object's id and the first client connected to represented JOD
      * object.
      *
-     * @param srvInfo     current service info.
-     * @param objId       represented object's id.
-     * @param localClient the client connected with JOD object.
+     * @param srvInfo       current service info.
+     * @param objId         represented object's id.
+     * @param localClient   the client connected with JOD object.
+     * @param communication instance of the {@link JSLCommunication}.
      */
-    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLLocalClient localClient) {
+    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLLocalClient localClient, JSLCommunication communication) {
         this.srvInfo = srvInfo;
         this.objId = objId;
+        this.communication = communication;
         addLocalClient(localClient);
 
         log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: %s:%d) on '%s' service (from: '%s:%d')", objId, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
@@ -117,6 +122,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     @Override
     public String getJODVersion() {
         return jodVersion != null ? jodVersion : "N/A";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JSLCommunication getCommunication() {
+        return communication;
     }
 
     /**
