@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
+
 public class GWService {
 
     // Internal vars
@@ -25,14 +26,16 @@ public class GWService {
     private final String usrId;
     private final String instId;
     private final ServiceStatus srvStatus;
+    private final JOSPGWsBroker gwBroker;
 
 
     // Constructor
 
-    public GWService(Server server, ClientInfo client, ServiceDBService serviceDBService) throws ServiceNotRegistered {
+    public GWService(Server server, ClientInfo client, ServiceDBService serviceDBService, JOSPGWsBroker gwBroker) throws ServiceNotRegistered {
         this.server = server;
         this.client = client;
         this.serviceDBService = serviceDBService;
+        this.gwBroker = gwBroker;
         this.fullSrvId = client.getClientId();
         System.out.println(fullSrvId);
         String[] ids = client.getClientId().split("/");
@@ -58,16 +61,26 @@ public class GWService {
 
         srvStatus.setOnline(true);
         saveToDB();
+        gwBroker.registerService(this);
     }
 
+
+    // Sync with DB
 
     private void saveToDB() {
         serviceDBService.save(srvStatus);
     }
 
+
+    // Getters and setters
+
     public void setOffline() {
         srvStatus.setOnline(false);
         saveToDB();
+    }
+
+    public String getFullId() {
+        return fullSrvId;
     }
 
     public String getSrvId() {
@@ -78,6 +91,16 @@ public class GWService {
         return usrId;
     }
 
+    public String getInstId() {
+        return instId;
+    }
+
+
+    // Communication
+
+    public void sendData(String msg) throws Server.ServerStoppedException, Server.ClientNotConnectedException {
+        server.sendData(client, msg);
+    }
 
     // Updates
 
@@ -104,15 +127,13 @@ public class GWService {
             return false;
         }
 
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing command '%s...' from '%s' service", msg.substring(0, Math.min(10, msg.length())), fullSrvId));
+        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing command '%s...' from '%s' service", msg.substring(0, msg.indexOf("\n")), fullSrvId));
 
-        log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Exec '%s' component's action not implemented", cmd.getComponentPath()));
-        // ToDo: implement processAction() for GWService  Srv > Obj
-        // Update Date lastActionExecuted
-        // If allowed, Forward action to object
-        // gw.gwObj.sendAction(String);
+        gwBroker.actionToObject(cmd);
+        //srvStatus.setLastActionExecuted(new Date());
+        saveToDB();
 
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Command '%s...' processed for '%s' service", msg.substring(0, Math.min(10, msg.length())), fullSrvId));
+        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Command '%s...' processed for '%s' service", msg.substring(0, msg.indexOf("\n")), fullSrvId));
         return true;
     }
 

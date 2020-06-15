@@ -25,14 +25,16 @@ public class GWObject {
     private final ObjectDBService objectDBService;
     private final String objId;
     private final ObjectStatus objStatus;
+    private final JOSPGWsBroker gwBroker;
 
 
     // Constructor
 
-    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService) throws ObjectNotRegistered {
+    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, JOSPGWsBroker gwBroker) throws ObjectNotRegistered {
         this.server = server;
         this.client = client;
         this.objectDBService = objectDBService;
+        this.gwBroker = gwBroker;
         this.objId = client.getClientId();
 
         Optional<Object> objOpt = objectDBService.find(objId);
@@ -49,6 +51,7 @@ public class GWObject {
 
         objStatus.setOnline(true);
         saveToDB();
+        gwBroker.registerObject(this, object);
     }
 
 
@@ -61,6 +64,10 @@ public class GWObject {
 
     // Getters and setters
 
+    public String getObjId() {
+        return objId;
+    }
+
     public Date getLastStructUpdate() {
         return objStatus.getLastStructUpdate();
     }
@@ -68,6 +75,13 @@ public class GWObject {
     public void setOffline() {
         objStatus.setOnline(false);
         saveToDB();
+    }
+
+
+    // Communication
+
+    public void sendData(String msg) throws Server.ServerStoppedException, Server.ClientNotConnectedException {
+        server.sendData(client, msg);
     }
 
 
@@ -96,16 +110,14 @@ public class GWObject {
             return false;
         }
 
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing update '%s...' for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
+        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing update '%s...' for '%s' object", msg.substring(0, msg.indexOf("\n")), objId));
 
         log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Update '%s' component to '%s' value not implemented", upd.getComponentPath(), upd.getUpdate()));
-        // ToDo: implement processUpdate() for GWObject  Obj > Srv
-        // Update String objStructure
-        // Update Date lastStateUpdate
-        //for (GWServiceStatus gwSrvStatus : getStatusAllowedServices())
-        //gw.toSrv(gwSrvStatus).sendUpdate(msg);
+        gwBroker.statusToServices(upd);
+        //objStatus.setLastStatusUpdated(new Date());
+        saveToDB();
 
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Update '%s...' processed for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
+        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Update '%s...' processed for '%s' object", msg.substring(0, msg.indexOf("\n")), objId));
         return true;
     }
 
@@ -129,7 +141,7 @@ public class GWObject {
             Date lastUpdated = JOSPProtocol_CloudRequests.extractObjectStructureLastUpdateFromResponse(msg);
             if (getLastStructUpdate() != null
                     && getLastStructUpdate().compareTo(lastUpdated) > 0) {
-                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("ObjectStructure message '%s...' for object '%s' is older than local object structure", msg.substring(0, Math.min(10, msg.length())), objId));
+                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("ObjectStructure message '%s...' for object '%s' is older than local object structure", msg.substring(0, msg.indexOf("\n")), objId));
                 return true;
             }
 
@@ -138,7 +150,7 @@ public class GWObject {
             saveToDB();
 
         } catch (JOSPProtocol.ParsingException/* | ParsingException*/ e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, Math.min(10, msg.length())), objId, e.getMessage()), e);
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, msg.indexOf("\n")), objId, e.getMessage()), e);
             return false;
         }
         log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("ObjectStructure message processed for '%s' object", objId));

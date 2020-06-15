@@ -33,6 +33,8 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     private static final Map<String, GWObject> objects = new HashMap<>();          // static because shared among all JOSPGWsO2S
     @Autowired
     private ObjectDBService objectDBService;
+    @Autowired
+    private JOSPGWsBroker gwBroker;
 
 
     // Clients connection
@@ -52,7 +54,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
         }
 
         try {
-            gwObj = new GWObject(server, client, objectDBService);
+            gwObj = new GWObject(server, client, objectDBService, gwBroker);
 
         } catch (GWObject.ObjectNotRegistered e) {
             client.closeConnection();
@@ -73,7 +75,13 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     }
 
     private void onClientDisconnection(ClientInfo client) {
-        objects.remove(client.getClientId()).setOffline();
+        try {
+            GWObject disconnectedObject = objects.remove(client.getClientId());
+            disconnectedObject.setOffline();
+            gwBroker.deregisterObject(disconnectedObject);
+        } catch (NullPointerException e) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because service '%s' not known", client.getClientId()));
+        }
     }
 
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {

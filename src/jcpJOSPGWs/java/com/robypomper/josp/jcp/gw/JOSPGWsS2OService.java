@@ -7,8 +7,6 @@ import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.josp.jcp.db.ServiceDBService;
-import com.robypomper.josp.jcp.db.entities.Object;
-import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +32,8 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
     private static final Map<String, GWService> services = new HashMap<>();          // static because shared among all JOSPGWsS2O
     @Autowired
     private ServiceDBService serviceDBService;
+    @Autowired
+    private JOSPGWsBroker gwBroker;
 
 
     // Clients connection
@@ -54,31 +54,25 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
         }
 
         try {
-            gwSrv = new GWService(server, client, serviceDBService);
+            gwSrv = new GWService(server, client, serviceDBService, gwBroker);
         } catch (GWService.ServiceNotRegistered serviceNotRegistered) {
             client.closeConnection();
             log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Service '%s' not registered to JOSP GW, disconnecting", client.getClientId()));
             return;
         }
         services.put(client.getClientId(), gwSrv);
-
-        // Send ObjectStructure request
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Send ObjectStructure request to object '%s'", client.getClientId()));
-        try {
-            // send all allowed objects status's structure
-            for (Object obj : serviceDBService.getObjectPresentationAllowed(gwSrv.getSrvId(), gwSrv.getUsrId())) {
-                server.sendData(client, JOSPProtocol_CloudRequests.createObjectInfoResponse(obj.getObjId(), obj.getName(), obj.getOwner().getOwnerId(), obj.getVersion()));
-                server.sendData(client, JOSPProtocol_CloudRequests.createObjectStructureResponse(obj.getObjId(), obj.getStatus().getLastStructUpdate(), obj.getStatus().getStructure()));
-            }
-
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on sending ObjectStructure request to object '%s'", client.getClientId()));
-        }
     }
 
     private void onClientDisconnection(ClientInfo client) {
-        services.remove(client.getClientId()).setOffline();
+        try {
+            services.remove(client.getClientId()).setOffline();
+            GWService disconnectedService = services.remove(client.getClientId());
+            disconnectedService.setOffline();
+            gwBroker.deregisterService(disconnectedService);
+
+        } catch (NullPointerException e) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because service '%s' not known", client.getClientId()));
+        }
     }
 
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {

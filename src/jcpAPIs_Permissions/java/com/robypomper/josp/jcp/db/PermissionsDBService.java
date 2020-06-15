@@ -5,7 +5,6 @@ import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.Optional;
 
 
 @Service
-@SessionScope
 public class PermissionsDBService {
 
     // Internal vars
