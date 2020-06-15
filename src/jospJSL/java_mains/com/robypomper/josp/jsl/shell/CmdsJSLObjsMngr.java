@@ -126,4 +126,28 @@ public class CmdsJSLObjsMngr {
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
     }
 
+
+    @Command(description = "Print object's info.")
+    public String objActionInt(String objId, String compPath, String integer) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof AbsJSLAction) {
+            AbsJSLAction compAbsAction = (AbsJSLAction) comp;
+            AbsJSLAction.JOSPIntTest cmd = new AbsJSLAction.JOSPIntTest(Integer.parseInt(integer), compAbsAction);
+            compAbsAction.execAction(cmd);
+            return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, integer);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
 }
