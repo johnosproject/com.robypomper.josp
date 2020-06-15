@@ -49,9 +49,11 @@ public class GWService {
             srvStatus = srvStatusOpt.get();
         else {
             srvStatus = new ServiceStatus();
+            srvStatus.setFullId(fullSrvId);
             srvStatus.setSrvId(srvId);
-//            srvStatus.setUsrId(usrId);
-//            srvStatus.setInstId(instId);
+            srvStatus.setUsrId(usrId);
+            srvStatus.setInstId(instId);
+            //srvStatus.setVersion(instId);
         }
 
         srvStatus.setOnline(true);

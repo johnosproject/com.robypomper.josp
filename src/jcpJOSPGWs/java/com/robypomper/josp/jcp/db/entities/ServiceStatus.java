@@ -8,22 +8,22 @@ import javax.persistence.Id;
 
 @Entity
 @Data
-// key srvId, usrId, instId
 public class ServiceStatus {
 
     @Id
     @Column(nullable = false)
+    private String fullId;
+
+    @Column(nullable = false)
     private String srvId;
 
-    @Id
     @Column(nullable = false)
     private String usrId;
 
-    @Id
     @Column(nullable = false)
     private String instId;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private String version;
 
 
