@@ -63,7 +63,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     public List<JSLRemoteObject> getAllConnectedObjects() {
         List<JSLRemoteObject> connObjs = new ArrayList<>();
         for (JSLRemoteObject obj : objs)
-            if (obj.isConnected())
+            if (obj.isLocalConnected())
                 connObjs.add(obj);
 
         return Collections.unmodifiableList(connObjs);

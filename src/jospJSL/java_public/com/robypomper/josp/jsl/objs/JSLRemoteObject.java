@@ -41,10 +41,21 @@ public interface JSLRemoteObject {
     // Object's communication
 
     /**
+     * @return <code>true</code> if the objects is reachable via JCP or direct
+     * communication.
+     */
+    boolean isConnected();
+
+    /**
+     * @return <code>true</code> if the objects is reachable via JCP.
+     */
+    boolean isCloudConnected();
+
+    /**
      * @return <code>true</code> if and only if there at least is a valid and
      * open connection to the object.
      */
-    boolean isConnected();
+    boolean isLocalConnected();
 
     /**
      * Add given client as communication channel between this JSL object representation
@@ -81,7 +92,7 @@ public interface JSLRemoteObject {
     /**
      * @return the client connected (if any) to the corresponding JOD object.
      */
-    JSLLocalClient getConnectedClient();
+    JSLLocalClient getConnectedLocalClient();
 
 
     // Process object's data
@@ -173,20 +184,6 @@ public interface JSLRemoteObject {
 
         public ParsingUnknownTypeException(JSLRemoteObject obj, String compType, String compName) {
             super(obj, String.format(MSG, compType, compName));
-        }
-    }
-
-    /**
-     * Exception thrown when the structure initialization get an error on parsing
-     * structure string.
-     */
-    class InstantiationParsedDataException extends ParsingException {
-        private static final String MSG = "Can't initialize '%s' JOD Component because error on configs strings.";
-        private static final String JOIN_2 = "l'%s' or p'%s'";
-        private static final String JOIN_3 = "l'%s', p'%s' or e'%s'";
-
-        public InstantiationParsedDataException(JSLRemoteObject obj, String compName, Throwable e) {
-            super(obj, String.format(MSG, compName), e);
         }
     }
 

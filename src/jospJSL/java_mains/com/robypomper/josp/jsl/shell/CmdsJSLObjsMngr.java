@@ -4,8 +4,13 @@ import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.AbsJSLAction;
+import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
+import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
+import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
+
 
 public class CmdsJSLObjsMngr {
 
@@ -50,6 +55,8 @@ public class CmdsJSLObjsMngr {
         s += "Obj. Name:        " + obj.getName() + "\n";
         s += "Owner Id:         " + obj.getOwnerId() + "\n";
         s += "Obj. JOD version: " + obj.getJODVersion() + "\n";
+        s += "JCP Comm:         " + obj.isCloudConnected() + "\n";
+        s += "Direct Comm:      " + obj.isLocalConnected() + "\n";
 
         return s;
     }
@@ -64,14 +71,16 @@ public class CmdsJSLObjsMngr {
         if (obj.getStructure() == null)
             return String.format("Object '%s' not presented to current service", objId);
 
-        String s = printRecursive(obj.getStructure(), 0);
-        return s;
+        return printRecursive(obj.getStructure(), 0);
     }
 
     private String printRecursive(JSLComponent comp, int indent) {
         String indentStr = new String(new char[indent]).replace('\0', ' ');
         String compStr = String.format("%s- %s", indentStr, comp.getName());
-        System.out.println(String.format("%-30s %s", compStr, comp.getType()));
+        String compVal = "";
+        if (comp instanceof AbsJSLState)
+            compVal = Integer.toString(((AbsJSLState) comp).getState());
+        System.out.printf("%-30s %-15s %s%n", compStr, comp.getType(), compVal);
 
         if (comp instanceof JSLContainer)
             for (JSLComponent subComp : ((JSLContainer) comp).getComponents())
@@ -86,12 +95,35 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         StringBuilder s = new StringBuilder("KNOWN OBJECTS LIST\n");
+        s.append(String.format("- %-30s (status: %s)\n", "JCP", obj.isCloudConnected() ? "connected" : "NOT conn."));
         for (JSLLocalClient client : obj.getLocalClients()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
             s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
         }
 
         return s.toString();
+    }
+
+
+    @Command(description = "Print object's info.")
+    public String objStatus(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof AbsJSLState) {
+            compVal = Integer.toString(((AbsJSLState) comp).getState());
+            return String.format("%s::%s = %s", objId, compPath, compVal);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
     }
 
 }
