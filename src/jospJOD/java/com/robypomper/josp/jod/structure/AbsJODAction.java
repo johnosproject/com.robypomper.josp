@@ -5,9 +5,14 @@ import com.robypomper.josp.jod.executor.JODExecutor;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODWorker;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
+import com.robypomper.josp.protocol.JOSPActionCommandParams;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -86,14 +91,19 @@ public class AbsJODAction extends AbsJODState
      * {@inheritDoc}
      */
     @Override
-    public boolean execAction(JODActionParams params) {
+    public boolean execAction(JOSPProtocol.ActionCmd commandAction) {
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Executing component '%s' action", getName()));
-
-        if (!exec.exec()) {
-            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on executing component '%s' action", getName()));
+        if (commandAction.getCommand() instanceof JOSPIntTest) {
+            JOSPIntTest cmdAction = (JOSPIntTest) commandAction.getCommand();
+            if (exec instanceof JOSPIntTest.Executor)
+                if (!((JOSPIntTest.Executor) exec).exec(commandAction, cmdAction)) {
+                    log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on executing component '%s' action", getName()));
+                    return false;
+                }
+        } else {
+            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on executing component '%s' action because command type '%s' not supported", getName(), commandAction.getCommand().getType()));
             return false;
         }
-
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' executed action", getName()));
         return true;
     }
@@ -107,6 +117,55 @@ public class AbsJODAction extends AbsJODState
     @Override
     public String getExecutor() {
         return AbsJODWorker.mergeConfigsStr(exec.getProto(), exec.getName());
+    }
+
+
+    // Status classes
+
+    private static final Map<String, Class<? extends JOSPActionCommandParams>> actionClasses = new HashMap<>();
+
+    public static void loadAllActionClasses() {
+        registerActionClass(JOSPIntTest.class.getSimpleName(), JOSPIntTest.class);
+    }
+
+    public static void registerActionClass(String typeName, Class<? extends JOSPActionCommandParams> cl) {
+        actionClasses.put(typeName, cl);
+    }
+
+    public static Map<String, Class<? extends JOSPActionCommandParams>> getActionClasses() {
+        return actionClasses;
+    }
+
+
+    // Temporary: this class must be defined and implemented by AbsJODAction sub classes
+    public static class JOSPIntTest implements JODActionParams {
+
+        public final int newState;
+        public final int oldState;
+
+        public JOSPIntTest(String updData) {
+            String[] lines = updData.split("\n");
+
+            newState = Integer.parseInt(lines[0].substring(lines[0].indexOf(":") + 1));
+            oldState = Integer.parseInt(lines[1].substring(lines[1].indexOf(":") + 1));
+        }
+
+        @Override
+        public String getType() {
+            return this.getClass().getSimpleName();
+        }
+
+        @Override
+        public String encode() {
+            throw new RuntimeException("JSL JOSPIntTest::encode() method must be NOT called");
+        }
+
+        public interface Executor {
+
+            boolean exec(JOSPProtocol.ActionCmd commandAction, JOSPIntTest cmdAction);
+
+        }
+
     }
 
 }

@@ -1,6 +1,8 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.josp.jod.structure.AbsJODAction;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.log.Mrk_JOD;
 
 /**
@@ -11,7 +13,7 @@ import com.robypomper.log.Mrk_JOD;
  * The action's method chain (exec(), subExec(), don't use any params because
  * was not yet implemented.
  */
-public class ExecutorTest extends AbsJODExecutor {
+public class ExecutorTest extends AbsJODExecutor implements AbsJODAction.JOSPIntTest.Executor {
 
 
     // Constructor
@@ -36,6 +38,14 @@ public class ExecutorTest extends AbsJODExecutor {
     @Override
     protected boolean subExec() {
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorTest for component '%s' of proto '%s' exec", getName(), getProto()));
+        return true;
+    }
+
+    @Override
+    public boolean exec(JOSPProtocol.ActionCmd commandAction, AbsJODAction.JOSPIntTest cmdAction) {
+        System.out.printf("\n\nReceived action command from %s::%s (srv::usr) for %s::%s (obj::component)%n", commandAction.getServiceId(), commandAction.getUserId(), commandAction.getObjectId(), commandAction.getComponentPath());
+        System.out.printf("\tnewState %d%n", cmdAction.newState);
+        System.out.printf("\toldState %d%n", cmdAction.oldState);
         return true;
     }
 }
