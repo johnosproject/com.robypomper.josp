@@ -9,6 +9,7 @@ import com.robypomper.communication.server.events.DefaultServerEvent;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.server.standard.SSLCertServer;
+import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -201,7 +202,7 @@ public class JODLocalServer implements Server {
         log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from service '%s' to '%s' object", readData.substring(0, readData.indexOf("\n")), client.getClientId(), objId));
 
         // Action requests
-        if (communication.forwardAction(readData))
+        if (communication.forwardAction(readData, PermissionsTypes.Connection.OnlyLocal))
             return true;
 
         // Service requests
