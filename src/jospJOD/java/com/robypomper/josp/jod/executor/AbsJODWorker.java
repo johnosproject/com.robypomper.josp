@@ -1,12 +1,6 @@
 package com.robypomper.josp.jod.executor;
 
 import com.robypomper.josp.jod.structure.JODComponent;
-import com.robypomper.josp.jod.structure.JODState;
-import com.robypomper.josp.jod.structure.JODStateUpdate;
-import com.robypomper.josp.jod.structure.JODStructure;
-import com.robypomper.log.Mrk_JOD;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +17,6 @@ public abstract class AbsJODWorker implements JODWorker {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
     private final String proto;
     private final String name;
     private JODComponent component;
@@ -81,30 +74,12 @@ public abstract class AbsJODWorker implements JODWorker {
         return proto;
     }
 
-
-    // Status upd flow (fw&apps)
-
     /**
-     * Method called from {@link JODPuller} and {@link JODListener} to send a
-     * status update to associated {@link JODComponent}.
+     * {@inheritDoc}
      */
-    protected boolean sendUpdate(JODStateUpdate stateUpd) {
-        log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Sending state update from worker for component '%s'", component.getName()));
-
-        if (component instanceof JODState) {
-            try {
-                ((JODState) component).propagateState(stateUpd);
-                log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Worker for component '%s' send state update", component.getName()));
-                return true;
-
-            } catch (JODStructure.CommunicationSetException e) {
-                log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Error on propagate status update from worker for component '%s' because Communication System not set", component.getName()));
-                return false;
-            }
-        }
-
-        log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Error sending state update worker for component '%s' because component is %s instance but JODState expected", component.getName(), this.getClass().getSimpleName()));
-        return false;
+    @Override
+    public JODComponent getComponent() {
+        return component;
     }
 
 

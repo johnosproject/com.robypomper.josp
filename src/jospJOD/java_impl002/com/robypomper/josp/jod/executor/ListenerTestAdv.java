@@ -1,10 +1,11 @@
 package com.robypomper.josp.jod.executor;
 
-
-import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.josp.jod.structure.AbsJODState;
+import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.log.Mrk_JOD;
 
 import java.util.Map;
+
 
 /**
  * JOD Listener advanced test.
@@ -16,9 +17,8 @@ import java.util.Map;
  * will throw from the Listener constructor (and catch from the FactoryJODListener).
  * <p>
  * Each {@link #frequency} interactions of the server's infinite loop
- * (from {@link #getServerLoop()} method) call the {@link #sendUpdate(JODStateUpdate)} method
- * (without any param because not yet implemented). The frequency must be set via
- * configs string usign {@value #PROP_FREQUENCY} property.
+ * (from {@link #getServerLoop()} method) call the
+ * {@link JODState} sub class's <code>setUpdate(...)</code> method.
  * <p>
  * The sleeping time between each loop interaction can be set via
  * {@value #PROP_SLEEP_TIME} configs string (default = 1000ms).
@@ -58,12 +58,13 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
         sleepTime = parseConfigInt(properties, PROP_SLEEP_TIME, 1000);
     }
 
+
     // Mngm
 
     /**
      * Server Loop method: print a log messages and start infinite loop where
-     * call the {@link #sendUpdate(JODStateUpdate)} method each {@link #frequency} (default: 10)
-     * loop print a dot ('.') and call the {@link #sendUpdate(JODStateUpdate)} method.
+     * each {@link #frequency} (default: 10) interactions call the
+     * {@link JODState} sub class's <code>setUpdate(...)</code> method.
      * <p>
      * Each loop interaction start a {@link Thread#sleep(long)} for {@link #sleepTime}
      * millisecond (default: 10x1000).
@@ -77,7 +78,11 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
             count++;
             if (count % frequency == 0) {
                 log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' of proto '%s' listened", getName(), getProto()));
-                sendUpdate(new JODStateUpdate() {});
+
+                // For each JODState supported
+                if (getComponent() instanceof AbsJODState)
+                    ((AbsJODState) getComponent()).setUpdate(42);
+
             }
             try {
                 //noinspection BusyWait

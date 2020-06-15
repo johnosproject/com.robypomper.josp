@@ -4,13 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.communication.client.Client;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
-import com.robypomper.josp.jsl.objs.structure.JSLComponent;
-import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
-import com.robypomper.josp.jsl.objs.structure.JSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
@@ -34,12 +31,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     private static final Logger log = LogManager.getLogger();
     private final JSLServiceInfo srvInfo;
     private final String objId;
+    private final JSLCommunication communication;
     private final List<JSLLocalClient> localConnections = new ArrayList<>();
     private JSLRoot root = null;
     private Date lastStructureUpdate = null;
     private String name = null;
     private String ownerId = null;
     private String jodVersion = null;
+    private boolean isCloudConnected = false;
 
 
     // Constructor
@@ -49,12 +48,16 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * represented object's id and the first client connected to represented JOD
      * object.
      *
-     * @param srvInfo current service info.
-     * @param objId   represented object's id.
+     * @param srvInfo       current service info.
+     * @param objId         represented object's id.
+     * @param communication instance of the {@link JSLCommunication}.
      */
-    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId) {
+    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLCommunication communication) {
         this.srvInfo = srvInfo;
         this.objId = objId;
+        this.communication = communication;
+
+        isCloudConnected = true;
 
         log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: cloud) on '%s' service", objId, srvInfo.getSrvId()));
     }
@@ -64,13 +67,15 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * represented object's id and the first client connected to represented JOD
      * object.
      *
-     * @param srvInfo     current service info.
-     * @param objId       represented object's id.
-     * @param localClient the client connected with JOD object.
+     * @param srvInfo       current service info.
+     * @param objId         represented object's id.
+     * @param localClient   the client connected with JOD object.
+     * @param communication instance of the {@link JSLCommunication}.
      */
-    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLLocalClient localClient) {
+    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLLocalClient localClient, JSLCommunication communication) {
         this.srvInfo = srvInfo;
         this.objId = objId;
+        this.communication = communication;
         addLocalClient(localClient);
 
         log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: %s:%d) on '%s' service (from: '%s:%d')", objId, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
@@ -120,6 +125,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JSLCommunication getCommunication() {
+        return communication;
+    }
+
+    /**
      * Set the represent object's name and trigger corresponding event.
      *
      * @param name the object's name.
@@ -157,7 +170,23 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public boolean isConnected() {
-        return getConnectedClient() != null;
+        return isCloudConnected() || isLocalConnected();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloudConnected() {
+        return isCloudConnected;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isLocalConnected() {
+        return getConnectedLocalClient() != null;
     }
 
     /**
@@ -165,14 +194,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public void addLocalClient(JSLLocalClient localClient) {
-        boolean wasObjectConnected = isConnected();
-        if (!isConnected() && !localClient.isConnected()) {
+        boolean wasObjectConnected = isLocalConnected();
+        if (!isLocalConnected() && !localClient.isConnected()) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getObjId()));
             try {
                 localClient.connect();
             } catch (Client.ConnectionException ignore) {}
         }
-        if (isConnected() && localClient.isConnected()) {
+        if (isLocalConnected() && localClient.isConnected()) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' already connected", localClient.getObjId()));
             // Force switch thread, to allow starting client's thread
             try {
@@ -203,12 +232,11 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         if (toUpdate == null) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding new connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
-            localConnections.add(localClient);
         } else {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Updating existing connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
             localConnections.remove(toUpdate);
-            localConnections.add(localClient);
         }
+        localConnections.add(localClient);
         localClient.setRemoteObject(this);
 
         if (!wasObjectConnected) {
@@ -247,7 +275,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * {@inheritDoc}
      */
     @Override
-    public JSLLocalClient getConnectedClient() {
+    public JSLLocalClient getConnectedLocalClient() {
         for (JSLLocalClient client : localConnections) {
             if (client.isConnected())
                 return client;
@@ -264,7 +292,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * @param msg the message to send to the represented object.
      */
     private void send(String msg) throws ObjectNotConnected {
-        JSLLocalClient cli = getConnectedClient();
+        JSLLocalClient cli = getConnectedLocalClient();
         if (cli == null)
             throw new ObjectNotConnected(this);
 
@@ -408,6 +436,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public boolean processCloudData(String msg) {
+        isCloudConnected = true;
+
         // Object info request's response
         if (JOSPProtocol_CloudRequests.isObjectInfoRequestResponse(msg)) {
             log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectInfo response for '%s' object", objId));

@@ -1,5 +1,7 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.josp.jod.structure.JODComponent;
+
 
 /**
  * Basic interface for JOD executor manager worker representations.
@@ -23,10 +25,18 @@ public interface JODWorker {
     String getProto();
 
     /**
+     * Current JODWorker's component.
+     *
+     * @return the JODWorker's component.
+     */
+    JODComponent getComponent();
+
+    /**
      * @return <code>true</code> if current worker is enabled, <code>false</code>
      * otherwise.
      */
     boolean isEnabled();
+
 
     // Exceptions
 
@@ -74,4 +84,5 @@ public interface JODWorker {
             super(String.format(MSG_WRONG_VAL, property, proto, workerName, workerType, value), e);
         }
     }
+
 }

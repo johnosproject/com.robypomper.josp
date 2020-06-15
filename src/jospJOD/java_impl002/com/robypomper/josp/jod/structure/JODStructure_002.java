@@ -46,6 +46,8 @@ public class JODStructure_002 implements JODStructure {
 
         log.info(Mrk_JOD.JOD_STRU, String.format("Initialized JODStructure instance for '%s' object from '%s' file", objInfo.getObjName(), objInfo.getStructurePath()));
         logStructure(root, 34, 64);
+
+        AbsJODAction.loadAllActionClasses();
     }
 
     private static void logStructure(JODComponent component, int level, int space) {

@@ -2,6 +2,7 @@ package com.robypomper.josp.jod.structure;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.robypomper.josp.jod.executor.JODExecutor;
+import com.robypomper.josp.protocol.JOSPProtocol;
 
 
 /**
@@ -29,8 +30,8 @@ public interface JODAction extends JODState {
      * Called by JOD Communication system, this method execute the action via
      * the {@link JODExecutor#exec()} method.
      *
-     * @param params the action's to params.
+     * @param commandAction the action's to execute.
      */
-    boolean execAction(JODActionParams params);
+    boolean execAction(JOSPProtocol.ActionCmd commandAction);
 
 }

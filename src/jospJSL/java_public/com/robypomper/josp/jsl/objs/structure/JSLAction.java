@@ -17,6 +17,6 @@ public interface JSLAction extends JSLState {
      *
      * @param params the action's to params.
      */
-    boolean execAction(JSLActionParams params);
+    void execAction(JSLActionParams params);
 
 }
