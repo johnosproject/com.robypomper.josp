@@ -11,13 +11,11 @@ import java.util.Date;
 
 public class JOSPProtocol_CloudRequests {
 
-
-    private static final String JOSP_PROTO = "JOSP/2.0";
-    private static final String OBJ_INFO_RES_BASE = JOSP_PROTO + " OBJ_INFO_RES";
+    private static final String OBJ_INFO_RES_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_INFO_RES";
     private static final String OBJ_INFO_RES = OBJ_INFO_RES_BASE + " %s\n%s\nobjName:%s\nowner:%s\njodVer:%s";
-    private static final String OBJ_STRUCT_REQ_BASE = JOSP_PROTO + " OBJ_STRUCT_REQ";
+    private static final String OBJ_STRUCT_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_STRUCT_REQ";
     private static final String OBJ_STRUCT_REQ = OBJ_STRUCT_REQ_BASE + " %s\nlastKnowUpd:%s";
-    private static final String OBJ_STRUCT_RES_BASE = JOSP_PROTO + " OBJ_STRUCT_RES";
+    private static final String OBJ_STRUCT_RES_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_STRUCT_RES";
     private static final String OBJ_STRUCT_RES = OBJ_STRUCT_RES_BASE + " %s\n%s\nlastUpd:%s\nstructure:%s";
 
 
