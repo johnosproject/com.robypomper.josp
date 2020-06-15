@@ -96,9 +96,13 @@ public class GWService {
 
     public boolean processAction(String msg) {
         // parse received data (here or in prev methods)
-        JOSPProtocol.ActionCmd cmd = JOSPProtocol.fromMsgToCmd(msg);
-        if (cmd == null)
+        JOSPProtocol.ActionCmd cmd;
+        try {
+            cmd = JOSPProtocol.fromMsgToCmdStr(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            /* Not a action command message */
             return false;
+        }
 
         log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing command '%s...' from '%s' service", msg.substring(0, Math.min(10, msg.length())), fullSrvId));
 
