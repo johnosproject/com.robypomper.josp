@@ -3,6 +3,7 @@ package com.robypomper.josp.jsl.objs;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +41,8 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
         this.srvInfo = srvInfo;
 
         log.info(Mrk_JSL.JSL_OBJS, "Initialized JSLObjsMngr");
+
+        AbsJSLState.loadAllStateClasses();
     }
 
 
