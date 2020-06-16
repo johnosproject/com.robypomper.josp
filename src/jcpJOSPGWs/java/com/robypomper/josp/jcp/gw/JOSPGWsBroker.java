@@ -92,7 +92,7 @@ public class JOSPGWsBroker {
     private void sendObjectPresentationToService(Object obj, GWService service) {
         try {
             service.sendData(JOSPProtocol_CloudRequests.createObjectInfoResponse(obj.getObjId(), obj.getName(), obj.getOwner().getOwnerId(), obj.getVersion()));
-            service.sendData(JOSPProtocol_CloudRequests.createObjectStructureResponse(obj.getObjId(), obj.getStatus().getLastStructUpdate(), obj.getStatus().getStructure()));
+            service.sendData(JOSPProtocol_CloudRequests.createObjectStructureResponse(obj.getObjId(), obj.getStatus().getLastStructUpdate(), obj.getStatus().getStructure(), obj.getStatus().isOnline()));
         } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
             e.printStackTrace();
         }
@@ -107,11 +107,11 @@ public class JOSPGWsBroker {
     }
 
     private void sendObjectDisconnectionToService(GWObject object, GWService service) {
-//        try {
-//            service.sendData(JOSPProtocol_CloudRequests.createObjectDisconnectionResponse(obj.getObjId()));
-//        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            service.sendData(JOSPProtocol_CloudRequests.createObjectDisconnectionResponse(object.getObjId()));
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendUpdate(GWService service, JOSPProtocol.StatusUpd upd) {
