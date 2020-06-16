@@ -13,10 +13,12 @@ public class JOSPProtocol_CloudRequests {
 
     private static final String OBJ_INFO_RES_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_INFO_RES";
     private static final String OBJ_INFO_RES = OBJ_INFO_RES_BASE + " %s\n%s\nobjName:%s\nowner:%s\njodVer:%s";
+    private static final String OBJ_DISCONNECT_RES_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_DISCONNECT";
+    private static final String OBJ_DISCONNECT_RES = OBJ_DISCONNECT_RES_BASE + " %s\n%s";
     private static final String OBJ_STRUCT_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_STRUCT_REQ";
     private static final String OBJ_STRUCT_REQ = OBJ_STRUCT_REQ_BASE + " %s\nlastKnowUpd:%s";
     private static final String OBJ_STRUCT_RES_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_STRUCT_RES";
-    private static final String OBJ_STRUCT_RES = OBJ_STRUCT_RES_BASE + " %s\n%s\nlastUpd:%s\nstructure:%s";
+    private static final String OBJ_STRUCT_RES = OBJ_STRUCT_RES_BASE + " %s\n%s\nlastUpd:%s\nstructure:%s\nconnected:%s";
 
 
     // Generic
@@ -35,6 +37,13 @@ public class JOSPProtocol_CloudRequests {
         return true;
     }
 
+    public static String extractObjectIdFromResponse(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 2)
+            throw new JOSPProtocol.ParsingException("Few lines in object's response");
+
+        return lines[1];
+    }
 
     // Object structure (Res)
 
@@ -59,6 +68,17 @@ public class JOSPProtocol_CloudRequests {
     }
 
 
+    // Object structure (Res)
+
+    public static String createObjectDisconnectionResponse(String objId) {
+        return String.format(OBJ_DISCONNECT_RES, JOSPProtocol.getNow(), objId);
+    }
+
+    public static boolean isObjectDisconnectRequestResponse(String msg) {
+        return msg.startsWith(OBJ_DISCONNECT_RES_BASE);
+    }
+
+
     // Object structure (Req+Res)
 
     public static String createObjectStructureRequest(Date lastKnowUpdate) {
@@ -70,20 +90,12 @@ public class JOSPProtocol_CloudRequests {
         return msg.startsWith(OBJ_STRUCT_REQ_BASE);
     }
 
-    public static String createObjectStructureResponse(String objId, Date lastUpdate, String structureStr) {
-        return String.format(OBJ_STRUCT_RES, JOSPProtocol.getNow(), objId, JOSPProtocol.getDateFormatter().format(lastUpdate), structureStr);
+    public static String createObjectStructureResponse(String objId, Date lastUpdate, String structureStr, boolean connected) {
+        return String.format(OBJ_STRUCT_RES, JOSPProtocol.getNow(), objId, JOSPProtocol.getDateFormatter().format(lastUpdate), structureStr, connected);
     }
 
     public static boolean isObjectStructureRequestResponse(String msg) {
         return msg.startsWith(OBJ_STRUCT_RES_BASE);
-    }
-
-    public static String extractObjectStructureObjectIdFromResponse(String msg) throws JOSPProtocol.ParsingException {
-        String[] lines = msg.split("\n");
-        if (lines.length < 4)
-            throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
-
-        return lines[1];
     }
 
     public static Date extractObjectStructureLastUpdateFromResponse(String msg) throws JOSPProtocol.ParsingException {
@@ -105,6 +117,14 @@ public class JOSPProtocol_CloudRequests {
             throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
 
         return lines[3].substring(lines[3].indexOf(":") + 1);
+    }
+
+    public static boolean extractObjectStructureConnectedFromResponse(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 4)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
+
+        return Boolean.parseBoolean(lines[4].substring(lines[4].indexOf(":") + 1));
     }
 
 }
