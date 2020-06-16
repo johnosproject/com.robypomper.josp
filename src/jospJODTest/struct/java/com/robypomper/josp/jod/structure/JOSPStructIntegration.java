@@ -11,6 +11,7 @@ import com.robypomper.josp.jod.executor.JODPuller;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
@@ -73,6 +74,7 @@ public class JOSPStructIntegration {
             throw e;
         }
 
+        System.out.println(jodStructureStr);
 
         System.out.println("\nDESERIALIZE STRUCT.JSL");
         // Support objects
@@ -296,7 +298,7 @@ public class JOSPStructIntegration {
 
     private static class MockupJSLRemoteObject implements JSLRemoteObject {
         @Override
-        public boolean isConnected() {
+        public boolean isLocalConnected() {
             return false;
         }
 
@@ -326,12 +328,27 @@ public class JOSPStructIntegration {
         }
 
         @Override
+        public JSLCommunication getCommunication() {
+            return null;
+        }
+
+        @Override
+        public boolean isConnected() {
+            return false;
+        }
+
+        @Override
+        public boolean isCloudConnected() {
+            return false;
+        }
+
+        @Override
         public List<JSLLocalClient> getLocalClients() {
             return null;
         }
 
         @Override
-        public JSLLocalClient getConnectedClient() {
+        public JSLLocalClient getConnectedLocalClient() {
             return null;
         }
 
@@ -346,12 +363,12 @@ public class JOSPStructIntegration {
         }
 
         @Override
-        public boolean processUpdate(String msg) {
+        public boolean processServiceRequestResponse(String msg) {
             return false;
         }
 
         @Override
-        public boolean processServiceRequestResponse(String msg) {
+        public boolean processCloudData(String msg) {
             return false;
         }
     }

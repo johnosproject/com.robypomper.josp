@@ -3,6 +3,7 @@ package com.robypomper.josp.jod.comm;
 import com.robypomper.communication.client.Client;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
+import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -11,6 +12,7 @@ import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -362,7 +364,9 @@ public class JODLocalServerTest {
         }
 
         @Override
-        public boolean forwardAction(String msg) { return false; }
+        public boolean forwardAction(String msg, PermissionsTypes.Connection connType) {
+            return false;
+        }
 
         @Override
         public String processServiceRequest(JODLocalClientInfo client, String msg) {
@@ -428,8 +432,18 @@ public class JODLocalServerTest {
     public static class MockJSLCommunication implements JSLCommunication {
 
         @Override
-        public void forwardAction(JSLRemoteObject object, JSLAction component) {
+        public boolean forwardUpdate(String msg) {
+            return false;
+        }
 
+        @Override
+        public void forwardAction(JSLRemoteObject object, JSLAction component, JSLActionParams command) {
+
+        }
+
+        @Override
+        public String processCloudData(String msg) {
+            return null;
         }
 
         @Override
