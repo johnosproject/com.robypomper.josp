@@ -210,10 +210,10 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         if (JOSPProtocol_CloudRequests.isMsgToObject(msg)) {
             String objId;
             try {
-                objId = JOSPProtocol_CloudRequests.extractObjectStructureObjectIdFromResponse(msg);
+                objId = JOSPProtocol_CloudRequests.extractObjectIdFromResponse(msg);
 
             } catch (JOSPProtocol.ParsingException e) {
-                log.warn(Mrk_JSL.JSL_COMM, String.format("Error on process cloud data because invalid data (%s)", e.getMessage()), e);
+                log.warn(Mrk_JSL.JSL_COMM, String.format("Error on process cloud data because can't extract object's id (%s)", e.getMessage()), e);
                 return null;        // No response (error)
             }
 

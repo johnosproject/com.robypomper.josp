@@ -57,8 +57,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         this.objId = objId;
         this.communication = communication;
 
-        isCloudConnected = true;
-
         log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: cloud) on '%s' service", objId, srvInfo.getSrvId()));
     }
 
@@ -178,7 +176,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public boolean isCloudConnected() {
-        return isCloudConnected;
+        return communication.isCloudConnected() && isCloudConnected;
     }
 
     /**
@@ -362,6 +360,10 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectStructure message for '%s' object", objId));
 
         try {
+            isCloudConnected = JOSPProtocol_CloudRequests.extractObjectStructureConnectedFromResponse(msg);
+        } catch (Throwable ignore) { /*if parsing error, then the response is not from cloud*/}
+
+        try {
             Date lastUpdated = JOSPProtocol_ServiceRequests.extractObjectStructureLastUpdateFromResponse(msg);
             if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0) {
                 log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message '%s...' for object '%s' object older than local object structure", msg.substring(0, Math.min(10, msg.length())), objId));
@@ -396,7 +398,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public boolean processCloudData(String msg) {
-        isCloudConnected = true;
 
         // Object info request's response
         if (JOSPProtocol_CloudRequests.isObjectInfoRequestResponse(msg)) {
@@ -408,6 +409,13 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         if (JOSPProtocol_CloudRequests.isObjectStructureRequestResponse(msg)) {
             log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectStructure response for '%s' object", objId));
             return processObjectStructureResponse(msg);
+        }
+
+        // Object disconnection request's response
+        if (JOSPProtocol_CloudRequests.isObjectDisconnectRequestResponse(msg)) {
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectDisconnection response for '%s' object", objId));
+            isCloudConnected = false;
+            return true;
         }
 
         return false;
