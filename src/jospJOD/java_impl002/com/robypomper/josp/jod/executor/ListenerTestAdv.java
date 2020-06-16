@@ -35,7 +35,7 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
 
     // Internal vars
 
-    private int frequency = -1;
+    private int frequency = 1;
     private int sleepTime = 1000;
 
 
@@ -54,8 +54,8 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
         Map<String, String> properties = splitConfigsStrings(configsStr);
-        frequency = parseConfigInt(properties, PROP_FREQUENCY, 1);
-        sleepTime = parseConfigInt(properties, PROP_SLEEP_TIME, 1000);
+        frequency = parseConfigInt(properties, PROP_FREQUENCY, frequency);
+        sleepTime = parseConfigInt(properties, PROP_SLEEP_TIME, sleepTime);
     }
 
 

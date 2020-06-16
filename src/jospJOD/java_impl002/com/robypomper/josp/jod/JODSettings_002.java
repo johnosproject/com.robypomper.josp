@@ -49,7 +49,7 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JODPERM_GENSTARTEGY      = "jod.permissions.generation_strategy";
     public static final String JODPERM_GENSTARTEGY_DEF  = "standard";
     public static final String JODPERM_OWNER            = "jod.permissions.owner";
-    public static final String JODPERM_OWNER_DEF        = "00000-00000-00000";
+    public static final String JODPERM_OWNER_DEF        = PermissionsTypes.WildCards.USR_ANONYMOUS_ID.toString();
 
     public static final String JODCOMM_LOCAL_ENABLED        = "jod.comm.local.enabled";
     public static final String JODCOMM_LOCAL_ENABLED_DEF    = "true";

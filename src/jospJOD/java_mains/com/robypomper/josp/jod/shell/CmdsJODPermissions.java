@@ -59,7 +59,7 @@ public class CmdsJODPermissions {
         )
             type = PermissionsTypes.Type.Actions;
         else if (
-                typeStr.compareToIgnoreCase("statu") == 0
+                typeStr.compareToIgnoreCase("state") == 0
                         || typeStr.compareToIgnoreCase("status") == 0
         )
             type = PermissionsTypes.Type.Status;

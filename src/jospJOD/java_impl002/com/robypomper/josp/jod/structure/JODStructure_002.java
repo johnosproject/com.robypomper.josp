@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
 
+
 /**
  * ToDo: doc JODStructure_002
  */

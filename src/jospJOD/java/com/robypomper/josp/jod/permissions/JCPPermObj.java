@@ -8,6 +8,7 @@ import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class JCPPermObj extends AbsJCPAPIs {
      */
     public List<ObjPermission> refreshPermissionsFromJCP(List<ObjPermission> localPermissions) throws JCPClient.ConnectionException, JCPClient.RequestException {
         ObjPermission[] objPermArray = jcpClient.execPostReq(APIPermissions.URL_PATH_OBJMERGE, ObjPermission[].class, localPermissions, true);
-        return Arrays.asList(objPermArray);
+        return new ArrayList<>(Arrays.asList(objPermArray));
     }
 
 }

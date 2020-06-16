@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,8 +29,8 @@ public class JODPermissions_002 implements JODPermissions {
     // Class constants
 
     public static final String TH_SYNC_NAME_FORMAT = "_PERM_SYNC_%s";
-    public static final String ANONYMOUS_ID = "00000-00000-00000";
-    public static final String ANONYMOUS_USERNAME = "Anonymous";
+    public static final String ANONYMOUS_ID = PermissionsTypes.WildCards.USR_ANONYMOUS_ID.toString();
+    public static final String ANONYMOUS_USERNAME = PermissionsTypes.WildCards.USR_ANONYMOUS_NAME.toString();
 
 
     // Internal vars
@@ -188,7 +187,7 @@ public class JODPermissions_002 implements JODPermissions {
             log.debug(Mrk_JOD.JOD_PERM, String.format("Permission synchronized for object '%s' from JCP", objInfo.getObjId()));
 
         } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on synchronizing permissions for object '%s' from JCP because %s", objInfo.getObjId(), e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on synchronizing permissions for object '%s' from JCP because %s", objInfo.getObjId(), e.getMessage()));
             return;
         }
 
@@ -197,7 +196,7 @@ public class JODPermissions_002 implements JODPermissions {
             savePermissionsToFile();
             log.debug(Mrk_JOD.JOD_PERM, String.format("Permission stored for object '%s' to local file '%s'", objInfo.getObjId(), locSettings.getPermissionsPath().getPath()));
         } catch (PermissionsNotSavedException e) {
-            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on storing permissions for object '%s' to local file because %s", objInfo.getObjId(), e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on storing permissions for object '%s' to local file because %s", objInfo.getObjId(), e.getMessage()));
         }
     }
 
@@ -327,7 +326,7 @@ public class JODPermissions_002 implements JODPermissions {
         try {
             ObjectMapper mapper = new ObjectMapper();
             List<ObjPermission> loadedPerms = mapper.readValue(locSettings.getPermissionsPath(), new TypeReference<List<ObjPermission>>() {});
-            List<ObjPermission> validatedPerms = new LinkedList<>();
+            List<ObjPermission> validatedPerms = new ArrayList<>();
             for (ObjPermission p : loadedPerms)
                 if (p.objId.compareTo(objInfo.getObjId()) == 0)
                     validatedPerms.add(p);
@@ -468,7 +467,7 @@ public class JODPermissions_002 implements JODPermissions {
                     jcpPrintNotConnected = true;
                 }
             }
-        }, locSettings.getPermissionsRefreshTime() * 1000, locSettings.getPermissionsRefreshTime() * 1000);
+        }, 0, locSettings.getPermissionsRefreshTime() * 1000);
         log.debug(Mrk_JOD.JOD_INFO, "Permissions sync's timer started");
     }
 

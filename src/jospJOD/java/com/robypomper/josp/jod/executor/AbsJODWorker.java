@@ -15,6 +15,7 @@ public abstract class AbsJODWorker implements JODWorker {
 
     public static final String CONFIG_STR_SEP = "://";
 
+
     // Internal vars
 
     private final String proto;

@@ -180,7 +180,7 @@ public class JODGwO2SClient implements Client {
         if (communication.forwardAction(readData, PermissionsTypes.Connection.LocalAndCloud))
             return true;
 
-        // Service requests
+        // Cloud requests
         String responseOrError = communication.processCloudRequest(readData);
         if (responseOrError != null) {
             log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Sending response for cloud request '%s...' to GWs O2S from '%s' object", readData.substring(0, 10), objInfo.getObjId()));
