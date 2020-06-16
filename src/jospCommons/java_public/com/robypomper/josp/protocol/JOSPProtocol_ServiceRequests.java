@@ -73,7 +73,7 @@ public class JOSPProtocol_ServiceRequests {
 
     public static Date extractObjectStructureLastUpdateFromResponse(String msg) throws JOSPProtocol.ParsingException {
         String[] lines = msg.split("\n");
-        if (lines.length < 4)
+        if (lines.length < 3)
             throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
 
         String dateStr = lines[2].substring(lines[2].indexOf(":") + 1);

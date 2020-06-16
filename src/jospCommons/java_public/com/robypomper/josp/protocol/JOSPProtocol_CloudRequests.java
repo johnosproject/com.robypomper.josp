@@ -113,7 +113,7 @@ public class JOSPProtocol_CloudRequests {
 
     public static String extractObjectStructureStructureFromResponse(String msg) throws JOSPProtocol.ParsingException {
         String[] lines = msg.split("\n");
-        if (lines.length < 3)
+        if (lines.length < 4)
             throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
 
         return lines[3].substring(lines[3].indexOf(":") + 1);

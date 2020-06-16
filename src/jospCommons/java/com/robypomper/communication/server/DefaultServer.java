@@ -428,12 +428,12 @@ public class DefaultServer implements Server {
 
                     if (!sme.onDataReceived(client, dataRead))
                         if (!sme.onDataReceived(client, new String(dataRead, PeerInfo.CHARSET))) {
-                            log.warn(Mrk_Commons.COMM_SRV, String.format("Client processor can't process data from '%s' data because unknown data", client));
+                            log.warn(Mrk_Commons.COMM_SRV, String.format("Client processor can't process data from '%s' data because unknown data", client.getClientId()));
                             log.debug(Mrk_Commons.COMM_SRV, String.format("                                   (dataRx: %s)", new String(dataRead, PeerInfo.CHARSET)));
                         }
 
                 } catch (Throwable e) {
-                    log.warn(Mrk_Commons.COMM_SRV, String.format("Client processor can't process data from '%s' because %s", client, e.getMessage()));
+                    log.warn(Mrk_Commons.COMM_SRV, String.format("Client processor can't process data from '%s' because %s", client.getClientId(), e.getMessage()));
                     log.debug(Mrk_Commons.COMM_SRV, String.format("                                   (dataRx: '%s')", new String(dataRead, PeerInfo.CHARSET)));
                     if (sce != null) sce.onClientError(client, e);
                 }
