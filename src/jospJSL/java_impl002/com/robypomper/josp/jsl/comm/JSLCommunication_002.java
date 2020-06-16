@@ -144,10 +144,10 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
 
         // set object/component's update
         if (stateComp.updateStatus(upd)) {
-            log.info(Mrk_JSL.JSL_COMM, String.format("Updated status of '%s' component for '%s' object", compPath.toString(), obj.getId()));
+            log.info(Mrk_JSL.JSL_COMM, String.format("Updated status of '%s' component for '%s' object", compPath.getString(), obj.getId()));
 
         } else {
-            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing update on '%s' component for '%s' object", compPath.toString(), obj.getId()));
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing update on '%s' component for '%s' object", compPath.getString(), obj.getId()));
             return false;
         }
 
