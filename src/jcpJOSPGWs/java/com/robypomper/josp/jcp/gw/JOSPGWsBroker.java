@@ -62,7 +62,7 @@ public class JOSPGWsBroker {
 
     // from GWService
     public void deregisterService(GWService service) {
-        services.remove(service.getSrvId());
+        services.remove(service.getFullId());
     }
 
     // from GWService

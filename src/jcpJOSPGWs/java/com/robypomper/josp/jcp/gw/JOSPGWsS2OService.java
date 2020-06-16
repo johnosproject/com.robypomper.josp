@@ -7,6 +7,7 @@ import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.josp.jcp.db.ServiceDBService;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,7 +66,6 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
 
     private void onClientDisconnection(ClientInfo client) {
         try {
-            services.remove(client.getClientId()).setOffline();
             GWService disconnectedService = services.remove(client.getClientId());
             disconnectedService.setOffline();
             gwBroker.deregisterService(disconnectedService);
@@ -78,7 +78,7 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
         GWService srv = services.get(client.getClientId());
 
-        if (srv.processAction(readData))
+        if (JOSPProtocol.isCmdMsg(readData) && srv.processAction(readData))
             return true;
 
         if (srv.processCloudRequestResponse(readData))

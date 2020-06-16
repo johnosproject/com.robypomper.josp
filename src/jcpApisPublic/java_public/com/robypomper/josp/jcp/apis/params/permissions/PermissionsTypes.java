@@ -69,6 +69,14 @@ public class PermissionsTypes {
          */
         USR_ALL("#All"),
         /**
+         * Reference for anonymous user's id
+         */
+        USR_ANONYMOUS_ID("00000-00000-00000"),
+        /**
+         * Reference for anonymous user's name
+         */
+        USR_ANONYMOUS_NAME("Anonymous"),
+        /**
          * Indicate that the permission is applicable to all services.
          */
         SRV_ALL("#All");

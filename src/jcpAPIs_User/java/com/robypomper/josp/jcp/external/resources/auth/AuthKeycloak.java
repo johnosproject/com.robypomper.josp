@@ -36,6 +36,7 @@ public class AuthKeycloak implements AuthResource {
         UserProfile profile = new UserProfile();
         User user = new User();
 
+        profile.setUsrId(kcUser.getId());
         profile.setEmail(kcUser.getEmail());
         profile.setName(kcUser.getFirstName());
         profile.setSurname(kcUser.getLastName());

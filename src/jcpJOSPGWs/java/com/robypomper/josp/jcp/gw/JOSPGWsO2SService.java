@@ -7,6 +7,7 @@ import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.josp.jcp.db.ObjectDBService;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
@@ -80,14 +81,14 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             disconnectedObject.setOffline();
             gwBroker.deregisterObject(disconnectedObject);
         } catch (NullPointerException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because service '%s' not known", client.getClientId()));
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because object '%s' not known", client.getClientId()));
         }
     }
 
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
         GWObject obj = objects.get(client.getClientId());
 
-        if (obj.processUpdate(readData))
+        if (JOSPProtocol.isUpdMsg(readData) && obj.processUpdate(readData))
             return true;
 
         if (obj.processCloudRequestResponse(readData))

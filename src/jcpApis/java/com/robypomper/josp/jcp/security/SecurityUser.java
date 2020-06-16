@@ -1,5 +1,6 @@
 package com.robypomper.josp.jcp.security;
 
+import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount;
@@ -25,8 +26,8 @@ import java.util.Map;
  */
 public class SecurityUser {
 
-    public static final String ANONYMOUS_ID = "00000-00000-00000";
-    public static final String ANONYMOUS_USERNAME = "Anonymous";
+    public static final String ANONYMOUS_ID = PermissionsTypes.WildCards.USR_ANONYMOUS_ID.toString();
+    public static final String ANONYMOUS_USERNAME = PermissionsTypes.WildCards.USR_ANONYMOUS_NAME.toString();
 
 
     // Current user getters

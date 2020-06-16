@@ -147,7 +147,7 @@ public class GWService {
 
     // Exceptions
 
-    public class ServiceNotRegistered extends Throwable {
+    public static class ServiceNotRegistered extends Throwable {
         public ServiceNotRegistered(String fullSrvId, String srvId, String usrId) {
             super(String.format("Service '%s' not registered to JCP", fullSrvId));
         }

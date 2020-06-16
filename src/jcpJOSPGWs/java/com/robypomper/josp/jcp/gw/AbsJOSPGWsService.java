@@ -32,10 +32,10 @@ public abstract class AbsJOSPGWsService {
 
     // Internal vars
 
-    private final static List<AbsJOSPGWsService> jospGWs = new ArrayList<>();          // static because shared among all JOSPGWs
-    private final static List<Integer> boundedPorts = new ArrayList<>();            // static because shared among all JOSPGWs
-    private final static Random rnd = new Random();
     private static final Logger log = LogManager.getLogger();
+    private static final List<AbsJOSPGWsService> jospGWs = new ArrayList<>();           // static because shared among all JOSPGWs
+    private static final List<Integer> boundedPorts = new ArrayList<>();                // static because shared among all JOSPGWs
+    private static final Random rnd = new Random();
     private final Map<String, Server> servers = new HashMap<>();
     private final Map<String, Server> clients = new HashMap<>();
 
@@ -148,6 +148,7 @@ public abstract class AbsJOSPGWsService {
     public Map<String, Server> getJOSPServers() {
         return servers;
     }
+
 
     // Sub-classes methods
 
