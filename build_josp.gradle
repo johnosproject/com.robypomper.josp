@@ -209,6 +209,7 @@ task jospJODTest {
     description = 'Runs all JOD tests.'
     group = 'verification'
 }
+check.dependsOn jospJODTest
 
 task jospJODStructTest(type: Test) {
     description = 'Runs JOD Communication tests.'
@@ -220,6 +221,7 @@ task jospJODStructTest(type: Test) {
     useJUnitPlatform()
     //jvmArgs '-Djavax.net.debug=all'
 }
+jospJODTest.dependsOn jospJODStructTest
 
 task jospJODCommTest(type: Test) {
     description = 'Runs JOD Communication tests.'
@@ -231,12 +233,13 @@ task jospJODCommTest(type: Test) {
     useJUnitPlatform()
     //jvmArgs '-Djavax.net.debug=all'
 }
-
+jospJODTest.dependsOn jospJODCommTest
 
 task jospJSLTest {
     description = 'Runs all JSL tests.'
     group = 'verification'
 }
+check.dependsOn jospJSLTest
 
 task jospJSLCommTest(type: Test) {
     description = 'Runs JSL Communication tests.'
@@ -248,13 +251,7 @@ task jospJSLCommTest(type: Test) {
     useJUnitPlatform()
     //jvmArgs '-Djavax.net.debug=all'
 }
-
-
-jospJODTest.dependsOn jospJODCommTest
-check.dependsOn jospJODTest
-
 jospJSLTest.dependsOn jospJSLCommTest
-check.dependsOn jospJSLTest
 
 
 // gradle > intellij settings
