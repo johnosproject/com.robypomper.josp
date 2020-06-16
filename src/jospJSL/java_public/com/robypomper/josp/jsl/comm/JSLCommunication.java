@@ -3,6 +3,7 @@ package com.robypomper.josp.jsl.comm;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 
 import java.util.List;
 
@@ -17,6 +18,17 @@ import java.util.List;
  */
 public interface JSLCommunication {
 
+    // Status upd flow (comm - objMng)
+
+    /**
+     * Process status updates received by corresponding JOD object.
+     *
+     * @param msg the message containing the status update.
+     * @return <code>true</code> if the status update was processed successfully.
+     */
+    boolean forwardUpdate(String msg);
+
+
     // Action cmd flow (objMng - comm)
 
     /**
@@ -29,7 +41,13 @@ public interface JSLCommunication {
      * @param component the object's component to send the action command.
      *                  //@param command   the action command info.
      */
-    void forwardAction(JSLRemoteObject object, JSLAction component/*, JSLActionCommand command*/);
+    void forwardAction(JSLRemoteObject object, JSLAction component, JSLActionParams command);
+
+
+    // Cloud requests
+
+
+    String processCloudData(String msg);
 
 
     // Connections access

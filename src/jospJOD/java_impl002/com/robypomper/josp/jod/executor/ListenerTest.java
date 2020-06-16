@@ -1,15 +1,16 @@
 package com.robypomper.josp.jod.executor;
 
-
-import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.josp.jod.structure.AbsJODState;
+import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.log.Mrk_JOD;
+
 
 /**
  * JOD Listener test.
  * <p>
  * Each interaction of the server's infinite loop (from {@link #getServerLoop()}
- * method) call the {@link #sendUpdate(JODStateUpdate)} method (without any param because not
- * yet implemented).
+ * method) call the {@link JODState} sub class's <code>setUpdate(...)</code>
+ * method each 10 seconds (10.000ms).
  * <p>
  * Print log messages, from dedicated thread, on server startup and shutdown.
  */
@@ -29,11 +30,13 @@ public class ListenerTest extends AbsJODListenerLoop {
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
     }
 
+
     // Mngm
 
     /**
      * Server Loop method: print a log messages and start infinite loop where
-     * call the {@link #sendUpdate(JODStateUpdate)} method each 10 seconds (10.000ms).
+     * call the {@link JODState} sub class's <code>setUpdate(...)</code> method
+     * each 10 seconds (10.000ms).
      */
     @Override
     protected void getServerLoop() {
@@ -41,7 +44,11 @@ public class ListenerTest extends AbsJODListenerLoop {
 
         while (!mustShoutingDown()) {
             log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' of proto '%s' listened", getName(), getProto()));
-            sendUpdate(new JODStateUpdate() {});
+
+            // For each JODState supported
+            if (getComponent() instanceof AbsJODState)
+                ((AbsJODState) getComponent()).setUpdate(43);
+
             try {
                 //noinspection BusyWait
                 Thread.sleep(1000 * 10);

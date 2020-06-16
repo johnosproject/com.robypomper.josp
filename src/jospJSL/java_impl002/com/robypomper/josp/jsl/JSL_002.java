@@ -53,6 +53,7 @@ public class JSL_002 extends AbsJSL {
         JSLCommunication comm = new JSLCommunication_002(settings, srvInfo, jcpClient, usr, objs, instanceId);
 
         srvInfo.setCommunication(comm);
+        objs.setCommunication(comm);
 
         return new JSL_002(settings, jcpClient, srvInfo, usr, objs, comm);
     }

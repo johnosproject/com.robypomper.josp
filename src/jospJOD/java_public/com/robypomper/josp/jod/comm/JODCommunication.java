@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.comm;
 
+import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -45,7 +46,7 @@ public interface JODCommunication {
      * Parse and exec given action (in the <code>msg</code> string) to the right
      * object's component.
      */
-    boolean forwardAction(String msg);
+    boolean forwardAction(String msg, PermissionsTypes.Connection connType);
 
 
     // Local service requests

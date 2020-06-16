@@ -86,17 +86,7 @@ public interface JSLObjsMngr {
      */
     boolean removeConnection(JSLLocalClient localConnection);
 
-    /**
-     * Set the JOSP Gw Service2Object connection.
-     * <p>
-     * This connection allow to communicate with multiple objects trought the
-     * JCP Cloud. Moreover the object's messages, this connection send information
-     * on added and removed objects. So this instances can handle cloud objects
-     * connections and disconnections.
-     *
-     * @param cloudConnection the JOSP Gw S2O connection. If null, then it
-     *                        disable the cloud communication.
-     */
-    void setCloudConnection(JSLGwS2OClient cloudConnection);
+    void setCommunication(JSLCommunication communication);
 
+    void addCloudObject(String msg);
 }

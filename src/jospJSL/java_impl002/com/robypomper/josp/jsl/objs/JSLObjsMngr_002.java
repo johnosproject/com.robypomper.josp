@@ -1,8 +1,9 @@
 package com.robypomper.josp.jsl.objs;
 
 import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +25,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     private final JSLSettings_002 locSettings;
     private final JSLServiceInfo srvInfo;
     private final List<JSLRemoteObject> objs = new ArrayList<>();
-    private JSLGwS2OClient cloudConnection = null;
+    private JSLCommunication communication = null;
 
 
     // Constructor
@@ -40,6 +41,8 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
         this.srvInfo = srvInfo;
 
         log.info(Mrk_JSL.JSL_OBJS, "Initialized JSLObjsMngr");
+
+        AbsJSLState.loadAllStateClasses();
     }
 
 
@@ -60,7 +63,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     public List<JSLRemoteObject> getAllConnectedObjects() {
         List<JSLRemoteObject> connObjs = new ArrayList<>();
         for (JSLRemoteObject obj : objs)
-            if (obj.isConnected())
+            if (obj.isLocalConnected())
                 connObjs.add(obj);
 
         return Collections.unmodifiableList(connObjs);
@@ -115,7 +118,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
         boolean toRegObj = remObj == null;
         if (toRegObj) {
             log.info(Mrk_JSL.JSL_OBJS, String.format("Register new object '%s' and add connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
-            remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection);
+            remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
             objs.add(remObj);
 
         } else {
@@ -137,8 +140,19 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * {@inheritDoc}
      */
     @Override
-    public void setCloudConnection(JSLGwS2OClient cloudConnection) {
-        this.cloudConnection = cloudConnection;
+    public void setCommunication(JSLCommunication communication) {
+        this.communication = communication;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addCloudObject(String objId) {
+        assert getById(objId) == null;
+        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new cloud object '%s' to '%s' service", objId, srvInfo.getSrvId()));
+        DefaultJSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
+        objs.add(remObj);
     }
 
 }

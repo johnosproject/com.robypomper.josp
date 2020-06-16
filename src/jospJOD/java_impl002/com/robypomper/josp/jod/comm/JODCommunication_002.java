@@ -5,14 +5,21 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
+import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
+import com.robypomper.josp.jod.structure.AbsJODAction;
+import com.robypomper.josp.jod.structure.DefaultJODComponentPath;
+import com.robypomper.josp.jod.structure.JODAction;
+import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.JODComponentPath;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceRequests;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -119,7 +126,7 @@ public class JODCommunication_002 implements JODCommunication {
     public void dispatchUpdate(JODState component, JODStateUpdate update) {
         log.info(Mrk_JOD.JOD_COMM, String.format("Dispatch update for component '%s'", component.getName()));
 
-        String msg = JOSPProtocol.fromUpdToMsg(objInfo.getObjId(), component.getPath().getString()/*,update*/); // JODStateUpdate not in Commons
+        String msg = JOSPProtocol.generateUpdToMsg(objInfo.getObjId(), component.getPath().getString(), update); // JODStateUpdate not in Commons
 
         // send to cloud
         if (isCloudConnected()) {
@@ -163,24 +170,53 @@ public class JODCommunication_002 implements JODCommunication {
      * {@inheritDoc}
      */
     @Override
-    public boolean forwardAction(String msg) {
-        JOSPProtocol.ActionCmd cmd = JOSPProtocol.fromMsgToCmd(msg);
-        if (cmd == null)
+    public boolean forwardAction(String msg, PermissionsTypes.Connection connType) {
+        if (!JOSPProtocol.isCmdMsg(msg))
             return false;
 
-        log.info(Mrk_JOD.JOD_COMM, String.format("Forward command to component '%s'", cmd.getComponentPath()));
-        log.warn(Mrk_JOD.JOD_COMM, "Forward command to component not implemented");
+        JOSPProtocol.ActionCmd cmd;
+        try {
+            cmd = JOSPProtocol.fromMsgToCmd(msg, AbsJODAction.getActionClasses());
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on parsing command '%s...' because %s", msg.substring(0, msg.indexOf("\n")), e.getMessage()), e);
+            return false;
+        }
 
-        // ToDo: implement forwardAction(String) method
+        log.info(Mrk_JOD.JOD_COMM, String.format("Forward command to component '%s'", cmd.getComponentPath()));
+
         // check service permission
+        if (permissions.canExecuteAction(cmd.getServiceId(), cmd.getUserId(), connType)) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on executing command from '%s' service with '%s' user because not allowed on %s' connection", cmd.getServiceId(), cmd.getUserId(), connType));
+            return false;
+        }
 
         // search destination components
+        JODComponentPath compPath = new DefaultJODComponentPath(cmd.getComponentPath());
+        JODComponent comp = DefaultJODComponentPath.searchComponent(structure.getRoot(), compPath);
 
-        // package params
+        // exec command msg
+        log.trace(Mrk_JOD.JOD_COMM, String.format("Processing command on '%s' component", compPath.getString()));
+        if (comp == null) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing update on '%s' component because component not found", compPath.getString()));
+            return false;
+        }
+        if (!(comp instanceof JODAction)) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing update on '%s' component because component not an action component", compPath.getString()));
+            return false;
+        }
+        JODAction actionComp = (JODAction) comp;
 
         // exec component's action
+        if (actionComp.execAction(cmd)) {
+            log.info(Mrk_JOD.JOD_COMM, String.format("Command status of '%s' component", compPath.toString()));
 
-        return false;
+        } else {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing command on '%s' component", compPath.toString()));
+            return false;
+        }
+
+        log.debug(Mrk_JOD.JOD_COMM, String.format("Command '%s...' processed", msg.substring(0, Math.min(10, msg.length()))));
+        return true;
     }
 
 
@@ -195,38 +231,47 @@ public class JODCommunication_002 implements JODCommunication {
 
         try {
             String response = null;
-            String error = null;
 
             // Object info request
             if (JOSPProtocol_ServiceRequests.isObjectInfoRequest(msg)) {
-                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectInfoRequest");
                 log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectInfoRequest request for service '%s'", client.getClientId()));
-                checkServiceRequest_ReadPermission(client);
-                response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
-                log.debug(Mrk_JOD.JOD_COMM, "Service request ObjectInfoRequest processed");
+                response = processObjectInfoRequest(client, msg);
             }
 
             // Object structure request
             if (JOSPProtocol_ServiceRequests.isObjectStructureRequest(msg)) {
-                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectStructureRequest");
                 log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectStructureRequest request for service '%s'", client.getClientId()));
-                checkServiceRequest_ReadPermission(client);
-                try {
-                    String structStr = structure.getStringForJSL();
-                    response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
-                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' request ObjectStructureRequest processed", client.getClientId()));
-
-                } catch (JODStructure.ParsingException e) {
-                    log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request ObjectStructureRequest because %s", client.getClientId(), e.getMessage()), e);
-                    error = String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
-                }
+                response = processObjectStructureRequest(client, msg);
             }
 
-            return response != null ? response : error;
+            return response;
 
         } catch (MissingPermissionException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request because client missing permissions", client.getClientId()), e);
             return e.getMessage();
+        }
+    }
+
+    private String processObjectInfoRequest(JODLocalClientInfo client, String msg) throws MissingPermissionException {
+        log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectInfoRequest");
+        checkServiceRequest_ReadPermission(client);
+        String response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
+        log.debug(Mrk_JOD.JOD_COMM, "Service request ObjectInfoRequest processed");
+        return response;
+    }
+
+    private String processObjectStructureRequest(JODLocalClientInfo client, String msg) throws MissingPermissionException {
+        log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectStructureRequest");
+        checkServiceRequest_ReadPermission(client);
+        try {
+            String structStr = structure.getStringForJSL();
+            String response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
+            log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' request ObjectStructureRequest processed", client.getClientId()));
+            return response;
+
+        } catch (JODStructure.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request ObjectStructureRequest because %s", client.getClientId(), e.getMessage()), e);
+            return String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -269,46 +314,32 @@ public class JODCommunication_002 implements JODCommunication {
      */
     @Override
     public String processCloudRequest(String msg) {
-        log.warn(Mrk_JOD.JOD_COMM, "Process cloud request not implemented");
-        return "Not implemented";
+        log.trace(Mrk_JOD.JOD_COMM, "Process cloud request");
 
-//        log.trace(Mrk_JOD.JOD_COMM, String.format("Process service request from '%s' service", client.getClientId()));
-//
-//        try {
-//            String response = null;
-//            String error = null;
-//
-//            // Object info request
-//            if (JOSPProtocol_ServiceRequests.isObjectInfoRequest(msg)) {
-//                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectInfoRequest");
-//                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectInfoRequest request for service '%s'", client.getClientId()));
-//                checkServiceRequest_ReadPermission(client);
-//                response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
-//                log.debug(Mrk_JOD.JOD_COMM, "Service request ObjectInfoRequest processed");
-//            }
-//
-//            // Object structure request
-//            if (JOSPProtocol_ServiceRequests.isObjectStructureRequest(msg)) {
-//                log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectStructureRequest");
-//                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectStructureRequest request for service '%s'", client.getClientId()));
-//                checkServiceRequest_ReadPermission(client);
-//                try {
-//                    String structStr = structure.getStringForJSL();
-//                    response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
-//                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' request ObjectStructureRequest processed", client.getClientId()));
-//
-//                } catch (JODStructure.ParsingException e) {
-//                    log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request ObjectStructureRequest because %s", client.getClientId(), e.getMessage()), e);
-//                    error = String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
-//                }
-//            }
-//
-//            return response != null ? response : error;
-//
-//        } catch (MissingPermissionException e) {
-//            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request because client missing permissions", client.getClientId()), e);
-//            return e.getMessage();
-//        }
+        String response = null;
+
+        // Object structure request
+        if (JOSPProtocol_CloudRequests.isObjectStructureRequest(msg)) {
+            log.info(Mrk_JOD.JOD_COMM, "Elaborate ObjectStructureRequest request from cloud");
+            response = processObjectStructureRequest(msg);
+        }
+
+        return response;
+    }
+
+    private String processObjectStructureRequest(String msg) {
+        log.debug(Mrk_JOD.JOD_COMM, "Processing cloud request ObjectStructureRequest");
+
+        try {
+            String structStr = structure.getStringForJSL();
+            String response = JOSPProtocol_CloudRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr, true);
+            log.debug(Mrk_JOD.JOD_COMM, "Cloud request ObjectStructureRequest processed");
+            return response;
+
+        } catch (JODStructure.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing cloud request ObjectStructureRequest because %s", e.getMessage()), e);
+            return String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
+        }
     }
 
 

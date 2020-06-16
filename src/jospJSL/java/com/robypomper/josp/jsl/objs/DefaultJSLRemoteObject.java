@@ -4,15 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.communication.client.Client;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
-import com.robypomper.josp.jsl.objs.structure.JSLComponent;
-import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
-import com.robypomper.josp.jsl.objs.structure.JSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceRequests;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -33,12 +31,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     private static final Logger log = LogManager.getLogger();
     private final JSLServiceInfo srvInfo;
     private final String objId;
+    private final JSLCommunication communication;
     private final List<JSLLocalClient> localConnections = new ArrayList<>();
     private JSLRoot root = null;
     private Date lastStructureUpdate = null;
     private String name = null;
     private String ownerId = null;
     private String jodVersion = null;
+    private boolean isCloudConnected = false;
 
 
     // Constructor
@@ -48,13 +48,32 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * represented object's id and the first client connected to represented JOD
      * object.
      *
-     * @param srvInfo     current service info.
-     * @param objId       represented object's id.
-     * @param localClient the client connected with JOD object.
+     * @param srvInfo       current service info.
+     * @param objId         represented object's id.
+     * @param communication instance of the {@link JSLCommunication}.
      */
-    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLLocalClient localClient) {
+    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLCommunication communication) {
         this.srvInfo = srvInfo;
         this.objId = objId;
+        this.communication = communication;
+
+        log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: cloud) on '%s' service", objId, srvInfo.getSrvId()));
+    }
+
+    /**
+     * Default constructor that set reference to current {@link JSLServiceInfo},
+     * represented object's id and the first client connected to represented JOD
+     * object.
+     *
+     * @param srvInfo       current service info.
+     * @param objId         represented object's id.
+     * @param localClient   the client connected with JOD object.
+     * @param communication instance of the {@link JSLCommunication}.
+     */
+    public DefaultJSLRemoteObject(JSLServiceInfo srvInfo, String objId, JSLLocalClient localClient, JSLCommunication communication) {
+        this.srvInfo = srvInfo;
+        this.objId = objId;
+        this.communication = communication;
         addLocalClient(localClient);
 
         log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: %s:%d) on '%s' service (from: '%s:%d')", objId, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
@@ -104,6 +123,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JSLCommunication getCommunication() {
+        return communication;
+    }
+
+    /**
      * Set the represent object's name and trigger corresponding event.
      *
      * @param name the object's name.
@@ -141,7 +168,23 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public boolean isConnected() {
-        return getConnectedClient() != null;
+        return isCloudConnected() || isLocalConnected();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isCloudConnected() {
+        return communication.isCloudConnected() && isCloudConnected;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isLocalConnected() {
+        return getConnectedLocalClient() != null;
     }
 
     /**
@@ -149,14 +192,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public void addLocalClient(JSLLocalClient localClient) {
-        boolean wasObjectConnected = isConnected();
-        if (!isConnected() && !localClient.isConnected()) {
+        boolean wasObjectConnected = isLocalConnected();
+        if (!isLocalConnected() && !localClient.isConnected()) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getObjId()));
             try {
                 localClient.connect();
             } catch (Client.ConnectionException ignore) {}
         }
-        if (isConnected() && localClient.isConnected()) {
+        if (isLocalConnected() && localClient.isConnected()) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' already connected", localClient.getObjId()));
             // Force switch thread, to allow starting client's thread
             try {
@@ -187,12 +230,11 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         if (toUpdate == null) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding new connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
-            localConnections.add(localClient);
         } else {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Updating existing connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
             localConnections.remove(toUpdate);
-            localConnections.add(localClient);
         }
+        localConnections.add(localClient);
         localClient.setRemoteObject(this);
 
         if (!wasObjectConnected) {
@@ -231,7 +273,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * {@inheritDoc}
      */
     @Override
-    public JSLLocalClient getConnectedClient() {
+    public JSLLocalClient getConnectedLocalClient() {
         for (JSLLocalClient client : localConnections) {
             if (client.isConnected())
                 return client;
@@ -248,7 +290,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * @param msg the message to send to the represented object.
      */
     private void send(String msg) throws ObjectNotConnected {
-        JSLLocalClient cli = getConnectedClient();
+        JSLLocalClient cli = getConnectedLocalClient();
         if (cli == null)
             throw new ObjectNotConnected(this);
 
@@ -278,46 +320,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
     /**
      * {@inheritDoc}
-     */
-    @Override
-    public boolean processUpdate(String msg) {
-        // parse received data (here or in prev methods)
-        JOSPProtocol.StatusUpd upd = JOSPProtocol.fromMsgToUpd(msg);
-        if (upd == null)
-            return false;
-
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing update '%s...' for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
-
-        // search destination object/components
-        JSLComponentPath compPath = new DefaultJSLComponentPath(upd.getComponentPath());
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(root, compPath);
-
-        log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing update on '%s' component for '%s' object", compPath, objId));
-        if (comp == null) {
-            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object because component not found", compPath, objId));
-            return false;
-        }
-        if (!(comp instanceof JSLState)) {
-            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object because component not a status component", compPath, objId));
-            return false;
-        }
-        JSLState stateComp = (JSLState) comp;
-
-        // set object/component's update
-        if (stateComp.updateStatus(upd)) {
-            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Updated status of '%s' component for '%s' object", compPath, objId));
-
-        } else {
-            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing update on '%s' component for '%s' object", compPath, objId));
-            return false;
-        }
-
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Update '%s...' processed for '%s' object", msg.substring(0, Math.min(10, msg.length())), objId));
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
      * <p>
      * // ToDo: remove 'return false;' on processing errors and substitute with 'thrown new ProcessingException()'
      */
@@ -325,67 +327,97 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     public boolean processServiceRequestResponse(String msg) {
         // Object info request's response
         if (JOSPProtocol_ServiceRequests.isObjectInfoRequestResponse(msg)) {
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectInfo message for '%s' object", objId));
             log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectInfo response for '%s' object", objId));
-
-            try {
-                setName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
-                setOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
-                setJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
-
-            } catch (JOSPProtocol.ParsingException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
-                return false;
-            }
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectInfo message processed for '%s' object", objId));
-            return true;
+            return processObjectInfoResponse(msg);
         }
 
         // Object structure request's response
         if (JOSPProtocol_ServiceRequests.isObjectStructureRequestResponse(msg)) {
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectStructure message for '%s' object", objId));
             log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectStructure response for '%s' object", objId));
-
-            try {
-                Date lastUpdated = JOSPProtocol_ServiceRequests.extractObjectStructureLastUpdateFromResponse(msg);
-                if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0) {
-                    log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message '%s...' for object '%s' object older than local object structure", msg.substring(0, Math.min(10, msg.length())), objId));
-                    return true;
-                }
-
-                String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureStructureFromResponse(msg);
-                loadStructure(structStr);
-
-            } catch (JOSPProtocol.ParsingException | ParsingException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, Math.min(10, msg.length())), objId, e.getMessage()), e);
-                return false;
-            }
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message processed for '%s' object", objId));
-            return true;
+            return processObjectStructureResponse(msg);
         }
 
         return false;
     }
 
-    /**
-     * Parse given string as JSL's object structure.
-     *
-     * @param structStr the string containing the object's structure.
-     */
-    private void loadStructure(String structStr) throws ParsingException {
+    private boolean processObjectInfoResponse(String msg) {
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectInfo message for '%s' object", objId));
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            setName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
+            setOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
+            setJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
 
-            InjectableValues.Std injectVars = new InjectableValues.Std();
-            injectVars.addValue(JSLRemoteObject.class, this);
-            mapper.setInjectableValues(injectVars);
-            root = mapper.readValue(structStr, JSLRoot_Jackson.class);
-
-            lastStructureUpdate = new Date();
-
-        } catch (JsonProcessingException e) {
-            throw new ParsingException(this, String.format("Can't init JOD Structure, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
+            return false;
         }
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectInfo message processed for '%s' object", objId));
+        return true;
     }
 
+    private boolean processObjectStructureResponse(String msg) {
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectStructure message for '%s' object", objId));
+
+        try {
+            isCloudConnected = JOSPProtocol_CloudRequests.extractObjectStructureConnectedFromResponse(msg);
+        } catch (Throwable ignore) { /*if parsing error, then the response is not from cloud*/}
+
+        try {
+            Date lastUpdated = JOSPProtocol_ServiceRequests.extractObjectStructureLastUpdateFromResponse(msg);
+            if (lastStructureUpdate != null && lastStructureUpdate.compareTo(lastUpdated) >= 0) {
+                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message '%s...' for object '%s' object older than local object structure", msg.substring(0, Math.min(10, msg.length())), objId));
+                return true;
+            }
+
+            String structStr = JOSPProtocol_ServiceRequests.extractObjectStructureStructureFromResponse(msg);
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+
+                InjectableValues.Std injectVars = new InjectableValues.Std();
+                injectVars.addValue(JSLRemoteObject.class, this);
+                mapper.setInjectableValues(injectVars);
+                root = mapper.readValue(structStr, JSLRoot_Jackson.class);
+
+                lastStructureUpdate = lastUpdated;
+
+            } catch (JsonProcessingException e) {
+                throw new ParsingException(this, String.format("Can't init JOD Structure, error on parsing JSON: '%s'.", e.getMessage().substring(0, e.getMessage().indexOf('\n'))), e, e.getLocation().getLineNr(), e.getLocation().getColumnNr());
+            }
+
+        } catch (JOSPProtocol.ParsingException | ParsingException e) {
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, Math.min(10, msg.length())), objId, e.getMessage()), e);
+            return false;
+        }
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("ObjectStructure message processed for '%s' object", objId));
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean processCloudData(String msg) {
+
+        // Object info request's response
+        if (JOSPProtocol_CloudRequests.isObjectInfoRequestResponse(msg)) {
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectInfo response for '%s' object", objId));
+            return processObjectInfoResponse(msg);
+        }
+
+        // Object structure request's response
+        if (JOSPProtocol_CloudRequests.isObjectStructureRequestResponse(msg)) {
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectStructure response for '%s' object", objId));
+            return processObjectStructureResponse(msg);
+        }
+
+        // Object disconnection request's response
+        if (JOSPProtocol_CloudRequests.isObjectDisconnectRequestResponse(msg)) {
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Process ObjectDisconnection response for '%s' object", objId));
+            isCloudConnected = false;
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -9,10 +9,17 @@ import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
+import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
+import com.robypomper.josp.jsl.objs.structure.JSLComponent;
+import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
+import com.robypomper.josp.jsl.objs.structure.JSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -97,29 +104,127 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     }
 
 
+    // Status upd flow (comm - objMng)
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean forwardUpdate(String msg) {
+        if (!JOSPProtocol.isUpdMsg(msg))
+            return false;
+
+        // parse received data
+        JOSPProtocol.StatusUpd upd;
+        try {
+            upd = JOSPProtocol.fromMsgToUpd(msg, AbsJSLState.getStateClasses());
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on parsing update '%s...' because %s", msg.substring(0, msg.indexOf("\n")), e.getMessage()), e);
+            return false;
+        }
+
+        JSLRemoteObject obj = objs.getById(upd.getObjectId());
+        log.debug(Mrk_JSL.JSL_COMM, String.format("Processing update '%s...' for '%s' object", msg.substring(0, Math.min(10, msg.length())), obj.getId()));
+
+        // search destination object/components
+        JSLComponentPath compPath = new DefaultJSLComponentPath(upd.getComponentPath());
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), compPath);
+
+        // forward update msg
+        log.trace(Mrk_JSL.JSL_COMM, String.format("Processing update on '%s' component for '%s' object", compPath.getString(), obj.getId()));
+        if (comp == null) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing update on '%s' component for '%s' object because component not found", compPath.getString(), obj.getId()));
+            return false;
+        }
+        if (!(comp instanceof JSLState)) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing update on '%s' component for '%s' object because component not a status component", compPath.getString(), obj.getId()));
+            return false;
+        }
+        JSLState stateComp = (JSLState) comp;
+
+        // set object/component's update
+        if (stateComp.updateStatus(upd)) {
+            log.info(Mrk_JSL.JSL_COMM, String.format("Updated status of '%s' component for '%s' object", compPath.toString(), obj.getId()));
+
+        } else {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing update on '%s' component for '%s' object", compPath.toString(), obj.getId()));
+            return false;
+        }
+
+        log.debug(Mrk_JSL.JSL_COMM, String.format("Update '%s...' processed for '%s' object", msg.substring(0, Math.min(10, msg.length())), obj.getId()));
+        return true;
+    }
+
+
     // Action cmd flow (objMng - comm)
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void forwardAction(JSLRemoteObject object, JSLAction component/*, JSLActionCommand command*/) {
+    public void forwardAction(JSLRemoteObject object, JSLAction component, JSLActionParams command) {
         log.info(Mrk_JSL.JSL_COMM, String.format("Forward action for component '%s' of '%s' object", component.getName(), object.getId()));
 
-        String msg = JOSPProtocol.fromCmdToMsg(srvInfo.getFullId(), ""/*component.getPath().getString()/*, JSLActionCommand command*/);
+        String msg = JOSPProtocol.generateCmdToMsg(srvInfo.getSrvId(), srvInfo.getUserId(), srvInfo.getInstanceId(), object.getId(), component.getPath().getString(), command);
 
-        // Send via cloud communication
+        // Send to cloud
         // ToDo: implements forward action to cloud communication
+        if (object.isCloudConnected()) {
+            try {
+                log.trace(Mrk_JOD.JOD_COMM, String.format("Send command for component '%s' to cloud", component.getName()));
+                gwClient.sendData(msg);
+                log.trace(Mrk_JOD.JOD_COMM, String.format("Command for component '%s' send to cloud", component.getName()));
+
+            } catch (Client.ServerNotConnectedException e) {
+                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending command for component '%s' to cloud because %s", component.getName(), e.getMessage()), e);
+            }
+        }
 
         // Send via local communication
-        JSLLocalClient objectServer = object.getConnectedClient();
-        if (objectServer.isConnected())
+        if (object.isLocalConnected()) {
+            JSLLocalClient objectServer = object.getConnectedLocalClient();
             try {
+                log.trace(Mrk_JOD.JOD_COMM, String.format("Send command for component '%s' to local client", component.getName()));
                 objectServer.sendData(msg);
+                log.trace(Mrk_JOD.JOD_COMM, String.format("Command for component '%s' send to local client", component.getName()));
 
             } catch (Client.ServerNotConnectedException e) {
                 log.warn(Mrk_JSL.JSL_COMM, String.format("Error on sending action for component '%s' of '%s' object to local client '%s' because %s", component.getName(), object.getId(), objectServer.getClientId(), e.getMessage()), e);
             }
+        }
+    }
+
+
+    // Cloud requests
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String processCloudData(String msg) {
+        log.trace(Mrk_JOD.JOD_COMM, "Process cloud data");
+
+        String response = null;
+
+        // Message 2 Remote Obj
+        if (JOSPProtocol_CloudRequests.isMsgToObject(msg)) {
+            String objId;
+            try {
+                objId = JOSPProtocol_CloudRequests.extractObjectIdFromResponse(msg);
+
+            } catch (JOSPProtocol.ParsingException e) {
+                log.warn(Mrk_JSL.JSL_COMM, String.format("Error on process cloud data because can't extract object's id (%s)", e.getMessage()), e);
+                return null;        // No response (error)
+            }
+
+            if (objs.getById(objId) == null)
+                objs.addCloudObject(objId);
+            objs.getById(objId).processCloudData(msg);
+
+            return null;        // No response
+        }
+
+        return response;
     }
 
 
