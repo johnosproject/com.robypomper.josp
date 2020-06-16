@@ -332,7 +332,7 @@ public class JODCommunication_002 implements JODCommunication {
 
         try {
             String structStr = structure.getStringForJSL();
-            String response = JOSPProtocol_CloudRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
+            String response = JOSPProtocol_CloudRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr, true);
             log.debug(Mrk_JOD.JOD_COMM, "Cloud request ObjectStructureRequest processed");
             return response;
 
