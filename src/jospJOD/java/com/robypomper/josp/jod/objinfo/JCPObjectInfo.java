@@ -33,11 +33,15 @@ public class JCPObjectInfo extends AbsJCPAPIs {
      *
      * @param objIdHw the object's Hardware ID.
      * @param ownerId the owner's User ID.
+     * @param objId
      * @return the object's Cloud ID.
      */
-    public String generateObjIdCloud(String objIdHw, String ownerId) throws JCPClient.RequestException, JCPClient.ConnectionException {
+    public String generateObjIdCloud(String objIdHw, String ownerId, String objId) throws JCPClient.RequestException, JCPClient.ConnectionException {
         GenerateObjId params = new GenerateObjId(objIdHw, ownerId);
-        return jcpClient.execPostReq(APIObjs.URL_PATH_GENERATEID, String.class, params, true);
+        if (objId == null)
+            return jcpClient.execPostReq(APIObjs.URL_PATH_GENERATEID, String.class, params, true);
+        else
+            return jcpClient.execPostReq(APIObjs.URL_PATH_REGENERATEID, String.class, params, true);
     }
 
     public boolean registerOrUpdate(JODObjectInfo objectInfo) throws JCPClient.ConnectionException, JCPClient.RequestException {

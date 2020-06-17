@@ -318,8 +318,9 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on stopping local communication on regenerating object id because %s", e.getMessage()), e);
         }
 
+        String oldObjId = getObjId();
         locSettings.setObjIdCloud("");
-        generateObjId();
+        regenerateObjId(oldObjId);
         syncObjInfo();
 
         try {
@@ -337,10 +338,14 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
     private void generateObjId() {
+        regenerateObjId(null);
+    }
+
+    private void regenerateObjId(String oldObjId) {
         try {
-            log.debug(Mrk_JOD.JOD_INFO, "Generating on cloud object ID");
-            String generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId());
-            log.debug(Mrk_JOD.JOD_INFO, "Object ID generated on cloud");
+            log.debug(Mrk_JOD.JOD_INFO, String.format("%senerating on cloud object ID", oldObjId == null ? "G" : "Re-g"));
+            String generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId(), oldObjId);
+            log.debug(Mrk_JOD.JOD_INFO, String.format("Object ID %senerated on cloud", oldObjId == null ? "g" : "re-g"));
 
             saveObjId(generated);
             if (isGenerating()) {
