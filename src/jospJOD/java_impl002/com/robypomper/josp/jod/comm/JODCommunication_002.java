@@ -388,7 +388,7 @@ public class JODCommunication_002 implements JODCommunication {
      */
     @Override
     public void startLocal() throws LocalCommunicationException {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Start and publish local object's server '%s' on port '%d'", objInfo.getObjId(), localServer.getPort()));
+        log.info(Mrk_JOD.JOD_COMM, String.format("Start and publish local object's server '%s'", objInfo.getObjId()));
 
         if (isLocalRunning())
             return;

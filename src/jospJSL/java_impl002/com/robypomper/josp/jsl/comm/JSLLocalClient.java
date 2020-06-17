@@ -49,17 +49,15 @@ public class JSLLocalClient implements Client {
      * @param srvFullId     the represented service's full id (srv, usr and instance ids).
      * @param address       the JOD local server address to connect with.
      * @param port          the JOD local server port to connect with.
-     * @param ksFile        the file path of current client {@link java.security.KeyStore}.
-     * @param ksPass        the password of the KeyStore at <code>ksFile</code>.
      * @param pubCertFile   the file path of current client's public certificate.
      */
     public JSLLocalClient(JSLCommunication communication, String srvFullId,
-                          InetAddress address, int port, String ksFile, String ksPass, String pubCertFile) {
+                          InetAddress address, int port, String pubCertFile) {
         this.communication = communication;
 
         try {
             client = new CertSharingSSLClient(srvFullId, address, port,
-                    ksFile, ksPass, CERT_ALIAS, pubCertFile,
+                    CERT_ALIAS, pubCertFile,
                     null,
                     new JSLLocalClientServerListener(),
                     new JSLLocalClientMessagingListener()

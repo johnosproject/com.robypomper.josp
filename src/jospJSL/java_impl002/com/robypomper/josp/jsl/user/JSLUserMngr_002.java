@@ -3,6 +3,7 @@ package com.robypomper.josp.jsl.user;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jsl.JSLSettings_002;
+import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +29,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
     private final JCPUserSrv jcpUser;
     private String usrId;
     private String usrName;
+    private JSLCommunication comm = null;
 
 
     // Constructor
@@ -83,6 +85,15 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setCommunication(JSLCommunication communication) {
+        this.comm = communication;
+    }
+
+
     // LoginManager impl
 
     /**
@@ -118,6 +129,24 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         locSettings.setRefreshToken(jcpClient.getRefreshToken());
 
         log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", usrName, usrId));
+
+        if (comm.isCloudConnected()) {
+            comm.disconnectCloud();
+            try {
+                comm.connectCloud();
+            } catch (JSLCommunication.CloudCommunicationException e) {
+                log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
+            }
+        }
+        if (comm.isLocalRunning()) {
+            try {
+                comm.stopLocal();
+                comm.startLocal();
+            } catch (JSLCommunication.LocalCommunicationException e) {
+                log.warn(Mrk_JSL.JSL_USR, String.format("Error on restart local communication on updating user id because %s", e.getMessage()), e);
+            }
+        }
+
     }
 
     /**
@@ -146,6 +175,25 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         locSettings.setRefreshToken(jcpClient.getRefreshToken());
 
         log.info(Mrk_JSL.JSL_USR, String.format("Logged out user '%s' with id '%s'", loggedUsername, loggedUsrId));
+
+        if (comm != null) {
+            if (comm.isCloudConnected()) {
+                comm.disconnectCloud();
+                try {
+                    comm.connectCloud();
+                } catch (JSLCommunication.CloudCommunicationException e) {
+                    log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
+                }
+            }
+            if (comm.isLocalRunning()) {
+                try {
+                    comm.stopLocal();
+                    comm.startLocal();
+                } catch (JSLCommunication.LocalCommunicationException e) {
+                    log.warn(Mrk_JSL.JSL_USR, String.format("Error on restart local communication on updating user id because %s", e.getMessage()), e);
+                }
+            }
+        }
     }
 
     /**

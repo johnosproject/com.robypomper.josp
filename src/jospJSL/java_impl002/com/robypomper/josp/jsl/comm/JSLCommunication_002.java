@@ -51,7 +51,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     private final String instanceId;
     private final Discover localServerDiscovery;
     private final List<JSLLocalClient> localServers = new ArrayList<>();
-    private final JSLGwS2OClient gwClient;
+    private JSLGwS2OClient gwClient;
 
 
     // Constructor
@@ -262,7 +262,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      */
     @Override
     public boolean isLocalRunning() {
-        return localServerDiscovery != null && localServerDiscovery.isRunning();
+        return localServerDiscovery.isRunning();
     }
 
     /**
@@ -275,7 +275,9 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         if (isLocalRunning())
             return;
 
+//        String discoveryImpl = locSettings.getJSLDiscovery();
         try {
+//            localServerDiscovery = DiscoverySystemFactory.createDiscover(discoveryImpl, JOSPProtocol.DISCOVERY_TYPE);
             localServerDiscovery.addListener(this);
             log.debug(Mrk_JSL.JSL_COMM, "Starting local service's discovery");
             localServerDiscovery.start();
@@ -336,6 +338,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
 
         try {
             log.debug(Mrk_JSL.JSL_COMM, "Connecting cloud service's client");
+            gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, jcpComm);
             gwClient.connect();
             if (gwClient.isConnected())
                 log.debug(Mrk_JSL.JSL_COMM, "Cloud service's client connected");
@@ -377,16 +380,12 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             return;
         }
 
-        String ksFile = locSettings.getLocalClientKeyStore();
-        String ksPass = locSettings.getLocalClientKeyStorePass();
-
         JSLLocalClient locConn;
         try {
             log.debug(Mrk_JSL.JSL_COMM, String.format("Connecting to '%s' object on server '%s:%d' from '%s' service", name, address, port, srvInfo.getSrvId()));
             String clientPubCertFile = File.createTempFile(String.format("jslCert-%s-%d", address, port), ".crt").getAbsolutePath();
-            log.trace(Mrk_JSL.JSL_COMM, String.format("Local service's client use local key store file '%s'", ksFile));
             log.trace(Mrk_JSL.JSL_COMM, String.format("Local service's client use public certificate file '%s'", clientPubCertFile));
-            locConn = new JSLLocalClient(this, srvInfo.getFullId(), address, port, ksFile, ksPass, clientPubCertFile);
+            locConn = new JSLLocalClient(this, srvInfo.getFullId(), address, port, clientPubCertFile);
             locConn.connect();
             log.debug(Mrk_JSL.JSL_COMM, String.format("Service connected to '%s' object on server '%s:%d' from '%s' service", name, address, port, srvInfo.getSrvId()));
 
