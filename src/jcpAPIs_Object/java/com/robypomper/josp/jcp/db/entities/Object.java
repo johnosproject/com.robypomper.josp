@@ -32,6 +32,8 @@ public class Object {
     @Column(nullable = false)
     private String name;
 
+    private Boolean active;
+
     @Column(nullable = false)
     private String version;
 

@@ -38,6 +38,8 @@ public class ObjectId {
     @Column(nullable = false)
     private String usrId;
 
+    private String oldObjId;
+
 
     // Extra profile
 
