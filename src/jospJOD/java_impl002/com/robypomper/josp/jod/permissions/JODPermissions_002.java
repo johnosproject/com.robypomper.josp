@@ -280,7 +280,6 @@ public class JODPermissions_002 implements JODPermissions {
 
         locSettings.setOwnerId(ownerId);
         objInfo.regenerateObjId();
-        objInfo.syncObjInfo();
     }
 
     /**

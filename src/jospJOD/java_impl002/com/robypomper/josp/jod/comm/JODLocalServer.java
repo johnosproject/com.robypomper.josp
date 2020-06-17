@@ -53,18 +53,16 @@ public class JODLocalServer implements Server {
      * @param objId         the represented object's id.
      * @param port          the port used by the server to listen for new
      *                      connections.
-     * @param ksFile        the file path of current server {@link java.security.KeyStore}.
-     * @param ksPass        the password of the KeyStore at <code>ksFile</code>.
      * @param pubCertFile   the file path of current server's public certificate.
      */
     public JODLocalServer(JODCommunication communication, String objId,
-                          int port, String ksFile, String ksPass, String pubCertFile) {
+                          int port, String pubCertFile) {
         this.objId = objId;
         this.communication = communication;
 
         try {
             server = new CertSharingSSLServer(objId, port,
-                    ksFile, ksPass, CERT_ALIAS, pubCertFile, true,
+                    CERT_ALIAS, pubCertFile, true,
                     null,
                     new JODLocalServerClientListener(),
                     new JODLocalServerMessagingListener()

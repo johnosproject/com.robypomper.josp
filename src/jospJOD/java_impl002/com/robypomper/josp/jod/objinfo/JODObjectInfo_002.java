@@ -307,8 +307,33 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void regenerateObjId() {
+        boolean wasCloudConnected = comm.isCloudConnected();
+        if (wasCloudConnected)
+            comm.disconnectCloud();
+        boolean wasLocalRunning = comm.isLocalRunning();
+        try {
+            if (wasLocalRunning)
+                comm.stopLocal();
+        } catch (JODCommunication.LocalCommunicationException e) {
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on stopping local communication on regenerating object id because %s", e.getMessage()), e);
+        }
+
         locSettings.setObjIdCloud("");
         generateObjId();
+        syncObjInfo();
+
+        try {
+            if (wasCloudConnected)
+                comm.connectCloud();
+        } catch (JODCommunication.CloudCommunicationException e) {
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on starting cloud communication on regenerating object id because %s", e.getMessage()), e);
+        }
+        try {
+            if (wasLocalRunning)
+                comm.startLocal();
+        } catch (JODCommunication.LocalCommunicationException e) {
+            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on starting local communication on regenerating object id because %s", e.getMessage()), e);
+        }
     }
 
     private void generateObjId() {
@@ -334,7 +359,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
 
         if (!isObjIdSet()) {
-            log.debug(Mrk_JOD.JOD_INFO, "Generating locally a temporay object ID");
+            log.debug(Mrk_JOD.JOD_INFO, "Generating locally a temporary object ID");
             String generated = String.format("%s-00000-00000", getObjIdHw());
             log.debug(Mrk_JOD.JOD_INFO, "Temporary Object ID generated locally");
 
@@ -393,7 +418,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private final JCPClient.ConnectListener generatingListener = new JCPClient.ConnectListener() {
         @Override
         public void onConnected(JCPClient jcpClient) {
-            generateObjId();
+            regenerateObjId();
         }
     };
 
