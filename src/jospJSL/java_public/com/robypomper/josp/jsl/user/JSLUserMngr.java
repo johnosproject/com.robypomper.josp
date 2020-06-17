@@ -1,6 +1,8 @@
 package com.robypomper.josp.jsl.user;
 
 
+import com.robypomper.josp.jsl.comm.JSLCommunication;
+
 /**
  * Interface for JSL User management system.
  * <p>
@@ -41,6 +43,9 @@ public interface JSLUserMngr {
      * <code>null</code>.
      */
     String getUsername();
+
+
+    void setCommunication(JSLCommunication comm);
 
 
     // User's settings

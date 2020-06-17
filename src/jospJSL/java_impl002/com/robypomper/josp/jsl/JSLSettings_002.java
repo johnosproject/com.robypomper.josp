@@ -42,17 +42,9 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JSLCOMM_LOCAL_ENABLED_DEF    = "true";
     public static final String JSLCOMM_LOCAL_DISCOVERY      = "jsl.comm.local.impl";
     public static final String JSLCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
-    public static final String JSLCOMM_LOCAL_KS_FILE        = "jsl.comm.local.keystore.path";
-    public static final String JSLCOMM_LOCAL_KS_FILE_DEF    = "certs/private/client.p12";
-    public static final String JSLCOMM_LOCAL_KS_PASS        = "jsl.comm.local.keystore.pass";
-    public static final String JSLCOMM_LOCAL_KS_PASS_DEF    = "servicePass";
 
     public static final String JSLCOMM_CLOUD_ENABLED        = "jsl.comm.cloud.enabled";
     public static final String JSLCOMM_CLOUD_ENABLED_DEF    = "true";
-    public static final String JSLCOMM_CLOUD_CERT           = "jsl.comm.cloud.cert.path";
-    public static final String JSLCOMM_CLOUD_CERT_DEF       = "certs/public/clientCloud.crt";
-    public static final String JSLCOMM_CLOUD_CERT_REMOTE    = "jsl.comm.cloud.remote.cert.path";
-    public static final String JSLCOMM_CLOUD_CERT_REMOTE_DEF= "certs/public/mainServer@GwObjService.crt";
     //@formatter:on
 
     // Internal vars
@@ -186,28 +178,8 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     }
 
     //@Override
-    public String getLocalClientKeyStore() {
-        return getString(JSLCOMM_LOCAL_KS_FILE, JSLCOMM_LOCAL_KS_FILE_DEF);
-    }
-
-    //@Override
-    public String getLocalClientKeyStorePass() {
-        return getString(JSLCOMM_LOCAL_KS_PASS, JSLCOMM_LOCAL_KS_PASS_DEF);
-    }
-
-    //@Override
     public boolean getCloudEnabled() {
         return getBoolean(JSLCOMM_CLOUD_ENABLED, JSLCOMM_CLOUD_ENABLED_DEF);
-    }
-
-    //@Override
-    public String getCloudClientPublicCertificate() {
-        return getString(JSLCOMM_CLOUD_CERT, JSLCOMM_CLOUD_CERT_DEF);
-    }
-
-    //@Override
-    public String getCloudServerPublicCertificate() {
-        return getString(JSLCOMM_CLOUD_CERT_REMOTE, JSLCOMM_CLOUD_CERT_REMOTE_DEF);
     }
 
 }

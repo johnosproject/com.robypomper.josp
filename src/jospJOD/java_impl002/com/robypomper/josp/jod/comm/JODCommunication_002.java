@@ -25,6 +25,9 @@ import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,9 +47,9 @@ public class JODCommunication_002 implements JODCommunication {
     private final JCPClient_Object jcpClient;
     private final JCPCommObj jcpComm;
     private final String instanceId;
-    private final JODLocalServer localServer;
+    private JODLocalServer localServer = null;
     private final Publisher localServerPublisher;
-    private final JODGwO2SClient gwClient;
+    private JODGwO2SClient gwClient;
 
 
     // Constructor
@@ -70,17 +73,10 @@ public class JODCommunication_002 implements JODCommunication {
         this.jcpComm = new JCPCommObj(jcpClient, settings, instanceId);
         this.instanceId = instanceId;
 
-        // Init local object server
-        log.debug(Mrk_JOD.JOD_COMM, "Initializing communication local object's server");
-        int localPort = locSettings.getLocalServerPort();
-        String localKsFile = locSettings.getLocalServerKeyStore();
-        String localKsPass = locSettings.getLocalServerKeyStorePass();
-        String localPubCertFile = locSettings.getLocalServerPublicCertificate();
-        log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use '%d' port", localPort));
-        log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use local key store file '%s'", localKsFile));
-        log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use public certificate file '%s'", localPubCertFile));
-        localServer = new JODLocalServer(this, objInfo.getObjId(), localPort, localKsFile, localKsPass, localPubCertFile);
-        log.debug(Mrk_JOD.JOD_COMM, "Communication local object's server initialized");
+//        // Init local object server
+//        log.debug(Mrk_JOD.JOD_COMM, "Initializing communication local object's server");
+//        localServer = initLocalServer();
+//        log.debug(Mrk_JOD.JOD_COMM, "Communication local object's server initialized");
 
         // Publish local object server
         String publisherImpl = locSettings.getLocalDiscovery();
@@ -93,6 +89,7 @@ public class JODCommunication_002 implements JODCommunication {
                 DiscoveryJmDNS.startJmDNSSubSystem();
             }
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server publisher use '%s' service name", publisherSrvName));
+            int localPort = locSettings.getLocalServerPort();
             localServerPublisher = DiscoverySystemFactory.createPublisher(publisherImpl, JOSPProtocol.DISCOVERY_TYPE, publisherSrvName, localPort, instanceId);
             log.debug(Mrk_JOD.JOD_COMM, String.format("Publisher '%s' service created for local object's server", publisherImpl));
 
@@ -112,8 +109,22 @@ public class JODCommunication_002 implements JODCommunication {
         }
 
         log.info(Mrk_JOD.JOD_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') object", objInfo.getObjName(), objInfo.getObjId()));
-        log.debug(Mrk_JOD.JOD_COMM, String.format("                                    local server%s started and%s published", localServer.isRunning() ? "" : " NOT", localServerPublisher.isPublished() ? "" : " NOT"));
+        //log.debug(Mrk_JOD.JOD_COMM, String.format("                                    local server%s started and%s published", localServer.isRunning() ? "" : " NOT", localServerPublisher.isPublished() ? "" : " NOT"));
         log.debug(Mrk_JOD.JOD_COMM, String.format("                                    cloud client%s connected", gwClient.isConnected() ? "" : " NOT"));
+    }
+
+    private JODLocalServer initLocalServer() {
+        try {
+            int localPort = locSettings.getLocalServerPort();
+            String localPubCertFile = File.createTempFile(String.format("josp/jodCert-%s-", objInfo.getObjId()), ".crt").getAbsolutePath();
+            log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use '%s' server id", objInfo.getObjId()));
+            log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use '%d' port", localPort));
+            log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use public certificate file '%s'", localPubCertFile));
+            return new JODLocalServer(this, objInfo.getObjId(), localPort, localPubCertFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
@@ -148,7 +159,7 @@ public class JODCommunication_002 implements JODCommunication {
             int countSend = 0;
             for (JODLocalClientInfo locConn : getAllLocalClientsInfo()) {
                 countAll++;
-                if (locConn.isConnected() && permissions.canSendLocalUpdate(locConn.getUsrId(), locConn.getSrvId())) {
+                if (locConn.isConnected() && permissions.canSendLocalUpdate(locConn.getSrvId(), locConn.getUsrId())) {
                     countConnected++;
                     try {
                         localServer.sendData(locConn.getClientId(), msg);
@@ -247,7 +258,7 @@ public class JODCommunication_002 implements JODCommunication {
             return response;
 
         } catch (MissingPermissionException e) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request because client missing permissions", client.getClientId()), e);
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request because client missing permissions", client.getClientId()));
             return e.getMessage();
         }
     }
@@ -358,7 +369,7 @@ public class JODCommunication_002 implements JODCommunication {
      */
     @Override
     public List<JODLocalClientInfo> getAllLocalClientsInfo() {
-        return localServer.getLocalClientsInfo();
+        return localServer == null ? new ArrayList<>() : localServer.getLocalClientsInfo();
     }
 
 
@@ -369,7 +380,7 @@ public class JODCommunication_002 implements JODCommunication {
      */
     @Override
     public boolean isLocalRunning() {
-        return localServer.isRunning();
+        return localServer != null && localServer.isRunning();
     }
 
     /**
@@ -377,13 +388,14 @@ public class JODCommunication_002 implements JODCommunication {
      */
     @Override
     public void startLocal() throws LocalCommunicationException {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Start and publish local object's server '%s' on port '%d'", objInfo.getObjId(), localServer.getPort()));
+        log.info(Mrk_JOD.JOD_COMM, String.format("Start and publish local object's server '%s'", objInfo.getObjId()));
 
         if (isLocalRunning())
             return;
 
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Starting local object's server");
+            localServer = initLocalServer();
             localServer.start();
             log.debug(Mrk_JOD.JOD_COMM, "Local object's server started");
             log.debug(Mrk_JOD.JOD_COMM, "Publishing local object's server");
@@ -443,6 +455,7 @@ public class JODCommunication_002 implements JODCommunication {
             return;
 
         try {
+            gwClient = new JODGwO2SClient(locSettings, this, objInfo, jcpClient, jcpComm);
             log.debug(Mrk_JOD.JOD_COMM, "Connecting cloud object's client");
             gwClient.connect();
             if (gwClient.isConnected())

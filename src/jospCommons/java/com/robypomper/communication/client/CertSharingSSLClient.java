@@ -214,7 +214,8 @@ public class CertSharingSSLClient implements Client {
         }
 
         // Export certPath
-        UtilsJKS.exportCertificate(clientKeyStore, certPubPath, certAlias);
+        if (certPubPath != null)
+            UtilsJKS.exportCertificate(clientKeyStore, certPubPath, certAlias);
 
         // Init ssl instances
         SSLContext sslCtx = UtilsSSL.generateSSLContext(clientKeyStore, keyStorePass, trustManager);

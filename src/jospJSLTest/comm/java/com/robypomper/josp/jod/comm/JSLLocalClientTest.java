@@ -34,8 +34,6 @@ public class JSLLocalClientTest {
 
     protected static final String TEST_FILES_PREFIX = "tmp/tests/";
     protected static final String KS_FILE = String.format("%s.p12", JSLLocalClientTest.class.getSimpleName());
-    protected static final String JSL_KS_FILE = TEST_FILES_PREFIX + KS_FILE;
-    protected static final String KS_PASS = "ksPass";
     protected static final String PUB_CERT_PATH = String.format("%s.crt", JSLLocalClientTest.class.getSimpleName());
     protected static final String JSL_PUB_CERT_PATH = TEST_FILES_PREFIX + PUB_CERT_PATH;
     protected static final InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
@@ -64,7 +62,7 @@ public class JSLLocalClientTest {
 
         // Start server
         jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port,
-                TEST_FILES_PREFIX + "jodSr-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jodSr-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jodSr-" + PUB_CERT_PATH);
         jodServer.start();
 
         log.debug(Mrk_Test.TEST_METHODS, "test");
@@ -94,7 +92,7 @@ public class JSLLocalClientTest {
     public void testLocalConnectAndDisconnect() throws Client.ConnectionException {
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                JSL_KS_FILE, KS_PASS, JSL_PUB_CERT_PATH);
+                JSL_PUB_CERT_PATH);
         client.connect();
         Assertions.assertTrue(client.isConnected());
         Assertions.assertEquals(jodServer.getServerId(), client.getObjId());
@@ -108,7 +106,7 @@ public class JSLLocalClientTest {
     public void testLocalConnectAndServerStop() throws Client.ConnectionException {
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                JSL_KS_FILE, KS_PASS, JSL_PUB_CERT_PATH);
+                JSL_PUB_CERT_PATH);
         client.connect();
         Assertions.assertTrue(client.isConnected());
 

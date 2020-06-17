@@ -57,19 +57,9 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JODCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
     public static final String JODCOMM_LOCAL_PORT           = "jod.comm.local.port";
     public static final String JODCOMM_LOCAL_PORT_DEF       = "1234";
-    public static final String JODCOMM_LOCAL_KS_FILE        = "jod.comm.local.keystore.path";
-    public static final String JODCOMM_LOCAL_KS_FILE_DEF    = "certs/private/server.p12";
-    public static final String JODCOMM_LOCAL_KS_PASS        = "jod.comm.local.keystore.pass";
-    public static final String JODCOMM_LOCAL_KS_PASS_DEF    = "objectPass";
-    public static final String JODCOMM_LOCAL_CERT           = "jod.comm.local.cert.path";
-    public static final String JODCOMM_LOCAL_CERT_DEF       = "certs/public/server.crt";
 
     public static final String JODCOMM_CLOUD_ENABLED        = "jod.comm.cloud.enabled";
     public static final String JODCOMM_CLOUD_ENABLED_DEF    = "true";
-    public static final String JODCOMM_CLOUD_CERT           = "jod.comm.cloud.cert.path";
-    public static final String JODCOMM_CLOUD_CERT_DEF       = "certs/public/clientCloud.crt";
-    public static final String JODCOMM_CLOUD_CERT_REMOTE    = "jod.comm.cloud.remote.cert.path";
-    public static final String JODCOMM_CLOUD_CERT_REMOTE_DEF= "certs/public/mainServer@GwObjService.crt";
     //@formatter:on
 
 
@@ -268,33 +258,8 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     }
 
     //@Override
-    public String getLocalServerKeyStore() {
-        return getString(JODCOMM_LOCAL_KS_FILE, JODCOMM_LOCAL_KS_FILE_DEF);
-    }
-
-    //@Override
-    public String getLocalServerKeyStorePass() {
-        return getString(JODCOMM_LOCAL_KS_PASS, JODCOMM_LOCAL_KS_PASS_DEF);
-    }
-
-    //@Override
-    public String getLocalServerPublicCertificate() {
-        return getString(JODCOMM_LOCAL_CERT, JODCOMM_LOCAL_CERT_DEF);
-    }
-
-    //@Override
     public boolean getCloudEnabled() {
         return getBoolean(JODCOMM_CLOUD_ENABLED, JODCOMM_CLOUD_ENABLED_DEF);
-    }
-
-    //@Override
-    public String getCloudClientPublicCertificate() {
-        return getString(JODCOMM_CLOUD_CERT, JODCOMM_CLOUD_CERT_DEF);
-    }
-
-    //@Override
-    public String getCloudServerPublicCertificate() {
-        return getString(JODCOMM_CLOUD_CERT_REMOTE, JODCOMM_CLOUD_CERT_REMOTE_DEF);
     }
 
 }

@@ -280,7 +280,6 @@ public class JODPermissions_002 implements JODPermissions {
 
         locSettings.setOwnerId(ownerId);
         objInfo.regenerateObjId();
-        objInfo.syncObjInfo();
     }
 
     /**
@@ -423,19 +422,16 @@ public class JODPermissions_002 implements JODPermissions {
      */
     private ObjPermission search(String srvId, String usrId) {
         for (ObjPermission p : permissions) {
-            if (
-                    p.usrId.compareTo(usrId) == 0
-                            || p.usrId.compareTo(PermissionsTypes.WildCards.USR_ALL.toString()) == 0
-                            || (
-                            p.usrId.compareTo(PermissionsTypes.WildCards.USR_OWNER.toString()) == 0
-                                    && p.usrId.compareTo(getOwnerId()) == 0
-                    )
-            ) {
-                if (
-                        p.srvId.compareTo(srvId) == 0
-                                || p.srvId.compareTo(PermissionsTypes.WildCards.SRV_ALL.toString()) == 0
-                )
+            boolean exact_usr = p.usrId.equals(usrId);
+            boolean all_usr = p.usrId.equals(PermissionsTypes.WildCards.USR_ALL.toString());
+            boolean owner = p.usrId.equals(PermissionsTypes.WildCards.USR_OWNER.toString())
+                    && getOwnerId().equals(usrId);
+            if (exact_usr || all_usr || owner) {
+                boolean exact_srv = p.srvId.equals(srvId);
+                boolean all_srv = p.srvId.equals(PermissionsTypes.WildCards.SRV_ALL.toString());
+                if (exact_srv || all_srv) {
                     return p;
+                }
             }
         }
         return null;

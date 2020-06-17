@@ -319,11 +319,7 @@ public class JOSPCommunicationIntegration {
         // Comm's paths
         properties.put(JODSettings_002.JODCOMM_LOCAL_ENABLED, "true");
         properties.put(JODSettings_002.JODCOMM_LOCAL_PORT, Integer.toString(port));
-        properties.put(JODSettings_002.JODCOMM_LOCAL_KS_FILE, String.format(TEST_FILES_PREFIX + "server-%d.p12", port));
-        properties.put(JODSettings_002.JODCOMM_LOCAL_CERT, String.format(TEST_FILES_PREFIX + "server-%d.crt", port));
         properties.put(JODSettings_002.JODCOMM_CLOUD_ENABLED, "false");
-        properties.put(JODSettings_002.JODCOMM_CLOUD_CERT, TEST_FILES_PREFIX + "clientJODCloud.crt");
-        properties.put(JODSettings_002.JODCOMM_CLOUD_CERT_REMOTE, "src/jcpJOSPGWs/certs/cloud/public/mainServer@GwObjService.crt");
         return properties;
     }
 
@@ -332,10 +328,7 @@ public class JOSPCommunicationIntegration {
 
         // Comm's paths
         properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, "true");
-        properties.put(JSLSettings_002.JSLCOMM_LOCAL_KS_FILE, TEST_FILES_PREFIX + "client.p12");
         properties.put(JSLSettings_002.JSLCOMM_CLOUD_ENABLED, "false");
-        properties.put(JSLSettings_002.JSLCOMM_CLOUD_CERT_REMOTE, "src/jcpJOSPGWs/certs/cloud/public/mainServer@GwObjService.crt");
-        properties.put(JSLSettings_002.JSLCOMM_CLOUD_CERT, TEST_FILES_PREFIX + "clientJSLCloud.crt");
         return properties;
     }
 
@@ -668,6 +661,9 @@ public class JOSPCommunicationIntegration {
         public String getUsername() {
             return null;
         }
+
+        @Override
+        public void setCommunication(JSLCommunication comm) {}
     }
 
     public static class MockJODObjectInfo implements JODObjectInfo {
