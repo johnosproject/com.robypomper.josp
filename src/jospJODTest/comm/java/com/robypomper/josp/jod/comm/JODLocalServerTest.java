@@ -32,7 +32,6 @@ public class JODLocalServerTest {
 
     protected static final String TEST_FILES_PREFIX = "tmp/tests/";
     protected static final String KS_FILE = String.format("%s.p12", JODLocalServerTest.class.getSimpleName());
-    protected static final String JOD_KS_FILE = TEST_FILES_PREFIX + KS_FILE;
     protected static final String KS_PASS = "ksPass";
     protected static final String PUB_CERT_PATH = String.format("%s.crt", JODLocalServerTest.class.getSimpleName());
     protected static final String JOD_PUB_CERT_PATH = TEST_FILES_PREFIX + PUB_CERT_PATH;
@@ -78,7 +77,7 @@ public class JODLocalServerTest {
 
     @Test
     public void testLocalStartAndStop() throws Server.ListeningException {
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         Assertions.assertFalse(jodServer.isRunning());
 
         System.out.println("\nJOD LOCAL SERVER START");
@@ -92,14 +91,14 @@ public class JODLocalServerTest {
 
     @Test
     public void testLocalDoubleStart_FAIL() throws Server.ListeningException {
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         Assertions.assertFalse(jodServer.isRunning());
 
         System.out.println("\nJOD LOCAL SERVER START");
         jodServer.start();
         Assertions.assertTrue(jodServer.isRunning());
 
-        JODLocalServer jodServer2 = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer2 = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         Assertions.assertFalse(jodServer2.isRunning());
 
         System.out.println("\nJOD LOCAL SERVER 2nd START");
@@ -117,12 +116,12 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnection() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
 
         switchThread();
@@ -148,15 +147,15 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnectionTwoClients() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
         JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId_2/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
         switchThread();
@@ -192,15 +191,15 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnectionTwoClientsSameIds() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
         JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
         switchThread();
@@ -228,15 +227,15 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnectionTwoClientsSameIdsDiffInstances() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId_A", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
         JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId_B", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
         switchThread();
@@ -264,12 +263,12 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndServerStop() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
 
         switchThread();
@@ -292,15 +291,15 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndServerStopTwoClients() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_KS_FILE, KS_PASS, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
         JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl-" + PUB_CERT_PATH);
         client.connect();
         JSLLocalClient client2 = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId_2/instId", LOCALHOST, port,
-                TEST_FILES_PREFIX + "jslCl2-" + KS_FILE, KS_PASS, TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
+                TEST_FILES_PREFIX + "jslCl2-" + PUB_CERT_PATH);
         client2.connect();
 
         switchThread();
