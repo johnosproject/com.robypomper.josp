@@ -105,7 +105,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
 
         // Check isConnected==false
         Assertions.assertTrue(latchCSE.onServerDisconnection.await(1, TimeUnit.SECONDS));
-        Assertions.assertTrue(latchCSE.onServerClientDisconnected.await(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(latchCSE.onServerClientDisconnected.await(2, TimeUnit.SECONDS));
         Assertions.assertFalse(clientLatch.isConnected());
 
         // Stop server without bye msg
