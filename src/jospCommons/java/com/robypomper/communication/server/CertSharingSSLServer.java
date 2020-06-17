@@ -134,12 +134,13 @@ public class CertSharingSSLServer implements Server {
             UtilsJKS.copyCertsFromKeyStoreToTrustManager(serverKeyStore, trustManager);
         } else {
             serverKeyStore = UtilsJKS.generateKeyStore(serverId, keyStorePass, certAlias);
-            updateAndStoreKeyStore();
+            UtilsJKS.copyCertsFromKeyStoreToTrustManager(serverKeyStore, trustManager);
+            if (keyStoreFile != null)
+                updateAndStoreKeyStore();
         }
 
         // Export certPath
-        if (certPubPath != null && !new File(certPubPath).exists())
-            UtilsJKS.exportCertificate(serverKeyStore, certPubPath, certAlias);
+        UtilsJKS.exportCertificate(serverKeyStore, certPubPath, certAlias);
 
         // Init ssl instances
         SSLContext sslCtx = UtilsSSL.generateSSLContext(serverKeyStore, keyStorePass, trustManager);

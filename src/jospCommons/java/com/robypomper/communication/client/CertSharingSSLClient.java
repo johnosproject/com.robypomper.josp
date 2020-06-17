@@ -208,12 +208,13 @@ public class CertSharingSSLClient implements Client {
             UtilsJKS.copyCertsFromKeyStoreToTrustManager(clientKeyStore, trustManager);
         } else {
             clientKeyStore = UtilsJKS.generateKeyStore(clientId, keyStorePass, certAlias);
-            updateAndStoreKeyStore();
+            UtilsJKS.copyCertsFromKeyStoreToTrustManager(clientKeyStore, trustManager);
+            if (keyStoreFile != null)
+                updateAndStoreKeyStore();
         }
 
         // Export certPath
-        if (certPubPath != null)
-            UtilsJKS.exportCertificate(clientKeyStore, certPubPath, certAlias);
+        UtilsJKS.exportCertificate(clientKeyStore, certPubPath, certAlias);
 
         // Init ssl instances
         SSLContext sslCtx = UtilsSSL.generateSSLContext(clientKeyStore, keyStorePass, trustManager);
