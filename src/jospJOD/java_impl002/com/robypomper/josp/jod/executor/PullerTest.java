@@ -2,6 +2,7 @@ package com.robypomper.josp.jod.executor;
 
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
+import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 import com.robypomper.log.Mrk_JOD;
 
 
@@ -41,6 +42,8 @@ public class PullerTest extends AbsJODPuller {
         // For each JODState supported
         if (getComponent() instanceof JODBooleanState)
             ((JODBooleanState) getComponent()).setUpdate(true);
+        else if (getComponent() instanceof JODRangeState)
+            ((JODRangeState) getComponent()).setUpdate(5);
 
     }
 

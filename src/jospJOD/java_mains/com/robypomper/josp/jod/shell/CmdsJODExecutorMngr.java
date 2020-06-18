@@ -19,6 +19,7 @@ import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
+import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -121,6 +122,8 @@ public class CmdsJODExecutorMngr {
         JODComponentPuller compPuller;
         if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_STATE) == 0)
             compPuller = new JODComponentPuller(new JODBooleanState(structure, executorMngr, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
+        else if (type.compareToIgnoreCase(StructureDefinitions.TYPE_RANGE_STATE) == 0)
+            compPuller = new JODComponentPuller(new JODRangeState(structure, executorMngr, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null, null, null), name, proto, conf_str);
         else
             return String.format("Unknow pillar's type '%s'", type);
 
@@ -144,6 +147,8 @@ public class CmdsJODExecutorMngr {
         JODComponentListener compListener;
         if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_STATE) == 0)
             compListener = new JODComponentListener(new JODBooleanState(structure, executorMngr, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null), name, proto, conf_str);
+        else if (type.compareToIgnoreCase(StructureDefinitions.TYPE_RANGE_STATE) == 0)
+            compListener = new JODComponentListener(new JODRangeState(structure, executorMngr, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null, null, null, null), name, proto, conf_str);
         else
             return String.format("Unknown pillar's type '%s'", type);
 

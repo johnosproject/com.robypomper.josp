@@ -5,9 +5,16 @@
     "descr_long": "Economical trackball pointing device with wireless capabilities and many additional buttons (rolling click, rolling hor scroll, slow pointer...).",
 
     "contains": {
-        "StateComp" : {
+        "BoolState" : {
             "type": "BooleanState",
             "listener" : "tstLAdv://sleep=1000;frequency=60;"
+        },
+        "RangeState" : {
+            "type": "RangeState",
+            "listener" : "tstLAdv://sleep=1000;frequency=60;",
+            "min": "-10",
+            "max": "35",
+            "step": "5"
         },
         "ActionComp" : {
             "type": "BooleanAction",
