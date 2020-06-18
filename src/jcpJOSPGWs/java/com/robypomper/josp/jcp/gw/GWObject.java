@@ -112,7 +112,6 @@ public class GWObject {
 
         log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing update '%s...' for '%s' object", msg.substring(0, msg.indexOf("\n")), objId));
 
-        log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Update '%s' component to '%s' value not implemented", upd.getComponentPath(), upd.getUpdate()));
         gwBroker.statusToServices(upd);
         //objStatus.setLastStatusUpdated(new Date());
         saveToDB();
