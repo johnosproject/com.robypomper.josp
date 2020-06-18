@@ -6,7 +6,7 @@
 
     "contains": {
         "StateComp" : {
-            "type": "JODState",
+            "type": "BooleanState",
             "listener" : "tstLAdv://sleep=1000;frequency=60;"
         },
         "ActionComp" : {

@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -143,12 +144,12 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created component.
      */
-    protected JODComponent createComponent(String parentCompName, String compType, String compName, Map<String, Object> compSettings) throws JODStructure.ParsingException {
+    protected JODComponent createComponent(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.ParsingException {
         if (StructureDefinitions.TYPE_JOD_CONTAINER.compareToIgnoreCase(compType) == 0)
             return createContainer(parentCompName, compName, compSettings);
 
-        if (StructureDefinitions.TYPE_JOD_STATE.compareToIgnoreCase(compType) == 0)
-            return createState(parentCompName, compName, compSettings);
+        if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
+            return createState(parentCompName, compName, compType, compSettings);
 
         if (StructureDefinitions.TYPE_JOD_ACTION.compareToIgnoreCase(compType) == 0)
             return createAction(parentCompName, compName, compSettings);
@@ -163,19 +164,22 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JODState createState(String parentCompName, String compName, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException {
+    protected JODState createState(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.ParsingException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
         String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
         String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
 
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating state component '%s' for parent container '%s'", compName, parentCompName));
-        AbsJODState state;
+        JODState state;
         try {
-            state = new AbsJODState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
+            if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
+                state = new JODBooleanState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
+            else
+                throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
 
         } catch (JODStructure.ComponentInitException e) {
             log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating state component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
-            throw new JODStructure.InstantiationParsedDataException(compName, listener, puller, e);
+            throw new JODStructure.InstantiationParsedDataException(compType, compName, listener, puller, e);
         }
 
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("State component '%s' created for parent container '%s'", compName, parentCompName));
@@ -261,7 +265,7 @@ public class AbsJODContainer extends AbsJODComponent
                 @SuppressWarnings("unchecked")
                 Map<String, Object> compSettings = (Map<String, Object>) compJson.getValue();
                 String subCompType = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_TYPE);
-                JODComponent compInstance = createComponent(compName, subCompType, subCompName, compSettings);
+                JODComponent compInstance = createComponent(compName, subCompName, subCompType, compSettings);
                 components.put(subCompName, compInstance);
 
             } catch (Exception e) {

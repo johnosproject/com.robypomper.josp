@@ -12,12 +12,12 @@ import com.robypomper.josp.jod.executor.factories.AbsFactoryJODWorker;
 import com.robypomper.josp.jod.executor.factories.FactoryJODExecutor;
 import com.robypomper.josp.jod.executor.factories.FactoryJODListener;
 import com.robypomper.josp.jod.executor.factories.FactoryJODPuller;
-import com.robypomper.josp.jod.structure.AbsJODAction;
-import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.jod.structure.StructureDefinitions;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,10 +113,16 @@ public class CmdsJODExecutorMngr {
     // add > Puller/Listener/Executor
 
     @Command(description = "Add JOD Puller.")
-    public String execAddPuller(@Param(name = "name", description = "Name of the puller to create") String name,
+    public String execAddPuller(@Param(name = "name", description = "Pillar's type of the puller to create") String type,
+                                @Param(name = "name", description = "Name of the puller to create") String name,
                                 @Param(name = "proto", description = "Protocol of the puller to create") String proto,
                                 @Param(name = "configStr", description = "String containing puller configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
-        JODComponentPuller compPuller = new JODComponentPuller(new AbsJODState(structure, executorMngr, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
+        JODComponentPuller compPuller;
+        if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_STATE) == 0)
+            compPuller = new JODComponentPuller(new JODBooleanState(structure, executorMngr, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
+        else
+            return String.format("Unknow pillar's type '%s'", type);
+
 
         try {
             JODPuller puller = executorMngr.initPuller(compPuller);
@@ -130,10 +136,15 @@ public class CmdsJODExecutorMngr {
     }
 
     @Command(description = "Add JOD Listener.")
-    public String execAddListener(@Param(name = "name", description = "Name of the listener to create") String name,
+    public String execAddListener(@Param(name = "type", description = "Pillar's type of the listener to create") String type,
+                                  @Param(name = "name", description = "Name of the listener to create") String name,
                                   @Param(name = "proto", description = "Protocol of the listener to create") String proto,
                                   @Param(name = "configStr", description = "String containing listener configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
-        JODComponentListener compListener = new JODComponentListener(new AbsJODState(structure, executorMngr, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null), name, proto, conf_str);
+        JODComponentListener compListener;
+        if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_STATE) == 0)
+            compListener = new JODComponentListener(new JODBooleanState(structure, executorMngr, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null), name, proto, conf_str);
+        else
+            return String.format("Unknown pillar's type '%s'", type);
 
         try {
             JODListener listener = executorMngr.initListener(compListener);

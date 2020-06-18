@@ -1,7 +1,7 @@
 package com.robypomper.josp.jod.executor;
 
-import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODState;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.log.Mrk_JOD;
 
 
@@ -39,8 +39,8 @@ public class PullerTest extends AbsJODPuller {
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest '%s' of proto '%s' pulling", getName(), getProto()));
 
         // For each JODState supported
-        if (getComponent() instanceof AbsJODState)
-            ((AbsJODState) getComponent()).setUpdate(44);
+        if (getComponent() instanceof JODBooleanState)
+            ((JODBooleanState) getComponent()).setUpdate(true);
 
     }
 

@@ -129,16 +129,20 @@ public interface JODStructure {
      * structure string.
      */
     class InstantiationParsedDataException extends ParsingException {
-        private static final String MSG = "Can't initialize '%s' JOD Component because error on %s configs strings.";
+        private static final String MSG = "Can't initialize '%s' JOD Component of type '%s' because error on %s configs strings because %s.";
         private static final String JOIN_2 = "l'%s' or p'%s'";
         private static final String JOIN_3 = "l'%s', p'%s' or e'%s'";
 
-        public InstantiationParsedDataException(String compName, String listener, String puller, Throwable e) {
-            super(String.format(MSG, compName, String.format(JOIN_2, listener, puller)), e);
+        public InstantiationParsedDataException(String compType, String compName, String listener, String puller, String reason) {
+            super(String.format(MSG, compName, compType, String.format(JOIN_2, listener, puller), reason));
         }
 
-        public InstantiationParsedDataException(String compName, String listener, String puller, String executor, Throwable e) {
-            super(String.format(MSG, compName, String.format(JOIN_3, listener, puller, executor)), e);
+        public InstantiationParsedDataException(String compType, String compName, String listener, String puller, Throwable e) {
+            super(String.format(MSG, compName, compType, String.format(JOIN_2, listener, puller), e.getMessage()), e);
+        }
+
+        public InstantiationParsedDataException(String compType, String compName, String listener, String puller, String executor, Throwable e) {
+            super(String.format(MSG, compName, compType, String.format(JOIN_3, listener, puller, executor), e.getMessage()), e);
         }
     }
 
