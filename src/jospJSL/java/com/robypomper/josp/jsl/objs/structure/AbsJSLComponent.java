@@ -35,6 +35,7 @@ public class AbsJSLComponent implements JSLComponent {
      * @param remoteObject the {@link JSLRemoteObject} representing JOD object.
      * @param name         the name of the component.
      * @param descr        the description of the component.
+     * @param type         the type of the component.
      */
     public AbsJSLComponent(JSLRemoteObject remoteObject, String name, String descr, String type) {
         this.remoteObject = remoteObject;

@@ -30,7 +30,7 @@ public interface StructureDefinitions {
     // Component types
 
     String TYPE_CONTAINER = "Container";
-    String TYPE_STATE = "State";
+    String TYPE_BOOL_STATE = "BooleanState";
     String TYPE_ACTION = "Action";
 
     // Path's elements

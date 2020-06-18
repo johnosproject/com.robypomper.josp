@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.objs.structure;
 
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,7 +128,7 @@ public class AbsJSLContainer extends AbsJSLComponent
         if (StructureDefinitions.TYPE_CONTAINER.compareToIgnoreCase(compType) == 0)
             return createContainer(compName, compType, compSettings);
 
-        if (StructureDefinitions.TYPE_STATE.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
             return createState(compName, compType, compSettings);
 
         if (StructureDefinitions.TYPE_ACTION.compareToIgnoreCase(compType) == 0)
@@ -143,9 +144,13 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JSLState createState(String compName, String compType, Map<String, Object> compSettings) {
+    protected JSLState createState(String compName, String compType, Map<String, Object> compSettings) throws JSLRemoteObject.ParsingUnknownTypeException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
-        return new AbsJSLState(getRemoteObject(), compName, descr, compType);
+
+        if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
+            return new JSLBooleanState(getRemoteObject(), compName, descr, compType);
+
+        throw new JSLRemoteObject.ParsingUnknownTypeException(getRemoteObject(), compType, compName);
     }
 
     /**

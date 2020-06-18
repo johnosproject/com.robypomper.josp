@@ -4,12 +4,11 @@ import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.structure.AbsJSLAction;
-import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 
 
 public class CmdsJSLObjsMngr {
@@ -77,9 +76,11 @@ public class CmdsJSLObjsMngr {
     private String printRecursive(JSLComponent comp, int indent) {
         String indentStr = new String(new char[indent]).replace('\0', ' ');
         String compStr = String.format("%s- %s", indentStr, comp.getName());
+
         String compVal = "";
-        if (comp instanceof AbsJSLState)
-            compVal = Integer.toString(((AbsJSLState) comp).getState());
+        if (comp instanceof JSLBooleanState)
+            compVal = Boolean.toString(((JSLBooleanState) comp).getState());
+
         System.out.printf("%-30s %-15s %s%n", compStr, comp.getType(), compVal);
 
         if (comp instanceof JSLContainer)
@@ -118,10 +119,12 @@ public class CmdsJSLObjsMngr {
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
         String compVal = "";
-        if (comp instanceof AbsJSLState) {
-            compVal = Integer.toString(((AbsJSLState) comp).getState());
-            return String.format("%s::%s = %s", objId, compPath, compVal);
+        if (comp instanceof JSLBooleanState) {
+            compVal = Boolean.toString(((JSLBooleanState) comp).getState());
         }
+
+        if (!compVal.isEmpty())
+            return String.format("%s::%s = %s", objId, compPath, compVal);
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
     }
