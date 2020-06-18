@@ -3,6 +3,7 @@ package com.robypomper.josp.jod.structure;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
+import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -154,7 +155,8 @@ public class AbsJODContainer extends AbsJODComponent
                 || StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0)
             return createState(parentCompName, compName, compType, compSettings);
 
-        if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0
+                || StructureDefinitions.TYPE_RANGE_ACTION.compareToIgnoreCase(compType) == 0)
             return createAction(parentCompName, compName, compType, compSettings);
 
         throw new JODStructure.ParsingUnknownTypeException(parentCompName, compType, compName);
@@ -225,6 +227,31 @@ public class AbsJODContainer extends AbsJODComponent
         try {
             if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
                 return new JODBooleanAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
+            if (StructureDefinitions.TYPE_RANGE_ACTION.compareToIgnoreCase(compType) == 0) {
+                Double min, max, step;
+                try {
+                    min = Double.parseDouble((String) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MIN));
+                } catch (Throwable e) {
+                    if (!(e instanceof NullPointerException))
+                        log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error parsing param 'min' of range state component '%s' for parent container '%s' because %s, default value will used", compName, parentCompName, e.getMessage()), e);
+                    min = null;
+                }
+                try {
+                    max = Double.parseDouble((String) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MAX));
+                } catch (Throwable e) {
+                    if (!(e instanceof NullPointerException))
+                        log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error parsing param 'max' of range state component '%s' for parent container '%s' because %s, default value will used", compName, parentCompName, e.getMessage()), e);
+                    max = null;
+                }
+                try {
+                    step = Double.parseDouble((String) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_STEP));
+                } catch (Throwable e) {
+                    if (!(e instanceof NullPointerException))
+                        log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error parsing param 'step' of range state component '%s' for parent container '%s' because %s, default value will used", compName, parentCompName, e.getMessage()), e);
+                    step = null;
+                }
+                return new JODRangeAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor, min, max, step);
+            }
 
         } catch (JODStructure.ComponentInitException e) {
             log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating action component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);

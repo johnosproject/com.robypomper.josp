@@ -2,6 +2,7 @@ package com.robypomper.josp.jod.executor;
 
 
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
+import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.log.Mrk_JOD;
 
@@ -14,7 +15,7 @@ import com.robypomper.log.Mrk_JOD;
  * The action's method chain (exec(), subExec(), don't use any params because
  * was not yet implemented.
  */
-public class ExecutorTest extends AbsJODExecutor implements JODBooleanAction.JOSPBoolean.Executor {
+public class ExecutorTest extends AbsJODExecutor implements JODBooleanAction.JOSPBoolean.Executor, JODRangeAction.JOSPRange.Executor {
 
 
     // Constructor
@@ -51,6 +52,14 @@ public class ExecutorTest extends AbsJODExecutor implements JODBooleanAction.JOS
         System.out.printf("\n\nReceived action command from %s::%s (srv::usr) for %s::%s (obj::component)%n", commandAction.getServiceId(), commandAction.getUserId(), commandAction.getObjectId(), commandAction.getComponentPath());
         System.out.printf("\tnewState %b%n", cmdAction.newState);
         System.out.printf("\toldState %b%n", cmdAction.oldState);
+        return true;
+    }
+
+    @Override
+    public boolean exec(JOSPProtocol.ActionCmd commandAction, JODRangeAction.JOSPRange cmdAction) {
+        System.out.printf("\n\nReceived action command from %s::%s (srv::usr) for %s::%s (obj::component)%n", commandAction.getServiceId(), commandAction.getUserId(), commandAction.getObjectId(), commandAction.getComponentPath());
+        System.out.printf("\tnewState %f%n", cmdAction.newState);
+        System.out.printf("\toldState %f%n", cmdAction.oldState);
         return true;
     }
 }

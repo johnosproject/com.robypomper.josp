@@ -16,10 +16,18 @@
             "max": "35",
             "step": "5"
         },
-        "ActionComp" : {
+        "BoolAction" : {
             "type": "BooleanAction",
             "listener" : "tstLAdv://sleep=1000;frequency=60;",
             "executor" : "tstE://none"
+        },
+        "RangeAction" : {
+            "type": "RangeAction",
+            "listener" : "tstLAdv://sleep=1000;frequency=60;",
+            "executor" : "tstE://none",
+            "min": "-10",
+            "max": "35",
+            "step": "5"
         }
     }
 

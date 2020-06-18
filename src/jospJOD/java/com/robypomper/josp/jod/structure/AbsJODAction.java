@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
+import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
 import com.robypomper.josp.protocol.JOSPActionCommandParams;
 
 import java.util.HashMap;
@@ -15,6 +16,7 @@ public class AbsJODAction {
 
     public static void loadAllActionClasses() {
         registerActionClass(JODBooleanAction.JOSPBoolean.class.getSimpleName(), JODBooleanAction.JOSPBoolean.class);
+        registerActionClass(JODRangeAction.JOSPRange.class.getSimpleName(), JODRangeAction.JOSPRange.class);
     }
 
     public static void registerActionClass(String typeName, Class<? extends JOSPActionCommandParams> cl) {
