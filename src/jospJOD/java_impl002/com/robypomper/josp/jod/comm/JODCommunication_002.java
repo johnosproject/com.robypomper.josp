@@ -196,8 +196,8 @@ public class JODCommunication_002 implements JODCommunication {
         log.info(Mrk_JOD.JOD_COMM, String.format("Forward command to component '%s'", cmd.getComponentPath()));
 
         // check service permission
-        if (permissions.canExecuteAction(cmd.getServiceId(), cmd.getUserId(), connType)) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on executing command from '%s' service with '%s' user because not allowed on %s' connection", cmd.getServiceId(), cmd.getUserId(), connType));
+        if (!permissions.canExecuteAction(cmd.getServiceId(), cmd.getUserId(), connType)) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on executing command from '%s' service with '%s' user because not allowed on '%s' connection", cmd.getServiceId(), cmd.getUserId(), connType));
             return false;
         }
 

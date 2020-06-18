@@ -90,24 +90,32 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public boolean canExecuteAction(String srvId, String usrId, PermissionsTypes.Connection connection) {
-        ObjPermission p = search(srvId, usrId);
+        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
+            log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
+            return true;
+        }
 
-        if (p == null) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED  because not found", srvId, usrId));
+        List<ObjPermission> inherentPermissions = search(srvId, usrId);
+
+        if (inherentPermissions.isEmpty()) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED  because no permission found for specified srv/usr", srvId, usrId));
             return false;
         }
 
-        if (connection == PermissionsTypes.Connection.LocalAndCloud)
-            if (p.connection == PermissionsTypes.Connection.OnlyLocal) {
-                log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED  because connection type not allowed", srvId, usrId));
-                return false;
+        for (ObjPermission p : inherentPermissions) {
+            if (connection == PermissionsTypes.Connection.LocalAndCloud
+                    && p.connection == PermissionsTypes.Connection.OnlyLocal) {
+                continue;
             }
+            if (p.type == PermissionsTypes.Type.Actions
+                    || p.type == PermissionsTypes.Type.CoOwner) {
+                log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s GRANTED", srvId, usrId));
+                return true;
+            }
+        }
 
-        boolean perm = p.type == PermissionsTypes.Type.Actions
-                || p.type == PermissionsTypes.Type.CoOwner;
-
-        log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s %s", srvId, usrId, perm ? "GRANTED" : "DENIED "));
-        return perm;
+        log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED", srvId, usrId));
+        return false;
     }
 
     /**
@@ -120,27 +128,24 @@ public class JODPermissions_002 implements JODPermissions {
             return true;
         }
 
-        ObjPermission p = search(srvId, usrId);
+        List<ObjPermission> inherentPermissions = search(srvId, usrId);
 
-        // If not found, no permission to given srvId + usrId
-        if (p == null) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED  because not found", srvId, usrId));
+        if (inherentPermissions.isEmpty()) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED  because no permission found for specified srv/usr", srvId, usrId));
             return false;
         }
 
-        // True only if local is allowed
-        if (p.connection != PermissionsTypes.Connection.LocalAndCloud
-                && p.connection != PermissionsTypes.Connection.OnlyLocal) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED  because only local connection allowed", srvId, usrId));
-            return false;
+        for (ObjPermission p : inherentPermissions) {
+            if (p.type == PermissionsTypes.Type.Status
+                    || p.type == PermissionsTypes.Type.Actions
+                    || p.type == PermissionsTypes.Type.CoOwner) {
+                log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED", srvId, usrId));
+                return true;
+            }
         }
 
-        boolean perm = p.type == PermissionsTypes.Type.Status
-                || p.type == PermissionsTypes.Type.Actions
-                || p.type == PermissionsTypes.Type.CoOwner;
-
-        log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s %s", srvId, usrId, perm ? "GRANTED" : "DENIED "));
-        return perm;
+        log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED", srvId, usrId));
+        return false;
     }
 
     /**
@@ -153,25 +158,22 @@ public class JODPermissions_002 implements JODPermissions {
             return true;
         }
 
-        ObjPermission p = search(srvId, usrId);
+        List<ObjPermission> inherentPermissions = search(srvId, usrId);
 
-        // If not found, no permission to given srvId + usrId
-        if (p == null) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED  because not found", srvId, usrId));
+        if (inherentPermissions.isEmpty()) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED  because no permission found for specified srv/usr", srvId, usrId));
             return false;
         }
 
-        // True only if local is allowed
-        if (p.connection != PermissionsTypes.Connection.LocalAndCloud
-                && p.connection != PermissionsTypes.Connection.OnlyLocal) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED  because only local connection allowed", srvId, usrId));
-            return false;
+        for (ObjPermission p : inherentPermissions) {
+            if (p.type == PermissionsTypes.Type.CoOwner) {
+                log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s GRANTED", srvId, usrId));
+                return true;
+            }
         }
 
-        boolean perm = p.type == PermissionsTypes.Type.CoOwner;
-
-        log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s %s", srvId, usrId, perm ? "GRANTED" : "DENIED "));
-        return perm;
+        log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED", srvId, usrId));
+        return false;
     }
 
     /**
@@ -225,7 +227,7 @@ public class JODPermissions_002 implements JODPermissions {
             return false;
         }
 
-        ObjPermission duplicate = search(srvId, usrId);
+        ObjPermission duplicate = searchExact(srvId, usrId);
         if (duplicate != null) {
             log.trace(Mrk_JOD.JOD_PERM, String.format("Updating existing permission to '%s' object with srvID %s, usrID %s connection '%s' and type '%s'", objInfo.getObjId(), srvId, usrId, connection, type));
             ObjPermission newPerm = new ObjPermission(objInfo.getObjId(), usrId, srvId, connection, type, new Date());
@@ -254,7 +256,7 @@ public class JODPermissions_002 implements JODPermissions {
             return false;
         }
 
-        ObjPermission duplicate = search(srvId, usrId);
+        ObjPermission duplicate = searchExact(srvId, usrId);
         if (duplicate == null)
             return false;
 
@@ -356,10 +358,22 @@ public class JODPermissions_002 implements JODPermissions {
      */
     @Override
     public void regeneratePermissions() throws PermissionsFileException {
+        // Clean old owner permissions
         generatePermissions();
+
+        // Keep old owner permissions
+//        List<ObjPermission> newObjIdPerms = new ArrayList<>();
+//        for (ObjPermission p : permissions)
+//            if (!p.objId.equals(objInfo.getObjId()))
+//                newObjIdPerms.add( new ObjPermission(objInfo.getObjId(),p.usrId,p.srvId,p.connection,p.type,p.updatedAt));
+//        permissions = newObjIdPerms;
+//        savePermissionsToFile();
+
         try {
             loadPermissionsFromFile();
         } catch (FileNotFoundException ignore) {}
+
+        syncObjPermissions();
     }
 
     private void generatePermissions() throws PermissionsNotSavedException {
@@ -412,15 +426,15 @@ public class JODPermissions_002 implements JODPermissions {
     }
 
     /**
-     * Return the object's permission with the same srvId and usrId like that
-     * once passed as params.
+     * Return the object's permission corresponding to given srvId and usrId.
      *
      * @param srvId the service's id.
      * @param usrId the user's id.
-     * @return the object's permission reference or null if no permission
-     * correspond to given params.
+     * @return the object's permissions list.
      */
-    private ObjPermission search(String srvId, String usrId) {
+    private List<ObjPermission> search(String srvId, String usrId) {
+        List<ObjPermission> inherentPermissions = new ArrayList<>();
+
         for (ObjPermission p : permissions) {
             boolean exact_usr = p.usrId.equals(usrId);
             boolean all_usr = p.usrId.equals(PermissionsTypes.WildCards.USR_ALL.toString());
@@ -430,10 +444,38 @@ public class JODPermissions_002 implements JODPermissions {
                 boolean exact_srv = p.srvId.equals(srvId);
                 boolean all_srv = p.srvId.equals(PermissionsTypes.WildCards.SRV_ALL.toString());
                 if (exact_srv || all_srv) {
+                    inherentPermissions.add(p);
+                }
+            }
+        }
+
+        return inherentPermissions;
+    }
+
+    /**
+     * Return the object's permission with the same srvId and usrId like that
+     * once passed as params.
+     *
+     * @param srvId the service's id.
+     * @param usrId the user's id.
+     * @return the object's permission reference or null if no permission
+     * correspond to given params.
+     */
+    private ObjPermission searchExact(String srvId, String usrId) {
+        for (ObjPermission p : permissions) {
+            boolean exact_usr = p.usrId.equals(usrId);
+            //boolean all_usr = p.usrId.equals(PermissionsTypes.WildCards.USR_ALL.toString());
+            //boolean owner = p.usrId.equals(PermissionsTypes.WildCards.USR_OWNER.toString())
+            //        && getOwnerId().equals(usrId);
+            if (exact_usr) {
+                boolean exact_srv = p.srvId.equals(srvId);
+                //boolean all_srv = p.srvId.equals(PermissionsTypes.WildCards.SRV_ALL.toString());
+                if (exact_srv) {
                     return p;
                 }
             }
         }
+
         return null;
     }
 
