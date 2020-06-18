@@ -10,6 +10,7 @@ import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 
 
 public class CmdsJSLObjsMngr {
@@ -81,6 +82,8 @@ public class CmdsJSLObjsMngr {
         String compVal = "";
         if (comp instanceof JSLBooleanState)
             compVal = Boolean.toString(((JSLBooleanState) comp).getState());
+        else if (comp instanceof JSLRangeState)
+            compVal = Double.toString(((JSLRangeState) comp).getState());
 
         System.out.printf("%-30s %-15s %s%n", compStr, comp.getType(), compVal);
 
@@ -122,6 +125,8 @@ public class CmdsJSLObjsMngr {
         String compVal = "";
         if (comp instanceof JSLBooleanState) {
             compVal = Boolean.toString(((JSLBooleanState) comp).getState());
+        } else if (comp instanceof JSLRangeState) {
+            compVal = Double.toString(((JSLRangeState) comp).getState());
         }
 
         if (!compVal.isEmpty())

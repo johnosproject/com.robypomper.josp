@@ -2,6 +2,7 @@ package com.robypomper.josp.jsl.objs.structure;
 
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.JOSPStateUpdateParams;
 
 import java.util.HashMap;
@@ -36,6 +37,7 @@ public abstract class AbsJSLState extends AbsJSLComponent
 
     public static void loadAllStateClasses() {
         registerStateClass(JSLBooleanState.JOSPBoolean.class.getSimpleName(), JSLBooleanState.JOSPBoolean.class);
+        registerStateClass(JSLRangeState.JOSPRange.class.getSimpleName(), JSLRangeState.JOSPRange.class);
     }
 
     public static void registerStateClass(String typeName, Class<? extends JOSPStateUpdateParams> cl) {

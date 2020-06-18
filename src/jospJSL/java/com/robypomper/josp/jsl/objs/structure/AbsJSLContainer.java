@@ -3,6 +3,7 @@ package com.robypomper.josp.jsl.objs.structure;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -129,7 +130,8 @@ public class AbsJSLContainer extends AbsJSLComponent
         if (StructureDefinitions.TYPE_CONTAINER.compareToIgnoreCase(compType) == 0)
             return createContainer(compName, compType, compSettings);
 
-        if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0
+                || StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0)
             return createState(compName, compType, compSettings);
 
         if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
@@ -150,6 +152,13 @@ public class AbsJSLContainer extends AbsJSLComponent
 
         if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
             return new JSLBooleanState(getRemoteObject(), compName, descr, compType);
+
+        if (StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0) {
+            double min = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MIN);
+            double max = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MAX);
+            double step = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_STEP);
+            return new JSLRangeState(getRemoteObject(), compName, descr, compType, min, max, step);
+        }
 
         throw new JSLRemoteObject.ParsingUnknownTypeException(getRemoteObject(), compType, compName);
     }
