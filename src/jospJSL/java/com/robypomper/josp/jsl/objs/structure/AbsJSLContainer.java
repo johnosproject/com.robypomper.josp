@@ -1,6 +1,10 @@
 package com.robypomper.josp.jsl.objs.structure;
 
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,10 +131,12 @@ public class AbsJSLContainer extends AbsJSLComponent
         if (StructureDefinitions.TYPE_CONTAINER.compareToIgnoreCase(compType) == 0)
             return createContainer(compName, compType, compSettings);
 
-        if (StructureDefinitions.TYPE_STATE.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0
+                || StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0)
             return createState(compName, compType, compSettings);
 
-        if (StructureDefinitions.TYPE_ACTION.compareToIgnoreCase(compType) == 0)
+        if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0
+                || StructureDefinitions.TYPE_RANGE_ACTION.compareToIgnoreCase(compType) == 0)
             return createAction(compName, compType, compSettings);
 
         throw new JSLRemoteObject.ParsingUnknownTypeException(getRemoteObject(), compType, compName);
@@ -143,9 +149,20 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JSLState createState(String compName, String compType, Map<String, Object> compSettings) {
+    protected JSLState createState(String compName, String compType, Map<String, Object> compSettings) throws JSLRemoteObject.ParsingUnknownTypeException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
-        return new AbsJSLState(getRemoteObject(), compName, descr, compType);
+
+        if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
+            return new JSLBooleanState(getRemoteObject(), compName, descr, compType);
+
+        if (StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0) {
+            double min = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MIN);
+            double max = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MAX);
+            double step = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_STEP);
+            return new JSLRangeState(getRemoteObject(), compName, descr, compType, min, max, step);
+        }
+
+        throw new JSLRemoteObject.ParsingUnknownTypeException(getRemoteObject(), compType, compName);
     }
 
     /**
@@ -155,9 +172,20 @@ public class AbsJSLContainer extends AbsJSLComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JSLAction createAction(String compName, String compType, Map<String, Object> compSettings) {
+    protected JSLAction createAction(String compName, String compType, Map<String, Object> compSettings) throws JSLRemoteObject.ParsingUnknownTypeException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
-        return new AbsJSLAction(getRemoteObject(), compName, descr, compType);
+
+        if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
+            return new JSLBooleanAction(getRemoteObject(), compName, descr, compType);
+
+        if (StructureDefinitions.TYPE_RANGE_ACTION.compareToIgnoreCase(compType) == 0) {
+            double min = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MIN);
+            double max = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MAX);
+            double step = (Double) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_STEP);
+            return new JSLRangeAction(getRemoteObject(), compName, descr, compType, min, max, step);
+        }
+
+        throw new JSLRemoteObject.ParsingUnknownTypeException(getRemoteObject(), compType, compName);
     }
 
     /**

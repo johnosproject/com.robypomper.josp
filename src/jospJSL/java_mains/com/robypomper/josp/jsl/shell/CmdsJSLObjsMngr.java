@@ -4,12 +4,14 @@ import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.structure.AbsJSLAction;
-import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 
 
 public class CmdsJSLObjsMngr {
@@ -77,9 +79,13 @@ public class CmdsJSLObjsMngr {
     private String printRecursive(JSLComponent comp, int indent) {
         String indentStr = new String(new char[indent]).replace('\0', ' ');
         String compStr = String.format("%s- %s", indentStr, comp.getName());
+
         String compVal = "";
-        if (comp instanceof AbsJSLState)
-            compVal = Integer.toString(((AbsJSLState) comp).getState());
+        if (comp instanceof JSLBooleanState)
+            compVal = Boolean.toString(((JSLBooleanState) comp).getState());
+        else if (comp instanceof JSLRangeState)
+            compVal = Double.toString(((JSLRangeState) comp).getState());
+
         System.out.printf("%-30s %-15s %s%n", compStr, comp.getType(), compVal);
 
         if (comp instanceof JSLContainer)
@@ -118,17 +124,21 @@ public class CmdsJSLObjsMngr {
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
         String compVal = "";
-        if (comp instanceof AbsJSLState) {
-            compVal = Integer.toString(((AbsJSLState) comp).getState());
-            return String.format("%s::%s = %s", objId, compPath, compVal);
+        if (comp instanceof JSLBooleanState) {
+            compVal = Boolean.toString(((JSLBooleanState) comp).getState());
+        } else if (comp instanceof JSLRangeState) {
+            compVal = Double.toString(((JSLRangeState) comp).getState());
         }
+
+        if (!compVal.isEmpty())
+            return String.format("%s::%s = %s", objId, compPath, compVal);
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
     }
 
 
-    @Command(description = "Print object's info.")
-    public String objActionInt(String objId, String compPath, String integer) {
+    @Command(description = "Exec object's boolean action.")
+    public String objActionBoolean(String objId, String compPath, String integer) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
@@ -140,11 +150,34 @@ public class CmdsJSLObjsMngr {
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
         String compVal = "";
-        if (comp instanceof AbsJSLAction) {
-            AbsJSLAction compAbsAction = (AbsJSLAction) comp;
-            AbsJSLAction.JOSPIntTest cmd = new AbsJSLAction.JOSPIntTest(Integer.parseInt(integer), compAbsAction);
-            compAbsAction.execAction(cmd);
+        if (comp instanceof JSLBooleanAction) {
+            JSLBooleanAction compBooleanAction = (JSLBooleanAction) comp;
+            JSLBooleanAction.JOSPBoolean cmd = new JSLBooleanAction.JOSPBoolean(Boolean.parseBoolean(integer), compBooleanAction);
+            compBooleanAction.execAction(cmd);
             return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, integer);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's boolean action.")
+    public String objActionRange(String objId, String compPath, String actionDoubleParam) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLRangeAction) {
+            JSLRangeAction compBooleanAction = (JSLRangeAction) comp;
+            JSLRangeAction.JOSPRange cmd = new JSLRangeAction.JOSPRange(Double.parseDouble(actionDoubleParam), compBooleanAction);
+            compBooleanAction.execAction(cmd);
+            return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionDoubleParam);
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());

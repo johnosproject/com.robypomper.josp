@@ -30,8 +30,11 @@ public interface StructureDefinitions {
     // Component types
 
     String TYPE_CONTAINER = "Container";
-    String TYPE_STATE = "State";
-    String TYPE_ACTION = "Action";
+    String TYPE_BOOL_STATE = "BooleanState";
+    String TYPE_RANGE_STATE = "RangeState";
+    String TYPE_BOOL_ACTION = "BooleanAction";
+    String TYPE_RANGE_ACTION = "RangeAction";
+
 
     // Path's elements
 
@@ -54,6 +57,9 @@ public interface StructureDefinitions {
     String PROP_COMPONENT_LISTNER = "listener";
     String PROP_COMPONENT_PULLER = "puller";
     String PROP_COMPONENT_EXECUTOR = "executor";
+    String PROP_COMPONENT_RANGE_MIN = "min";
+    String PROP_COMPONENT_RANGE_MAX = "max";
+    String PROP_COMPONENT_RANGE_STEP = "step";
 
 
     // Default component paths

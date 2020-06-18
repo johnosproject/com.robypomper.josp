@@ -1,7 +1,8 @@
 package com.robypomper.josp.jod.executor;
 
-import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODState;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
+import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 import com.robypomper.log.Mrk_JOD;
 
 import java.util.Map;
@@ -80,8 +81,10 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
                 log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' of proto '%s' listened", getName(), getProto()));
 
                 // For each JODState supported
-                if (getComponent() instanceof AbsJODState)
-                    ((AbsJODState) getComponent()).setUpdate(42);
+                if (getComponent() instanceof JODBooleanState)
+                    ((JODBooleanState) getComponent()).setUpdate(true);
+                else if (getComponent() instanceof JODRangeState)
+                    ((JODRangeState) getComponent()).setUpdate(5);
 
             }
             try {

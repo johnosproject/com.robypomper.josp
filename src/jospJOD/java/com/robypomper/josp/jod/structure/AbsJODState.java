@@ -19,7 +19,7 @@ import org.apache.logging.log4j.Logger;
  * or a {@link com.robypomper.josp.jod.executor.JODPuller}, depending on params
  * given to the constructor.
  */
-public class AbsJODState extends AbsJODComponent
+public abstract class AbsJODState extends AbsJODComponent
         implements JODState {
 
     // Internal vars
@@ -83,17 +83,6 @@ public class AbsJODState extends AbsJODComponent
     }
 
 
-    // Getters
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getType() {
-        return StructureDefinitions.TYPE_STATE;
-    }
-
-
     // Status upd flow (struct)
 
     /**
@@ -104,44 +93,6 @@ public class AbsJODState extends AbsJODComponent
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Propagating component '%s' state", getName()));
         getStructure().getCommunication().dispatchUpdate(this, statusUpd);
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state", getName()));
-    }
-
-
-    // Temporary: this method must be defined and implemented by AbsJODState sub classes
-    private int state;
-
-    public void setUpdate(int newState) {
-        int oldState = state;
-        state = newState;
-        try {
-            propagateState(new JOSPIntTest(newState, oldState));
-        } catch (JODStructure.CommunicationSetException e) {
-            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on propagating state of component '%s' to JOD Communication because %s", getName(), e.getMessage()), e);
-        }
-    }
-
-
-    // Temporary: this class must be defined and implemented by AbsJODState sub classes
-    private static class JOSPIntTest implements JODStateUpdate {
-
-        private final int newState;
-        private final int oldState;
-
-        public JOSPIntTest(int newState, int oldState) {
-            this.newState = newState;
-            this.oldState = oldState;
-        }
-
-        @Override
-        public String getType() {
-            return this.getClass().getSimpleName();
-        }
-
-        @Override
-        public String encode() {
-            return String.format("new:%d\nold:%d", newState, oldState);
-        }
-
     }
 
 }
