@@ -10,7 +10,7 @@
             "listener" : "tstLAdv://sleep=1000;frequency=60;"
         },
         "ActionComp" : {
-            "type": "JODAction",
+            "type": "BooleanAction",
             "listener" : "tstLAdv://sleep=1000;frequency=60;",
             "executor" : "tstE://none"
         }

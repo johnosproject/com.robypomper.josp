@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -151,8 +152,8 @@ public class AbsJODContainer extends AbsJODComponent
         if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
             return createState(parentCompName, compName, compType, compSettings);
 
-        if (StructureDefinitions.TYPE_JOD_ACTION.compareToIgnoreCase(compType) == 0)
-            return createAction(parentCompName, compName, compSettings);
+        if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
+            return createAction(parentCompName, compName, compType, compSettings);
 
         throw new JODStructure.ParsingUnknownTypeException(parentCompName, compType, compName);
     }
@@ -193,16 +194,19 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JODAction createAction(String parentCompName, String compName, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException {
+    protected JODAction createAction(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException, JODStructure.ParsingUnknownTypeException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
         String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
         String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
         String executor = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_EXECUTOR);
 
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating action component '%s' for parent container '%s'", compName, parentCompName));
-        AbsJODAction action;
+        JODAction action;
         try {
-            action = new AbsJODAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
+            if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
+                action = new JODBooleanAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
+            else
+                throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
 
         } catch (JODStructure.ComponentInitException e) {
             log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating action component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);

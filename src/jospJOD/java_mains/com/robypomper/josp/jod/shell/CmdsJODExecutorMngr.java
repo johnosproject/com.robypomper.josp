@@ -17,6 +17,7 @@ import com.robypomper.josp.jod.structure.StructureDefinitions;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 
 import java.util.HashMap;
@@ -157,10 +158,15 @@ public class CmdsJODExecutorMngr {
     }
 
     @Command(description = "Add JOD Executor.")
-    public String execAddExecutor(@Param(name = "name", description = "Name of the executor to create") String name,
+    public String execAddExecutor(@Param(name = "type", description = "Pillar's type of the executor to create") String type,
+                                  @Param(name = "name", description = "Name of the executor to create") String name,
                                   @Param(name = "proto", description = "Protocol of the executor to create") String proto,
                                   @Param(name = "configStr", description = "String containing executor configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
-        JODComponentExecutor compExecutor = new JODComponentExecutor(new AbsJODAction(structure, executorMngr, "comp-" + name, "com's description", null, null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
+        JODComponentExecutor compExecutor;
+        if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_STATE) == 0)
+            compExecutor = new JODComponentExecutor(new JODBooleanAction(structure, executorMngr, "comp-" + name, "com's description", null, null, conf_str), name, proto, conf_str);
+        else
+            return String.format("Unknow pillar's type '%s'", type);
 
         try {
             JODExecutor executor = executorMngr.initExecutor(compExecutor);
