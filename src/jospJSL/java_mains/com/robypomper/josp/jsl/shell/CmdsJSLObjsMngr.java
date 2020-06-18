@@ -10,6 +10,7 @@ import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 
 
@@ -154,6 +155,29 @@ public class CmdsJSLObjsMngr {
             JSLBooleanAction.JOSPBoolean cmd = new JSLBooleanAction.JOSPBoolean(Boolean.parseBoolean(integer), compBooleanAction);
             compBooleanAction.execAction(cmd);
             return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, integer);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's boolean action.")
+    public String objActionRange(String objId, String compPath, String actionDoubleParam) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLRangeAction) {
+            JSLRangeAction compBooleanAction = (JSLRangeAction) comp;
+            JSLRangeAction.JOSPRange cmd = new JSLRangeAction.JOSPRange(Double.parseDouble(actionDoubleParam), compBooleanAction);
+            compBooleanAction.execAction(cmd);
+            return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionDoubleParam);
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());

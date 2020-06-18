@@ -33,6 +33,7 @@ public interface StructureDefinitions {
     String TYPE_BOOL_STATE = "BooleanState";
     String TYPE_RANGE_STATE = "RangeState";
     String TYPE_BOOL_ACTION = "BooleanAction";
+    String TYPE_RANGE_ACTION = "RangeAction";
 
 
     // Path's elements
