@@ -170,21 +170,16 @@ public class AbsJODContainer extends AbsJODComponent
         String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
         String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
 
-        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating state component '%s' for parent container '%s'", compName, parentCompName));
-        JODState state;
         try {
             if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
-                state = new JODBooleanState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
-            else
-                throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
+                return new JODBooleanState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
 
         } catch (JODStructure.ComponentInitException e) {
             log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating state component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
             throw new JODStructure.InstantiationParsedDataException(compType, compName, listener, puller, e);
         }
 
-        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("State component '%s' created for parent container '%s'", compName, parentCompName));
-        return state;
+        throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
     }
 
     /**
@@ -200,21 +195,16 @@ public class AbsJODContainer extends AbsJODComponent
         String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
         String executor = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_EXECUTOR);
 
-        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating action component '%s' for parent container '%s'", compName, parentCompName));
-        JODAction action;
         try {
             if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
-                action = new JODBooleanAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
-            else
-                throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
+                return new JODBooleanAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
 
         } catch (JODStructure.ComponentInitException e) {
             log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating action component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
             throw new JODStructure.InstantiationParsedDataException(compName, listener, puller, executor, e);
         }
 
-        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Action component '%s' created for parent container '%s'", compName, parentCompName));
-        return action;
+        throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
     }
 
     /**
