@@ -69,7 +69,7 @@ public class JSLBooleanState extends AbsJSLState {
 
         @Override
         public String encode() {
-            throw new RuntimeException("JSL JOSPIntTest::encode() method must be NOT called");
+            throw new RuntimeException("JSL JOSPBoolean::encode() method must be NOT called");
         }
 
     }

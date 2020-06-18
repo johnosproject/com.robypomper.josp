@@ -138,7 +138,7 @@ public class CmdsJSLObjsMngr {
 
 
     @Command(description = "Exec object's boolean action.")
-    public String objActionBoolean(String objId, String compPath, String integer) {
+    public String objActionBoolean(String objId, String compPath, String actionBooleanParam) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
@@ -152,9 +152,9 @@ public class CmdsJSLObjsMngr {
         String compVal = "";
         if (comp instanceof JSLBooleanAction) {
             JSLBooleanAction compBooleanAction = (JSLBooleanAction) comp;
-            JSLBooleanAction.JOSPBoolean cmd = new JSLBooleanAction.JOSPBoolean(Boolean.parseBoolean(integer), compBooleanAction);
+            JSLBooleanAction.JOSPBoolean cmd = new JSLBooleanAction.JOSPBoolean(Boolean.parseBoolean(actionBooleanParam), compBooleanAction);
             compBooleanAction.execAction(cmd);
-            return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, integer);
+            return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionBooleanParam);
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
