@@ -51,6 +51,9 @@ public class JODBooleanState extends AbsJODState {
         return StructureDefinitions.TYPE_BOOL_STATE;
     }
 
+
+    // Status's methods
+
     public void setUpdate(boolean newState) {
         boolean oldState = state;
         state = newState;
