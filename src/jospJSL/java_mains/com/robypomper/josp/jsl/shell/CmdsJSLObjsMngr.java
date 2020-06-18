@@ -8,6 +8,7 @@ import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 
 
@@ -130,8 +131,8 @@ public class CmdsJSLObjsMngr {
     }
 
 
-    @Command(description = "Print object's info.")
-    public String objActionInt(String objId, String compPath, String integer) {
+    @Command(description = "Exec object's boolean action.")
+    public String objActionBoolean(String objId, String compPath, String integer) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
@@ -143,10 +144,10 @@ public class CmdsJSLObjsMngr {
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
         String compVal = "";
-        if (comp instanceof AbsJSLAction) {
-            AbsJSLAction compAbsAction = (AbsJSLAction) comp;
-            AbsJSLAction.JOSPIntTest cmd = new AbsJSLAction.JOSPIntTest(Integer.parseInt(integer), compAbsAction);
-            compAbsAction.execAction(cmd);
+        if (comp instanceof JSLBooleanAction) {
+            JSLBooleanAction compBooleanAction = (JSLBooleanAction) comp;
+            JSLBooleanAction.JOSPBoolean cmd = new JSLBooleanAction.JOSPBoolean(Boolean.parseBoolean(integer), compBooleanAction);
+            compBooleanAction.execAction(cmd);
             return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, integer);
         }
 

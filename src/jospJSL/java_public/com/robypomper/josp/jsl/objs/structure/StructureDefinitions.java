@@ -31,7 +31,8 @@ public interface StructureDefinitions {
 
     String TYPE_CONTAINER = "Container";
     String TYPE_BOOL_STATE = "BooleanState";
-    String TYPE_ACTION = "Action";
+    String TYPE_BOOL_ACTION = "BooleanAction";
+
 
     // Path's elements
 

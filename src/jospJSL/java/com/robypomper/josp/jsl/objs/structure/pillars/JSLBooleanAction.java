@@ -1,19 +1,13 @@
-package com.robypomper.josp.jsl.objs.structure;
+package com.robypomper.josp.jsl.objs.structure.pillars;
 
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-/**
- * Default implementation of {@link JSLAction} interface.
- * <p>
- * This class inherits {@link AbsJSLState} so it manage also a action's status
- * updates.
- */
-public class AbsJSLAction extends AbsJSLState
-        implements JSLAction {
+public class JSLBooleanAction extends JSLBooleanState implements JSLAction {
 
     // Internal vars
 
@@ -30,16 +24,13 @@ public class AbsJSLAction extends AbsJSLState
      * @param name         the name of the component.
      * @param descr        the description of the component.
      */
-    public AbsJSLAction(JSLRemoteObject remoteObject, String name, String descr, String type) {
+    public JSLBooleanAction(JSLRemoteObject remoteObject, String name, String descr, String type) {
         super(remoteObject, name, descr, type);
     }
 
 
-    // Action cmd flow (struct)
+    // Action's methods
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void execAction(JSLActionParams params) {
         log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Propagating component '%s' state", getName()));
@@ -48,13 +39,14 @@ public class AbsJSLAction extends AbsJSLState
     }
 
 
-    // Temporary: this class must be defined and implemented by AbsJSLAction sub classes
-    public static class JOSPIntTest implements JSLActionParams {
+    // Boolean ActionParams implementation
 
-        private final int newState;
-        private final int oldState;
+    public static class JOSPBoolean implements JSLActionParams {
 
-        public JOSPIntTest(int newState, AbsJSLAction component) {
+        private final boolean newState;
+        private final boolean oldState;
+
+        public JOSPBoolean(boolean newState, JSLBooleanState component) {
             this.newState = newState;
             this.oldState = component.getState();
         }
@@ -66,7 +58,7 @@ public class AbsJSLAction extends AbsJSLState
 
         @Override
         public String encode() {
-            return String.format("new:%d\nold:%d", newState, oldState);
+            return String.format("new:%b\nold:%b", newState, oldState);
         }
 
     }
