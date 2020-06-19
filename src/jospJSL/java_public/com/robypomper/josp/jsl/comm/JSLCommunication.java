@@ -1,9 +1,6 @@
 package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
-import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.structure.JSLAction;
-import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 
 import java.util.List;
 
@@ -27,21 +24,6 @@ public interface JSLCommunication {
      * @return <code>true</code> if the status update was processed successfully.
      */
     boolean forwardUpdate(String msg);
-
-
-    // Action cmd flow (objMng - comm)
-
-    /**
-     * Forward <code>component</code> <code>action</code> to corresponding object.
-     * <p>
-     * This method is required by {@link JSLAction} when must send a command to
-     * the corresponding object.
-     *
-     * @param object    the object to send the action command.
-     * @param component the object's component to send the action command.
-     *                  //@param command   the action command info.
-     */
-    void forwardAction(JSLRemoteObject object, JSLAction component, JSLActionParams command);
 
 
     // Cloud requests

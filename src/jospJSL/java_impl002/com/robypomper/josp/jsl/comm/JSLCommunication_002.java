@@ -11,8 +11,6 @@ import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
-import com.robypomper.josp.jsl.objs.structure.JSLAction;
-import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLState;
@@ -153,45 +151,6 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
 
         log.debug(Mrk_JSL.JSL_COMM, String.format("Update '%s...' processed for '%s' object", msg.substring(0, Math.min(10, msg.length())), obj.getId()));
         return true;
-    }
-
-
-    // Action cmd flow (objMng - comm)
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void forwardAction(JSLRemoteObject object, JSLAction component, JSLActionParams command) {
-        log.info(Mrk_JSL.JSL_COMM, String.format("Forward action for component '%s' of '%s' object", component.getName(), object.getId()));
-
-        String msg = JOSPProtocol.generateCmdToMsg(srvInfo.getSrvId(), srvInfo.getUserId(), srvInfo.getInstanceId(), object.getId(), component.getPath().getString(), command);
-
-        // Send to cloud
-        // ToDo: implements forward action to cloud communication
-        if (object.isCloudConnected()) {
-            try {
-                log.trace(Mrk_JOD.JOD_COMM, String.format("Send command for component '%s' to cloud", component.getName()));
-                gwClient.sendData(msg);
-                log.trace(Mrk_JOD.JOD_COMM, String.format("Command for component '%s' send to cloud", component.getName()));
-
-            } catch (Client.ServerNotConnectedException e) {
-                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending command for component '%s' to cloud because %s", component.getName(), e.getMessage()), e);
-            }
-        }
-
-        // Send via local communication
-        if (object.isLocalConnected()) {
-            JSLLocalClient objectServer = object.getConnectedLocalClient();
-            try {
-                log.trace(Mrk_JOD.JOD_COMM, String.format("Send command for component '%s' to local client", component.getName()));
-                objectServer.sendData(msg);
-                log.trace(Mrk_JOD.JOD_COMM, String.format("Command for component '%s' send to local client", component.getName()));
-
-            } catch (Client.ServerNotConnectedException e) {
-                log.warn(Mrk_JSL.JSL_COMM, String.format("Error on sending action for component '%s' of '%s' object to local client '%s' because %s", component.getName(), object.getId(), objectServer.getClientId(), e.getMessage()), e);
-            }
-        }
     }
 
 

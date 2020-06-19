@@ -2,6 +2,8 @@ package com.robypomper.josp.jsl.objs;
 
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 
 import java.util.List;
@@ -107,6 +109,11 @@ public interface JSLRemoteObject {
      * @return the client connected (if any) to the corresponding JOD object.
      */
     JSLLocalClient getConnectedLocalClient();
+
+
+    // To Object Msg
+
+    void sendActionCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected;
 
 
     // Process object's data

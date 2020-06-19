@@ -6,12 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.communication.client.Client;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceRequests;
+import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -113,7 +116,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public void setName(String newName) throws ObjectNotConnected {
-        requestSetObjectName(newName);
+        sendSetObjectNameMsg(newName);
     }
 
     /**
@@ -147,7 +150,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      */
     @Override
     public void setOwnerId(String newOwnerId) throws ObjectNotConnected {
-        requestSetObjectOwnerId(newOwnerId);
+        sendSetObjectOwnerIdMsg(newOwnerId);
     }
 
     /**
@@ -177,7 +180,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
 
-    // Object's local communication
+    // Object's communication
 
     /**
      * {@inheritDoc}
@@ -224,7 +227,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
             localClient.disconnect();
         }
 
-        log.debug(Mrk_JSL.JSL_COMM, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerInfo().getServerId(), srvInfo.getSrvId()));
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerInfo().getServerId(), srvInfo.getSrvId()));
         JSLLocalClient toUpdate = null;
         for (JSLLocalClient cl : localConnections)
             if (cl.getServerAddr().equals(localClient.getServerAddr())
@@ -232,17 +235,17 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
                 //&& cl.getClientAddr().equals(locConn.getClientAddr()) // client's address and port vary on socket disconnection
                 //&& cl.getClientPort() == locConn.getClientPort()
             ) {
-                log.debug(Mrk_JSL.JSL_COMM, String.format("Connection already known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection already known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
                 if (!cl.isConnected()) {
                     toUpdate = cl;
                     break;
                 }
-                log.trace(Mrk_JSL.JSL_COMM, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+                log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
                 cl.disconnect();
                 return;
             }
         if (toUpdate == null)
-            log.debug(Mrk_JSL.JSL_COMM, String.format("Connection NOT known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection NOT known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
 
         if (toUpdate == null) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding new connection for '%s' object on '%s' service", localClient.getObjId(), srvInfo.getSrvId()));
@@ -305,6 +308,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      *
      * @param msg the message to send to the represented object.
      */
+    @Deprecated
     private void sendLocal(String msg) throws ObjectNotConnected {
         JSLLocalClient cli = getConnectedLocalClient();
         if (cli == null)
@@ -318,32 +322,38 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
 
-    // Object's cloud communication
+    // To Object Msg
 
-    /**
-     * Util method that send given message to represented object via cloud.
-     * <p>
-     * This method use the connected S2O GW client to send the message.
-     *
-     * @param msg the message to send to the represented object.
-     */
-    private void sendCloud(String msg) throws ObjectNotConnected {
-        if (!communication.getCloudConnection().isConnected())
+    private void sendToObject(String msg) throws ObjectNotConnected {
+        if (!isConnected())
             throw new ObjectNotConnected(this);
 
-        try {
-            communication.getCloudConnection().sendData(msg);
-        } catch (Client.ServerNotConnectedException e) {
-            throw new ObjectNotConnected(this, e);
+        // Send via local communication
+        if (isLocalConnected()) {
+            JSLLocalClient objectServer = getConnectedLocalClient();
+            try {
+                objectServer.sendData(msg);
+                return;
+
+            } catch (Client.ServerNotConnectedException e) {
+                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+            }
+        }
+
+        if (isCloudConnected()) {
+            try {
+                communication.getCloudConnection().sendData(msg);
+
+            } catch (Client.ServerNotConnectedException e) {
+                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via cloud) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+            }
         }
     }
-
-
-    // Object's requests
 
     /**
      * Send ObjectInfo request to represented object.
      */
+    @Deprecated
     private void requestLocalObjectInfo() throws ObjectNotConnected {
         sendLocal(JOSPProtocol_ServiceRequests.createObjectInfoRequest(srvInfo.getFullId()));
     }
@@ -351,32 +361,31 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     /**
      * Send ObjectStruct request to represented object.
      */
+    @Deprecated
     private void requestLocalObjectStructure() throws ObjectNotConnected {
         sendLocal(JOSPProtocol_ServiceRequests.createObjectStructureRequest(srvInfo.getFullId(), lastStructureUpdate));
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sendActionCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected {
+        sendToObject(JOSPProtocol_ServiceToObject.createObjectCmdMsg(srvInfo.getFullId(), getId(), component.getPath().getString(), command));
+    }
+
+    /**
      * Send SetObjectName request to represented object.
      */
-    private void requestSetObjectName(String newName) throws ObjectNotConnected {
-        if (isLocalConnected())
-            sendLocal(JOSPProtocol_ServiceRequests.createObjectSetNameRequest(srvInfo.getFullId(), newName));
-        else if (isCloudConnected())
-            sendCloud(JOSPProtocol_CloudRequests.createObjectSetNameRequest(srvInfo.getFullId(), getId(), newName));
-        else
-            throw new ObjectNotConnected(this);
+    private void sendSetObjectNameMsg(String newName) throws ObjectNotConnected {
+        sendToObject(JOSPProtocol_ServiceToObject.createObjectSetNameMsg(srvInfo.getFullId(), getId(), newName));
     }
 
     /**
      * Send SetObjectOwnerId request to represented object.
      */
-    private void requestSetObjectOwnerId(String newOwnerId) throws ObjectNotConnected {
-        if (isLocalConnected())
-            sendLocal(JOSPProtocol_ServiceRequests.createObjectSetOwnerIdRequest(srvInfo.getFullId(), newOwnerId));
-        else if (isCloudConnected())
-            sendCloud(JOSPProtocol_CloudRequests.createObjectSetOwnerIdRequest(srvInfo.getFullId(), getId(), newOwnerId));
-        else
-            throw new ObjectNotConnected(this);
+    private void sendSetObjectOwnerIdMsg(String newOwnerId) throws ObjectNotConnected {
+        sendToObject(JOSPProtocol_ServiceToObject.createObjectSetOwnerIdMsg(srvInfo.getFullId(), getId(), newOwnerId));
     }
 
 
