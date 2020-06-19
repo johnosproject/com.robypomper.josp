@@ -3,6 +3,14 @@ package com.robypomper.josp.protocol;
 
 public class JOSPProtocol_ServiceToObject {
 
+    // Common utils
+
+    private static final String OBJ_REQ_NAME = "ServiceToObject";
+
+    public static String getObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 3, 2, OBJ_REQ_NAME);
+    }
+
     // Object Set Name
 
     private static final String OBJ_SETNAME_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETNAME_REQ";
@@ -10,6 +18,10 @@ public class JOSPProtocol_ServiceToObject {
 
     public static String createObjectSetNameMsg(String fullSrvId, String objId, String newName) {
         return String.format(OBJ_SETNAME_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newName);
+    }
+
+    public static boolean isObjectSetNameMsg(String msg) {
+        return msg.startsWith(OBJ_SETNAME_REQ_BASE);
     }
 
 
@@ -22,8 +34,12 @@ public class JOSPProtocol_ServiceToObject {
         return String.format(OBJ_SETOWNERID_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newOwnerId);
     }
 
+    public static boolean isObjectSetOwnerIdMsg(String msg) {
+        return msg.startsWith(OBJ_SETOWNERID_REQ_BASE);
+    }
 
     // Action Cmd Msg class
+    // ToDo rename to ActionCmdMsg
 
     private static final String CMD_MSG_BASE = JOSPProtocol.JOSP_PROTO + " CMD_MSG";
     private static final String CMD_MSG = CMD_MSG_BASE + " %s\nfullSrvId:%s/%s/%s\nobjId:%s\ncompPath:%s\ncmdType:%s\n%s";
@@ -33,6 +49,10 @@ public class JOSPProtocol_ServiceToObject {
         String usrId = JOSPProtocol_Service.fullSrvIdToUsrId(fullSrvId);
         String instId = JOSPProtocol_Service.fullSrvIdToInstId(fullSrvId);
         return ActionCmdMsg.fromCmdToMsg(new ActionCmdMsg(srvId, usrId, instId, objId, compPath, command));
+    }
+
+    public static boolean isObjectCmdMsg(String msg) {
+        return msg.startsWith(CMD_MSG_BASE);
     }
 
     /**
