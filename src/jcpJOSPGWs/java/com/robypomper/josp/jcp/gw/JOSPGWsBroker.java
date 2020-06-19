@@ -78,6 +78,18 @@ public class JOSPGWsBroker {
             sendAction(object, cmd);
     }
 
+    // from GWObject
+    public void requestToObject(String objId, String srvId, String usrId, String msg) {
+        // check if service is allowed to send request (Owner or CoOwner)
+        // if allowed, send action command
+        GWObject object = objects.get(objId);
+        if (object == null) {
+            // WARN
+            return;
+        }
+        if (permissionsDBService.isObjectActionAllowed(objId, srvId, usrId))
+            sendRequest(object, msg);
+    }
 
     // PermissionsController's method
 
@@ -126,6 +138,15 @@ public class JOSPGWsBroker {
     private void sendAction(GWObject object, JOSPProtocol.ActionCmd cmd) {
         try {
             object.sendData(JOSPProtocol.fromCmdToMsg(cmd));
+
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendRequest(GWObject object, String msg) {
+        try {
+            object.sendData(msg);
 
         } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
             e.printStackTrace();
