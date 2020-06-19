@@ -65,31 +65,6 @@ public class JOSPGWsBroker {
         services.remove(service.getFullId());
     }
 
-    // from GWService
-    public void actionToObject(JOSPProtocol.ActionCmd cmd) {
-        // check if service is allowed to send action commands
-        // if allowed, send action command
-        GWObject object = objects.get(cmd.getObjectId());
-        if (object == null) {
-            // WARN
-            return;
-        }
-        if (permissionDBService.isObjectActionAllowed(cmd.getObjectId(), cmd.getServiceId(), cmd.getUserId()))
-            sendAction(object, cmd);
-    }
-
-    // from GWObject
-    public void requestToObject(String objId, String srvId, String usrId, String msg) {
-        // check if service is allowed to send request (Owner or CoOwner)
-        // if allowed, send action command
-        GWObject object = objects.get(objId);
-        if (object == null) {
-            // WARN
-            return;
-        }
-        if (permissionsDBService.isObjectActionAllowed(objId, srvId, usrId))
-            sendRequest(object, msg);
-    }
 
     // PermissionsController's method
 
@@ -100,6 +75,21 @@ public class JOSPGWsBroker {
 
 
     // Send methods
+
+    public boolean sendToObject(GWService service, String objId, String msg, PermissionsTypes.Type minReqPerm) {
+        GWObject object = objects.get(objId);
+        if (serviceCanSendToObject(service, object, minReqPerm))
+            return false;
+
+        try {
+            object.sendData(msg);
+
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            return false;
+        }
+
+        return true;
+    }
 
     private void sendObjectPresentationToService(Object obj, GWService service) {
         try {
@@ -135,27 +125,10 @@ public class JOSPGWsBroker {
         }
     }
 
-    private void sendAction(GWObject object, JOSPProtocol.ActionCmd cmd) {
-        try {
-            object.sendData(JOSPProtocol.fromCmdToMsg(cmd));
-
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendRequest(GWObject object, String msg) {
-        try {
-            object.sendData(msg);
-
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     // Permission's methods
 
+    // ToDo update param to GWObject and check minReqPerm
     private List<GWService> getAllowedServices(String objId) {
         List<GWService> allowedSrvs = new ArrayList<>();
 
@@ -169,4 +142,9 @@ public class JOSPGWsBroker {
         return allowedSrvs;
     }
 
+    private boolean serviceCanSendToObject(GWService service, GWObject object, PermissionsTypes.Type minReqPerm) {
+        // ToDo add minReqPerm check
+        List<GWService> allowedServices = getAllowedServices(object.getObjId());
+        return allowedServices.contains(service);
+    }
 }
