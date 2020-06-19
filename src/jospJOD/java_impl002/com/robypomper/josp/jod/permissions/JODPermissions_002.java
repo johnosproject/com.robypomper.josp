@@ -122,7 +122,7 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
-    public boolean canSendLocalUpdate(String srvId, String usrId) {
+    public boolean canSendUpdate(String srvId, String usrId, PermissionsTypes.Connection connection) {
         if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
             log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
@@ -136,6 +136,10 @@ public class JODPermissions_002 implements JODPermissions {
         }
 
         for (ObjPermission p : inherentPermissions) {
+            if (connection == PermissionsTypes.Connection.LocalAndCloud
+                    && p.connection == PermissionsTypes.Connection.OnlyLocal) {
+                continue;
+            }
             if (p.type == PermissionsTypes.Type.Status
                     || p.type == PermissionsTypes.Type.Actions
                     || p.type == PermissionsTypes.Type.CoOwner) {
@@ -152,9 +156,9 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
-    public boolean canActAsLocalCoOwner(String srvId, String usrId) {
-        if (getOwnerId().isEmpty()) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
+    public boolean canActAsCoOwner(String srvId, String usrId, PermissionsTypes.Connection connection) {
+        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
+            log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
         }
 
@@ -166,6 +170,10 @@ public class JODPermissions_002 implements JODPermissions {
         }
 
         for (ObjPermission p : inherentPermissions) {
+            if (connection == PermissionsTypes.Connection.LocalAndCloud
+                    && p.connection == PermissionsTypes.Connection.OnlyLocal) {
+                continue;
+            }
             if (p.type == PermissionsTypes.Type.CoOwner) {
                 log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s GRANTED", srvId, usrId));
                 return true;

@@ -53,7 +53,7 @@ public interface JODPermissions {
      * @return true if and only if the pair <code>service/user</code> can
      * receive the status update from current object.
      */
-    boolean canSendLocalUpdate(String srvId, String usrId);
+    boolean canSendUpdate(String srvId, String usrId, PermissionsTypes.Connection connection);
 
     /**
      * Check if given identities (<code>service/user</code>) can act as object's
@@ -67,7 +67,7 @@ public interface JODPermissions {
      * @return true if and only if the pair <code>service/user</code> can
      * act as object's owner.
      */
-    boolean canActAsLocalCoOwner(String srvId, String usrId);
+    boolean canActAsCoOwner(String srvId, String usrId, PermissionsTypes.Connection connection);
 
     /**
      * Start object's permission syncronization between local and cloud permissions.
