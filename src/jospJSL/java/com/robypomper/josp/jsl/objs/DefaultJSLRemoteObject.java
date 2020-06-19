@@ -99,6 +99,24 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     /**
+     * Set the represent object's name and trigger corresponding event.
+     *
+     * @param name the object's name.
+     */
+    private void updateName(String name) {
+        this.name = name;
+        // ToDo: trigger onNameUpdated() event
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setName(String newName) throws ObjectNotConnected {
+        requestSetObjectName(newName);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -115,11 +133,39 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     /**
+     * Set the represent object's owner id and trigger corresponding event.
+     *
+     * @param ownerId the object's owner id.
+     */
+    private void updateOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+        // ToDo: trigger onOwnerIdUpdated() event
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setOwnerId(String newOwnerId) throws ObjectNotConnected {
+        requestSetObjectOwnerId(newOwnerId);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public String getJODVersion() {
         return jodVersion != null ? jodVersion : "N/A";
+    }
+
+    /**
+     * Set the represent object's JOD version and trigger corresponding event.
+     *
+     * @param jodVersion the object's JOD version.
+     */
+    private void updateJODVersion(String jodVersion) {
+        this.jodVersion = jodVersion;
+        // ToDo: trigger onJODVersionUpdated() event
     }
 
     /**
@@ -130,38 +176,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         return communication;
     }
 
-    /**
-     * Set the represent object's name and trigger corresponding event.
-     *
-     * @param name the object's name.
-     */
-    private void setName(String name) {
-        this.name = name;
-        // ToDo: trigger onNameUpdated() event
-    }
 
-    /**
-     * Set the represent object's owner id and trigger corresponding event.
-     *
-     * @param ownerId the object's owner id.
-     */
-    private void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
-        // ToDo: trigger onOwnerIdUpdated() event
-    }
-
-    /**
-     * Set the represent object's JOD version and trigger corresponding event.
-     *
-     * @param jodVersion the object's JOD version.
-     */
-    private void setJODVersion(String jodVersion) {
-        this.jodVersion = jodVersion;
-        // ToDo: trigger onJODVersionUpdated() event
-    }
-
-
-    // Object's communication
+    // Object's local communication
 
     /**
      * {@inheritDoc}
@@ -240,8 +256,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         if (!wasObjectConnected) {
             log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Requesting object's '%s' presentation", localClient.getObjId()));
             try {
-                requestObjectInfo();
-                requestObjectStructure();
+                requestLocalObjectInfo();
+                requestLocalObjectStructure();
                 log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' info and structure requested", localClient.getObjId()));
 
             } catch (ObjectNotConnected e) {
@@ -282,14 +298,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     /**
-     * Util method that send given message to represented object.
+     * Util method that send given message to represented object via local comm.
      * <p>
-     * This method use the connected client, in the object's clients list, and
-     * use it to send the message.
+     * This method use the connected client, in the object's clients list, to
+     * send the message.
      *
      * @param msg the message to send to the represented object.
      */
-    private void send(String msg) throws ObjectNotConnected {
+    private void sendLocal(String msg) throws ObjectNotConnected {
         JSLLocalClient cli = getConnectedLocalClient();
         if (cli == null)
             throw new ObjectNotConnected(this);
@@ -301,18 +317,66 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         }
     }
 
+
+    // Object's cloud communication
+
+    /**
+     * Util method that send given message to represented object via cloud.
+     * <p>
+     * This method use the connected S2O GW client to send the message.
+     *
+     * @param msg the message to send to the represented object.
+     */
+    private void sendCloud(String msg) throws ObjectNotConnected {
+        if (!communication.getCloudConnection().isConnected())
+            throw new ObjectNotConnected(this);
+
+        try {
+            communication.getCloudConnection().sendData(msg);
+        } catch (Client.ServerNotConnectedException e) {
+            throw new ObjectNotConnected(this, e);
+        }
+    }
+
+
+    // Object's requests
+
     /**
      * Send ObjectInfo request to represented object.
      */
-    private void requestObjectInfo() throws ObjectNotConnected {
-        send(JOSPProtocol_ServiceRequests.createObjectInfoRequest(srvInfo.getFullId()));
+    private void requestLocalObjectInfo() throws ObjectNotConnected {
+        sendLocal(JOSPProtocol_ServiceRequests.createObjectInfoRequest(srvInfo.getFullId()));
     }
 
     /**
      * Send ObjectStruct request to represented object.
      */
-    private void requestObjectStructure() throws ObjectNotConnected {
-        send(JOSPProtocol_ServiceRequests.createObjectStructureRequest(srvInfo.getFullId(), lastStructureUpdate));
+    private void requestLocalObjectStructure() throws ObjectNotConnected {
+        sendLocal(JOSPProtocol_ServiceRequests.createObjectStructureRequest(srvInfo.getFullId(), lastStructureUpdate));
+    }
+
+    /**
+     * Send SetObjectName request to represented object.
+     */
+    private void requestSetObjectName(String newName) throws ObjectNotConnected {
+        if (isLocalConnected())
+            sendLocal(JOSPProtocol_ServiceRequests.createObjectSetNameRequest(srvInfo.getFullId(), newName));
+        else if (isCloudConnected())
+            sendCloud(JOSPProtocol_CloudRequests.createObjectSetNameRequest(srvInfo.getFullId(), getId(), newName));
+        else
+            throw new ObjectNotConnected(this);
+    }
+
+    /**
+     * Send SetObjectOwnerId request to represented object.
+     */
+    private void requestSetObjectOwnerId(String newOwnerId) throws ObjectNotConnected {
+        if (isLocalConnected())
+            sendLocal(JOSPProtocol_ServiceRequests.createObjectSetOwnerIdRequest(srvInfo.getFullId(), newOwnerId));
+        else if (isCloudConnected())
+            sendCloud(JOSPProtocol_CloudRequests.createObjectSetOwnerIdRequest(srvInfo.getFullId(), getId(), newOwnerId));
+        else
+            throw new ObjectNotConnected(this);
     }
 
 
@@ -344,9 +408,9 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Processing ObjectInfo message for '%s' object", objId));
 
         try {
-            setName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
-            setOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
-            setJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
+            updateName(JOSPProtocol_ServiceRequests.extractObjectInfoObjNameFromResponse(msg));
+            updateOwnerId(JOSPProtocol_ServiceRequests.extractObjectInfoOwnerIdFromResponse(msg));
+            updateJODVersion(JOSPProtocol_ServiceRequests.extractObjectInfoJodVersionFromResponse(msg));
 
         } catch (JOSPProtocol.ParsingException e) {
             log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
@@ -420,4 +484,5 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         return false;
     }
+
 }

@@ -44,7 +44,7 @@ public class CmdsJSLObjsMngr {
     }
 
 
-    // Single object
+    // Object's info
 
     @Command(description = "Print object's info.")
     public String objPrintObjectInfo(String objId) {
@@ -62,7 +62,6 @@ public class CmdsJSLObjsMngr {
 
         return s;
     }
-
 
     @Command(description = "Print object's info.")
     public String objPrintObjectStruct(String objId) {
@@ -110,6 +109,23 @@ public class CmdsJSLObjsMngr {
         return s.toString();
     }
 
+    @Command(description = "Set object's name.")
+    public String objSetObjectName(String objId, String objName) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        String oldName = obj.getName();
+        try {
+            obj.setName(objName);
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't update name", obj.getId());
+        }
+
+        return String.format("Object '%s' name updated from '%s' to '%s'", obj.getId(), oldName, obj.getName());
+    }
+
+    // Object's status
 
     @Command(description = "Print object's info.")
     public String objStatus(String objId, String compPath) {
@@ -136,6 +152,8 @@ public class CmdsJSLObjsMngr {
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
     }
 
+
+    // Object's actions
 
     @Command(description = "Exec object's boolean action.")
     public String objActionBoolean(String objId, String compPath, String actionBooleanParam) {
@@ -181,6 +199,25 @@ public class CmdsJSLObjsMngr {
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+
+    // Object's permissions
+
+    @Command(description = "Set object's owner id.")
+    public String objSetObjectOwner(String objId, String objOwnerId) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        String oldOwner = obj.getOwnerId();
+        try {
+            obj.setOwnerId(objOwnerId);
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't update owner id", obj.getId());
+        }
+
+        return String.format("Object '%s' owner updated from '%s' to '%s'", obj.getId(), oldOwner, obj.getOwnerId());
     }
 
 }

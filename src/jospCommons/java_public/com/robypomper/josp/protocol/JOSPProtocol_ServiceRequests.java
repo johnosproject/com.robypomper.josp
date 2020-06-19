@@ -19,6 +19,10 @@ public class JOSPProtocol_ServiceRequests {
     private static final String OBJ_STRUCT_REQ = OBJ_STRUCT_REQ_BASE + " %s\n%s\nlastKnowUpd:%s";
     private static final String OBJ_STRUCT_RES_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_STRUCT_RES";
     private static final String OBJ_STRUCT_RES = OBJ_STRUCT_RES_BASE + " %s\n%s\nlastUpd:%s\nstructure:%s";
+    private static final String OBJ_SETNAME_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETNAME_REQ";
+    private static final String OBJ_SETNAME_REQ = OBJ_SETNAME_REQ_BASE + " %s\n%s\nobjName:%s";
+    private static final String OBJ_SETOWNERID_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETOWNERID_REQ";
+    private static final String OBJ_SETOWNERID_REQ = OBJ_SETOWNERID_REQ_BASE + " %s\n%s\nobjName:%s";
 
 
     // Object structure (Req+Res)
@@ -90,6 +94,44 @@ public class JOSPProtocol_ServiceRequests {
             throw new JOSPProtocol.ParsingException("Few lines in ObjectStructureResponse");
 
         return lines[3].substring(lines[3].indexOf(":") + 1);
+    }
+
+
+    // Object set name (Req)
+
+    public static String createObjectSetNameRequest(String fullSrvId, String newName) {
+        return String.format(OBJ_SETNAME_REQ, JOSPProtocol.getNow(), fullSrvId, newName);
+    }
+
+    public static boolean isObjectSetNameRequest(String msg) {
+        return msg.startsWith(OBJ_SETNAME_REQ_BASE);
+    }
+
+    public static String extractObjectSetNameNameFromRequest(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 3)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectSetNameRequest");
+
+        return lines[2].substring(lines[2].indexOf(":") + 1);
+    }
+
+
+    // Object set owner (Req)
+
+    public static String createObjectSetOwnerIdRequest(String fullSrvId, String newName) {
+        return String.format(OBJ_SETOWNERID_REQ, JOSPProtocol.getNow(), fullSrvId, newName);
+    }
+
+    public static boolean isObjectSetOwnerIdRequest(String msg) {
+        return msg.startsWith(OBJ_SETOWNERID_REQ_BASE);
+    }
+
+    public static String extractObjectSetOwnerIdOwnerIdFromRequest(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 3)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectOwnerIdRequest");
+
+        return lines[2].substring(lines[2].indexOf(":") + 1);
     }
 
 }

@@ -25,6 +25,11 @@ public interface JSLRemoteObject {
     String getName();
 
     /**
+     * Send a request to set the object's name.
+     */
+    void setName(String newName) throws ObjectNotConnected;
+
+    /**
      * @return the object's structure.
      */
     JSLRoot getStructure();
@@ -33,6 +38,11 @@ public interface JSLRemoteObject {
      * @return the object's owner Id.
      */
     String getOwnerId();
+
+    /**
+     * Send a request to set the object's owner id.
+     */
+    void setOwnerId(String newOwnerId) throws ObjectNotConnected;
 
     /**
      * @return the object's JOD version.

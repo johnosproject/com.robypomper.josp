@@ -127,4 +127,74 @@ public class JOSPProtocol_CloudRequests {
         return Boolean.parseBoolean(lines[4].substring(lines[4].indexOf(":") + 1));
     }
 
+
+    // To Objects requests
+
+    public static boolean isToObjectRequest(String msg) {
+        return msg.startsWith(OBJ_SETNAME_REQ_BASE)
+                || msg.startsWith(OBJ_SETOWNERID_REQ_BASE);
+    }
+
+    public static String extractObjectIdFromRequest(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 3)
+            throw new JOSPProtocol.ParsingException("Few lines in toObjectRequest");
+
+        return lines[2];
+    }
+
+    public static String extractServiceIdFromRequest(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 3)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectSetNameRequest");
+
+        return lines[1].split("/")[0];
+    }
+
+    public static String extractUserIdFromRequest(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 3)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectSetNameRequest");
+
+        return lines[1].split("/")[1];
+    }
+
+
+    // Object set name (Req)
+
+    public static String createObjectSetNameRequest(String fullSrvId, String objId, String newName) {
+        return String.format(OBJ_SETNAME_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newName);
+    }
+
+    public static boolean isObjectSetNameRequest(String msg) {
+        return msg.startsWith(OBJ_SETNAME_REQ_BASE);
+    }
+
+    public static String extractObjectSetNameNameFromRequest(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 4)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectSetNameRequest");
+
+        return lines[3].substring(lines[3].indexOf(":") + 1);
+    }
+
+
+    // Object set owner (Req)
+
+    public static String createObjectSetOwnerIdRequest(String fullSrvId, String objId, String newName) {
+        return String.format(OBJ_SETOWNERID_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newName);
+    }
+
+    public static boolean isObjectSetOwnerIdRequest(String msg) {
+        return msg.startsWith(OBJ_SETOWNERID_REQ_BASE);
+    }
+
+    public static String extractObjectSetOwnerIdOwnerIdFromRequest(String msg) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < 4)
+            throw new JOSPProtocol.ParsingException("Few lines in ObjectOwnerIdRequest");
+
+        return lines[3].substring(lines[3].indexOf(":") + 1);
+    }
+
 }

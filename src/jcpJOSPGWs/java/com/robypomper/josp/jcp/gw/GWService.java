@@ -6,6 +6,7 @@ import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -141,6 +142,20 @@ public class GWService {
     // Cloud requests
 
     public boolean processCloudRequestResponse(String msg) {
+
+        if (JOSPProtocol_CloudRequests.isToObjectRequest(msg)) {
+            try {
+                String objId = JOSPProtocol_CloudRequests.extractObjectIdFromRequest(msg);
+                String srvId = JOSPProtocol_CloudRequests.extractServiceIdFromRequest(msg);
+                String usrId = JOSPProtocol_CloudRequests.extractUserIdFromRequest(msg);
+                gwBroker.requestToObject(objId, srvId, usrId, msg);
+                return true;
+
+            } catch (JOSPProtocol.ParsingException e) {
+                return false;
+            }
+        }
+
         return false;
     }
 
