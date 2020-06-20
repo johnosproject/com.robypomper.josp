@@ -7,12 +7,30 @@ public class JOSPProtocol_ServiceToObject {
 
     private static final String OBJ_REQ_NAME = "ServiceToObject";
 
+    public static String getFullSrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 3, 1, OBJ_REQ_NAME);
+    }
+
+    public static String getSrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol_Service.fullSrvIdToSrvId(getFullSrvId(msg));
+    }
+
+    public static String getUsrId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol_Service.fullSrvIdToUsrId(getFullSrvId(msg));
+    }
+
+    public static String getInstId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol_Service.fullSrvIdToInstId(getFullSrvId(msg));
+    }
+
     public static String getObjId(String msg) throws JOSPProtocol.ParsingException {
         return JOSPProtocol.extractFieldFromResponse(msg, 3, 2, OBJ_REQ_NAME);
     }
 
+
     // Object Set Name
 
+    public static final String OBJ_SETNAME_REQ_NAME = "ObjectSetName";
     private static final String OBJ_SETNAME_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETNAME_REQ";
     private static final String OBJ_SETNAME_REQ = OBJ_SETNAME_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nobjName:%s";
 
@@ -24,9 +42,14 @@ public class JOSPProtocol_ServiceToObject {
         return msg.startsWith(OBJ_SETNAME_REQ_BASE);
     }
 
+    public static String getObjectSetNameMsg_Name(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 3, OBJ_SETNAME_REQ_NAME);
+    }
+
 
     // Object Set Owner Id
 
+    public static final String OBJ_SETOWNERID_REQ_NAME = "ObjectSetOwnerId";
     private static final String OBJ_SETOWNERID_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETOWNERID_REQ";
     private static final String OBJ_SETOWNERID_REQ = OBJ_SETOWNERID_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nobjName:%s";
 
@@ -37,6 +60,11 @@ public class JOSPProtocol_ServiceToObject {
     public static boolean isObjectSetOwnerIdMsg(String msg) {
         return msg.startsWith(OBJ_SETOWNERID_REQ_BASE);
     }
+
+    public static String getObjectSetOwnerIdMsg_OwnerId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 3, OBJ_SETOWNERID_REQ_NAME);
+    }
+
 
     // Action Cmd Msg class
     // ToDo rename to ActionCmdMsg
