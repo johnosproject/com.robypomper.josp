@@ -19,8 +19,7 @@ import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
-import com.robypomper.josp.protocol.JOSPProtocol_ServiceRequests;
+import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -175,13 +173,34 @@ public class JODCommunication_002 implements JODCommunication {
     }
 
 
-    // Action cmd flow (comm - objStruct)
+    // From Service Msg
+
+    @Override
+    public boolean processFromServiceMsg(String msg, PermissionsTypes.Connection connType) {
+        String srvId, usrId;
+        try {
+            srvId = JOSPProtocol_ServiceToObject.getSrvId(msg);
+            usrId = JOSPProtocol_ServiceToObject.getUsrId(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            return false;
+        }
+
+        // dispatch to processor
+        if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg))
+            return checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetNameMsg(msg);
+        else if (JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
+            return checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetOwnerIdMsg(msg);
+        else if (JOSPProtocol_ServiceToObject.isObjectCmdMsg(msg))
+            return checkRequest_ActionPermission(srvId, usrId, connType) && processObjectCmdMsg(msg);
+
+        return false;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean forwardAction(String msg, PermissionsTypes.Connection connType) {
+    public boolean processObjectCmdMsg(String msg) {
         if (!JOSPProtocol.isCmdMsg(msg))
             return false;
 
@@ -194,12 +213,6 @@ public class JODCommunication_002 implements JODCommunication {
         }
 
         log.info(Mrk_JOD.JOD_COMM, String.format("Forward command to component '%s'", cmd.getComponentPath()));
-
-        // check service permission
-        if (!permissions.canExecuteAction(cmd.getServiceId(), cmd.getUserId(), connType)) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on executing command from '%s' service with '%s' user because not allowed on '%s' connection", cmd.getServiceId(), cmd.getUserId(), connType));
-            return false;
-        }
 
         // search destination components
         JODComponentPath compPath = new DefaultJODComponentPath(cmd.getComponentPath());
@@ -231,192 +244,34 @@ public class JODCommunication_002 implements JODCommunication {
     }
 
 
-    // Local service requests
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String processServiceRequest(JODLocalClientInfo client, String msg) {
-        log.trace(Mrk_JOD.JOD_COMM, String.format("Process service request from '%s' service", client.getClientId()));
-
-        try {
-            String response = null;
-
-            // Object info request
-            if (JOSPProtocol_ServiceRequests.isObjectInfoRequest(msg)) {
-                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectInfoRequest request for service '%s'", client.getClientId()));
-                response = processObjectInfoRequest(client.getSrvId(), client.getUsrId(), msg);
-            }
-
-            // Object structure request
-            if (JOSPProtocol_ServiceRequests.isObjectStructureRequest(msg)) {
-                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectStructureRequest request for service '%s'", client.getClientId()));
-                response = processObjectStructureRequest(client.getSrvId(), client.getUsrId(), msg);
-            }
-
-            // Object name request
-            if (JOSPProtocol_ServiceRequests.isObjectSetNameRequest(msg)) {
-                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectSetNameRequest request for service '%s'", client.getClientId()));
-                response = processObjectSetNameRequest(client.getSrvId(), client.getUsrId(), msg, false);
-            }
-
-            // Object owner id request
-            if (JOSPProtocol_ServiceRequests.isObjectSetOwnerIdRequest(msg)) {
-                log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectSetOwnerIdRequest request for service '%s'", client.getClientId()));
-                response = processObjectSetOwnerIdRequest(client.getSrvId(), client.getUsrId(), msg, false);
-            }
-
-            return response;
-
-        } catch (MissingPermissionException e) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' request because client missing permissions", client.getClientId()));
-            return e.getMessage();
-        }
-    }
-
-
-    // Cloud requests
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String processCloudRequest(String msg) {
-        log.trace(Mrk_JOD.JOD_COMM, "Process cloud request");
-
-        String response = null;
-
-        // Object structure request
-        if (JOSPProtocol_CloudRequests.isObjectStructureRequest(msg)) {
-            log.info(Mrk_JOD.JOD_COMM, "Elaborate ObjectStructureRequest request from cloud");
-            return processObjectStructureRequest(msg);
-        }
-
-        if (JOSPProtocol_CloudRequests.isToObjectRequest(msg)) {
-            String srvId;
-            String usrId;
-            try {
-                srvId = JOSPProtocol_CloudRequests.extractServiceIdFromRequest(msg);
-                usrId = JOSPProtocol_CloudRequests.extractUserIdFromRequest(msg);
-
-            } catch (JOSPProtocol.ParsingException e) {
-                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing cloud request from service because can't parse ids: %s", e.getMessage()));
-                return e.getMessage();
-            }
-
-            try {
-                // Object name request
-                if (JOSPProtocol_CloudRequests.isObjectSetNameRequest(msg)) {
-                    log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectSetNameRequest request for service '%s' and user '%s'", srvId, usrId));
-                    response = processObjectSetNameRequest(srvId, usrId, msg, true);
-                }
-
-                // Object owner id request
-                if (JOSPProtocol_CloudRequests.isObjectSetOwnerIdRequest(msg)) {
-                    log.info(Mrk_JOD.JOD_COMM, String.format("Elaborate ObjectSetOwnerIdRequest request for service '%s' and user '%s'", srvId, usrId));
-                    response = processObjectSetOwnerIdRequest(srvId, usrId, msg, true);
-                }
-
-            } catch (MissingPermissionException e) {
-                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing cloud request from service '%s' and user '%s' because client missing permissions", srvId, usrId));
-                return e.getMessage();
-            }
-        }
-
-        return response;
-    }
-
-
     // Request processors
 
-    private String processObjectInfoRequest(String srvId, String usrId, String msg) throws MissingPermissionException {
-        log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectInfoRequest");
-        checkRequest_ReadPermission(srvId, usrId, false);
-        String response = JOSPProtocol_ServiceRequests.createObjectInfoResponse(objInfo.getObjId(), objInfo.getObjName(), objInfo.getOwnerId(), objInfo.getJODVersion());
-        log.debug(Mrk_JOD.JOD_COMM, "Service request ObjectInfoRequest processed");
-        return response;
-    }
-
-    private String processObjectStructureRequest(String msg) {
-        try {
-            return processObjectStructureRequest(null, null, msg);
-        } catch (MissingPermissionException ignore) {/*Request from cloud, no permission checks*/}
-        return null;
-    }
-
-    private String processObjectStructureRequest(String srvId, String usrId, String msg) throws MissingPermissionException {
-        boolean fromCloud = srvId == null;
-        if (fromCloud)
-            log.debug(Mrk_JOD.JOD_COMM, "Processing cloud request ObjectStructureRequest");
-        else {
-            log.debug(Mrk_JOD.JOD_COMM, "Processing service request ObjectStructureRequest");
-            checkRequest_ReadPermission(srvId, usrId, false);
-        }
-
-        try {
-            String structStr = structure.getStringForJSL();
-            String response;
-            if (fromCloud) {
-                response = JOSPProtocol_CloudRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr, true);
-                log.debug(Mrk_JOD.JOD_COMM, "Cloud request ObjectStructureRequest processed");
-            } else {
-                response = JOSPProtocol_ServiceRequests.createObjectStructureResponse(objInfo.getObjId(), structure.getLastStructureUpdate(), structStr);
-                log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' and user '%s' request ObjectStructureRequest processed", srvId, usrId));
-            }
-            return response;
-
-        } catch (JODStructure.ParsingException e) {
-            if (fromCloud)
-                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing cloud request ObjectStructureRequest because %s", e.getMessage()), e);
-            else
-                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing service '%s' and user '%s' request ObjectStructureRequest because %s", srvId, usrId, e.getMessage()), e);
-            return String.format("[%s] %s\n%s", e.getClass().getSimpleName(), e.getMessage(), Arrays.toString(e.getStackTrace()));
-        }
-    }
-
-    private String processObjectSetNameRequest(String srvId, String usrId, String msg, boolean fromCloud) throws MissingPermissionException {
-        String origin = fromCloud ? "cloud" : "service";
-        log.debug(Mrk_JOD.JOD_COMM, String.format("Processing %s request ObjectSetNameRequest", origin));
-        checkRequest_OwnerPermission(srvId, usrId, fromCloud);
-
+    private boolean processObjectSetNameMsg(String msg) {
         String newName;
         try {
-            if (fromCloud)
-                newName = JOSPProtocol_CloudRequests.extractObjectSetNameNameFromRequest(msg);
-            else
-                newName = JOSPProtocol_ServiceRequests.extractObjectSetNameNameFromRequest(msg);
+            newName = JOSPProtocol_ServiceToObject.getObjectSetNameMsg_Name(msg);
 
         } catch (JOSPProtocol.ParsingException e) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing %s '%s' and user '%s' request ObjectSetNameRequest because %s", origin, srvId, usrId, e.getMessage()), e);
-            return "";
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because %s", JOSPProtocol_ServiceToObject.OBJ_SETNAME_REQ_NAME, e.getMessage()), e);
+            return false;
         }
 
         objInfo.setObjName(newName);
-        log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' and user '%s' request ObjectSetNameRequest processed", srvId, usrId));
-        return "";
+        return true;
     }
 
-    private String processObjectSetOwnerIdRequest(String srvId, String usrId, String msg, boolean fromCloud) throws MissingPermissionException {
-        String origin = fromCloud ? "cloud" : "service";
-        log.debug(Mrk_JOD.JOD_COMM, String.format("Processing %s request ObjectSetOwnerIdRequest", origin));
-        checkRequest_OwnerPermission(srvId, usrId, fromCloud);
-
+    private boolean processObjectSetOwnerIdMsg(String msg) {
         String newOwnerId;
         try {
-            if (fromCloud)
-                newOwnerId = JOSPProtocol_CloudRequests.extractObjectSetOwnerIdOwnerIdFromRequest(msg);
-            else
-                newOwnerId = JOSPProtocol_ServiceRequests.extractObjectSetOwnerIdOwnerIdFromRequest(msg);
+            newOwnerId = JOSPProtocol_ServiceToObject.getObjectSetOwnerIdMsg_OwnerId(msg);
 
         } catch (JOSPProtocol.ParsingException e) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing %s '%s' and user '%s' request ObjectSetOwnerIdRequest because %s", origin, srvId, usrId, e.getMessage()), e);
-            return "";
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because %s", JOSPProtocol_ServiceToObject.OBJ_SETOWNERID_REQ_NAME, e.getMessage()), e);
+            return false;
         }
 
         permissions.setOwnerId(newOwnerId);
-        log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' and user '%s' request ObjectSetOwnerIdRequest processed", srvId, usrId));
-        return "";
+        return true;
     }
 
 
@@ -427,9 +282,12 @@ public class JODCommunication_002 implements JODCommunication {
             throw new MissingPermissionException("LocalServiceRequest", srvId, usrId);
     }
 
-    private void checkRequest_OwnerPermission(String srvId, String usrId, boolean fromCloud) throws MissingPermissionException {
-        if (!permissions.canActAsCoOwner(srvId, usrId, fromCloud ? PermissionsTypes.Connection.LocalAndCloud : PermissionsTypes.Connection.OnlyLocal))
-            throw new MissingPermissionException("LocalServiceRequest", srvId, usrId);
+    private boolean checkRequest_ActionPermission(String srvId, String usrId, PermissionsTypes.Connection fromConnType) {
+        return permissions.canExecuteAction(srvId, usrId, fromConnType);
+    }
+
+    private boolean checkRequest_OwnerPermission(String srvId, String usrId, PermissionsTypes.Connection fromConnType) {
+        return permissions.canActAsCoOwner(srvId, usrId, fromConnType);
     }
 
 

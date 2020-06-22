@@ -174,30 +174,7 @@ public class JODGwO2SClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from GWs O2S to '%s' object", readData.substring(0, readData.indexOf("\n")), objInfo.getObjId()));
-
-        // Action requests
-        if (communication.forwardAction(readData, PermissionsTypes.Connection.LocalAndCloud))
-            return true;
-
-        // Cloud requests
-        String responseOrError = communication.processCloudRequest(readData);
-        if (responseOrError != null) {
-            log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Sending response for cloud request '%s...' to GWs O2S from '%s' object", readData.substring(0, 10), objInfo.getObjId()));
-            try {
-                sendData(responseOrError);
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Response for service request '%s...' send to GWs O2S from '%s' object", readData.substring(0, 10), objInfo.getObjId()));
-                return true;
-
-            } catch (ServerNotConnectedException e) {
-                log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending response for service request '%s...' to GWs O2S from '%s' object because %s", readData.substring(0, 10), objInfo.getObjId(), e.getMessage()), e);
-                return false;
-            }
-        }
-
-        // Unknown request
-        log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on processing received data '%s...' from GWs O2S to '%s' object because unknown request", readData.substring(0, 10), objInfo.getObjId()));
-        return false;
+        return communication.processFromServiceMsg(readData, PermissionsTypes.Connection.LocalAndCloud);
     }
 
 

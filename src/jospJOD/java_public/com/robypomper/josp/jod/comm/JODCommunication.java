@@ -42,45 +42,13 @@ public interface JODCommunication {
 
     // Action cmd flow (comm - objStruct)
 
+    boolean processFromServiceMsg(String msg, PermissionsTypes.Connection connType);
+
     /**
      * Parse and exec given action (in the <code>msg</code> string) to the right
      * object's component.
      */
-    boolean forwardAction(String msg, PermissionsTypes.Connection connType);
-
-
-    // Local service requests
-
-    /**
-     * Method to process all requests received from local services.
-     * <p>
-     * If received data are NOT a local service request, then this method return
-     * null pointer. Otherwise it return a String containing the response to
-     * replay to the sender JSL.
-     *
-     * @param client the sender JSL info.
-     * @param msg    the local service request received from <code>client</code>.
-     * @return a String containing the response to reply or null if <code>msg</code>
-     * doesn't contain a valid local service request.
-     */
-    String processServiceRequest(JODLocalClientInfo client, String msg);
-
-
-    // Cloud requests
-
-    /**
-     * Method to process all requests received from GW's O2S.
-     * <p>
-     * If received data are NOT a cloud request, then this method return
-     * null pointer. Otherwise it return a String containing the response to
-     * replay to the sender JSL.
-     *
-     * @param msg the cloud request received.
-     * @return a String containing the response to reply or null if <code>msg</code>
-     * doesn't contain a valid cloud request.
-     */
-    String processCloudRequest(String msg);
-
+    boolean processObjectCmdMsg(String msg);
 
     // Connections access
 

@@ -197,30 +197,7 @@ public class JODLocalServer implements Server {
      * @return always true.
      */
     private boolean onDataReceived(ClientInfo client, String readData) {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from service '%s' to '%s' object", readData.substring(0, readData.indexOf("\n")), client.getClientId(), objId));
-
-        // Action requests
-        if (communication.forwardAction(readData, PermissionsTypes.Connection.OnlyLocal))
-            return true;
-
-        // Service requests
-        String responseOrError = communication.processServiceRequest(getLocalConnectionByServiceId(client.getClientId()), readData);
-        if (responseOrError != null) {
-            log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Sending response for service request '%s...' to client '%s' from '%s' object", readData.substring(0, 10), client.getClientId(), objId));
-            try {
-                sendData(client, responseOrError);
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Response for service request '%s...' send to client '%s' from '%s' object", readData.substring(0, 10), client.getClientId(), objId));
-                return true;
-
-            } catch (ServerStoppedException | ClientNotConnectedException e) {
-                log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending response for service request '%s...' to client '%s' from '%s' object because %s", readData.substring(0, 10), client.getClientId(), objId, e.getMessage()), e);
-                return false;
-            }
-        }
-
-        // Unknown request
-        log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on processing received data '%s...' from client '%s' to '%s' object because unknown request", readData.substring(0, 10), client.getClientId(), objId));
-        return false;
+        return communication.processFromServiceMsg(readData, PermissionsTypes.Connection.OnlyLocal);
     }
 
 
