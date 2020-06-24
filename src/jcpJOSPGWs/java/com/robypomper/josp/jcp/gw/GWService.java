@@ -2,10 +2,10 @@ package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import org.apache.logging.log4j.LogManager;
@@ -105,13 +105,13 @@ public class GWService {
             return false;
         }
 
-        PermissionsTypes.Type minReqPerm = PermissionsTypes.Type.CoOwner;
+        JOSPPermissions.Type minReqPerm = JOSPPermissions.Type.CoOwner;
         if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg)
                 || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
-            minReqPerm = PermissionsTypes.Type.CoOwner;
+            minReqPerm = JOSPPermissions.Type.CoOwner;
 
         if (JOSPProtocol_ServiceToObject.isObjectCmdMsg(msg))
-            minReqPerm = PermissionsTypes.Type.Actions;
+            minReqPerm = JOSPPermissions.Type.Actions;
 
         return gwBroker.sendToObject(this, objId, msg, minReqPerm);
     }

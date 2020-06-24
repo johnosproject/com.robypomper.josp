@@ -1,13 +1,14 @@
 package com.robypomper.josp.jcp.apis.permissions;
 
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.jcp.gw.JOSPGWsBroker;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -91,7 +92,7 @@ public class ObjectPermissionsController {
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
     public ResponseEntity<List<ObjPermission>> generatePermissions(
             @RequestHeader(APIObjs.HEADER_OBJID) String objId,
-            @PathVariable("strategy") PermissionsTypes.GenerateStrategy strategy) {
+            @PathVariable("strategy") JOSPPermissions.GenerateStrategy strategy) {
 
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
@@ -99,12 +100,12 @@ public class ObjectPermissionsController {
         List<ObjPermission> objPerms = new ArrayList<>();
         Date updateDate = new Date();
 
-        if (strategy == PermissionsTypes.GenerateStrategy.STANDARD) {
-            objPerms.add(new ObjPermission(objId, PermissionsTypes.WildCards.USR_OWNER.toString(), PermissionsTypes.WildCards.SRV_ALL.toString(), PermissionsTypes.Connection.LocalAndCloud, PermissionsTypes.Type.CoOwner, updateDate));
+        if (strategy == JOSPPermissions.GenerateStrategy.STANDARD) {
+            objPerms.add(new ObjPermission(objId, JOSPPermissions.WildCards.USR_OWNER.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.LocalAndCloud, JOSPPermissions.Type.CoOwner, updateDate));
 
-        } else if (strategy == PermissionsTypes.GenerateStrategy.PUBLIC) {
-            objPerms.add(new ObjPermission(objId, PermissionsTypes.WildCards.USR_OWNER.toString(), PermissionsTypes.WildCards.SRV_ALL.toString(), PermissionsTypes.Connection.LocalAndCloud, PermissionsTypes.Type.CoOwner, updateDate));
-            objPerms.add(new ObjPermission(objId, PermissionsTypes.WildCards.USR_ALL.toString(), PermissionsTypes.WildCards.SRV_ALL.toString(), PermissionsTypes.Connection.OnlyLocal, PermissionsTypes.Type.Actions, updateDate));
+        } else if (strategy == JOSPPermissions.GenerateStrategy.PUBLIC) {
+            objPerms.add(new ObjPermission(objId, JOSPPermissions.WildCards.USR_OWNER.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.LocalAndCloud, JOSPPermissions.Type.CoOwner, updateDate));
+            objPerms.add(new ObjPermission(objId, JOSPPermissions.WildCards.USR_ALL.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.OnlyLocal, JOSPPermissions.Type.Actions, updateDate));
 
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, String.format("Can't generate obj's permission because unknown strategy '%s'.", strategy));
