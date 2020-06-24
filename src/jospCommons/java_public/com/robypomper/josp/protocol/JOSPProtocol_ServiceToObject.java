@@ -31,7 +31,7 @@ public class JOSPProtocol_ServiceToObject {
     // Object Set Name
 
     public static final String OBJ_SETNAME_REQ_NAME = "ObjectSetName";
-    private static final String OBJ_SETNAME_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETNAME_REQ";
+    private static final String OBJ_SETNAME_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETNAME_MSG";
     private static final String OBJ_SETNAME_REQ = OBJ_SETNAME_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nobjName:%s";
 
     public static String createObjectSetNameMsg(String fullSrvId, String objId, String newName) {
@@ -50,7 +50,7 @@ public class JOSPProtocol_ServiceToObject {
     // Object Set Owner Id
 
     public static final String OBJ_SETOWNERID_REQ_NAME = "ObjectSetOwnerId";
-    private static final String OBJ_SETOWNERID_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETOWNERID_REQ";
+    private static final String OBJ_SETOWNERID_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETOWNERID_MSG";
     private static final String OBJ_SETOWNERID_REQ = OBJ_SETOWNERID_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nobjName:%s";
 
     public static String createObjectSetOwnerIdMsg(String fullSrvId, String objId, String newOwnerId) {
@@ -72,14 +72,14 @@ public class JOSPProtocol_ServiceToObject {
     private static final String CMD_MSG_BASE = JOSPProtocol.JOSP_PROTO + " CMD_MSG";
     private static final String CMD_MSG = CMD_MSG_BASE + " %s\nfullSrvId:%s/%s/%s\nobjId:%s\ncompPath:%s\ncmdType:%s\n%s";
 
-    public static String createObjectCmdMsg(String fullSrvId, String objId, String compPath, JOSPActionCommandParams command) {
+    public static String createObjectActionCmdMsg(String fullSrvId, String objId, String compPath, JOSPActionCommandParams command) {
         String srvId = JOSPProtocol_Service.fullSrvIdToSrvId(fullSrvId);
         String usrId = JOSPProtocol_Service.fullSrvIdToUsrId(fullSrvId);
         String instId = JOSPProtocol_Service.fullSrvIdToInstId(fullSrvId);
         return ActionCmdMsg.fromCmdToMsg(new ActionCmdMsg(srvId, usrId, instId, objId, compPath, command));
     }
 
-    public static boolean isObjectCmdMsg(String msg) {
+    public static boolean isObjectActionCmdMsg(String msg) {
         return msg.startsWith(CMD_MSG_BASE);
     }
 

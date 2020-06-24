@@ -1,10 +1,10 @@
-package com.robypomper.josp.jcp.apis.params.permissions;
+package com.robypomper.josp.protocol;
 
 
 /**
  * Messaging types to use in Permission messaging classes.
  */
-public class PermissionsTypes {
+public class JOSPPermissions {
 
     /**
      * Define witch connection type is allow in the Permission.

@@ -350,6 +350,21 @@ public class JOSPProtocol {
     }
 
 
+    public static String extractPayloadFromResponse(String msg, int msgMinLines, int fieldLine, String msgName) throws JOSPProtocol.ParsingException {
+        String[] lines = msg.split("\n");
+        if (lines.length < msgMinLines)
+            throw new JOSPProtocol.ParsingException(String.format("Few lines in %s", msgName));
+
+        StringBuilder str = new StringBuilder();
+        for (int i = fieldLine; i < lines.length; i++) {
+            str.append(lines[i]);
+            str.append("\n");
+        }
+
+        return str.toString();
+    }
+
+
     // Exceptions
 
     /**
