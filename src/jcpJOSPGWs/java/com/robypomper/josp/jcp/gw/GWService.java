@@ -105,12 +105,12 @@ public class GWService {
             return false;
         }
 
-        JOSPPermissions.Type minReqPerm = JOSPPermissions.Type.CoOwner;
+        JOSPPermissions.Type minReqPerm = JOSPPermissions.Type.None;
         if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg)
                 || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
             minReqPerm = JOSPPermissions.Type.CoOwner;
 
-        if (JOSPProtocol_ServiceToObject.isObjectCmdMsg(msg))
+        if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
             minReqPerm = JOSPPermissions.Type.Actions;
 
         return gwBroker.sendToObject(this, objId, msg, minReqPerm);

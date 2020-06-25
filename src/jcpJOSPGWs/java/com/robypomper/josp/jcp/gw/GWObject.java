@@ -5,13 +5,12 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.ObjectStatus;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
-import com.robypomper.log.Mrk_Commons;
+import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Date;
 import java.util.Optional;
 
 
@@ -22,9 +21,9 @@ public class GWObject {
     private static final Logger log = LogManager.getLogger();
     private final Server server;
     private final ClientInfo client;
-    private final ObjectDBService objectDBService;
     private final String objId;
-    private final ObjectStatus objStatus;
+    private final Object objDB;
+    private final ObjectDBService objectDBService;
     private final JOSPGWsBroker gwBroker;
 
 
@@ -33,48 +32,135 @@ public class GWObject {
     public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, JOSPGWsBroker gwBroker) throws ObjectNotRegistered {
         this.server = server;
         this.client = client;
+        this.objId = client.getClientId();
         this.objectDBService = objectDBService;
         this.gwBroker = gwBroker;
-        this.objId = client.getClientId();
 
         Optional<Object> objOpt = objectDBService.find(objId);
         if (!objOpt.isPresent())
             throw new ObjectNotRegistered("Object '%s' is NOT registered to JCP");
-
-        Object object = objOpt.get();
-        if (object.getStatus() == null) {
-            object.setStatus(new ObjectStatus());
-            object.getStatus().setObjId(objId);
-            objectDBService.save(object);
+        objDB = objOpt.get();
+        if (objDB.getStatus() == null) {
+            objDB.setStatus(new ObjectStatus());
+            objDB.getStatus().setObjId(objId);
+            objectDBService.save(objDB);
         }
-        objStatus = object.getStatus();
 
-        objStatus.setOnline(true);
-        saveToDB();
-        gwBroker.registerObject(this, object);
-    }
-
-
-    // Sync with DB
-
-    private void saveToDB() {
-        objectDBService.save(objStatus);
+        objDB.getStatus().setOnline(true);
+        updateStatusToDB();
+        gwBroker.registerObject(this);
     }
 
 
     // Getters and setters
 
+    public Object getObj() {
+        return objDB;
+    }
+
     public String getObjId() {
         return objId;
     }
 
-    public Date getLastStructUpdate() {
-        return objStatus.getLastStructUpdate();
+    public void setOffline() {
+        objDB.getStatus().setOnline(false);
+        updateStatusToDB();
     }
 
-    public void setOffline() {
-        objStatus.setOnline(false);
-        saveToDB();
+
+    // Processors
+
+    public boolean processFromObjectMsg(String msg) {
+        if (JOSPProtocol_ObjectToService.isObjectInfoMsg(msg))
+            return processObjectInfoMsg(msg);
+        else if (JOSPProtocol_ObjectToService.isObjectStructMsg(msg))
+            return processObjectStructMsg(msg);
+        else if (JOSPProtocol_ObjectToService.isObjectPermsMsg(msg))
+            return processObjectPermsMsg(msg);
+        else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg))
+            return processUpdateMsg(msg);
+        else
+            return false;
+    }
+
+    private boolean processObjectInfoMsg(String msg) {
+        // store info to db
+        updateInfoToDB(msg);
+
+        // send info to services
+        return gwBroker.sendToServices(this, msg, JOSPPermissions.Type.Status);
+    }
+
+    private boolean processObjectStructMsg(String msg) {
+        // store struct to db
+        updateStructToDB(msg);
+
+        // send struct to services
+        return gwBroker.sendToServices(this, msg, JOSPPermissions.Type.Status);
+    }
+
+    private boolean processObjectPermsMsg(String msg) {
+        // store perms to db
+        updatePermsToDB(msg);
+
+        // send perms to services
+        boolean sendAll = gwBroker.sendToServices(this, msg, JOSPPermissions.Type.Status);
+
+        // send serPerm to service(s)
+        for (GWService service : gwBroker.getAllowedServices(this, JOSPPermissions.Type.CoOwner)) {
+            String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(getObjId(), JOSPPermissions.Type.CoOwner, JOSPPermissions.Connection.LocalAndCloud);
+            gwBroker.sendToSingleCloudService(this, service.getFullId(), srvPermMsg, JOSPPermissions.Type.CoOwner);
+        }
+        for (GWService service : gwBroker.getAllowedServices(this, JOSPPermissions.Type.Actions)) {
+            String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(getObjId(), JOSPPermissions.Type.Actions, JOSPPermissions.Connection.LocalAndCloud);
+            gwBroker.sendToSingleCloudService(this, service.getFullId(), srvPermMsg, JOSPPermissions.Type.Actions);
+        }
+        for (GWService service : gwBroker.getAllowedServices(this, JOSPPermissions.Type.Status)) {
+            String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(getObjId(), JOSPPermissions.Type.Status, JOSPPermissions.Connection.LocalAndCloud);
+            gwBroker.sendToSingleCloudService(this, service.getFullId(), srvPermMsg, JOSPPermissions.Type.Status);
+        }
+
+        return sendAll;
+    }
+
+    private boolean processUpdateMsg(String msg) {
+        // update struct to db
+        updateStructToDB(msg);
+
+        // send update to services
+        return gwBroker.sendToServices(this, msg, JOSPPermissions.Type.Status);
+    }
+
+
+    // Update to DB
+
+    private void updateStatusToDB() {
+        objectDBService.save(objDB.getStatus());
+    }
+
+    private void updateInfoToDB(String msg) {
+        // ToDo implement updateInfoOnDB() method
+    }
+
+    private void updateStructToDB(String msg) {
+        // ToDo implement updateStructOnDB() method
+        if (JOSPProtocol_ObjectToService.isObjectStructMsg(msg)) {
+            String struct;
+            try {
+                struct = JOSPProtocol_ObjectToService.getObjectStructMsg_Struct(msg);
+            } catch (JOSPProtocol.ParsingException e) {
+                return;
+            }
+            objDB.getStatus().setStructure(struct);
+            objectDBService.save(objDB.getStatus());
+
+        } else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg)) {
+            // ToDo implement updateStructOnDB()/when msg is state upd
+        }
+    }
+
+    private void updatePermsToDB(String msg) {
+        // ToDo implement updatePermsOnDB() method
     }
 
 
@@ -82,78 +168,6 @@ public class GWObject {
 
     public void sendData(String msg) throws Server.ServerStoppedException, Server.ClientNotConnectedException {
         server.sendData(client, msg);
-    }
-
-
-    // Actions
-
-    public boolean sendAction(String msg) {
-        try {
-            server.sendData(client, msg);
-            return true;
-
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            return false;
-        }
-    }
-
-
-    // Updates
-
-    public boolean processUpdate(String msg) {
-        // parse received data (here or in prev methods)
-        JOSPProtocol.StatusUpd upd = null;
-        try {
-            upd = JOSPProtocol.fromMsgToUpdStr(msg);
-        } catch (JOSPProtocol.ParsingException e) {
-            /* Not a status update message */
-            return false;
-        }
-
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing update '%s...' for '%s' object", msg.substring(0, msg.indexOf("\n")), objId));
-
-        gwBroker.statusToServices(upd);
-        //objStatus.setLastStatusUpdated(new Date());
-        saveToDB();
-
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Update '%s...' processed for '%s' object", msg.substring(0, msg.indexOf("\n")), objId));
-        return true;
-    }
-
-
-    // Cloud requests
-
-    public boolean processCloudRequestResponse(String msg) {
-        // Object structure request's response
-        if (JOSPProtocol_CloudRequests.isObjectStructureRequestResponse(msg)) {
-            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Process ObjectStructure response for '%s' object", objId));
-            return processObjectStructureResponse(msg);
-        }
-
-        return false;
-    }
-
-    private boolean processObjectStructureResponse(String msg) {
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing ObjectStructure message for '%s' object", objId));
-
-        try {
-            Date lastUpdated = JOSPProtocol_CloudRequests.extractObjectStructureLastUpdateFromResponse(msg);
-            if (getLastStructUpdate() != null
-                    && getLastStructUpdate().compareTo(lastUpdated) > 0) {
-                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("ObjectStructure message '%s...' for object '%s' is older than local object structure", msg.substring(0, msg.indexOf("\n")), objId));
-                return true;
-            }
-
-            objStatus.setStructure(JOSPProtocol_CloudRequests.extractObjectStructureStructureFromResponse(msg));
-            objStatus.setLastStructUpdate(lastUpdated);
-            saveToDB();
-
-        } catch (JOSPProtocol.ParsingException/* | ParsingException*/ e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on processing ObjectStructure message '%s...' for '%s' object because %s", msg.substring(0, msg.indexOf("\n")), objId, e.getMessage()), e);
-            return false;
-        }
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("ObjectStructure message processed for '%s' object", objId));
-        return true;
     }
 
 

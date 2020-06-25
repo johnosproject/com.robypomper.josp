@@ -1,8 +1,8 @@
 package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.events.LogServerClientEventsListener;
-import com.robypomper.communication.server.events.LogServerMessagingEventsListener;
+import com.robypomper.communication.server.events.DefaultServerClientEventsListener;
+import com.robypomper.communication.server.events.DefaultServerMessagingEventsListener;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
@@ -75,6 +75,7 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
     }
 
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Data '%s...' received from '%s' service", readData.substring(0, readData.indexOf("\n")), client.getClientId()));
         GWService srv = services.get(client.getClientId());
         return srv.processFromServiceMsg(readData);
     }
@@ -116,7 +117,7 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
      */
     @Override
     protected ServerClientEvents getClientEventsListener() {
-        return new LogServerClientEventsListener() {
+        return new DefaultServerClientEventsListener() {
 
             /**
              * {@inheritDoc}
@@ -149,7 +150,7 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
      */
     @Override
     protected ServerMessagingEvents getMessagingEventsListener() {
-        return new LogServerMessagingEventsListener() {
+        return new DefaultServerMessagingEventsListener() {
 
             /**
              * {@inheritDoc}

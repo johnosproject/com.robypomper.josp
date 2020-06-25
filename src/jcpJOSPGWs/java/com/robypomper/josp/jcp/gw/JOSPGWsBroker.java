@@ -3,9 +3,9 @@ package com.robypomper.josp.jcp.gw;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
-import com.robypomper.josp.jcp.db.entities.Permission;
-import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
+import com.robypomper.josp.jcp.db.entities.ServiceStatus;
+import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,67 +18,79 @@ import java.util.Map;
 @Service
 public class JOSPGWsBroker {
 
-    @Autowired
-    private PermissionsDBService permissionDBService;
+    // Internal vars
+
     private final Map<String, GWObject> objects = new HashMap<>();
     private final Map<String, GWService> services = new HashMap<>();
+    @Autowired
+    private PermissionsDBService permissionsDBService;
 
 
     // GWObject's method
 
-    // from GWObject
-    public void registerObject(GWObject object, Object obj) {
+    public void registerObject(GWObject object) {
         objects.put(object.getObjId(), object);
-        // send registered object's info & struct to allowed services
-        for (GWService service : getAllowedServices(object.getObjId()))
-            sendObjectPresentationToService(obj, service);
     }
 
-    // from GWObject
     public void deregisterObject(GWObject object) {
         objects.remove(object.getObjId());
-        for (GWService service : getAllowedServices(object.getObjId()))
+        for (GWService service : getAllowedServices(object, JOSPPermissions.Type.Status))
             sendObjectDisconnectionToService(object, service);
-    }
-
-    // from GWObject
-    public void statusToServices(JOSPProtocol.StatusUpd upd) {
-        // get allowed service to receive status updates
-        // for each allowed service, send status update
-        for (GWService service : getAllowedServices(upd.getObjectId()))
-            sendUpdate(service, upd);
     }
 
 
     // GWService's method
 
-    // from GWService
     public void registerService(GWService service) {
         services.put(service.getFullId(), service);
-        // send allowed object's info & struct to registered service
-        for (Object obj : permissionDBService.getObjectStatusAllowed(service.getSrvId(), service.getUsrId()))
-            sendObjectPresentationToService(obj, service);
+        // send allowed object's presentation to registered service
+        for (GWObject object : getAllowedObjects(service, JOSPPermissions.Type.Status)) {
+            sendObjectInfoToService(object, service);
+            sendObjectStructToService(object, service);
+            sendObjectPermsToService(object, service);
+            sendServicePermToService(object, service);
+        }
     }
 
-    // from GWService
     public void deregisterService(GWService service) {
         services.remove(service.getFullId());
     }
 
 
-    // PermissionsController's method
-
-    // from PermissionsController
-    public void updatedObjectsPermissions(List<Permission> oldPermissions, List<Permission> newPermissions) {
-        // send / revoke ObjectPresentation for removed / updated / added permissions
-    }
-
-
     // Send methods
 
-    public boolean sendToObject(GWService service, String objId, String msg, PermissionsTypes.Type minReqPerm) {
+    public boolean sendToServices(GWObject object, String msg, JOSPPermissions.Type minReqPerm) {
+        for (GWService service : getAllowedServices(object, minReqPerm)) {
+            if (!objectCanSendToService(object, service, minReqPerm))
+                continue;
+
+            try {
+                service.sendData(msg);
+
+            } catch (Server.ServerStoppedException | Server.ClientNotConnectedException ignore) {}
+        }
+
+        return true;
+    }
+
+    public boolean sendToSingleCloudService(GWObject object, String fullSrvId, String msg, JOSPPermissions.Type minReqPerm) {
+        GWService service = services.get(fullSrvId);
+        if (objectCanSendToService(object, service, minReqPerm))
+            return false;
+
+        try {
+            service.sendData(msg);
+
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean sendToObject(GWService service, String objId, String msg, JOSPPermissions.Type minReqPerm) {
         GWObject object = objects.get(objId);
-        if (serviceCanSendToObject(service, object, minReqPerm))
+        if (!serviceCanSendToObject(service, object, minReqPerm))
             return false;
 
         try {
@@ -91,35 +103,55 @@ public class JOSPGWsBroker {
         return true;
     }
 
-    private void sendObjectPresentationToService(Object obj, GWService service) {
+
+    // Sender (obj > srv)
+
+    private void sendObjectInfoToService(GWObject object, GWService service) {
         try {
-            service.sendData(JOSPProtocol_CloudRequests.createObjectInfoResponse(obj.getObjId(), obj.getName(), obj.getOwner().getOwnerId(), obj.getVersion()));
-            service.sendData(JOSPProtocol_CloudRequests.createObjectStructureResponse(obj.getObjId(), obj.getStatus().getLastStructUpdate(), obj.getStatus().getStructure(), obj.getStatus().isOnline()));
+            String msg = JOSPProtocol_ObjectToService.createObjectInfoMsg(object.getObjId(), object.getObj().getName(), object.getObj().getVersion(), object.getObj().getOwner().getOwnerId(), object.getObj().getInfo().getModel(), object.getObj().getInfo().getBrand(), object.getObj().getInfo().getLongDescr());
+            service.sendData(msg);
         } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
             e.printStackTrace();
         }
     }
 
-    private void sendRevokeObjectPresentationToService(GWObject object, GWService service) {
-//        try {
-//            service.sendData(JOSPProtocol_CloudRequests.createRevokeObjectInfoResponse(obj.getObjId()));
-//        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-//            e.printStackTrace();
-//        }
+    private void sendObjectStructToService(GWObject object, GWService service) {
+        try {
+            String msg = JOSPProtocol_ObjectToService.createObjectStructMsg(object.getObjId(), object.getObj().getStatus().getStructure());
+            service.sendData(msg);
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendObjectPermsToService(GWObject object, GWService service) {
+        // ToDo get the all object's perms
+        List<JOSPProtocol_ObjectToService.JOSPPerm> perms = new ArrayList<>();
+        try {
+            String permsStr = JOSPProtocol_ObjectToService.JOSPPerm.toString(perms);
+            String msg = JOSPProtocol_ObjectToService.createObjectPermsMsg(object.getObjId(), permsStr);
+            service.sendData(msg);
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendServicePermToService(GWObject object, GWService service) {
+        // ToDo get permission's type and conn for service>object
+        JOSPPermissions.Type permType = JOSPPermissions.Type.Status;
+        JOSPPermissions.Connection permConn = JOSPPermissions.Connection.LocalAndCloud;
+        try {
+            String msg = JOSPProtocol_ObjectToService.createServicePermMsg(object.getObjId(), permType, permConn);
+            service.sendData(msg);
+        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendObjectDisconnectionToService(GWObject object, GWService service) {
         try {
-            service.sendData(JOSPProtocol_CloudRequests.createObjectDisconnectionResponse(object.getObjId()));
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendUpdate(GWService service, JOSPProtocol.StatusUpd upd) {
-        try {
-            service.sendData(JOSPProtocol.fromUpdToMsg(upd));
-
+            String msg = JOSPProtocol_ObjectToService.createObjectDisconnectMsg(object.getObjId());
+            service.sendData(msg);
         } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
             e.printStackTrace();
         }
@@ -128,23 +160,37 @@ public class JOSPGWsBroker {
 
     // Permission's methods
 
-    // ToDo update param to GWObject and check minReqPerm
-    private List<GWService> getAllowedServices(String objId) {
+    public List<GWService> getAllowedServices(GWObject obj, JOSPPermissions.Type minReqPerm) {
         List<GWService> allowedSrvs = new ArrayList<>();
 
-        for (GWService service : services.values()) {
-            List<Object> allowedObjs = permissionDBService.getObjectStatusAllowed(service.getSrvId(), service.getUsrId());
-            for (Object obj : allowedObjs)
-                if (obj.getObjId().equals(objId))
-                    allowedSrvs.add(service);
+        List<ServiceStatus> allowedServices = permissionsDBService.getServicesAllowed(obj.getObjId(), obj.getObj().getOwner().getOwnerId(), minReqPerm);
+        for (ServiceStatus allowedService : allowedServices) {
+            GWService srv = services.get(allowedService.getFullId());
+            if (srv != null)
+                allowedSrvs.add(srv);
         }
 
         return allowedSrvs;
     }
 
-    private boolean serviceCanSendToObject(GWService service, GWObject object, PermissionsTypes.Type minReqPerm) {
-        // ToDo add minReqPerm check
-        List<GWService> allowedServices = getAllowedServices(object.getObjId());
+    public boolean objectCanSendToService(GWObject object, GWService service, JOSPPermissions.Type minReqPerm) {
+        List<GWService> allowedServices = getAllowedServices(object, minReqPerm);
         return allowedServices.contains(service);
     }
+
+    public List<GWObject> getAllowedObjects(GWService srv, JOSPPermissions.Type minReqPerm) {
+        List<GWObject> allowedObjs = new ArrayList<>();
+
+        List<Object> allowedObjects = permissionsDBService.getObjectAllowed(srv.getSrvId(), srv.getUsrId(), minReqPerm);
+        for (Object allowedObject : allowedObjects)
+            allowedObjs.add(objects.get(allowedObject.getObjId()));
+
+        return allowedObjs;
+    }
+
+    public boolean serviceCanSendToObject(GWService service, GWObject object, JOSPPermissions.Type minReqPerm) {
+        List<GWObject> allowedObjects = getAllowedObjects(service, minReqPerm);
+        return allowedObjects.contains(object);
+    }
+
 }
