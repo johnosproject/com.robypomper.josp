@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -98,7 +100,7 @@ public class JODStructure_002 implements JODStructure {
      * {@inheritDoc}
      */
     @Override
-    public String getStringForJSL() throws ParsingException {
+    public String getStructForJSL() throws ParsingException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.writeValueAsString(getRoot());
@@ -153,6 +155,14 @@ public class JODStructure_002 implements JODStructure {
     @Override
     public void stopAutoRefresh() {
         log.warn(Mrk_JOD.JOD_STRU, "JODStructure AutoRefresh can't stopped: not implemented");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void syncObjStruct() {
+        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.readStructureStr()), JOSPPermissions.Type.Status);
     }
 
 

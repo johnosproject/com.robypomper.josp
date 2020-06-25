@@ -91,6 +91,13 @@ public interface JODObjectInfo {
     String readStructureStr();
 
     /**
+     * Object's structure string for JSL.
+     *
+     * @return the object's name
+     */
+    String getStructForJSL() throws JODStructure.ParsingException;
+
+    /**
      * The object's brand.
      *
      * @return object's brand.
@@ -144,6 +151,8 @@ public interface JODObjectInfo {
     void stopAutoRefresh();
 
     void syncObjInfo();
+
+    void syncObjInfoJCP();
 
     // Obj's id
 

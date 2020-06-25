@@ -42,7 +42,7 @@ public interface JODStructure {
      *
      * @return current structure string representation.
      */
-    String getStringForJSL() throws ParsingException;
+    String getStructForJSL() throws ParsingException;
 
     /**
      * @return date and time of the last structure update.
@@ -78,6 +78,8 @@ public interface JODStructure {
      * Stop periodically checks on object's structure data file for new updates.
      */
     void stopAutoRefresh();
+
+    void syncObjStruct();
 
 
     // Exceptions

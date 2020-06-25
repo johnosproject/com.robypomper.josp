@@ -60,6 +60,7 @@ public class JOD_002 extends AbsJOD {
             assert false;
         }
         try {
+            permissions.setCommunication(comm);
             structure.setCommunication(comm);
         } catch (JODStructure.CommunicationSetException ignore) {
             assert false;

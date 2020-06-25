@@ -81,7 +81,7 @@ public class CmdsJODPermissions {
     @Command(description = "Force object's permissions sync to JCP.")
     public String permissionSync() {
         int pre = permission.getPermissions().size();
-        permission.syncObjPermissions();
+        permission.syncObjPermissionsJCP();
         int post = permission.getPermissions().size();
 
         int tot = post - pre;

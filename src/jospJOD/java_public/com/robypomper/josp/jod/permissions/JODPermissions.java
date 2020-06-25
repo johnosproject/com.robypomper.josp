@@ -25,6 +25,15 @@ import java.util.List;
  */
 public interface JODPermissions {
 
+    /**
+     * Set the {@link JODCommunication} reference to the JODStructure object.
+     * <p>
+     * This cross-system reference is required by the State Update Flow.
+     *
+     * @param comm the {@link JODCommunication} reference.
+     */
+    void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException;
+
     // JOD Component's interaction methods (from communication)
 
     /**
@@ -70,10 +79,12 @@ public interface JODPermissions {
      */
     boolean canActAsCoOwner(String srvId, String usrId, JOSPPermissions.Connection connection);
 
+    void syncObjPermissions();
+
     /**
      * Start object's permission syncronization between local and cloud permissions.
      */
-    void syncObjPermissions();
+    void syncObjPermissionsJCP();
 
     // Access methods
 
