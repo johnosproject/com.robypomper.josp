@@ -35,7 +35,7 @@ public class JSLBooleanAction extends JSLBooleanState implements JSLAction {
     public void execAction(JSLActionParams params) {
         log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Sending component '%s' state to object '%s'", getName(), getRemoteObject().getId()));
         try {
-            getRemoteObject().sendActionCmdMsg(this, params);
+            getRemoteObject().sendObjectCmdMsg(this, params);
             log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Component '%s' send state to object '%s'", getName(), getRemoteObject().getId()));
         } catch (JSLRemoteObject.ObjectNotConnected e) {
             log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending '%s' state to object '%s' because %s", getName(), getRemoteObject().getId(), e.getMessage()), e);

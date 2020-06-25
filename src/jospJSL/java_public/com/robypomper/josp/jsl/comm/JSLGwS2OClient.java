@@ -270,11 +270,11 @@ public class JSLGwS2OClient implements Client {
      * {@inheritDoc}
      */
     @Override
-    public void sendData(String data) throws ServerNotConnectedException {
+    public void sendData(String msg) throws ServerNotConnectedException {
         if (client == null)
             throw new ServerNotConnectedException(getClientId());
 
-        client.sendData(data);
+        client.sendData(msg);
     }
 
     /**

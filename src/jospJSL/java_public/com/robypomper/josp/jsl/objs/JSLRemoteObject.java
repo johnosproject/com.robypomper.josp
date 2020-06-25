@@ -129,7 +129,7 @@ public interface JSLRemoteObject {
 
     // To Object Msg
 
-    void sendActionCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected;
+    void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected;
 
 
     // From Object Msg

@@ -298,9 +298,9 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         // Send via local communication
         if (isLocalConnected()) {
-            JSLLocalClient objectServer = getConnectedLocalClient();
+            JSLLocalClient object = getConnectedLocalClient();
             try {
-                objectServer.sendData(msg);
+                object.sendData(msg);
                 return;
 
             } catch (Client.ServerNotConnectedException e) {
@@ -323,7 +323,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * {@inheritDoc}
      */
     @Override
-    public void sendActionCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected {
+    public void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectActionCmdMsg(srvInfo.getFullId(), getId(), component.getPath().getString(), command));
     }
 
@@ -350,8 +350,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     @Override
     public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) throws Throwable {
         if (JOSPProtocol_ObjectToService.isObjectInfoMsg(msg)) {
-            isCloudConnected = connType == JOSPPermissions.Connection.LocalAndCloud;
-            return processObjectInfoMsg(msg);
+            return processObjectInfoMsg(msg, connType);
         } else if (JOSPProtocol_ObjectToService.isObjectStructMsg(msg))
             return processObjectStructMsg(msg);
         else if (JOSPProtocol_ObjectToService.isObjectPermsMsg(msg))
@@ -359,14 +358,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         else if (JOSPProtocol_ObjectToService.isServicePermsMsg(msg))
             return processServicePermMsg(msg);
         else if (JOSPProtocol_ObjectToService.isObjectDisconnectMsg(msg)) {
-            return processObjectDisconnectMsg(msg);
+            return processObjectDisconnectMsg(msg, connType);
         } else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg))
             return processObjectUpdMsg(msg);
 
         throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
     }
 
-    private boolean processObjectInfoMsg(String msg) {
+    private boolean processObjectInfoMsg(String msg, JOSPPermissions.Connection connType) {
         try {
             String newName = JOSPProtocol_ObjectToService.getObjectInfoMsg_Name(msg);
             if (name == null || !name.equals(newName)) {
@@ -398,6 +397,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
                 longDescr = newLongDescr;
                 // ToDo: trigger onObjectLongDescrUpdated() event
             }
+
+            isCloudConnected = connType == JOSPPermissions.Connection.LocalAndCloud;
 
         } catch (JOSPProtocol.ParsingException e) {
             log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
@@ -439,8 +440,10 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         throw new Throwable("Processing 'servicePermMsg' message not implemented");
     }
 
-    private boolean processObjectDisconnectMsg(String msg) throws Throwable {
-        throw new Throwable("Processing 'objectDisconnect' message not implemented");
+    private boolean processObjectDisconnectMsg(String msg, JOSPPermissions.Connection connType) throws Throwable {
+        if (connType == JOSPPermissions.Connection.LocalAndCloud)
+            isCloudConnected = false;
+        return true;
     }
 
     private boolean processObjectUpdMsg(String msg) {
