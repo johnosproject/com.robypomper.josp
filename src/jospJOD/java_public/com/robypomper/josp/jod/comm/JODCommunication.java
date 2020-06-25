@@ -43,7 +43,7 @@ public interface JODCommunication {
      * @param component the object's component that updated his state.
      * @param update    the status update info.
      */
-    void sendObjectUpdateMsg(JODState component, JODStateUpdate update);
+    void sendObjectUpdMsg(JODState component, JODStateUpdate update);
 
 
     // From Service Msg

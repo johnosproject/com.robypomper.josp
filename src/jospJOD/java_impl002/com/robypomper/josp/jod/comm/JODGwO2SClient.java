@@ -19,7 +19,6 @@ import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
-import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -91,9 +90,9 @@ public class JODGwO2SClient implements Client {
             throw new JODCommunication.CloudCommunicationException("Error on generating ssl context for object's cloud client", e);
         }
 
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwO2SClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Initialized JSLGwO2SClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", objInfo.getObjId()));
         if (isConnected()) {
-            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
+            log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
         }
     }
 

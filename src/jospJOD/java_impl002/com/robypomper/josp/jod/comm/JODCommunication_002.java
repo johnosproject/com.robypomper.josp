@@ -136,14 +136,13 @@ public class JODCommunication_002 implements JODCommunication {
         // Send via local communication
         if (isLocalRunning()) {
             for (JODLocalClientInfo locConn : getAllLocalClientsInfo()) {
-                if (locConn.isConnected() && checkRequest_ReadPermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPermissions.Connection.OnlyLocal)) {
-                    try {
-                        localServer.sendData(locConn.getClientId(), msg);
+                if (!locConn.isConnected() || !checkRequest_ReadPermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPermissions.Connection.OnlyLocal))
+                    continue;
 
-                    } catch (Server.ServerStoppedException | Server.ClientNotFoundException | Server.ClientNotConnectedException e) {
-                        log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
-                    }
-                }
+                try {
+                    localServer.sendData(locConn.getClientId(), msg);
+
+                } catch (Server.ServerStoppedException | Server.ClientNotFoundException | Server.ClientNotConnectedException ignore) {}
             }
         }
 
@@ -195,7 +194,7 @@ public class JODCommunication_002 implements JODCommunication {
      * {@inheritDoc}
      */
     @Override
-    public void sendObjectUpdateMsg(JODState component, JODStateUpdate update) {
+    public void sendObjectUpdMsg(JODState component, JODStateUpdate update) {
         String msg = JOSPProtocol_ObjectToService.createObjectStateUpdMsg(objInfo.getObjId(), component.getPath().getString(), update);
         sendToServices(msg, JOSPPermissions.Type.Status);
     }
@@ -265,13 +264,11 @@ public class JODCommunication_002 implements JODCommunication {
         JODAction actionComp = (JODAction) comp;
 
         // exec component's action
-        if (actionComp.execAction(cmd)) {
-            log.info(Mrk_JOD.JOD_COMM, String.format("Command status of '%s' component", compPath.toString()));
-
-        } else {
+        if (!actionComp.execAction(cmd)) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing command on '%s' component", compPath.toString()));
             return false;
         }
+        log.info(Mrk_JOD.JOD_COMM, String.format("Command status of '%s' component", compPath.toString()));
 
         log.debug(Mrk_JOD.JOD_COMM, String.format("Command '%s...' processed", msg.substring(0, Math.min(10, msg.length()))));
         return true;
