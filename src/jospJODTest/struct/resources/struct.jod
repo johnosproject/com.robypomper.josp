@@ -19,17 +19,17 @@
                     "descr": "Single component example container",
                     "contains": {
                         "SubSubComp" : {
-                            "type": "JODState",
+                            "type": "BooleanState",
                             "listener" : "ciao://none"
                         }
                     }
                 },
                 "CompStateP1" : {
-                    "type": "JODState",
+                    "type": "BooleanState",
                     "listener" : "ciao://none"
                 },
                 "CompStateP2" : {
-                    "type": "JODState",
+                    "type": "BooleanState",
                     "listener" : "ciao://none"
                 }
             }
@@ -39,14 +39,14 @@
             "descr": "Actions example container",
             "contains": {
                 "CompActionP1" : {
-                    "type": "JODAction",
+                    "type": "BooleanAction",
                     "listener" : "ciao://none",
                     "executor" : "ciao://none"
                 }
             }
         },
         "CompAction" : {
-            "type": "JODAction",
+            "type": "BooleanAction",
             "puller" : "ciao://none",
             "executor" : "ciao://none"
         }
