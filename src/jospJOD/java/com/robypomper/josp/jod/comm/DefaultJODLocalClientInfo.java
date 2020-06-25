@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.comm;
 
 import com.robypomper.communication.server.ClientInfo;
+import com.robypomper.josp.protocol.JOSPProtocol_Service;
 
 import java.net.InetAddress;
 
@@ -13,6 +14,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
     // Local vars
 
     private final ClientInfo client;
+    private final String fullSrvId;
     private final String srvId;
     private final String usrId;
     private final String instId;
@@ -29,10 +31,10 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
     public DefaultJODLocalClientInfo(ClientInfo client) {
         this.client = client;
 
-        String[] ids = client.getClientId().split("/");
-        this.srvId = ids[0];
-        this.usrId = ids[1];
-        this.instId = ids[2];
+        fullSrvId = client.getClientId();
+        this.srvId = JOSPProtocol_Service.fullSrvIdToSrvId(fullSrvId);
+        this.usrId = JOSPProtocol_Service.fullSrvIdToUsrId(fullSrvId);
+        this.instId = JOSPProtocol_Service.fullSrvIdToInstId(fullSrvId);
     }
 
 
@@ -42,8 +44,16 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      * {@inheritDoc}
      */
     @Override
-    public String getInstanceId() {
-        return instId;
+    public String getFullSrvId() {
+        return fullSrvId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getSrvId() {
+        return srvId;
     }
 
     /**
@@ -58,12 +68,20 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      * {@inheritDoc}
      */
     @Override
-    public String getSrvId() {
-        return srvId;
+    public String getInstanceId() {
+        return instId;
     }
 
 
     // Connection info
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ClientInfo getClient() {
+        return client;
+    }
 
     /**
      * {@inheritDoc}

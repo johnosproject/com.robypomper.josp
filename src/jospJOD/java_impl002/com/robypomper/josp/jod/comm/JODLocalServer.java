@@ -39,7 +39,7 @@ public class JODLocalServer implements Server {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final String objId;
+    private final JODObjectInfo objInfo;
     private final JODCommunication communication;
     private final CertSharingSSLServer server;
     private final List<JODLocalClientInfo> localClients = new ArrayList<>();
@@ -53,18 +53,18 @@ public class JODLocalServer implements Server {
      * @param communication instance of the {@link JODCommunication}
      *                      that initialized this client. It will used to
      *                      process data received from the O2S Gw.
-     * @param objId         the represented object's id.
+     * @param objInfo       the represented object's id.
      * @param port          the port used by the server to listen for new
      *                      connections.
      * @param pubCertFile   the file path of current server's public certificate.
      */
-    public JODLocalServer(JODCommunication communication, String objId,
+    public JODLocalServer(JODCommunication communication, JODObjectInfo objInfo,
                           int port, String pubCertFile) {
-        this.objId = objId;
+        this.objInfo = objInfo;
         this.communication = communication;
 
         try {
-            server = new CertSharingSSLServer(objId, port,
+            server = new CertSharingSSLServer(objInfo.getObjId(), port,
                     CERT_ALIAS, pubCertFile, true,
                     null,
                     new JODLocalServerClientListener(),
@@ -72,11 +72,11 @@ public class JODLocalServer implements Server {
             );
 
         } catch (SSLCertServer.SSLCertServerException | UtilsJKS.LoadingException | UtilsSSL.GenerationException | UtilsJKS.StoreException | UtilsJKS.GenerationException e) {
-            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing JODLocalServer for '%s' object", objId));
+            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing JODLocalServer for '%s' object", objInfo.getObjId()));
             throw new RuntimeException(e);
         }
 
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Initialized JODLocalServer instance for '%s' object on port '%s'", objId, port));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Initialized JODLocalServer instance for '%s' object on port '%s'", objInfo.getObjId(), port));
         log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("                                          with %s as server implementation", server.getClass().getSimpleName()));
     }
 
@@ -133,36 +133,50 @@ public class JODLocalServer implements Server {
      * @param client the new client's info.
      */
     private void onClientConnection(ClientInfo client) {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Connected client '%s' to '%s' object", client.getPeerFullAddress(), objId));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Connected client '%s' to '%s' object", client.getPeerFullAddress(), objInfo.getObjId()));
 
         JODLocalClientInfo locConn = new DefaultJODLocalClientInfo(client);
 
-        log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Registering service '%s' of '%s' client to '%s' object", locConn.getClientId(), client.getPeerFullAddress(), objId));
+        log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Registering service '%s' of '%s' client to '%s' object", locConn.getClientId(), client.getPeerFullAddress(), objInfo.getObjId()));
         for (JODLocalClientInfo c : localClients)
             if (c.getClientId().equals(locConn.getClientId())) {
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' already registered to '%s' object", locConn.getClientId(), objId));
+                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' already registered to '%s' object", locConn.getClientId(), objInfo.getObjId()));
 
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Checking service '%s' connection to '%s' object", locConn.getClientId(), objId));
+                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Checking service '%s' connection to '%s' object", locConn.getClientId(), objInfo.getObjId()));
                 boolean wasConnected = c.isConnected();
                 if (!wasConnected) {
                     localClients.remove(c);
                     localClients.add(locConn);
-                    log.trace(Mrk_JOD.JOD_COMM_SUB, String.format("Updated connection because service '%s' was NOT connected to '%s' object", locConn.getClientId(), objId));
+                    sendObjectPresentation(locConn);
+                    log.trace(Mrk_JOD.JOD_COMM_SUB, String.format("Updated connection because service '%s' was NOT connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
                 } else {
                     try {
                         locConn.disconnectLocal();
                     } catch (JODCommunication.LocalCommunicationException e) {
                         log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on disconnect new client '%s' because %s", client.getPeerFullAddress(), e.getMessage()), e);
                     }
-                    log.trace(Mrk_JOD.JOD_COMM_SUB, String.format("New client discarded because service '%s' was already connected to '%s' object", locConn.getClientId(), objId));
+                    log.trace(Mrk_JOD.JOD_COMM_SUB, String.format("New client discarded because service '%s' was already connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
                 }
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' connection to '%s' object checked and%s updated", locConn.getClientId(), objId, wasConnected ? " NOT" : ""));
+                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' connection to '%s' object checked and%s updated", locConn.getClientId(), objInfo.getObjId(), wasConnected ? " NOT" : ""));
                 return;
             }
 
         localClients.add(locConn);
-        log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' with client '%s' registered to '%s' object", locConn.getClientId(), locConn.getClientFullAddress(), objId));
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Registered service '%s' to '%s' object", locConn.getClientId(), objId));
+        sendObjectPresentation(locConn);
+        log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' with client '%s' registered to '%s' object", locConn.getClientId(), locConn.getClientFullAddress(), objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Registered service '%s' to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+    }
+
+    private void sendObjectPresentation(JODLocalClientInfo locConn) {
+        try {
+            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()), JOSPPermissions.Type.Status);
+            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()), JOSPPermissions.Type.Status);
+
+        } catch (JODStructure.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on serialize object's structure to local service because %s", e.getMessage()), e);
+        } catch (JODCommunication.ServiceNotConnected e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending object's presentation to local service because %s", e.getMessage()), e);
+        }
     }
 
     /**
@@ -171,18 +185,18 @@ public class JODLocalServer implements Server {
      * @param client the disconnected client's info.
      */
     private void onClientDisconnection(ClientInfo client) {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' from '%s' object", client.getPeerFullAddress(), client.getClientId(), objId));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' from '%s' object", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
 
         JODLocalClientInfo locConn = getLocalConnectionByServiceId(client.getClientId());
         if (locConn == null) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' was not present in '%s' object registered clients list", client.getPeerFullAddress(), client.getClientId(), objId));
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' was not present in '%s' object registered clients list", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
             return;
         }
 
         if (locConn.isConnected())
-            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' still connected to '%s' object", locConn.getClientId(), objId));
+            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' still connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
         else
-            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' disconnected to '%s' object", locConn.getClientId(), objId));
+            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' disconnected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
     }
 
 
@@ -200,7 +214,7 @@ public class JODLocalServer implements Server {
      * @return always true.
      */
     private boolean onDataReceived(ClientInfo client, String readData) {
-        return communication.processFromServiceMsg(readData, PermissionsTypes.Connection.OnlyLocal);
+        return communication.processFromServiceMsg(readData, JOSPPermissions.Connection.OnlyLocal);
     }
 
 
@@ -243,7 +257,7 @@ public class JODLocalServer implements Server {
      */
     @Override
     public void start() throws ListeningException {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Start local server for '%s' object", objId));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Start local server for '%s' object", objInfo.getObjId()));
         server.start();
     }
 
@@ -252,7 +266,7 @@ public class JODLocalServer implements Server {
      */
     @Override
     public void stop() {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Stop local object's server '%s' on port '%d'", objId, getPort()));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Stop local object's server '%s' on port '%d'", objInfo.getObjId(), getPort()));
         server.stop();
     }
 
@@ -261,7 +275,6 @@ public class JODLocalServer implements Server {
      */
     @Override
     public void sendData(String clientId, byte[] data) throws ServerStoppedException, ClientNotFoundException, ClientNotConnectedException {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' send to client '%s' from '%s' object", new String(data).substring(0, new String(data).indexOf("\n")), clientId, objId));
         server.sendData(clientId, data);
     }
 
@@ -270,7 +283,6 @@ public class JODLocalServer implements Server {
      */
     @Override
     public void sendData(ClientInfo client, byte[] data) throws ServerStoppedException, ClientNotConnectedException {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' send to client '%s' from '%s' object", new String(data).substring(0, new String(data).indexOf("\n")), client.getClientId(), objId));
         server.sendData(client, data);
     }
 
@@ -279,11 +291,6 @@ public class JODLocalServer implements Server {
      */
     @Override
     public void sendData(String clientId, String data) throws ServerStoppedException, ClientNotFoundException, ClientNotConnectedException {
-        try {
-            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' send to client '%s' from '%s' object", data.substring(0, data.indexOf("\n")), clientId, objId));
-        } catch (StringIndexOutOfBoundsException e) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Invalid data to send to client '%s' from '%s' object (string size: %d)", clientId, objId, data.length()));
-        }
         server.sendData(clientId, data);
     }
 
@@ -292,7 +299,6 @@ public class JODLocalServer implements Server {
      */
     @Override
     public void sendData(ClientInfo client, String data) throws ServerStoppedException, ClientNotConnectedException {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' send to client '%s' from '%s' object", data.substring(0, data.indexOf("\n")), client.getClientId(), objId));
         server.sendData(client, data);
     }
 

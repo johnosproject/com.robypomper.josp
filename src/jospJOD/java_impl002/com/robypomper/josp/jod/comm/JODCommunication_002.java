@@ -5,7 +5,6 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
@@ -18,7 +17,9 @@ import com.robypomper.josp.jod.structure.JODComponentPath;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -118,7 +119,7 @@ public class JODCommunication_002 implements JODCommunication {
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use '%s' server id", objInfo.getObjId()));
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use '%d' port", localPort));
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use public certificate file '%s'", localPubCertFile));
-            return new JODLocalServer(this, objInfo.getObjId(), localPort, localPubCertFile);
+            return new JODLocalServer(this, objInfo, localPort, localPubCertFile);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -126,81 +127,114 @@ public class JODCommunication_002 implements JODCommunication {
     }
 
 
-    // Status upd flow (objStruct - comm)
+    // To Service Msg
+
+    @Override
+    public boolean sendToServices(String msg, JOSPPermissions.Type minReqPerm) {
+        log.info(Mrk_JOD.JOD_COMM, String.format("Send '%s' message to local services and cloud", msg.substring(0, msg.indexOf('\n'))));
+
+        // Send via local communication
+        if (isLocalRunning()) {
+            for (JODLocalClientInfo locConn : getAllLocalClientsInfo()) {
+                if (locConn.isConnected() && checkRequest_ReadPermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPermissions.Connection.OnlyLocal)) {
+                    try {
+                        localServer.sendData(locConn.getClientId(), msg);
+
+                    } catch (Server.ServerStoppedException | Server.ClientNotFoundException | Server.ClientNotConnectedException e) {
+                        log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+                    }
+                }
+            }
+        }
+
+        // Send via cloud communication
+        if (isCloudConnected()) {
+            try {
+                gwClient.sendData(msg);
+
+            } catch (Client.ServerNotConnectedException e) {
+                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending message '%s' to service (via cloud) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+            }
+        }
+
+        return isLocalRunning() || isCloudConnected();
+    }
+
+    @Override
+    public boolean sendToCloud(String msg) throws CloudNotConnected {
+        log.info(Mrk_JOD.JOD_COMM, String.format("Send '%s' message to cloud only", msg.substring(0, msg.indexOf('\n'))));
+
+        try {
+            gwClient.sendData(msg);
+
+        } catch (Client.ServerNotConnectedException e) {
+            throw new CloudNotConnected(gwClient);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected {
+        log.info(Mrk_JOD.JOD_COMM, String.format("Send '%s' message to local service '%s' only", msg.substring(0, msg.indexOf('\n')), locConn.getFullSrvId()));
+
+        if (!permissions.canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), JOSPPermissions.Connection.OnlyLocal))
+            return false;
+
+        try {
+            localServer.sendData(locConn.getClientId(), msg);
+
+        } catch (Server.ServerStoppedException | Server.ClientNotFoundException | Server.ClientNotConnectedException e) {
+            throw new ServiceNotConnected(locConn);
+        }
+
+        return true;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void dispatchUpdate(JODState component, JODStateUpdate update) {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Dispatch update for component '%s'", component.getName()));
-
-        String msg = JOSPProtocol.generateUpdToMsg(objInfo.getObjId(), component.getPath().getString(), update); // JODStateUpdate not in Commons
-
-        // send to cloud
-        if (isCloudConnected()) {
-            try {
-                log.trace(Mrk_JOD.JOD_COMM, String.format("Send update for component '%s' to cloud", component.getName()));
-                gwClient.sendData(msg);
-                log.trace(Mrk_JOD.JOD_COMM, String.format("Update for component '%s' send to cloud", component.getName()));
-
-            } catch (Client.ServerNotConnectedException e) {
-                log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending update for component '%s' to cloud because %s", component.getName(), e.getMessage()), e);
-            }
-        }
-
-        // send to allowed local services
-        if (isLocalRunning()) {
-            log.trace(Mrk_JOD.JOD_COMM, String.format("Send update for component '%s' to connected local services", component.getName()));
-            int countAll = 0;
-            int countConnected = 0;
-            int countSend = 0;
-            for (JODLocalClientInfo locConn : getAllLocalClientsInfo()) {
-                countAll++;
-                if (locConn.isConnected() && permissions.canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), PermissionsTypes.Connection.OnlyLocal)) {
-                    countConnected++;
-                    try {
-                        localServer.sendData(locConn.getClientId(), msg);
-                        countSend++;
-
-                    } catch (Server.ServerStoppedException | Server.ClientNotFoundException | Server.ClientNotConnectedException e) {
-                        log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending update for component '%s' to local client '%s' because %s", component.getName(), locConn.getClientId(), e.getMessage()), e);
-                    }
-                }
-            }
-            log.trace(Mrk_JOD.JOD_COMM, String.format("Update for component '%s' send to '%d/%d/%d' connected local services", component.getName(), countSend, countConnected, countAll));
-        }
+    public void sendObjectUpdateMsg(JODState component, JODStateUpdate update) {
+        String msg = JOSPProtocol_ObjectToService.createObjectStateUpdMsg(objInfo.getObjId(), component.getPath().getString(), update);
+        sendToServices(msg, JOSPPermissions.Type.Status);
     }
 
 
     // From Service Msg
 
     @Override
-    public boolean processFromServiceMsg(String msg, PermissionsTypes.Connection connType) {
-        String srvId, usrId;
+    public boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType) {
+        log.info(Mrk_JOD.JOD_COMM, String.format("Received '%s' message from %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPermissions.Connection.OnlyLocal ? "local service" : "cloud"));
+
         try {
-            srvId = JOSPProtocol_ServiceToObject.getSrvId(msg);
-            usrId = JOSPProtocol_ServiceToObject.getUsrId(msg);
-        } catch (JOSPProtocol.ParsingException e) {
+            String srvId = JOSPProtocol_ServiceToObject.getSrvId(msg);
+            String usrId = JOSPProtocol_ServiceToObject.getUsrId(msg);
+
+            // dispatch to processor
+            boolean processedSuccessfully = false;
+            if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg))
+                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetNameMsg(msg);
+            else if (JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
+                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetOwnerIdMsg(msg);
+            else if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
+                processedSuccessfully = checkRequest_ActionPermission(srvId, usrId, connType) && processObjectCmdMsg(msg);
+            else
+                throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
+
+            if (!processedSuccessfully)
+                throw new Throwable(String.format("Error on processing '%s' message", msg.substring(0, msg.indexOf('\n'))));
+
+            log.info(Mrk_JOD.JOD_COMM, String.format("Message '%s' processed successfully", msg.substring(0, msg.indexOf('\n'))));
+            return true;
+
+        } catch (Throwable t) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing '%s' message from %s because %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPermissions.Connection.OnlyLocal ? "local service" : "cloud", t.getMessage()), t);
             return false;
         }
-
-        // dispatch to processor
-        if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg))
-            return checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetNameMsg(msg);
-        else if (JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
-            return checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetOwnerIdMsg(msg);
-        else if (JOSPProtocol_ServiceToObject.isObjectCmdMsg(msg))
-            return checkRequest_ActionPermission(srvId, usrId, connType) && processObjectCmdMsg(msg);
-
-        return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean processObjectCmdMsg(String msg) {
+    private boolean processObjectCmdMsg(String msg) {
         if (!JOSPProtocol.isCmdMsg(msg))
             return false;
 
@@ -243,9 +277,6 @@ public class JODCommunication_002 implements JODCommunication {
         return true;
     }
 
-
-    // Request processors
-
     private boolean processObjectSetNameMsg(String msg) {
         String newName;
         try {
@@ -277,16 +308,15 @@ public class JODCommunication_002 implements JODCommunication {
 
     // Request permissions
 
-    private void checkRequest_ReadPermission(String srvId, String usrId, boolean fromCloud) throws MissingPermissionException {
-        if (!permissions.canSendUpdate(srvId, usrId, fromCloud ? PermissionsTypes.Connection.LocalAndCloud : PermissionsTypes.Connection.OnlyLocal))
-            throw new MissingPermissionException("LocalServiceRequest", srvId, usrId);
+    private boolean checkRequest_ReadPermission(String srvId, String usrId, JOSPPermissions.Connection fromConnType) {
+        return permissions.canSendUpdate(srvId, usrId, fromConnType);
     }
 
-    private boolean checkRequest_ActionPermission(String srvId, String usrId, PermissionsTypes.Connection fromConnType) {
+    private boolean checkRequest_ActionPermission(String srvId, String usrId, JOSPPermissions.Connection fromConnType) {
         return permissions.canExecuteAction(srvId, usrId, fromConnType);
     }
 
-    private boolean checkRequest_OwnerPermission(String srvId, String usrId, PermissionsTypes.Connection fromConnType) {
+    private boolean checkRequest_OwnerPermission(String srvId, String usrId, JOSPPermissions.Connection fromConnType) {
         return permissions.canActAsCoOwner(srvId, usrId, fromConnType);
     }
 

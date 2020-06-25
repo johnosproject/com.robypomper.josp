@@ -6,6 +6,7 @@ import com.robypomper.communication.client.Client;
 import com.robypomper.communication.client.DefaultSSLClient;
 import com.robypomper.communication.client.ServerInfo;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
+import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
@@ -131,7 +132,7 @@ public class JODGwO2SClient implements Client {
 
             // Init SSL client
             client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), o2sAccess.gwAddress, o2sAccess.gwPort,
-                    null, null, new GwO2SClientMessagingEventsListener());
+                    null, new GwO2SClientServerEventsListener(), new GwO2SClientMessagingEventsListener());
             log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client initialized");
 
         } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException e) {
@@ -167,6 +168,21 @@ public class JODGwO2SClient implements Client {
 
 
     // Processing incoming data
+
+    /**
+     * Send to O2S gateway object's presentation messages.
+     */
+    public void onServerConnection() {
+        try {
+            communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()));
+            communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()));
+
+        } catch (JODStructure.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on serialize object's structure to cloud service because %s", e.getMessage()), e);
+        } catch (JODCommunication.CloudNotConnected e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending object's presentation to cloud because %s", e.getMessage()), e);
+        }
+    }
 
     /**
      * Forward received data to the {@link JODCommunication}
@@ -295,6 +311,64 @@ public class JODGwO2SClient implements Client {
 
 
     // Client events listener
+
+    /**
+     * Link the {@link #onServerConnection()} event to
+     * {@link JODGwO2SClient#onServerConnection()} ()} method.
+     */
+    private class GwO2SClientServerEventsListener extends DefaultClientEvents implements ClientServerEvents {
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Link to the {@link JODGwO2SClient#onDataReceived(String)} method.
+         */
+        @Override
+        public void onServerConnection() {
+            JODGwO2SClient.this.onServerConnection();
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerDisconnection() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerClientDisconnected() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerGoodbye() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerTerminated() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerError(Throwable e) {}
+
+    }
 
     /**
      * Link the {@link #onDataReceived(String)} event to

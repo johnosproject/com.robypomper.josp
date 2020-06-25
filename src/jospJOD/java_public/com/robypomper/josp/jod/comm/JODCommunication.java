@@ -1,9 +1,9 @@
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.protocol.JOSPPermissions;
 
 import java.util.List;
 
@@ -24,7 +24,13 @@ import java.util.List;
  */
 public interface JODCommunication {
 
-    // Status upd flow (objStruct - comm)
+    // To Service Msg
+
+    boolean sendToServices(String msg, JOSPPermissions.Type minPermReq);
+
+    boolean sendToCloud(String msg) throws CloudNotConnected;
+
+    boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected;
 
     /**
      * Dispatch <code>component</code> <code>update</code> to connected and allowed
@@ -37,18 +43,13 @@ public interface JODCommunication {
      * @param component the object's component that updated his state.
      * @param update    the status update info.
      */
-    void dispatchUpdate(JODState component, JODStateUpdate update);
+    void sendObjectUpdateMsg(JODState component, JODStateUpdate update);
 
 
-    // Action cmd flow (comm - objStruct)
+    // From Service Msg
 
-    boolean processFromServiceMsg(String msg, PermissionsTypes.Connection connType);
+    boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType);
 
-    /**
-     * Parse and exec given action (in the <code>msg</code> string) to the right
-     * object's component.
-     */
-    boolean processObjectCmdMsg(String msg);
 
     // Connections access
 
@@ -152,7 +153,6 @@ public interface JODCommunication {
         }
     }
 
-
     /**
      * Exceptions for cloud communication errors.
      */
@@ -161,6 +161,30 @@ public interface JODCommunication {
 
         public MissingPermissionException(String reqType, String srvId, String usrId) {
             super(String.format(MSG, reqType, srvId, usrId));
+        }
+    }
+
+    class ServiceNotConnected extends Throwable {
+        private static final String MSG = "Can't access to '%s' service because not connected.";
+
+        public ServiceNotConnected(JODLocalClientInfo locConn) {
+            super(String.format(MSG, locConn.getFullSrvId()));
+        }
+
+        public ServiceNotConnected(JODLocalClientInfo locConn, Throwable t) {
+            super(String.format(MSG, locConn.getFullSrvId()), t);
+        }
+    }
+
+    class CloudNotConnected extends Throwable {
+        private static final String MSG = "Can't access to O2S gateway because not connected.";
+
+        public CloudNotConnected(JODGwO2SClient cloudConn) {
+            super(MSG);
+        }
+
+        public CloudNotConnected(JODGwO2SClient cloudConn, Throwable t) {
+            super(MSG, t);
         }
     }
 
