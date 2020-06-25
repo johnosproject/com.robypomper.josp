@@ -144,12 +144,15 @@ public class DefaultSSLClientTest {
     @Test
     public void testClientConnectionAndDisconnection() throws Server.ListeningException, InterruptedException, Client.ConnectionException {
         // Start test server
+        System.out.println("\nSERVER START");
         DefaultServerTest_Base.startServer(serverLatch);
 
         // Connect client
+        System.out.println("\nCLIENT CONNECTION");
         clientLatch.connect();
 
         // Check connection events on both side
+        System.out.println("\nCHECKS");
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
         Assertions.assertTrue(latchCSE.onServerConnection.await(1, TimeUnit.SECONDS));
 
@@ -169,6 +172,7 @@ public class DefaultSSLClientTest {
         Assertions.assertEquals(SRV_ID_CERTIFICATE, clientLatch.getServerInfo().getServerId());
 
         // Disconnect client
+        System.out.println("\nCLIENT DISCONNECTION");
         clientLatch.disconnect();
         Assertions.assertTrue(latchSCE.onClientDisconnection.await(1, TimeUnit.SECONDS));
         Assertions.assertTrue(latchCSE.onServerDisconnection.await(1, TimeUnit.SECONDS));
@@ -182,6 +186,7 @@ public class DefaultSSLClientTest {
         Assertions.assertFalse(client.isConnected());
 
         // Stop test server
+        System.out.println("\nSERVER STOP");
         DefaultServerTest_Base.stopServer(serverLatch);
     }
 

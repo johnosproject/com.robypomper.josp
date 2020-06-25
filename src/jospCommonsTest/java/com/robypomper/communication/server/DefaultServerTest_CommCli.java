@@ -22,9 +22,11 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
     @Test
     public void testClientConnectionAndDisconnection() throws Server.ListeningException, IOException, InterruptedException {
         // Start test server
+        System.out.println("\nSERVER START");
         startServer(serverLatch);
 
         // Connect client
+        System.out.println("\nCLIENT CONNECT");
         Socket s = new Socket(LOCALHOST, port);
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
@@ -40,8 +42,9 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         Assertions.assertEquals(calculatedClientId, client.getClientId());
 
         // Disconnect client
+        System.out.println("\nCLIENT DISCONNECT");
         s.close();
-        Assertions.assertTrue(latchSCE.onClientDisconnection.await(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(latchSCE.onClientDisconnection.await(10, TimeUnit.SECONDS));
 
         // Check client list
         clients = serverLatch.getClients();
@@ -52,6 +55,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         Assertions.assertFalse(client.isConnected());
 
         // Stop test server
+        System.out.println("\nSERVER STOP");
         stopServer(serverLatch);
     }
 
@@ -89,10 +93,16 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
     @Test
     public void testClientDisconnectionFromServerStopServer() throws Server.ListeningException, IOException, InterruptedException {
         // Start test server and connect client
+        System.out.println("\nSERVER START");
         startServer(serverLatch);
+        Thread.sleep(100);
+
+        System.out.println("\nCLIENT CONNECT");
         connectClient(LOCALHOST, port, latchSCE.onClientConnection);
+        Thread.sleep(100);
 
         // Stop test server
+        System.out.println("\nSERVER STOP");
         stopServer(serverLatch);
 
         // Check client disconnection
@@ -127,10 +137,12 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
     @Test
     public void testClientConnectionDouble() throws Server.ListeningException, IOException, InterruptedException {
         // Start test server
+        System.out.println("\nSERVER START");
         startServer(serverLatch);
         Assertions.assertTrue(latchSLE.onStarted.await(1000, TimeUnit.SECONDS));
 
         // Connect client
+        System.out.println("\nCLIENT CONNECT");
         Socket s = new Socket(LOCALHOST, port);
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
 
@@ -142,6 +154,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         Assertions.assertTrue(client.isConnected());
 
         // Disconnect client
+        System.out.println("\nCLIENT DISCONNECT");
         s.close();
         Assertions.assertTrue(latchSCE.onClientDisconnection.await(1, TimeUnit.SECONDS));
 
@@ -152,6 +165,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         Assertions.assertFalse(client.isConnected());
 
         // Reconnect client
+        System.out.println("\nCLIENT RE-CONNECT");
         latchSCE.onClientConnection = new CountDownLatch(1);
         s = new Socket(LOCALHOST, port);
         Assertions.assertTrue(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));
@@ -161,8 +175,12 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         printClientInfoList(clients);
         Assertions.assertEquals(1, clients.size());
 
-        // Stop test server
+        // Disconnect client
+        System.out.println("\nCLIENT RE_DISCONNECT");
         s.close();
+
+        // Stop test server
+        System.out.println("\nSERVER STOP");
         stopServer(serverLatch);
     }
 
