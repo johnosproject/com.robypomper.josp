@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
+import com.robypomper.josp.protocol.JOSPPermissions;
 
 import java.util.List;
 
@@ -15,21 +16,14 @@ import java.util.List;
  */
 public interface JSLCommunication {
 
-    // Status upd flow (comm - objMng)
+    // To Object Msg
 
-    /**
-     * Process status updates received by corresponding JOD object.
-     *
-     * @param msg the message containing the status update.
-     * @return <code>true</code> if the status update was processed successfully.
-     */
-    boolean forwardUpdate(String msg);
+    // ...
 
 
-    // Cloud requests
+    // From Object Msg
 
-
-    String processCloudData(String msg);
+    boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType);
 
 
     // Connections access

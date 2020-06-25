@@ -117,7 +117,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
         JSLRemoteObject remObj = getById(locConnObjId);
         boolean toRegObj = remObj == null;
         if (toRegObj) {
-            log.info(Mrk_JSL.JSL_OBJS, String.format("Register new object '%s' and add connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
+            log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
             remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
             objs.add(remObj);
 
@@ -150,7 +150,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     @Override
     public void addCloudObject(String objId) {
         assert getById(objId) == null;
-        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new cloud object '%s' to '%s' service", objId, srvInfo.getSrvId()));
+        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new object '%s' to '%s' service", objId, srvInfo.getSrvId()));
         DefaultJSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
         objs.add(remObj);
     }

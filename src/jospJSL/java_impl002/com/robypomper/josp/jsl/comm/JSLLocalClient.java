@@ -10,6 +10,7 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.client.standard.SSLCertClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -116,7 +117,7 @@ public class JSLLocalClient implements Client {
     }
 
 
-    // Process incoming messages
+    // Process incoming data
 
     /**
      * Forward received data to the {@link JSLCommunication}
@@ -126,16 +127,7 @@ public class JSLLocalClient implements Client {
      * @return always true.
      */
     private boolean onDataReceived(String readData) {
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' received from object '%s' to '%s' service", readData.substring(0, readData.indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
-
-        if (communication.forwardUpdate(readData))
-            return true;
-
-        if (remoteObject.processServiceRequestResponse(readData))
-            return true;
-
-        log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on processing received data '%s...' from server '%s' to '%s' service because unknown request", readData.substring(0, 10), getServerInfo().getServerId(), client.getClientId()));
-        return false;
+        return communication.processFromObjectMsg(readData, JOSPPermissions.Connection.OnlyLocal);
     }
 
 
@@ -219,7 +211,7 @@ public class JSLLocalClient implements Client {
      */
     @Override
     public void sendData(byte[] data) throws ServerNotConnectedException {
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to server '%s' from '%s' service", new String(data).substring(0, new String(data).indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to object '%s' from '%s' service", new String(data).substring(0, new String(data).indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
         client.sendData(data);
     }
 

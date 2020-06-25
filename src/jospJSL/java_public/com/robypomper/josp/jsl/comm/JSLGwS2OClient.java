@@ -14,6 +14,7 @@ import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -170,28 +171,7 @@ public class JSLGwS2OClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' received from GWs S2O to '%s' service", readData.substring(0, readData.indexOf("\n")), srvInfo.getSrvId()));
-
-        // Update requests
-        if (communication.forwardUpdate(readData))
-            return true;
-
-        // Cloud requests
-        String responseOrError = communication.processCloudData(readData);
-        if (responseOrError != null) {
-            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Sending response for cloud request '%s...' to GWs S2O from '%s' service", readData.substring(0, 10), srvInfo.getSrvId()));
-            try {
-                sendData(responseOrError);
-                log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Response for service request '%s...' send to GWs S2O from '%s' service", readData.substring(0, 10), srvInfo.getSrvId()));
-                return true;
-
-            } catch (ServerNotConnectedException e) {
-                log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on sending response for service request '%s...' to GWs S2O from '%s' service because %s", readData.substring(0, 10), srvInfo.getSrvId(), e.getMessage()), e);
-                return false;
-            }
-        }
-
-        return true;
+        return communication.processFromObjectMsg(readData, JOSPPermissions.Connection.LocalAndCloud);
     }
 
 
