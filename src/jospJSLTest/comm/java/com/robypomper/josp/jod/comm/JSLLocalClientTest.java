@@ -2,7 +2,9 @@ package com.robypomper.josp.jod.comm;
 
 import com.robypomper.communication.client.Client;
 import com.robypomper.communication.server.Server;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
+import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -10,11 +12,9 @@ import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
-import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.structure.JSLAction;
-import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,7 +61,7 @@ public class JSLLocalClientTest {
         port++;
 
         // Start server
-        jodServer = new JODLocalServer(new MockJODCommunication(), "objId", port,
+        jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port,
                 TEST_FILES_PREFIX + "jodSr-" + PUB_CERT_PATH);
         jodServer.start();
 
@@ -120,26 +120,116 @@ public class JSLLocalClientTest {
 
     // Mockup classes
 
-    public static class MockJODCommunication implements JODCommunication {
+    public static class MockJODObjectInfo implements JODObjectInfo {
 
         @Override
-        public void dispatchUpdate(JODState component, JODStateUpdate update) {
+        public void setSystems(JODStructure structure, JODExecutorMngr executor, JODCommunication comm, JODPermissions permissions) {}
 
+        @Override
+        public String getJODVersion() {
+            return "test version";
         }
 
         @Override
-        public boolean forwardAction(String msg, PermissionsTypes.Connection connType) {
+        public String getObjId() {
+            return "test objId";
+        }
+
+        @Override
+        public String getObjName() {
+            return "test objName";
+        }
+
+        @Override
+        public void setObjName(String newName) {}
+
+        @Override
+        public String getOwnerId() {
+            return "test ownerId";
+        }
+
+        @Override
+        public String getStructurePath() {
+            return "test structPath";
+        }
+
+        @Override
+        public String readStructureStr() {
+            return "test structStrJOD";
+        }
+
+        @Override
+        public String getStructForJSL() throws JODStructure.ParsingException {
+            return "test structStrJSL";
+        }
+
+        @Override
+        public String getBrand() {
+            return "test brand";
+        }
+
+        @Override
+        public String getModel() {
+            return "test model";
+        }
+
+        @Override
+        public String getLongDescr() {
+            return "test longDescr";
+        }
+
+        @Override
+        public String getPermissionsPath() {
+            return "test permsPath";
+        }
+
+        @Override
+        public String readPermissionsStr() {
+            return "test permsStr";
+        }
+
+        @Override
+        public void startAutoRefresh() {}
+
+        @Override
+        public void stopAutoRefresh() {}
+
+        @Override
+        public void syncObjInfo() {}
+
+        @Override
+        public void syncObjInfoJCP() {}
+
+        @Override
+        public void regenerateObjId() {}
+
+    }
+
+    public static class MockJODCommunication implements JODCommunication {
+
+        @Override
+        public boolean sendToServices(String msg, JOSPPermissions.Type minPermReq) {
             return false;
         }
 
         @Override
-        public String processServiceRequest(JODLocalClientInfo client, String msg) {
-            return null;
+        public boolean sendToCloud(String msg) throws CloudNotConnected {
+            return false;
         }
 
         @Override
-        public String processCloudRequest(String msg) {
-            return null;
+        public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected {
+            return false;
+        }
+
+        @Override
+        public void sendObjectUpdMsg(JODState component, JODStateUpdate update) {
+
+        }
+
+        @Override
+        public boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType) {
+            return false;
         }
 
         @Override
@@ -194,19 +284,10 @@ public class JSLLocalClientTest {
     }
 
     public static class MockJSLCommunication implements JSLCommunication {
+
         @Override
-        public boolean forwardUpdate(String msg) {
+        public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) {
             return false;
-        }
-
-        @Override
-        public void forwardAction(JSLRemoteObject object, JSLAction component, JSLActionParams command) {
-
-        }
-
-        @Override
-        public String processCloudData(String msg) {
-            return null;
         }
 
         @Override
