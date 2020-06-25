@@ -11,6 +11,8 @@ import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -106,19 +108,29 @@ public class GWObject {
         // send perms to services
         boolean sendAll = gwBroker.sendToServices(this, msg, JOSPPermissions.Type.CoOwner);
 
-        // send serPerm to service(s)
+        // send servPerm to service(s)
+        // ToDo rewrite to send only at service that was changed permission to access to the object
+        List<GWService> updatedServices = new ArrayList<>();
         for (GWService service : gwBroker.getAllowedServices(this, JOSPPermissions.Type.CoOwner)) {
             String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(getObjId(), JOSPPermissions.Type.CoOwner, JOSPPermissions.Connection.LocalAndCloud);
             gwBroker.sendToSingleCloudService(this, service.getFullId(), srvPermMsg, JOSPPermissions.Type.CoOwner);
+            updatedServices.add(service);
         }
         for (GWService service : gwBroker.getAllowedServices(this, JOSPPermissions.Type.Actions)) {
+            if (updatedServices.contains(service))
+                continue;
             String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(getObjId(), JOSPPermissions.Type.Actions, JOSPPermissions.Connection.LocalAndCloud);
             gwBroker.sendToSingleCloudService(this, service.getFullId(), srvPermMsg, JOSPPermissions.Type.Actions);
+            updatedServices.add(service);
         }
         for (GWService service : gwBroker.getAllowedServices(this, JOSPPermissions.Type.Status)) {
+            if (updatedServices.contains(service))
+                continue;
             String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(getObjId(), JOSPPermissions.Type.Status, JOSPPermissions.Connection.LocalAndCloud);
             gwBroker.sendToSingleCloudService(this, service.getFullId(), srvPermMsg, JOSPPermissions.Type.Status);
+            updatedServices.add(service);
         }
+        // ToDo update service that was revoked permission to access to the object
 
         return sendAll;
     }
