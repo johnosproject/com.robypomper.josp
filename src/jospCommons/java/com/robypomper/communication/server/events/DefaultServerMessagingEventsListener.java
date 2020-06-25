@@ -29,11 +29,11 @@ public class DefaultServerMessagingEventsListener extends DefaultServerEvent imp
      * {@inheritDoc}
      */
     @Override
-    public boolean onDataReceived(ClientInfo client, byte[] readData) throws Throwable { return true; }
+    public boolean onDataReceived(ClientInfo client, byte[] readData) throws Throwable { return false; }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean onDataReceived(ClientInfo client, String readData) throws Throwable { return true; }
+    public boolean onDataReceived(ClientInfo client, String readData) throws Throwable { return false; }
 }
