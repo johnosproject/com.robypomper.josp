@@ -208,6 +208,9 @@ public class JODPermissions_002 implements JODPermissions {
         comm.sendToServices(JOSPProtocol_ObjectToService.createObjectPermsMsg(objInfo.getObjId(), objInfo.readPermissionsStr()), JOSPPermissions.Type.CoOwner);
 
         for (JODLocalClientInfo locConn : comm.getAllLocalClientsInfo()) {
+            if (!locConn.isConnected())
+                continue;
+
             JOSPPermissions.Type permType;
             if (canActAsCoOwner(locConn.getSrvId(), locConn.getUsrId(), JOSPPermissions.Connection.OnlyLocal))
                 permType = JOSPPermissions.Type.CoOwner;
