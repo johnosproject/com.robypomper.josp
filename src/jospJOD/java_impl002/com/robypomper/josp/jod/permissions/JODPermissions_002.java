@@ -4,10 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JODSettings_002;
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,8 +33,8 @@ public class JODPermissions_002 implements JODPermissions {
     // Class constants
 
     public static final String TH_SYNC_NAME_FORMAT = "_PERM_SYNC_%s";
-    public static final String ANONYMOUS_ID = PermissionsTypes.WildCards.USR_ANONYMOUS_ID.toString();
-    public static final String ANONYMOUS_USERNAME = PermissionsTypes.WildCards.USR_ANONYMOUS_NAME.toString();
+    public static final String ANONYMOUS_ID = JOSPPermissions.WildCards.USR_ANONYMOUS_ID.toString();
+    public static final String ANONYMOUS_USERNAME = JOSPPermissions.WildCards.USR_ANONYMOUS_NAME.toString();
 
 
     // Internal vars
@@ -89,7 +93,7 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
-    public boolean canExecuteAction(String srvId, String usrId, PermissionsTypes.Connection connection) {
+    public boolean canExecuteAction(String srvId, String usrId, JOSPPermissions.Connection connection) {
         if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
             log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
@@ -103,12 +107,12 @@ public class JODPermissions_002 implements JODPermissions {
         }
 
         for (ObjPermission p : inherentPermissions) {
-            if (connection == PermissionsTypes.Connection.LocalAndCloud
-                    && p.connection == PermissionsTypes.Connection.OnlyLocal) {
+            if (connection == JOSPPermissions.Connection.LocalAndCloud
+                    && p.connection == JOSPPermissions.Connection.OnlyLocal) {
                 continue;
             }
-            if (p.type == PermissionsTypes.Type.Actions
-                    || p.type == PermissionsTypes.Type.CoOwner) {
+            if (p.type == JOSPPermissions.Type.Actions
+                    || p.type == JOSPPermissions.Type.CoOwner) {
                 log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s GRANTED", srvId, usrId));
                 return true;
             }
@@ -122,7 +126,7 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
-    public boolean canSendUpdate(String srvId, String usrId, PermissionsTypes.Connection connection) {
+    public boolean canSendUpdate(String srvId, String usrId, JOSPPermissions.Connection connection) {
         if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
             log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
@@ -136,13 +140,13 @@ public class JODPermissions_002 implements JODPermissions {
         }
 
         for (ObjPermission p : inherentPermissions) {
-            if (connection == PermissionsTypes.Connection.LocalAndCloud
-                    && p.connection == PermissionsTypes.Connection.OnlyLocal) {
+            if (connection == JOSPPermissions.Connection.LocalAndCloud
+                    && p.connection == JOSPPermissions.Connection.OnlyLocal) {
                 continue;
             }
-            if (p.type == PermissionsTypes.Type.Status
-                    || p.type == PermissionsTypes.Type.Actions
-                    || p.type == PermissionsTypes.Type.CoOwner) {
+            if (p.type == JOSPPermissions.Type.Status
+                    || p.type == JOSPPermissions.Type.Actions
+                    || p.type == JOSPPermissions.Type.CoOwner) {
                 log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED", srvId, usrId));
                 return true;
             }
@@ -156,7 +160,7 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
-    public boolean canActAsCoOwner(String srvId, String usrId, PermissionsTypes.Connection connection) {
+    public boolean canActAsCoOwner(String srvId, String usrId, JOSPPermissions.Connection connection) {
         if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
             log.info(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
             return true;
@@ -170,11 +174,11 @@ public class JODPermissions_002 implements JODPermissions {
         }
 
         for (ObjPermission p : inherentPermissions) {
-            if (connection == PermissionsTypes.Connection.LocalAndCloud
-                    && p.connection == PermissionsTypes.Connection.OnlyLocal) {
+            if (connection == JOSPPermissions.Connection.LocalAndCloud
+                    && p.connection == JOSPPermissions.Connection.OnlyLocal) {
                 continue;
             }
-            if (p.type == PermissionsTypes.Type.CoOwner) {
+            if (p.type == JOSPPermissions.Type.CoOwner) {
                 log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s GRANTED", srvId, usrId));
                 return true;
             }
@@ -223,7 +227,7 @@ public class JODPermissions_002 implements JODPermissions {
     /**
      * {@inheritDoc}
      */
-    public boolean addPermissions(String usrId, String srvId, PermissionsTypes.Connection connection, PermissionsTypes.Type type) {
+    public boolean addPermissions(String usrId, String srvId, JOSPPermissions.Connection connection, JOSPPermissions.Type type) {
         log.info(Mrk_JOD.JOD_PERM, String.format("Add permission to '%s' object with srvID %s, usrID %s connection '%s' and type '%s'", objInfo.getObjId(), srvId, usrId, connection, type));
 
         if (usrId == null || usrId.isEmpty()) {
@@ -422,8 +426,8 @@ public class JODPermissions_002 implements JODPermissions {
      */
     private void generatePermissionsLocally() {
         permissions = new ArrayList<>();
-        permissions.add(new ObjPermission(objInfo.getObjId(), PermissionsTypes.WildCards.USR_OWNER.toString(), PermissionsTypes.WildCards.SRV_ALL.toString(), PermissionsTypes.Connection.LocalAndCloud, PermissionsTypes.Type.CoOwner, new Date()));
-        permissions.add(new ObjPermission(objInfo.getObjId(), PermissionsTypes.WildCards.USR_ALL.toString(), PermissionsTypes.WildCards.SRV_ALL.toString(), PermissionsTypes.Connection.OnlyLocal, PermissionsTypes.Type.CoOwner, new Date()));
+        permissions.add(new ObjPermission(objInfo.getObjId(), JOSPPermissions.WildCards.USR_OWNER.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.LocalAndCloud, JOSPPermissions.Type.CoOwner, new Date()));
+        permissions.add(new ObjPermission(objInfo.getObjId(), JOSPPermissions.WildCards.USR_ALL.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.OnlyLocal, JOSPPermissions.Type.CoOwner, new Date()));
     }
 
     /**
@@ -445,12 +449,12 @@ public class JODPermissions_002 implements JODPermissions {
 
         for (ObjPermission p : permissions) {
             boolean exact_usr = p.usrId.equals(usrId);
-            boolean all_usr = p.usrId.equals(PermissionsTypes.WildCards.USR_ALL.toString());
-            boolean owner = p.usrId.equals(PermissionsTypes.WildCards.USR_OWNER.toString())
+            boolean all_usr = p.usrId.equals(JOSPPermissions.WildCards.USR_ALL.toString());
+            boolean owner = p.usrId.equals(JOSPPermissions.WildCards.USR_OWNER.toString())
                     && getOwnerId().equals(usrId);
             if (exact_usr || all_usr || owner) {
                 boolean exact_srv = p.srvId.equals(srvId);
-                boolean all_srv = p.srvId.equals(PermissionsTypes.WildCards.SRV_ALL.toString());
+                boolean all_srv = p.srvId.equals(JOSPPermissions.WildCards.SRV_ALL.toString());
                 if (exact_srv || all_srv) {
                     inherentPermissions.add(p);
                 }
