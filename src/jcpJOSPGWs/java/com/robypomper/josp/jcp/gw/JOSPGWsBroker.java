@@ -75,7 +75,7 @@ public class JOSPGWsBroker {
 
     public boolean sendToSingleCloudService(GWObject object, String fullSrvId, String msg, JOSPPermissions.Type minReqPerm) {
         GWService service = services.get(fullSrvId);
-        if (objectCanSendToService(object, service, minReqPerm))
+        if (!objectCanSendToService(object, service, minReqPerm))
             return false;
 
         try {
@@ -107,54 +107,36 @@ public class JOSPGWsBroker {
     // Sender (obj > srv)
 
     private void sendObjectInfoToService(GWObject object, GWService service) {
-        try {
-            String msg = JOSPProtocol_ObjectToService.createObjectInfoMsg(object.getObjId(), object.getObj().getName(), object.getObj().getVersion(), object.getObj().getOwner().getOwnerId(), object.getObj().getInfo().getModel(), object.getObj().getInfo().getBrand(), object.getObj().getInfo().getLongDescr());
-            service.sendData(msg);
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
+        String msg = JOSPProtocol_ObjectToService.createObjectInfoMsg(object.getObjId(), object.getObj().getName(), object.getObj().getVersion(), object.getObj().getOwner().getOwnerId(), object.getObj().getInfo().getModel(), object.getObj().getInfo().getBrand(), object.getObj().getInfo().getLongDescr());
+        sendToSingleCloudService(object, service.getFullId(), msg, JOSPPermissions.Type.Status);
     }
 
     private void sendObjectStructToService(GWObject object, GWService service) {
-        try {
-            String msg = JOSPProtocol_ObjectToService.createObjectStructMsg(object.getObjId(), object.getObj().getStatus().getStructure());
-            service.sendData(msg);
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
+        String msg = JOSPProtocol_ObjectToService.createObjectStructMsg(object.getObjId(), object.getObj().getStatus().getStructure());
+        sendToSingleCloudService(object, service.getFullId(), msg, JOSPPermissions.Type.Status);
     }
 
     private void sendObjectPermsToService(GWObject object, GWService service) {
         // ToDo get the all object's perms
         List<JOSPProtocol_ObjectToService.JOSPPerm> perms = new ArrayList<>();
-        try {
-            String permsStr = JOSPProtocol_ObjectToService.JOSPPerm.toString(perms);
-            String msg = JOSPProtocol_ObjectToService.createObjectPermsMsg(object.getObjId(), permsStr);
-            service.sendData(msg);
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
+
+        String permsStr = JOSPProtocol_ObjectToService.JOSPPerm.toString(perms);
+        String msg = JOSPProtocol_ObjectToService.createObjectPermsMsg(object.getObjId(), permsStr);
+        sendToSingleCloudService(object, service.getFullId(), msg, JOSPPermissions.Type.CoOwner);
     }
 
     private void sendServicePermToService(GWObject object, GWService service) {
         // ToDo get permission's type and conn for service>object
         JOSPPermissions.Type permType = JOSPPermissions.Type.Status;
         JOSPPermissions.Connection permConn = JOSPPermissions.Connection.LocalAndCloud;
-        try {
-            String msg = JOSPProtocol_ObjectToService.createServicePermMsg(object.getObjId(), permType, permConn);
-            service.sendData(msg);
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
+
+        String msg = JOSPProtocol_ObjectToService.createServicePermMsg(object.getObjId(), permType, permConn);
+        sendToSingleCloudService(object, service.getFullId(), msg, JOSPPermissions.Type.Status);
     }
 
     private void sendObjectDisconnectionToService(GWObject object, GWService service) {
-        try {
-            String msg = JOSPProtocol_ObjectToService.createObjectDisconnectMsg(object.getObjId());
-            service.sendData(msg);
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            e.printStackTrace();
-        }
+        String msg = JOSPProtocol_ObjectToService.createObjectDisconnectMsg(object.getObjId());
+        sendToSingleCloudService(object, service.getFullId(), msg, JOSPPermissions.Type.Status);
     }
 
 
@@ -182,8 +164,11 @@ public class JOSPGWsBroker {
         List<GWObject> allowedObjs = new ArrayList<>();
 
         List<Object> allowedObjects = permissionsDBService.getObjectAllowed(srv.getSrvId(), srv.getUsrId(), minReqPerm);
-        for (Object allowedObject : allowedObjects)
-            allowedObjs.add(objects.get(allowedObject.getObjId()));
+        for (Object allowedObject : allowedObjects) {
+            GWObject gwObj = objects.get(allowedObject.getObjId());
+            if (gwObj != null)
+                allowedObjs.add(objects.get(allowedObject.getObjId()));
+        }
 
         return allowedObjs;
     }

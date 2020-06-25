@@ -104,7 +104,7 @@ public class GWObject {
         updatePermsToDB(msg);
 
         // send perms to services
-        boolean sendAll = gwBroker.sendToServices(this, msg, JOSPPermissions.Type.Status);
+        boolean sendAll = gwBroker.sendToServices(this, msg, JOSPPermissions.Type.CoOwner);
 
         // send serPerm to service(s)
         for (GWService service : gwBroker.getAllowedServices(this, JOSPPermissions.Type.CoOwner)) {
