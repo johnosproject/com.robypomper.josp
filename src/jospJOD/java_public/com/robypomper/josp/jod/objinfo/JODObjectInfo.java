@@ -93,9 +93,16 @@ public interface JODObjectInfo {
     /**
      * Object's structure string for JSL.
      *
-     * @return the object's name
+     * @return the object's structure.
      */
     String getStructForJSL() throws JODStructure.ParsingException;
+
+    /**
+     * Object's permissions string for JSL.
+     *
+     * @return the object's permissions.
+     */
+    String getPermsForJSL() throws JODStructure.ParsingException;
 
     /**
      * The object's brand.

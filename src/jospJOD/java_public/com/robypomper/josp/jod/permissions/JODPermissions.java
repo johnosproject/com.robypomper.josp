@@ -176,7 +176,7 @@ public interface JODPermissions {
     class PermissionsNotLoadedException extends PermissionsFileException {
         private static final String MSG = "Error reading permissions from file '%s'";
 
-        public PermissionsNotLoadedException(String path, Exception e) {
+        public PermissionsNotLoadedException(String path, Throwable e) {
             super(String.format(MSG, path), e);
         }
     }

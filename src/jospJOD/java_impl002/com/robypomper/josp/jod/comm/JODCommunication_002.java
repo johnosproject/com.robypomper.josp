@@ -119,7 +119,7 @@ public class JODCommunication_002 implements JODCommunication {
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use '%s' server id", objInfo.getObjId()));
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use '%d' port", localPort));
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server use public certificate file '%s'", localPubCertFile));
-            return new JODLocalServer(this, objInfo, localPort, localPubCertFile);
+            return new JODLocalServer(this, objInfo, permissions, localPort, localPubCertFile);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

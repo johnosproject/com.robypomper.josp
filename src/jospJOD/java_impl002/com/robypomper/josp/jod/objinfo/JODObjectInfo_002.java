@@ -184,6 +184,14 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * {@inheritDoc}
      */
     @Override
+    public String getPermsForJSL() throws JODStructure.ParsingException {
+        return JOSPPerm.toString(permissions.getPermissions());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getBrand() {
         return structure.getRoot().getBrand();
     }

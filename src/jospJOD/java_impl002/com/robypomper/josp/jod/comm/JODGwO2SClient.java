@@ -175,6 +175,7 @@ public class JODGwO2SClient implements Client {
         try {
             communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()));
             communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()));
+            communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectPermsMsg(objInfo.getObjId(), objInfo.getPermsForJSL()));
 
         } catch (JODStructure.ParsingException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on serialize object's structure to cloud service because %s", e.getMessage()), e);

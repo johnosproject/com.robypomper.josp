@@ -10,6 +10,7 @@ import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -41,6 +42,7 @@ public class JODLocalServer implements Server {
     private static final Logger log = LogManager.getLogger();
     private final JODObjectInfo objInfo;
     private final JODCommunication communication;
+    private final JODPermissions permissions;
     private final CertSharingSSLServer server;
     private final List<JODLocalClientInfo> localClients = new ArrayList<>();
 
@@ -54,14 +56,16 @@ public class JODLocalServer implements Server {
      *                      that initialized this client. It will used to
      *                      process data received from the O2S Gw.
      * @param objInfo       the represented object's id.
+     * @param permissions
      * @param port          the port used by the server to listen for new
      *                      connections.
      * @param pubCertFile   the file path of current server's public certificate.
      */
     public JODLocalServer(JODCommunication communication, JODObjectInfo objInfo,
-                          int port, String pubCertFile) {
+                          JODPermissions permissions, int port, String pubCertFile) {
         this.objInfo = objInfo;
         this.communication = communication;
+        this.permissions = permissions;
 
         try {
             server = new CertSharingSSLServer(objInfo.getObjId(), port,
@@ -171,6 +175,18 @@ public class JODLocalServer implements Server {
         try {
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()), JOSPPerm.Type.Status);
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()), JOSPPerm.Type.Status);
+            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectPermsMsg(objInfo.getObjId(), objInfo.getPermsForJSL()), JOSPPerm.Type.CoOwner);
+
+            JOSPPerm.Type permType;
+            if (permissions.canActAsCoOwner(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
+                permType = JOSPPerm.Type.CoOwner;
+            else if (permissions.canExecuteAction(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
+                permType = JOSPPerm.Type.Actions;
+            else if (permissions.canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
+                permType = JOSPPerm.Type.Status;
+            else
+                permType = JOSPPerm.Type.None;
+            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createServicePermMsg(objInfo.getObjId(), permType, JOSPPerm.Connection.OnlyLocal), permType);
 
         } catch (JODStructure.ParsingException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on serialize object's structure to local service because %s", e.getMessage()), e);
