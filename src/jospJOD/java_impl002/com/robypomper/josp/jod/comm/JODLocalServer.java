@@ -11,7 +11,7 @@ import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.structure.JODStructure;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -169,8 +169,8 @@ public class JODLocalServer implements Server {
 
     private void sendObjectPresentation(JODLocalClientInfo locConn) {
         try {
-            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()), JOSPPermissions.Type.Status);
-            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()), JOSPPermissions.Type.Status);
+            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()), JOSPPerm.Type.Status);
+            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()), JOSPPerm.Type.Status);
 
         } catch (JODStructure.ParsingException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on serialize object's structure to local service because %s", e.getMessage()), e);
@@ -214,7 +214,7 @@ public class JODLocalServer implements Server {
      * @return always true.
      */
     private boolean onDataReceived(ClientInfo client, String readData) {
-        return communication.processFromServiceMsg(readData, JOSPPermissions.Connection.OnlyLocal);
+        return communication.processFromServiceMsg(readData, JOSPPerm.Connection.OnlyLocal);
     }
 
 

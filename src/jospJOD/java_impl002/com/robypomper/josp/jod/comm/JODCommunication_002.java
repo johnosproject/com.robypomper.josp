@@ -17,7 +17,7 @@ import com.robypomper.josp.jod.structure.JODComponentPath;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
@@ -130,13 +130,13 @@ public class JODCommunication_002 implements JODCommunication {
     // To Service Msg
 
     @Override
-    public boolean sendToServices(String msg, JOSPPermissions.Type minReqPerm) {
+    public boolean sendToServices(String msg, JOSPPerm.Type minReqPerm) {
         log.info(Mrk_JOD.JOD_COMM, String.format("Send '%s' message to local services and cloud", msg.substring(0, msg.indexOf('\n'))));
 
         // Send via local communication
         if (isLocalRunning()) {
             for (JODLocalClientInfo locConn : getAllLocalClientsInfo()) {
-                if (!locConn.isConnected() || !checkRequest_ReadPermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPermissions.Connection.OnlyLocal))
+                if (!locConn.isConnected() || !checkRequest_ReadPermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
                     continue;
 
                 try {
@@ -174,10 +174,10 @@ public class JODCommunication_002 implements JODCommunication {
     }
 
     @Override
-    public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected {
+    public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) throws ServiceNotConnected {
         log.info(Mrk_JOD.JOD_COMM, String.format("Send '%s' message to local service '%s' only", msg.substring(0, msg.indexOf('\n')), locConn.getFullSrvId()));
 
-        if (!permissions.canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), JOSPPermissions.Connection.OnlyLocal))
+        if (!permissions.canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
             return false;
 
         try {
@@ -196,15 +196,15 @@ public class JODCommunication_002 implements JODCommunication {
     @Override
     public void sendObjectUpdMsg(JODState component, JODStateUpdate update) {
         String msg = JOSPProtocol_ObjectToService.createObjectStateUpdMsg(objInfo.getObjId(), component.getPath().getString(), update);
-        sendToServices(msg, JOSPPermissions.Type.Status);
+        sendToServices(msg, JOSPPerm.Type.Status);
     }
 
 
     // From Service Msg
 
     @Override
-    public boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType) {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Received '%s' message from %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPermissions.Connection.OnlyLocal ? "local service" : "cloud"));
+    public boolean processFromServiceMsg(String msg, JOSPPerm.Connection connType) {
+        log.info(Mrk_JOD.JOD_COMM, String.format("Received '%s' message from %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPerm.Connection.OnlyLocal ? "local service" : "cloud"));
 
         try {
             String srvId = JOSPProtocol_ServiceToObject.getSrvId(msg);
@@ -228,7 +228,7 @@ public class JODCommunication_002 implements JODCommunication {
             return true;
 
         } catch (Throwable t) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing '%s' message from %s because %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPermissions.Connection.OnlyLocal ? "local service" : "cloud", t.getMessage()), t);
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing '%s' message from %s because %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPerm.Connection.OnlyLocal ? "local service" : "cloud", t.getMessage()), t);
             return false;
         }
     }
@@ -305,15 +305,15 @@ public class JODCommunication_002 implements JODCommunication {
 
     // Request permissions
 
-    private boolean checkRequest_ReadPermission(String srvId, String usrId, JOSPPermissions.Connection fromConnType) {
+    private boolean checkRequest_ReadPermission(String srvId, String usrId, JOSPPerm.Connection fromConnType) {
         return permissions.canSendUpdate(srvId, usrId, fromConnType);
     }
 
-    private boolean checkRequest_ActionPermission(String srvId, String usrId, JOSPPermissions.Connection fromConnType) {
+    private boolean checkRequest_ActionPermission(String srvId, String usrId, JOSPPerm.Connection fromConnType) {
         return permissions.canExecuteAction(srvId, usrId, fromConnType);
     }
 
-    private boolean checkRequest_OwnerPermission(String srvId, String usrId, JOSPPermissions.Connection fromConnType) {
+    private boolean checkRequest_OwnerPermission(String srvId, String usrId, JOSPPerm.Connection fromConnType) {
         return permissions.canActAsCoOwner(srvId, usrId, fromConnType);
     }
 

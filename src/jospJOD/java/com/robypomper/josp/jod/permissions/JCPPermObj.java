@@ -1,15 +1,13 @@
 package com.robypomper.josp.jod.permissions;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
-import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.protocol.JOSPProtocol;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -40,10 +38,14 @@ public class JCPPermObj extends AbsJCPAPIs {
      *
      * @return a valid permission list.
      */
-    public List<ObjPermission> generatePermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        JOSPPermissions.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
-        ObjPermission[] objPermArray = jcpClient.execGetReq(APIPermissions.URL_PATH_OBJGENERATE + "/" + strategy, ObjPermission[].class, true);
-        return Arrays.asList(objPermArray);
+    public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
+        JOSPPerm.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
+        String permsStr = jcpClient.execGetReq(APIPermissions.URL_PATH_OBJGENERATE + "/" + strategy, String.class, true);
+        try {
+            return JOSPPerm.listFromString(permsStr);
+        } catch (JOSPProtocol.ParsingException e) {
+            throw new JCPClient.RequestException(String.format("Can't parse JOSPPerm list from returned string '%s'", permsStr));
+        }
     }
 
     /**
@@ -53,9 +55,13 @@ public class JCPPermObj extends AbsJCPAPIs {
      * @param localPermissions local object's permission list.
      * @return updated permission list.
      */
-    public List<ObjPermission> refreshPermissionsFromJCP(List<ObjPermission> localPermissions) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        ObjPermission[] objPermArray = jcpClient.execPostReq(APIPermissions.URL_PATH_OBJMERGE, ObjPermission[].class, localPermissions, true);
-        return new ArrayList<>(Arrays.asList(objPermArray));
+    public List<JOSPPerm> refreshPermissionsFromJCP(List<JOSPPerm> localPermissions) throws JCPClient.ConnectionException, JCPClient.RequestException {
+        String permsStr = jcpClient.execPostReq(APIPermissions.URL_PATH_OBJMERGE, String.class, localPermissions, true);
+        try {
+            return JOSPPerm.listFromString(permsStr);
+        } catch (JOSPProtocol.ParsingException e) {
+            throw new JCPClient.RequestException(String.format("Can't parse JOSPPerm list from returned string '%s'", permsStr));
+        }
     }
 
 }

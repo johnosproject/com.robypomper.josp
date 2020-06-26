@@ -3,7 +3,7 @@ package com.robypomper.josp.jod.comm;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.List;
 
@@ -26,11 +26,11 @@ public interface JODCommunication {
 
     // To Service Msg
 
-    boolean sendToServices(String msg, JOSPPermissions.Type minPermReq);
+    boolean sendToServices(String msg, JOSPPerm.Type minPermReq);
 
     boolean sendToCloud(String msg) throws CloudNotConnected;
 
-    boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected;
+    boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) throws ServiceNotConnected;
 
     /**
      * Dispatch <code>component</code> <code>update</code> to connected and allowed
@@ -48,7 +48,7 @@ public interface JODCommunication {
 
     // From Service Msg
 
-    boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType);
+    boolean processFromServiceMsg(String msg, JOSPPerm.Connection connType);
 
 
     // Connections access

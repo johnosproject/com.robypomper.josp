@@ -16,7 +16,7 @@ import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.structure.JODStructure;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -191,7 +191,7 @@ public class JODGwO2SClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        return communication.processFromServiceMsg(readData, JOSPPermissions.Connection.LocalAndCloud);
+        return communication.processFromServiceMsg(readData, JOSPPerm.Connection.LocalAndCloud);
     }
 
 
