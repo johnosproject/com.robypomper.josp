@@ -3,7 +3,7 @@ package com.robypomper.josp.jcp.db;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -48,31 +48,31 @@ public class PermissionsDBService {
 
     // Permission queries
 
-    public List<ServiceStatus> getServicesAllowed(String objId, String ownerId, JOSPPermissions.Type minPermReq) {
+    public List<ServiceStatus> getServicesAllowed(String objId, String ownerId, JOSPPerm.Type minPermReq) {
         String[] types = getPermListFromMin(minPermReq);
-        List<Permission> ps = permissions.findForObj(JOSPPermissions.Connection.LocalAndCloud.name(), types, objId);
+        List<Permission> ps = permissions.findForObj(JOSPPerm.Connection.LocalAndCloud.name(), types, objId);
 
         List<ServiceStatus> srvs = new ArrayList<>();
         for (Permission p : ps)
-            if (p.getUsrId().equals(JOSPPermissions.WildCards.USR_ALL.toString())) {
-                if (p.getSrvId().equals(JOSPPermissions.WildCards.SRV_ALL.toString()))
+            if (p.getUsrId().equals(JOSPPerm.WildCards.USR_ALL.toString())) {
+                if (p.getSrvId().equals(JOSPPerm.WildCards.SRV_ALL.toString()))
                     srvs.addAll(servicesStatus.findAll());
                 else
                     srvs.addAll(servicesStatus.findBySrvId(p.getSrvId()));
-            } else if (p.getUsrId().equals(JOSPPermissions.WildCards.USR_OWNER.toString())) {
-                if (p.getSrvId().equals(JOSPPermissions.WildCards.SRV_ALL.toString())) {
-                    if (ownerId.equals(JOSPPermissions.WildCards.USR_ANONYMOUS_ID.toString()))
+            } else if (p.getUsrId().equals(JOSPPerm.WildCards.USR_OWNER.toString())) {
+                if (p.getSrvId().equals(JOSPPerm.WildCards.SRV_ALL.toString())) {
+                    if (ownerId.equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
                         srvs.addAll(servicesStatus.findAll());
                     else
                         srvs.addAll(servicesStatus.findByUsrId(ownerId));
                 } else {
-                    if (ownerId.equals(JOSPPermissions.WildCards.USR_ANONYMOUS_ID.toString()))
+                    if (ownerId.equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
                         srvs.addAll(servicesStatus.findBySrvId(p.getSrvId()));
                     else
                         srvs.addAll(servicesStatus.findBySrvIdAndUsrId(p.getSrvId(), ownerId));
                 }
             } else {
-                if (p.getSrvId().equals(JOSPPermissions.WildCards.SRV_ALL.toString()))
+                if (p.getSrvId().equals(JOSPPerm.WildCards.SRV_ALL.toString()))
                     srvs.addAll(servicesStatus.findByUsrId(p.getUsrId()));
                 else
                     srvs.addAll(servicesStatus.findBySrvIdAndUsrId(p.getSrvId(), p.getUsrId()));
@@ -81,9 +81,9 @@ public class PermissionsDBService {
         return srvs;
     }
 
-    public List<Object> getObjectAllowed(String srvId, String usrId, JOSPPermissions.Type minPermReq) {
+    public List<Object> getObjectAllowed(String srvId, String usrId, JOSPPerm.Type minPermReq) {
         String[] types = getPermListFromMin(minPermReq);
-        List<Permission> ps = permissions.findForSrv(JOSPPermissions.Connection.LocalAndCloud.name(), types, srvId, usrId);
+        List<Permission> ps = permissions.findForSrv(JOSPPerm.Connection.LocalAndCloud.name(), types, srvId, usrId);
 
         List<Object> objs = new ArrayList<>();
         for (Permission p : ps) {
@@ -96,23 +96,23 @@ public class PermissionsDBService {
 
     // Queries utils
 
-    private String[] getPermListFromMin(JOSPPermissions.Type minPermReq) {
-        if (minPermReq == JOSPPermissions.Type.Status) {
+    private String[] getPermListFromMin(JOSPPerm.Type minPermReq) {
+        if (minPermReq == JOSPPerm.Type.Status) {
             return new String[]{
-                    JOSPPermissions.Type.Status.name(),
-                    JOSPPermissions.Type.Actions.name(),
-                    JOSPPermissions.Type.CoOwner.name()
+                    JOSPPerm.Type.Status.name(),
+                    JOSPPerm.Type.Actions.name(),
+                    JOSPPerm.Type.CoOwner.name()
             };
 
-        } else if (minPermReq == JOSPPermissions.Type.Actions) {
+        } else if (minPermReq == JOSPPerm.Type.Actions) {
             return new String[]{
-                    JOSPPermissions.Type.Actions.name(),
-                    JOSPPermissions.Type.CoOwner.name()
+                    JOSPPerm.Type.Actions.name(),
+                    JOSPPerm.Type.CoOwner.name()
             };
 
-        } else if (minPermReq == JOSPPermissions.Type.CoOwner) {
+        } else if (minPermReq == JOSPPerm.Type.CoOwner) {
             return new String[]{
-                    JOSPPermissions.Type.CoOwner.name()
+                    JOSPPerm.Type.CoOwner.name()
             };
         }
 
