@@ -1,13 +1,11 @@
 package com.robypomper.josp.jcp.db.entities;
 
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -23,8 +21,7 @@ import java.util.Date;
 public class Permission {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String objId;
 
@@ -33,10 +30,10 @@ public class Permission {
     private String srvId;
 
     @Enumerated(EnumType.STRING)
-    private JOSPPermissions.Connection connection;
+    private JOSPPerm.Connection connection;
 
     @Enumerated(EnumType.STRING)
-    private JOSPPermissions.Type type;
+    private JOSPPerm.Type type;
 
 
     // Extra profile
