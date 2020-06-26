@@ -3,6 +3,7 @@ package com.robypomper.josp.jcp.gw;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
+import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -117,17 +118,24 @@ public class JOSPGWsBroker {
     }
 
     private void sendObjectPermsToService(GWObject object, GWService service) {
-        // ToDo get the all object's perms
-        List<JOSPPerm> perms = new ArrayList<>();
+        List<Permission> perms = permissionsDBService.findByObj(object.getObjId());
+        List<JOSPPerm> jospPerms = new ArrayList<>();
+        for (Permission p : perms)
+            jospPerms.add(new JOSPPerm(p.getId(), p.getObjId(), p.getSrvId(), p.getUsrId(), p.getType(), p.getConnection(), p.getUpdatedAt()));
 
-        String permsStr = JOSPPerm.toString(perms);
-        String msg = JOSPProtocol_ObjectToService.createObjectPermsMsg(object.getObjId(), permsStr);
+        String msg = JOSPProtocol_ObjectToService.createObjectPermsMsg(object.getObjId(), JOSPPerm.toString(jospPerms));
         sendToSingleCloudService(object, service.getFullId(), msg, JOSPPerm.Type.CoOwner);
     }
 
     private void sendServicePermToService(GWObject object, GWService service) {
-        // ToDo get permission's type and conn for service>object
-        JOSPPerm.Type permType = JOSPPerm.Type.Status;
+        JOSPPerm.Type permType = JOSPPerm.Type.None;
+        if (getAllowedServices(object, JOSPPerm.Type.CoOwner).contains(service))
+            permType = JOSPPerm.Type.CoOwner;
+        else if (getAllowedServices(object, JOSPPerm.Type.Actions).contains(service))
+            permType = JOSPPerm.Type.Actions;
+        else if (getAllowedServices(object, JOSPPerm.Type.Status).contains(service))
+            permType = JOSPPerm.Type.Status;
+
         JOSPPerm.Connection permConn = JOSPPerm.Connection.LocalAndCloud;
 
         String msg = JOSPProtocol_ObjectToService.createServicePermMsg(object.getObjId(), permType, permConn);
