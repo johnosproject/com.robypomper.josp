@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.util.Date;
 
 
@@ -17,7 +15,7 @@ import java.util.Date;
  */
 @Entity
 @Data
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"objId", "usrId", "srvId"}))
+//@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"objId", "usrId", "srvId"}))
 public class Permission {
 
     @Id

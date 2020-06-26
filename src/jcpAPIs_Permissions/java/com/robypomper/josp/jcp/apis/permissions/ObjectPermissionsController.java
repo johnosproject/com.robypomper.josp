@@ -5,7 +5,6 @@ import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.gw.JOSPGWsBroker;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
@@ -84,13 +83,13 @@ public class ObjectPermissionsController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPPerm.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
             @ApiResponse(code = 501, message = "Requested '" + APIObjs.HEADER_OBJID + "' strategy not implemented")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<List<JOSPPerm>> generatePermissions(
+    public ResponseEntity<String> generatePermissions(
             @RequestHeader(APIObjs.HEADER_OBJID) String objId,
             @PathVariable("strategy") JOSPPerm.GenerateStrategy strategy) {
 
@@ -111,7 +110,7 @@ public class ObjectPermissionsController {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, String.format("Can't generate obj's permission because unknown strategy '%s'.", strategy));
         }
 
-        return ResponseEntity.ok(objPerms);
+        return ResponseEntity.ok(JOSPPerm.toString(objPerms));
 
     }
 
@@ -140,21 +139,29 @@ public class ObjectPermissionsController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPPerm.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<List<JOSPPerm>> mergeAndStorePermissions(
+    public ResponseEntity<String> mergeAndStorePermissions(
             @RequestHeader(APIObjs.HEADER_OBJID) String objId,
-            @RequestBody List<JOSPPerm> objPerms) {
+            @RequestBody String permsStr) {
 
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
 
         List<Permission> jcpPerms = permissionsDBService.findByObj(objId);
+        List<JOSPPerm> objPerms = null;
+        try {
+            objPerms = JOSPPerm.listFromString(permsStr);
+
+        } catch (JOSPProtocol.ParsingException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Wrong JOSPPerm list '%s'.", permsStr));
+        }
         List<Permission> savedPerms = mergeAndUpdJCPPermissions(jcpPerms, objPerms);
-        return ResponseEntity.ok(toObjPerms(savedPerms));
+
+        return ResponseEntity.ok(JOSPPerm.toString(toObjPerms(savedPerms)));
     }
 
 
@@ -173,7 +180,7 @@ public class ObjectPermissionsController {
             return objPerms;
 
         for (Permission p : savedPerms)
-            objPerms.add(new JOSPPerm(p.getObjId(), p.getUsrId(), p.getSrvId(), p.getConnection().toString(), p.getType().toString(), JOSPProtocol.getDateFormatter().format(p.getUpdatedAt())));
+            objPerms.add(new JOSPPerm(p.getObjId(), p.getSrvId(), p.getUsrId(), p.getType(), p.getConnection(), p.getUpdatedAt()));
 
         return objPerms;
     }
@@ -199,7 +206,7 @@ public class ObjectPermissionsController {
                 if (p.getUpdatedAt().getTime() == 0)
                     continue;
                 Permission perm = new Permission();
-                //perm.setId(p.id); not exist yet
+                perm.setId(p.getId());
                 perm.setObjId(p.getObjId());
                 perm.setSrvId(p.getSrvId());
                 perm.setUsrId(p.getUsrId());
