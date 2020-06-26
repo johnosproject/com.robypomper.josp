@@ -52,11 +52,11 @@ public class JCPPermObj extends AbsJCPAPIs {
      * Send local permission to cloud, merge them with cloud stored permission
      * and the return merged list.
      *
-     * @param localPermissions local object's permission list.
+     * @param localPermsStr local object's permission list.
      * @return updated permission list.
      */
-    public List<JOSPPerm> refreshPermissionsFromJCP(List<JOSPPerm> localPermissions) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        String permsStr = jcpClient.execPostReq(APIPermissions.URL_PATH_OBJMERGE, String.class, localPermissions, true);
+    public List<JOSPPerm> refreshPermissionsFromJCP(String localPermsStr) throws JCPClient.ConnectionException, JCPClient.RequestException {
+        String permsStr = jcpClient.execPostReq(APIPermissions.URL_PATH_OBJMERGE, String.class, localPermsStr, true);
         try {
             return JOSPPerm.listFromString(permsStr);
         } catch (JOSPProtocol.ParsingException e) {

@@ -490,7 +490,7 @@ public class JODPermissions_002 implements JODPermissions {
      * Sync object's permissions with JCP object's permissions.
      */
     private void refreshPermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        permissions = jcpPermissions.refreshPermissionsFromJCP(permissions);
+        permissions = jcpPermissions.refreshPermissionsFromJCP(JOSPPerm.toString(permissions));
     }
 
     /**
