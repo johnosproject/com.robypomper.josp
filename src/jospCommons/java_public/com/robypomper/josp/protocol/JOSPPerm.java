@@ -1,6 +1,7 @@
 package com.robypomper.josp.protocol;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.robypomper.java.JavaRandomStrings;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class JOSPPerm {
     private final Date updatedAt;
 
     public JOSPPerm(String objId, String srvId, String usrId, String permType, String connType, String updatedAt) {
-        this("", objId, srvId, usrId, permType, connType, updatedAt);
+        this(generateId(), objId, srvId, usrId, permType, connType, updatedAt);
     }
 
     public JOSPPerm(String id, String objId, String srvId, String usrId, String permType, String connType, String updatedAt) {
@@ -132,7 +133,7 @@ public class JOSPPerm {
     }
 
     public JOSPPerm(String objId, String srvId, String usrId, Type permType, Connection connType, Date updatedAt) {
-        this("", objId, srvId, usrId, permType, connType, updatedAt);
+        this(generateId(), objId, srvId, usrId, permType, connType, updatedAt);
     }
 
     public JOSPPerm(String id, String objId, String srvId, String usrId, Type permType, Connection connType, Date updatedAt) {
@@ -145,6 +146,9 @@ public class JOSPPerm {
         this.updatedAt = updatedAt;
     }
 
+    private static String generateId() {
+        return JavaRandomStrings.randomAlfaString(20);
+    }
 
     // Getters
 
