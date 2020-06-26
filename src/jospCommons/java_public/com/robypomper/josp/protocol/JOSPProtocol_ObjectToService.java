@@ -111,7 +111,7 @@ public class JOSPProtocol_ObjectToService {
 
     public static final String SRV_PERMS_REQ_NAME = "ServicePerms";
     private static final String SRV_PERMS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " SRV_PERMS_MSG";
-    private static final String SRV_PERMS_REQ = SRV_PERMS_REQ_BASE + " %s\nobjId:%s\npermType:%s\npermConn:%s";
+    private static final String SRV_PERMS_REQ = SRV_PERMS_REQ_BASE + " %s\nobjId:%s\npermType:%s\nconnType:%s";
 
     public static String createServicePermMsg(String objId, JOSPPerm.Type permType, JOSPPerm.Connection permConn) {
         return String.format(SRV_PERMS_REQ, JOSPProtocol.getNow(), objId, permType, permConn);
@@ -122,11 +122,11 @@ public class JOSPProtocol_ObjectToService {
     }
 
     public static String getServicePermsMsg_PermType(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 3, 2, SRV_PERMS_REQ_NAME);
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 2, SRV_PERMS_REQ_NAME);
     }
 
-    public static String getServicePermsMsg_PermConn(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 3, 2, SRV_PERMS_REQ_NAME);
+    public static String getServicePermsMsg_ConnType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 3, SRV_PERMS_REQ_NAME);
     }
 
 
