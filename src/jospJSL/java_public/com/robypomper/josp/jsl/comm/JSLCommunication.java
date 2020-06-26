@@ -1,7 +1,7 @@
 package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public interface JSLCommunication {
 
     // From Object Msg
 
-    boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType);
+    boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType);
 
 
     // Connections access

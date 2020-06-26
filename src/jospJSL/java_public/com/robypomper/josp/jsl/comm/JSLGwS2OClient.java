@@ -14,7 +14,7 @@ import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -171,7 +171,7 @@ public class JSLGwS2OClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        return communication.processFromObjectMsg(readData, JOSPPermissions.Connection.LocalAndCloud);
+        return communication.processFromObjectMsg(readData, JOSPPerm.Connection.LocalAndCloud);
     }
 
 

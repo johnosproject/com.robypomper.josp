@@ -134,7 +134,7 @@ public interface JSLRemoteObject {
 
     // From Object Msg
 
-    boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) throws Throwable;
+    boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) throws Throwable;
 
 
     // Exceptions

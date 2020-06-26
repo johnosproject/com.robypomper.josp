@@ -16,7 +16,7 @@ import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
 import com.robypomper.josp.jsl.objs.structure.JSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
@@ -348,7 +348,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * {@inheritDoc}
      */
     @Override
-    public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) throws Throwable {
+    public boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) throws Throwable {
         if (JOSPProtocol_ObjectToService.isObjectInfoMsg(msg)) {
             return processObjectInfoMsg(msg, connType);
         } else if (JOSPProtocol_ObjectToService.isObjectStructMsg(msg))
@@ -365,7 +365,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
     }
 
-    private boolean processObjectInfoMsg(String msg, JOSPPermissions.Connection connType) {
+    private boolean processObjectInfoMsg(String msg, JOSPPerm.Connection connType) {
         try {
             String newName = JOSPProtocol_ObjectToService.getObjectInfoMsg_Name(msg);
             if (name == null || !name.equals(newName)) {
@@ -398,7 +398,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
                 // ToDo: trigger onObjectLongDescrUpdated() event
             }
 
-            isCloudConnected = connType == JOSPPermissions.Connection.LocalAndCloud;
+            isCloudConnected = connType == JOSPPerm.Connection.LocalAndCloud;
 
         } catch (JOSPProtocol.ParsingException e) {
             log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
@@ -440,8 +440,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         throw new Throwable("Processing 'servicePermMsg' message not implemented");
     }
 
-    private boolean processObjectDisconnectMsg(String msg, JOSPPermissions.Connection connType) throws Throwable {
-        if (connType == JOSPPermissions.Connection.LocalAndCloud)
+    private boolean processObjectDisconnectMsg(String msg, JOSPPerm.Connection connType) throws Throwable {
+        if (connType == JOSPPerm.Connection.LocalAndCloud)
             isCloudConnected = false;
         return true;
     }

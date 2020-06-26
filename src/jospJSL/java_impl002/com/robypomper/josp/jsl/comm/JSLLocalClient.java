@@ -10,7 +10,7 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.client.standard.SSLCertClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -127,7 +127,7 @@ public class JSLLocalClient implements Client {
      * @return always true.
      */
     private boolean onDataReceived(String readData) {
-        return communication.processFromObjectMsg(readData, JOSPPermissions.Connection.OnlyLocal);
+        return communication.processFromObjectMsg(readData, JOSPPerm.Connection.OnlyLocal);
     }
 
 

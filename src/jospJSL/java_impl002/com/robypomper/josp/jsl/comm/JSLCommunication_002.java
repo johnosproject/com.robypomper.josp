@@ -11,7 +11,7 @@ import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
@@ -109,8 +109,8 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      * {@inheritDoc}
      */
     @Override
-    public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) {
-        log.info(Mrk_JSL.JSL_COMM, String.format("Received '%s' message from %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPermissions.Connection.OnlyLocal ? "local object" : "cloud"));
+    public boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) {
+        log.info(Mrk_JSL.JSL_COMM, String.format("Received '%s' message from %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPerm.Connection.OnlyLocal ? "local object" : "cloud"));
 
         try {
             String objId = JOSPProtocol_ObjectToService.getObjId(msg);
@@ -123,7 +123,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
                 obj = objs.getById(objId);
             }
 
-            if (obj == null && connType == JOSPPermissions.Connection.LocalAndCloud && JOSPProtocol_ObjectToService.isObjectInfoMsg(msg)) {
+            if (obj == null && connType == JOSPPerm.Connection.LocalAndCloud && JOSPProtocol_ObjectToService.isObjectInfoMsg(msg)) {
                 objs.addCloudObject(objId);
                 obj = objs.getById(objId);
             }
@@ -138,7 +138,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             return true;
 
         } catch (Throwable t) {
-            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing '%s' message from %s because %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPermissions.Connection.OnlyLocal ? "local object" : "cloud", t.getMessage()), t);
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing '%s' message from %s because %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPerm.Connection.OnlyLocal ? "local object" : "cloud", t.getMessage()), t);
             return false;
         }
     }
