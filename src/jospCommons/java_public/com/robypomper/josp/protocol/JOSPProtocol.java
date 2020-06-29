@@ -9,7 +9,6 @@ package com.robypomper.josp.protocol;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
@@ -35,7 +34,6 @@ public class JOSPProtocol {
     // Public vars
 
     private static final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
-    private static final Calendar calendar = Calendar.getInstance(gmtTimeZone);
     private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd-HHmmssSSS");
 
 
@@ -329,12 +327,20 @@ public class JOSPProtocol {
 
     // Utils
 
+    public static Date getNowDate() {
+        return new Date();
+    }
+
     public static String getNow() {
-        return dateFormatter.format(calendar.getTime());
+        return dateFormatter.format(getNowDate());
+    }
+
+    public static Date getEpochDate() {
+        return new Date(0);
     }
 
     public static String getEpoch() {
-        return dateFormatter.format(new Date(0));
+        return dateFormatter.format(getEpochDate());
     }
 
     public static SimpleDateFormat getDateFormatter() {
@@ -348,7 +354,6 @@ public class JOSPProtocol {
 
         return lines[fieldLine].substring(lines[fieldLine].indexOf(":") + 1);
     }
-
 
     public static String extractPayloadFromResponse(String msg, int msgMinLines, int fieldLine, String msgName) throws JOSPProtocol.ParsingException {
         String[] lines = msg.split("\n");

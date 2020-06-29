@@ -51,7 +51,7 @@ public class JOSPProtocol_ServiceToObject {
 
     public static final String OBJ_SETOWNERID_REQ_NAME = "ObjectSetOwnerId";
     private static final String OBJ_SETOWNERID_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_SETOWNERID_MSG";
-    private static final String OBJ_SETOWNERID_REQ = OBJ_SETOWNERID_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nobjName:%s";
+    private static final String OBJ_SETOWNERID_REQ = OBJ_SETOWNERID_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nownerId:%s";
 
     public static String createObjectSetOwnerIdMsg(String fullSrvId, String objId, String newOwnerId) {
         return String.format(OBJ_SETOWNERID_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newOwnerId);

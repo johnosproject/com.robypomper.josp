@@ -121,12 +121,12 @@ public class JOSPProtocol_ObjectToService {
         return msg.startsWith(SRV_PERMS_REQ_BASE);
     }
 
-    public static String getServicePermsMsg_PermType(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 4, 2, SRV_PERMS_REQ_NAME);
+    public static JOSPPerm.Type getServicePermsMsg_PermType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPPerm.Type.valueOf(JOSPProtocol.extractFieldFromResponse(msg, 4, 2, SRV_PERMS_REQ_NAME));
     }
 
-    public static String getServicePermsMsg_ConnType(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 4, 3, SRV_PERMS_REQ_NAME);
+    public static JOSPPerm.Connection getServicePermsMsg_ConnType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPPerm.Connection.valueOf(JOSPProtocol.extractFieldFromResponse(msg, 4, 3, SRV_PERMS_REQ_NAME));
     }
 
 
