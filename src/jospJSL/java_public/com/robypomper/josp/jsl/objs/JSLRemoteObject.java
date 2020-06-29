@@ -5,7 +5,7 @@ import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
 import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.List;
 
@@ -63,9 +63,20 @@ public interface JSLRemoteObject {
     String getBrand();
 
     /**
+     * @return object's permissions.
+     */
+    List<JOSPPerm> getPerms();
+
+    /**
      * @return the object's long description.
      */
     String getLongDescr();
+
+    /**
+     * @return the service's permission to access to object via given connection
+     * type.
+     */
+    JOSPPerm.Type getServicePerm(JOSPPerm.Connection connType);
 
 
     // Object's communication

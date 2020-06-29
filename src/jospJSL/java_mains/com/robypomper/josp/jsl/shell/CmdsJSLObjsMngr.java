@@ -12,6 +12,7 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
+import com.robypomper.josp.protocol.JOSPPerm;
 
 
 public class CmdsJSLObjsMngr {
@@ -58,7 +59,9 @@ public class CmdsJSLObjsMngr {
         s += "Owner Id:         " + obj.getOwnerId() + "\n";
         s += "Obj. JOD version: " + obj.getJODVersion() + "\n";
         s += "JCP Comm:         " + obj.isCloudConnected() + "\n";
+        s += "    perm:         " + obj.getServicePerm(JOSPPerm.Connection.LocalAndCloud) + "\n";
         s += "Direct Comm:      " + obj.isLocalConnected() + "\n";
+        s += "       perm:      " + obj.getServicePerm(JOSPPerm.Connection.OnlyLocal) + "\n";
 
         return s;
     }
@@ -109,6 +112,18 @@ public class CmdsJSLObjsMngr {
         return s.toString();
     }
 
+    @Command(description = "Print all permissions of given objId.")
+    public String objPrintObjectPermissions(String objId) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+
+        String s = "OBJECT'S PERMISSIONS LIST\n";
+        s += JOSPPerm.logPermissions(obj.getPerms());
+        return s;
+    }
+
     @Command(description = "Set object's name.")
     public String objSetObjectName(String objId, String objName) {
         JSLRemoteObject obj = objs.getById(objId);
@@ -127,7 +142,7 @@ public class CmdsJSLObjsMngr {
 
     // Object's status
 
-    @Command(description = "Print object's info.")
+    @Command(description = "Print object's component status.")
     public String objStatus(String objId, String compPath) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)

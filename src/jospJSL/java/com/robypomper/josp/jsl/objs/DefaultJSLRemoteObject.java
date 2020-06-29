@@ -26,7 +26,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -50,6 +52,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     private String brand = null;
     private String longDescr = null;
     private boolean isCloudConnected = false;
+    private List<JOSPPerm> perms = new ArrayList<>();
+    private Map<JOSPPerm.Connection, JOSPPerm.Type> permTypes = new HashMap<>();
 
 
     // Constructor
@@ -67,6 +71,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         this.srvInfo = srvInfo;
         this.objId = objId;
         this.communication = communication;
+        permTypes.put(JOSPPerm.Connection.OnlyLocal, JOSPPerm.Type.None);
+        permTypes.put(JOSPPerm.Connection.LocalAndCloud, JOSPPerm.Type.None);
 
         log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: cloud) on '%s' service", objId, srvInfo.getSrvId()));
     }
@@ -85,6 +91,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         this.srvInfo = srvInfo;
         this.objId = objId;
         this.communication = communication;
+        permTypes.put(JOSPPerm.Connection.OnlyLocal, JOSPPerm.Type.None);
+        permTypes.put(JOSPPerm.Connection.LocalAndCloud, JOSPPerm.Type.None);
         addLocalClient(localClient);
 
         log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: %s:%d) on '%s' service (from: '%s:%d')", objId, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
@@ -171,6 +179,22 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     @Override
     public String getLongDescr() {
         return longDescr != null ? longDescr : "N/A";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<JOSPPerm> getPerms() {
+        return perms;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JOSPPerm.Type getServicePerm(JOSPPerm.Connection connType) {
+        return permTypes.get(connType);
     }
 
     /**
@@ -398,7 +422,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
                 // ToDo: trigger onObjectLongDescrUpdated() event
             }
 
-            isCloudConnected = connType == JOSPPerm.Connection.LocalAndCloud;
+            if (connType == JOSPPerm.Connection.LocalAndCloud)
+                isCloudConnected = true;
 
         } catch (JOSPProtocol.ParsingException e) {
             log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
@@ -433,11 +458,14 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     private boolean processObjectPermsMsg(String msg) throws Throwable {
-        throw new Throwable("Processing 'objectPermsMsg' message not implemented");
+        perms = JOSPProtocol_ObjectToService.getObjectPermsMsg_Perms(msg);
+        return true;
     }
 
     private boolean processServicePermMsg(String msg) throws Throwable {
-        throw new Throwable("Processing 'servicePermMsg' message not implemented");
+        JOSPPerm.Connection connType = JOSPPerm.Connection.valueOf(JOSPProtocol_ObjectToService.getServicePermsMsg_ConnType(msg));
+        permTypes.put(connType, JOSPPerm.Type.valueOf(JOSPProtocol_ObjectToService.getServicePermsMsg_PermType(msg)));
+        return true;
     }
 
     private boolean processObjectDisconnectMsg(String msg, JOSPPerm.Connection connType) throws Throwable {
