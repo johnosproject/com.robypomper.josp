@@ -7,12 +7,15 @@ import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
@@ -128,6 +131,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     @Override
     public void setObjName(String newName) {
         locSettings.setObjName(newName);
+        syncObjInfoJCP();
         syncObjInfo();
     }
 
@@ -160,10 +164,20 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     public String readStructureStr() {
         try {
             return readFile(locSettings.getStructurePath());
+        } catch (ClosedByInterruptException ignore) {
+            return "";
         } catch (IOException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on structure string loading from '%s' file because %s check JOD configs", locSettings.getStructurePath(), e.getMessage()), e);
             throw new RuntimeException(String.format("Error on structure string loading from '%s' file check JOD configs", locSettings.getStructurePath()), e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getStructForJSL() throws JODStructure.ParsingException {
+        return structure.getStructForJSL();
     }
 
     /**
@@ -191,7 +205,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
 
-    // Permissions's info
+    // Permissions info
 
     /**
      * {@inheritDoc}
@@ -208,6 +222,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     public String readPermissionsStr() {
         try {
             return readFile(locSettings.getPermissionsPath());
+        } catch (ClosedByInterruptException ignore) {
+            return "";
         } catch (IOException e) {
             throw new RuntimeException("Error on permissions string loading, check JOD configs.");
         }
@@ -228,7 +244,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         log.info(Mrk_JOD.JOD_INFO, String.format("Start JODObjectInfo auto-refresh for '%s' object", getObjId()));
 
-        syncObjInfo();
+        syncObjInfoJCP();
     }
 
     /**
@@ -244,11 +260,20 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
     }
 
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void syncObjInfo() {
+        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr()), JOSPPermissions.Type.Status);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void syncObjInfoJCP() {
         try {
             log.debug(Mrk_JOD.JOD_INFO, "Sync object Info to JCP");
             jcpObjInfo.registerOrUpdate(this);
@@ -282,7 +307,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private final JCPClient.ConnectListener syncListener = new JCPClient.ConnectListener() {
         @Override
         public void onConnected(JCPClient jcpClient) {
-            syncObjInfo();
+            syncObjInfoJCP();
         }
     };
 
@@ -321,7 +346,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         String oldObjId = getObjId();
         locSettings.setObjIdCloud("");
         regenerateObjId(oldObjId);
-        syncObjInfo();
+        syncObjInfoJCP();
 
         try {
             if (wasCloudConnected)

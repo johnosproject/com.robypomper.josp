@@ -33,9 +33,13 @@ public class JSLRangeAction extends JSLRangeState implements JSLAction {
 
     @Override
     public void execAction(JSLActionParams params) {
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Propagating component '%s' state", getName()));
-        getRemoteObject().getCommunication().forwardAction(getRemoteObject(), this, params);
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Component '%s' propagated state", getName()));
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Sending component '%s' state to object '%s'", getName(), getRemoteObject().getId()));
+        try {
+            getRemoteObject().sendObjectCmdMsg(this, params);
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Component '%s' send state to object '%s'", getName(), getRemoteObject().getId()));
+        } catch (JSLRemoteObject.ObjectNotConnected e) {
+            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending '%s' state to object '%s' because %s", getName(), getRemoteObject().getId(), e.getMessage()), e);
+        }
     }
 
 

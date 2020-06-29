@@ -2,6 +2,7 @@ package com.robypomper.josp.jcp.apis.params.permissions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.robypomper.josp.protocol.JOSPPermissions;
 
 import java.util.Date;
 
@@ -21,9 +22,9 @@ public class ObjPermission {
 
     public final String srvId;
 
-    public final PermissionsTypes.Connection connection;
+    public final JOSPPermissions.Connection connection;
 
-    public final PermissionsTypes.Type type;
+    public final JOSPPermissions.Type type;
 
     public final Date updatedAt;
 
@@ -34,8 +35,8 @@ public class ObjPermission {
     public ObjPermission(@JsonProperty("objId") String objId,
                          @JsonProperty("usrId") String usrId,
                          @JsonProperty("srvId") String srvId,
-                         @JsonProperty("connection") PermissionsTypes.Connection connection,
-                         @JsonProperty("type") PermissionsTypes.Type type,
+                         @JsonProperty("connection") JOSPPermissions.Connection connection,
+                         @JsonProperty("type") JOSPPermissions.Type type,
                          @JsonProperty("updatedAt") Date updatedAt) {
         this.objId = objId;
         this.usrId = usrId;

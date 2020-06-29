@@ -11,13 +11,30 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
 
     List<Permission> findByObjId(String objId);
 
-    List<Permission> findBySrvId(String objId);
-
-    List<Permission> findByUsrId(String objId);
+    /**
+     * <pre>
+     * 	SELECT * FROM jcp_apis.permission
+     * 	WHERE connection='__CONN__'
+     * 	  AND (
+     * 	    type IN ('__TYPES[0]__', '__TYPES[1]__', '...')
+     * 	  )
+     * 	  AND obj_id='__OBJID__'
+     * </pre>
+     */
+    @Query(value = "SELECT * FROM jcp_apis.permission\n" +
+            "WHERE connection= :conn\n" +
+            "  AND (\n" +
+            "       type IN :types\n" +
+            "      )\n" +
+            "  AND obj_id= :objId\n",
+            nativeQuery = true)
+    List<Permission> findForObj(@Param("conn") String conn,
+                                @Param("types") String[] types,
+                                @Param("objId") String objId);
 
     /**
      * <pre>
-     * 	SELECT permission.obj_id
+     * 	SELECT permission.*
      * 	FROM (
      * 		SELECT *
      * 		FROM (
@@ -35,23 +52,23 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
      * 	   OR (usr_id='#Owner' AND owner_id='00000-00000-00000')
      * </pre>
      */
-    @Query(value = "   SELECT permission.*\n" +
-            "   FROM (\n" +
-            "        SELECT *\n" +
-            "        FROM (\n" +
-            "            SELECT * FROM jcp_apis.permission\n" +
-            "            WHERE connection= :conn\n" +
-            "              AND (\n" +
-            "                   type IN :types\n" +
-            "                  )\n" +
-            "        ) as permission_type\n" +
-            "        WHERE (srv_id='#All' OR srv_id= :srvId)\n" +
-            "    ) as permission\n" +
-            "    LEFT JOIN jcp_apis.object_owner " +
-            "           ON permission.obj_id=object_owner.obj_id\n" +
-            "    WHERE (usr_id= :usrId)\n" +
-            "       OR (usr_id='#Owner' AND owner_id= :usrId)\n" +
-            "       OR (usr_id='#Owner' AND owner_id='00000-00000-00000')\n",
+    @Query(value = "SELECT permission.*\n" +
+            "FROM (\n" +
+            "     SELECT *\n" +
+            "     FROM (\n" +
+            "         SELECT * FROM jcp_apis.permission\n" +
+            "         WHERE connection= :conn\n" +
+            "           AND (\n" +
+            "                type IN :types\n" +
+            "               )\n" +
+            "     ) as permission_type\n" +
+            "     WHERE (srv_id='#All' OR srv_id= :srvId)\n" +
+            " ) as permission\n" +
+            " LEFT JOIN jcp_apis.object_owner " +
+            "        ON permission.obj_id=object_owner.obj_id\n" +
+            " WHERE (usr_id= :usrId)\n" +
+            "    OR (usr_id='#Owner' AND owner_id= :usrId)\n" +
+            "    OR (usr_id='#Owner' AND owner_id='00000-00000-00000')\n",
             nativeQuery = true)
     List<Permission> findForSrv(@Param("conn") String conn,
                                 @Param("types") String[] types,

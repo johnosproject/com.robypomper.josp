@@ -88,6 +88,6 @@ public interface JSLObjsMngr {
 
     void setCommunication(JSLCommunication communication);
 
-    void addCloudObject(String msg);
+    void addCloudObject(String objId);
 
 }

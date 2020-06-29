@@ -1,7 +1,6 @@
 package com.robypomper.josp.jod.comm;
 
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
@@ -17,6 +16,7 @@ import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -440,22 +440,28 @@ public class JOSPCommunicationIntegration {
 
     private static class MockJODPermissions_002 implements JODPermissions {
         @Override
-        public boolean canExecuteAction(String srvId, String usrId, PermissionsTypes.Connection connection) {
+        public void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException {}
+
+        @Override
+        public boolean canExecuteAction(String srvId, String usrId, JOSPPermissions.Connection connection) {
             return false;
         }
 
         @Override
-        public boolean canSendLocalUpdate(String srvId, String usrId) {
+        public boolean canSendUpdate(String srvId, String usrId, JOSPPermissions.Connection connection) {
             return false;
         }
 
         @Override
-        public boolean canActAsLocalCoOwner(String srvId, String usrId) {
+        public boolean canActAsCoOwner(String srvId, String usrId, JOSPPermissions.Connection connection) {
             return false;
         }
 
         @Override
-        public void syncObjPermissions() {
+        public void syncObjPermissions() {}
+
+        @Override
+        public void syncObjPermissionsJCP() {
 
         }
 
@@ -465,7 +471,7 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public boolean addPermissions(String usrId, String srvId, PermissionsTypes.Connection connection, PermissionsTypes.Type type) {
+        public boolean addPermissions(String usrId, String srvId, JOSPPermissions.Connection connection, JOSPPermissions.Type type) {
             return false;
         }
 
@@ -713,6 +719,11 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
+        public String getStructForJSL() throws JODStructure.ParsingException {
+            return null;
+        }
+
+        @Override
         public String getBrand() {
             return null;
         }
@@ -748,7 +759,12 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public void syncObjInfo() {}
+        public void syncObjInfo() {
+
+        }
+
+        @Override
+        public void syncObjInfoJCP() {}
 
         @Override
         public void regenerateObjId() {}

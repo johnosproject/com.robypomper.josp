@@ -1,15 +1,14 @@
 package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.events.LogServerClientEventsListener;
-import com.robypomper.communication.server.events.LogServerMessagingEventsListener;
+import com.robypomper.communication.server.events.DefaultServerClientEventsListener;
+import com.robypomper.communication.server.events.DefaultServerMessagingEventsListener;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.josp.jcp.db.ObjectDBService;
-import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
 import com.robypomper.log.Mrk_Commons;
+import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     private JOSPGWsBroker gwBroker;
 
 
-    // Clients connection
+    // Object's clients connection
 
     /**
      * Create {@link GWObject} instance and send ObjectStructure request to
@@ -63,16 +62,6 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             return;
         }
         objects.put(client.getClientId(), gwObj);
-
-        // Send ObjectStructure request
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Send ObjectStructure request to object '%s'", client.getClientId()));
-        try {
-            server.sendData(client, JOSPProtocol_CloudRequests.createObjectStructureRequest(gwObj.getLastStructUpdate()));
-
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
-            client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on sending ObjectStructure request to object '%s'", client.getClientId()));
-        }
     }
 
     private void onClientDisconnection(ClientInfo client) {
@@ -85,16 +74,25 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
         }
     }
 
+
+    // Object's data received
+
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from '%s' object", readData.substring(0, readData.indexOf("\n")), client.getClientId()));
         GWObject obj = objects.get(client.getClientId());
+        int count = 0;
+        while (obj == null && count < 5) {
+            count++;
+            try {
+                Thread.sleep(100);
 
-        if (JOSPProtocol.isUpdMsg(readData) && obj.processUpdate(readData))
-            return true;
+            } catch (InterruptedException e) {
+                return false;
+            }
+            obj = objects.get(client.getClientId());
+        }
 
-        if (obj.processCloudRequestResponse(readData))
-            return true;
-
-        return false;
+        return obj != null && obj.processFromObjectMsg(readData);
     }
 
 
@@ -116,6 +114,9 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
         return PORT_MAX;
     }
 
+
+    // AbsJOSPGWsService implementations
+
     /**
      * {@inheritDoc}
      */
@@ -134,7 +135,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
      */
     @Override
     protected ServerClientEvents getClientEventsListener() {
-        return new LogServerClientEventsListener() {
+        return new DefaultServerClientEventsListener() {
 
             /**
              * {@inheritDoc}
@@ -167,7 +168,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
      */
     @Override
     protected ServerMessagingEvents getMessagingEventsListener() {
-        return new LogServerMessagingEventsListener() {
+        return new DefaultServerMessagingEventsListener() {
 
             /**
              * {@inheritDoc}

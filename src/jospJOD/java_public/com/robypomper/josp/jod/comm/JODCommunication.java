@@ -1,9 +1,9 @@
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.protocol.JOSPPermissions;
 
 import java.util.List;
 
@@ -24,7 +24,13 @@ import java.util.List;
  */
 public interface JODCommunication {
 
-    // Status upd flow (objStruct - comm)
+    // To Service Msg
+
+    boolean sendToServices(String msg, JOSPPermissions.Type minPermReq);
+
+    boolean sendToCloud(String msg) throws CloudNotConnected;
+
+    boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected;
 
     /**
      * Dispatch <code>component</code> <code>update</code> to connected and allowed
@@ -37,49 +43,12 @@ public interface JODCommunication {
      * @param component the object's component that updated his state.
      * @param update    the status update info.
      */
-    void dispatchUpdate(JODState component, JODStateUpdate update);
+    void sendObjectUpdMsg(JODState component, JODStateUpdate update);
 
 
-    // Action cmd flow (comm - objStruct)
+    // From Service Msg
 
-    /**
-     * Parse and exec given action (in the <code>msg</code> string) to the right
-     * object's component.
-     */
-    boolean forwardAction(String msg, PermissionsTypes.Connection connType);
-
-
-    // Local service requests
-
-    /**
-     * Method to process all requests received from local services.
-     * <p>
-     * If received data are NOT a local service request, then this method return
-     * null pointer. Otherwise it return a String containing the response to
-     * replay to the sender JSL.
-     *
-     * @param client the sender JSL info.
-     * @param msg    the local service request received from <code>client</code>.
-     * @return a String containing the response to reply or null if <code>msg</code>
-     * doesn't contain a valid local service request.
-     */
-    String processServiceRequest(JODLocalClientInfo client, String msg);
-
-
-    // Cloud requests
-
-    /**
-     * Method to process all requests received from GW's O2S.
-     * <p>
-     * If received data are NOT a cloud request, then this method return
-     * null pointer. Otherwise it return a String containing the response to
-     * replay to the sender JSL.
-     *
-     * @param msg the cloud request received.
-     * @return a String containing the response to reply or null if <code>msg</code>
-     * doesn't contain a valid cloud request.
-     */
-    String processCloudRequest(String msg);
+    boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType);
 
 
     // Connections access
@@ -184,7 +153,6 @@ public interface JODCommunication {
         }
     }
 
-
     /**
      * Exceptions for cloud communication errors.
      */
@@ -193,6 +161,30 @@ public interface JODCommunication {
 
         public MissingPermissionException(String reqType, String srvId, String usrId) {
             super(String.format(MSG, reqType, srvId, usrId));
+        }
+    }
+
+    class ServiceNotConnected extends Throwable {
+        private static final String MSG = "Can't access to '%s' service because not connected.";
+
+        public ServiceNotConnected(JODLocalClientInfo locConn) {
+            super(String.format(MSG, locConn.getFullSrvId()));
+        }
+
+        public ServiceNotConnected(JODLocalClientInfo locConn, Throwable t) {
+            super(String.format(MSG, locConn.getFullSrvId()), t);
+        }
+    }
+
+    class CloudNotConnected extends Throwable {
+        private static final String MSG = "Can't access to O2S gateway because not connected.";
+
+        public CloudNotConnected(JODGwO2SClient cloudConn) {
+            super(MSG);
+        }
+
+        public CloudNotConnected(JODGwO2SClient cloudConn, Throwable t) {
+            super(MSG, t);
         }
     }
 

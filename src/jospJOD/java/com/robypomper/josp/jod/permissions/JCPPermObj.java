@@ -2,11 +2,11 @@ package com.robypomper.josp.jod.permissions;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.protocol.JOSPPermissions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ public class JCPPermObj extends AbsJCPAPIs {
      * @return a valid permission list.
      */
     public List<ObjPermission> generatePermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        PermissionsTypes.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
+        JOSPPermissions.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
         ObjPermission[] objPermArray = jcpClient.execGetReq(APIPermissions.URL_PATH_OBJGENERATE + "/" + strategy, ObjPermission[].class, true);
         return Arrays.asList(objPermArray);
     }

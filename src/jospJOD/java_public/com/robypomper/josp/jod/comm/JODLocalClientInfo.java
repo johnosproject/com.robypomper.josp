@@ -1,5 +1,7 @@
 package com.robypomper.josp.jod.comm;
 
+import com.robypomper.communication.server.ClientInfo;
+
 import java.net.InetAddress;
 
 
@@ -9,6 +11,27 @@ import java.net.InetAddress;
 public interface JODLocalClientInfo {
 
     // Service info
+
+    /**
+     * The full service id composed by service, user and instance ids.
+     *
+     * @return the represented client's service full id.
+     */
+    String getFullSrvId();
+
+    /**
+     * The service id.
+     *
+     * @return the represented client's service id.
+     */
+    String getSrvId();
+
+    /**
+     * The user id of the user logged in the client's service.
+     *
+     * @return the represented client's user id.
+     */
+    String getUsrId();
 
     /**
      * Th unique ID per instance.
@@ -22,22 +45,10 @@ public interface JODLocalClientInfo {
      */
     String getInstanceId();
 
-    /**
-     * The user id of the user logged in the client's service.
-     *
-     * @return the represented client's user id.
-     */
-    String getUsrId();
-
-    /**
-     * The service id.
-     *
-     * @return the represented client's service id.
-     */
-    String getSrvId();
-
 
     // Connection info
+
+    ClientInfo getClient();
 
     /**
      * The client id is generated and managed by the communication level below.

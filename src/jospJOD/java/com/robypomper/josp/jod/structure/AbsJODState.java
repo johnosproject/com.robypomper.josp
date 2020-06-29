@@ -89,9 +89,9 @@ public abstract class AbsJODState extends AbsJODComponent
      * {@inheritDoc}
      */
     @Override
-    public void propagateState(JODStateUpdate statusUpd) throws JODStructure.CommunicationSetException {
+    public void propagateState(JODStateUpdate update) throws JODStructure.CommunicationSetException {
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Propagating component '%s' state", getName()));
-        getStructure().getCommunication().dispatchUpdate(this, statusUpd);
+        getStructure().getCommunication().sendObjectUpdMsg(this, update);
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state", getName()));
     }
 

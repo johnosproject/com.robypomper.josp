@@ -5,9 +5,9 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_CloudRequests;
-import com.robypomper.log.Mrk_Commons;
+import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -97,6 +97,25 @@ public class GWService {
     }
 
 
+    public boolean processFromServiceMsg(String msg) {
+        String objId;
+        try {
+            objId = JOSPProtocol_ServiceToObject.getObjId(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            return false;
+        }
+
+        JOSPPermissions.Type minReqPerm = JOSPPermissions.Type.None;
+        if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
+            minReqPerm = JOSPPermissions.Type.CoOwner;
+
+        if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
+            minReqPerm = JOSPPermissions.Type.Actions;
+
+        return gwBroker.sendToObject(this, objId, msg, minReqPerm);
+    }
+
     // Communication
 
     public void sendData(String msg) throws Server.ServerStoppedException, Server.ClientNotConnectedException {
@@ -113,50 +132,6 @@ public class GWService {
         } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
             return false;
         }
-    }
-
-
-    // Actions
-
-    public boolean processAction(String msg) {
-        // parse received data (here or in prev methods)
-        JOSPProtocol.ActionCmd cmd;
-        try {
-            cmd = JOSPProtocol.fromMsgToCmdStr(msg);
-        } catch (JOSPProtocol.ParsingException e) {
-            /* Not a action command message */
-            return false;
-        }
-
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Processing command '%s...' from '%s' service", msg.substring(0, msg.indexOf("\n")), fullSrvId));
-
-        gwBroker.actionToObject(cmd);
-        //srvStatus.setLastActionExecuted(new Date());
-        saveToDB();
-
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Command '%s...' processed for '%s' service", msg.substring(0, msg.indexOf("\n")), fullSrvId));
-        return true;
-    }
-
-
-    // Cloud requests
-
-    public boolean processCloudRequestResponse(String msg) {
-
-        if (JOSPProtocol_CloudRequests.isToObjectRequest(msg)) {
-            try {
-                String objId = JOSPProtocol_CloudRequests.extractObjectIdFromRequest(msg);
-                String srvId = JOSPProtocol_CloudRequests.extractServiceIdFromRequest(msg);
-                String usrId = JOSPProtocol_CloudRequests.extractUserIdFromRequest(msg);
-                gwBroker.requestToObject(objId, srvId, usrId, msg);
-                return true;
-
-            } catch (JOSPProtocol.ParsingException e) {
-                return false;
-            }
-        }
-
-        return false;
     }
 
 

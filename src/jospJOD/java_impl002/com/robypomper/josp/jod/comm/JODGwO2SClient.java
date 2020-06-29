@@ -6,17 +6,19 @@ import com.robypomper.communication.client.Client;
 import com.robypomper.communication.client.DefaultSSLClient;
 import com.robypomper.communication.client.ServerInfo;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
+import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
-import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -88,9 +90,9 @@ public class JODGwO2SClient implements Client {
             throw new JODCommunication.CloudCommunicationException("Error on generating ssl context for object's cloud client", e);
         }
 
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLGwO2SClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Initialized JSLGwO2SClient %s his instance of DefaultSSLClient for service '%s'", client != null ? "and" : "but NOT", objInfo.getObjId()));
         if (isConnected()) {
-            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
+            log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
         }
     }
 
@@ -129,7 +131,7 @@ public class JODGwO2SClient implements Client {
 
             // Init SSL client
             client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), o2sAccess.gwAddress, o2sAccess.gwPort,
-                    null, null, new GwO2SClientMessagingEventsListener());
+                    null, new GwO2SClientServerEventsListener(), new GwO2SClientMessagingEventsListener());
             log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client initialized");
 
         } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException e) {
@@ -167,6 +169,21 @@ public class JODGwO2SClient implements Client {
     // Processing incoming data
 
     /**
+     * Send to O2S gateway object's presentation messages.
+     */
+    public void onServerConnection() {
+        try {
+            communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()));
+            communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()));
+
+        } catch (JODStructure.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on serialize object's structure to cloud service because %s", e.getMessage()), e);
+        } catch (JODCommunication.CloudNotConnected e) {
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending object's presentation to cloud because %s", e.getMessage()), e);
+        }
+    }
+
+    /**
      * Forward received data to the {@link JODCommunication}
      * instance.
      *
@@ -174,30 +191,7 @@ public class JODGwO2SClient implements Client {
      * @return always true.
      */
     public boolean onDataReceived(String readData) {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from GWs O2S to '%s' object", readData.substring(0, readData.indexOf("\n")), objInfo.getObjId()));
-
-        // Action requests
-        if (communication.forwardAction(readData, PermissionsTypes.Connection.LocalAndCloud))
-            return true;
-
-        // Cloud requests
-        String responseOrError = communication.processCloudRequest(readData);
-        if (responseOrError != null) {
-            log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Sending response for cloud request '%s...' to GWs O2S from '%s' object", readData.substring(0, 10), objInfo.getObjId()));
-            try {
-                sendData(responseOrError);
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Response for service request '%s...' send to GWs O2S from '%s' object", readData.substring(0, 10), objInfo.getObjId()));
-                return true;
-
-            } catch (ServerNotConnectedException e) {
-                log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending response for service request '%s...' to GWs O2S from '%s' object because %s", readData.substring(0, 10), objInfo.getObjId(), e.getMessage()), e);
-                return false;
-            }
-        }
-
-        // Unknown request
-        log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on processing received data '%s...' from GWs O2S to '%s' object because unknown request", readData.substring(0, 10), objInfo.getObjId()));
-        return false;
+        return communication.processFromServiceMsg(readData, JOSPPermissions.Connection.LocalAndCloud);
     }
 
 
@@ -316,6 +310,64 @@ public class JODGwO2SClient implements Client {
 
 
     // Client events listener
+
+    /**
+     * Link the {@link #onServerConnection()} event to
+     * {@link JODGwO2SClient#onServerConnection()} ()} method.
+     */
+    private class GwO2SClientServerEventsListener extends DefaultClientEvents implements ClientServerEvents {
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Link to the {@link JODGwO2SClient#onDataReceived(String)} method.
+         */
+        @Override
+        public void onServerConnection() {
+            JODGwO2SClient.this.onServerConnection();
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerDisconnection() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerClientDisconnected() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerGoodbye() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerTerminated() {}
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Does nothing.
+         */
+        @Override
+        public void onServerError(Throwable e) {}
+
+    }
 
     /**
      * Link the {@link #onDataReceived(String)} event to

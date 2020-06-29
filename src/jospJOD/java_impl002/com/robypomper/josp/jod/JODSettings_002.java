@@ -1,7 +1,7 @@
 package com.robypomper.josp.jod;
 
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
 import com.robypomper.josp.jcp.apis.paths.JcpAPI;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import com.robypomper.settings.DefaultSettings;
 
 import java.io.File;
@@ -49,7 +49,7 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JODPERM_GENSTARTEGY      = "jod.permissions.generation_strategy";
     public static final String JODPERM_GENSTARTEGY_DEF  = "standard";
     public static final String JODPERM_OWNER            = "jod.permissions.owner";
-    public static final String JODPERM_OWNER_DEF        = PermissionsTypes.WildCards.USR_ANONYMOUS_ID.toString();
+    public static final String JODPERM_OWNER_DEF        = JOSPPermissions.WildCards.USR_ANONYMOUS_ID.toString();
 
     public static final String JODCOMM_LOCAL_ENABLED        = "jod.comm.local.enabled";
     public static final String JODCOMM_LOCAL_ENABLED_DEF    = "true";
@@ -204,9 +204,9 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     }
 
     //@Override
-    public PermissionsTypes.GenerateStrategy getPermissionsGenerationStrategy() {
+    public JOSPPermissions.GenerateStrategy getPermissionsGenerationStrategy() {
         String val = getString(JODPERM_GENSTARTEGY, JODPERM_GENSTARTEGY_DEF);
-        return PermissionsTypes.GenerateStrategy.valueOf(val.toUpperCase());
+        return JOSPPermissions.GenerateStrategy.valueOf(val.toUpperCase());
     }
 
     /**

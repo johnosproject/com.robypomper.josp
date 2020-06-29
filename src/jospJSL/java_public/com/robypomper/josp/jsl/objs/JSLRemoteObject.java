@@ -2,7 +2,10 @@ package com.robypomper.josp.jsl.objs;
 
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
+import com.robypomper.josp.protocol.JOSPPermissions;
 
 import java.util.List;
 
@@ -48,6 +51,21 @@ public interface JSLRemoteObject {
      * @return the object's JOD version.
      */
     String getJODVersion();
+
+    /**
+     * @return the object's model.
+     */
+    String getModel();
+
+    /**
+     * @return the object's brand.
+     */
+    String getBrand();
+
+    /**
+     * @return the object's long description.
+     */
+    String getLongDescr();
 
 
     // Object's communication
@@ -109,24 +127,14 @@ public interface JSLRemoteObject {
     JSLLocalClient getConnectedLocalClient();
 
 
-    // Process object's data
+    // To Object Msg
 
-    /**
-     * Process service request's response send by corresponding JOD object.
-     *
-     * @param msg the message containing the service request's response.
-     * @return <code>true</code> if the service request's response was processed
-     * successfully.
-     */
-    boolean processServiceRequestResponse(String msg);
+    void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected;
 
-    /**
-     * Process cloud data send by corresponding JOD object.
-     *
-     * @param msg the message containing the cloud data.
-     * @return <code>true</code> if the cloud data was processed successfully.
-     */
-    boolean processCloudData(String msg);
+
+    // From Object Msg
+
+    boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) throws Throwable;
 
 
     // Exceptions

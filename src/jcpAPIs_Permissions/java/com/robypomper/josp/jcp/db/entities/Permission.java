@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.db.entities;
 
-import com.robypomper.josp.jcp.apis.params.permissions.PermissionsTypes;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -33,10 +33,10 @@ public class Permission {
     private String srvId;
 
     @Enumerated(EnumType.STRING)
-    private PermissionsTypes.Connection connection;
+    private JOSPPermissions.Connection connection;
 
     @Enumerated(EnumType.STRING)
-    private PermissionsTypes.Type type;
+    private JOSPPermissions.Type type;
 
 
     // Extra profile

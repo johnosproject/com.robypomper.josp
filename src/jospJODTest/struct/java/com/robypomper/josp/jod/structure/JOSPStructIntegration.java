@@ -14,10 +14,13 @@ import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.JSLAction;
+import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
+import com.robypomper.josp.protocol.JOSPPermissions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -64,7 +67,7 @@ public class JOSPStructIntegration {
 
         System.out.println("\nSERIALIZE STRUCT.JSL");
         String jodStructureStr;
-        // From: String JODStructure_002::getStringForJSL()
+        // From: String JODStructure_002::getStructForJSL()
         try {
             ObjectMapper mapper = new ObjectMapper();
             jodStructureStr = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jodRoot);
@@ -182,7 +185,12 @@ public class JOSPStructIntegration {
         }
 
         @Override
-        public String getStringForJSL() {
+        public void syncObjStruct() {
+
+        }
+
+        @Override
+        public String getStructForJSL() {
             return null;
         }
 
@@ -313,6 +321,9 @@ public class JOSPStructIntegration {
         }
 
         @Override
+        public void setName(String newName) throws ObjectNotConnected {}
+
+        @Override
         public JSLRoot getStructure() {
             return null;
         }
@@ -323,7 +334,25 @@ public class JOSPStructIntegration {
         }
 
         @Override
+        public void setOwnerId(String newOwnerId) throws ObjectNotConnected {}
+
+        @Override
         public String getJODVersion() {
+            return null;
+        }
+
+        @Override
+        public String getModel() {
+            return null;
+        }
+
+        @Override
+        public String getBrand() {
+            return null;
+        }
+
+        @Override
+        public String getLongDescr() {
             return null;
         }
 
@@ -353,6 +382,11 @@ public class JOSPStructIntegration {
         }
 
         @Override
+        public void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected {
+
+        }
+
+        @Override
         public void addLocalClient(JSLLocalClient localClient) {
 
         }
@@ -362,13 +396,9 @@ public class JOSPStructIntegration {
 
         }
 
-        @Override
-        public boolean processServiceRequestResponse(String msg) {
-            return false;
-        }
 
         @Override
-        public boolean processCloudData(String msg) {
+        public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) {
             return false;
         }
     }
