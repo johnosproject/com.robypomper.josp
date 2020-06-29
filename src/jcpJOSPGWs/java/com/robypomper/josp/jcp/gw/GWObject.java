@@ -3,10 +3,12 @@ package com.robypomper.josp.jcp.gw;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.ObjectDBService;
+import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.ObjectInfo;
 import com.robypomper.josp.jcp.db.entities.ObjectOwner;
 import com.robypomper.josp.jcp.db.entities.ObjectStatus;
+import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -28,16 +30,18 @@ public class GWObject {
     private final String objId;
     private Object objDB;
     private final ObjectDBService objectDBService;
+    private final PermissionsDBService permissionsDBService;
     private final JOSPGWsBroker gwBroker;
 
 
     // Constructor
 
-    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, JOSPGWsBroker gwBroker) {
+    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, JOSPGWsBroker gwBroker) {
         this.server = server;
         this.client = client;
         this.objId = client.getClientId();
         this.objectDBService = objectDBService;
+        this.permissionsDBService = permissionsDBService;
         this.gwBroker = gwBroker;
 
         gwBroker.registerObject(this);
@@ -210,7 +214,28 @@ public class GWObject {
     }
 
     private void updatePermsToDB(String msg) {
-        // ToDo implement updatePermsOnDB() method
+        List<JOSPPerm> perms;
+        try {
+            perms = JOSPProtocol_ObjectToService.getObjectPermsMsg_Perms(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            return;
+        }
+
+        List<Permission> permsDB = new ArrayList<>();
+        for (JOSPPerm p : perms) {
+            Permission perm = new Permission();
+            perm.setId(p.getId());
+            perm.setObjId(p.getObjId());
+            perm.setSrvId(p.getSrvId());
+            perm.setUsrId(p.getUsrId());
+            perm.setType(p.getPermType());
+            perm.setConnection(p.getConnType());
+            perm.setUpdatedAt(p.getUpdatedAt());
+            permsDB.add(perm);
+        }
+        permissionsDBService.addAll(permsDB);
+
+        gwBroker.updateObjPerms(this);
     }
 
 
