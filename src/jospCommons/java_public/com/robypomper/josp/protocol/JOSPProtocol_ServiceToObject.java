@@ -66,6 +66,91 @@ public class JOSPProtocol_ServiceToObject {
     }
 
 
+    // Object Add permission
+
+    public static final String OBJ_ADDPERM_REQ_NAME = "ObjectAddPerm";
+    private static final String OBJ_ADDPERM_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_ADDPERM_MSG";
+    private static final String OBJ_ADDPERM_REQ = OBJ_ADDPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nsrvId:%s\nusrId:%s\npermType:%s\nconnType:%s";
+
+    public static String createObjectAddPermMsg(String fullSrvId, String objId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) {
+        return String.format(OBJ_ADDPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, srvId, usrId, permType, connType);
+    }
+
+    public static boolean isObjectAddPermMsg(String msg) {
+        return msg.startsWith(OBJ_ADDPERM_REQ_BASE);
+    }
+
+    public static String getObjectAddPermMsg_SrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 7, 3, OBJ_ADDPERM_REQ_NAME);
+    }
+
+    public static String getObjectAddPermMsg_UsrId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 7, 4, OBJ_ADDPERM_REQ_NAME);
+    }
+
+    public static JOSPPerm.Type getObjectAddPermMsg_PermType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPPerm.Type.valueOf(JOSPProtocol.extractFieldFromResponse(msg, 7, 5, OBJ_ADDPERM_REQ_NAME));
+    }
+
+    public static JOSPPerm.Connection getObjectAddPermMsg_ConnType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPPerm.Connection.valueOf(JOSPProtocol.extractFieldFromResponse(msg, 7, 6, OBJ_ADDPERM_REQ_NAME));
+    }
+
+
+    // Object Upd permission
+
+    public static final String OBJ_UPDPERM_REQ_NAME = "ObjectUpdPerm";
+    private static final String OBJ_UPDPERM_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_UPDPERM_MSG";
+    private static final String OBJ_UPDPERM_REQ = OBJ_UPDPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\npermId:%s\nsrvId:%s\nusrId:%s\npermType:%s\nconnType:%s";
+
+    public static String createObjectUpdPermMsg(String fullSrvId, String objId, String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) {
+        return String.format(OBJ_UPDPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, permId, srvId, usrId, permType, connType);
+    }
+
+    public static boolean isObjectUpdPermMsg(String msg) {
+        return msg.startsWith(OBJ_UPDPERM_REQ_BASE);
+    }
+
+    public static String getObjectUpdPermMsg_PermId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 8, 3, OBJ_UPDPERM_REQ_NAME);
+    }
+
+    public static String getObjectUpdPermMsg_SrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 8, 4, OBJ_UPDPERM_REQ_NAME);
+    }
+
+    public static String getObjectUpdPermMsg_UsrId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 8, 5, OBJ_UPDPERM_REQ_NAME);
+    }
+
+    public static JOSPPerm.Type getObjectUpdPermMsg_PermType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPPerm.Type.valueOf(JOSPProtocol.extractFieldFromResponse(msg, 8, 6, OBJ_UPDPERM_REQ_NAME));
+    }
+
+    public static JOSPPerm.Connection getObjectUpdPermMsg_ConnType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPPerm.Connection.valueOf(JOSPProtocol.extractFieldFromResponse(msg, 8, 7, OBJ_UPDPERM_REQ_NAME));
+    }
+
+
+    // Object Rem permission
+
+    public static final String OBJ_REMPERM_REQ_NAME = "ObjectRemPerm";
+    private static final String OBJ_REMPERM_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_REMPERM_MSG";
+    private static final String OBJ_REMPERM_REQ = OBJ_REMPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\npermId:%s";
+
+    public static String createObjectRemPermMsg(String fullSrvId, String objId, String permId) {
+        return String.format(OBJ_REMPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, permId);
+    }
+
+    public static boolean isObjectRemPermMsg(String msg) {
+        return msg.startsWith(OBJ_REMPERM_REQ_BASE);
+    }
+
+    public static String getObjectRemPermMsg_PermId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 3, OBJ_REMPERM_REQ_NAME);
+    }
+
+
     // Action Cmd Msg class
     // ToDo rename to ActionCmdMsg
 
