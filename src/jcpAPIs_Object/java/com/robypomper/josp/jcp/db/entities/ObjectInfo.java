@@ -7,7 +7,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import java.util.Date;
 
 
@@ -42,10 +41,6 @@ public class ObjectInfo {
 
     @Column(nullable = false)
     private String longDescr = "";
-
-    @Column(nullable = false)
-    @Lob
-    private String structure = "";
 
 
     // Extra profile

@@ -53,14 +53,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             return;
         }
 
-        try {
-            gwObj = new GWObject(server, client, objectDBService, gwBroker);
-
-        } catch (GWObject.ObjectNotRegistered e) {
-            client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Object '%s' not registered to JOSP GW, disconnecting", client.getClientId()));
-            return;
-        }
+        gwObj = new GWObject(server, client, objectDBService, gwBroker);
         objects.put(client.getClientId(), gwObj);
     }
 
