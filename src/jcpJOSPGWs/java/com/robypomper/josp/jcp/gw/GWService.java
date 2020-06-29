@@ -107,7 +107,10 @@ public class GWService {
 
         JOSPPerm.Type minReqPerm = JOSPPerm.Type.None;
         if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg)
-                || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
+                || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectAddPermMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectUpdPermMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectRemPermMsg(msg))
             minReqPerm = JOSPPerm.Type.CoOwner;
 
         if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
