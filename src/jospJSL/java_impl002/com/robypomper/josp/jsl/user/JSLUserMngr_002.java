@@ -4,7 +4,7 @@ import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,8 +17,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
 
     // Class constants
 
-    public static final String ANONYMOUS_ID = JOSPPermissions.WildCards.USR_ANONYMOUS_ID.toString();
-    public static final String ANONYMOUS_USERNAME = JOSPPermissions.WildCards.USR_ANONYMOUS_NAME.toString();
+    public static final String ANONYMOUS_ID = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
+    public static final String ANONYMOUS_USERNAME = JOSPPerm.WildCards.USR_ANONYMOUS_NAME.toString();
 
 
     // Internal vars

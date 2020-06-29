@@ -1,14 +1,13 @@
 package com.robypomper.josp.jcp.apis.permissions;
 
-import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.gw.JOSPGWsBroker;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -84,34 +83,34 @@ public class ObjectPermissionsController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = ObjPermission.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
             @ApiResponse(code = 501, message = "Requested '" + APIObjs.HEADER_OBJID + "' strategy not implemented")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<List<ObjPermission>> generatePermissions(
+    public ResponseEntity<String> generatePermissions(
             @RequestHeader(APIObjs.HEADER_OBJID) String objId,
-            @PathVariable("strategy") JOSPPermissions.GenerateStrategy strategy) {
+            @PathVariable("strategy") JOSPPerm.GenerateStrategy strategy) {
 
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
 
-        List<ObjPermission> objPerms = new ArrayList<>();
+        List<JOSPPerm> objPerms = new ArrayList<>();
         Date updateDate = new Date();
 
-        if (strategy == JOSPPermissions.GenerateStrategy.STANDARD) {
-            objPerms.add(new ObjPermission(objId, JOSPPermissions.WildCards.USR_OWNER.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.LocalAndCloud, JOSPPermissions.Type.CoOwner, updateDate));
+        if (strategy == JOSPPerm.GenerateStrategy.STANDARD) {
+            objPerms.add(new JOSPPerm(objId, JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_OWNER.toString(), JOSPPerm.Type.CoOwner, JOSPPerm.Connection.LocalAndCloud, updateDate));
 
-        } else if (strategy == JOSPPermissions.GenerateStrategy.PUBLIC) {
-            objPerms.add(new ObjPermission(objId, JOSPPermissions.WildCards.USR_OWNER.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.LocalAndCloud, JOSPPermissions.Type.CoOwner, updateDate));
-            objPerms.add(new ObjPermission(objId, JOSPPermissions.WildCards.USR_ALL.toString(), JOSPPermissions.WildCards.SRV_ALL.toString(), JOSPPermissions.Connection.OnlyLocal, JOSPPermissions.Type.Actions, updateDate));
+        } else if (strategy == JOSPPerm.GenerateStrategy.PUBLIC) {
+            objPerms.add(new JOSPPerm(objId, JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_OWNER.toString(), JOSPPerm.Type.CoOwner, JOSPPerm.Connection.LocalAndCloud, updateDate));
+            objPerms.add(new JOSPPerm(objId, JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_ALL.toString(), JOSPPerm.Type.Actions, JOSPPerm.Connection.OnlyLocal, updateDate));
 
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, String.format("Can't generate obj's permission because unknown strategy '%s'.", strategy));
         }
 
-        return ResponseEntity.ok(objPerms);
+        return ResponseEntity.ok(JOSPPerm.toString(objPerms));
 
     }
 
@@ -140,40 +139,48 @@ public class ObjectPermissionsController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = ObjPermission.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<List<ObjPermission>> mergeAndStorePermissions(
+    public ResponseEntity<String> mergeAndStorePermissions(
             @RequestHeader(APIObjs.HEADER_OBJID) String objId,
-            @RequestBody List<ObjPermission> objPerms) {
+            @RequestBody String permsStr) {
 
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
 
         List<Permission> jcpPerms = permissionsDBService.findByObj(objId);
+        List<JOSPPerm> objPerms = null;
+        try {
+            objPerms = JOSPPerm.listFromString(permsStr);
+
+        } catch (JOSPProtocol.ParsingException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Wrong JOSPPerm list '%s'.", permsStr));
+        }
         List<Permission> savedPerms = mergeAndUpdJCPPermissions(jcpPerms, objPerms);
-        return ResponseEntity.ok(toObjPerms(savedPerms));
+
+        return ResponseEntity.ok(JOSPPerm.toString(toObjPerms(savedPerms)));
     }
 
 
     // Obj permission mngm
 
     /**
-     * Transform an {@link Permission} list in a {@link ObjPermission} list.
+     * Transform an {@link Permission} list in a {@link JOSPPerm} list.
      *
      * @param savedPerms original {@link Permission} list.
-     * @return new {@link ObjPermission} list.
+     * @return new {@link JOSPPerm} list.
      */
-    private List<ObjPermission> toObjPerms(List<Permission> savedPerms) {
-        List<ObjPermission> objPerms = new ArrayList<>();
+    private List<JOSPPerm> toObjPerms(List<Permission> savedPerms) {
+        List<JOSPPerm> objPerms = new ArrayList<>();
 
         if (savedPerms == null)
             return objPerms;
 
         for (Permission p : savedPerms)
-            objPerms.add(new ObjPermission(p.getObjId(), p.getUsrId(), p.getSrvId(), p.getConnection(), p.getType(), p.getUpdatedAt()));
+            objPerms.add(new JOSPPerm(p.getObjId(), p.getSrvId(), p.getUsrId(), p.getType(), p.getConnection(), p.getUpdatedAt()));
 
         return objPerms;
     }
@@ -188,36 +195,36 @@ public class ObjectPermissionsController {
      * @param objPerms object's permission uploaded from object.
      * @return updated object's permission list.
      */
-    private List<Permission> mergeAndUpdJCPPermissions(List<Permission> jcpPerms, List<ObjPermission> objPerms) {
+    private List<Permission> mergeAndUpdJCPPermissions(List<Permission> jcpPerms, List<JOSPPerm> objPerms) {
         List<Permission> merged = new ArrayList<>(jcpPerms);
         List<Permission> deleted = new ArrayList<>();
 
-        for (ObjPermission p : objPerms) {
+        for (JOSPPerm p : objPerms) {
             Permission duplicate = find(merged, p);
 
             if (duplicate == null) {                                            // New permission
-                if (p.updatedAt.getTime() == 0)
+                if (p.getUpdatedAt().getTime() == 0)
                     continue;
                 Permission perm = new Permission();
-                //perm.setId(p.id); not exist yet
-                perm.setObjId(p.objId);
-                perm.setUsrId(p.usrId);
-                perm.setSrvId(p.srvId);
-                perm.setConnection(p.connection);
-                perm.setType(p.type);
-                perm.setUpdatedAt(p.updatedAt);
+                perm.setId(p.getId());
+                perm.setObjId(p.getObjId());
+                perm.setSrvId(p.getSrvId());
+                perm.setUsrId(p.getUsrId());
+                perm.setType(p.getPermType());
+                perm.setConnection(p.getConnType());
+                perm.setUpdatedAt(p.getUpdatedAt());
                 merged.add(perm);
 
-            } else if (p.updatedAt.getTime() == 0) {
+            } else if (p.getUpdatedAt().getTime() == 0) {
                 duplicate.setUpdatedAt(new Date(0));
 
             } else {                                                            // Update
-                if (p.updatedAt.after(duplicate.getUpdatedAt())) {
+                if (p.getUpdatedAt().after(duplicate.getUpdatedAt())) {
                     if (duplicate.getUpdatedAt().getTime() == 0)
                         continue;
-                    duplicate.setConnection(p.connection);
-                    duplicate.setType(p.type);
-                    duplicate.setUpdatedAt(p.updatedAt);
+                    duplicate.setConnection(p.getConnType());
+                    duplicate.setType(p.getPermType());
+                    duplicate.setUpdatedAt(p.getUpdatedAt());
                 }
             }
         }
@@ -253,17 +260,17 @@ public class ObjectPermissionsController {
      * or <code>null</code> if no permission in the list correspond to
      * given one.
      */
-    private Permission find(List<Permission> list, ObjPermission permission) {
+    private Permission find(List<Permission> list, JOSPPerm permission) {
         for (Permission p : list)
-            if (permission.id != null && permission.id != -1) {
-                if (p.getId().equals(permission.id))
+            if (permission.getId() != null && !permission.getId().isEmpty()) {
+                if (p.getId().equals(permission.getId()))
                     return p;
 
             } else {
                 if (
-                        p.getObjId().compareToIgnoreCase(permission.objId) == 0
-                                && p.getSrvId().compareToIgnoreCase(permission.srvId) == 0
-                                && p.getUsrId().compareToIgnoreCase(permission.usrId) == 0
+                        p.getObjId().compareToIgnoreCase(permission.getObjId()) == 0
+                                && p.getSrvId().compareToIgnoreCase(permission.getSrvId()) == 0
+                                && p.getUsrId().compareToIgnoreCase(permission.getUsrId()) == 0
                 )
                     return p;
             }

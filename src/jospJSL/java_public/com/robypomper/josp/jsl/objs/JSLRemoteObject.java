@@ -5,7 +5,7 @@ import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
 import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.List;
 
@@ -66,6 +66,23 @@ public interface JSLRemoteObject {
      * @return the object's long description.
      */
     String getLongDescr();
+
+    /**
+     * @return object's permissions.
+     */
+    List<JOSPPerm> getPerms();
+
+    /**
+     * @return the service's permission to access to object via given connection
+     * type.
+     */
+    JOSPPerm.Type getServicePerm(JOSPPerm.Connection connType);
+
+    void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected;
+
+    void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected;
+
+    void remPerm(String permId) throws ObjectNotConnected;
 
 
     // Object's communication
@@ -134,7 +151,7 @@ public interface JSLRemoteObject {
 
     // From Object Msg
 
-    boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) throws Throwable;
+    boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) throws Throwable;
 
 
     // Exceptions

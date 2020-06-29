@@ -5,7 +5,7 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import org.apache.logging.log4j.LogManager;
@@ -105,13 +105,16 @@ public class GWService {
             return false;
         }
 
-        JOSPPermissions.Type minReqPerm = JOSPPermissions.Type.None;
+        JOSPPerm.Type minReqPerm = JOSPPerm.Type.None;
         if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg)
-                || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
-            minReqPerm = JOSPPermissions.Type.CoOwner;
+                || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectAddPermMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectUpdPermMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectRemPermMsg(msg))
+            minReqPerm = JOSPPerm.Type.CoOwner;
 
         if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
-            minReqPerm = JOSPPermissions.Type.Actions;
+            minReqPerm = JOSPPerm.Type.Actions;
 
         return gwBroker.sendToObject(this, objId, msg, minReqPerm);
     }

@@ -1,9 +1,8 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.robypomper.josp.jcp.apis.params.permissions.ObjPermission;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.structure.JODStructure;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.List;
 
@@ -48,7 +47,7 @@ public interface JODPermissions {
      * @return true if and only if the pair <code>service/user</code>) can send
      * command requests to current object.
      */
-    boolean canExecuteAction(String srvId, String usrId, JOSPPermissions.Connection connection);
+    boolean canExecuteAction(String srvId, String usrId, JOSPPerm.Connection connection);
 
     /**
      * Check if given identities (<code>service/user</code>) can receive status
@@ -63,7 +62,7 @@ public interface JODPermissions {
      * @return true if and only if the pair <code>service/user</code> can
      * receive the status update from current object.
      */
-    boolean canSendUpdate(String srvId, String usrId, JOSPPermissions.Connection connection);
+    boolean canSendUpdate(String srvId, String usrId, JOSPPerm.Connection connection);
 
     /**
      * Check if given identities (<code>service/user</code>) can act as object's
@@ -77,7 +76,7 @@ public interface JODPermissions {
      * @return true if and only if the pair <code>service/user</code> can
      * act as object's owner.
      */
-    boolean canActAsCoOwner(String srvId, String usrId, JOSPPermissions.Connection connection);
+    boolean canActAsCoOwner(String srvId, String usrId, JOSPPerm.Connection connection);
 
     void syncObjPermissions();
 
@@ -93,7 +92,7 @@ public interface JODPermissions {
      *
      * @return object's permissions.
      */
-    List<ObjPermission> getPermissions();
+    List<JOSPPerm> getPermissions();
 
     /**
      * Add given permission to object's permissions.
@@ -107,17 +106,17 @@ public interface JODPermissions {
      * @param type       the permission type of created permission.
      * @return true if the permission was added successfully, false otherwise.
      */
-    boolean addPermissions(String usrId, String srvId, JOSPPermissions.Connection connection, JOSPPermissions.Type type);
+    boolean addPermissions(String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection);
+
+    boolean updPermissions(String permId, String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection);
 
     /**
-     * Set permission corresponding to given <code>usrId</code> and <code>srvId</code>
-     * to be deleted.
+     * Set permission corresponding to given <code>permId</code> to be deleted.
      *
-     * @param usrId the user's id.
-     * @param srvId the user's id.
+     * @param permId the permission's id.
      * @return true if the permission is set to delete successfully, false otherwise.
      */
-    boolean deletePermissions(String usrId, String srvId);
+    boolean remPermissions(String permId);
 
     /**
      * The object owner id.
@@ -177,7 +176,7 @@ public interface JODPermissions {
     class PermissionsNotLoadedException extends PermissionsFileException {
         private static final String MSG = "Error reading permissions from file '%s'";
 
-        public PermissionsNotLoadedException(String path, Exception e) {
+        public PermissionsNotLoadedException(String path, Throwable e) {
             super(String.format(MSG, path), e);
         }
     }
