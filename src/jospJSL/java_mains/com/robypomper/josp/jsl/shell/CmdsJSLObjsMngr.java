@@ -118,7 +118,6 @@ public class CmdsJSLObjsMngr {
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
 
-
         String s = "OBJECT'S PERMISSIONS LIST\n";
         s += JOSPPerm.logPermissions(obj.getPerms());
         return s;
@@ -233,6 +232,60 @@ public class CmdsJSLObjsMngr {
         }
 
         return String.format("Object '%s' owner updated from '%s' to '%s'", obj.getId(), oldOwner, obj.getOwnerId());
+    }
+
+    @Command(description = "Add new object's permission.")
+    public String objAddPerm(String objId, String srvId, String usrId, String permTypeStr, String connTypeStr) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        JOSPPerm.Type permType = JOSPPerm.Type.valueOf(permTypeStr);
+        JOSPPerm.Connection connType = JOSPPerm.Connection.valueOf(connTypeStr);
+
+        try {
+            obj.addPerm(srvId, usrId, permType, connType);
+
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't add permission", obj.getId());
+        }
+
+        return String.format("Object '%s' permission added", obj.getId());
+    }
+
+    @Command(description = "Update object's permission.")
+    public String objUpdPerm(String objId, String permId, String srvId, String usrId, String permTypeStr, String connTypeStr) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        JOSPPerm.Type permType = JOSPPerm.Type.valueOf(permTypeStr);
+        JOSPPerm.Connection connType = JOSPPerm.Connection.valueOf(connTypeStr);
+
+        try {
+            obj.updPerm(permId, srvId, usrId, permType, connType);
+
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't update permission", obj.getId());
+        }
+
+        return String.format("Object '%s' permission updated", obj.getId());
+    }
+
+    @Command(description = "Remove object's permission.")
+    public String objRemPerm(String objId, String permId) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        try {
+            obj.remPerm(permId);
+
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't remove permission", obj.getId());
+        }
+
+        return String.format("Object '%s' permission removed", obj.getId());
     }
 
 }

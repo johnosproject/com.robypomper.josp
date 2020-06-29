@@ -63,20 +63,26 @@ public interface JSLRemoteObject {
     String getBrand();
 
     /**
-     * @return object's permissions.
-     */
-    List<JOSPPerm> getPerms();
-
-    /**
      * @return the object's long description.
      */
     String getLongDescr();
+
+    /**
+     * @return object's permissions.
+     */
+    List<JOSPPerm> getPerms();
 
     /**
      * @return the service's permission to access to object via given connection
      * type.
      */
     JOSPPerm.Type getServicePerm(JOSPPerm.Connection connType);
+
+    void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected;
+
+    void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected;
+
+    void remPerm(String permId) throws ObjectNotConnected;
 
 
     // Object's communication

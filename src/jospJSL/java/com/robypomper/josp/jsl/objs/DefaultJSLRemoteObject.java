@@ -197,6 +197,25 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         return permTypes.get(connType);
     }
 
+
+    @Override
+    public void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+        sendAddObjectPermMsg(srvId, usrId, permType, connType);
+    }
+
+    @Override
+    public void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+        sendUpdObjectPermMsg(permId, srvId, usrId, permType, connType);
+    }
+
+    @Override
+    public void remPerm(String permId) throws ObjectNotConnected {
+        sendRemObjectPermMsg(permId);
+    }
+
+
+    // Object's connection
+
     /**
      * {@inheritDoc}
      */
@@ -204,9 +223,6 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     public JSLCommunication getCommunication() {
         return communication;
     }
-
-
-    // Object's connection
 
     /**
      * {@inheritDoc}
@@ -365,6 +381,18 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectSetOwnerIdMsg(srvInfo.getFullId(), getId(), newOwnerId));
     }
 
+    private void sendAddObjectPermMsg(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+        sendToObject(JOSPProtocol_ServiceToObject.createObjectAddPermMsg(srvInfo.getFullId(), getId(), srvId, usrId, permType, connType));
+    }
+
+    private void sendUpdObjectPermMsg(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+        sendToObject(JOSPProtocol_ServiceToObject.createObjectUpdPermMsg(srvInfo.getFullId(), getId(), permId, srvId, usrId, permType, connType));
+    }
+
+    private void sendRemObjectPermMsg(String permId) throws ObjectNotConnected {
+        sendToObject(JOSPProtocol_ServiceToObject.createObjectRemPermMsg(srvInfo.getFullId(), getId(), permId));
+    }
+
 
     // From Object Msg
 
@@ -463,8 +491,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     private boolean processServicePermMsg(String msg) throws Throwable {
-        JOSPPerm.Connection connType = JOSPPerm.Connection.valueOf(JOSPProtocol_ObjectToService.getServicePermsMsg_ConnType(msg));
-        permTypes.put(connType, JOSPPerm.Type.valueOf(JOSPProtocol_ObjectToService.getServicePermsMsg_PermType(msg)));
+        JOSPPerm.Connection connType = JOSPProtocol_ObjectToService.getServicePermsMsg_ConnType(msg);
+        permTypes.put(connType, JOSPProtocol_ObjectToService.getServicePermsMsg_PermType(msg));
         return true;
     }
 
