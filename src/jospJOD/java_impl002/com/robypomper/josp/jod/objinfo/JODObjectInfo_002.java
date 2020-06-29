@@ -131,7 +131,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     @Override
     public void setObjName(String newName) {
         locSettings.setObjName(newName);
-        syncObjInfoJCP();
         syncObjInfo();
     }
 
@@ -252,7 +251,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         log.info(Mrk_JOD.JOD_INFO, String.format("Start JODObjectInfo auto-refresh for '%s' object", getObjId()));
 
-        syncObjInfoJCP();
+        syncObjInfo();
     }
 
     /**
@@ -261,11 +260,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     @Override
     public void stopAutoRefresh() {
         log.info(Mrk_JOD.JOD_INFO, String.format("Stop JODObjectInfo auto-refresh for '%s' object", getObjId()));
-
-        if (isSync()) {
-            jcpClient.removeConnectListener(syncListener);
-            isSync = false;
-        }
     }
 
 
@@ -276,48 +270,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     public void syncObjInfo() {
         comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr()), JOSPPerm.Type.Status);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void syncObjInfoJCP() {
-        try {
-            log.debug(Mrk_JOD.JOD_INFO, "Sync object Info to JCP");
-            jcpObjInfo.registerOrUpdate(this);
-            log.debug(Mrk_JOD.JOD_INFO, "Object Info synchronized to JCP");
-
-            if (isSync()) {
-                jcpClient.removeConnectListener(syncListener);
-                isSync = false;
-            }
-
-        } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
-            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on sync object Info to JCP because %s", e.getMessage()));
-            if (!isSync()) {
-                jcpClient.addConnectListener(syncListener);
-                isSync = true;
-            }
-        }
-    }
-
-
-    // Sync listener
-
-    private boolean isSync = false;
-
-    private boolean isSync() {
-        //return syncTimer != null;
-        return isSync;
-    }
-
-    @SuppressWarnings("Convert2Lambda")
-    private final JCPClient.ConnectListener syncListener = new JCPClient.ConnectListener() {
-        @Override
-        public void onConnected(JCPClient jcpClient) {
-            syncObjInfoJCP();
-        }
-    };
 
 
     // Private methods
@@ -354,7 +306,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         String oldObjId = getObjId();
         locSettings.setObjIdCloud("");
         regenerateObjId(oldObjId);
-        syncObjInfoJCP();
+        syncObjInfo();
 
         try {
             if (wasCloudConnected)

@@ -159,8 +159,6 @@ public interface JODObjectInfo {
 
     void syncObjInfo();
 
-    void syncObjInfoJCP();
-
     // Obj's id
 
     /**
