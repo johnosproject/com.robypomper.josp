@@ -7,6 +7,7 @@ import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.josp.jcp.db.ObjectDBService;
+import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.log.Mrk_Commons;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +35,8 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     @Autowired
     private ObjectDBService objectDBService;
     @Autowired
+    private PermissionsDBService permissionsDBService;
+    @Autowired
     private JOSPGWsBroker gwBroker;
 
 
@@ -53,14 +56,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             return;
         }
 
-        try {
-            gwObj = new GWObject(server, client, objectDBService, gwBroker);
-
-        } catch (GWObject.ObjectNotRegistered e) {
-            client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Object '%s' not registered to JOSP GW, disconnecting", client.getClientId()));
-            return;
-        }
+        gwObj = new GWObject(server, client, objectDBService, permissionsDBService, gwBroker);
         objects.put(client.getClientId(), gwObj);
     }
 

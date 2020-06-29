@@ -2,7 +2,6 @@ package com.robypomper.josp.jod.objinfo;
 
 import com.robypomper.josp.core.jcpclient.JCPClient;
 import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
-import com.robypomper.josp.jcp.apis.params.objs.RegisterObj;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
@@ -33,7 +32,7 @@ public class JCPObjectInfo extends AbsJCPAPIs {
      *
      * @param objIdHw the object's Hardware ID.
      * @param ownerId the owner's User ID.
-     * @param objId
+     * @param objId   the object's ID.
      * @return the object's Cloud ID.
      */
     public String generateObjIdCloud(String objIdHw, String ownerId, String objId) throws JCPClient.RequestException, JCPClient.ConnectionException {
@@ -42,20 +41,6 @@ public class JCPObjectInfo extends AbsJCPAPIs {
             return jcpClient.execPostReq(APIObjs.URL_PATH_GENERATEID, String.class, params, true);
         else
             return jcpClient.execPostReq(APIObjs.URL_PATH_REGENERATEID, String.class, params, true);
-    }
-
-    public boolean registerOrUpdate(JODObjectInfo objectInfo) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        RegisterObj regObjParam = new RegisterObj(objectInfo.getObjName(), objectInfo.getJODVersion(), objectInfo.getOwnerId());
-        regObjParam.setModel(objectInfo.getModel());
-        regObjParam.setBrand(objectInfo.getBrand());
-        regObjParam.setLongDescr(objectInfo.getLongDescr());
-        regObjParam.setStructure(objectInfo.readStructureStr());
-        return jcpClient.execPostReq(APIObjs.URL_PATH_REGISTER, Boolean.class, regObjParam, true);
-    }
-
-    public boolean update(JODObjectInfo objectInfo) {
-        System.out.println("WAR: JCPObjectInfo::update() not yet implemented.");
-        return false;
     }
 
 }

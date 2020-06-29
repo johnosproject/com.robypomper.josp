@@ -80,11 +80,6 @@ public interface JODPermissions {
 
     void syncObjPermissions();
 
-    /**
-     * Start object's permission syncronization between local and cloud permissions.
-     */
-    void syncObjPermissionsJCP();
-
     // Access methods
 
     /**

@@ -3,8 +3,12 @@ package com.robypomper.josp.jcp.gw;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.ObjectDBService;
+import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
+import com.robypomper.josp.jcp.db.entities.ObjectInfo;
+import com.robypomper.josp.jcp.db.entities.ObjectOwner;
 import com.robypomper.josp.jcp.db.entities.ObjectStatus;
+import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -24,32 +28,22 @@ public class GWObject {
     private final Server server;
     private final ClientInfo client;
     private final String objId;
-    private final Object objDB;
+    private Object objDB;
     private final ObjectDBService objectDBService;
+    private final PermissionsDBService permissionsDBService;
     private final JOSPGWsBroker gwBroker;
 
 
     // Constructor
 
-    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, JOSPGWsBroker gwBroker) throws ObjectNotRegistered {
+    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, JOSPGWsBroker gwBroker) {
         this.server = server;
         this.client = client;
         this.objId = client.getClientId();
         this.objectDBService = objectDBService;
+        this.permissionsDBService = permissionsDBService;
         this.gwBroker = gwBroker;
 
-        Optional<Object> objOpt = objectDBService.find(objId);
-        if (!objOpt.isPresent())
-            throw new ObjectNotRegistered("Object '%s' is NOT registered to JCP");
-        objDB = objOpt.get();
-        if (objDB.getStatus() == null) {
-            objDB.setStatus(new ObjectStatus());
-            objDB.getStatus().setObjId(objId);
-            objectDBService.save(objDB);
-        }
-
-        objDB.getStatus().setOnline(true);
-        updateStatusToDB();
         gwBroker.registerObject(this);
     }
 
@@ -151,7 +145,51 @@ public class GWObject {
     }
 
     private void updateInfoToDB(String msg) {
-        // ToDo implement updateInfoOnDB() method
+        String objId;
+        String name;
+        String ownerId;
+        String jodVers;
+        String model;
+        String brand;
+        String longDescr;
+        try {
+            objId = JOSPProtocol_ObjectToService.getObjId(msg);
+            name = JOSPProtocol_ObjectToService.getObjectInfoMsg_Name(msg);
+            ownerId = JOSPProtocol_ObjectToService.getObjectInfoMsg_OwnerId(msg);
+            jodVers = JOSPProtocol_ObjectToService.getObjectInfoMsg_JODVersion(msg);
+            model = JOSPProtocol_ObjectToService.getObjectInfoMsg_Model(msg);
+            brand = JOSPProtocol_ObjectToService.getObjectInfoMsg_Brand(msg);
+            longDescr = JOSPProtocol_ObjectToService.getObjectInfoMsg_LongDescr(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            return;
+        }
+
+        Optional<Object> optObj = objectDBService.find(objId);
+        if (optObj.isPresent())
+            objDB = optObj.get();
+        else {
+            objDB = new Object();
+            objDB.setOwner(new ObjectOwner());
+            objDB.setInfo(new ObjectInfo());
+            objDB.setStatus(new ObjectStatus());
+        }
+
+        objDB.getOwner().setObjId(objId);
+        objDB.getOwner().setOwnerId(ownerId);
+
+        objDB.setObjId(objId);
+        objDB.setName(name);
+        objDB.setActive(true);
+        objDB.setVersion(jodVers);
+
+        objDB.getInfo().setObjId(objId);
+        objDB.getInfo().setModel(model);
+        objDB.getInfo().setBrand(brand);
+        objDB.getInfo().setLongDescr(longDescr);
+
+        objDB.getStatus().setObjId(objId);
+
+        objectDBService.save(objDB);
     }
 
     private void updateStructToDB(String msg) {
@@ -163,8 +201,12 @@ public class GWObject {
             } catch (JOSPProtocol.ParsingException e) {
                 return;
             }
-            objDB.getStatus().setStructure(struct);
-            objectDBService.save(objDB.getStatus());
+            if (objDB.getStatus().getStructure() == null
+                    || !objDB.getStatus().getStructure().equals(struct)) {
+                objDB.getStatus().setStructure(struct);
+                objDB.getStatus().setLastStructUpdate(JOSPProtocol.getNowDate());
+                updateStatusToDB();
+            }
 
         } else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg)) {
             // ToDo implement updateStructOnDB()/when msg is state upd
@@ -172,7 +214,28 @@ public class GWObject {
     }
 
     private void updatePermsToDB(String msg) {
-        // ToDo implement updatePermsOnDB() method
+        List<JOSPPerm> perms;
+        try {
+            perms = JOSPProtocol_ObjectToService.getObjectPermsMsg_Perms(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            return;
+        }
+
+        List<Permission> permsDB = new ArrayList<>();
+        for (JOSPPerm p : perms) {
+            Permission perm = new Permission();
+            perm.setId(p.getId());
+            perm.setObjId(p.getObjId());
+            perm.setSrvId(p.getSrvId());
+            perm.setUsrId(p.getUsrId());
+            perm.setType(p.getPermType());
+            perm.setConnection(p.getConnType());
+            perm.setUpdatedAt(p.getUpdatedAt());
+            permsDB.add(perm);
+        }
+        permissionsDBService.addAll(permsDB);
+
+        gwBroker.updateObjPerms(this);
     }
 
 
