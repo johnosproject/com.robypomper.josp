@@ -284,7 +284,7 @@ public class JODPermissions_002 implements JODPermissions {
     /**
      * {@inheritDoc}
      */
-    public boolean addPermissions(String usrId, String srvId, JOSPPerm.Connection connection, JOSPPerm.Type type) {
+    public boolean addPermissions(String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection) {
         log.info(Mrk_JOD.JOD_PERM, String.format("Add permission to '%s' object with srvID %s, usrID %s connection '%s' and type '%s'", objInfo.getObjId(), srvId, usrId, connection, type));
 
         if (usrId == null || usrId.isEmpty()) {
@@ -296,43 +296,46 @@ public class JODPermissions_002 implements JODPermissions {
             return false;
         }
 
-        JOSPPerm duplicate = searchExact(srvId, usrId);
-        if (duplicate != null) {
-            log.trace(Mrk_JOD.JOD_PERM, String.format("Updating existing permission to '%s' object with srvID %s, usrID %s connection '%s' and type '%s'", objInfo.getObjId(), srvId, usrId, connection, type));
-            JOSPPerm newPerm = new JOSPPerm(objInfo.getObjId(), srvId, usrId, type, connection, new Date());
-            permissions.remove(duplicate);
-            permissions.add(newPerm);
-            return true;
-        }
-
         JOSPPerm newPerm = new JOSPPerm(objInfo.getObjId(), srvId, usrId, type, connection, new Date());
         permissions.add(newPerm);
+        syncObjPermissionsJCP();
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean deletePermissions(String usrId, String srvId) {
-        log.info(Mrk_JOD.JOD_PERM, String.format("Remove permission to '%s' object with srvID %s and usrID %s", objInfo.getObjId(), srvId, usrId));
+    public boolean updPermissions(String permId, String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection) {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Update permission to '%s' object with srvID %s, usrID %s connection '%s' and type '%s'", objInfo.getObjId(), srvId, usrId, connection, type));
 
-        if (usrId == null || usrId.isEmpty()) {
-            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on removing permission for '%s' object because usrId not set", objInfo.getObjId()));
-            return false;
-        }
-        if (srvId == null || srvId.isEmpty()) {
-            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on removing permission for '%s' object because srvId not set", objInfo.getObjId()));
-            return false;
-        }
 
-        JOSPPerm duplicate = searchExact(srvId, usrId);
-        if (duplicate == null)
+        JOSPPerm existingPerm = search(permId);
+        if (existingPerm == null)
             return false;
 
         // replace existing with (toDELETE) permission
-        JOSPPerm newDelPerm = new JOSPPerm(objInfo.getObjId(), srvId, usrId, duplicate.getPermType(), duplicate.getConnType(), new Date(0));
-        permissions.remove(duplicate);
+        JOSPPerm newDelPerm = new JOSPPerm(existingPerm.getId(), existingPerm.getObjId(), srvId, usrId, type, connection, JOSPProtocol.getNowDate());
+        permissions.remove(existingPerm);
         permissions.add(newDelPerm);
+        syncObjPermissionsJCP();
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean remPermissions(String permId) {
+        log.info(Mrk_JOD.JOD_PERM, String.format("Remove permission to '%s' object with permId %s", objInfo.getObjId(), permId));
+
+        JOSPPerm oldPerm = search(permId);
+        if (oldPerm == null)
+            return false;
+
+        // replace existing with (toDELETE) permission
+        JOSPPerm newDelPerm = new JOSPPerm(oldPerm.getId(), oldPerm.getObjId(), oldPerm.getSrvId(), oldPerm.getUsrId(), oldPerm.getPermType(), oldPerm.getConnType(), new Date(0));
+        permissions.remove(oldPerm);
+        permissions.add(newDelPerm);
+        syncObjPermissionsJCP();
         return true;
     }
 
@@ -493,6 +496,14 @@ public class JODPermissions_002 implements JODPermissions {
         permissions = jcpPermissions.refreshPermissionsFromJCP(JOSPPerm.toString(permissions));
     }
 
+    private JOSPPerm search(String permId) {
+        for (JOSPPerm p : permissions)
+            if (p.getId().equals(permId))
+                return p;
+
+        return null;
+    }
+
     /**
      * Return the object's permission corresponding to given srvId and usrId.
      *
@@ -500,6 +511,7 @@ public class JODPermissions_002 implements JODPermissions {
      * @param usrId the user's id.
      * @return the object's permissions list.
      */
+    @Deprecated
     private List<JOSPPerm> search(String srvId, String usrId) {
         List<JOSPPerm> inherentPermissions = new ArrayList<>();
 
@@ -518,29 +530,6 @@ public class JODPermissions_002 implements JODPermissions {
         }
 
         return inherentPermissions;
-    }
-
-    /**
-     * Return the object's permission with the same srvId and usrId like that
-     * once passed as params.
-     *
-     * @param srvId the service's id.
-     * @param usrId the user's id.
-     * @return the object's permission reference or null if no permission
-     * correspond to given params.
-     */
-    private JOSPPerm searchExact(String srvId, String usrId) {
-        for (JOSPPerm p : permissions) {
-            boolean exact_usr = p.getUsrId().equals(usrId);
-            if (exact_usr) {
-                boolean exact_srv = p.getSrvId().equals(srvId);
-                if (exact_srv) {
-                    return p;
-                }
-            }
-        }
-
-        return null;
     }
 
 

@@ -28,7 +28,7 @@ public class CmdsJODPermissions {
     }
 
     @Command(description = "Add given params as object's permissions.")
-    public String permissionAdd(String usrId, String srvId, String connectionStr, String typeStr) {
+    public String permissionAdd(String srvId, String usrId, String typeStr, String connectionStr) {
         JOSPPerm.Connection connection;
         if (
                 connectionStr.compareToIgnoreCase("LocalAndCloud") == 0
@@ -57,14 +57,49 @@ public class CmdsJODPermissions {
         else
             type = JOSPPerm.Type.None;
 
-        if (permission.addPermissions(usrId, srvId, connection, type))
+        if (permission.addPermissions(srvId, usrId, type, connection))
             return "Permission added successfully.";
         return "Error adding permission.";
     }
 
-    @Command(description = "Delete object's permissions corresponding to given params.")
-    public String permissionDelete(String usrId, String srvId) {
-        if (permission.deletePermissions(usrId, srvId))
+    @Command(description = "Update given object's permission.")
+    public String permissionUpdate(String permId, String srvId, String usrId, String typeStr, String connectionStr) {
+        JOSPPerm.Connection connection;
+        if (
+                connectionStr.compareToIgnoreCase("LocalAndCloud") == 0
+                        || connectionStr.compareToIgnoreCase("Cloud") == 0
+        )
+            connection = JOSPPerm.Connection.LocalAndCloud;
+        else
+            connection = JOSPPerm.Connection.OnlyLocal;
+
+        JOSPPerm.Type type;
+        if (
+                typeStr.compareToIgnoreCase("CoOwner") == 0
+                        || typeStr.compareToIgnoreCase("Owner") == 0
+        )
+            type = JOSPPerm.Type.CoOwner;
+        else if (
+                typeStr.compareToIgnoreCase("action") == 0
+                        || typeStr.compareToIgnoreCase("actions") == 0
+        )
+            type = JOSPPerm.Type.Actions;
+        else if (
+                typeStr.compareToIgnoreCase("state") == 0
+                        || typeStr.compareToIgnoreCase("status") == 0
+        )
+            type = JOSPPerm.Type.Status;
+        else
+            type = JOSPPerm.Type.None;
+
+        if (permission.updPermissions(permId, srvId, usrId, type, connection))
+            return "Permission added successfully.";
+        return "Error adding permission.";
+    }
+
+    @Command(description = "Delete object's permissions with given id.")
+    public String permissionRemove(String permId) {
+        if (permission.remPermissions(permId))
             return "Permission deleted successfully.";
         return "Error deleting permission.";
     }

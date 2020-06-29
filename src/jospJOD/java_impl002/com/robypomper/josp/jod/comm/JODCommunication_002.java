@@ -216,6 +216,13 @@ public class JODCommunication_002 implements JODCommunication {
                 processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetNameMsg(msg);
             else if (JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
                 processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetOwnerIdMsg(msg);
+            else if (JOSPProtocol_ServiceToObject.isObjectAddPermMsg(msg))
+                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectAddPermMsg(msg);
+            else if (JOSPProtocol_ServiceToObject.isObjectUpdPermMsg(msg))
+                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectUpdPermMsg(msg);
+            else if (JOSPProtocol_ServiceToObject.isObjectRemPermMsg(msg))
+                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectRemPermMsg(msg);
+
             else if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
                 processedSuccessfully = checkRequest_ActionPermission(srvId, usrId, connType) && processObjectCmdMsg(msg);
             else
@@ -299,6 +306,62 @@ public class JODCommunication_002 implements JODCommunication {
         }
 
         permissions.setOwnerId(newOwnerId);
+        return true;
+    }
+
+    private boolean processObjectAddPermMsg(String msg) {
+        String srvId;
+        String usrId;
+        JOSPPerm.Type permType;
+        JOSPPerm.Connection connType;
+        try {
+            srvId = JOSPProtocol_ServiceToObject.getObjectAddPermMsg_SrvId(msg);
+            usrId = JOSPProtocol_ServiceToObject.getObjectAddPermMsg_UsrId(msg);
+            permType = JOSPProtocol_ServiceToObject.getObjectAddPermMsg_PermType(msg);
+            connType = JOSPProtocol_ServiceToObject.getObjectAddPermMsg_ConnType(msg);
+
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because %s", JOSPProtocol_ServiceToObject.OBJ_ADDPERM_REQ_NAME, e.getMessage()), e);
+            return false;
+        }
+
+        permissions.addPermissions(srvId, usrId, permType, connType);
+        return true;
+    }
+
+    private boolean processObjectUpdPermMsg(String msg) {
+        String permId;
+        String srvId;
+        String usrId;
+        JOSPPerm.Type permType;
+        JOSPPerm.Connection connType;
+        try {
+            permId = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_PermId(msg);
+            srvId = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_SrvId(msg);
+            usrId = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_SrvId(msg);
+            permType = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_PermType(msg);
+            connType = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_ConnType(msg);
+
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because %s", JOSPProtocol_ServiceToObject.OBJ_UPDPERM_REQ_NAME, e.getMessage()), e);
+            return false;
+        }
+
+        permissions.updPermissions(permId, srvId, usrId, permType, connType);
+        return true;
+    }
+
+    private boolean processObjectRemPermMsg(String msg) {
+        String permId;
+        try {
+            permId = JOSPProtocol_ServiceToObject.getObjectRemPermMsg_PermId(msg);
+
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because %s", JOSPProtocol_ServiceToObject.OBJ_REMPERM_REQ_NAME, e.getMessage()), e);
+            return false;
+        }
+
+        permissions.remPermissions(permId);
         return true;
     }
 

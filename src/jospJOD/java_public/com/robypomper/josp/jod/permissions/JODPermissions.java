@@ -106,17 +106,17 @@ public interface JODPermissions {
      * @param type       the permission type of created permission.
      * @return true if the permission was added successfully, false otherwise.
      */
-    boolean addPermissions(String usrId, String srvId, JOSPPerm.Connection connection, JOSPPerm.Type type);
+    boolean addPermissions(String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection);
+
+    boolean updPermissions(String permId, String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection);
 
     /**
-     * Set permission corresponding to given <code>usrId</code> and <code>srvId</code>
-     * to be deleted.
+     * Set permission corresponding to given <code>permId</code> to be deleted.
      *
-     * @param usrId the user's id.
-     * @param srvId the user's id.
+     * @param permId the permission's id.
      * @return true if the permission is set to delete successfully, false otherwise.
      */
-    boolean deletePermissions(String usrId, String srvId);
+    boolean remPermissions(String permId);
 
     /**
      * The object owner id.
