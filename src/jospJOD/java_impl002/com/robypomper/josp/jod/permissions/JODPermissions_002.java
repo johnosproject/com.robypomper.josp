@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * ToDo: doc JODPermissions_002
@@ -32,7 +30,6 @@ public class JODPermissions_002 implements JODPermissions {
 
     // Class constants
 
-    public static final String TH_SYNC_NAME_FORMAT = "_PERM_SYNC_%s";
     public static final String ANONYMOUS_ID = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
     public static final String ANONYMOUS_USERNAME = JOSPPerm.WildCards.USR_ANONYMOUS_NAME.toString();
 
@@ -45,8 +42,6 @@ public class JODPermissions_002 implements JODPermissions {
     private final JCPClient_Object jcpClient;
     private final JCPPermObj jcpPermissions;
     private List<JOSPPerm> permissions;
-    private Timer syncTimer = null;
-    private boolean jcpPrintNotConnected = false;
     private JODCommunication comm;
 
 
@@ -226,52 +221,6 @@ public class JODPermissions_002 implements JODPermissions {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void syncObjPermissionsJCP() {
-        log.info(Mrk_JOD.JOD_PERM, String.format("Sync permission for '%s' object with JCP", objInfo.getObjId()));
-
-        List<JOSPPerm> prePermissions = permissions;
-
-        try {
-            if (jcpClient.isConnected()) {
-                log.debug(Mrk_JOD.JOD_PERM, String.format("Synchronizing permission for object '%s' from JCP", objInfo.getObjId()));
-                refreshPermissionsFromJCP();
-                log.debug(Mrk_JOD.JOD_PERM, String.format("Permission synchronized for object '%s' from JCP", objInfo.getObjId()));
-            }
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
-            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on synchronizing permissions for object '%s' from JCP because %s", objInfo.getObjId(), e.getMessage()));
-            return;
-        }
-
-        if (prePermissions.size() == permissions.size()) {
-            boolean allFounded = true;
-            for (JOSPPerm p1 : prePermissions) {
-                boolean p1Founded = false;
-                for (JOSPPerm p2 : permissions)
-                    if (p1.equals(p2)) {
-                        p1Founded = true;
-                        break;
-                    }
-                allFounded &= p1Founded;
-            }
-            if (allFounded)
-                return;
-        }
-
-        try {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Storing permission for object '%s' to local file '%s'", objInfo.getObjId(), locSettings.getPermissionsPath().getPath()));
-            savePermissionsToFile();
-            syncObjPermissions();
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Permission stored for object '%s' to local file '%s'", objInfo.getObjId(), locSettings.getPermissionsPath().getPath()));
-        } catch (PermissionsNotSavedException e) {
-            log.warn(Mrk_JOD.JOD_PERM, String.format("Error on storing permissions for object '%s' to local file because %s", objInfo.getObjId(), e.getMessage()));
-        }
-    }
-
-
     // Access methods
 
     /**
@@ -298,7 +247,7 @@ public class JODPermissions_002 implements JODPermissions {
 
         JOSPPerm newPerm = new JOSPPerm(objInfo.getObjId(), srvId, usrId, type, connection, new Date());
         permissions.add(newPerm);
-        syncObjPermissionsJCP();
+        syncObjPermissions();
         return true;
     }
 
@@ -317,7 +266,7 @@ public class JODPermissions_002 implements JODPermissions {
         JOSPPerm newDelPerm = new JOSPPerm(existingPerm.getId(), existingPerm.getObjId(), srvId, usrId, type, connection, JOSPProtocol.getNowDate());
         permissions.remove(existingPerm);
         permissions.add(newDelPerm);
-        syncObjPermissionsJCP();
+        syncObjPermissions();
         return true;
     }
 
@@ -335,7 +284,7 @@ public class JODPermissions_002 implements JODPermissions {
         JOSPPerm newDelPerm = new JOSPPerm(oldPerm.getId(), oldPerm.getObjId(), oldPerm.getSrvId(), oldPerm.getUsrId(), oldPerm.getPermType(), oldPerm.getConnType(), new Date(0));
         permissions.remove(oldPerm);
         permissions.add(newDelPerm);
-        syncObjPermissionsJCP();
+        syncObjPermissions();
         return true;
     }
 
@@ -370,22 +319,13 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
-    public void startAutoRefresh() {
-        log.info(Mrk_JOD.JOD_PERM, String.format("Start JODPermissions auto-refresh for '%s' object", objInfo.getObjId()));
-
-        startSyncTimer();
-    }
+    public void startAutoRefresh() {}
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void stopAutoRefresh() {
-        log.info(Mrk_JOD.JOD_PERM, String.format("Stop JODPermissions auto-refresh for '%s' object", objInfo.getObjId()));
-
-        if (isSync())
-            stopSyncTimer();
-    }
+    public void stopAutoRefresh() {}
 
 
     // Permission mngm
@@ -444,7 +384,7 @@ public class JODPermissions_002 implements JODPermissions {
             loadPermissionsFromFile();
         } catch (FileNotFoundException ignore) {}
 
-        syncObjPermissionsJCP();
+        syncObjPermissions();
     }
 
     private void generatePermissions() throws PermissionsNotSavedException {
@@ -489,13 +429,6 @@ public class JODPermissions_002 implements JODPermissions {
         permissions.add(new JOSPPerm(objInfo.getObjId(), JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_ALL.toString(), JOSPPerm.Type.CoOwner, JOSPPerm.Connection.OnlyLocal, JOSPProtocol.getNowDate()));
     }
 
-    /**
-     * Sync object's permissions with JCP object's permissions.
-     */
-    private void refreshPermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        permissions = jcpPermissions.refreshPermissionsFromJCP(JOSPPerm.toString(permissions));
-    }
-
     private JOSPPerm search(String permId) {
         for (JOSPPerm p : permissions)
             if (p.getId().equals(permId))
@@ -530,46 +463,6 @@ public class JODPermissions_002 implements JODPermissions {
         }
 
         return inherentPermissions;
-    }
-
-
-    // Sync timer
-
-    private boolean isSync() {
-        return syncTimer != null;
-    }
-
-    private void startSyncTimer() {
-        if (isSync())
-            return;
-
-        log.debug(Mrk_JOD.JOD_INFO, "Starting permissions sync's timer");
-        syncTimer = new Timer(true);
-        syncTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(String.format(TH_SYNC_NAME_FORMAT, objInfo.getObjId()));
-                if (jcpClient.isConnected()) {
-                    syncObjPermissionsJCP();
-                    jcpPrintNotConnected = false;
-
-                } else if (!jcpPrintNotConnected) {
-                    log.warn(Mrk_JOD.JOD_PERM, String.format("Can't sync object '%s''s permissions to JCP because JCP client disconnected", objInfo.getObjId()));
-                    jcpPrintNotConnected = true;
-                }
-            }
-        }, 0, locSettings.getPermissionsRefreshTime() * 1000);
-        log.debug(Mrk_JOD.JOD_INFO, "Permissions sync's timer started");
-    }
-
-    private void stopSyncTimer() {
-        if (!isSync())
-            return;
-
-        log.debug(Mrk_JOD.JOD_INFO, "Stopping permissions sync's timer");
-        syncTimer.cancel();
-        syncTimer = null;
-        log.debug(Mrk_JOD.JOD_INFO, "Permissions sync's timer stopped");
     }
 
 }

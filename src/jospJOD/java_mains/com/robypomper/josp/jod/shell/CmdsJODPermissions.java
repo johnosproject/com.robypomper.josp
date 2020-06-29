@@ -104,21 +104,6 @@ public class CmdsJODPermissions {
         return "Error deleting permission.";
     }
 
-    @Command(description = "Force object's permissions sync to JCP.")
-    public String permissionSync() {
-        int pre = permission.getPermissions().size();
-        permission.syncObjPermissionsJCP();
-        int post = permission.getPermissions().size();
-
-        int tot = post - pre;
-        if (tot > 0)
-            return String.format("Permission sync, added %s permissions", tot);
-        else if (tot < 0)
-            return String.format("Permission sync, removed %s permissions", tot);
-
-        return "Permission sync terminated";
-    }
-
     @Command(description = "Set object's owner.")
     public String permissionOwnerSet(String usrId) {
         permission.setOwnerId(usrId);
