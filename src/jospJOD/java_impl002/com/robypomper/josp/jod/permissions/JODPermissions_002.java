@@ -90,108 +90,6 @@ public class JODPermissions_002 implements JODPermissions {
         this.comm = comm;
     }
 
-
-    // JOD Component's interaction methods (from communication)
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean canExecuteAction(String srvId, String usrId, JOSPPerm.Connection connection) {
-        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
-            return true;
-        }
-
-        List<JOSPPerm> inherentPermissions = search(srvId, usrId);
-
-        if (inherentPermissions.isEmpty()) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED  because no permission found for specified srv/usr", srvId, usrId));
-            return false;
-        }
-
-        for (JOSPPerm p : inherentPermissions) {
-            if (connection == JOSPPerm.Connection.LocalAndCloud
-                    && p.getConnType() == JOSPPerm.Connection.OnlyLocal) {
-                continue;
-            }
-            if (p.getPermType() == JOSPPerm.Type.Actions
-                    || p.getPermType() == JOSPPerm.Type.CoOwner) {
-                log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s GRANTED", srvId, usrId));
-                return true;
-            }
-        }
-
-        log.debug(Mrk_JOD.JOD_PERM, String.format("Action permission for srvID %s and usrID %s DENIED", srvId, usrId));
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean canSendUpdate(String srvId, String usrId, JOSPPerm.Connection connection) {
-        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
-            return true;
-        }
-
-        List<JOSPPerm> inherentPermissions = search(srvId, usrId);
-
-        if (inherentPermissions.isEmpty()) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED  because no permission found for specified srv/usr", srvId, usrId));
-            return false;
-        }
-
-        for (JOSPPerm p : inherentPermissions) {
-            if (connection == JOSPPerm.Connection.LocalAndCloud
-                    && p.getConnType() == JOSPPerm.Connection.OnlyLocal) {
-                continue;
-            }
-            if (p.getPermType() == JOSPPerm.Type.Status
-                    || p.getPermType() == JOSPPerm.Type.Actions
-                    || p.getPermType() == JOSPPerm.Type.CoOwner) {
-                log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED", srvId, usrId));
-                return true;
-            }
-        }
-
-        log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s DENIED", srvId, usrId));
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean canActAsCoOwner(String srvId, String usrId, JOSPPerm.Connection connection) {
-        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("Status permission for srvID %s and usrID %s GRANTED because no obj's owner set", srvId, usrId));
-            return true;
-        }
-
-        List<JOSPPerm> inherentPermissions = search(srvId, usrId);
-
-        if (inherentPermissions.isEmpty()) {
-            log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED  because no permission found for specified srv/usr", srvId, usrId));
-            return false;
-        }
-
-        for (JOSPPerm p : inherentPermissions) {
-            if (connection == JOSPPerm.Connection.LocalAndCloud
-                    && p.getConnType() == JOSPPerm.Connection.OnlyLocal) {
-                continue;
-            }
-            if (p.getPermType() == JOSPPerm.Type.CoOwner) {
-                log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s GRANTED", srvId, usrId));
-                return true;
-            }
-        }
-
-        log.debug(Mrk_JOD.JOD_PERM, String.format("CoOwner permission for srvID %s and usrID %s DENIED", srvId, usrId));
-        return false;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -204,15 +102,7 @@ public class JODPermissions_002 implements JODPermissions {
             if (!locConn.isConnected())
                 continue;
 
-            JOSPPerm.Type permType;
-            if (canActAsCoOwner(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
-                permType = JOSPPerm.Type.CoOwner;
-            else if (canExecuteAction(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
-                permType = JOSPPerm.Type.Actions;
-            else if (canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
-                permType = JOSPPerm.Type.Status;
-            else
-                permType = JOSPPerm.Type.None;
+            JOSPPerm.Type permType = getServicePermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal);
             try {
                 comm.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createServicePermMsg(objInfo.getObjId(), permType, JOSPPerm.Connection.OnlyLocal), permType);
             } catch (JODCommunication.ServiceNotConnected e) {
@@ -226,8 +116,65 @@ public class JODPermissions_002 implements JODPermissions {
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<JOSPPerm> getPermissions() {
         return Collections.unmodifiableList(permissions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean checkPermission(String srvId, String usrId, JOSPPerm.Type minReqPerm, JOSPPerm.Connection connType) {
+        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF)) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Permission %s for srvID %s and usrID %s GRANTED because no obj's owner set", minReqPerm, srvId, usrId));
+            return true;
+        }
+
+        List<JOSPPerm> inherentPermissions = search(srvId, usrId);
+        if (inherentPermissions.isEmpty()) {
+            log.debug(Mrk_JOD.JOD_PERM, String.format("Permission %s for srvID %s and usrID %s DENIED  because no permission found for specified srv/usr", minReqPerm, srvId, usrId));
+            return false;
+        }
+
+        for (JOSPPerm p : inherentPermissions) {
+            if (connType == JOSPPerm.Connection.LocalAndCloud
+                    && p.getConnType() == JOSPPerm.Connection.OnlyLocal)
+                continue;
+
+            if (p.getPermType().compareTo(minReqPerm) >= 0) {
+                log.debug(Mrk_JOD.JOD_PERM, String.format("Permission %s for srvID %s and usrID %s GRANTED", minReqPerm, srvId, usrId));
+                return true;
+            }
+        }
+
+        log.debug(Mrk_JOD.JOD_PERM, String.format("Permission %s for srvID %s and usrID %s DENIED", minReqPerm, srvId, usrId));
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JOSPPerm.Type getServicePermission(String srvId, String usrId, JOSPPerm.Connection connType) {
+        if (getOwnerId().equals(JODSettings_002.JODPERM_OWNER_DEF))
+            return JOSPPerm.Type.CoOwner;
+
+        List<JOSPPerm> inherentPermissions = search(srvId, usrId);
+        if (inherentPermissions.isEmpty())
+            return JOSPPerm.Type.None;
+
+        JOSPPerm.Type highPerm = JOSPPerm.Type.None;
+        for (JOSPPerm p : inherentPermissions) {
+            if (connType == JOSPPerm.Connection.LocalAndCloud
+                    && p.getConnType() == JOSPPerm.Connection.OnlyLocal)
+                continue;
+
+            if (p.getPermType().compareTo(highPerm) > 0)
+                highPerm = p.getPermType();
+        }
+
+        return highPerm;
     }
 
     /**
@@ -247,7 +194,8 @@ public class JODPermissions_002 implements JODPermissions {
 
         JOSPPerm newPerm = new JOSPPerm(objInfo.getObjId(), srvId, usrId, type, connection, new Date());
         permissions.add(newPerm);
-        syncObjPermissions();
+
+        comm.syncObject();
         return true;
     }
 
@@ -266,7 +214,8 @@ public class JODPermissions_002 implements JODPermissions {
         JOSPPerm newDelPerm = new JOSPPerm(existingPerm.getId(), existingPerm.getObjId(), srvId, usrId, type, connection, JOSPProtocol.getNowDate());
         permissions.remove(existingPerm);
         permissions.add(newDelPerm);
-        syncObjPermissions();
+
+        comm.syncObject();
         return true;
     }
 
@@ -284,7 +233,8 @@ public class JODPermissions_002 implements JODPermissions {
         JOSPPerm newDelPerm = new JOSPPerm(oldPerm.getId(), oldPerm.getObjId(), oldPerm.getSrvId(), oldPerm.getUsrId(), oldPerm.getPermType(), oldPerm.getConnType(), new Date(0));
         permissions.remove(oldPerm);
         permissions.add(newDelPerm);
-        syncObjPermissions();
+
+        comm.syncObject();
         return true;
     }
 

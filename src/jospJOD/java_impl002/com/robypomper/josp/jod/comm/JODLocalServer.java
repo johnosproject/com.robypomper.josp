@@ -177,15 +177,7 @@ public class JODLocalServer implements Server {
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()), JOSPPerm.Type.Status);
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectPermsMsg(objInfo.getObjId(), objInfo.getPermsForJSL()), JOSPPerm.Type.CoOwner);
 
-            JOSPPerm.Type permType;
-            if (permissions.canActAsCoOwner(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
-                permType = JOSPPerm.Type.CoOwner;
-            else if (permissions.canExecuteAction(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
-                permType = JOSPPerm.Type.Actions;
-            else if (permissions.canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
-                permType = JOSPPerm.Type.Status;
-            else
-                permType = JOSPPerm.Type.None;
+            JOSPPerm.Type permType = permissions.getServicePermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal);
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createServicePermMsg(objInfo.getObjId(), permType, JOSPPerm.Connection.OnlyLocal), permType);
 
         } catch (JODStructure.ParsingException e) {

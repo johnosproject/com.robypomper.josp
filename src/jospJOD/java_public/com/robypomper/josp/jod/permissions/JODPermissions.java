@@ -33,51 +33,6 @@ public interface JODPermissions {
      */
     void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException;
 
-    // JOD Component's interaction methods (from communication)
-
-    /**
-     * Check if given identities (<code>service/user</code>) can send command
-     * execution request to current object.
-     * <p>
-     * This check is perform by {@link JODCommunication} when receive a message
-     * from a service.
-     *
-     * @param srvId service's id that send the request.
-     * @param usrId logged user's id in the service that send the request.
-     * @return true if and only if the pair <code>service/user</code>) can send
-     * command requests to current object.
-     */
-    boolean canExecuteAction(String srvId, String usrId, JOSPPerm.Connection connection);
-
-    /**
-     * Check if given identities (<code>service/user</code>) can receive status
-     * updates from current object.
-     * <p>
-     * This check is perform by {@link JODCommunication} when need to send an
-     * update to connected services or when the object receive a local service
-     * request.
-     *
-     * @param srvId service's id that can receive the update.
-     * @param usrId logged user's id in the service that can receive the update.
-     * @return true if and only if the pair <code>service/user</code> can
-     * receive the status update from current object.
-     */
-    boolean canSendUpdate(String srvId, String usrId, JOSPPerm.Connection connection);
-
-    /**
-     * Check if given identities (<code>service/user</code>) can act as object's
-     * coOwner.
-     * <p>
-     * This check is perform by {@link JODCommunication} when receive a service
-     * request that need coOwner permission.
-     *
-     * @param srvId service's id that send the request.
-     * @param usrId logged user's id in the service that send the request.
-     * @return true if and only if the pair <code>service/user</code> can
-     * act as object's owner.
-     */
-    boolean canActAsCoOwner(String srvId, String usrId, JOSPPerm.Connection connection);
-
     void syncObjPermissions();
 
     // Access methods
@@ -88,6 +43,10 @@ public interface JODPermissions {
      * @return object's permissions.
      */
     List<JOSPPerm> getPermissions();
+
+    boolean checkPermission(String srvId, String usrId, JOSPPerm.Type minReqPerm, JOSPPerm.Connection connType);
+
+    JOSPPerm.Type getServicePermission(String srvId, String usrId, JOSPPerm.Connection connType);
 
     /**
      * Add given permission to object's permissions.

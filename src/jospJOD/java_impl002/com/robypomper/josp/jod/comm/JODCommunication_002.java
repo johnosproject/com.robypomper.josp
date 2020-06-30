@@ -136,7 +136,7 @@ public class JODCommunication_002 implements JODCommunication {
         // Send via local communication
         if (isLocalRunning()) {
             for (JODLocalClientInfo locConn : getAllLocalClientsInfo()) {
-                if (!locConn.isConnected() || !checkRequest_ReadPermission(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
+                if (!locConn.isConnected() || !permissions.checkPermission(locConn.getSrvId(), locConn.getUsrId(), minReqPerm, JOSPPerm.Connection.OnlyLocal))
                     continue;
 
                 try {
@@ -177,7 +177,7 @@ public class JODCommunication_002 implements JODCommunication {
     public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) throws ServiceNotConnected {
         log.info(Mrk_JOD.JOD_COMM, String.format("Send '%s' message to local service '%s' only", msg.substring(0, msg.indexOf('\n')), locConn.getFullSrvId()));
 
-        if (!permissions.canSendUpdate(locConn.getSrvId(), locConn.getUsrId(), JOSPPerm.Connection.OnlyLocal))
+        if (!permissions.checkPermission(locConn.getSrvId(), locConn.getUsrId(), minReqPerm, JOSPPerm.Connection.OnlyLocal))
             return false;
 
         try {
@@ -199,6 +199,16 @@ public class JODCommunication_002 implements JODCommunication {
         sendToServices(msg, JOSPPerm.Type.Status);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void syncObject() {
+        objInfo.syncObjInfo();
+        structure.syncObjStruct();
+        permissions.syncObjPermissions();
+    }
+
 
     // From Service Msg
 
@@ -213,18 +223,19 @@ public class JODCommunication_002 implements JODCommunication {
             // dispatch to processor
             boolean processedSuccessfully = false;
             if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg))
-                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetNameMsg(msg);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.CoOwner, connType) && processObjectSetNameMsg(msg);
             else if (JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
-                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectSetOwnerIdMsg(msg);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.CoOwner, connType) && processObjectSetOwnerIdMsg(msg);
             else if (JOSPProtocol_ServiceToObject.isObjectAddPermMsg(msg))
-                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectAddPermMsg(msg);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.CoOwner, connType) && processObjectAddPermMsg(msg);
             else if (JOSPProtocol_ServiceToObject.isObjectUpdPermMsg(msg))
-                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectUpdPermMsg(msg);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.CoOwner, connType) && processObjectUpdPermMsg(msg);
             else if (JOSPProtocol_ServiceToObject.isObjectRemPermMsg(msg))
-                processedSuccessfully = checkRequest_OwnerPermission(srvId, usrId, connType) && processObjectRemPermMsg(msg);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.CoOwner, connType) && processObjectRemPermMsg(msg);
 
             else if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
-                processedSuccessfully = checkRequest_ActionPermission(srvId, usrId, connType) && processObjectCmdMsg(msg);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.Actions, connType) && processObjectCmdMsg(msg);
+
             else
                 throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
 
@@ -364,22 +375,6 @@ public class JODCommunication_002 implements JODCommunication {
         permissions.remPermissions(permId);
         return true;
     }
-
-
-    // Request permissions
-
-    private boolean checkRequest_ReadPermission(String srvId, String usrId, JOSPPerm.Connection fromConnType) {
-        return permissions.canSendUpdate(srvId, usrId, fromConnType);
-    }
-
-    private boolean checkRequest_ActionPermission(String srvId, String usrId, JOSPPerm.Connection fromConnType) {
-        return permissions.canExecuteAction(srvId, usrId, fromConnType);
-    }
-
-    private boolean checkRequest_OwnerPermission(String srvId, String usrId, JOSPPerm.Connection fromConnType) {
-        return permissions.canActAsCoOwner(srvId, usrId, fromConnType);
-    }
-
 
     // Connections access
 

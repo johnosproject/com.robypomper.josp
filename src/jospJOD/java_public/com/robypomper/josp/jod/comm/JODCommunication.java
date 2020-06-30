@@ -45,6 +45,8 @@ public interface JODCommunication {
      */
     void sendObjectUpdMsg(JODState component, JODStateUpdate update);
 
+    void syncObject();
+
 
     // From Service Msg
 
