@@ -30,7 +30,7 @@ public interface JSLRemoteObject {
     /**
      * Send a request to set the object's name.
      */
-    void setName(String newName) throws ObjectNotConnected;
+    void setName(String newName) throws ObjectNotConnected, MissingPermission;
 
     /**
      * @return the object's structure.
@@ -45,7 +45,7 @@ public interface JSLRemoteObject {
     /**
      * Send a request to set the object's owner id.
      */
-    void setOwnerId(String newOwnerId) throws ObjectNotConnected;
+    void setOwnerId(String newOwnerId) throws ObjectNotConnected, MissingPermission;
 
     /**
      * @return the object's JOD version.
@@ -78,11 +78,11 @@ public interface JSLRemoteObject {
      */
     JOSPPerm.Type getServicePerm(JOSPPerm.Connection connType);
 
-    void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected;
+    void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission;
 
-    void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected;
+    void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission;
 
-    void remPerm(String permId) throws ObjectNotConnected;
+    void remPerm(String permId) throws ObjectNotConnected, MissingPermission;
 
 
     // Object's communication
@@ -146,7 +146,7 @@ public interface JSLRemoteObject {
 
     // To Object Msg
 
-    void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected;
+    void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected, MissingPermission;
 
 
     // From Object Msg
@@ -168,6 +168,17 @@ public interface JSLRemoteObject {
 
         public ObjectNotConnected(JSLRemoteObject obj, Throwable t) {
             super(String.format(MSG, obj.getId()), t);
+        }
+    }
+
+    /**
+     * Exceptions thrown when accessing to a not connected object.
+     */
+    class MissingPermission extends Throwable {
+        private static final String MSG = "Can't access to '%s' object because missing permission (required: %s; actual: %s; msg: '%s').";
+
+        public MissingPermission(DefaultJSLRemoteObject obj, JOSPPerm.Connection onlyLocal, JOSPPerm.Type permType, JOSPPerm.Type minReqPerm, String msg) {
+            super(String.format(MSG, obj.getId(), minReqPerm, permType, msg.substring(0, msg.indexOf('\n'))));
         }
     }
 

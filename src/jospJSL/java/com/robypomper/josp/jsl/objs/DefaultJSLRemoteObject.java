@@ -121,7 +121,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * {@inheritDoc}
      */
     @Override
-    public void setName(String newName) throws ObjectNotConnected {
+    public void setName(String newName) throws ObjectNotConnected, MissingPermission {
         sendSetObjectNameMsg(newName);
     }
 
@@ -145,7 +145,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * {@inheritDoc}
      */
     @Override
-    public void setOwnerId(String newOwnerId) throws ObjectNotConnected {
+    public void setOwnerId(String newOwnerId) throws ObjectNotConnected, MissingPermission {
         sendSetObjectOwnerIdMsg(newOwnerId);
     }
 
@@ -199,17 +199,17 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
 
     @Override
-    public void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+    public void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission {
         sendAddObjectPermMsg(srvId, usrId, permType, connType);
     }
 
     @Override
-    public void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+    public void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission {
         sendUpdObjectPermMsg(permId, srvId, usrId, permType, connType);
     }
 
     @Override
-    public void remPerm(String permId) throws ObjectNotConnected {
+    public void remPerm(String permId) throws ObjectNotConnected, MissingPermission {
         sendRemObjectPermMsg(permId);
     }
 
@@ -332,15 +332,29 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
     // To Object Msg
 
-    private void sendToObject(String msg) throws ObjectNotConnected {
+    private void sendToObject(String msg) throws ObjectNotConnected, MissingPermission {
         if (!isConnected())
             throw new ObjectNotConnected(this);
 
+        JOSPPerm.Type minReqPerm = JOSPPerm.Type.None;
+        if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectAddPermMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectUpdPermMsg(msg)
+                || JOSPProtocol_ServiceToObject.isObjectRemPermMsg(msg))
+            minReqPerm = JOSPPerm.Type.CoOwner;
+
+        if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
+            minReqPerm = JOSPPerm.Type.Actions;
+
         // Send via local communication
         if (isLocalConnected()) {
-            JSLLocalClient object = getConnectedLocalClient();
+            JOSPPerm.Type permType = permTypes.get(JOSPPerm.Connection.OnlyLocal);
+            if (permType.compareTo(minReqPerm) < 0)
+                throw new MissingPermission(this, JOSPPerm.Connection.OnlyLocal, permType, minReqPerm, msg);
+
             try {
-                object.sendData(msg);
+                getConnectedLocalClient().sendData(msg);
                 return;
 
             } catch (Client.ServerNotConnectedException e) {
@@ -350,6 +364,10 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         // Send via cloud communication
         if (isCloudConnected()) {
+            JOSPPerm.Type permType = permTypes.get(JOSPPerm.Connection.LocalAndCloud);
+            if (permType.compareTo(minReqPerm) < 0)
+                throw new MissingPermission(this, JOSPPerm.Connection.LocalAndCloud, permType, minReqPerm, msg);
+
             try {
                 communication.getCloudConnection().sendData(msg);
 
@@ -363,33 +381,33 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
      * {@inheritDoc}
      */
     @Override
-    public void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected {
+    public void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected, MissingPermission {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectActionCmdMsg(srvInfo.getFullId(), getId(), component.getPath().getString(), command));
     }
 
     /**
      * Send SetObjectName request to represented object.
      */
-    private void sendSetObjectNameMsg(String newName) throws ObjectNotConnected {
+    private void sendSetObjectNameMsg(String newName) throws ObjectNotConnected, MissingPermission {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectSetNameMsg(srvInfo.getFullId(), getId(), newName));
     }
 
     /**
      * Send SetObjectOwnerId request to represented object.
      */
-    private void sendSetObjectOwnerIdMsg(String newOwnerId) throws ObjectNotConnected {
+    private void sendSetObjectOwnerIdMsg(String newOwnerId) throws ObjectNotConnected, MissingPermission {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectSetOwnerIdMsg(srvInfo.getFullId(), getId(), newOwnerId));
     }
 
-    private void sendAddObjectPermMsg(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+    private void sendAddObjectPermMsg(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectAddPermMsg(srvInfo.getFullId(), getId(), srvId, usrId, permType, connType));
     }
 
-    private void sendUpdObjectPermMsg(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected {
+    private void sendUpdObjectPermMsg(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectUpdPermMsg(srvInfo.getFullId(), getId(), permId, srvId, usrId, permType, connType));
     }
 
-    private void sendRemObjectPermMsg(String permId) throws ObjectNotConnected {
+    private void sendRemObjectPermMsg(String permId) throws ObjectNotConnected, MissingPermission {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectRemPermMsg(srvInfo.getFullId(), getId(), permId));
     }
 
