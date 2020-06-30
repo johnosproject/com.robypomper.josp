@@ -1,6 +1,8 @@
 package com.robypomper.josp.jsl.objs.structure;
 
 
+import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+
 /**
  * Action component representation.
  * <p>
@@ -17,6 +19,6 @@ public interface JSLAction extends JSLState {
      *
      * @param params the action's to params.
      */
-    void execAction(JSLActionParams params);
+    void execAction(JSLActionParams params) throws JSLRemoteObject.MissingPermission, JSLRemoteObject.ObjectNotConnected;
 
 }

@@ -134,6 +134,8 @@ public class CmdsJSLObjsMngr {
             obj.setName(objName);
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't update name", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't update name\n%s", obj.getId(), e.getMessage());
         }
 
         return String.format("Object '%s' name updated from '%s' to '%s'", obj.getId(), oldName, obj.getName());
@@ -185,8 +187,14 @@ public class CmdsJSLObjsMngr {
         if (comp instanceof JSLBooleanAction) {
             JSLBooleanAction compBooleanAction = (JSLBooleanAction) comp;
             JSLBooleanAction.JOSPBoolean cmd = new JSLBooleanAction.JOSPBoolean(Boolean.parseBoolean(actionBooleanParam), compBooleanAction);
-            compBooleanAction.execAction(cmd);
-            return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionBooleanParam);
+            try {
+                compBooleanAction.execAction(cmd);
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send boolean action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send boolean action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Boolean action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionBooleanParam);
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
@@ -208,8 +216,14 @@ public class CmdsJSLObjsMngr {
         if (comp instanceof JSLRangeAction) {
             JSLRangeAction compBooleanAction = (JSLRangeAction) comp;
             JSLRangeAction.JOSPRange cmd = new JSLRangeAction.JOSPRange(Double.parseDouble(actionDoubleParam), compBooleanAction);
-            compBooleanAction.execAction(cmd);
-            return String.format("Action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionDoubleParam);
+            try {
+                compBooleanAction.execAction(cmd);
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send range action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send range action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Range action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionDoubleParam);
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
@@ -229,6 +243,8 @@ public class CmdsJSLObjsMngr {
             obj.setOwnerId(objOwnerId);
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't update owner id", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't update owner id\n%s", obj.getId(), e.getMessage());
         }
 
         return String.format("Object '%s' owner updated from '%s' to '%s'", obj.getId(), oldOwner, obj.getOwnerId());
@@ -246,8 +262,10 @@ public class CmdsJSLObjsMngr {
         try {
             obj.addPerm(srvId, usrId, permType, connType);
 
-        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+        } catch (JSLRemoteObject.ObjectNotConnected e) {
             return String.format("Object '%s' not connected, can't add permission", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't add permission\n%s", obj.getId(), e.getMessage());
         }
 
         return String.format("Object '%s' permission added", obj.getId());
@@ -264,6 +282,8 @@ public class CmdsJSLObjsMngr {
 
         try {
             obj.updPerm(permId, srvId, usrId, permType, connType);
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't update permission\n%s", obj.getId(), e.getMessage());
 
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't update permission", obj.getId());
@@ -283,6 +303,8 @@ public class CmdsJSLObjsMngr {
 
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't remove permission", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't remove permission\n%s", obj.getId(), e.getMessage());
         }
 
         return String.format("Object '%s' permission removed", obj.getId());
