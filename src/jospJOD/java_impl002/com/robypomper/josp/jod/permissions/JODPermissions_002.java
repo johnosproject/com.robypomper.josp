@@ -229,10 +229,7 @@ public class JODPermissions_002 implements JODPermissions {
         if (oldPerm == null)
             return false;
 
-        // replace existing with (toDELETE) permission
-        JOSPPerm newDelPerm = new JOSPPerm(oldPerm.getId(), oldPerm.getObjId(), oldPerm.getSrvId(), oldPerm.getUsrId(), oldPerm.getPermType(), oldPerm.getConnType(), new Date(0));
         permissions.remove(oldPerm);
-        permissions.add(newDelPerm);
 
         comm.syncObject();
         return true;
