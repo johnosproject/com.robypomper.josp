@@ -233,6 +233,8 @@ public class GWObject {
             perm.setUpdatedAt(p.getUpdatedAt());
             permsDB.add(perm);
         }
+
+        permissionsDBService.removeAll(permissionsDBService.findByObj(objId));
         permissionsDBService.addAll(permsDB);
 
         gwBroker.updateObjPerms(this);
