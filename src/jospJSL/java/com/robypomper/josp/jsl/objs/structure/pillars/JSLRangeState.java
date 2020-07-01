@@ -26,11 +26,12 @@ public class JSLRangeState extends AbsJSLState {
      * @param descr        the description of the component.
      * @param type         the type of the component.
      */
-    public JSLRangeState(JSLRemoteObject remoteObject, String name, String descr, String type, double min, double max, double step) {
+    public JSLRangeState(JSLRemoteObject remoteObject, String name, String descr, String type, double min, double max, double step, double state) {
         super(remoteObject, name, descr, type);
         this.min = min;
         this.max = max;
         this.step = step;
+        this.state = state;
     }
 
 

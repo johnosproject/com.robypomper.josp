@@ -23,8 +23,9 @@ public class JSLBooleanState extends AbsJSLState {
      * @param descr        the description of the component.
      * @param type         the type of the component.
      */
-    public JSLBooleanState(JSLRemoteObject remoteObject, String name, String descr, String type) {
+    public JSLBooleanState(JSLRemoteObject remoteObject, String name, String descr, String type, boolean state) {
         super(remoteObject, name, descr, type);
+        this.state = state;
     }
 
 

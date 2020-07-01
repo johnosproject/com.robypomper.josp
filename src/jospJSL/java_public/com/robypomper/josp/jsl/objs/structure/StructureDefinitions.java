@@ -54,6 +54,7 @@ public interface StructureDefinitions {
     String PROP_COMPONENT_TYPE = "type";
     String PROP_COMPONENT_NAME = "name";
     String PROP_COMPONENT_DESCR = "descr";
+    String PROP_COMPONENT_STATE = "state";
     String PROP_COMPONENT_LISTNER = "listener";
     String PROP_COMPONENT_PULLER = "puller";
     String PROP_COMPONENT_EXECUTOR = "executor";

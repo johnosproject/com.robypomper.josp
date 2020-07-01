@@ -24,8 +24,8 @@ public class JSLRangeAction extends JSLRangeState implements JSLAction {
      * @param name         the name of the component.
      * @param descr        the description of the component.
      */
-    public JSLRangeAction(JSLRemoteObject remoteObject, String name, String descr, String type, double min, double max, double step) {
-        super(remoteObject, name, descr, type, min, max, step);
+    public JSLRangeAction(JSLRemoteObject remoteObject, String name, String descr, String type, double min, double max, double step, double state) {
+        super(remoteObject, name, descr, type, min, max, step, state);
     }
 
 
