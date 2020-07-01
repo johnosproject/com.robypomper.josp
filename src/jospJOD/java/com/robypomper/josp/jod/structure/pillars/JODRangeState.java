@@ -55,6 +55,14 @@ public class JODRangeState extends AbsJODState {
         return StructureDefinitions.TYPE_RANGE_STATE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getState() {
+        return Double.toString(state);
+    }
+
     public double getMin() {
         return min;
     }

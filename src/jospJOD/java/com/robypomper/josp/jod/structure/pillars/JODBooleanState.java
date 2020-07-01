@@ -49,6 +49,14 @@ public class JODBooleanState extends AbsJODState {
         return StructureDefinitions.TYPE_BOOL_STATE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getState() {
+        return Boolean.toString(state);
+    }
+
 
     // Status's methods
 
