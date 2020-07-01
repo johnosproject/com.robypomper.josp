@@ -147,7 +147,7 @@ public class JOSPGWsBroker {
         sendToSingleCloudService(object, service.getFullId(), msg, JOSPPerm.Type.Status);
     }
 
-    public void updateObjPerms(GWObject object) {
+    public void updateObjectPerms(GWObject object) {
         List<GWService> ownerServices = getAllowedServices(object, JOSPPerm.Type.CoOwner);
         for (GWService service : getAllowedServices(object, JOSPPerm.Type.Status)) {
             sendObjectInfoToService(object, service);

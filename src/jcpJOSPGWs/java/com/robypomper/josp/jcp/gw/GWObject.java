@@ -193,7 +193,6 @@ public class GWObject {
     }
 
     private void updateStructToDB(String msg) {
-        // ToDo implement updateStructOnDB() method
         if (JOSPProtocol_ObjectToService.isObjectStructMsg(msg)) {
             String struct;
             try {
@@ -237,7 +236,7 @@ public class GWObject {
         permissionsDBService.removeAll(permissionsDBService.findByObj(objId));
         permissionsDBService.addAll(permsDB);
 
-        gwBroker.updateObjPerms(this);
+        gwBroker.updateObjectPerms(this);
     }
 
 
