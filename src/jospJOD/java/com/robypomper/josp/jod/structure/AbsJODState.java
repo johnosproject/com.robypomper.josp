@@ -36,8 +36,6 @@ public abstract class AbsJODState extends AbsJODComponent
      *
      * <b>NB:</b> only once of <code>listener</code> and <code>puller</code>
      * params can be set, the other one must be null.
-     * <p>
-     * ToDo set AbsJODState constructor protected
      *
      * @param structure the JOD Structure system.
      * @param execMngr  the JOD Executor Mngr system.
@@ -46,7 +44,7 @@ public abstract class AbsJODState extends AbsJODComponent
      * @param listener  the listener full configs string.
      * @param puller    the puller full configs string.
      */
-    public AbsJODState(JODStructure structure, JODExecutorMngr execMngr, String name, String descr, String listener, String puller) throws JODStructure.ComponentInitException {
+    protected AbsJODState(JODStructure structure, JODExecutorMngr execMngr, String name, String descr, String listener, String puller) throws JODStructure.ComponentInitException {
         super(structure, name, descr);
 
         try {

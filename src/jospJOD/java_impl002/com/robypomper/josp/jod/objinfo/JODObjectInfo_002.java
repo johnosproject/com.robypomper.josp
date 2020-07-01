@@ -369,8 +369,6 @@ public class JODObjectInfo_002 implements JODObjectInfo {
                 log.warn(Mrk_JOD.JOD_INFO, String.format("Error on regenerate permissions because %s", e.getMessage()), e);
             }
         }
-
-        // ToDo update local services
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")

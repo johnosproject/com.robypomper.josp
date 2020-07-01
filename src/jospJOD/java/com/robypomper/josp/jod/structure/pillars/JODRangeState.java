@@ -29,8 +29,6 @@ public class JODRangeState extends AbsJODState {
      *
      * <b>NB:</b> only once of <code>listener</code> and <code>puller</code>
      * params can be set, the other one must be null.
-     * <p>
-     * ToDo set AbsJODState constructor protected
      *
      * @param structure the JOD Structure system.
      * @param execMngr  the JOD Executor Mngr system.
