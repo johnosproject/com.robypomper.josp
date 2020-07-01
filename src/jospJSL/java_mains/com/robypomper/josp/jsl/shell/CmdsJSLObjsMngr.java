@@ -17,6 +17,8 @@ import com.robypomper.josp.protocol.JOSPPerm;
 
 public class CmdsJSLObjsMngr {
 
+    private static final String PRE = "\n\n";
+    private static final String POST = "\n\n";
     private final JSLObjsMngr objs;
 
     public CmdsJSLObjsMngr(JSLObjsMngr objs) {
@@ -308,6 +310,50 @@ public class CmdsJSLObjsMngr {
         }
 
         return String.format("Object '%s' permission removed", obj.getId());
+    }
+
+
+    // Object's listeners
+
+    @Command(description = "Add logger listener to object's component events.")
+    public String objComponentAddListeners(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        if (comp instanceof JSLBooleanState) {
+            ((JSLBooleanState) comp).addListener(new JSLBooleanState.BooleanStateListener() {
+                @Override
+                public void onStateChanged(JSLBooleanState component, boolean newState, boolean oldState) {
+                    System.out.println(PRE + String.format("%s state changed %-15s > %-15s", component.getName(), oldState, newState) + POST);
+                }
+            });
+        } else if (comp instanceof JSLRangeState) {
+            ((JSLRangeState) comp).addListener(new JSLRangeState.RangeStateListener() {
+                @Override
+                public void onStateChanged(JSLRangeState component, double newState, double oldState) {
+                    System.out.println(PRE + String.format("%s state changed %-15s > %-15s", component.getName(), oldState, newState) + POST);
+                }
+
+                @Override
+                public void onMinReached(JSLRangeState component, double state, double min) {
+                    System.out.println(PRE + String.format("%s min state reached %-15s (max: %s)", component.getName(), state, min) + POST);
+                }
+
+                @Override
+                public void onMaxReached(JSLRangeState component, double state, double max) {
+                    System.out.println(PRE + String.format("%s max state reached %-15s (max: %s)", component.getName(), state, max) + POST);
+                }
+            });
+        }
+
+        return "OK";
     }
 
 }
