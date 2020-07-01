@@ -14,7 +14,7 @@ import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,7 +61,7 @@ public class JSLLocalClientTest {
         port++;
 
         // Start server
-        jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port,
+        jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port,
                 TEST_FILES_PREFIX + "jodSr-" + PUB_CERT_PATH);
         jodServer.start();
 
@@ -164,6 +164,11 @@ public class JSLLocalClientTest {
         }
 
         @Override
+        public String getPermsForJSL() throws JODStructure.ParsingException {
+            return null;
+        }
+
+        @Override
         public String getBrand() {
             return "test brand";
         }
@@ -198,17 +203,87 @@ public class JSLLocalClientTest {
         public void syncObjInfo() {}
 
         @Override
-        public void syncObjInfoJCP() {}
-
-        @Override
         public void regenerateObjId() {}
 
+    }
+
+    public static class MockJODPermissions implements JODPermissions {
+
+        @Override
+        public void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException {
+
+        }
+
+        @Override
+        public void syncObjPermissions() {
+
+        }
+
+        @Override
+        public List<JOSPPerm> getPermissions() {
+            return null;
+        }
+
+        @Override
+        public boolean checkPermission(String srvId, String usrId, JOSPPerm.Type minReqPerm, JOSPPerm.Connection connType) {
+            return false;
+        }
+
+        @Override
+        public JOSPPerm.Type getServicePermission(String srvId, String usrId, JOSPPerm.Connection connType) {
+            return null;
+        }
+
+        @Override
+        public boolean addPermissions(String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection) {
+            return false;
+        }
+
+        @Override
+        public boolean updPermissions(String permId, String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection) {
+            return false;
+        }
+
+        @Override
+        public boolean remPermissions(String permId) {
+            return false;
+        }
+
+        @Override
+        public String getOwnerId() {
+            return null;
+        }
+
+        @Override
+        public void setOwnerId(String ownerId) {
+
+        }
+
+        @Override
+        public void resetOwnerId() {
+
+        }
+
+        @Override
+        public void startAutoRefresh() {
+
+        }
+
+        @Override
+        public void stopAutoRefresh() {
+
+        }
+
+        @Override
+        public void regeneratePermissions() throws PermissionsFileException {
+
+        }
     }
 
     public static class MockJODCommunication implements JODCommunication {
 
         @Override
-        public boolean sendToServices(String msg, JOSPPermissions.Type minPermReq) {
+        public boolean sendToServices(String msg, JOSPPerm.Type minPermReq) {
             return false;
         }
 
@@ -218,7 +293,7 @@ public class JSLLocalClientTest {
         }
 
         @Override
-        public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected {
+        public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) throws ServiceNotConnected {
             return false;
         }
 
@@ -228,7 +303,10 @@ public class JSLLocalClientTest {
         }
 
         @Override
-        public boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType) {
+        public void syncObject() {}
+
+        @Override
+        public boolean processFromServiceMsg(String msg, JOSPPerm.Connection connType) {
             return false;
         }
 
@@ -286,7 +364,7 @@ public class JSLLocalClientTest {
     public static class MockJSLCommunication implements JSLCommunication {
 
         @Override
-        public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) {
+        public boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) {
             return false;
         }
 
