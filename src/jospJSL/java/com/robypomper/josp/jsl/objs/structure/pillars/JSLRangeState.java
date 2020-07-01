@@ -57,9 +57,9 @@ public class JSLRangeState extends AbsJSLState {
         if (statusUpd.getUpdate() instanceof JOSPRange) {
             JOSPRange stateUpdate = (JOSPRange) statusUpd.getUpdate();
             state = stateUpdate.newState;
-            System.out.printf("\n\nReceived status update from %s::%s (obj::component)%n", statusUpd.getObjectId(), statusUpd.getComponentPath());
-            System.out.printf("\tnewState %f%n", stateUpdate.newState);
-            System.out.printf("\toldState %f%n", stateUpdate.oldState);
+//            System.out.printf("\n\nReceived status update from %s::%s (obj::component)%n", statusUpd.getObjectId(), statusUpd.getComponentPath());
+//            System.out.printf("\tnewState %f%n", stateUpdate.newState);
+//            System.out.printf("\toldState %f%n", stateUpdate.oldState);
             return true;
         }
         return false;

@@ -39,9 +39,9 @@ public class JSLBooleanState extends AbsJSLState {
         if (statusUpd.getUpdate() instanceof JOSPBoolean) {
             JOSPBoolean stateUpdate = (JOSPBoolean) statusUpd.getUpdate();
             state = stateUpdate.newState;
-            System.out.printf("\n\nReceived status update from %s::%s (obj::component)%n", statusUpd.getObjectId(), statusUpd.getComponentPath());
-            System.out.printf("\tnewState %b%n", stateUpdate.newState);
-            System.out.printf("\toldState %b%n", stateUpdate.oldState);
+//            System.out.printf("\n\nReceived status update from %s::%s (obj::component)%n", statusUpd.getObjectId(), statusUpd.getComponentPath());
+//            System.out.printf("\tnewState %b%n", stateUpdate.newState);
+//            System.out.printf("\toldState %b%n", stateUpdate.oldState);
             return true;
         }
         return false;

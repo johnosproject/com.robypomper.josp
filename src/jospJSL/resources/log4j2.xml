@@ -188,7 +188,7 @@
         </Logger>
 
         <Logger name="com.robypomper.josp.jsl.comm" additivity="false">
-            <AppenderRef ref="ConsoleJOSP_FULL"/>
+            <AppenderRef ref="ConsoleJOSP"/>
             <AppenderRef ref="FileInfo"/>
             <AppenderRef ref="FileFull"/>
         </Logger>
