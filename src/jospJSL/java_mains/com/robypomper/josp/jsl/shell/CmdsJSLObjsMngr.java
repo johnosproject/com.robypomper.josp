@@ -2,17 +2,21 @@ package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.DefaultJSLRemoteObject;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
+import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.JOSPPerm;
+
+import java.util.List;
 
 
 public class CmdsJSLObjsMngr {
@@ -314,6 +318,85 @@ public class CmdsJSLObjsMngr {
 
 
     // Object's listeners
+
+    @Command(description = "Add logger listener to object's events.")
+    public String objAddListeners(String objId) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        obj.addListener(new JSLRemoteObject.RemoteObjectConnListener() {
+            @Override
+            public void onLocalConnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local connected (client id: %s, client addr: %s", localClient.getClientId(), localClient.getClientAddr()) + POST);
+            }
+
+            @Override
+            public void onLocalDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local disconnected (client id: %s, client addr: %s", localClient.getClientId(), localClient.getClientAddr()) + POST);
+            }
+
+            @Override
+            public void onCloudConnected(DefaultJSLRemoteObject defaultJSLRemoteObject) {
+                System.out.println(PRE + "cloud connected" + POST);
+            }
+
+            @Override
+            public void onCloudDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject) {
+                System.out.println(PRE + "cloud disconnected" + POST);
+            }
+        });
+
+        obj.addListener(new JSLRemoteObject.RemoteObjectInfoListener() {
+
+            @Override
+            public void onNameChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newName, String oldName) {
+                System.out.println(PRE + String.format("Name changed %-15s > %-15s", oldName, newName) + POST);
+            }
+
+            @Override
+            public void onOwnerIdChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newOwnerId, String oldOwnerId) {
+                System.out.println(PRE + String.format("OwnerId changed %-15s > %-15s", oldOwnerId, newOwnerId) + POST);
+            }
+
+            @Override
+            public void onJODVersionChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newJODVersion, String oldJODVersion) {
+                System.out.println(PRE + String.format("JODVersion changed %-15s > %-15s", oldJODVersion, newJODVersion) + POST);
+            }
+
+            @Override
+            public void onModelChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newModel, String oldModel) {
+                System.out.println(PRE + String.format("Model changed %-15s > %-15s", oldModel, newModel) + POST);
+            }
+
+            @Override
+            public void onBrandChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newBrand, String oldBrand) {
+                System.out.println(PRE + String.format("Brand changed %-15s > %-15s", oldBrand, newBrand) + POST);
+            }
+
+            @Override
+            public void onLongDescrChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newLongDescr, String oldLongDescr) {
+                System.out.println(PRE + String.format("LongDescr changed %-15s > %-15s", oldLongDescr, newLongDescr) + POST);
+            }
+
+            @Override
+            public void onStructureChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLRoot newRoot) {
+                System.out.println(PRE + "Structure changed" + POST);
+            }
+
+            @Override
+            public void onPermissionsChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {
+                System.out.println(PRE + String.format("Permissions changed %-15s > %-15s", oldPerms.size(), newPerms.size()) + POST);
+            }
+
+            @Override
+            public void onServicePermChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
+                System.out.println(PRE + String.format("Service's permission changed %s %-15s > %-15s", connType, oldPermType, newPermType) + POST);
+            }
+        });
+
+        return "ok";
+    }
 
     @Command(description = "Add logger listener to object's component events.")
     public String objComponentAddListeners(String objId, String compPath) {

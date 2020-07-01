@@ -54,6 +54,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     private boolean isCloudConnected = false;
     private List<JOSPPerm> perms = new ArrayList<>();
     private Map<JOSPPerm.Connection, JOSPPerm.Type> permTypes = new HashMap<>();
+    private final List<RemoteObjectConnListener> listenersConn = new ArrayList<>();
+    private final List<RemoteObjectInfoListener> listenersInfo = new ArrayList<>();
 
 
     // Constructor
@@ -296,6 +298,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         }
         localConnections.add(localClient);
         localClient.setRemoteObject(this);
+        emitConn_LocalConnected(localClient);
     }
 
     /**
@@ -439,37 +442,45 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         try {
             String newName = JOSPProtocol_ObjectToService.getObjectInfoMsg_Name(msg);
             if (name == null || !name.equals(newName)) {
+                String oldName = name;
                 name = newName;
-                // ToDo: trigger onObjectNameUpdated() event
+                emitInfo_NameChanged(newName, oldName);
             }
             String newOwnerId = JOSPProtocol_ObjectToService.getObjectInfoMsg_OwnerId(msg);
             if (ownerId == null || !ownerId.equals(newOwnerId)) {
+                String oldOwnerId = ownerId;
                 ownerId = newOwnerId;
-                // ToDo: trigger onObjectOwnerIdUpdated() event
+                emitInfo_OwnerIdChanged(newOwnerId, oldOwnerId);
             }
             String newJODVersion = JOSPProtocol_ObjectToService.getObjectInfoMsg_JODVersion(msg);
             if (jodVersion == null || !jodVersion.equals(newJODVersion)) {
+                String oldJODVersion = jodVersion;
                 jodVersion = newJODVersion;
-                // ToDo: trigger onObjectJODVersionUpdated() event
+                emitInfo_JODVersionChanged(jodVersion, oldJODVersion);
             }
             String newModel = JOSPProtocol_ObjectToService.getObjectInfoMsg_Model(msg);
             if (model == null || !model.equals(newModel)) {
+                String oldModel = model;
                 model = newModel;
-                // ToDo: trigger onObjectModelUpdated() event
+                emitInfo_ModelChanged(model, oldModel);
             }
             String newBrand = JOSPProtocol_ObjectToService.getObjectInfoMsg_Brand(msg);
             if (brand == null || !brand.equals(newBrand)) {
+                String oldBrand = brand;
                 brand = newBrand;
-                // ToDo: trigger onObjectBrandUpdated() event
+                emitInfo_BrandChanged(brand, oldBrand);
             }
             String newLongDescr = JOSPProtocol_ObjectToService.getObjectInfoMsg_LongDescr(msg);
             if (longDescr == null || !longDescr.equals(newLongDescr)) {
+                String oldLongDescr = longDescr;
                 longDescr = newLongDescr;
-                // ToDo: trigger onObjectLongDescrUpdated() event
+                emitInfo_LongDescrChanged(longDescr, oldLongDescr);
             }
 
-            if (connType == JOSPPerm.Connection.LocalAndCloud)
+            if (connType == JOSPPerm.Connection.LocalAndCloud && !isCloudConnected) {
                 isCloudConnected = true;
+                emitConn_CloudConnected();
+            }
 
         } catch (JOSPProtocol.ParsingException e) {
             log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
@@ -500,23 +511,30 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
             return false;
         }
 
+        emitInfo_StructureChanged(root);
         return true;
     }
 
     private boolean processObjectPermsMsg(String msg) throws Throwable {
+        List<JOSPPerm> oldPerms = perms;
         perms = JOSPProtocol_ObjectToService.getObjectPermsMsg_Perms(msg);
+        emitInfo_PermissionsChanged(perms, oldPerms);
         return true;
     }
 
     private boolean processServicePermMsg(String msg) throws Throwable {
         JOSPPerm.Connection connType = JOSPProtocol_ObjectToService.getServicePermsMsg_ConnType(msg);
+        JOSPPerm.Type oldPermType = permTypes.get(connType);
         permTypes.put(connType, JOSPProtocol_ObjectToService.getServicePermsMsg_PermType(msg));
+        emitInfo_ServicePermChanged(connType, permTypes.get(connType), oldPermType);
         return true;
     }
 
     private boolean processObjectDisconnectMsg(String msg, JOSPPerm.Connection connType) throws Throwable {
-        if (connType == JOSPPerm.Connection.LocalAndCloud)
+        if (connType == JOSPPerm.Connection.LocalAndCloud) {
             isCloudConnected = false;
+            emitConn_CloudDisconnected();
+        }
         return true;
     }
 
@@ -556,6 +574,106 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         log.debug(Mrk_JSL.JSL_COMM, String.format("Update '%s...' processed for '%s' object", msg.substring(0, Math.min(10, msg.length())), getId()));
         return true;
+    }
+
+
+    // Listeners connections
+
+    public void addListener(RemoteObjectConnListener listener) {
+        if (listenersConn.contains(listener))
+            return;
+
+        listenersConn.add(listener);
+    }
+
+    public void removeListener(RemoteObjectConnListener listener) {
+        if (!listenersConn.contains(listener))
+            return;
+
+        listenersConn.remove(listener);
+    }
+
+    private void emitConn_LocalConnected(JSLLocalClient localClient) {
+        for (RemoteObjectConnListener l : listenersConn)
+            l.onLocalConnected(this, localClient);
+    }
+
+    private void emitConn_LocalDisconnected(JSLLocalClient localClient) {
+        for (RemoteObjectConnListener l : listenersConn)
+            l.onLocalDisconnected(this, localClient);
+
+    }
+
+    private void emitConn_CloudConnected() {
+        for (RemoteObjectConnListener l : listenersConn)
+            l.onCloudConnected(this);
+    }
+
+    private void emitConn_CloudDisconnected() {
+        for (RemoteObjectConnListener l : listenersConn)
+            l.onCloudDisconnected(this);
+    }
+
+
+    // Listeners info
+
+    public void addListener(RemoteObjectInfoListener listener) {
+        if (listenersInfo.contains(listener))
+            return;
+
+        listenersInfo.add(listener);
+    }
+
+    public void removeListener(RemoteObjectInfoListener listener) {
+        if (!listenersInfo.contains(listener))
+            return;
+
+        listenersInfo.remove(listener);
+    }
+
+    private void emitInfo_NameChanged(String newName, String oldName) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onNameChanged(this, newName, oldName);
+    }
+
+    private void emitInfo_OwnerIdChanged(String newOwnerId, String oldOwnerId) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onOwnerIdChanged(this, newOwnerId, oldOwnerId);
+    }
+
+    private void emitInfo_JODVersionChanged(String jodVersion, String oldJODVersion) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onJODVersionChanged(this, jodVersion, oldJODVersion);
+    }
+
+    private void emitInfo_ModelChanged(String model, String oldModel) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onModelChanged(this, model, oldModel);
+    }
+
+    private void emitInfo_BrandChanged(String brand, String oldBrand) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onBrandChanged(this, brand, oldBrand);
+    }
+
+    private void emitInfo_LongDescrChanged(String longDescr, String oldLongDescr) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onLongDescrChanged(this, longDescr, oldLongDescr);
+    }
+
+    private void emitInfo_StructureChanged(JSLRoot root) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onStructureChanged(this, root);
+    }
+
+    private void emitInfo_PermissionsChanged(List<JOSPPerm> perms, List<JOSPPerm> oldPerms) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onPermissionsChanged(this, perms, oldPerms);
+    }
+
+    private void emitInfo_ServicePermChanged(JOSPPerm.Connection connType, JOSPPerm.Type type, JOSPPerm.Type oldPermType) {
+        for (RemoteObjectInfoListener l : listenersInfo)
+            l.onServicePermChanged(this, connType, type, oldPermType);
     }
 
 }

@@ -154,6 +154,54 @@ public interface JSLRemoteObject {
     boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) throws Throwable;
 
 
+    // Listeners connections
+
+    void addListener(RemoteObjectConnListener listener);
+
+    void removeListener(RemoteObjectConnListener listener);
+
+    interface RemoteObjectConnListener {
+
+        void onLocalConnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient);
+
+        void onLocalDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient);
+
+        void onCloudConnected(DefaultJSLRemoteObject defaultJSLRemoteObject);
+
+        void onCloudDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject);
+
+    }
+
+
+    // Listeners info
+
+    void addListener(RemoteObjectInfoListener listener);
+
+    void removeListener(RemoteObjectInfoListener listener);
+
+    interface RemoteObjectInfoListener {
+
+        void onNameChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newName, String oldName);
+
+        void onOwnerIdChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newOwnerId, String oldOwnerId);
+
+        void onJODVersionChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newJODVersion, String oldJODVersion);
+
+        void onModelChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newModel, String oldModel);
+
+        void onBrandChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newBrand, String oldBrand);
+
+        void onLongDescrChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newLongDescr, String oldLongDescr);
+
+        void onStructureChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLRoot newRoot);
+
+        void onPermissionsChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms);
+
+        void onServicePermChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType);
+
+    }
+
+
     // Exceptions
 
     /**
