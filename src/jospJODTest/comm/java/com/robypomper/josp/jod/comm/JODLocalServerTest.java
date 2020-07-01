@@ -12,7 +12,7 @@ import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,7 +77,7 @@ public class JODLocalServerTest {
 
     @Test
     public void testLocalStartAndStop() throws Server.ListeningException {
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         Assertions.assertFalse(jodServer.isRunning());
 
         System.out.println("\nJOD LOCAL SERVER START");
@@ -91,14 +91,14 @@ public class JODLocalServerTest {
 
     @Test
     public void testLocalDoubleStart_FAIL() throws Server.ListeningException {
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         Assertions.assertFalse(jodServer.isRunning());
 
         System.out.println("\nJOD LOCAL SERVER START");
         jodServer.start();
         Assertions.assertTrue(jodServer.isRunning());
 
-        JODLocalServer jodServer2 = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer2 = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         Assertions.assertFalse(jodServer2.isRunning());
 
         System.out.println("\nJOD LOCAL SERVER 2nd START");
@@ -116,7 +116,7 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnection() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
@@ -147,7 +147,7 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnectionTwoClients() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
@@ -191,7 +191,7 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnectionTwoClientsSameIds() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
@@ -227,7 +227,7 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndDisconnectionTwoClientsSameIdsDiffInstances() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
@@ -263,7 +263,7 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndServerStop() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT");
@@ -291,7 +291,7 @@ public class JODLocalServerTest {
     @Test
     public void testLocalConnectionAndServerStopTwoClients() throws Server.ListeningException, Client.ConnectionException {
         System.out.println("\nJOD LOCAL SERVER START");
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), port, JOD_PUB_CERT_PATH);
+        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
         jodServer.start();
 
         System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
@@ -399,6 +399,11 @@ public class JODLocalServerTest {
         }
 
         @Override
+        public String getPermsForJSL() throws JODStructure.ParsingException {
+            return null;
+        }
+
+        @Override
         public String getBrand() {
             return "test brand";
         }
@@ -433,17 +438,87 @@ public class JODLocalServerTest {
         public void syncObjInfo() {}
 
         @Override
-        public void syncObjInfoJCP() {}
-
-        @Override
         public void regenerateObjId() {}
 
+    }
+
+    public static class MockJODPermissions implements JODPermissions {
+
+        @Override
+        public void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException {
+
+        }
+
+        @Override
+        public void syncObjPermissions() {
+
+        }
+
+        @Override
+        public List<JOSPPerm> getPermissions() {
+            return null;
+        }
+
+        @Override
+        public boolean checkPermission(String srvId, String usrId, JOSPPerm.Type minReqPerm, JOSPPerm.Connection connType) {
+            return false;
+        }
+
+        @Override
+        public JOSPPerm.Type getServicePermission(String srvId, String usrId, JOSPPerm.Connection connType) {
+            return null;
+        }
+
+        @Override
+        public boolean addPermissions(String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection) {
+            return false;
+        }
+
+        @Override
+        public boolean updPermissions(String permId, String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection) {
+            return false;
+        }
+
+        @Override
+        public boolean remPermissions(String permId) {
+            return false;
+        }
+
+        @Override
+        public String getOwnerId() {
+            return null;
+        }
+
+        @Override
+        public void setOwnerId(String ownerId) {
+
+        }
+
+        @Override
+        public void resetOwnerId() {
+
+        }
+
+        @Override
+        public void startAutoRefresh() {
+
+        }
+
+        @Override
+        public void stopAutoRefresh() {
+
+        }
+
+        @Override
+        public void regeneratePermissions() throws PermissionsFileException {
+
+        }
     }
 
     public static class MockJODCommunication implements JODCommunication {
 
         @Override
-        public boolean sendToServices(String msg, JOSPPermissions.Type minPermReq) {
+        public boolean sendToServices(String msg, JOSPPerm.Type minPermReq) {
             return false;
         }
 
@@ -453,7 +528,7 @@ public class JODLocalServerTest {
         }
 
         @Override
-        public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPermissions.Type minReqPerm) throws ServiceNotConnected {
+        public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) throws ServiceNotConnected {
             return false;
         }
 
@@ -463,7 +538,10 @@ public class JODLocalServerTest {
         }
 
         @Override
-        public boolean processFromServiceMsg(String msg, JOSPPermissions.Connection connType) {
+        public void syncObject() {}
+
+        @Override
+        public boolean processFromServiceMsg(String msg, JOSPPerm.Connection connType) {
             return false;
         }
 
@@ -521,7 +599,7 @@ public class JODLocalServerTest {
     public static class MockJSLCommunication implements JSLCommunication {
 
         @Override
-        public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) {
+        public boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) {
             return false;
         }
 

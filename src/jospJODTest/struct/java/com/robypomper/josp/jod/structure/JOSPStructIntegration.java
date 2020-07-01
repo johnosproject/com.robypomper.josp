@@ -20,7 +20,7 @@ import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
-import com.robypomper.josp.protocol.JOSPPermissions;
+import com.robypomper.josp.protocol.JOSPPerm;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -305,6 +305,7 @@ public class JOSPStructIntegration {
     }
 
     private static class MockupJSLRemoteObject implements JSLRemoteObject {
+
         @Override
         public boolean isLocalConnected() {
             return false;
@@ -357,6 +358,25 @@ public class JOSPStructIntegration {
         }
 
         @Override
+        public List<JOSPPerm> getPerms() {
+            return null;
+        }
+
+        @Override
+        public JOSPPerm.Type getServicePerm(JOSPPerm.Connection connType) {
+            return null;
+        }
+
+        @Override
+        public void addPerm(String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission {}
+
+        @Override
+        public void updPerm(String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) throws ObjectNotConnected, MissingPermission {}
+
+        @Override
+        public void remPerm(String permId) throws ObjectNotConnected, MissingPermission {}
+
+        @Override
         public JSLCommunication getCommunication() {
             return null;
         }
@@ -398,7 +418,7 @@ public class JOSPStructIntegration {
 
 
         @Override
-        public boolean processFromObjectMsg(String msg, JOSPPermissions.Connection connType) {
+        public boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) {
             return false;
         }
     }
