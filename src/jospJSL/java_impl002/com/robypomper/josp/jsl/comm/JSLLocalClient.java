@@ -111,8 +111,10 @@ public class JSLLocalClient implements Client {
      * Placeholder method
      */
     private void onServerDisconnection() {
-        if (remoteObject != null)
+        if (remoteObject != null) {
             log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnected object '%s' server '%s:%d' by '%s' service", remoteObject.getId(), getServerAddr(), getServerPort(), getClientId()));
+            remoteObject.removeLocalClient(this);
+        }
         communication.removeServer(this);
     }
 

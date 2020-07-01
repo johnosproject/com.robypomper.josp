@@ -53,7 +53,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     private String longDescr = null;
     private boolean isCloudConnected = false;
     private List<JOSPPerm> perms = new ArrayList<>();
-    private Map<JOSPPerm.Connection, JOSPPerm.Type> permTypes = new HashMap<>();
+    private final Map<JOSPPerm.Connection, JOSPPerm.Type> permTypes = new HashMap<>();
     private final List<RemoteObjectConnListener> listenersConn = new ArrayList<>();
     private final List<RemoteObjectInfoListener> listenersInfo = new ArrayList<>();
 
@@ -299,6 +299,15 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         localConnections.add(localClient);
         localClient.setRemoteObject(this);
         emitConn_LocalConnected(localClient);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeLocalClient(JSLLocalClient localClient) {
+        localConnections.remove(localClient);
+        emitConn_LocalDisconnected(localClient);
     }
 
     /**

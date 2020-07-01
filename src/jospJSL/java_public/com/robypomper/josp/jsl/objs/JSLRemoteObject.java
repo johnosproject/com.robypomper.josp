@@ -122,6 +122,8 @@ public interface JSLRemoteObject {
      */
     void addLocalClient(JSLLocalClient localClient);
 
+    void removeLocalClient(JSLLocalClient localClient);
+
     /**
      * Method called when a client disconnect and reconnect (same JOD IP address
      * but different ports) and update internal client list.
