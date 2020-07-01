@@ -1,5 +1,7 @@
 package com.robypomper.josp.jcp.gw;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.ObjectDBService;
@@ -17,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -208,7 +211,52 @@ public class GWObject {
             }
 
         } else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg)) {
-            // ToDo implement updateStructOnDB()/when msg is state upd
+
+            JOSPProtocol.StatusUpd upd;
+            try {
+                upd = JOSPProtocol.extractStatusUpdFromMsg(msg);
+            } catch (JOSPProtocol.ParsingException e) {
+                return;
+            }
+            String newState = upd.getUpdate().encode().split("\n")[0];
+            newState = newState.substring(newState.indexOf(':') + 1).trim();
+
+            String structStr = objDB.getStatus().getStructure();
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, java.lang.Object> structMap;
+            try {
+                structMap = mapper.readValue(structStr, Map.class);
+            } catch (JsonProcessingException e) {
+                return;
+            }
+
+            if (!(structMap.get("components") instanceof ArrayList))
+                return;
+
+            Map<String, java.lang.Object> updatableComp = null;
+            ArrayList<Map<String, java.lang.Object>> comps = (ArrayList<Map<String, java.lang.Object>>) structMap.get("components");
+            for (String compName : upd.getComponentPath().split(">")) {
+                for (Map<String, java.lang.Object> subComp : comps)
+                    if (subComp.get("name").equals(compName)) {
+                        comps = (ArrayList<Map<String, java.lang.Object>>) subComp.get("components");
+                        if (comps == null)
+                            updatableComp = subComp;
+                        break;
+                    }
+            }
+
+            if (updatableComp == null)
+                return;
+
+            updatableComp.put("state", newState);
+
+            try {
+                structStr = mapper.writeValueAsString(structMap);
+            } catch (JsonProcessingException e) {
+                return;
+            }
+            objDB.getStatus().setStructure(structStr);
+            updateStatusToDB();
         }
     }
 

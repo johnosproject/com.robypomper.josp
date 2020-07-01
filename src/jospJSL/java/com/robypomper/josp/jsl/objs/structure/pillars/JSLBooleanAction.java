@@ -24,8 +24,8 @@ public class JSLBooleanAction extends JSLBooleanState implements JSLAction {
      * @param name         the name of the component.
      * @param descr        the description of the component.
      */
-    public JSLBooleanAction(JSLRemoteObject remoteObject, String name, String descr, String type) {
-        super(remoteObject, name, descr, type);
+    public JSLBooleanAction(JSLRemoteObject remoteObject, String name, String descr, String type, boolean state) {
+        super(remoteObject, name, descr, type, state);
     }
 
 

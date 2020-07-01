@@ -23,6 +23,8 @@ public interface JODState extends JODComponent {
     @JsonIgnore
     String getWorker();
 
+    String getState();
+
 
     // Status upd flow (struct)
 

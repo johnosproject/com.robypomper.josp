@@ -103,6 +103,13 @@ public class JOSPProtocol {
         return data.toString();
     }
 
+    public static StatusUpd extractStatusUpdFromMsg(String msg) throws ParsingException {
+        JOSPStateUpdateParams statusUpdate = new JOSPProtocol.JOSPStateUpdateStr(extractUpdTypeFromMsg(msg), extractUpdDataFromMsg(msg));
+        return new JOSPProtocol.StatusUpd(extractUpdObjIdFromMsg(msg),
+                extractUpdCompPathFromMsg(msg),
+                statusUpdate);
+    }
+
 
     // Command action message
 
