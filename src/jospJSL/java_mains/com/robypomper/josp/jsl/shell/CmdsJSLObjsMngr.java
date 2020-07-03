@@ -21,8 +21,8 @@ import java.util.List;
 
 public class CmdsJSLObjsMngr {
 
-    private static final String PRE = "\n\n";
-    private static final String POST = "\n\n";
+    public static final String PRE = "\n\n";
+    public static final String POST = "\n\n";
     private final JSLObjsMngr objs;
 
     public CmdsJSLObjsMngr(JSLObjsMngr objs) {
@@ -327,71 +327,71 @@ public class CmdsJSLObjsMngr {
 
         obj.addListener(new JSLRemoteObject.RemoteObjectConnListener() {
             @Override
-            public void onLocalConnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local connected (client id: %s, client addr: %s", localClient.getClientId(), localClient.getClientAddr()) + POST);
+            public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
             }
 
             @Override
-            public void onLocalDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local disconnected (client id: %s, client addr: %s", localClient.getClientId(), localClient.getClientAddr()) + POST);
+            public void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
             }
 
             @Override
-            public void onCloudConnected(DefaultJSLRemoteObject defaultJSLRemoteObject) {
-                System.out.println(PRE + "cloud connected" + POST);
+            public void onCloudConnected(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("cloud object '%s' connected", obj.getId()) + POST);
             }
 
             @Override
-            public void onCloudDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject) {
-                System.out.println(PRE + "cloud disconnected" + POST);
+            public void onCloudDisconnected(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("cloud object '%s' disconnected", obj.getId()) + POST);
             }
         });
 
         obj.addListener(new JSLRemoteObject.RemoteObjectInfoListener() {
 
             @Override
-            public void onNameChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newName, String oldName) {
-                System.out.println(PRE + String.format("Name changed %-15s > %-15s", oldName, newName) + POST);
+            public void onNameChanged(JSLRemoteObject obj, String newName, String oldName) {
+                System.out.println(PRE + String.format("Name changed object '%s' %-15s > %-15s", obj.getId(), oldName, newName) + POST);
             }
 
             @Override
-            public void onOwnerIdChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newOwnerId, String oldOwnerId) {
-                System.out.println(PRE + String.format("OwnerId changed %-15s > %-15s", oldOwnerId, newOwnerId) + POST);
+            public void onOwnerIdChanged(JSLRemoteObject obj, String newOwnerId, String oldOwnerId) {
+                System.out.println(PRE + String.format("OwnerId changed object '%s' %-15s > %-15s", obj.getId(), oldOwnerId, newOwnerId) + POST);
             }
 
             @Override
-            public void onJODVersionChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newJODVersion, String oldJODVersion) {
-                System.out.println(PRE + String.format("JODVersion changed %-15s > %-15s", oldJODVersion, newJODVersion) + POST);
+            public void onJODVersionChanged(JSLRemoteObject obj, String newJODVersion, String oldJODVersion) {
+                System.out.println(PRE + String.format("JODVersion changed object '%s' %-15s > %-15s", obj.getId(), oldJODVersion, newJODVersion) + POST);
             }
 
             @Override
-            public void onModelChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newModel, String oldModel) {
-                System.out.println(PRE + String.format("Model changed %-15s > %-15s", oldModel, newModel) + POST);
+            public void onModelChanged(JSLRemoteObject obj, String newModel, String oldModel) {
+                System.out.println(PRE + String.format("Model changed object '%s' %-15s > %-15s", obj.getId(), oldModel, newModel) + POST);
             }
 
             @Override
-            public void onBrandChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newBrand, String oldBrand) {
-                System.out.println(PRE + String.format("Brand changed %-15s > %-15s", oldBrand, newBrand) + POST);
+            public void onBrandChanged(JSLRemoteObject obj, String newBrand, String oldBrand) {
+                System.out.println(PRE + String.format("Brand changed object '%s' %-15s > %-15s", obj.getId(), oldBrand, newBrand) + POST);
             }
 
             @Override
-            public void onLongDescrChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newLongDescr, String oldLongDescr) {
-                System.out.println(PRE + String.format("LongDescr changed %-15s > %-15s", oldLongDescr, newLongDescr) + POST);
+            public void onLongDescrChanged(JSLRemoteObject obj, String newLongDescr, String oldLongDescr) {
+                System.out.println(PRE + String.format("LongDescr changed object '%s' %-15s > %-15s", obj.getId(), oldLongDescr, newLongDescr) + POST);
             }
 
             @Override
-            public void onStructureChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLRoot newRoot) {
-                System.out.println(PRE + "Structure changed" + POST);
+            public void onStructureChanged(JSLRemoteObject obj, JSLRoot newRoot) {
+                System.out.println(PRE + String.format("Structure changed object '%s'", obj.getId()) + POST);
             }
 
             @Override
-            public void onPermissionsChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {
-                System.out.println(PRE + String.format("Permissions changed %-15s > %-15s", oldPerms.size(), newPerms.size()) + POST);
+            public void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {
+                System.out.println(PRE + String.format("Permissions changed object '%s' %-15s > %-15s", obj.getId(), oldPerms.size(), newPerms.size()) + POST);
             }
 
             @Override
-            public void onServicePermChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
-                System.out.println(PRE + String.format("Service's permission changed %s %-15s > %-15s", connType, oldPermType, newPermType) + POST);
+            public void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
+                System.out.println(PRE + String.format("Service's permission changed object '%s' %s %-15s > %-15s", obj.getId(), connType, oldPermType, newPermType) + POST);
             }
         });
 

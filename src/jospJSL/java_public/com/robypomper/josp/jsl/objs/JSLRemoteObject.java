@@ -164,13 +164,13 @@ public interface JSLRemoteObject {
 
     interface RemoteObjectConnListener {
 
-        void onLocalConnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient);
+        void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient);
 
-        void onLocalDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLLocalClient localClient);
+        void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient);
 
-        void onCloudConnected(DefaultJSLRemoteObject defaultJSLRemoteObject);
+        void onCloudConnected(JSLRemoteObject obj);
 
-        void onCloudDisconnected(DefaultJSLRemoteObject defaultJSLRemoteObject);
+        void onCloudDisconnected(JSLRemoteObject obj);
 
     }
 
@@ -183,23 +183,23 @@ public interface JSLRemoteObject {
 
     interface RemoteObjectInfoListener {
 
-        void onNameChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newName, String oldName);
+        void onNameChanged(JSLRemoteObject obj, String newName, String oldName);
 
-        void onOwnerIdChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newOwnerId, String oldOwnerId);
+        void onOwnerIdChanged(JSLRemoteObject obj, String newOwnerId, String oldOwnerId);
 
-        void onJODVersionChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newJODVersion, String oldJODVersion);
+        void onJODVersionChanged(JSLRemoteObject obj, String newJODVersion, String oldJODVersion);
 
-        void onModelChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newModel, String oldModel);
+        void onModelChanged(JSLRemoteObject obj, String newModel, String oldModel);
 
-        void onBrandChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newBrand, String oldBrand);
+        void onBrandChanged(JSLRemoteObject obj, String newBrand, String oldBrand);
 
-        void onLongDescrChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, String newLongDescr, String oldLongDescr);
+        void onLongDescrChanged(JSLRemoteObject obj, String newLongDescr, String oldLongDescr);
 
-        void onStructureChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JSLRoot newRoot);
+        void onStructureChanged(JSLRemoteObject obj, JSLRoot newRoot);
 
-        void onPermissionsChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms);
+        void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms);
 
-        void onServicePermChanged(DefaultJSLRemoteObject defaultJSLRemoteObject, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType);
+        void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType);
 
     }
 
@@ -227,7 +227,7 @@ public interface JSLRemoteObject {
     class MissingPermission extends Throwable {
         private static final String MSG = "Can't access to '%s' object because missing permission (required: %s; actual: %s; msg: '%s').";
 
-        public MissingPermission(DefaultJSLRemoteObject obj, JOSPPerm.Connection onlyLocal, JOSPPerm.Type permType, JOSPPerm.Type minReqPerm, String msg) {
+        public MissingPermission(JSLRemoteObject obj, JOSPPerm.Connection onlyLocal, JOSPPerm.Type permType, JOSPPerm.Type minReqPerm, String msg) {
             super(String.format(MSG, obj.getId(), minReqPerm, permType, msg.substring(0, msg.indexOf('\n'))));
         }
     }
