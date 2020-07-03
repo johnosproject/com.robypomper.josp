@@ -38,4 +38,9 @@ public interface JCPClient_Service extends JCPClient2 {
      */
     void setUserId(String usrId);
 
+
+    // Login
+
+    void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException;
+
 }

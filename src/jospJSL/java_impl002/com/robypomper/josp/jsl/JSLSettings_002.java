@@ -19,13 +19,13 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JCP_URL_APIS             = "jcp.url.apis";
     public static final String JCP_URL_DEF_APIS         = "localhost:9001";
     public static final String JCP_URL_AUTH             = "jcp.url.auth";
-    public static final String JCP_URL_DEF_AUTH         = "localhost:8999";
+    public static final String JCP_URL_DEF_AUTH         = "localhost:8998";
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
     public static final String JCP_CLIENT_ID_DEF        = "";
     public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";
     public static final String JCP_CLIENT_SECRET_DEF    = "";
     public static final String JCP_CLIENT_CALLBACK      = "jcp.client.callback";
-    public static final String JCP_CLIENT_CALLBACK_DEF  = "https://localhost:9001";
+    public static final String JCP_CLIENT_CALLBACK_DEF  = "https://localhost:8080";
     public static final String JCP_CLIENT_TOKEN_AUTH    = "jcp.client.token.authCode";
     public static final String JCP_CLIENT_TOKEN_AUTH_DEF= null;
 

@@ -111,10 +111,8 @@ public class CmdsJCPClient {
         String code = in.nextLine();
 
 
-        System.out.println("Please open following url and login to JCP Cloud");
         try {
-            jcpClient.setLoginCode(code);
-            jcpClient.connect();
+            jcpClient.setLoginCodeAndReconnect(code);
 
         } catch (JCPClient2.JCPNotReachableException | JCPClient2.ConnectionException | JCPClient2.AuthenticationException e) {
             return String.format("Can't proceed with user login because %s", e.getMessage());

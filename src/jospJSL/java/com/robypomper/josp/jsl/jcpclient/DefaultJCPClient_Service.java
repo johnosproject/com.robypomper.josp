@@ -51,6 +51,13 @@ public class DefaultJCPClient_Service extends DefaultJCPClient2 implements JCPCl
     }
 
 
+    @Override
+    public void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException {
+        disconnect();
+        setLoginCode(loginCode);
+        connect();
+    }
+
     // Store refresh tokens
 
     @Override
