@@ -575,6 +575,9 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
+        public void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException {}
+
+        @Override
         public boolean isConnected() {
             return false;
         }
