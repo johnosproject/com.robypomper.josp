@@ -1,6 +1,6 @@
 package com.robypomper.josp.jsl.jcpclient;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.paths.APISrvs;
 
 
@@ -15,10 +15,10 @@ import com.robypomper.josp.jcp.apis.paths.APISrvs;
  * anonymous client, that use the Client Credential Flow.
  * <p>
  * The user authentication process can be handle by external classes via the
- * {@link LoginManager}. It's an observer that throw login and logout events.
+ * {@link com.robypomper.josp.core.jcpclient.JCPClient2.LoginListener}. It's an observer that throw login and logout events.
  * So his implementations can handle user's logins and logouts.
  */
-public interface JCPClient_Service extends JCPClient {
+public interface JCPClient_Service extends JCPClient2 {
 
     // Headers default values setters
 
@@ -39,105 +39,8 @@ public interface JCPClient_Service extends JCPClient {
     void setUserId(String usrId);
 
 
-    // User methods
+    // Login
 
-    /**
-     * @return <code>true</code> if user was not logged in.
-     */
-    boolean isCliCredFlowEnabled();
-
-    /**
-     * @return <code>true</code> if user was logged in successfully.
-     */
-    boolean isAuthCodeFlowEnabled();
-
-    /**
-     * The login url allow application user to login to the JCP cloud
-     * and get the login code to use to get the access token.
-     * <p>
-     * After the user logged in to the JCP cloud, the server send as a response
-     * a HTTP 302 redirect code with an url containing the login code.
-     *
-     * @return the url to use for user authentication.
-     */
-    String getLoginUrl() throws ConnectionException, LoginException;
-
-    /**
-     * Set the login code received after user login.
-     * <p>
-     * When received the login code after user login at url returned by
-     * {@link #getLoginUrl()} method, it must be set to the JCPClient instance.
-     */
-    boolean setLoginCode(String code) throws ConnectionException, LoginException;
-
-    /**
-     * @return the refresh token from AuthFlow.
-     */
-    String getRefreshToken();
-
-    /**
-     * Set the stored refresh token to the AuthFlow client. This is equivalent
-     * to user login via {@link #setLoginCode(String)}.
-     * <p>
-     * This method, called with a valid refresh token allow to prevent user
-     * login for each session. The refresh token is stored by
-     * <p>
-     * When received the login code after user login at url returned by
-     * {@link #getLoginUrl()} method, it must be set to the JCPClient instance.
-     */
-    void setRefreshToken(String refreshToken);
-
-    /**
-     * Reset the login code and all authentication tokens and credentials.
-     * <p>
-     * This method allow to logout current logged user.
-     */
-    boolean userLogout() throws LoginException;
-
-
-    // Login manager
-
-    /**
-     * Set the login manager to current JCP Client for services.
-     *
-     * @param loginMngr the LoginManager that handle user JCP client login and
-     *                  logout.
-     */
-    void setLoginManager(LoginManager loginMngr);
-
-    /**
-     * Interface to implement LoginManger.
-     * <p>
-     * Login manager can handle success authentication and authentication process.
-     */
-    interface LoginManager {
-
-        /**
-         * Method execute on successfully user authentication.
-         */
-        void onLogin();
-
-        /**
-         * Method execute on successfully user deauthentication.
-         */
-        void onLogout();
-
-    }
-
-
-    // Exceptions
-
-    /**
-     * Exceptions for JCPClient connection errors (include security related errors).
-     */
-    class LoginException extends Throwable {
-        public LoginException(String msg) {
-            super(msg);
-        }
-
-        public LoginException(String msg, Exception e) {
-            super(msg, e);
-        }
-    }
+    void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException;
 
 }

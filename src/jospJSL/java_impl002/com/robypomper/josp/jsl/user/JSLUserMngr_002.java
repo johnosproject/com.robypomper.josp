@@ -1,6 +1,6 @@
 package com.robypomper.josp.jsl.user;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  */
-public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginManager {
+public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
 
     // Class constants
 
@@ -42,16 +42,16 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         if (jcpClient.isAuthCodeFlowEnabled()) {
             log.trace(Mrk_JSL.JSL_USR, "Perform JSLUserMngr login");
             if (jcpClient.isConnected())
-                onLogin();
+                onLogin(jcpClient);
             else
                 onLocalLogin();
         } else {
-            onLogout();
+            onLogout(jcpClient);
             log.trace(Mrk_JSL.JSL_USR, "Set JSLUserMngr with anonymous user");
         }
 
         log.debug(Mrk_JSL.JSL_USR, "Setting login manager to JCPClient");
-        this.jcpClient.setLoginManager(this);
+        this.jcpClient.addLoginListener(this);
         log.debug(Mrk_JSL.JSL_USR, "Login manager set to JCPClient");
 
         log.info(Mrk_JSL.JSL_USR, String.format("Initialized JSLUserMngr instance for '%s' user with '%s' id", getUsername(), getUserId()));
@@ -65,7 +65,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
      */
     @Override
     public boolean isUserAuthenticated() {
-        return jcpClient.isAuthCodeFlowEnabled();
+        return jcpClient.isAuthCodeFlowEnabled() && !usrId.equals(ANONYMOUS_ID);
     }
 
     /**
@@ -96,17 +96,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
 
     // LoginManager impl
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Method to handle the user login.
-     * <p>
-     * This method is called onLogin event from
-     * {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service.LoginManager}
-     * and update the current user of JSL library.
-     */
     @Override
-    public void onLogin() {
+    public void onLogin(JCPClient2 jcpClient2) {
         // Cache user's info
         log.debug(Mrk_JSL.JSL_USR, "Caching user's info from JCP");
         try {
@@ -115,7 +106,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
             locSettings.setUsrId(usrId);
             locSettings.setUsrName(usrName);
 
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
+        } catch (JCPClient2.ConnectionException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             log.warn(Mrk_JSL.JSL_USR, String.format("Error on getting user id and name from JCP because %s", e.getMessage()), e);
             log.trace(Mrk_JSL.JSL_USR, "Set anonymous user");
             usrId = ANONYMOUS_ID;
@@ -125,10 +116,10 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         // Set JCP Client user id header
         jcpClient.setUserId(usrId);
 
-        // Store user refresh token
-        locSettings.setRefreshToken(jcpClient.getRefreshToken());
-
         log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", usrName, usrId));
+
+        if (comm == null)
+            return;
 
         if (comm.isCloudConnected()) {
             comm.disconnectCloud();
@@ -149,17 +140,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
 
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Method to handle the user logout.
-     * <p>
-     * This method is called onLogout event from
-     * {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service.LoginManager}
-     * and reset the current user of JSL library to anonymous user.
-     */
     @Override
-    public void onLogout() {
+    public void onLogout(JCPClient2 jcpClient2) {
         String loggedUsrId = usrId;
         String loggedUsername = usrName;
 
@@ -171,27 +153,25 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient_Service.LoginMana
         // Set JCP Client user id header
         jcpClient.setUserId(null);
 
-        // Reset user refresh token
-        locSettings.setRefreshToken(jcpClient.getRefreshToken());
-
         log.info(Mrk_JSL.JSL_USR, String.format("Logged out user '%s' with id '%s'", loggedUsername, loggedUsrId));
 
-        if (comm != null) {
-            if (comm.isCloudConnected()) {
-                comm.disconnectCloud();
-                try {
-                    comm.connectCloud();
-                } catch (JSLCommunication.CloudCommunicationException e) {
-                    log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
-                }
+        if (comm == null)
+            return;
+
+        if (comm.isCloudConnected()) {
+            comm.disconnectCloud();
+            try {
+                comm.connectCloud();
+            } catch (JSLCommunication.CloudCommunicationException e) {
+                log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
             }
-            if (comm.isLocalRunning()) {
-                try {
-                    comm.stopLocal();
-                    comm.startLocal();
-                } catch (JSLCommunication.LocalCommunicationException e) {
-                    log.warn(Mrk_JSL.JSL_USR, String.format("Error on restart local communication on updating user id because %s", e.getMessage()), e);
-                }
+        }
+        if (comm.isLocalRunning()) {
+            try {
+                comm.stopLocal();
+                comm.startLocal();
+            } catch (JSLCommunication.LocalCommunicationException e) {
+                log.warn(Mrk_JSL.JSL_USR, String.format("Error on restart local communication on updating user id because %s", e.getMessage()), e);
             }
         }
     }

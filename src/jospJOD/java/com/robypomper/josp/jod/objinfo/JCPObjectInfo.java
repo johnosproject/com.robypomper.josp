@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.objinfo;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jod.JODSettings_002;
@@ -35,12 +36,12 @@ public class JCPObjectInfo extends AbsJCPAPIs {
      * @param objId   the object's ID.
      * @return the object's Cloud ID.
      */
-    public String generateObjIdCloud(String objIdHw, String ownerId, String objId) throws JCPClient.RequestException, JCPClient.ConnectionException {
+    public String generateObjIdCloud(String objIdHw, String ownerId, String objId) throws JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException {
         GenerateObjId params = new GenerateObjId(objIdHw, ownerId);
         if (objId == null)
-            return jcpClient.execPostReq(APIObjs.URL_PATH_GENERATEID, String.class, params, true);
+            return jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_GENERATEID, String.class, params, true);
         else
-            return jcpClient.execPostReq(APIObjs.URL_PATH_REGENERATEID, String.class, params, true);
+            return jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_REGENERATEID, String.class, params, true);
     }
 
 }

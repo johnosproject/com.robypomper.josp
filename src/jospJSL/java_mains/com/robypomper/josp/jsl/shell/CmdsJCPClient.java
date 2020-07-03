@@ -1,7 +1,7 @@
 package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.user.JSLUserMngr_002;
 
@@ -53,11 +53,8 @@ public class CmdsJCPClient {
         try {
             jcpClient.connect();
 
-        } catch (JCPClient.ConnectionException e) {
+        } catch (JCPClient2.ConnectionException | JCPClient2.JCPNotReachableException | JCPClient2.AuthenticationException e) {
             return String.format("Error on JCP Client connection: %s.", e.getMessage());
-
-        } catch (JCPClient.CredentialsException e) {
-            return String.format("Error on JCP Client authentication: %s.", e.getMessage());
         }
         return "JCP Client connected successfully.";
     }
@@ -106,17 +103,7 @@ public class CmdsJCPClient {
 
         final Scanner in = new Scanner(System.in);
 
-        String url;
-        try {
-            url = jcpClient.getLoginUrl();
-
-        } catch (JCPClient_Service.LoginException e) {
-            return String.format("Can't perform user login because %s", e.getMessage());
-
-        } catch (JCPClient.ConnectionException e) {
-            return String.format("Can't perform user login because %s", e.getMessage());
-        }
-
+        String url = jcpClient.getLoginUrl();
         System.out.println("Please open following url and login to JCP Cloud");
         System.out.println(url);
         System.out.println("then paste the redirected url 'code' param");
@@ -124,11 +111,10 @@ public class CmdsJCPClient {
         String code = in.nextLine();
 
 
-        System.out.println("Please open following url and login to JCP Cloud");
         try {
-            if (!jcpClient.setLoginCode(code))
-                return "Invalid user login";
-        } catch (JCPClient.ConnectionException | JCPClient_Service.LoginException e) {
+            jcpClient.setLoginCodeAndReconnect(code);
+
+        } catch (JCPClient2.JCPNotReachableException | JCPClient2.ConnectionException | JCPClient2.AuthenticationException e) {
             return String.format("Can't proceed with user login because %s", e.getMessage());
         }
 
@@ -148,13 +134,7 @@ public class CmdsJCPClient {
         if (!jcpClient.isAuthCodeFlowEnabled())
             return "User already logged out.";
 
-        try {
-            if (!jcpClient.userLogout())
-                return "Error on user logout";
-        } catch (JCPClient_Service.LoginException e) {
-            return String.format("Can't proceed with user logout because %s", e.getMessage());
-        }
-
+        jcpClient.userLogout();
         return "User logged out successfully";
     }
 

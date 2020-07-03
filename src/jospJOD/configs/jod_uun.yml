@@ -10,7 +10,8 @@ jcp.client.secret: 2d1f9b96-70d3-443b-b21b-08a401ddc16c
 
 # JCP Client
 #jcp.connect: false
-jcp.url: 'https://localhost:8998'
+jcp.url.auth: 'localhost:8998'
+jcp.url.apis: 'localhost:9001'
 
 # Communication
 #jod.comm.local.enabled: false

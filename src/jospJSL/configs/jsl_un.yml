@@ -8,7 +8,8 @@ jsl.srv.name: Test Client Srv Awersome!
 
 # JCP Client
 jcp.connect: true
-jcp.url: 'https://localhost:8998'
+jcp.url.auth: 'localhost:8998'
+jcp.url.apis: 'localhost:9001'
 jcp.client.callback: 'https://localhost:9001'
 
 # Communication

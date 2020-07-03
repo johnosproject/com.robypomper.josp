@@ -1,6 +1,6 @@
 package com.robypomper.josp.jod;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODCommunication_002;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
@@ -38,11 +38,17 @@ public class JOD_002 extends AbsJOD {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
     }
 
-    public static JOD instance(JODSettings_002 settings) throws JCPClient.ConnectionSettingsException, JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JODPermissions.PermissionsFileException {
+    public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JODPermissions.PermissionsFileException {
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JOD.JOD_MAIN, String.format("Init JOD instance id '%s'", instanceId));
 
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
+        try {
+            jcpClient.connect();
+        } catch (JCPClient2.JCPNotReachableException | JCPClient2.ConnectionException | JCPClient2.AuthenticationException e) {
+            e.printStackTrace();
+            jcpClient.startConnectionTimer();
+        }
 
         JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient, VERSION);
 

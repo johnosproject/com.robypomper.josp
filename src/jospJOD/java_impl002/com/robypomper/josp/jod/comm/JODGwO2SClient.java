@@ -10,7 +10,7 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
@@ -114,7 +114,7 @@ public class JODGwO2SClient implements Client {
                 isInit = false;
             }
 
-        } catch (JCPClient.ConnectionException | JCPClient.RequestException | CertificateEncodingException e) {
+        } catch (JCPClient2.ConnectionException | JCPClient2.RequestException | CertificateEncodingException | JCPClient2.ResponseException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing object GW client because %s", e.getMessage()));
             if (!isInitializing()) {
                 jcpClient.addConnectListener(initListener);
@@ -155,14 +155,16 @@ public class JODGwO2SClient implements Client {
         return isInit;
     }
 
-    @SuppressWarnings("Convert2Lambda")
-    private final JCPClient.ConnectListener initListener = new JCPClient.ConnectListener() {
+    private final JCPClient2.ConnectListener initListener = new JCPClient2.ConnectListener() {
         @Override
-        public void onConnected(JCPClient jcpClient) {
+        public void onConnected(JCPClient2 jcpClient) {
             try {
                 initConnection();
             } catch (ConnectionException ignore) {/*Exception in timer's thread*/}
         }
+
+        @Override
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {}
     };
 
 

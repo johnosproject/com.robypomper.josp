@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
@@ -38,13 +39,14 @@ public class JCPPermObj extends AbsJCPAPIs {
      *
      * @return a valid permission list.
      */
-    public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
+    public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException {
         JOSPPerm.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
-        String permsStr = jcpClient.execGetReq(APIPermissions.URL_PATH_OBJGENERATE + "/" + strategy, String.class, true);
+        String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE + "/" + strategy, String.class, true);
         try {
             return JOSPPerm.listFromString(permsStr);
+
         } catch (JOSPProtocol.ParsingException e) {
-            throw new JCPClient.RequestException(String.format("Can't parse JOSPPerm list from returned string '%s'", permsStr));
+            throw new JCPClient2.RequestException(String.format("Can't parse JOSPPerm list from returned string '%s'", permsStr));
         }
     }
 

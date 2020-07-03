@@ -1,6 +1,5 @@
 package com.robypomper.josp.jod;
 
-import com.robypomper.josp.jcp.apis.paths.JcpAPI;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.settings.DefaultSettings;
 
@@ -18,8 +17,10 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
     public static final String JCP_REFRESH_TIME_DEF     = "30";
-    public static final String JCP_URL                  = "jcp.url";
-    public static final String JCP_URL_DEF              = JcpAPI.URL_DOM_API;
+    public static final String JCP_URL_APIS             = "jcp.url.apis";
+    public static final String JCP_URL_DEF_APIS         = "localhost:9001";
+    public static final String JCP_URL_AUTH             = "jcp.url.auth";
+    public static final String JCP_URL_DEF_AUTH         = "localhost:8998";
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
     public static final String JCP_CLIENT_ID_DEF        = "";
     public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";
@@ -117,8 +118,13 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     }
 
     //@Override
-    public String getJCPUrl() {
-        return getString(JCP_URL, JCP_URL_DEF);
+    public String getJCPUrlAPIs() {
+        return getString(JCP_URL_APIS, JCP_URL_DEF_APIS);
+    }
+
+    //@Override
+    public String getJCPUrlAuth() {
+        return getString(JCP_URL_AUTH, JCP_URL_DEF_AUTH);
     }
 
     //@Override
