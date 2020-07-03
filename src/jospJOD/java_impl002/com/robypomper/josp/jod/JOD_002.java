@@ -45,8 +45,13 @@ public class JOD_002 extends AbsJOD {
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
         try {
             jcpClient.connect();
-        } catch (JCPClient2.JCPNotReachableException | JCPClient2.ConnectionException | JCPClient2.AuthenticationException e) {
+
+        } catch (JCPClient2.AuthenticationException ignore) {
+
+        } catch (JCPClient2.ConnectionException e) {
             e.printStackTrace();
+
+        } catch (JCPClient2.JCPNotReachableException e) {
             jcpClient.startConnectionTimer();
         }
 

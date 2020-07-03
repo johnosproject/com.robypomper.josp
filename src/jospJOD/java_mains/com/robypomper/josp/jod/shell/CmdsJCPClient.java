@@ -14,7 +14,7 @@ public class CmdsJCPClient {
 
     @Command(description = "Print JCP Client status.")
     public String jcpClientStatus() {
-        return jcpClient.isConnected() ? "JCP Client is connect." : "JCP Client is disconnect.";
+        return jcpClient.isConnected() ? "JCP Client is connect." : "JCP Client is NOT connect.";
     }
 
     @Command(description = "Connect JCP Client.")
