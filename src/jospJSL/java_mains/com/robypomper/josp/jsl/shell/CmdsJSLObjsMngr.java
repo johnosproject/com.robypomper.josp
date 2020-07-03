@@ -2,21 +2,27 @@ package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.DefaultJSLRemoteObject;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
+import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.JOSPPerm;
 
+import java.util.List;
+
 
 public class CmdsJSLObjsMngr {
 
+    public static final String PRE = "\n\n";
+    public static final String POST = "\n\n";
     private final JSLObjsMngr objs;
 
     public CmdsJSLObjsMngr(JSLObjsMngr objs) {
@@ -308,6 +314,147 @@ public class CmdsJSLObjsMngr {
         }
 
         return String.format("Object '%s' permission removed", obj.getId());
+    }
+
+
+    // Object's listeners
+
+    @Command(description = "Add logger listener to objects manager's events.")
+    public String objsMngrAddListeners() {
+        objs.addListener(new JSLObjsMngr.ObjsMngrListener() {
+
+            @Override
+            public void onObjAdded(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("added '%s' object", obj.getId()) + POST);
+            }
+
+            @Override
+            public void onObjRemoved(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("removed '%s' object", obj.getId()) + POST);
+            }
+        });
+
+        return "ok";
+    }
+
+    @Command(description = "Add logger listener to object's events.")
+    public String objAddListeners(String objId) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        obj.addListener(new JSLRemoteObject.RemoteObjectConnListener() {
+            @Override
+            public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+            }
+
+            @Override
+            public void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+            }
+
+            @Override
+            public void onCloudConnected(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("cloud object '%s' connected", obj.getId()) + POST);
+            }
+
+            @Override
+            public void onCloudDisconnected(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("cloud object '%s' disconnected", obj.getId()) + POST);
+            }
+        });
+
+        obj.addListener(new JSLRemoteObject.RemoteObjectInfoListener() {
+
+            @Override
+            public void onNameChanged(JSLRemoteObject obj, String newName, String oldName) {
+                System.out.println(PRE + String.format("Name changed object '%s' %-15s > %-15s", obj.getId(), oldName, newName) + POST);
+            }
+
+            @Override
+            public void onOwnerIdChanged(JSLRemoteObject obj, String newOwnerId, String oldOwnerId) {
+                System.out.println(PRE + String.format("OwnerId changed object '%s' %-15s > %-15s", obj.getId(), oldOwnerId, newOwnerId) + POST);
+            }
+
+            @Override
+            public void onJODVersionChanged(JSLRemoteObject obj, String newJODVersion, String oldJODVersion) {
+                System.out.println(PRE + String.format("JODVersion changed object '%s' %-15s > %-15s", obj.getId(), oldJODVersion, newJODVersion) + POST);
+            }
+
+            @Override
+            public void onModelChanged(JSLRemoteObject obj, String newModel, String oldModel) {
+                System.out.println(PRE + String.format("Model changed object '%s' %-15s > %-15s", obj.getId(), oldModel, newModel) + POST);
+            }
+
+            @Override
+            public void onBrandChanged(JSLRemoteObject obj, String newBrand, String oldBrand) {
+                System.out.println(PRE + String.format("Brand changed object '%s' %-15s > %-15s", obj.getId(), oldBrand, newBrand) + POST);
+            }
+
+            @Override
+            public void onLongDescrChanged(JSLRemoteObject obj, String newLongDescr, String oldLongDescr) {
+                System.out.println(PRE + String.format("LongDescr changed object '%s' %-15s > %-15s", obj.getId(), oldLongDescr, newLongDescr) + POST);
+            }
+
+            @Override
+            public void onStructureChanged(JSLRemoteObject obj, JSLRoot newRoot) {
+                System.out.println(PRE + String.format("Structure changed object '%s'", obj.getId()) + POST);
+            }
+
+            @Override
+            public void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {
+                System.out.println(PRE + String.format("Permissions changed object '%s' %-15s > %-15s", obj.getId(), oldPerms.size(), newPerms.size()) + POST);
+            }
+
+            @Override
+            public void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
+                System.out.println(PRE + String.format("Service's permission changed object '%s' %s %-15s > %-15s", obj.getId(), connType, oldPermType, newPermType) + POST);
+            }
+        });
+
+        return "ok";
+    }
+
+    @Command(description = "Add logger listener to object's component events.")
+    public String objComponentAddListeners(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        if (comp instanceof JSLBooleanState) {
+            ((JSLBooleanState) comp).addListener(new JSLBooleanState.BooleanStateListener() {
+                @Override
+                public void onStateChanged(JSLBooleanState component, boolean newState, boolean oldState) {
+                    System.out.println(PRE + String.format("%s state changed %-15s > %-15s", component.getName(), oldState, newState) + POST);
+                }
+            });
+        } else if (comp instanceof JSLRangeState) {
+            ((JSLRangeState) comp).addListener(new JSLRangeState.RangeStateListener() {
+                @Override
+                public void onStateChanged(JSLRangeState component, double newState, double oldState) {
+                    System.out.println(PRE + String.format("%s state changed %-15s > %-15s", component.getName(), oldState, newState) + POST);
+                }
+
+                @Override
+                public void onMinReached(JSLRangeState component, double state, double min) {
+                    System.out.println(PRE + String.format("%s min state reached %-15s (max: %s)", component.getName(), state, min) + POST);
+                }
+
+                @Override
+                public void onMaxReached(JSLRangeState component, double state, double max) {
+                    System.out.println(PRE + String.format("%s max state reached %-15s (max: %s)", component.getName(), state, max) + POST);
+                }
+            });
+        }
+
+        return "OK";
     }
 
 }

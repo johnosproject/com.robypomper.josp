@@ -5,11 +5,16 @@ import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.objs.structure.JSLStateUpdate;
 import com.robypomper.josp.protocol.JOSPProtocol;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class JSLBooleanState extends AbsJSLState {
 
     // Internal vars
 
     private boolean state;
+    private List<BooleanStateListener> listeners = new ArrayList<>();
 
 
     // Constructor
@@ -39,13 +44,33 @@ public class JSLBooleanState extends AbsJSLState {
     public boolean updateStatus(JOSPProtocol.StatusUpd statusUpd) {
         if (statusUpd.getUpdate() instanceof JOSPBoolean) {
             JOSPBoolean stateUpdate = (JOSPBoolean) statusUpd.getUpdate();
+            boolean oldState = state;
             state = stateUpdate.newState;
-//            System.out.printf("\n\nReceived status update from %s::%s (obj::component)%n", statusUpd.getObjectId(), statusUpd.getComponentPath());
-//            System.out.printf("\tnewState %b%n", stateUpdate.newState);
-//            System.out.printf("\toldState %b%n", stateUpdate.oldState);
+
+            if (oldState != state)
+                for (BooleanStateListener l : listeners)
+                    l.onStateChanged(this, state, oldState);
+
             return true;
         }
         return false;
+    }
+
+
+    // Listeners
+
+    public void addListener(BooleanStateListener listener) {
+        if (listeners.contains(listener))
+            return;
+
+        listeners.add(listener);
+    }
+
+    public void removeListener(BooleanStateListener listener) {
+        if (!listeners.contains(listener))
+            return;
+
+        listeners.remove(listener);
     }
 
 
@@ -72,6 +97,15 @@ public class JSLBooleanState extends AbsJSLState {
         public String encode() {
             throw new RuntimeException("JSL JOSPBoolean::encode() method must be NOT called");
         }
+
+    }
+
+
+    // Boolean listener implementation
+
+    public interface BooleanStateListener {
+
+        void onStateChanged(JSLBooleanState component, boolean newState, boolean oldState);
 
     }
 

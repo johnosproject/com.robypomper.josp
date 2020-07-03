@@ -81,6 +81,25 @@ public interface JSLCommunication {
     void disconnectCloud();
 
 
+    // Listeners
+
+    void addListener(CommunicationListener listener);
+
+    void removeListener(CommunicationListener listener);
+
+    interface CommunicationListener {
+
+        void onCloudConnected(JSLCommunication comm);
+
+        void onCloudDisconnected(JSLCommunication comm);
+
+        void onLocalStarted(JSLCommunication comm);
+
+        void onLocalStopped(JSLCommunication comm);
+
+    }
+
+
     // Exceptions
 
     /**

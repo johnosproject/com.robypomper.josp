@@ -122,6 +122,8 @@ public interface JSLRemoteObject {
      */
     void addLocalClient(JSLLocalClient localClient);
 
+    void removeLocalClient(JSLLocalClient localClient);
+
     /**
      * Method called when a client disconnect and reconnect (same JOD IP address
      * but different ports) and update internal client list.
@@ -154,6 +156,54 @@ public interface JSLRemoteObject {
     boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) throws Throwable;
 
 
+    // Listeners connections
+
+    void addListener(RemoteObjectConnListener listener);
+
+    void removeListener(RemoteObjectConnListener listener);
+
+    interface RemoteObjectConnListener {
+
+        void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient);
+
+        void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient);
+
+        void onCloudConnected(JSLRemoteObject obj);
+
+        void onCloudDisconnected(JSLRemoteObject obj);
+
+    }
+
+
+    // Listeners info
+
+    void addListener(RemoteObjectInfoListener listener);
+
+    void removeListener(RemoteObjectInfoListener listener);
+
+    interface RemoteObjectInfoListener {
+
+        void onNameChanged(JSLRemoteObject obj, String newName, String oldName);
+
+        void onOwnerIdChanged(JSLRemoteObject obj, String newOwnerId, String oldOwnerId);
+
+        void onJODVersionChanged(JSLRemoteObject obj, String newJODVersion, String oldJODVersion);
+
+        void onModelChanged(JSLRemoteObject obj, String newModel, String oldModel);
+
+        void onBrandChanged(JSLRemoteObject obj, String newBrand, String oldBrand);
+
+        void onLongDescrChanged(JSLRemoteObject obj, String newLongDescr, String oldLongDescr);
+
+        void onStructureChanged(JSLRemoteObject obj, JSLRoot newRoot);
+
+        void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms);
+
+        void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType);
+
+    }
+
+
     // Exceptions
 
     /**
@@ -177,7 +227,7 @@ public interface JSLRemoteObject {
     class MissingPermission extends Throwable {
         private static final String MSG = "Can't access to '%s' object because missing permission (required: %s; actual: %s; msg: '%s').";
 
-        public MissingPermission(DefaultJSLRemoteObject obj, JOSPPerm.Connection onlyLocal, JOSPPerm.Type permType, JOSPPerm.Type minReqPerm, String msg) {
+        public MissingPermission(JSLRemoteObject obj, JOSPPerm.Connection onlyLocal, JOSPPerm.Type permType, JOSPPerm.Type minReqPerm, String msg) {
             super(String.format(MSG, obj.getId(), minReqPerm, permType, msg.substring(0, msg.indexOf('\n'))));
         }
     }

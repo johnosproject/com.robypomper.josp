@@ -107,4 +107,35 @@ public class CmdsJSLCommunication {
         return "Error on disconnecting cloud communication client.";
     }
 
+
+    // Communication's listeners
+
+    @Command(description = "Add logger listener to objects manager's events.")
+    public String objsCommAddListeners() {
+        comm.addListener(new JSLCommunication.CommunicationListener() {
+
+            @Override
+            public void onCloudConnected(JSLCommunication comm) {
+                System.out.println(CmdsJSLObjsMngr.PRE + "Communication cloud connected" + CmdsJSLObjsMngr.POST);
+            }
+
+            @Override
+            public void onCloudDisconnected(JSLCommunication comm) {
+                System.out.println(CmdsJSLObjsMngr.PRE + "Communication cloud disconnected" + CmdsJSLObjsMngr.POST);
+            }
+
+            @Override
+            public void onLocalStarted(JSLCommunication comm) {
+                System.out.println(CmdsJSLObjsMngr.PRE + "Communication local started" + CmdsJSLObjsMngr.POST);
+            }
+
+            @Override
+            public void onLocalStopped(JSLCommunication comm) {
+                System.out.println(CmdsJSLObjsMngr.PRE + "Communication local stopped" + CmdsJSLObjsMngr.POST);
+            }
+        });
+
+        return "ok";
+    }
+
 }

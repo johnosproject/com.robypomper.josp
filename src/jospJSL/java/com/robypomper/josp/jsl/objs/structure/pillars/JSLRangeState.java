@@ -5,6 +5,10 @@ import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.objs.structure.JSLStateUpdate;
 import com.robypomper.josp.protocol.JOSPProtocol;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class JSLRangeState extends AbsJSLState {
 
     // Internal vars
@@ -13,6 +17,7 @@ public class JSLRangeState extends AbsJSLState {
     private final double min;
     private final double max;
     private final double step;
+    private List<RangeStateListener> listeners = new ArrayList<>();
 
 
     // Constructor
@@ -57,13 +62,40 @@ public class JSLRangeState extends AbsJSLState {
     public boolean updateStatus(JOSPProtocol.StatusUpd statusUpd) {
         if (statusUpd.getUpdate() instanceof JOSPRange) {
             JOSPRange stateUpdate = (JOSPRange) statusUpd.getUpdate();
+            double oldState = state;
             state = stateUpdate.newState;
-//            System.out.printf("\n\nReceived status update from %s::%s (obj::component)%n", statusUpd.getObjectId(), statusUpd.getComponentPath());
-//            System.out.printf("\tnewState %f%n", stateUpdate.newState);
-//            System.out.printf("\toldState %f%n", stateUpdate.oldState);
+
+            if (oldState != state) {
+                for (RangeStateListener l : listeners)
+                    l.onStateChanged(this, state, oldState);
+                if (state <= min)
+                    for (RangeStateListener l : listeners)
+                        l.onMinReached(this, state, min);
+                if (state >= max)
+                    for (RangeStateListener l : listeners)
+                        l.onMaxReached(this, state, min);
+            }
+
             return true;
         }
         return false;
+    }
+
+
+    // Listeners
+
+    public void addListener(RangeStateListener listener) {
+        if (listeners.contains(listener))
+            return;
+
+        listeners.add(listener);
+    }
+
+    public void removeListener(RangeStateListener listener) {
+        if (!listeners.contains(listener))
+            return;
+
+        listeners.remove(listener);
     }
 
 
@@ -90,6 +122,19 @@ public class JSLRangeState extends AbsJSLState {
         public String encode() {
             throw new RuntimeException("JSL JOSPRange::encode() method must be NOT called");
         }
+
+    }
+
+
+    // Range listener implementation
+
+    public interface RangeStateListener {
+
+        void onStateChanged(JSLRangeState component, double newState, double oldState);
+
+        void onMinReached(JSLRangeState component, double state, double min);
+
+        void onMaxReached(JSLRangeState component, double state, double max);
 
     }
 
