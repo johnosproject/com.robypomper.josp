@@ -2,6 +2,9 @@ package com.robypomper.josp.jsl.objs.structure;
 
 
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.log.Mrk_JSL;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  * Action component representation.
@@ -13,12 +16,9 @@ public interface JSLAction extends JSLState {
 
     // Action cmd flow (struct)
 
-    /**
-     * Called by 3rd party service implementations, this method send the action
-     * request to the corresponding JOD object.
-     *
-     * @param params the action's to params.
-     */
-    void execAction(JSLActionParams params) throws JSLRemoteObject.MissingPermission, JSLRemoteObject.ObjectNotConnected;
-
+    static void execAction(JSLActionParams params, JSLAction comp, Logger log) throws JSLRemoteObject.MissingPermission, JSLRemoteObject.ObjectNotConnected {
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Sending component '%s' state to object '%s'", comp.getName(), comp.getRemoteObject().getId()));
+        comp.getRemoteObject().sendObjectCmdMsg(comp, params);
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Component '%s' send state to object '%s'", comp.getName(), comp.getRemoteObject().getId()));
+    }
 }

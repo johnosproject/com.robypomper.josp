@@ -177,7 +177,7 @@ public class CmdsJSLObjsMngr {
     // Object's actions
 
     @Command(description = "Exec object's boolean action.")
-    public String objActionBoolean(String objId, String compPath, String actionBooleanParam) {
+    public String objActionBooleanSwitch(String objId, String compPath) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
@@ -190,22 +190,74 @@ public class CmdsJSLObjsMngr {
 
         String compVal = "";
         if (comp instanceof JSLBooleanAction) {
-            JSLBooleanAction compBooleanAction = (JSLBooleanAction) comp;
-            JSLBooleanAction.JOSPBoolean cmd = new JSLBooleanAction.JOSPBoolean(Boolean.parseBoolean(actionBooleanParam), compBooleanAction);
             try {
-                compBooleanAction.execAction(cmd);
+                ((JSLBooleanAction) comp).execSwitch();
             } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
                 return String.format("Object '%s' not connected, can't send boolean action", obj.getId());
             } catch (JSLRemoteObject.MissingPermission e) {
                 return String.format("Missing permission to object '%s', can't send boolean action\n%s", obj.getId(), e.getMessage());
             }
-            return String.format("Boolean action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionBooleanParam);
+            return String.format("Boolean action executed on component with path '%s' in '%s' object with switched value", compPath, objId);
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
     }
 
-    @Command(description = "Exec object's boolean action.")
+    @Command(description = "Exec object's boolean true action.")
+    public String objActionBooleanTrue(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLBooleanAction) {
+            try {
+                ((JSLBooleanAction) comp).execSetTrue();
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send boolean action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send boolean action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Boolean action executed on component with path '%s' in '%s' object with 'true' value", compPath, objId);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's boolean false action.")
+    public String objActionBooleanFalse(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLBooleanAction) {
+            try {
+                ((JSLBooleanAction) comp).execSetFalse();
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send boolean action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send boolean action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Boolean action executed on component with path '%s' in '%s' object with 'false' value", compPath, objId);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's range action.")
     public String objActionRange(String objId, String compPath, String actionDoubleParam) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)
@@ -219,16 +271,122 @@ public class CmdsJSLObjsMngr {
 
         String compVal = "";
         if (comp instanceof JSLRangeAction) {
-            JSLRangeAction compBooleanAction = (JSLRangeAction) comp;
-            JSLRangeAction.JOSPRange cmd = new JSLRangeAction.JOSPRange(Double.parseDouble(actionDoubleParam), compBooleanAction);
             try {
-                compBooleanAction.execAction(cmd);
+                ((JSLRangeAction) comp).execSetValue(Double.parseDouble(actionDoubleParam));
             } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
                 return String.format("Object '%s' not connected, can't send range action", obj.getId());
             } catch (JSLRemoteObject.MissingPermission e) {
                 return String.format("Missing permission to object '%s', can't send range action\n%s", obj.getId(), e.getMessage());
             }
             return String.format("Range action executed on component with path '%s' in '%s' object with '%s' value", compPath, objId, actionDoubleParam);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's range increase action.")
+    public String objActionRangeIncrease(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLRangeAction) {
+            try {
+                ((JSLRangeAction) comp).execIncrease();
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send range action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send range action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Range action executed on component with path '%s' in '%s' object with increase", compPath, objId);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's range decrease action.")
+    public String objActionRangeDecrease(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLRangeAction) {
+            try {
+                ((JSLRangeAction) comp).execDecrease();
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send range action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send range action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Range action executed on component with path '%s' in '%s' object with decrease", compPath, objId);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's range max action.")
+    public String objActionRangeMax(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLRangeAction) {
+            try {
+                ((JSLRangeAction) comp).execSetMax();
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send range action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send range action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Range action executed on component with path '%s' in '%s' object with max", compPath, objId);
+        }
+
+        return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Exec object's range min action.")
+    public String objActionRangeMin(String objId, String compPath) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        String compVal = "";
+        if (comp instanceof JSLRangeAction) {
+            try {
+                ((JSLRangeAction) comp).execSetMin();
+            } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+                return String.format("Object '%s' not connected, can't send range action", obj.getId());
+            } catch (JSLRemoteObject.MissingPermission e) {
+                return String.format("Missing permission to object '%s', can't send range action\n%s", obj.getId(), e.getMessage());
+            }
+            return String.format("Range action executed on component with path '%s' in '%s' object with min", compPath, objId);
         }
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());

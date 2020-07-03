@@ -3,7 +3,6 @@ package com.robypomper.josp.jsl.objs.structure.pillars;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
 import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
-import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,11 +30,22 @@ public class JSLBooleanAction extends JSLBooleanState implements JSLAction {
 
     // Action's methods
 
-    @Override
-    public void execAction(JSLActionParams params) throws JSLRemoteObject.MissingPermission, JSLRemoteObject.ObjectNotConnected {
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Sending component '%s' state to object '%s'", getName(), getRemoteObject().getId()));
-        getRemoteObject().sendObjectCmdMsg(this, params);
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Component '%s' send state to object '%s'", getName(), getRemoteObject().getId()));
+    public void execSetTrue() throws JSLRemoteObject.MissingPermission, JSLRemoteObject.ObjectNotConnected {
+        if (getState())
+            return;
+
+        JSLAction.execAction(new JSLBooleanAction.JOSPBoolean(true, this), this, log);
+    }
+
+    public void execSetFalse() throws JSLRemoteObject.MissingPermission, JSLRemoteObject.ObjectNotConnected {
+        if (!getState())
+            return;
+
+        JSLAction.execAction(new JSLBooleanAction.JOSPBoolean(false, this), this, log);
+    }
+
+    public void execSwitch() throws JSLRemoteObject.MissingPermission, JSLRemoteObject.ObjectNotConnected {
+        JSLAction.execAction(new JSLBooleanAction.JOSPBoolean(!getState(), this), this, log);
     }
 
 
