@@ -296,6 +296,9 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         Thread.currentThread().setName("JSLDiscovery");
         log.info(Mrk_JSL.JSL_COMM, String.format("Discover object's service '%s' at '%s:%d' by '%s' service", name, address, port, srvInfo.getSrvId()));
 
+        if (locSettings.getLocalOnlyLocalhost() && !address.isLoopbackAddress()) {
+            return;
+        }
         if (address instanceof Inet6Address) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Object's service '%s' at '%s:%d' use IPv6 then discarded", name, address, port));
             return;

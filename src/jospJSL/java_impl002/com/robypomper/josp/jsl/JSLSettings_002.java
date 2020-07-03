@@ -39,13 +39,15 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JSLUSR_ID                = "jsl.usr.id";
     public static final String JSLUSR_ID_DEF            = "";
 
-    public static final String JSLCOMM_LOCAL_ENABLED        = "jsl.comm.local.enabled";
-    public static final String JSLCOMM_LOCAL_ENABLED_DEF    = "true";
-    public static final String JSLCOMM_LOCAL_DISCOVERY      = "jsl.comm.local.impl";
-    public static final String JSLCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
+    public static final String JSLCOMM_LOCAL_ENABLED            = "jsl.comm.local.enabled";
+    public static final String JSLCOMM_LOCAL_ENABLED_DEF        = "true";
+    public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST     = "jsl.comm.local.onlyLocalhost";
+    public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF = "true";
+    public static final String JSLCOMM_LOCAL_DISCOVERY          = "jsl.comm.local.impl";
+    public static final String JSLCOMM_LOCAL_DISCOVERY_DEF      = "avahi";
 
-    public static final String JSLCOMM_CLOUD_ENABLED        = "jsl.comm.cloud.enabled";
-    public static final String JSLCOMM_CLOUD_ENABLED_DEF    = "true";
+    public static final String JSLCOMM_CLOUD_ENABLED            = "jsl.comm.cloud.enabled";
+    public static final String JSLCOMM_CLOUD_ENABLED_DEF        = "true";
     //@formatter:on
 
     // Internal vars
@@ -177,6 +179,10 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     //@Override
     public boolean getLocalEnabled() {
         return getBoolean(JSLCOMM_LOCAL_ENABLED, JSLCOMM_LOCAL_ENABLED_DEF);
+    }
+
+    public boolean getLocalOnlyLocalhost() {
+        return getBoolean(JSLCOMM_LOCAL_ONLY_LOCALHOST, JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF);
     }
 
     public String getJSLDiscovery() {
