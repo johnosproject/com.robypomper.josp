@@ -380,7 +380,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     private void emitLoggedOut() {
         List<LoginListener> tmpList = new ArrayList<>(loginListeners);
         for (LoginListener l : tmpList)
-            l.onLogin(this);
+            l.onLogout(this);
     }
 
 
