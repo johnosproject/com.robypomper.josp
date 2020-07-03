@@ -90,4 +90,18 @@ public interface JSLObjsMngr {
 
     void addCloudObject(String objId);
 
+
+    // Listeners
+
+    void addListener(ObjsMngrListener listener);
+
+    void removeListener(ObjsMngrListener listener);
+
+    interface ObjsMngrListener {
+
+        void onObjAdded(JSLRemoteObject obj);
+
+        void onObjRemoved(JSLRemoteObject obj);
+
+    }
 }

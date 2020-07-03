@@ -26,6 +26,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     private final JSLServiceInfo srvInfo;
     private final List<JSLRemoteObject> objs = new ArrayList<>();
     private JSLCommunication communication = null;
+    private final List<ObjsMngrListener> listeners = new ArrayList<>();
 
 
     // Constructor
@@ -120,6 +121,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
             log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
             remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
             objs.add(remObj);
+            emit_ObjAdded(remObj);
 
         } else {
             log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
@@ -153,6 +155,35 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
         log.info(Mrk_JSL.JSL_OBJS, String.format("Register new object '%s' to '%s' service", objId, srvInfo.getSrvId()));
         DefaultJSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
         objs.add(remObj);
+        emit_ObjAdded(remObj);
+    }
+
+
+    // Listeners connections
+
+    public void addListener(ObjsMngrListener listener) {
+        if (listeners.contains(listener))
+            return;
+
+        listeners.add(listener);
+    }
+
+    public void removeListener(ObjsMngrListener listener) {
+        if (!listeners.contains(listener))
+            return;
+
+        listeners.remove(listener);
+    }
+
+    private void emit_ObjAdded(JSLRemoteObject obj) {
+        for (ObjsMngrListener l : listeners)
+            l.onObjAdded(obj);
+    }
+
+    private void emit_ObjRemoved(JSLRemoteObject obj) {
+        // ToDo: add calls to emit_ObjRemoved()
+        for (ObjsMngrListener l : listeners)
+            l.onObjRemoved(obj);
     }
 
 }

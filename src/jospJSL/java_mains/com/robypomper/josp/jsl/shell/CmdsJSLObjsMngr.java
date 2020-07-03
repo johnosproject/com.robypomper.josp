@@ -319,6 +319,24 @@ public class CmdsJSLObjsMngr {
 
     // Object's listeners
 
+    @Command(description = "Add logger listener to objects manager's events.")
+    public String objsMngrAddListeners() {
+        objs.addListener(new JSLObjsMngr.ObjsMngrListener() {
+
+            @Override
+            public void onObjAdded(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("added '%s' object", obj.getId()) + POST);
+            }
+
+            @Override
+            public void onObjRemoved(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("removed '%s' object", obj.getId()) + POST);
+            }
+        });
+
+        return "ok";
+    }
+
     @Command(description = "Add logger listener to object's events.")
     public String objAddListeners(String objId) {
         JSLRemoteObject obj = objs.getById(objId);
