@@ -1,6 +1,5 @@
 package com.robypomper.josp.jsl;
 
-import com.robypomper.josp.jcp.apis.paths.JcpAPI;
 import com.robypomper.settings.DefaultSettings;
 
 import java.io.File;
@@ -17,16 +16,18 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
     public static final String JCP_REFRESH_TIME_DEF     = "30";
-    public static final String JCP_URL                  = "jcp.url";
-    public static final String JCP_URL_DEF              = JcpAPI.URL_DOM_API;
+    public static final String JCP_URL_APIS             = "jcp.url.apis";
+    public static final String JCP_URL_DEF_APIS         = "localhost:9001";
+    public static final String JCP_URL_AUTH             = "jcp.url.auth";
+    public static final String JCP_URL_DEF_AUTH         = "localhost:8998";
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
     public static final String JCP_CLIENT_ID_DEF        = "";
     public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";
     public static final String JCP_CLIENT_SECRET_DEF    = "";
     public static final String JCP_CLIENT_CALLBACK      = "jcp.client.callback";
-    public static final String JCP_CLIENT_CALLBACK_DEF  = "https://localhost:9001";
-    public static final String JCP_CLIENT_TOKEN         = "jcp.client.token";
-    public static final String JCP_CLIENT_TOKEN_DEF     = "";
+    public static final String JCP_CLIENT_CALLBACK_DEF  = "https://localhost:8080";
+    public static final String JCP_CLIENT_TOKEN_AUTH    = "jcp.client.token.authCode";
+    public static final String JCP_CLIENT_TOKEN_AUTH_DEF= null;
 
     public static final String JSLSRV_NAME              = "jsl.srv.name";
     public static final String JSLSRV_NAME_DEF          = "";
@@ -101,8 +102,13 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     }
 
     //@Override
-    public String getJCPUrl() {
-        return getString(JCP_URL, JCP_URL_DEF);
+    public String getJCPUrlAPIs() {
+        return getString(JCP_URL_APIS, JCP_URL_DEF_APIS);
+    }
+
+    //@Override
+    public String getJCPUrlAuth() {
+        return getString(JCP_URL_AUTH, JCP_URL_DEF_AUTH);
     }
 
     //@Override
@@ -119,12 +125,12 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
         return getString(JCP_CLIENT_CALLBACK, JCP_CLIENT_CALLBACK_DEF);
     }
 
-    public String getRefreshToken() {
-        return getString(JCP_CLIENT_TOKEN, JCP_CLIENT_TOKEN_DEF);
+    public String getJCPAuthCodeRefreshToken() {
+        return getString(JCP_CLIENT_TOKEN_AUTH, JCP_CLIENT_TOKEN_AUTH_DEF);
     }
 
-    public void setRefreshToken(String refreshToken) {
-        store(JCP_CLIENT_TOKEN, refreshToken, true);
+    public void setJCPAuthCodeRefreshToken(String refreshToken) {
+        store(JCP_CLIENT_TOKEN_AUTH, refreshToken, true);
     }
 
 

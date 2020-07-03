@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.srvinfo;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.srvs.SrvName;
 import com.robypomper.josp.jcp.apis.paths.APISrvs;
 import com.robypomper.josp.jsl.JSLSettings_002;
@@ -27,13 +28,17 @@ public class JCPServiceInfo extends AbsJCPAPIs {
 
     public void registerToJCP() {
         try {
-            jcpClient.execGetReq(APISrvs.URL_PATH_REGISTER, SrvName.class, true);
-        } catch (JCPClient.RequestException | JCPClient.ConnectionException ignore) {
-            jcpClient.addConnectListener(new JCPClient.ConnectListener() {
+            jcpClient.execReq(Verb.GET, APISrvs.FULL_PATH_REGISTER, SrvName.class, true);
+
+        } catch (JCPClient2.RequestException | JCPClient2.ConnectionException | JCPClient2.ResponseException ignore) {
+            jcpClient.addConnectListener(new JCPClient2.ConnectListener() {
                 @Override
-                public void onConnected(JCPClient jcpClient) {
+                public void onConnected(JCPClient2 jcpClient) {
                     registerToJCP();
                 }
+
+                @Override
+                public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {}
             });
         }
     }

@@ -1,6 +1,6 @@
 package com.robypomper.josp.jod.permissions;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
@@ -344,7 +344,7 @@ public class JODPermissions_002 implements JODPermissions {
                 genCloud = true;
                 log.debug(Mrk_JOD.JOD_PERM, "Object permissions generated from JCP");
 
-            } catch (JCPClient.ConnectionException | JCPClient.RequestException e) {
+            } catch (JCPClient2.ConnectionException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
                 log.warn(Mrk_JOD.JOD_PERM, String.format("Error on generating object permission from JCP because %s", e.getMessage()), e);
             }
         }
@@ -362,7 +362,7 @@ public class JODPermissions_002 implements JODPermissions {
      * Request to JCP a valid set of object's permissions and set them to
      * {@link #permissions} field.
      */
-    private void generatePermissionsFromJCP() throws JCPClient.ConnectionException, JCPClient.RequestException {
+    private void generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException {
         permissions = jcpPermissions.generatePermissionsFromJCP();
     }
 

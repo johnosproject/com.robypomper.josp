@@ -1,6 +1,6 @@
 package com.robypomper.josp.jsl;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLCommunication_002;
 import com.robypomper.josp.jsl.jcpclient.DefaultJCPClient_Service;
@@ -36,11 +36,28 @@ public class JSL_002 extends AbsJSL {
         super(settings, jcpClient, srvInfo, usr, objs, comm);
     }
 
-    public static JSL instance(JSLSettings_002 settings) throws JCPClient.ConnectionSettingsException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException {
+    public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException {
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JSL.JSL_MAIN, String.format("Init JSL instance id '%s'", instanceId));
 
         JCPClient_Service jcpClient = new DefaultJCPClient_Service(settings);
+        try {
+            try {
+                jcpClient.connect();
+
+            } catch (JCPClient2.AuthenticationException e) {
+                log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on user authentication to the JCP %s", e.getMessage()), e);
+                jcpClient.connect();
+            }
+
+        } catch (JCPClient2.AuthenticationException ignore) {
+
+        } catch (JCPClient2.ConnectionException e) {
+            e.printStackTrace();
+
+        } catch (JCPClient2.JCPNotReachableException e) {
+            jcpClient.startConnectionTimer();
+        }
 
         JSLServiceInfo srvInfo = new JSLServiceInfo_002(settings, jcpClient, instanceId);
 

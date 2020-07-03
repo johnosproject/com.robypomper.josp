@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.robypomper.josp.jcp.apis.paths.APIAuth;
 import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import com.robypomper.josp.jcp.info.JCPContacts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
@@ -61,8 +62,8 @@ public class SwaggerConfigurer {
     public static final String OAUTH_IMPL = "ImplicitCodeFlow";
     public static final String OAUTH_PASS = "AuthCodeFlow";
     public static final String OAUTH_CRED = "ClientCredentialsFlow";
-    private static final String OAUTH_URL_AUTH = APIAuth.URL_PATH_AUTH;
-    private static final String OAUTH_URL_TOKEN = APIAuth.URL_PATH_TOKEN;
+    private static final String OAUTH_PATH_AUTH = APIAuth.FULL_PATH_AUTH;
+    private static final String OAUTH_PATH_TOKEN = APIAuth.FULL_PATH_TOKEN;
     private static final String OAUTH_TOKEN_NAME = "token";
     private static final String OAUTH_CLIENT_ID = "";
     private static final String OAUTH_CLIENT_SECRET = "";
@@ -73,6 +74,9 @@ public class SwaggerConfigurer {
     public static final String OAUTH_FLOW_DEF_TEST = OAUTH_IMPL;
 
     private static final Contact ContactJohn = new Contact(JCPContacts.getJohn().getFullName(), JCPContacts.getJohn().getUrl(), JCPContacts.getJohn().getEmail());
+
+    @Value("${jcp.urlAuth}")
+    private String urlBaseAuth;
 
 
     // API's groups
@@ -169,23 +173,25 @@ public class SwaggerConfigurer {
 
     private OAuth oauthAuthCodeFlow() {
         List<GrantType> grants = new ArrayList<>();
+        String urlAuth = "https://" + urlBaseAuth + OAUTH_PATH_AUTH;
+        String urlToken = "https://" + urlBaseAuth + OAUTH_PATH_TOKEN;
 
         grants.add(new AuthorizationCodeGrant(
-                new TokenRequestEndpoint(OAUTH_URL_AUTH,
+                new TokenRequestEndpoint(urlAuth,
                         OAUTH_CLIENT_ID,
                         OAUTH_CLIENT_SECRET),
-                new TokenEndpoint(OAUTH_URL_TOKEN,
+                new TokenEndpoint(urlToken,
                         OAUTH_TOKEN_NAME)
         ));
 
-        return new OAuth(OAUTH_PASS,getScopesList(),grants);
+        return new OAuth(OAUTH_PASS, getScopesList(), grants);
     }
 
     private OAuth oauthClientCredentialFlow() {
         List<GrantType> grants = new ArrayList<>();
 
         grants.add(new ClientCredentialsGrant(
-                OAUTH_URL_TOKEN
+                "https://" + urlBaseAuth + OAUTH_PATH_TOKEN
         ));
 
         return new OAuth(OAUTH_CRED,getScopesList(),grants);
@@ -195,7 +201,7 @@ public class SwaggerConfigurer {
         List<GrantType> grants = new ArrayList<>();
 
         grants.add(new ImplicitGrant(
-                new LoginEndpoint(OAUTH_URL_AUTH),
+                new LoginEndpoint("https://" + urlBaseAuth + OAUTH_PATH_AUTH),
                 OAUTH_TOKEN_NAME
         ));
 

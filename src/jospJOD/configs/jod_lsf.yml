@@ -10,7 +10,8 @@ jod.permissions.owner: AAAAA-00000-00000
 
 # JCP Client
 jcp.connect: false
-jcp.url: 'https://localhost:8998'
+jcp.url.auth: 'localhost:8998'
+jcp.url.apis: 'localhost:9001'
 
 # Communication
 #jod.comm.local.enabled: false

@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.comm;
 
+import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
@@ -355,16 +356,6 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public void tryConnect() {
-
-        }
-
-        @Override
-        public void tryDisconnect() {
-
-        }
-
-        @Override
         public void addConnectListener(ConnectListener listener) {}
 
         @Override
@@ -377,64 +368,137 @@ public class JOSPCommunicationIntegration {
         public void removeDisconnectListener(DisconnectListener listener) {}
 
         @Override
-        public void execGetReq(String url, boolean secure) {
+        public boolean isConnecting() {
+            return false;
+        }
+
+        @Override
+        public void startConnectionTimer() {
 
         }
 
         @Override
-        public void execGetReq(String url, Map<String, String> params, boolean secure) {
+        public void stopConnectionTimer() {
 
         }
 
         @Override
-        public <T> T execGetReq(String url, Class<T> reqObject, boolean secure) {
+        public boolean isClientCredentialFlowEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isAuthCodeFlowEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isLoggedIn() {
+            return false;
+        }
+
+        @Override
+        public String getLoginUrl() {
             return null;
         }
 
         @Override
-        public <T> T execGetReq(String url, Class<T> reqObject, Map<String, String> params, boolean secure) {
+        public void setLoginCode(String loginCode) {
+
+        }
+
+        @Override
+        public void userLogout() {
+
+        }
+
+        @Override
+        public void addLoginListener(LoginListener listener) {
+
+        }
+
+        @Override
+        public void removeLoginListener(LoginListener listener) {
+
+        }
+
+        @Override
+        public void addDefaultHeader(String headerName, String headerValue) {
+
+        }
+
+        @Override
+        public void removeDefaultHeader(String headerName) {
+
+        }
+
+        @Override
+        public boolean isSessionSet() {
+            return false;
+        }
+
+        @Override
+        public void execReq(Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public void execReq(Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public void execReq(Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public void execReq(Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public <T> T execReq(Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public void execPostReq(String url, boolean secure) {
-
-        }
-
-        @Override
-        public void execPostReq(String url, Object param, boolean secure) {
-
-        }
-
-        @Override
-        public <T> T execPostReq(String url, Class<T> reqObject, boolean secure) {
+        public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public <T> T execPostReq(String url, Class<T> reqObject, Object param, boolean secure) {
+        public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public void execDeleteReq(String url, boolean secure) {
-
-        }
-
-        @Override
-        public void execDeleteReq(String url, Object param, boolean secure) {
-
-        }
-
-        @Override
-        public <T> T execDeleteReq(String url, Class<T> reqObject, boolean secure) {
+        public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public <T> T execDeleteReq(String url, Class<T> reqObject, Object param, boolean secure) {
+        public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
+
+        @Override
+        public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+            return null;
+        }
+
     }
 
     private static class MockJODPermissions_002 implements JODPermissions {
@@ -511,42 +575,7 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public boolean isCliCredFlowEnabled() {
-            return false;
-        }
-
-        @Override
-        public boolean isAuthCodeFlowEnabled() {
-            return false;
-        }
-
-        @Override
-        public String getLoginUrl() {
-            return null;
-        }
-
-        @Override
-        public boolean setLoginCode(String code) {
-            return false;
-        }
-
-        @Override
-        public String getRefreshToken() {
-            return null;
-        }
-
-        @Override
-        public void setRefreshToken(String refreshToken) {}
-
-        @Override
-        public boolean userLogout() {
-            return false;
-        }
-
-        @Override
-        public void setLoginManager(LoginManager loginMngr) {
-
-        }
+        public void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException {}
 
         @Override
         public boolean isConnected() {
@@ -554,7 +583,7 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public void connect() {
+        public void connect() throws JCPNotReachableException, ConnectionException, AuthenticationException {
 
         }
 
@@ -564,84 +593,154 @@ public class JOSPCommunicationIntegration {
         }
 
         @Override
-        public void tryConnect() {
+        public void addConnectListener(ConnectListener listener) {
 
         }
 
         @Override
-        public void tryDisconnect() {
+        public void removeConnectListener(ConnectListener listener) {
 
         }
 
         @Override
-        public void addConnectListener(ConnectListener listener) {}
-
-        @Override
-        public void removeConnectListener(ConnectListener listener) {}
-
-        @Override
-        public void addDisconnectListener(DisconnectListener listener) {}
-
-        @Override
-        public void removeDisconnectListener(DisconnectListener listener) {}
-
-        @Override
-        public void execGetReq(String url, boolean secure) {
+        public void addDisconnectListener(DisconnectListener listener) {
 
         }
 
         @Override
-        public void execGetReq(String url, Map<String, String> params, boolean secure) {
+        public void removeDisconnectListener(DisconnectListener listener) {
 
         }
 
         @Override
-        public <T> T execGetReq(String url, Class<T> reqObject, boolean secure) {
+        public boolean isConnecting() {
+            return false;
+        }
+
+        @Override
+        public void startConnectionTimer() {
+
+        }
+
+        @Override
+        public void stopConnectionTimer() {
+
+        }
+
+        @Override
+        public boolean isClientCredentialFlowEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isAuthCodeFlowEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isLoggedIn() {
+            return false;
+        }
+
+        @Override
+        public String getLoginUrl() {
             return null;
         }
 
         @Override
-        public <T> T execGetReq(String url, Class<T> reqObject, Map<String, String> params, boolean secure) {
+        public void setLoginCode(String loginCode) {
+
+        }
+
+        @Override
+        public void userLogout() {
+
+        }
+
+        @Override
+        public void addLoginListener(LoginListener listener) {
+
+        }
+
+        @Override
+        public void removeLoginListener(LoginListener listener) {
+
+        }
+
+        @Override
+        public void addDefaultHeader(String headerName, String headerValue) {
+
+        }
+
+        @Override
+        public void removeDefaultHeader(String headerName) {
+
+        }
+
+        @Override
+        public boolean isSessionSet() {
+            return false;
+        }
+
+        @Override
+        public void execReq(Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public void execReq(Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public void execReq(Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public void execReq(Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+
+        }
+
+        @Override
+        public void execReq(boolean toAuth, Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+
+        @Override
+        public <T> T execReq(Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public void execPostReq(String url, boolean secure) {
-
-        }
-
-        @Override
-        public void execPostReq(String url, Object param, boolean secure) {
-
-        }
-
-        @Override
-        public <T> T execPostReq(String url, Class<T> reqObject, boolean secure) {
+        public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public <T> T execPostReq(String url, Class<T> reqObject, Object param, boolean secure) {
+        public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public void execDeleteReq(String url, boolean secure) {
-
-        }
-
-        @Override
-        public void execDeleteReq(String url, Object param, boolean secure) {
-
-        }
-
-        @Override
-        public <T> T execDeleteReq(String url, Class<T> reqObject, boolean secure) {
+        public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
 
         @Override
-        public <T> T execDeleteReq(String url, Class<T> reqObject, Object param, boolean secure) {
+        public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+            return null;
+        }
+
+        @Override
+        public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
             return null;
         }
     }

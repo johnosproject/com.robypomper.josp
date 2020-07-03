@@ -34,28 +34,10 @@ package com.robypomper.josp.jcp.apis.paths;
 public class JcpAPI {
 //@formatter:off
 
-    // Domains
-
-    public static final String DOM_API      = "localhost:9001";
-    public static final String DOM_AUTH     = "localhost:8998";
-
-    public static final String FULL_DOM_API     = DOM_API;
-    public static final String FULL_DOM_AUTH    = DOM_AUTH;
-
-    public static final String URL_DOM_API      = "https://" + DOM_API;
-    public static final String URL_DOM_AUTH     = "https://" + DOM_AUTH;
-
-
     // APIs
 
     public static final String PATH_API_BASE    = "/apis";
     public static final String PATH_AUTH_BASE   = "/auth";
-
-    public static final String FULL_PATH_API_BASE   = FULL_DOM_API + PATH_API_BASE;
-    public static final String FULL_PATH_AUTH_BASE  = FULL_DOM_AUTH + PATH_AUTH_BASE;
-
-    public static final String URL_PATH_API_BASE    = URL_DOM_API + PATH_API_BASE;
-    public static final String URL_PATH_AUTH_BASE   = URL_DOM_AUTH + PATH_AUTH_BASE;
 
 //@formatter:on
 }

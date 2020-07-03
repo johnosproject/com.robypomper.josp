@@ -1,6 +1,7 @@
 package com.robypomper.josp.jcp.external.resources.auth;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.paths.APIAuth;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceDetails;
@@ -22,7 +23,7 @@ public class AuthKeycloak implements AuthResource {
     // Internal vars
 
     @Autowired
-    private JCPClient client;
+    private JCPClient2 client;
 
 
     // User Q&M
@@ -30,8 +31,8 @@ public class AuthKeycloak implements AuthResource {
     /**
      * {@inheritDoc}
      */
-    public User queryUser(String usrId) throws JCPClient.ConnectionException, JCPClient.RequestException {
-        UserRepresentation kcUser = client.execGetReq(APIAuth.URL_PATH_USER + "/" + usrId, UserRepresentation.class, true);
+    public User queryUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException {
+        UserRepresentation kcUser = client.execReq(true, Verb.GET, APIAuth.FULL_PATH_USER + "/" + usrId, UserRepresentation.class, true);
 
         UserProfile profile = new UserProfile();
         User user = new User();
@@ -51,11 +52,10 @@ public class AuthKeycloak implements AuthResource {
     /**
      * {@inheritDoc}
      */
-    public Service queryService(String srvId) throws JCPClient.ConnectionException, JCPClient.RequestException {
+    public Service queryService(String srvId) throws JCPClient2.ConnectionException, JCPClient2.RequestException {
         // No KeyCloack api to get client info
-        //ClientRepresentation kcClient = client.execGetReq(APIAuth.URL_PATH_CLIENTS + "/" + srvId, ClientRepresentation.class, true);
-
-        System.out.println("WAR: empty service info are generated, because keycloak don't provide client's info");
+        //ClientRepresentation kcClient = client.execReq(true, Verb.GET, APIAuth.FULL_PATH_CLIENTS + "/" + srvId, ClientRepresentation.class, true);
+        //System.out.println("WAR: empty service info are generated, because keycloak don't provide client's info");
 
         ServiceDetails details = new ServiceDetails();
         Service service = new Service();

@@ -1,13 +1,13 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 
 public class CmdsJCPClient {
 
-    private final JCPClient jcpClient;
+    private final JCPClient2 jcpClient;
 
-    public CmdsJCPClient(JCPClient jcpClient) {
+    public CmdsJCPClient(JCPClient2 jcpClient) {
         this.jcpClient = jcpClient;
     }
 
@@ -25,11 +25,14 @@ public class CmdsJCPClient {
         try {
             jcpClient.connect();
 
-        } catch (JCPClient.ConnectionException e) {
+        } catch (JCPClient2.ConnectionException e) {
             return String.format("Error on JCP Client connection: %s.", e.getMessage());
 
-        } catch (JCPClient.CredentialsException e) {
+        } catch (JCPClient2.AuthenticationException e) {
             return String.format("Error on JCP Client authentication: %s.", e.getMessage());
+
+        } catch (JCPClient2.JCPNotReachableException e) {
+            return String.format("Error JCP Client not reachable: %s.", e.getMessage());
         }
 
         return "JCP Client connected successfully.";

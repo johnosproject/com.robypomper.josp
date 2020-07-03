@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.comm;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.jcp.apis.paths.APIJOSPGWs;
@@ -47,8 +48,8 @@ public class JCPCommSrv extends AbsJCPAPIs {
      *
      * @return the GW S2O access info.
      */
-    public S2OAccessInfo getS2OAccessInfo(Certificate clietnPublicCertificate) throws JCPClient.ConnectionException, JCPClient.RequestException, CertificateEncodingException {
-        return jcpClient.execPostReq(APIJOSPGWs.URL_PATH_S2O_ACCESS, S2OAccessInfo.class, new S2OAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), true);
+    public S2OAccessInfo getS2OAccessInfo(Certificate clietnPublicCertificate) throws CertificateEncodingException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.POST, APIJOSPGWs.FULL_PATH_S2O_ACCESS, S2OAccessInfo.class, new S2OAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), true);
     }
 
 }

@@ -1,15 +1,16 @@
 package com.robypomper.josp.jcp.jcpclient;
 
-import com.robypomper.josp.core.jcpclient.DefaultJCPConfigs;
-import com.robypomper.josp.core.jcpclient.JCPClient;
-import com.robypomper.josp.core.jcpclient.JCPClient_CliCredFlow;
+import com.robypomper.josp.core.jcpclient.DefaultJCPClient2;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
 /**
- * Cloud default implementation of {@link JCPClient} interface.
+ * Cloud default implementation of {@link JCPClient2} interface.
  * <p>
  * This class initialize a JCPClient that can be used by JCP instance to access
  * to him self. As Spring component it can be declared in any other component
@@ -25,6 +26,9 @@ import org.springframework.stereotype.Component;
  *         <b>jcp.client.secret</b>: client's secret.
  *     </li>
  *     <li>
+ *         <b>jcp.urlAPIs</b>: apis server url.
+ *     </li>
+ *     <li>
  *         <b>jcp.urlAuth</b>: auth server url.
  *     </li>
  * </ul>
@@ -33,7 +37,12 @@ import org.springframework.stereotype.Component;
  * SSL checks and the connect to configured the server.
  */
 @Component
-public class DefaultJCPClient_JCP extends JCPClient_CliCredFlow {
+public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener {
+
+    // Internal vars
+
+    private static final Logger log = LogManager.getLogger();
+
 
     // Constructor
 
@@ -47,8 +56,40 @@ public class DefaultJCPClient_JCP extends JCPClient_CliCredFlow {
     @Autowired
     public DefaultJCPClient_JCP(@Value("${jcp.client.id}") String client,
                                 @Value("${jcp.client.secret}") String secret,
-                                @Value("${jcp.urlAuth}") String urlAuth) throws ConnectionSettingsException {
-        super(new DefaultJCPConfigs(client, secret, "openid", "", urlAuth, "jcp"), true);
+                                @Value("${jcp.urlAPIs}") String urlAPIs,
+                                @Value("${jcp.urlAuth}") String urlAuth) {
+        super(client,
+                secret,
+                urlAPIs,
+                urlAuth,
+                "openid",
+                "",
+                "jcp",
+                5);
+        addConnectListener(this);
+
+        try {
+            connect();
+
+        } catch (ConnectionException | AuthenticationException e) {
+            log.warn(String.format("Error on self connecting because %s", e.getMessage()), e);
+
+        } catch (JCPNotReachableException ignore) {
+            startConnectionTimer();
+        }
+    }
+
+
+    // Self-Connection observer
+
+    @Override
+    public void onConnected(JCPClient2 jcpClient) {
+        log.info("Self connected");
+    }
+
+    @Override
+    public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+        log.warn(String.format("Error on self connecting because %s", t.getMessage()), t);
     }
 
 }
