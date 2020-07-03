@@ -298,7 +298,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         }
         localConnections.add(localClient);
         localClient.setRemoteObject(this);
-        emitConn_LocalConnected(localClient);
+        if (localClient.isConnected())
+            emitConn_LocalConnected(localClient);
     }
 
     /**
