@@ -46,6 +46,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     private final Discover localServerDiscovery;
     private final List<JSLLocalClient> localServers = new ArrayList<>();
     private JSLGwS2OClient gwClient;
+    private final List<CommunicationListener> listeners = new ArrayList<>();
 
 
     // Constructor
@@ -198,6 +199,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             log.debug(Mrk_JSL.JSL_COMM, "Starting local service's discovery");
             localServerDiscovery.start();
             log.debug(Mrk_JSL.JSL_COMM, "Local service's discovery started");
+            emit_LocalStarted();
 
         } catch (Discover.DiscoveryException e) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Error on starting local communication service's discovery '%s' because %s", srvInfo.getSrvId(), e.getMessage()), e);
@@ -220,6 +222,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             localServerDiscovery.stop();
             log.debug(Mrk_JSL.JSL_COMM, "Local service's discovery stopped");
             localServerDiscovery.removeListener(this);
+            emit_LocalStopped();
 
         } catch (Discover.DiscoveryException e) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Error on stopping local communication service's discovery '%s' because %s", srvInfo.getSrvId(), e.getMessage()), e);
@@ -256,9 +259,10 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             log.debug(Mrk_JSL.JSL_COMM, "Connecting cloud service's client");
             gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, jcpComm);
             gwClient.connect();
-            if (gwClient.isConnected())
+            if (gwClient.isConnected()) {
                 log.debug(Mrk_JSL.JSL_COMM, "Cloud service's client connected");
-            else
+                emit_CloudConnected();
+            } else
                 log.warn(Mrk_JSL.JSL_COMM, "Cloud service's client NOT connected");
 
         } catch (Client.ConnectionException e) {
@@ -278,6 +282,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             return;
 
         gwClient.disconnect();
+        emit_CloudDisconnected();
     }
 
 
@@ -319,5 +324,44 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      */
     @Override
     public void onServiceLost(String type, String name) {}
+
+
+    // Listeners connections
+
+    public void addListener(CommunicationListener listener) {
+        if (listeners.contains(listener))
+            return;
+
+        listeners.add(listener);
+    }
+
+    public void removeListener(CommunicationListener listener) {
+        if (!listeners.contains(listener))
+            return;
+
+        listeners.remove(listener);
+    }
+
+    private void emit_CloudConnected() {
+        // ToDo move emit_CloudConnected() calls to gwClient onConnected() event
+        for (CommunicationListener l : listeners)
+            l.onCloudConnected(this);
+    }
+
+    private void emit_CloudDisconnected() {
+        // ToDo move emit_CloudDisconnected() calls to gwClient onDisconnected() event
+        for (CommunicationListener l : listeners)
+            l.onCloudDisconnected(this);
+    }
+
+    private void emit_LocalStarted() {
+        for (CommunicationListener l : listeners)
+            l.onLocalStarted(this);
+    }
+
+    private void emit_LocalStopped() {
+        for (CommunicationListener l : listeners)
+            l.onLocalStopped(this);
+    }
 
 }
