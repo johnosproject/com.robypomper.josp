@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.user;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.usrs.UsrName;
 import com.robypomper.josp.jcp.apis.paths.APIUsrs;
 import com.robypomper.josp.jsl.JSLSettings_002;
@@ -27,12 +28,12 @@ public class JCPUserSrv extends AbsJCPAPIs {
 
     // Getters methods
 
-    public String getUserId() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execGetReq(APIUsrs.URL_PATH_USERNAME, UsrName.class, true).usrId;
+    public String getUserId() throws JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIUsrs.FULL_PATH_USERNAME, UsrName.class, true).usrId;
     }
 
-    public String getUsername() throws JCPClient.ConnectionException, JCPClient.RequestException {
-        return jcpClient.execGetReq(APIUsrs.URL_PATH_USERNAME, UsrName.class, true).username;
+    public String getUsername() throws JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIUsrs.FULL_PATH_USERNAME, UsrName.class, true).username;
     }
 
 }
