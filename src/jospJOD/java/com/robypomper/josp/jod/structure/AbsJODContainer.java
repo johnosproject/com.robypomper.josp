@@ -152,12 +152,12 @@ public class AbsJODContainer extends AbsJODComponent
             return createContainer(parentCompName, compName, compSettings);
 
         if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0
-                || StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0)
-            return createState(parentCompName, compName, compType, compSettings);
+                || StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
+            return createBool(parentCompName, compName, compType, compSettings);
 
-        if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0
+        if (StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0
                 || StructureDefinitions.TYPE_RANGE_ACTION.compareToIgnoreCase(compType) == 0)
-            return createAction(parentCompName, compName, compType, compSettings);
+            return createRange(parentCompName, compName, compType, compSettings);
 
         throw new JODStructure.ParsingUnknownTypeException(parentCompName, compType, compName);
     }
@@ -169,7 +169,7 @@ public class AbsJODContainer extends AbsJODComponent
      * @param compSettings the key-value pairs of the component properties.
      * @return the created state component.
      */
-    protected JODState createState(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.ParsingException {
+    protected JODComponent createBool(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.ParsingException {
         String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
         String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
         String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
@@ -177,6 +177,34 @@ public class AbsJODContainer extends AbsJODComponent
         try {
             if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
                 return new JODBooleanState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
+
+            if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0) {
+                String executor = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_EXECUTOR);
+                return new JODBooleanAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
+            }
+
+        } catch (JODStructure.ComponentInitException e) {
+            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating state component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
+            throw new JODStructure.InstantiationParsedDataException(compType, compName, listener, puller, e);
+        }
+
+        throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
+    }
+
+    /**
+     * Create an action component.
+     *
+     * @param compName     the name of the component to create.
+     * @param compSettings the key-value pairs of the component properties.
+     * @return the created state component.
+     */
+    protected JODComponent createRange(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException, JODStructure.ParsingUnknownTypeException {
+        String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
+        String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
+        String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
+
+        try {
+
             if (StructureDefinitions.TYPE_RANGE_STATE.compareToIgnoreCase(compType) == 0) {
                 Double min, max, step;
                 try {
@@ -203,31 +231,8 @@ public class AbsJODContainer extends AbsJODComponent
                 return new JODRangeState(getStructure(), getExecutorMngr(), compName, descr, listener, puller, min, max, step);
             }
 
-        } catch (JODStructure.ComponentInitException e) {
-            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating state component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
-            throw new JODStructure.InstantiationParsedDataException(compType, compName, listener, puller, e);
-        }
-
-        throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
-    }
-
-    /**
-     * Create an action component.
-     *
-     * @param compName     the name of the component to create.
-     * @param compSettings the key-value pairs of the component properties.
-     * @return the created state component.
-     */
-    protected JODAction createAction(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.InstantiationParsedDataException, JODStructure.ParsingUnknownTypeException {
-        String descr = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_DESCR);
-        String listener = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_LISTNER);
-        String puller = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_PULLER);
-        String executor = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_EXECUTOR);
-
-        try {
-            if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0)
-                return new JODBooleanAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
             if (StructureDefinitions.TYPE_RANGE_ACTION.compareToIgnoreCase(compType) == 0) {
+                String executor = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_EXECUTOR);
                 Double min, max, step;
                 try {
                     min = Double.parseDouble((String) compSettings.get(StructureDefinitions.PROP_COMPONENT_RANGE_MIN));
@@ -254,8 +259,8 @@ public class AbsJODContainer extends AbsJODComponent
             }
 
         } catch (JODStructure.ComponentInitException e) {
-            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating action component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
-            throw new JODStructure.InstantiationParsedDataException(compName, listener, puller, executor, e);
+            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error creating state component '%s' for parent container '%s' because %s", compName, parentCompName, e.getMessage()), e);
+            throw new JODStructure.InstantiationParsedDataException(compType, compName, listener, puller, e);
         }
 
         throw new JODStructure.ParsingUnknownTypeException(parentCompName, compName, compType);
