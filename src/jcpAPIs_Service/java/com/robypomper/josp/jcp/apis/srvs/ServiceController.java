@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.apis.srvs;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.srvs.SrvName;
 import com.robypomper.josp.jcp.apis.paths.APISrvs;
 import com.robypomper.josp.jcp.db.ServiceDBService;
@@ -84,9 +84,9 @@ public class ServiceController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Client not authenticated.", e);
         } catch (SecurityUser.AuthNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Authorization not setup.", e);
-        } catch (JCPClient.ConnectionException e) {
+        } catch (JCPClient2.ConnectionException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't connect to remote service.", e);
-        } catch (JCPClient.RequestException e) {
+        } catch (JCPClient2.RequestException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on executing remote request.", e);
         }
     }
@@ -102,7 +102,7 @@ public class ServiceController {
      * @param srvId the <code>usrId</code> to search in the JCP db or to register.
      * @return the {@link Service} object stored on the JCP db.
      */
-    private Service getOrRegisterService(String srvId) throws JCPClient.ConnectionException, JCPClient.RequestException {
+    private Service getOrRegisterService(String srvId) throws JCPClient2.ConnectionException, JCPClient2.RequestException {
         Optional<Service> optService = serviceService.find(srvId);
 
         if (optService.isPresent())

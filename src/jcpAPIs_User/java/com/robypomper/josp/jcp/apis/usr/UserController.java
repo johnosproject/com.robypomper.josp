@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.apis.usr;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.usrs.UsrName;
 import com.robypomper.josp.jcp.apis.paths.APIUsrs;
 import com.robypomper.josp.jcp.db.UserDBService;
@@ -84,9 +84,9 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated.", e);
         } catch (SecurityUser.AuthNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Authorization not setup.", e);
-        } catch (JCPClient.ConnectionException e) {
+        } catch (JCPClient2.ConnectionException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't connect to remote service.", e);
-        } catch (JCPClient.RequestException e) {
+        } catch (JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on executing remote request.", e);
         }
     }
@@ -102,7 +102,7 @@ public class UserController {
      * @param usrId the <code>usrId</code> to search in the JCP db or to register.
      * @return the {@link User} object stored on the JCP db.
      */
-    private User getOrRegisterUser(String usrId) throws JCPClient.ConnectionException, JCPClient.RequestException {
+    private User getOrRegisterUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException {
         Optional<User> optUser = userService.get(usrId);
 
         if (optUser.isPresent())

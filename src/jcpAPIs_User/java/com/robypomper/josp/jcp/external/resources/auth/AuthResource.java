@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.external.resources.auth;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceDetails;
 import com.robypomper.josp.jcp.db.entities.User;
@@ -24,7 +24,7 @@ public interface AuthResource {
      * @param usrId the user id.
      * @return instance of {@link Service} object populated with auth's user info.
      */
-    User queryUser(String usrId) throws JCPClient.ConnectionException, JCPClient.RequestException;
+    User queryUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException;
 
     /**
      * Request <code>srvId</code> service to auth server and cast to {@link Service}
@@ -33,6 +33,6 @@ public interface AuthResource {
      * @param srvId the service id.
      * @return instance of {@link Service} object populated with auth's service info.
      */
-    Service queryService(String srvId) throws JCPClient.ConnectionException, JCPClient.RequestException;
+    Service queryService(String srvId) throws JCPClient2.ConnectionException, JCPClient2.RequestException;
 
 }
