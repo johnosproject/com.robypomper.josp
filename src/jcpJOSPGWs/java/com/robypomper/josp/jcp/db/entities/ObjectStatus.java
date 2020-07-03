@@ -1,6 +1,8 @@
 package com.robypomper.josp.jcp.db.entities;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,5 +25,14 @@ public class ObjectStatus {
     private String structure;
 
     private Date lastStructUpdate = new Date(0);
+
+
+    // Extra profile
+
+    @CreationTimestamp
+    private Date createdAt;
+
+    @UpdateTimestamp
+    private Date updatedAt;
 
 }

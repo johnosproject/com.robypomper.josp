@@ -1,6 +1,8 @@
 package com.robypomper.josp.jcp.db.entities;
 
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -8,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import java.util.Date;
 
 
 /**
@@ -55,6 +58,15 @@ public class Object {
     @OneToOne(cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private ObjectStatus status;
+
+
+    // Extra profile
+
+    @CreationTimestamp
+    private Date createdAt;
+
+    @UpdateTimestamp
+    private Date updatedAt;
 
 }
 

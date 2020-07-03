@@ -277,7 +277,7 @@ public class GWObject {
             perm.setUsrId(p.getUsrId());
             perm.setType(p.getPermType());
             perm.setConnection(p.getConnType());
-            perm.setUpdatedAt(p.getUpdatedAt());
+            perm.setPermissionUpdatedAt(p.getUpdatedAt());
             permsDB.add(perm);
         }
 

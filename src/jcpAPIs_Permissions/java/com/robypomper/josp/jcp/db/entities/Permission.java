@@ -2,6 +2,8 @@ package com.robypomper.josp.jcp.db.entities;
 
 import com.robypomper.josp.protocol.JOSPPerm;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -15,7 +17,6 @@ import java.util.Date;
  */
 @Entity
 @Data
-//@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"objId", "usrId", "srvId"}))
 public class Permission {
 
     @Id
@@ -33,10 +34,15 @@ public class Permission {
     @Enumerated(EnumType.STRING)
     private JOSPPerm.Type type;
 
+    private Date permissionUpdatedAt;
+
 
     // Extra profile
 
-    //@UpdateTimestamp
+    @CreationTimestamp
+    private Date createdAt;
+
+    @UpdateTimestamp
     private Date updatedAt;
 
 }
