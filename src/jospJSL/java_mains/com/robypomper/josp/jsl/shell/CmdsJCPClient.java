@@ -26,7 +26,7 @@ public class CmdsJCPClient {
      */
     @Command(description = "Print JCP Client status.")
     public String jcpClientStatus() {
-        String s = jcpClient.isConnected() ? "JCP Client is connect" : "JCP Client is disconnect";
+        String s = jcpClient.isConnected() ? "JCP Client is connect" : "JCP Client is NOT connect";
         s += " ";
         s += jcpClient.isAuthCodeFlowEnabled() ? "(user logged in)." : "(user not logged).";
         return s;

@@ -2,7 +2,6 @@ package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.jsl.objs.DefaultJSLRemoteObject;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
@@ -432,24 +431,24 @@ public class CmdsJSLObjsMngr {
             ((JSLBooleanState) comp).addListener(new JSLBooleanState.BooleanStateListener() {
                 @Override
                 public void onStateChanged(JSLBooleanState component, boolean newState, boolean oldState) {
-                    System.out.println(PRE + String.format("%s state changed %-15s > %-15s", component.getName(), oldState, newState) + POST);
+                    System.out.println(PRE + String.format("%s state changed object '%s' %-15s > %-15s", component.getRemoteObject().getId(), component.getName(), oldState, newState) + POST);
                 }
             });
         } else if (comp instanceof JSLRangeState) {
             ((JSLRangeState) comp).addListener(new JSLRangeState.RangeStateListener() {
                 @Override
                 public void onStateChanged(JSLRangeState component, double newState, double oldState) {
-                    System.out.println(PRE + String.format("%s state changed %-15s > %-15s", component.getName(), oldState, newState) + POST);
+                    System.out.println(PRE + String.format("%s state changed object '%s' %-15s > %-15s", component.getRemoteObject().getId(), component.getName(), oldState, newState) + POST);
                 }
 
                 @Override
                 public void onMinReached(JSLRangeState component, double state, double min) {
-                    System.out.println(PRE + String.format("%s min state reached %-15s (max: %s)", component.getName(), state, min) + POST);
+                    System.out.println(PRE + String.format("%s min state reached object '%s' %-15s (max: %s)", component.getRemoteObject().getId(), component.getName(), state, min) + POST);
                 }
 
                 @Override
                 public void onMaxReached(JSLRangeState component, double state, double max) {
-                    System.out.println(PRE + String.format("%s max state reached %-15s (max: %s)", component.getName(), state, max) + POST);
+                    System.out.println(PRE + String.format("%s max state reached object '%s' %-15s (max: %s)", component.getRemoteObject().getId(), component.getName(), state, max) + POST);
                 }
             });
         }

@@ -110,9 +110,10 @@ public class AbsJSLComponent implements JSLComponent {
     }
 
     /**
-     * @return the {@link JSLRemoteObject} instance.
+     * {@inheritDoc}
      */
-    protected JSLRemoteObject getRemoteObject() {
+    @Override
+    public JSLRemoteObject getRemoteObject() {
         return remoteObject;
     }
 

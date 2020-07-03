@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.objs.structure;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
 
 /**
@@ -27,6 +28,11 @@ public interface JSLComponent {
      * @return the path of the component (it will be unique path).
      */
     JSLComponentPath getPath();
+
+    /**
+     * @return the remote object of the component.
+     */
+    JSLRemoteObject getRemoteObject();
 
     /**
      * @return the parent of the component.
