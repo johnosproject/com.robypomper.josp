@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessRequest;
 import com.robypomper.josp.jcp.apis.paths.APIJOSPGWs;
@@ -47,8 +48,8 @@ public class JCPCommObj extends AbsJCPAPIs {
      *
      * @return the GW O2S access info.
      */
-    public O2SAccessInfo getO2SAccessInfo(Certificate clietnPublicCertificate) throws JCPClient.ConnectionException, JCPClient.RequestException, CertificateEncodingException {
-        return jcpClient.execPostReq(APIJOSPGWs.URL_PATH_O2S_ACCESS, O2SAccessInfo.class, new O2SAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), true);
+    public O2SAccessInfo getO2SAccessInfo(Certificate clietnPublicCertificate) throws JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, CertificateEncodingException {
+        return jcpClient.execReq(Verb.POST, APIJOSPGWs.FULL_PATH_O2S_ACCESS, O2SAccessInfo.class, new O2SAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), true);
     }
 
 }

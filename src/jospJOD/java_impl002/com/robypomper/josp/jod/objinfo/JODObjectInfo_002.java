@@ -1,6 +1,6 @@
 package com.robypomper.josp.jod.objinfo;
 
-import com.robypomper.josp.core.jcpclient.JCPClient;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
@@ -340,7 +340,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
             return;
 
-        } catch (JCPClient.RequestException | JCPClient.ConnectionException e) {
+        } catch (JCPClient2.RequestException | JCPClient2.ConnectionException | JCPClient2.ResponseException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
             if (!isGenerating()) {
                 jcpClient.addConnectListener(generatingListener);
@@ -403,11 +403,14 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
     @SuppressWarnings("Convert2Lambda")
-    private final JCPClient.ConnectListener generatingListener = new JCPClient.ConnectListener() {
+    private final JCPClient2.ConnectListener generatingListener = new JCPClient2.ConnectListener() {
         @Override
-        public void onConnected(JCPClient jcpClient) {
+        public void onConnected(JCPClient2 jcpClient) {
             regenerateObjId();
         }
+
+        @Override
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {}
     };
 
 }
