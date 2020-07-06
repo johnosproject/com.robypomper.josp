@@ -2,7 +2,6 @@ package com.robypomper.josp.jcp.db;
 
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.ObjectId;
-import com.robypomper.josp.jcp.db.entities.ObjectOwner;
 import com.robypomper.josp.jcp.db.entities.ObjectStatus;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -40,25 +39,21 @@ public class ObjectDBService {
         return objects.findById(objId);
     }
 
-    public void save(ObjectId objId) throws DataIntegrityViolationException {
-        objId = objectsId.save(objId);
-        // ToDo check references returned
+    public ObjectId save(ObjectId objId) throws DataIntegrityViolationException {
+        return objectsId.save(objId);
     }
 
-    public void save(Object obj) throws DataIntegrityViolationException {
+    public Object save(Object obj) throws DataIntegrityViolationException {
         assert obj.getOwner() != null;
         assert obj.getOwner().getObjId() != null;
         assert obj.getInfo() != null;
         assert obj.getInfo().getObjId() != null;
 
-        obj = objects.save(obj);
-        ObjectOwner objOwn = objectsOwner.save(obj.getOwner());
-        // ToDo check references returned
+        return objects.save(obj);
     }
 
-    public void save(ObjectStatus objStatus) throws DataIntegrityViolationException {
-        objStatus = objectsStatus.save(objStatus);
-        // ToDo check references returned
+    public ObjectStatus save(ObjectStatus objStatus) throws DataIntegrityViolationException {
+        return objectsStatus.save(objStatus);
     }
 
 }

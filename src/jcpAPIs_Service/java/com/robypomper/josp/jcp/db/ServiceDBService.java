@@ -33,14 +33,12 @@ public class ServiceDBService {
         return servicesStatus.findById(fullSrvId);
     }
 
-    public void save(Service srv) throws DataIntegrityViolationException {
-        srv = services.save(srv);
-        // ToDo check references returned
+    public Service save(Service srv) throws DataIntegrityViolationException {
+        return services.save(srv);
     }
 
-    public void save(ServiceStatus srvStatus) throws DataIntegrityViolationException {
-        srvStatus = servicesStatus.save(srvStatus);
-        // ToDo check references returned
+    public ServiceStatus save(ServiceStatus srvStatus) throws DataIntegrityViolationException {
+        return servicesStatus.save(srvStatus);
     }
 
 }

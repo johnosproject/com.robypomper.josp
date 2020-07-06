@@ -109,7 +109,7 @@ public class ServiceController {
             return optService.get();
 
         Service newService = authDefault.queryService(srvId);
-        serviceService.save(newService);
+        newService = serviceService.save(newService);
         return newService;
     }
 

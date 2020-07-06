@@ -28,7 +28,7 @@ public class GWService {
     private final String usrId;
     private final String instId;
     private final Service srvDB;
-    private final ServiceStatus srvStatusDB;
+    private ServiceStatus srvStatusDB;
     //private final ServiceStatus srvStatus;
     private final JOSPGWsBroker gwBroker;
 
@@ -72,7 +72,7 @@ public class GWService {
     // Sync with DB
 
     public void updateStatusToDB() {
-        serviceDBService.save(srvStatusDB);
+        srvStatusDB = serviceDBService.save(srvStatusDB);
     }
 
 

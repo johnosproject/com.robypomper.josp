@@ -145,7 +145,7 @@ public class GWObject {
     // Update to DB
 
     public void updateStatusToDB() {
-        objectDBService.save(objDB.getStatus());
+        objDB.setStatus(objectDBService.save(objDB.getStatus()));
     }
 
     private void updateInfoToDB(String msg) {
@@ -195,7 +195,7 @@ public class GWObject {
         objDB.getStatus().setOnline(true);
         objDB.getStatus().setLastConnectionAt(JOSPProtocol.getNowDate());
 
-        objectDBService.save(objDB);
+        objDB = objectDBService.save(objDB);
     }
 
     private void updateStructToDB(String msg) {
@@ -272,6 +272,7 @@ public class GWObject {
             return;
         }
 
+        // ToDo improve permissions update (avoid removeAll/addAll)
         List<Permission> permsDB = new ArrayList<>();
         for (JOSPPerm p : perms) {
             Permission perm = new Permission();
