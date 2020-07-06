@@ -6,7 +6,9 @@ import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
+import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +68,12 @@ public class JOSPGWsBroker {
                 continue;
 
             try {
+                if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg)) {
+                    service.getSrvStatus().setLastStatusUpdAt(JOSPProtocol.getNowDate());
+                    service.getSrvStatus().setLastStatusUpdSender(object.getObjId());
+                    service.updateStatusToDB();
+                }
+
                 service.sendData(msg);
 
             } catch (Server.ServerStoppedException | Server.ClientNotConnectedException ignore) {}
@@ -95,6 +103,15 @@ public class JOSPGWsBroker {
             return false;
 
         try {
+            if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg)) {
+                object.getObj().getStatus().setLastActionCmdAt(JOSPProtocol.getNowDate());
+                object.getObj().getStatus().setLastActionCmdSender(service.getFullId());
+                object.updateStatusToDB();
+                service.getSrvStatus().setLastActionCmdAt(JOSPProtocol.getNowDate());
+                service.getSrvStatus().setLastActionCmdReceiver(object.getObjId());
+                service.updateStatusToDB();
+            }
+
             object.sendData(msg);
 
         } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {

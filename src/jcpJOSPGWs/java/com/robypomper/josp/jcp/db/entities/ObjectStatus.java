@@ -21,10 +21,20 @@ public class ObjectStatus {
 
     private boolean online = true;
 
+    private Date lastConnectionAt = null;
+
+    private Date lastDisconnectionAt = null;
+
     @Lob
     private String structure;
 
-    private Date lastStructUpdate = new Date(0);
+    private Date lastStructUpdateAt = null;
+
+    private Date lastStatusUpdAt = null;
+
+    private Date lastActionCmdAt = null;
+
+    private String lastActionCmdSender = null;
 
 
     // Extra profile

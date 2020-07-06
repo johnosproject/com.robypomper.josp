@@ -31,6 +31,18 @@ public class ServiceStatus {
 
     private boolean online = true;
 
+    private Date lastConnectionAt = null;
+
+    private Date lastDisconnectionAt = null;
+
+    private Date lastStatusUpdAt = null;
+
+    private String lastStatusUpdSender = null;
+
+    private Date lastActionCmdAt = null;
+
+    private String lastActionCmdReceiver = null;
+
 
     // Extra profile
 

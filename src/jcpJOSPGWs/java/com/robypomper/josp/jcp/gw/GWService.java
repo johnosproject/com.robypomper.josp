@@ -7,6 +7,7 @@ import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.protocol.JOSPProtocol_Service;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +27,9 @@ public class GWService {
     private final String srvId;
     private final String usrId;
     private final String instId;
-    private final ServiceStatus srvStatus;
+    private final Service srvDB;
+    private final ServiceStatus srvStatusDB;
+    //private final ServiceStatus srvStatus;
     private final JOSPGWsBroker gwBroker;
 
 
@@ -38,46 +41,47 @@ public class GWService {
         this.serviceDBService = serviceDBService;
         this.gwBroker = gwBroker;
         this.fullSrvId = client.getClientId();
-        System.out.println(fullSrvId);
-        String[] ids = client.getClientId().split("/");
-        this.srvId = ids[0];
-        this.usrId = ids[1];
-        this.instId = ids[2];
+        this.srvId = JOSPProtocol_Service.fullSrvIdToSrvId(this.fullSrvId);
+        this.usrId = JOSPProtocol_Service.fullSrvIdToUsrId(this.fullSrvId);
+        this.instId = JOSPProtocol_Service.fullSrvIdToInstId(this.fullSrvId);
 
         Optional<Service> srvOpt = serviceDBService.find(srvId);
         if (!srvOpt.isPresent())
             throw new ServiceNotRegistered(fullSrvId, srvId, usrId);
+        srvDB = srvOpt.get();
 
         Optional<ServiceStatus> srvStatusOpt = serviceDBService.findStatus(fullSrvId);
         if (srvStatusOpt.isPresent())
-            srvStatus = srvStatusOpt.get();
+            srvStatusDB = srvStatusOpt.get();
         else {
-            srvStatus = new ServiceStatus();
-            srvStatus.setFullId(fullSrvId);
-            srvStatus.setSrvId(srvId);
-            srvStatus.setUsrId(usrId);
-            srvStatus.setInstId(instId);
+            srvStatusDB = new ServiceStatus();
+            srvStatusDB.setFullId(fullSrvId);
+            srvStatusDB.setSrvId(srvId);
+            srvStatusDB.setUsrId(usrId);
+            srvStatusDB.setInstId(instId);
             //srvStatus.setVersion(instId);
         }
 
-        srvStatus.setOnline(true);
-        saveToDB();
+        srvStatusDB.setOnline(true);
+        srvStatusDB.setLastConnectionAt(JOSPProtocol.getNowDate());
+        updateStatusToDB();
         gwBroker.registerService(this);
     }
 
 
     // Sync with DB
 
-    private void saveToDB() {
-        serviceDBService.save(srvStatus);
+    public void updateStatusToDB() {
+        serviceDBService.save(srvStatusDB);
     }
 
 
     // Getters and setters
 
     public void setOffline() {
-        srvStatus.setOnline(false);
-        saveToDB();
+        srvStatusDB.setOnline(false);
+        srvStatusDB.setLastDisconnectionAt(JOSPProtocol.getNowDate());
+        updateStatusToDB();
     }
 
     public String getFullId() {
@@ -96,6 +100,13 @@ public class GWService {
         return instId;
     }
 
+    public Service getSrv() {
+        return srvDB;
+    }
+
+    public ServiceStatus getSrvStatus() {
+        return srvStatusDB;
+    }
 
     public boolean processFromServiceMsg(String msg) {
         String objId;

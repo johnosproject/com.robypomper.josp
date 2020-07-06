@@ -63,6 +63,7 @@ public class GWObject {
 
     public void setOffline() {
         objDB.getStatus().setOnline(false);
+        objDB.getStatus().setLastDisconnectionAt(JOSPProtocol.getNowDate());
         updateStatusToDB();
     }
 
@@ -143,7 +144,7 @@ public class GWObject {
 
     // Update to DB
 
-    private void updateStatusToDB() {
+    public void updateStatusToDB() {
         objectDBService.save(objDB.getStatus());
     }
 
@@ -191,6 +192,8 @@ public class GWObject {
         objDB.getInfo().setLongDescr(longDescr);
 
         objDB.getStatus().setObjId(objId);
+        objDB.getStatus().setOnline(true);
+        objDB.getStatus().setLastConnectionAt(JOSPProtocol.getNowDate());
 
         objectDBService.save(objDB);
     }
@@ -206,7 +209,7 @@ public class GWObject {
             if (objDB.getStatus().getStructure() == null
                     || !objDB.getStatus().getStructure().equals(struct)) {
                 objDB.getStatus().setStructure(struct);
-                objDB.getStatus().setLastStructUpdate(JOSPProtocol.getNowDate());
+                objDB.getStatus().setLastStructUpdateAt(JOSPProtocol.getNowDate());
                 updateStatusToDB();
             }
 
@@ -256,6 +259,7 @@ public class GWObject {
                 return;
             }
             objDB.getStatus().setStructure(structStr);
+            objDB.getStatus().setLastStatusUpdAt(JOSPProtocol.getNowDate());
             updateStatusToDB();
         }
     }
