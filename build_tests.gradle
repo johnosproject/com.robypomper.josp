@@ -8,8 +8,8 @@ sourceSets {
 dependencies {
     clientTestImplementation sourceSets.jospCommons.output
     clientTestImplementation sourceSets.jospCommons.runtimeClasspath
-    clientTestImplementation sourceSets.jcpApisPublic.output
-    clientTestImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    clientTestImplementation sourceSets.jcpAPIsPublic.output
+    clientTestImplementation sourceSets.jcpAPIsPublic.runtimeClasspath
     clientTestImplementation sourceSets.jospJOD.output
     clientTestImplementation sourceSets.jospJOD.runtimeClasspath
     clientTestImplementation sourceSets.jospJSL.output

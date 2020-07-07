@@ -34,8 +34,8 @@ dependencies {
     // JOD - All
     jospJODImplementation sourceSets.jospCore.output
     jospJODImplementation configurations.jospCoreImplementation
-    jospJODImplementation sourceSets.jcpApisPublic.output
-    jospJODImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    jospJODImplementation sourceSets.jcpAPIsPublic.output
+    jospJODImplementation sourceSets.jcpAPIsPublic.runtimeClasspath
     // JOD - Mains
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
@@ -44,8 +44,8 @@ dependencies {
     jospJSLImplementation sourceSets.jospCore.output
     jospJSLImplementation configurations.jospCoreImplementation
     // JSL - Impls
-    jospJSLImplementation sourceSets.jcpApisPublic.output
-    jospJSLImplementation sourceSets.jcpApisPublic.runtimeClasspath
+    jospJSLImplementation sourceSets.jcpAPIsPublic.output
+    jospJSLImplementation sourceSets.jcpAPIsPublic.runtimeClasspath
     // JSL - Mains
     jospJSLImplementation 'commons-cli:commons-cli:1.4'
     jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
