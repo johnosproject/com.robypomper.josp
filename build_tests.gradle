@@ -24,87 +24,69 @@
 
 sourceSets {
 
+    // Test's Commons
+
+    test_Commons {
+        java.srcDirs 'tests/test_Commons/java'
+        resources.srcDirs 'tests/test_Commons/resources'
+    }
+
+
     // JOSP Commons
 
-    jospCommonsCommTest {
-        compileClasspath += sourceSets.jospCommons.output
-        runtimeClasspath += sourceSets.jospCommons.output
-        java {
-            srcDirs = ['tests/jospCommonsTest/comm/java']
-        }
-        resources {
-            srcDirs = ['tests/jospCommonsTest/comm/resources']
-        }
+    test_jospCommonsComm {
+        java.srcDirs 'tests/test_jospCommonsComm/java'
+        resources.srcDirs 'tests/test_jospCommonsComm/resources'
     }
 
 
     // JOD
 
-    jospJODStructTest {
-        java {
-            compileClasspath += sourceSets.jospJOD.output
-            runtimeClasspath += sourceSets.jospJOD.output
-                                                            compileClasspath += sourceSets.jospJSL.output
-                                                            runtimeClasspath += sourceSets.jospJSL.output
-            srcDirs = ['tests/jospJODTest/struct/java']
-        }
-        resources {
-            srcDirs = ['tests/jospJODTest/struct/resources']
-        }
+    test_jospJODStruct {
+        java.srcDirs 'tests/test_jospJODStruct/java'
+        resources.srcDirs 'tests/test_jospJODStruct/resources'
     }
 
-    jospJODCommTest {
-        java {
-            compileClasspath += sourceSets.jospJOD.output
-            runtimeClasspath += sourceSets.jospJOD.output
-            compileClasspath += sourceSets.jospJSL.output
-            runtimeClasspath += sourceSets.jospJSL.output
-            srcDirs = ['tests/jospJODTest/comm/java']
-        }
+    test_jospJODComm {
+        java.srcDirs 'tests/test_jospJODComm/java'
+        resources.srcDirs 'tests/test_jospJODComm/resources'
     }
 
 
     // JSL
 
-    jospJSLCommTest {
-        compileClasspath += sourceSets.jospJSL.output
-        runtimeClasspath += sourceSets.jospJSL.output
-        compileClasspath += sourceSets.jospJOD.output
-        runtimeClasspath += sourceSets.jospJOD.output
-        java.srcDirs = ['tests/jospJSLTest/comm/java']
+    test_jospJSLComm {
+        java.srcDirs 'tests/test_jospJSLComm/java'
+        resources.srcDirs 'tests/test_jospJSLComm/resources'
     }
-}
 
-configurations {
-    // JOSP Commons
-    jospCommonsCommTestImplementation.extendsFrom jospCommonsImplementation
-    jospCommonsCommTestRuntimeOnly.extendsFrom jospCommonsRuntimeOnly
-
-    // JOD
-    jospJODStructTestImplementation.extendsFrom jospJODImplementation
-    jospJODStructTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
-    jospJODCommTestImplementation.extendsFrom jospJODImplementation
-    jospJODCommTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
-
-    // JSL
-    jospJSLCommTestImplementation.extendsFrom jospJSLImplementation
-    jospJSLCommTestRuntimeOnly.extendsFrom jospJSLRuntimeOnly
 }
 
 dependencies {
+
+    // Test's commons
+    test_CommonsImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    test_CommonsRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    test_CommonsImplementation sourceSets.jospCommons.output
+    test_CommonsImplementation sourceSets.jospCommons.runtimeClasspath
+    test_CommonsImplementation sourceSets.jospJOD.output
+    test_CommonsImplementation sourceSets.jospJOD.runtimeClasspath
+    test_CommonsImplementation sourceSets.jospJSL.output
+    test_CommonsImplementation sourceSets.jospJSL.runtimeClasspath
+
     // JOSP Commons
-    jospCommonsCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospCommonsCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    test_jospCommonsCommImplementation sourceSets.test_Commons.output
+    test_jospCommonsCommImplementation sourceSets.test_Commons.runtimeClasspath
 
     // JOD
-    jospJODStructTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospJODStructTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-    jospJODCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospJODCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    test_jospJODStructImplementation sourceSets.test_Commons.output
+    test_jospJODStructImplementation sourceSets.test_Commons.runtimeClasspath
+    test_jospJODCommImplementation sourceSets.test_Commons.output
+    test_jospJODCommImplementation sourceSets.test_Commons.runtimeClasspath
 
     // JSL
-    jospJSLCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospJSLCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    test_jospJSLCommImplementation sourceSets.test_Commons.output
+    test_jospJSLCommImplementation sourceSets.test_Commons.runtimeClasspath
 }
 
 
@@ -124,8 +106,8 @@ task jospJOSPCommonsCommTest(type: Test) {
     description = 'Runs integration tests.'
     group = 'verification'
 
-    testClassesDirs = sourceSets.jospCommonsCommTest.output.classesDirs
-    classpath = sourceSets.jospCommonsCommTest.runtimeClasspath
+    testClassesDirs = sourceSets.test_jospCommonsComm.output.classesDirs
+    classpath = sourceSets.test_jospCommonsComm.runtimeClasspath
     shouldRunAfter test
     useJUnitPlatform()
     //jvmArgs '-Djavax.net.debug=all'
@@ -145,8 +127,8 @@ task jospJODStructTest(type: Test) {
     description = 'Runs JOD Communication tests.'
     group = 'verification'
 
-    testClassesDirs = sourceSets.jospJODStructTest.output.classesDirs
-    classpath = sourceSets.jospJODStructTest.runtimeClasspath
+    testClassesDirs = sourceSets.test_jospJODStruct.output.classesDirs
+    classpath = sourceSets.test_jospJODStruct.runtimeClasspath
     shouldRunAfter test
     useJUnitPlatform()
     //jvmArgs '-Djavax.net.debug=all'
@@ -157,13 +139,14 @@ task jospJODCommTest(type: Test) {
     description = 'Runs JOD Communication tests.'
     group = 'verification'
 
-    testClassesDirs = sourceSets.jospJODCommTest.output.classesDirs
-    classpath = sourceSets.jospJODCommTest.runtimeClasspath
+    testClassesDirs = sourceSets.test_jospJODComm.output.classesDirs
+    classpath = sourceSets.test_jospJODComm.runtimeClasspath
     shouldRunAfter test
     useJUnitPlatform()
     //jvmArgs '-Djavax.net.debug=all'
 }
 jospJODAllTest.dependsOn jospJODCommTest
+
 
 // JSL
 
@@ -177,8 +160,8 @@ task jospJSLCommTest(type: Test) {
     description = 'Runs JSL Communication tests.'
     group = 'verification'
 
-    testClassesDirs = sourceSets.jospJSLCommTest.output.classesDirs
-    classpath = sourceSets.jospJSLCommTest.runtimeClasspath
+    testClassesDirs = sourceSets.test_jospJSLComm.output.classesDirs
+    classpath = sourceSets.test_jospJSLComm.runtimeClasspath
     shouldRunAfter test
     useJUnitPlatform()
     //jvmArgs '-Djavax.net.debug=all'
@@ -193,18 +176,22 @@ jospJSLAllTest.dependsOn jospJSLCommTest
 // gradle > intellij settings
 idea {
     module {
+        // Test's commons
+//        testSourceDirs += project.sourceSets.test_Commons.java.srcDirs
+//        testSourceDirs += project.sourceSets.test_Commons.resources.srcDirs
+
         // JOSP Commons
-        testSourceDirs += project.sourceSets.jospCommonsCommTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospCommonsCommTest.resources.srcDirs
+        testSourceDirs += project.sourceSets.test_jospCommonsComm.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospCommonsComm.resources.srcDirs
 
         // JOD
-        testSourceDirs += project.sourceSets.jospJODStructTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospJODStructTest.resources.srcDirs
-        testSourceDirs += project.sourceSets.jospJODCommTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospJODCommTest.resources.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODStruct.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODStruct.resources.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODComm.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODComm.resources.srcDirs
 
         // JSL
-        testSourceDirs += project.sourceSets.jospJSLCommTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospJSLCommTest.resources.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJSLComm.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJSLComm.resources.srcDirs
     }
 }
