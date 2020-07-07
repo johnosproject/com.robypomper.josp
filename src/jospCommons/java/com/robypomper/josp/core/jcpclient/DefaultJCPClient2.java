@@ -428,71 +428,71 @@ public class DefaultJCPClient2 implements JCPClient2 {
     // Exec requests
 
     @Override
-    public void execReq(Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(Verb reqType, String path) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(false, reqType, path, null, new HashMap<>(), false);
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(boolean toAuth, Verb reqType, String path) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(toAuth, reqType, path, null, new HashMap<>(), false);
     }
 
     @Override
-    public void execReq(Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(Verb reqType, String path, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(false, reqType, path, null, new HashMap<>(), secure);
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(boolean toAuth, Verb reqType, String path, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(toAuth, reqType, path, null, new HashMap<>(), secure);
     }
 
     @Override
-    public void execReq(Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(false, reqType, path, null, params, secure);
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(boolean toAuth, Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(toAuth, reqType, path, null, params, secure);
     }
 
     @Override
-    public void execReq(Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(false, reqType, path, null, objParam, secure);
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public void execReq(boolean toAuth, Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         execReq(toAuth, reqType, path, null, objParam, secure);
     }
 
     @Override
-    public <T> T execReq(Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public <T> T execReq(Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         return execReq(false, reqType, path, reqObject, new HashMap<>(), secure);
     }
 
     @Override
-    public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         return execReq(toAuth, reqType, path, reqObject, new HashMap<>(), secure);
     }
 
     @Override
-    public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         return execReq(false, reqType, path, reqObject, (Object) params, secure);
     }
 
     @Override
-    public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Map<String, String> params, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         return execReq(toAuth, reqType, path, reqObject, (Object) params, secure);
     }
 
     @Override
-    public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         return execReq(false, reqType, path, reqObject, (Object) objParam, secure);
     }
 
-    public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         if (!isConnected())
             throw new ConnectionException(String.format("Error on exec request '[%s] %s' because not connected to JCP", reqType, path));
 
@@ -515,10 +515,28 @@ public class DefaultJCPClient2 implements JCPClient2 {
             response = service.execute(request);
 
             if (response.getCode() == 401) {
-                if (isClientCredentialFlowEnabled())
-                    accessToken = service.refreshAccessToken(cliCred_refreshToken);
-                else if (isAuthCodeFlowEnabled())
-                    accessToken = service.refreshAccessToken(authCode_refreshToken);
+                try {
+                    if (isClientCredentialFlowEnabled())
+                        accessToken = service.refreshAccessToken(cliCred_refreshToken);
+                    else if (isAuthCodeFlowEnabled())
+                        accessToken = service.refreshAccessToken(authCode_refreshToken);
+
+                } catch (OAuth2AccessTokenErrorResponse e) {
+                    e.printStackTrace();
+
+                    if (isClientCredentialFlowEnabled())
+                        accessToken = getAccessTokenCliCredFlow(service);
+                    if (isAuthCodeFlowEnabled()) {
+                        emitLoggedOut();
+                        try {
+                            accessToken = getAccessTokenAuthCodeFlow(service, authCode_refreshToken, authCode_loginCode);
+                            emitLoggedIn();
+
+                        } catch (AuthenticationException e1) {
+                            throw e1;
+                        }
+                    }
+                }
 
                 request = prepareRequest(toAuth, reqType, path, secure);
                 injectDefaultHeaders(request);
