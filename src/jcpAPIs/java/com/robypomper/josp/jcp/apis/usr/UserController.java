@@ -84,6 +84,8 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated.", e);
         } catch (SecurityUser.AuthNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Authorization not setup.", e);
+        } catch (JCPClient2.AuthenticationException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't connect to remote service because authentication problems.", e);
         } catch (JCPClient2.ConnectionException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't connect to remote service.", e);
         } catch (JCPClient2.RequestException | JCPClient2.ResponseException e) {
@@ -102,7 +104,7 @@ public class UserController {
      * @param usrId the <code>usrId</code> to search in the JCP db or to register.
      * @return the {@link User} object stored on the JCP db.
      */
-    private User getOrRegisterUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException {
+    private User getOrRegisterUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.RequestException, JCPClient2.ResponseException {
         Optional<User> optUser = userService.get(usrId);
 
         if (optUser.isPresent())

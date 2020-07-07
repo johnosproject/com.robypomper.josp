@@ -24,7 +24,7 @@ public interface AuthResource {
      * @param usrId the user id.
      * @return instance of {@link Service} object populated with auth's user info.
      */
-    User queryUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException;
+    User queryUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.RequestException, JCPClient2.ResponseException;
 
     /**
      * Request <code>srvId</code> service to auth server and cast to {@link Service}

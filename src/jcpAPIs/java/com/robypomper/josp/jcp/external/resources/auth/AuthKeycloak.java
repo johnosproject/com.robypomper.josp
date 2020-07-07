@@ -31,7 +31,7 @@ public class AuthKeycloak implements AuthResource {
     /**
      * {@inheritDoc}
      */
-    public User queryUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException {
+    public User queryUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.RequestException, JCPClient2.ResponseException {
         UserRepresentation kcUser = client.execReq(true, Verb.GET, APIAuth.FULL_PATH_USER + "/" + usrId, UserRepresentation.class, true);
 
         UserProfile profile = new UserProfile();
