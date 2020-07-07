@@ -1,0 +1,75 @@
+import com.robypomper.build.docker.DockerNetworkUtils
+import com.robypomper.build.java.JavaRunnableUtils
+import com.robypomper.build.spring.SpringBuildUtils
+
+/**
+ * Gradle configurations to manage docker artifacts for JOSP project.
+ *
+ * This file configure and provide tasks to manage following dockers:
+ * - dbms: the local database manager system used by other local jcp's
+ *         microservice like the auth and the jcpAPIs.
+ * - auth: the authentication microservice used by jcpAPIs to check clients
+ *         credentials via OAuth2.
+ */
+
+// ----------------------
+// Docker's Test Services
+// ----------------------
+
+dockerCompose {
+    dbms {                                                                  // on localhost:8999
+        useComposeFiles = ['src/dockers/dbms/docker/docker-compose.yml']
+    }
+    auth {                                                                  // on localhost:8998
+        useComposeFiles = ['src/dockers/auth/docker/docker-compose.yml']
+    }
+}
+
+// Add docker's network dependency
+DockerNetworkUtils.setDockerNetworkDependency(project,dockerCompose.dbms,"jcp-dev")
+DockerNetworkUtils.setDockerNetworkDependency(project,dockerCompose.auth,"jcp-dev")
+
+
+// -------------
+// Runners Tasks
+// -------------
+
+// DBMS
+
+task dbmsUp {
+    description = 'Runs...'
+    group = 'runners'
+    dependsOn dbmsComposeUp
+}
+
+task dbmsDown {
+    description = 'Runs...'
+    group = 'runners'
+    dependsOn dbmsComposeDown
+}
+
+task dbmsClean {
+    description = 'Runs...'
+    group = 'runners'
+    //...
+}
+
+// Auth
+
+task authUp {
+    description = 'Runs...'
+    group = 'runners'
+    dependsOn authComposeUp
+}
+
+task authDown {
+    description = 'Runs...'
+    group = 'runners'
+    dependsOn authComposeDown
+}
+
+task authClean {
+    description = 'Runs...'
+    group = 'runners'
+    //...
+}

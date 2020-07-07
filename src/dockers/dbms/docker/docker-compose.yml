@@ -12,7 +12,7 @@ services:
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
       - ./configs:/etc/mysql/conf.d
-      - ./../../../docker_envs/dbms/mysql/data:/var/lib/mysql
+      - ./../../../../envs/dockers/dbms/mysql/data:/var/lib/mysql
 
 networks:
   default:
