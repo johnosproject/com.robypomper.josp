@@ -114,7 +114,7 @@ public class JODGwO2SClient implements Client {
                 isInit = false;
             }
 
-        } catch (JCPClient2.ConnectionException | JCPClient2.RequestException | CertificateEncodingException | JCPClient2.ResponseException e) {
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | CertificateEncodingException | JCPClient2.ResponseException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing object GW client because %s", e.getMessage()));
             if (!isInitializing()) {
                 jcpClient.addConnectListener(initListener);

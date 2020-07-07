@@ -36,7 +36,7 @@ public class JCPObjectInfo extends AbsJCPAPIs {
      * @param objId   the object's ID.
      * @return the object's Cloud ID.
      */
-    public String generateObjIdCloud(String objIdHw, String ownerId, String objId) throws JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException {
+    public String generateObjIdCloud(String objIdHw, String ownerId, String objId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         GenerateObjId params = new GenerateObjId(objIdHw, ownerId);
         if (objId == null)
             return jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_GENERATEID, String.class, params, true);

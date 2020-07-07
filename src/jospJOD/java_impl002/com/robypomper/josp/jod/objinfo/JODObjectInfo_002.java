@@ -340,7 +340,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
             return;
 
-        } catch (JCPClient2.RequestException | JCPClient2.ConnectionException | JCPClient2.ResponseException e) {
+        } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
             if (!isGenerating()) {
                 jcpClient.addConnectListener(generatingListener);

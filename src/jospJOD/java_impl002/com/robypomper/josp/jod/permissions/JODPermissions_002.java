@@ -344,7 +344,7 @@ public class JODPermissions_002 implements JODPermissions {
                 genCloud = true;
                 log.debug(Mrk_JOD.JOD_PERM, "Object permissions generated from JCP");
 
-            } catch (JCPClient2.ConnectionException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
                 log.warn(Mrk_JOD.JOD_PERM, String.format("Error on generating object permission from JCP because %s", e.getMessage()), e);
             }
         }
@@ -362,7 +362,7 @@ public class JODPermissions_002 implements JODPermissions {
      * Request to JCP a valid set of object's permissions and set them to
      * {@link #permissions} field.
      */
-    private void generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.RequestException, JCPClient2.ResponseException {
+    private void generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.RequestException, JCPClient2.ResponseException {
         permissions = jcpPermissions.generatePermissionsFromJCP();
     }
 

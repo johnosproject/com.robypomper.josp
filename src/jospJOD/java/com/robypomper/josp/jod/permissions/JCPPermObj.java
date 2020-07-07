@@ -39,7 +39,7 @@ public class JCPPermObj extends AbsJCPAPIs {
      *
      * @return a valid permission list.
      */
-    public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException {
+    public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         JOSPPerm.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
         String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE + "/" + strategy, String.class, true);
         try {
