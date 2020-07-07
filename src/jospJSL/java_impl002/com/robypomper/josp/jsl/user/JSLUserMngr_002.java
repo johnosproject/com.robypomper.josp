@@ -106,7 +106,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
             locSettings.setUsrId(usrId);
             locSettings.setUsrName(usrName);
 
-        } catch (JCPClient2.ConnectionException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             log.warn(Mrk_JSL.JSL_USR, String.format("Error on getting user id and name from JCP because %s", e.getMessage()), e);
             log.trace(Mrk_JSL.JSL_USR, "Set anonymous user");
             usrId = ANONYMOUS_ID;

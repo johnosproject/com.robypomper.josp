@@ -30,7 +30,7 @@ public class JCPServiceInfo extends AbsJCPAPIs {
         try {
             jcpClient.execReq(Verb.GET, APISrvs.FULL_PATH_REGISTER, SrvName.class, true);
 
-        } catch (JCPClient2.RequestException | JCPClient2.ConnectionException | JCPClient2.ResponseException ignore) {
+        } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException ignore) {
             jcpClient.addConnectListener(new JCPClient2.ConnectListener() {
                 @Override
                 public void onConnected(JCPClient2 jcpClient) {
