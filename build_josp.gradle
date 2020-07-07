@@ -1,13 +1,6 @@
 import com.robypomper.build.java.JavaRunnableUtils
 
 sourceSets {
-    jospCore {
-        java {
-            srcDirs 'src/jospCore/java_public'   // interfaces only
-            srcDirs 'src/jospCore/java'          // main jcp classes
-            srcDirs 'src/jospCore/java_impl002'  // implementations for v 0.0.2
-        }
-    }
     jospJOD {
         java {
             srcDirs 'src/jospJOD/java_public'   // interfaces only
@@ -27,26 +20,16 @@ sourceSets {
 }
 
 dependencies {
-    // Core - All
-    jospCoreImplementation sourceSets.jospCommons.output
-    jospCoreImplementation sourceSets.jospCommons.runtimeClasspath
 
-    // JOD - All
-    jospJODImplementation sourceSets.jospCore.output
-    jospJODImplementation configurations.jospCoreImplementation
+    // JOD
     jospJODImplementation sourceSets.jcpAPIsPublic.output
     jospJODImplementation sourceSets.jcpAPIsPublic.runtimeClasspath
-    // JOD - Mains
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
 
-    // JSL - All
-    jospJSLImplementation sourceSets.jospCore.output
-    jospJSLImplementation configurations.jospCoreImplementation
-    // JSL - Impls
+    // JSL
     jospJSLImplementation sourceSets.jcpAPIsPublic.output
     jospJSLImplementation sourceSets.jcpAPIsPublic.runtimeClasspath
-    // JSL - Mains
     jospJSLImplementation 'commons-cli:commons-cli:1.4'
     jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
 }
