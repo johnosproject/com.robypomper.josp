@@ -1,14 +1,7 @@
 import com.robypomper.build.java.JavaRunnableUtils
 
 sourceSets {
-    jospJOD {
-        java {
-            srcDirs 'src/jospJOD/java_public'   // interfaces only
-            srcDirs 'src/jospJOD/java'          // main jod classes
-            srcDirs 'src/jospJOD/java_mains'    // main runnable classes
-            srcDirs 'src/jospJOD/java_impl002'  // implementations for v 0.0.2
-        }
-    }
+    jospJOD {}
     jospJSL {
         java {
             srcDirs 'src/jospJSL/java_public'   // interfaces only
