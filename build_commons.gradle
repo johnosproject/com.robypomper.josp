@@ -2,7 +2,6 @@
 sourceSets {
     jospCommons {
         java {
-            srcDirs 'src/jospCommons/java_public'
             srcDirs 'src/jospCommons/java'
         }
     }
