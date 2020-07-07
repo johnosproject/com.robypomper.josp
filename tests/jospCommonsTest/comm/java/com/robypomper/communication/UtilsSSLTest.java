@@ -1,7 +1,5 @@
 package com.robypomper.communication;
 
-import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.UtilsSSL;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
 import org.junit.jupiter.api.Test;
 
@@ -22,15 +20,15 @@ public class UtilsSSLTest {
 
     @Test
     public void testGenerateSSLCtxForServer() throws UtilsJKS.GenerationException, UtilsSSL.GenerationException {
-        KeyStore keyStore = UtilsJKS.generateKeyStore(ID_CERTIFICATE,KS_PASS,CERT_ALIAS);
+        KeyStore keyStore = UtilsJKS.generateKeyStore(ID_CERTIFICATE, KS_PASS, CERT_ALIAS);
         TrustManager trustManager = new DynAddTrustManager();
-        SSLContext sslCtx = UtilsSSL.generateSSLContext(keyStore,KS_PASS,trustManager);
+        SSLContext sslCtx = UtilsSSL.generateSSLContext(keyStore, KS_PASS, trustManager);
     }
 
     @Test
     public void testGenerateSSLCtxForClient() throws UtilsJKS.GenerationException, UtilsSSL.GenerationException {
-        KeyStore keyStore = UtilsJKS.generateKeyStore(ID_CERTIFICATE,KS_PASS,CERT_ALIAS);
-        SSLContext sslCtx = UtilsSSL.generateSSLContext(keyStore,KS_PASS,null);
+        KeyStore keyStore = UtilsJKS.generateKeyStore(ID_CERTIFICATE, KS_PASS, CERT_ALIAS);
+        SSLContext sslCtx = UtilsSSL.generateSSLContext(keyStore, KS_PASS, null);
     }
 
     // With loaded

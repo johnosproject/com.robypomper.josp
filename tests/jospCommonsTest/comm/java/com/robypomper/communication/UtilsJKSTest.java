@@ -66,8 +66,8 @@ public class UtilsJKSTest {
 
         Certificate[] certs = keyStore.getCertificateChain(CERT_ALIAS);
         Certificate[] certs2 = keyStore2.getCertificateChain(CERT_ALIAS);
-        Assertions.assertEquals(certs.length,certs2.length);
-        Assertions.assertEquals(certs[0].hashCode(),certs2[0].hashCode());
+        Assertions.assertEquals(certs.length, certs2.length);
+        Assertions.assertEquals(certs[0].hashCode(), certs2[0].hashCode());
 
         // Delete exported certificate files
         if (new File(EXPORT_KS_PATH).delete())
@@ -85,15 +85,15 @@ public class UtilsJKSTest {
         KeyStore keyStore = UtilsJKS.generateKeyStore(ID_CERTIFICATE, KS_PASS, CERT_ALIAS);
 
         System.out.println("\nCOPY KEYSTORE TO TRUSTMANAGER");
-        Assertions.assertEquals(0,trustManager.getCertificates().size());
-        UtilsJKS.copyCertsFromKeyStoreToTrustManager(keyStore,trustManager);
-        Assertions.assertEquals(1,trustManager.getCertificates().size());
+        Assertions.assertEquals(0, trustManager.getCertificates().size());
+        UtilsJKS.copyCertsFromKeyStoreToTrustManager(keyStore, trustManager);
+        Assertions.assertEquals(1, trustManager.getCertificates().size());
 
         KeyStore keyStore2 = UtilsJKS.generateKeyStore(ID_CERTIFICATE, KS_PASS, CERT_ALIAS + "XY");
 
         System.out.println("\nCOPY TRUSTMANAGER TO KEYSTORE");
         Assertions.assertNull(keyStore2.getCertificate(CERT_ALIAS));
-        UtilsJKS.copyCertsFromTrustManagerToKeyStore(keyStore2,trustManager);
+        UtilsJKS.copyCertsFromTrustManagerToKeyStore(keyStore2, trustManager);
         Assertions.assertNotNull(keyStore2.getCertificate(CERT_ALIAS));
     }
 

@@ -45,7 +45,7 @@ public class DefaultClientTest_CommCli extends DefaultClientTest_Base {
         //ServerSocket server = new ServerSocket(PORT);
 
         // Start test client and check isConnected==true
-        Assertions.assertThrows(Client.ConnectionException.class,clientLatch::connect);
+        Assertions.assertThrows(Client.ConnectionException.class, clientLatch::connect);
         Assertions.assertFalse(clientLatch.isConnected());
     }
 
@@ -67,8 +67,8 @@ public class DefaultClientTest_CommCli extends DefaultClientTest_Base {
         //Assertions.assertEquals(server.getInetAddress(),serverInfo.getPeerAddress());
         //Expected :0.0.0.0/0.0.0.0
         //Actual   :localhost/127.0.0.1
-        Assertions.assertEquals(LOCALHOST,serverInfo.getPeerAddress());
-        Assertions.assertEquals(server.getLocalPort(),serverInfo.getPeerPort());
+        Assertions.assertEquals(LOCALHOST, serverInfo.getPeerAddress());
+        Assertions.assertEquals(server.getLocalPort(), serverInfo.getPeerPort());
         Assertions.assertTrue(serverInfo.isConnected());
 
 

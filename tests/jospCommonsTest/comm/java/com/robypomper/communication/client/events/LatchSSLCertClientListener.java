@@ -1,7 +1,6 @@
 package com.robypomper.communication.client.events;
 
 import com.robypomper.communication.client.standard.SSLCertClient;
-import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 
 import java.util.concurrent.CountDownLatch;
