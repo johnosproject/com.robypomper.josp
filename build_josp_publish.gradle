@@ -1,0 +1,197 @@
+import com.robypomper.build.java.JavaPublicationUtils
+
+// --------------------------
+// Jar Tasks for publications
+// --------------------------
+
+
+// JOD (Lib, Docs, Src, Deps)
+def jodName = 'John Object Daemon'
+def jodArtifact = 'jod'
+def jodVersion = '2.0.0'
+
+task jospJODJar(type: Jar) {
+    classifier = 'java'
+
+    // JOD source code
+    from sourceSets.jospJOD.output
+    // JOSP Commons and JCP APIs Public
+    from {
+        sourceSets.jospJOD.runtimeClasspath.collect {
+            if (!it.exists()) return
+            if (!it.isDirectory()) return
+            it
+        }
+    }
+
+    manifest {
+        attributes 'Implementation-Title': jodName,
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+task jospJODDocs(type: Javadoc) {
+    source sourceSets.jospJOD.allJava
+    classpath = sourceSets.jospJOD.runtimeClasspath
+}
+
+task jospJODDocsJar(type: Jar) {
+    classifier = 'doc'
+    from jospJODDocs
+
+    manifest {
+        attributes 'Implementation-Title': jodName + " - Sources",
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+task jospJODSrcJar(type: Jar) {
+    classifier = 'src'
+
+    from sourceSets.jospJOD.allSource
+
+    manifest {
+        attributes 'Implementation-Title': jodName + " - Docs",
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+task jospJODDepsJar(type: Jar) {
+    classifier = 'deps'
+
+    //from configurations.jospJODRuntime
+    //from sourceSets.jospJOD.runtimeClasspath
+    from {
+        sourceSets.jospJOD.runtimeClasspath.collect {
+            if (!it.exists()) return
+            if (it.isDirectory()) return
+            it
+        }
+    }
+
+    manifest {
+        attributes 'Implementation-Title': jodName + " - Dependencies",
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+
+// JSL (Lib, Docs, Src, Deps)
+def jslName = 'John Service Library'
+def jslArtifact = 'jsl'
+def jslVersion = '2.0.0'
+
+task jospJSLJar(type: Jar) {
+    classifier = 'java'
+
+    // JOD source code
+    from sourceSets.jospJSL.output
+    // JOSP Commons and JCP APIs Public
+    from {
+        sourceSets.jospJSL.runtimeClasspath.collect {
+            if (!it.exists()) return
+            if (!it.isDirectory()) return
+            it
+        }
+    }
+
+    manifest {
+        attributes 'Implementation-Title': jodName,
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+task jospJSLDocs(type: Javadoc) {
+    source sourceSets.jospJSL.allJava
+    classpath = sourceSets.jospJSL.runtimeClasspath
+}
+
+task jospJSLDocsJar(type: Jar) {
+    classifier = 'doc'
+    from jospJSLDocs
+
+    manifest {
+        attributes 'Implementation-Title': jodName + " - Docs",
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+task jospJSLSrcJar(type: Jar) {
+    classifier = 'src'
+
+    from sourceSets.jospJSL.allSource
+
+    manifest {
+        attributes 'Implementation-Title': jodName + " - Sources",
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+task jospJSLDepsJar(type: Jar) {
+    classifier = 'deps'
+
+    //from configurations.jospJSLRuntime
+    //from sourceSets.jospJSL.runtimeClasspath
+    from {
+        sourceSets.jospJSL.runtimeClasspath.collect {
+            if (!it.exists()) return
+            if (it.isDirectory()) return
+            it
+        }
+    }
+
+    manifest {
+        attributes 'Implementation-Title': jodName + " - Dependencies",
+                'Implementation-Version': jodVersion,
+                'Main-Class': 'com.robypomper.josp.jod.JODShell'
+    }
+}
+
+
+// ------------
+// Publications
+// ------------
+
+publishing {
+    publications {
+
+        // JOD
+        jod(MavenPublication) {
+            groupId = project.group
+            artifactId = jodArtifact
+            version = jodVersion
+
+            artifact tasks.jospJODJar
+            artifact tasks.jospJODSrcJar
+            artifact tasks.jospJODDocsJar
+            artifact tasks.jospJODDepsJar
+
+            JavaPublicationUtils.initPom(pom, jslName, 'The JSL library', projectUrl, projectGit, projectGitUrl)
+            JavaPublicationUtils.injectDependenciesToPom(pom, configurations.jospJODImplementation, true)
+        }
+
+        // JSL
+        jsl(MavenPublication) {
+            groupId project.group
+            artifactId jslArtifact
+            version jslVersion
+
+            artifact tasks.jospJSLJar
+            artifact tasks.jospJSLSrcJar
+            artifact tasks.jospJSLDocsJar
+            artifact tasks.jospJSLDepsJar
+
+            JavaPublicationUtils.initPom(pom, jslName, 'The JSL library', projectUrl, projectGit, projectGitUrl)
+            JavaPublicationUtils.injectDependenciesToPom(pom, configurations.jospJSLImplementation, true)
+
+        }
+
+    }
+}

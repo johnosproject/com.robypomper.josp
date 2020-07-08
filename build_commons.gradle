@@ -1,8 +1,23 @@
 
+/**
+ * Gradle configurations to manage JOSP Commons as java implementations.
+ *
+ * Summary:
+ * - JOSP Commons configs
+ * - Publication include
+ *
+ * This file provide the jospCommons sourceSet linked by other JOSP's Project's
+ * Gradle files (build_jcpAPIs.gradle,build_josp.gradle and build_tests.gradle).
+ */
+
+
+// --------------------
+// JOSP Commons configs
+// --------------------
+
 sourceSets {
     jospCommons {
         java {
-            srcDirs 'src/jospCommons/java_public'
             srcDirs 'src/jospCommons/java'
         }
     }
@@ -21,43 +36,8 @@ dependencies {
 }
 
 
-// Tests
+// -------------------
+// Publication include
+// -------------------
 
-sourceSets {
-    jospCommonsTest {
-        compileClasspath += sourceSets.jospCommons.output
-        runtimeClasspath += sourceSets.jospCommons.output
-    }
-}
-
-configurations {
-    jospCommonsTestImplementation.extendsFrom jospCommonsImplementation
-    jospCommonsTestRuntimeOnly.extendsFrom jospCommonsRuntimeOnly
-}
-
-dependencies {
-    // Commons test
-    jospCommonsTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospCommonsTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-}
-
-task jospCommonsTest(type: Test) {
-    description = 'Runs integration tests.'
-    group = 'verification'
-
-    testClassesDirs = sourceSets.jospCommonsTest.output.classesDirs
-    classpath = sourceSets.jospCommonsTest.runtimeClasspath
-    shouldRunAfter test
-    useJUnitPlatform()
-    //jvmArgs '-Djavax.net.debug=all'
-}
-
-check.dependsOn jospCommonsTest
-
-// gradle > intellij settings
-idea {
-    module {
-        testSourceDirs += project.sourceSets.jospCommonsTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospCommonsTest.resources.srcDirs
-    }
-}
+apply from: 'build_commons_publish.gradle'

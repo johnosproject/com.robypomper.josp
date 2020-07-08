@@ -7,12 +7,19 @@ plugins {
     id 'org.springframework.boot' //version '2.2.4.RELEASE'                     version not required because specified in buildSrc/build.gradle
     id 'io.spring.dependency-management' //version '1.0.9.RELEASE'              version not required because specified in buildSrc/build.gradle
     id 'java'
+    id 'maven-publish'
 
     id 'idea'
 }
 
-group = 'com.robypomper.josp.jcp'
+group = 'com.robypomper.josp'
 sourceCompatibility = '1.8'
+ext {
+    set('projectUrl', 'http://johnosproject.com')
+    set('projectGit', 'bitbucket.org:johnosproject/com.robypomper.josp.jcp.git')
+    set('projectGitUrl', 'https://bitbucket.org/johnosproject/com.robypomper.josp.jcp/src/master/')
+}
+
 
 repositories {
     mavenCentral()
@@ -21,7 +28,7 @@ repositories {
 apply from: 'spring_support.gradle'
 
 apply from: 'build_commons.gradle'
-apply from: 'build_jcpMngm.gradle'
+apply from: 'build_dockers.gradle'
 apply from: 'build_jcpApis.gradle'
 apply from: 'build_josp.gradle'
 apply from: 'build_tests.gradle'

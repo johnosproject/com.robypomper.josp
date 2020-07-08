@@ -1,98 +1,113 @@
-import com.robypomper.build.docker.DockerNetworkUtils
-import com.robypomper.build.java.JavaRunnableUtils
 import com.robypomper.build.spring.SpringBuildUtils
 
-// ---------------------------
-// Generic Internal Source set
-// ---------------------------
+/**
+ * Gradle configurations to manage JCP APIs and JOSP GWs as SpringBoot applications.
+ *
+ * Summary:
+ * - JCP's Services configs
+ * - Runners Tasks
+ * - Publication include
+ *
+ * This file configure and provide tasks for JCP Cloud artifacts:
+ * - JCP APIs: the JOSP Platform APIs, based on Spring Controllers and JPA access
+ *             to the database.
+ *             The JCP APIs are contained in 2 different sourceSets, because some
+ *             classes are required by JOD and JSL and must be published in a
+ *             separate artifact.
+ * - JOSP GWs: the JOSP Platform Gateways that provide communication between
+ *             Services and Objects and vice-versa. Actually is only an external
+ *             source dir for JCP APIs artifact.
+ */
+
+
+// -------------------------
+// Spring's Services configs
+// -------------------------
 
 // Source Sets declaration
 sourceSets {
+    // JCP APIs Public
+    jcpAPIsPublic {}
 
-}
-
-dependencies {
-
-}
-
-// Add java app's run tasks
-
-
-
-// ----------------------
-// Docker's Test Services
-// ----------------------
-
-dockerCompose {
-
-}
-
-// Add docker's network dependency
-
-
-
-// ----------------------
-// Spring's Test Services
-// ----------------------
-
-// Source Sets declaration
-sourceSets {
-    jcpApisPublic {
+    // JCP APIs
+    jcpAPIs {
         java {
-            srcDirs 'src/jcpApisPublic/java_public'
+            srcDirs 'src/jcpAPIs/java'
+            srcDirs 'src/jospGWs/java'      // JOSP GWs is included in JCP APIs
         }
     }
-
-    jcpApis {
-        java {
-            srcDirs 'src/jcpApis/java_public'
-            srcDirs 'src/jcpAPIs_Login/java'
-            srcDirs 'src/jcpAPIs_User/java'
-            srcDirs 'src/jcpAPIs_Object/java'
-            srcDirs 'src/jcpAPIs_Service/java'
-            srcDirs 'src/jcpAPIs_Permissions/java'
-            srcDirs 'src/jcpAPIs_Configs/java'
-            srcDirs 'src/jcpAPIs_Updates/java'
-
-            srcDirs 'src/jcpJOSPGWs/java'
-        }
-    }                                                                 // on localhost:
 }
 
-// Micro service's run tasks
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpApis)
+// JCP APIs's run tasks
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs)
 
-tasks.bootJcpApisRun {
-    //jvmArgs = ['-Djavax.net.debug=ssl']
+configurations {
+    jcpAPIsPublicImplementation.extendsFrom jospCommonsImplementation
+    jcpAPIsPublicCompileOnly.extendsFrom jospCommonsCompileOnly
+    jcpAPIsPublicAnnotationProcessor.extendsFrom jospCommonsAnnotationProcessor
+
+    jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
+    jcpAPIsCompileOnly.extendsFrom jcpAPIsPublicCompileOnly
+    jcpAPIsAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
 }
 
 dependencies {
-    jcpApisPublicImplementation sourceSets.jospCommons.output
-    jcpApisPublicImplementation sourceSets.jospCommons.runtimeClasspath
-    jcpApisPublicCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
-    jcpApisPublicAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    // JCP API's Public dependencies
+    jcpAPIsPublicImplementation sourceSets.jospCommons.output
 
-    // Micro service's dependencies
-    jcpApisImplementation sourceSets.jcpApisPublic.output
-    jcpApisImplementation sourceSets.jcpApisPublic.runtimeClasspath
-    jcpApisCompileOnly 'org.projectlombok:lombok:1.18.12'                               // Lombok annotations
-    jcpApisAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
-    jcpApisImplementation 'org.springframework.boot:spring-boot-starter-web'
-    jcpApisImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'       // Database support
-    jcpApisImplementation 'mysql:mysql-connector-java'
-    jcpApisImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
-    jcpApisImplementation 'org.springframework.security:spring-security-oauth2-jose'    // OAuth (Resource) support
-    jcpApisImplementation 'org.springframework.security:spring-security-oauth2-resource-server'
-    jcpApisImplementation 'org.springframework.security:spring-security-oauth2-client'
-    jcpApisImplementation 'org.keycloak:keycloak-spring-boot-starter'
+    // JCP API's dependencies
+    jcpAPIsImplementation sourceSets.jcpAPIsPublic.output
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-web'
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'       // Database support
+    jcpAPIsImplementation 'mysql:mysql-connector-java'
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
+    jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-jose'    // OAuth (Resource) support
+    jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-client'
+    jcpAPIsImplementation 'org.keycloak:keycloak-spring-boot-starter'
     def excludeSwagger = {                                                              // Swagger support
         exclude group: 'io.swagger', module: 'swagger-annotations'
         exclude group: 'io.swagger', module: 'swagger-models'
     }
-    jcpApisImplementation 'io.springfox:springfox-swagger2:2.9.2', excludeSwagger
-    jcpApisImplementation 'io.springfox:springfox-swagger-ui:2.9.2', excludeSwagger
-    jcpApisImplementation 'io.swagger:swagger-annotations:1.5.21'
-    jcpApisImplementation 'io.swagger:swagger-models:1.5.21'
-    jcpApisImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.10.2'
-
+    jcpAPIsImplementation 'io.springfox:springfox-swagger2:2.9.2', excludeSwagger
+    jcpAPIsImplementation 'io.springfox:springfox-swagger-ui:2.9.2', excludeSwagger
+    jcpAPIsImplementation 'io.swagger:swagger-annotations:1.5.21'
+    jcpAPIsImplementation 'io.swagger:swagger-models:1.5.21'
+    jcpAPIsImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.10.2'
 }
+
+
+// -------------
+// Runners Tasks
+// -------------
+
+// JCP APIs
+
+task jcpAPI_Start {
+    description = 'Runs...'
+    group = 'JOSP runners'
+    dependsOn bootJcpAPIsRun
+}
+
+task jcpAPI_Stop {
+    description = 'Runs...'
+    group = 'JOSP runners'
+    //...kill jcpAPIStart task
+}
+
+task jcpAPI_Clean {
+    description = 'Runs...'
+    group = 'JOSP cleaners'
+    //...delete and recreate jcp_api database in dbms
+}
+
+// JOSP GWs
+
+// Actually is included in JCP APIs
+
+
+// -------------------
+// Publication include
+// -------------------
+
+apply from: 'build_jcpApis_publish.gradle'

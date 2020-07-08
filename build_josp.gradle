@@ -1,59 +1,73 @@
 import com.robypomper.build.java.JavaRunnableUtils
 
+/**
+ * Gradle configurations to manage JOD and JSL as java implementations.
+ *
+ * Summary:
+ * - JOSP Commons configs
+ * - Runners Tasks
+ * - Runners Configs Tasks
+ * - Publication include
+ *
+ * This file configure and provide tasks for JOD and JSL artifacts:
+ * - JOD: run (Apple, Fruit), run by Configs, publish as jar
+ * - JSL: run (resilient, new), run by Configs, publish as jar
+ */
+
+
+// -------------------
+// JOD and JSL configs
+// -------------------
+
 sourceSets {
-    jospCore {
-        java {
-            srcDirs 'src/jospCore/java_public'   // interfaces only
-            srcDirs 'src/jospCore/java'          // main jcp classes
-            srcDirs 'src/jospCore/java_impl002'  // implementations for v 0.0.2
-        }
-    }
-    jospJOD {
-        java {
-            srcDirs 'src/jospJOD/java_public'   // interfaces only
-            srcDirs 'src/jospJOD/java'          // main jod classes
-            srcDirs 'src/jospJOD/java_mains'    // main runnable classes
-            srcDirs 'src/jospJOD/java_impl002'  // implementations for v 0.0.2
-        }
-    }
-    jospJSL {
-        java {
-            srcDirs 'src/jospJSL/java_public'   // interfaces only
-            srcDirs 'src/jospJSL/java'          // main jod classes
-            srcDirs 'src/jospJSL/java_mains'    // main runnable classes
-            srcDirs 'src/jospJSL/java_impl002'  // implementations for v 0.0.2
-        }
-    }
+    jospJOD {}
+    jospJSL {}
+}
+
+configurations {
+    // JOD
+    jospJODImplementation.extendsFrom jcpAPIsPublicImplementation
+
+    // JSL
+    jospJSLImplementation.extendsFrom jcpAPIsPublicImplementation
 }
 
 dependencies {
-    // Core - All
-    jospCoreImplementation sourceSets.jospCommons.output
-    jospCoreImplementation sourceSets.jospCommons.runtimeClasspath
-
-    // JOD - All
-    jospJODImplementation sourceSets.jospCore.output
-    jospJODImplementation configurations.jospCoreImplementation
-    jospJODImplementation sourceSets.jcpApisPublic.output
-    jospJODImplementation sourceSets.jcpApisPublic.runtimeClasspath
-    // JOD - Mains
+    // JOD
+    jospJODImplementation sourceSets.jcpAPIsPublic.output
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
 
-    // JSL - All
-    jospJSLImplementation sourceSets.jospCore.output
-    jospJSLImplementation configurations.jospCoreImplementation
-    // JSL - Impls
-    jospJSLImplementation sourceSets.jcpApisPublic.output
-    jospJSLImplementation sourceSets.jcpApisPublic.runtimeClasspath
-    // JSL - Mains
+    // JSL
+    jospJSLImplementation sourceSets.jcpAPIsPublic.output
     jospJSLImplementation 'commons-cli:commons-cli:1.4'
     jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
 }
 
 
-// Make Java Runnable
+// -------------
+// Runners Tasks
+// -------------
 
+// JOD
+
+// run JOD Apple (resilient)...group("JOSP runners")
+// clean JOD Apple (resilient)...group("JOSP cleaners")
+// run JOD Fruit (new)...group("JOSP runners")
+
+
+// JSL
+
+// run JSL Resilient...group("JOSP runners")
+// clean JSL Resilient...group("JOSP cleaners")
+// run JSL New...group("JOSP runners")
+
+
+// ---------------------
+// Runners Configs Tasks
+// ---------------------
+
+// Make Java Runnable
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod) {
     runnableName = "JOD${runnableName}"
     String mainClass = 'com.robypomper.josp.jod.JODShell'
@@ -63,7 +77,7 @@ def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jo
     String jarTaskName = "java${runnableName}Run"
 
     tasks.getByName(jarTaskName) {
-        group 'application jod'
+        group 'JOSP runners jod'
         standardInput = System.in
         //args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
         //jvmArgs = ['-Djavax.net.debug=ssl']
@@ -82,7 +96,6 @@ def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jo
         }
     }
 }
-
 def makeJSLJavaRunnable(String runnableName, String config_yml) {
     runnableName = "JSL${runnableName}"
     String mainClass = 'com.robypomper.josp.jsl.JSLShell'
@@ -92,7 +105,7 @@ def makeJSLJavaRunnable(String runnableName, String config_yml) {
     String jarTaskName = "java${runnableName}Run"
 
     tasks.getByName(jarTaskName) {
-        group 'application jsl'
+        group 'JOSP runners jsl'
         standardInput = System.in
         //args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
         //jvmArgs = ['-Djavax.net.debug=ssl']
@@ -108,8 +121,6 @@ def makeJSLJavaRunnable(String runnableName, String config_yml) {
     }
 }
 
-
-
 // JOD
 /*
  * ObjId    =>  unset   local   cloud
@@ -117,17 +128,14 @@ def makeJSLJavaRunnable(String runnableName, String config_yml) {
  *
  * Configs (ObjId, OwnerId, Off/Online)
  */
-
 makeJODJavaRunnable('uuf','jod_uuf.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('uun','jod_uun.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('usf','jod_usf.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('usn','jod_usn.yml','struct_default.jod','perms_default.jod')
-
 makeJODJavaRunnable('luf','jod_luf.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('lun','jod_lun.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('lsf','jod_lsf.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('lsn','jod_lsn.yml','struct_default.jod','perms_default.jod')
-
 makeJODJavaRunnable('cuf','jod_cuf.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('cun','jod_cun.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('csf','jod_csf.yml','struct_default.jod','perms_default.jod')
@@ -135,133 +143,45 @@ makeJODJavaRunnable('csn','jod_csn.yml','struct_default.jod','perms_default.jod'
 
 
 // JSL
-
 /**
  * Usr    =>  unset   set   anonymous
  *            when set, check that set token is valid and not expired
  *
  * Configs (Usr, Off/Online)
  */
-
 makeJSLJavaRunnable('uf','jsl_uf.yml')
 makeJSLJavaRunnable('un','jsl_un.yml')
 makeJSLJavaRunnable('sf','jsl_sf.yml')
 makeJSLJavaRunnable('sn','jsl_sn.yml')
 
 
+// -------------------
+// Publication include
+// -------------------
 
-// Tests
+apply from: 'build_josp_publish.gradle'
 
-sourceSets {
-    jospJODStructTest {
-        java {
-            compileClasspath += sourceSets.jospJOD.output
-            runtimeClasspath += sourceSets.jospJOD.output
-                                                            compileClasspath += sourceSets.jospJSL.output
-                                                            runtimeClasspath += sourceSets.jospJSL.output
-            srcDirs = ['src/jospJODTest/struct/java']
-        }
-        resources {
-            srcDirs = ['src/jospJODTest/struct/resources']
-        }
-    }
-    jospJODCommTest {
-        java {
-            compileClasspath += sourceSets.jospJOD.output
-            runtimeClasspath += sourceSets.jospJOD.output
-            compileClasspath += sourceSets.jospJSL.output
-            runtimeClasspath += sourceSets.jospJSL.output
-            srcDirs = ['src/jospJODTest/comm/java']
-        }
-    }
-    jospJSLCommTest {
-        compileClasspath += sourceSets.jospJSL.output
-        runtimeClasspath += sourceSets.jospJSL.output
-        compileClasspath += sourceSets.jospJOD.output
-        runtimeClasspath += sourceSets.jospJOD.output
-        java.srcDirs = ['src/jospJSLTest/comm/java']
-    }
+task jospJOD_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJodPublicationToMavenLocal
 }
 
-configurations {
-    jospJODStructTestImplementation.extendsFrom jospJODImplementation
-    jospJODStructTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
-
-    jospJODCommTestImplementation.extendsFrom jospJODImplementation
-    jospJODCommTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
-
-    jospJSLCommTestImplementation.extendsFrom jospJSLImplementation
-    jospJSLCommTestRuntimeOnly.extendsFrom jospJSLRuntimeOnly
+task jospJOD_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJodPublicationToSonatype
 }
 
-dependencies {
-    jospJODStructTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospJODStructTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-
-    jospJODCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospJODCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-
-    jospJSLCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    jospJSLCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+// JSL
+task jospJSL_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJslPublicationToMavenLocal
 }
 
-task jospJODTest {
-    description = 'Runs all JOD tests.'
-    group = 'verification'
-}
-check.dependsOn jospJODTest
-
-task jospJODStructTest(type: Test) {
-    description = 'Runs JOD Communication tests.'
-    group = 'verification'
-
-    testClassesDirs = sourceSets.jospJODStructTest.output.classesDirs
-    classpath = sourceSets.jospJODStructTest.runtimeClasspath
-    shouldRunAfter test
-    useJUnitPlatform()
-    //jvmArgs '-Djavax.net.debug=all'
-}
-jospJODTest.dependsOn jospJODStructTest
-
-task jospJODCommTest(type: Test) {
-    description = 'Runs JOD Communication tests.'
-    group = 'verification'
-
-    testClassesDirs = sourceSets.jospJODCommTest.output.classesDirs
-    classpath = sourceSets.jospJODCommTest.runtimeClasspath
-    shouldRunAfter test
-    useJUnitPlatform()
-    //jvmArgs '-Djavax.net.debug=all'
-}
-jospJODTest.dependsOn jospJODCommTest
-
-task jospJSLTest {
-    description = 'Runs all JSL tests.'
-    group = 'verification'
-}
-check.dependsOn jospJSLTest
-
-task jospJSLCommTest(type: Test) {
-    description = 'Runs JSL Communication tests.'
-    group = 'verification'
-
-    testClassesDirs = sourceSets.jospJSLCommTest.output.classesDirs
-    classpath = sourceSets.jospJSLCommTest.runtimeClasspath
-    shouldRunAfter test
-    useJUnitPlatform()
-    //jvmArgs '-Djavax.net.debug=all'
-}
-jospJSLTest.dependsOn jospJSLCommTest
-
-
-// gradle > intellij settings
-idea {
-    module {
-        testSourceDirs += project.sourceSets.jospJODStructTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospJODStructTest.resources.srcDirs
-        testSourceDirs += project.sourceSets.jospJODCommTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospJODCommTest.resources.srcDirs
-        testSourceDirs += project.sourceSets.jospJSLCommTest.java.srcDirs
-        testSourceDirs += project.sourceSets.jospJSLCommTest.resources.srcDirs
-    }
+task jospJSL_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJslPublicationToSonatype
 }

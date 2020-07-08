@@ -1,77 +1,197 @@
-import com.robypomper.build.java.JavaRunnableUtils
+
+/**
+ * Gradle configurations to manage JOSP project's tests.
+ *
+ * Summary:
+ * - SourceSes configs
+ * - Tests Tasks
+ * - IntelliJ Modules
+ *
+ * This file configure and provide test tasks for all JOSP project's components:
+ * - JOSP Commons: communication tests
+ * - JOD: communication and structure tests
+ * - JSL: communication tests
+ *
+ * Component's test are organized by one sourceSets for each unit of the component
+ * (comm, struct, perms...) and this file provide specific and generic (All) tests
+ * tasks.
+ */
+
+
+// -----------------
+// SourceSes configs
+// -----------------
 
 sourceSets {
-    // Common library for JCP projects
-    clientTest {}
+
+    // Test's Commons
+
+    test_Commons {
+        java.srcDirs 'tests/test_Commons/java'
+        resources.srcDirs 'tests/test_Commons/resources'
+    }
+
+
+    // JOSP Commons
+
+    test_jospCommonsComm {
+        java.srcDirs 'tests/test_jospCommonsComm/java'
+        resources.srcDirs 'tests/test_jospCommonsComm/resources'
+    }
+
+
+    // JOD
+
+    test_jospJODStruct {
+        java.srcDirs 'tests/test_jospJODStruct/java'
+        resources.srcDirs 'tests/test_jospJODStruct/resources'
+    }
+
+    test_jospJODComm {
+        java.srcDirs 'tests/test_jospJODComm/java'
+        resources.srcDirs 'tests/test_jospJODComm/resources'
+    }
+
+
+    // JSL
+
+    test_jospJSLComm {
+        java.srcDirs 'tests/test_jospJSLComm/java'
+        resources.srcDirs 'tests/test_jospJSLComm/resources'
+    }
+
 }
 
 dependencies {
-    clientTestImplementation sourceSets.jospCommons.output
-    clientTestImplementation sourceSets.jospCommons.runtimeClasspath
-    clientTestImplementation sourceSets.jcpApisPublic.output
-    clientTestImplementation sourceSets.jcpApisPublic.runtimeClasspath
-    clientTestImplementation sourceSets.jospJOD.output
-    clientTestImplementation sourceSets.jospJOD.runtimeClasspath
-    clientTestImplementation sourceSets.jospJSL.output
-    clientTestImplementation sourceSets.jospJSL.runtimeClasspath
-    clientTestImplementation 'com.github.scribejava:scribejava-core:6.9.0'
-    clientTestImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
-    clientTestImplementation 'commons-cli:commons-cli:1.4'
-    clientTestImplementation 'org.keycloak:keycloak-core:9.0.0'
+
+    // Test's commons
+    test_CommonsImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    test_CommonsRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    test_CommonsImplementation sourceSets.jospCommons.output
+    test_CommonsImplementation sourceSets.jospCommons.runtimeClasspath
+    test_CommonsImplementation sourceSets.jospJOD.output
+    test_CommonsImplementation sourceSets.jospJOD.runtimeClasspath
+    test_CommonsImplementation sourceSets.jospJSL.output
+    test_CommonsImplementation sourceSets.jospJSL.runtimeClasspath
+
+    // JOSP Commons
+    test_jospCommonsCommImplementation sourceSets.test_Commons.output
+    test_jospCommonsCommImplementation sourceSets.test_Commons.runtimeClasspath
+
+    // JOD
+    test_jospJODStructImplementation sourceSets.test_Commons.output
+    test_jospJODStructImplementation sourceSets.test_Commons.runtimeClasspath
+    test_jospJODCommImplementation sourceSets.test_Commons.output
+    test_jospJODCommImplementation sourceSets.test_Commons.runtimeClasspath
+
+    // JSL
+    test_jospJSLCommImplementation sourceSets.test_Commons.output
+    test_jospJSLCommImplementation sourceSets.test_Commons.runtimeClasspath
 }
 
-// Add java app's run tasks
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Auth_Obj')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Auth_UsrSrv')
 
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Reg_Usr')
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Reg_Obj')
+// -----------
+// Tests Tasks
+// -----------
 
-JavaRunnableUtils.makeJavaFromSourceSet(project,sourceSets.clientTest,'com.robypomper.josp.test.ClientMain','_Test_Keycloak')
+// JOSP Commons
 
-tasks.javaClientTest_Auth_ObjRun {
-    group 'application test'
-    standardInput = System.in
-    args = ['--authFlow', 'ClientCredentialsFlow',              // AuthCodeFlow | ClientCredentialsFlow
-            '--env', 'jcp',                                     // jcp | josp | test
-            '--clientCredentials', 'jcp-test-client-obj',       // See in ClientSettings{Env} class
-            '--disable-ssl-checks']                             // Disable SSL certificate validity
+task jospJOSPCommonsAllTest(type: Test) {
+    description = 'Runs all JOD tests.'
+    group = 'verification'
 }
-tasks.javaClientTest_Auth_UsrSrvRun {
-    group 'application test'
-    standardInput = System.in
-    args = ['--authFlow', 'AuthCodeFlow',
-            '--env', 'jcp',
-            '--clientCredentials', 'jcp-test-client-srv',
-            '--disable-ssl-checks']
-}
+check.dependsOn jospJOSPCommonsAllTest
 
-tasks.javaClientTest_Reg_UsrRun {
-    group 'application test'
-    standardInput = System.in
-    args = ['--authFlow', 'AuthCodeFlow',
-            '--reqFlow', 'usrRegistration',
-            '--env', 'jcp',
-            '--clientCredentials', 'jcp-test-client-srv',
-            '--disable-ssl-checks']
-}
+task jospJOSPCommonsCommTest(type: Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
 
-tasks.javaClientTest_Reg_ObjRun {
-    group 'application test'
-    standardInput = System.in
-    args = ['--authFlow', 'ClientCredentialsFlow',
-            '--reqFlow', 'objRegistration',
-            '--env', 'jcp',
-            '--clientCredentials', 'jcp-test-client-obj',
-            '--disable-ssl-checks']
+    testClassesDirs = sourceSets.test_jospCommonsComm.output.classesDirs
+    classpath = sourceSets.test_jospCommonsComm.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
 }
+jospJOSPCommonsAllTest.dependsOn jospJOSPCommonsCommTest
 
-tasks.javaClientTest_Test_KeycloakRun {
-    group 'application test'
-    standardInput = System.in
-    args = ['--authFlow', 'ClientCredentialsFlow',
-            '--reqFlow', 'keycloakTest',
-            '--env', 'jcp',
-            '--clientCredentials', 'jcp-test-client-api',
-            '--disable-ssl-checks']
+
+// JOD
+
+task jospJODAllTest(type: Test) {
+    description = 'Runs all JOD tests.'
+    group = 'verification'
+}
+check.dependsOn jospJODAllTest
+
+task jospJODStructTest(type: Test) {
+    description = 'Runs JOD Communication tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.test_jospJODStruct.output.classesDirs
+    classpath = sourceSets.test_jospJODStruct.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+jospJODAllTest.dependsOn jospJODStructTest
+
+task jospJODCommTest(type: Test) {
+    description = 'Runs JOD Communication tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.test_jospJODComm.output.classesDirs
+    classpath = sourceSets.test_jospJODComm.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+jospJODAllTest.dependsOn jospJODCommTest
+
+
+// JSL
+
+task jospJSLAllTest(type: Test) {
+    description = 'Runs all JSL tests.'
+    group = 'verification'
+}
+check.dependsOn jospJSLAllTest
+
+task jospJSLCommTest(type: Test) {
+    description = 'Runs JSL Communication tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.test_jospJSLComm.output.classesDirs
+    classpath = sourceSets.test_jospJSLComm.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+jospJSLAllTest.dependsOn jospJSLCommTest
+
+
+// ----------------
+// IntelliJ Modules
+// ----------------
+
+// gradle > intellij settings
+idea {
+    module {
+        // Test's commons
+//        testSourceDirs += project.sourceSets.test_Commons.java.srcDirs
+//        testSourceDirs += project.sourceSets.test_Commons.resources.srcDirs
+
+        // JOSP Commons
+        testSourceDirs += project.sourceSets.test_jospCommonsComm.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospCommonsComm.resources.srcDirs
+
+        // JOD
+        testSourceDirs += project.sourceSets.test_jospJODStruct.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODStruct.resources.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODComm.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODComm.resources.srcDirs
+
+        // JSL
+        testSourceDirs += project.sourceSets.test_jospJSLComm.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJSLComm.resources.srcDirs
+    }
 }

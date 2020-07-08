@@ -1,0 +1,60 @@
+import com.robypomper.build.java.JavaPublicationUtils
+
+// --------------------------
+// Jar Tasks for publications
+// --------------------------
+
+// JOSP Commons (Docs and Src)
+def jospCommonsName = 'JOSP Commons Library'
+def jospCommonsArtifact = 'jospCommons'
+def jospCommonsVersion = '2.0.0'
+
+task jospCommonsDocs(type: Javadoc) {
+    source sourceSets.jospCommons.allJava
+    classpath = sourceSets.jospCommons.runtimeClasspath
+}
+
+task jospCommonsDocsJar(type: Jar) {
+    classifier = 'doc'
+    from jospCommonsDocs
+
+    manifest {
+        attributes 'Implementation-Title': jospCommonsName + " - Docs",
+                'Implementation-Version': jospCommonsVersion
+    }
+}
+
+task jospCommonsSrcJar(type: Jar) {
+    classifier = 'src'
+
+    from sourceSets.jospCommons.allSource
+
+    manifest {
+        attributes 'Implementation-Title': jospCommonsName + " - Sources",
+                'Implementation-Version': jospCommonsVersion
+    }
+}
+
+
+// ------------
+// Publications
+// ------------
+
+publishing {
+    publications {
+
+        // JOSP Commons
+        jospCommons(MavenPublication) {
+            groupId = project.group
+            artifactId = jospCommonsArtifact
+            version = jospCommonsVersion
+
+            artifact tasks.jospCommonsSrcJar
+            artifact tasks.jospCommonsDocsJar
+
+            JavaPublicationUtils.initPom(pom, jospCommonsName, 'The JOSP Commons Library', projectUrl, projectGit, projectGitUrl)
+            JavaPublicationUtils.clearAllDependenciesToPom(pom)
+        }
+
+    }
+}
