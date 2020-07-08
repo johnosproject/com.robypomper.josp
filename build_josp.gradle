@@ -77,7 +77,7 @@ def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jo
     String jarTaskName = "java${runnableName}Run"
 
     tasks.getByName(jarTaskName) {
-        group 'application jod'
+        group 'JOSP runners jod'
         standardInput = System.in
         //args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
         //jvmArgs = ['-Djavax.net.debug=ssl']
@@ -105,7 +105,7 @@ def makeJSLJavaRunnable(String runnableName, String config_yml) {
     String jarTaskName = "java${runnableName}Run"
 
     tasks.getByName(jarTaskName) {
-        group 'application jsl'
+        group 'JOSP runners jsl'
         standardInput = System.in
         //args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
         //jvmArgs = ['-Djavax.net.debug=ssl']

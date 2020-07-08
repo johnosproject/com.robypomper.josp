@@ -41,19 +41,19 @@ DockerNetworkUtils.setDockerNetworkDependency(project,dockerCompose.auth,"jcp-de
 
 task dbms_Up {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP runners'
     dependsOn dbmsComposeUp
 }
 
 task dbms_Down {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP runners'
     dependsOn dbmsComposeDown
 }
 
 task dbms_Clean {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP cleaners'
     //...delete evs/docker/dbms dir
 }
 
@@ -61,18 +61,18 @@ task dbms_Clean {
 
 task auth_Up {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP runners'
     dependsOn authComposeUp
 }
 
 task auth_Down {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP runners'
     dependsOn authComposeDown
 }
 
 task auth_Clean {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP cleaners'
     //...delete and recreate jcp_auth database in dbms
 }

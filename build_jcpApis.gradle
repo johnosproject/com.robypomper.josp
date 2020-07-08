@@ -85,19 +85,19 @@ dependencies {
 
 task jcpAPI_Start {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP runners'
     dependsOn bootJcpAPIsRun
 }
 
 task jcpAPI_Stop {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP runners'
     //...kill jcpAPIStart task
 }
 
 task jcpAPI_Clean {
     description = 'Runs...'
-    group = 'runners'
+    group = 'JOSP cleaners'
     //...delete and recreate jcp_api database in dbms
 }
 
