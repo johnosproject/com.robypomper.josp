@@ -1,0 +1,6 @@
+# JOSP JOD - Permissions
+
+TODO
+
+...
+
