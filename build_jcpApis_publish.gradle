@@ -68,7 +68,6 @@ publishing {
             artifactId = jcpAPIsArtifact
             version = jcpAPIsVersion
 
-            artifact tasks.jcpAPIsJar
             artifact tasks.jcpAPIsSrcJar
             artifact tasks.jcpAPIsDocsJar
 

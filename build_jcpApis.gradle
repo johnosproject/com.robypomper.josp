@@ -111,3 +111,17 @@ task jcpAPI_Clean {
 // -------------------
 
 apply from: 'build_jcpApis_publish.gradle'
+
+
+// JCP APIs Public
+task jcpAPI_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJcpAPIsPublicationToMavenLocal
+}
+
+task jcpAPI_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJcpAPIsPublicationToSonatype
+}
