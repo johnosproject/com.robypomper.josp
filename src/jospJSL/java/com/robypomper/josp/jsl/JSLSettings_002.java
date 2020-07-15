@@ -43,7 +43,7 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JSLCOMM_LOCAL_ENABLED_DEF        = "true";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST     = "jsl.comm.local.onlyLocalhost";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF = "false";
-    public static final String JSLCOMM_LOCAL_DISCOVERY          = "jsl.comm.local.impl";
+    public static final String JSLCOMM_LOCAL_DISCOVERY          = "jsl.comm.local.discovery";
     public static final String JSLCOMM_LOCAL_DISCOVERY_DEF      = "avahi";
 
     public static final String JSLCOMM_CLOUD_ENABLED            = "jsl.comm.cloud.enabled";
