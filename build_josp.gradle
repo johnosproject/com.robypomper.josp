@@ -45,30 +45,11 @@ dependencies {
 }
 
 
-// -------------
-// Runners Tasks
-// -------------
-
-// JOD
-
-// run JOD Apple (resilient)...group("JOSP runners")
-// clean JOD Apple (resilient)...group("JOSP cleaners")
-// run JOD Fruit (new)...group("JOSP runners")
-
-
-// JSL
-
-// run JSL Resilient...group("JOSP runners")
-// clean JSL Resilient...group("JOSP cleaners")
-// run JSL New...group("JOSP runners")
-
-
-// ---------------------
-// Runners Configs Tasks
-// ---------------------
-
 // Make Java Runnable
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod) {
+    makeJODJavaRunnable(runnableName, config_yml, struct_jod, perms_jod, true)
+}
+def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, boolean overrideIfExist) {
     runnableName = "JOD${runnableName}"
     String mainClass = 'com.robypomper.josp.jod.JODShell'
     File workingDir = file("envs/runnables/jod/${runnableName}")
@@ -83,20 +64,26 @@ def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jo
         //jvmArgs = ['-Djavax.net.debug=ssl']
 
         doFirst {
-            delete workingDir
-            copy {
-                from "src/jospJOD/configs/${config_yml}"
-                from "src/jospJOD/configs/${struct_jod}"
-                from "src/jospJOD/configs/${perms_jod}"
-                rename 'jod(.+).yml', 'jod.yml'
-                rename 'struct(.+).jod', 'struct.jod'
-                rename 'perms(.+).jod', 'perms.jod'
-                into workingDir
-            }
+            if (workingDir.exists() && overrideIfExist)
+                delete workingDir
+
+            if (!workingDir.exists())
+                copy {
+                    from "src/jospJOD/configs/${config_yml}"
+                    from "src/jospJOD/configs/${struct_jod}"
+                    from "src/jospJOD/configs/${perms_jod}"
+                    rename 'jod(.+).yml', 'jod.yml'
+                    rename 'struct(.+).jod', 'struct.jod'
+                    rename 'perms(.+).jod', 'perms.jod'
+                    into workingDir
+                }
         }
     }
 }
 def makeJSLJavaRunnable(String runnableName, String config_yml) {
+    makeJSLJavaRunnable(runnableName, config_yml, true)
+}
+def makeJSLJavaRunnable(String runnableName, String config_yml, boolean overrideIfExist) {
     runnableName = "JSL${runnableName}"
     String mainClass = 'com.robypomper.josp.jsl.JSLShell'
     File workingDir = file("envs/runnables/jsl/${runnableName}")
@@ -111,15 +98,36 @@ def makeJSLJavaRunnable(String runnableName, String config_yml) {
         //jvmArgs = ['-Djavax.net.debug=ssl']
 
         doFirst {
-            delete workingDir
-            copy {
-                from "src/jospJSL/configs/${config_yml}"
-                rename 'jsl(.+).yml', 'jsl.yml'
-                into workingDir
-            }
+            if (workingDir.exists() && overrideIfExist)
+                delete workingDir
+
+            if (!workingDir.exists())
+                copy {
+                    from "src/jospJSL/configs/${config_yml}"
+                    rename 'jsl(.+).yml', 'jsl.yml'
+                    into workingDir
+                }
         }
     }
 }
+
+
+// -------------
+// Runners Tasks
+// -------------
+
+// JOD
+makeJODJavaRunnable('','jod_default.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('Vanilla','jod_default.yml','struct_default.jod','perms_default.jod')
+
+// JSL
+makeJSLJavaRunnable('','jsl_default.yml')
+makeJSLJavaRunnable('Vanilla','jsl_default.yml')
+
+
+// ---------------------
+// Runners Configs Tasks
+// ---------------------
 
 // JOD
 /*
@@ -161,12 +169,12 @@ makeJSLJavaRunnable('sn','jsl_sn.yml')
 
 apply from: 'build_josp_publish.gradle'
 
+// JOD
 task jospJOD_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJodPublicationToMavenLocal
 }
-
 task jospJOD_PublishToSonatype {
     description = 'Publish...'
     group = 'JOSP publishers (sonatype)'
@@ -179,7 +187,6 @@ task jospJSL_PublishToLocal {
     group = 'JOSP publishers (locals)'
     dependsOn publishJslPublicationToMavenLocal
 }
-
 task jospJSL_PublishToSonatype {
     description = 'Publish...'
     group = 'JOSP publishers (sonatype)'
