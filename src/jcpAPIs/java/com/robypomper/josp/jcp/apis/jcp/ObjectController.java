@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.apis.objs;
+package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.java.JavaRandomStrings;
 import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
@@ -7,7 +7,6 @@ import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.ObjectId;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -33,7 +32,7 @@ import java.util.Optional;
  */
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {JCPAPIsGroups.API_OBJS_SG_BASE_NAME})
+@Api(tags = {APIObjs.SubGroupInfo.NAME})
 public class ObjectController {
 
     // Internal vars

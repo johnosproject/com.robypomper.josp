@@ -10,30 +10,14 @@ public class JCPContacts {
 
     // Constants
 
-    private static final String VER_TEST = "test";
-    private static final String PATH_PREFIX = "apis";
-    public static final String RES_PATH_DESC = "classpath:docs/api-%s-description.txt";
-
-
-    // API's names
-
-    public static final String API_EXMPL = "Examples";
-    public static final String API_LOGIN = "Login";
-    public static final String API_OBJS = "Objs";
-
-
-    // API's paths (only for @RequestMapping annotations)
-
-    public static final String PATH_EXMPL = "/apis/examples/test/";
-    public static final String PATH_LOGIN = "/apis/login/test/";
-
-
     public static final String WWW_RP = "robypomper.com";
     public static final String MAIL_AT_RP = "%s@" + WWW_RP;
     public static final String URL_RP = "https://www." + WWW_RP;
+
     public static final String WWW_JOHN = "johnosproject.com";
     public static final String MAIL_AT_JOHN = "%s@" + WWW_JOHN;
     public static final String URL_JOHN = "https://www." + WWW_JOHN;
+
     public static final String WWW_CODAX = "codax.it";
     public static final String MAIL_AT_CODAX = "%s@" + WWW_CODAX;
     public static final String URL_CODAX = "https://www." + WWW_CODAX;
