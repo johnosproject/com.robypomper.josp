@@ -133,7 +133,7 @@ def makeJSLJavaRunnable(String runnableName, String config_yml, String group_nam
 makeJODJavaRunnable('','jod_default.yml','struct_default.jod','perms_default.jod',false)
 makeJODJavaRunnable('Vanilla','jod_default.yml','struct_default.jod','perms_default.jod')
 task javaJOD_Clean(type: Delete) {
-    group 'JOSP runners jod'
+    group 'JOSP cleaners'
     delete "envs/runnables/jod/JOD"
 }
 clean.dependsOn javaJOD_Clean
@@ -142,7 +142,7 @@ clean.dependsOn javaJOD_Clean
 makeJSLJavaRunnable('','jsl_default.yml',false)
 makeJSLJavaRunnable('Vanilla','jsl_default.yml')
 task javaJSL_Clean(type: Delete) {
-    group 'JOSP runners jsl'
+    group 'JOSP cleaners'
     delete "envs/runnables/jsl/JSL"
 }
 clean.dependsOn javaJSL_Clean

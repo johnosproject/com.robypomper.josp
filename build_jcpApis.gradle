@@ -85,13 +85,13 @@ dependencies {
 
 task jcpAPI_Start {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp'
     dependsOn bootJcpAPIsRun
 }
 
 task jcpAPI_Stop {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp'
     //...kill jcpAPIStart task
 }
 

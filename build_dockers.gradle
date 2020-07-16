@@ -41,13 +41,13 @@ DockerNetworkUtils.setDockerNetworkDependency(project,dockerCompose.auth,"jcp-de
 
 task dbms_Up {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn dbmsComposeUp
 }
 
 task dbms_Down {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn dbmsComposeDown
 }
 
@@ -61,13 +61,13 @@ task dbms_Clean {
 
 task auth_Up {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn authComposeUp
 }
 
 task auth_Down {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn authComposeDown
 }
 
