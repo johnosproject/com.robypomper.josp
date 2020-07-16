@@ -5,9 +5,12 @@ import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
 
 
 /**
@@ -125,7 +128,9 @@ public abstract class AbsJSL implements JSL {
         log.info(Mrk_JSL.JSL_MAIN, "JSL Srv is started");
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv status           = %s", status()));
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv version          = %s", version()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv settings version = %s", settings.version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP JOD supported       = %s", Arrays.asList(versionsJOSPObject())));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP protocol supported  = %s", Arrays.asList(versionsJOSPProtocol())));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JCP APIs supported       = %s", Arrays.asList(versionsJCPAPIs())));
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv id               = %s", srvInfo.getSrvId()));
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv name             = %s", srvInfo.getSrvName()));
     }

@@ -9,9 +9,6 @@ import java.util.Map;
 public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
 
     //@formatter:off
-    public static final String JSLVERSION_REQUIRED = "jsl.version";
-    public static final String JSLVERSION_REQUIRED_DEF = JSL_002.VERSION;
-
     public static final String JCP_CONNECT              = "jcp.connect";
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
@@ -50,10 +47,6 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JSLCOMM_CLOUD_ENABLED_DEF        = "true";
     //@formatter:on
 
-    // Internal vars
-
-    private String jslVer = null;
-
 
     // Constructor
 
@@ -67,27 +60,6 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
 
     public JSLSettings_002(Map<String, Object> properties) {
         super(properties);
-    }
-
-
-    // JSL
-
-    @Override
-    public String version() {
-        return JSL_002.VERSION;
-    }
-
-    @Override
-    public String getJSLVersion_Required() {
-        return jslVer != null ? jslVer :
-                getString(JSLVERSION_REQUIRED, JSLVERSION_REQUIRED_DEF);
-    }
-
-    @Override
-    public void setJSLVersion_Required(String jslVer, boolean storageUpd) {
-        this.jslVer = jslVer;
-        if (storageUpd)
-            store(JSLVERSION_REQUIRED, jslVer, true);
     }
 
 
