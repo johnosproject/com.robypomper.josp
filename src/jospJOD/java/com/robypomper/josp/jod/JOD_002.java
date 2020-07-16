@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.jcp.info.JCPAPIsVersions;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODCommunication_002;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
@@ -13,6 +14,7 @@ import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.permissions.JODPermissions_002;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jod.structure.JODStructure_002;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +25,7 @@ public class JOD_002 extends AbsJOD {
 
     // Class constants
 
-    public static final String VERSION = FactoryJOD.JOD_VER_002;
+    private static final String VERSION = FactoryJOD.JOD_VER_2_0_0;   // Upgraded to 2.0.0
     private static final int MAX_INSTANCE_ID = 10000;
 
 
@@ -85,6 +87,16 @@ public class JOD_002 extends AbsJOD {
     @Override
     public String version() {
         return VERSION;
+    }
+
+    @Override
+    public String[] versionsJOSPProtocol() {
+        return new String[]{JOSPProtocol.JOSP_PROTO_VERSION_2_0};
+    }
+
+    @Override
+    public String[] versionsJCPAPIs() {
+        return new String[]{JCPAPIsVersions.VER_JCP_APIs_2_0};
     }
 
 }

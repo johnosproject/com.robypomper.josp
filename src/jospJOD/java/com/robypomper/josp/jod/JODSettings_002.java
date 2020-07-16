@@ -10,9 +10,6 @@ import java.util.Map;
 public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
 
     //@formatter:off
-    public static final String JODVERSION_REQUIRED = "jod.version";
-    public static final String JODVERSION_REQUIRED_DEF = JOD_002.VERSION;
-
     public static final String JCP_CONNECT              = "jcp.connect";
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
@@ -64,11 +61,6 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     //@formatter:on
 
 
-    // Internal vars
-
-    private String jodVer = null;
-
-
     // Constructor
 
     public static JOD.Settings instance(File file) throws IOException {
@@ -81,27 +73,6 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
 
     public JODSettings_002(Map<String, Object> properties) {
         super(properties);
-    }
-
-
-    // JOD
-
-    @Override
-    public String version() {
-        return JOD_002.VERSION;
-    }
-
-    @Override
-    public String getJODVersion_Required() {
-        return jodVer != null ? jodVer :
-                getString(JODVERSION_REQUIRED, JODVERSION_REQUIRED_DEF);
-    }
-
-    @Override
-    public void setJODVersion_Required(String jodVer, boolean storageUpd) {
-        this.jodVer = jodVer;
-        if (storageUpd)
-            store(JODVERSION_REQUIRED, jodVer, true);
     }
 
 
