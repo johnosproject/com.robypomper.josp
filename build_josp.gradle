@@ -139,7 +139,7 @@ task javaJOD_Clean(type: Delete) {
 clean.dependsOn javaJOD_Clean
 
 // JSL
-makeJSLJavaRunnable('','jsl_default.yml')
+makeJSLJavaRunnable('','jsl_default.yml',false)
 makeJSLJavaRunnable('Vanilla','jsl_default.yml')
 task javaJSL_Clean(type: Delete) {
     group 'JOSP runners jsl'
