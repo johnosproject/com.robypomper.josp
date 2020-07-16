@@ -1,10 +1,9 @@
-package com.robypomper.josp.jcp.apis.permissions;
+package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.apis.paths.APIPermissions;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,7 +34,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {JCPAPIsGroups.API_PERM_SG_OBJ_NAME})
+@Api(tags = {APIPermissions.SubGroupObjPerm.NAME})
 public class ObjectPermissionsController {
 
     // Internal vars

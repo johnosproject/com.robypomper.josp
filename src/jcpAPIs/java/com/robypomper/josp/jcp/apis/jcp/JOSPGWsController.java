@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.apis.gateway;
+package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
@@ -11,7 +11,6 @@ import com.robypomper.josp.jcp.apis.paths.APISrvs;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
 import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -41,7 +40,7 @@ import java.security.cert.CertificateEncodingException;
  * manage their JOSP GWs connections.
  */
 @RestController
-@Api(tags = {JCPAPIsGroups.API_JGWS_SG_O2S_NAME})
+@Api(tags = {APIJOSPGWs.SubGroupGWs.NAME})
 public class JOSPGWsController {
 
     // Internal vars

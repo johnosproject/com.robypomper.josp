@@ -1,7 +1,7 @@
-package com.robypomper.josp.jcp.apis;
+package com.robypomper.josp.jcp.apis.examples;
 
+import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 
+//@RestController
+//@RequestMapping(JCPAPIsGroups.PATH_EXMPL)
+//@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_AUTHORIZATION_NAME})
 @RestController
-@RequestMapping(JCPAPIsGroups.PATH_EXMPL)
-@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_AUTHORIZATION_NAME})
+@RequestMapping(ExampleAPIs.FULL_AUTHORIZATION_GENERIC)
+@Api(tags = {ExampleAPIs.SubGroupAuthorization.NAME})
 public class APIProtectedController {
 
     @GetMapping(path = "/public")
@@ -32,7 +35,7 @@ public class APIProtectedController {
 
     @GetMapping(path = "/private")
     @ApiOperation(value = "Only authenticated user accessible method",
-            authorizations = @Authorization(value=SwaggerConfigurer.OAUTH_FLOW_DEF_SRV)
+            authorizations = @Authorization(value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV)
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
@@ -48,7 +51,7 @@ public class APIProtectedController {
 
     @GetMapping(path = "/private/auth_swagger/pass")
     @ApiOperation(value = "Only authenticated with Auth Code Flow user accessible method",
-            authorizations = @Authorization(value=SwaggerConfigurer.OAUTH_PASS)
+            authorizations = @Authorization(value = SwaggerConfigurer.OAUTH_PASS)
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
@@ -61,7 +64,7 @@ public class APIProtectedController {
 
     @GetMapping(path = "/private/auth_swagger/credentials")
     @ApiOperation(value = "Only authenticated with Client Cred Flow user accessible method",
-            authorizations = @Authorization(value=SwaggerConfigurer.OAUTH_CRED)
+            authorizations = @Authorization(value = SwaggerConfigurer.OAUTH_CRED)
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
@@ -74,7 +77,7 @@ public class APIProtectedController {
 
     @GetMapping(path = "/private/auth_swagger/implicit")
     @ApiOperation(value = "Only authenticated with Implicit Flow user accessible method",
-            authorizations = @Authorization(value=SwaggerConfigurer.OAUTH_IMPL)
+            authorizations = @Authorization(value = SwaggerConfigurer.OAUTH_IMPL)
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
@@ -91,7 +94,7 @@ public class APIProtectedController {
     @GetMapping(path = "/private/roles/obj")
     @ApiOperation(value = "Only authenticated obj/user accessible method",
             authorizations = @Authorization(
-                    value=SwaggerConfigurer.OAUTH_FLOW_DEF_TEST,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_TEST,
                     scopes = @AuthorizationScope(
                             scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
                             description = SwaggerConfigurer.ROLE_OBJ_DESC
@@ -111,7 +114,7 @@ public class APIProtectedController {
     @GetMapping(path = "/private/roles/srv")
     @ApiOperation(value = "Only authenticated srv/user accessible method",
             authorizations = @Authorization(
-                    value=SwaggerConfigurer.OAUTH_FLOW_DEF_TEST,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_TEST,
                     scopes = @AuthorizationScope(
                             scope = SwaggerConfigurer.ROLE_SRV_SWAGGER,
                             description = SwaggerConfigurer.ROLE_SRV_DESC
@@ -131,7 +134,7 @@ public class APIProtectedController {
     @GetMapping(path = "/private/roles/mng")
     @ApiOperation(value = "Only authenticated mng/user accessible method",
             authorizations = @Authorization(
-                    value=SwaggerConfigurer.OAUTH_FLOW_DEF_TEST,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_TEST,
                     scopes = @AuthorizationScope(
                             scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
                             description = SwaggerConfigurer.ROLE_MNG_DESC

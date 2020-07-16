@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.apis.srvs;
+package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.srvs.SrvName;
@@ -7,7 +7,6 @@ import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.external.resources.auth.AuthDefault;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import com.robypomper.josp.jcp.security.SecurityUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,7 +30,7 @@ import java.util.Optional;
  */
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {JCPAPIsGroups.API_SRVS_SG_BASE_NAME})
+@Api(tags = {APISrvs.SubGroupInfo.NAME})
 public class ServiceController {
 
     // Internal vars

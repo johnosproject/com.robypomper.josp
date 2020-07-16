@@ -44,6 +44,24 @@ public interface JSL {
     String version();
 
 
+    /**
+     * @return the list of supported JOSP JOD (direct) versions.
+     */
+    String[] versionsJOSPObject();
+
+
+    /**
+     * @return the list of supported JOSP Protocol versions.
+     */
+    String[] versionsJOSPProtocol();
+
+
+    /**
+     * @return the list of supported JCP APIs versions.
+     */
+    String[] versionsJCPAPIs();
+
+
     // JSL mngm
 
     /**
@@ -163,41 +181,6 @@ public interface JSL {
         static Settings instance(File file) {
             return null;
         }
-
-
-        // JSL.Settings implementation version
-
-        /**
-         * @return the JSL.Settings implementation version.
-         */
-        String version();
-
-
-        // JSL settings
-
-        /**
-         * JSL required version.
-         * <p>
-         * The required JSL version is read from configs file (optionally from
-         * JSL init method params) and is used to get right {@link JSL} and
-         * {@link JSL.Settings} implementations. Then this implementations can
-         * expose different JSL's version.
-         * <p>
-         * To get actually using JSL's version, look at {@link JSL#version()}
-         * method.
-         *
-         * @return the JSL required version.
-         */
-        String getJSLVersion_Required();
-
-        /**
-         * Set JSL required version.
-         *
-         * @param jslVer     the JSL required version to set.
-         * @param storageUpd if true, store given value on configs file and make
-         *                   it available at next JSL reboot.
-         */
-        void setJSLVersion_Required(String jslVer, boolean storageUpd);
 
     }
 

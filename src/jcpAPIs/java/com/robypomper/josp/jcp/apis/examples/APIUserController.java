@@ -1,7 +1,7 @@
-package com.robypomper.josp.jcp.apis;
+package com.robypomper.josp.jcp.apis.examples;
 
+import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import com.robypomper.josp.jcp.security.SecurityUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -16,9 +16,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 
+//@RestController
+//@RequestMapping(JCPAPIsGroups.PATH_EXMPL)
+//@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_AUTHENTICATION_NAME})
 @RestController
-@RequestMapping(JCPAPIsGroups.PATH_EXMPL)
-@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_AUTHENTICATION_NAME})
+@RequestMapping(ExampleAPIs.FULL_AUTHENTICATION_GENERIC)
+@Api(tags = {ExampleAPIs.SubGroupAuthentication.NAME})
 public class APIUserController {
 
     @GetMapping(path = "/user")

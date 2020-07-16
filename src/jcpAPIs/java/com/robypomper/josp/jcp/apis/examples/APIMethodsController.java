@@ -1,6 +1,6 @@
-package com.robypomper.josp.jcp.apis;
+package com.robypomper.josp.jcp.apis.examples;
 
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
+import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * REST API class for method examples.
  */
+//@RestController
+//@RequestMapping(JCPAPIsGroups.PATH_EXMPL)
+//@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_METHODS_NAME})
 @RestController
-@RequestMapping(JCPAPIsGroups.PATH_EXMPL)
-@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_METHODS_NAME})
+@RequestMapping(ExampleAPIs.FULL_METHODS_GENERIC)
+@Api(tags = {ExampleAPIs.SubGroupMethods.NAME})
 public class APIMethodsController {
 
     @GetMapping("/str")

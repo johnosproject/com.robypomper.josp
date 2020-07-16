@@ -1,8 +1,8 @@
-package com.robypomper.josp.jcp.apis;
+package com.robypomper.josp.jcp.apis.examples;
 
+import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
 import com.robypomper.josp.jcp.db.UsernameDBService;
 import com.robypomper.josp.jcp.db.entities.UserName;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,9 +24,13 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
+//@RestController
+//@RequestMapping(JCPAPIsGroups.PATH_EXMPL + "/db")
+//@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_DB_NAME})
 @RestController
-@RequestMapping(JCPAPIsGroups.PATH_EXMPL + "/db")
-@Api(tags = {JCPAPIsGroups.API_EXMPL_SG_DB_NAME})
+//@RequestMapping("/apis/examples/" + JCPAPIsGroups.VER_TEST_2_0 + "/db")
+@RequestMapping(ExampleAPIs.FULL_DB_DB)
+@Api(tags = {ExampleAPIs.SubGroupDB.NAME})
 public class APIDBEntityController {
 
     private final UsernameDBService usernamesService;
@@ -69,13 +73,13 @@ public class APIDBEntityController {
             @ApiResponse(code = 200, message = "Username founded successfully", response = String.class),
             @ApiResponse(code = 404, message = "Username with specified id not found")
     })
-    public ResponseEntity<String> getUsername (
+    public ResponseEntity<String> getUsername(
             @Valid
             @PathVariable
                     Long id
     ) {
         UserName username = findById(id).getBody();
-        if (username==null)
+        if (username == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Request id ('%s') not found.", id));
 
         return ResponseEntity.ok(username.getUserName());

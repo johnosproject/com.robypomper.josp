@@ -1,13 +1,18 @@
 package com.robypomper.josp.jcp.docs;
 
 import com.google.common.collect.Lists;
-import com.robypomper.josp.jcp.apis.paths.APIAuth;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
+import com.robypomper.josp.jcp.apis.paths.*;
+import com.robypomper.josp.jcp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.info.JCPContacts;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -27,18 +32,20 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.robypomper.josp.jcp.info.JCPAPIsGroups.RES_PATH_DESC;
 
 /**
  * Class to configure Swagger docs features on JCP APIs services.
- *
- * This class get APIs group and sub-groups info from {@link JCPAPIsGroups} class
+ * <p>
+ * This class get APIs group and sub-groups info from {@link JCPAPIsVersions} class
  * and transform them in Swagger Dockets and Swagger tags.
- *
+ * <p>
  * This class, also define, for Swagger environment:
  * AuthFlows: AuthCode, ClientCred, Implicit*
  * Scopes: obj, srv, mng
@@ -48,6 +55,7 @@ import static com.robypomper.josp.jcp.info.JCPAPIsGroups.RES_PATH_DESC;
 public class SwaggerConfigurer {
 
     private static final String DEFAULT_INCLUDE_PATTERN_NONE = "/none";
+    public static final String RES_PATH_DESC = "classpath:docs/api-%s-description.txt";
 
     public static final String ROLE_OBJ = "obj";
     public static final String ROLE_OBJ_SWAGGER = "role_obj";
@@ -93,53 +101,53 @@ public class SwaggerConfigurer {
 
     @Bean
     public Docket exampleApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_EXMPL));
-    }
-
-    @Bean
-    public Docket loginApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_LOGIN));
+        APISubGroup[] sg = new APISubGroup[4];
+        sg[0] = new APISubGroup(ExampleAPIs.SubGroupMethods.NAME, ExampleAPIs.SubGroupMethods.DESCR);
+        sg[1] = new APISubGroup(ExampleAPIs.SubGroupDB.NAME, ExampleAPIs.SubGroupDB.DESCR);
+        sg[2] = new APISubGroup(ExampleAPIs.SubGroupAuthentication.NAME, ExampleAPIs.SubGroupAuthentication.DESCR);
+        sg[3] = new APISubGroup(ExampleAPIs.SubGroupAuthorization.NAME, ExampleAPIs.SubGroupAuthorization.DESCR);
+        return createAPIsGroup(new APIGroup(ExampleAPIs.API_NAME, ExampleAPIs.API_VER, sg));
     }
 
     @Bean
     public Docket usrsApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_USRS));
+        APISubGroup[] sg = new APISubGroup[1];
+        sg[0] = new APISubGroup(APIUsrs.SubGroupInfo.NAME, APIUsrs.SubGroupInfo.DESCR);
+        return createAPIsGroup(new APIGroup(APIUsrs.API_NAME, APIUsrs.API_VER, sg));
     }
 
     @Bean
     public Docket objsApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_OBJS));
+        APISubGroup[] sg = new APISubGroup[1];
+        sg[0] = new APISubGroup(APIObjs.SubGroupInfo.NAME, APIObjs.SubGroupInfo.DESCR);
+        return createAPIsGroup(new APIGroup(APIObjs.API_NAME, APIObjs.API_VER, sg));
     }
 
     @Bean
     public Docket srvsApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_SRVS));
+        APISubGroup[] sg = new APISubGroup[1];
+        sg[0] = new APISubGroup(APISrvs.SubGroupInfo.NAME, APISrvs.SubGroupInfo.DESCR);
+        return createAPIsGroup(new APIGroup(APISrvs.API_NAME, APISrvs.API_VER, sg));
     }
 
     @Bean
     public Docket permApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_PERM));
-    }
-
-    @Bean
-    public Docket confApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_CONF));
-    }
-
-    @Bean
-    public Docket updsApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_UPDS));
+        APISubGroup[] sg = new APISubGroup[1];
+        sg[0] = new APISubGroup(APIPermissions.SubGroupObjPerm.NAME, APIPermissions.SubGroupObjPerm.DESCR);
+        return createAPIsGroup(new APIGroup(APIPermissions.API_NAME, APIPermissions.API_VER, sg));
     }
 
     @Bean
     public Docket jospgwsApis() {
-        return createAPIsGroup(JCPAPIsGroups.getAPIGroupByName(JCPAPIsGroups.API_JGWS));
+        APISubGroup[] sg = new APISubGroup[1];
+        sg[0] = new APISubGroup(APIJOSPGWs.SubGroupGWs.NAME, APIJOSPGWs.SubGroupGWs.DESCR);
+        return createAPIsGroup(new APIGroup(APIJOSPGWs.API_NAME, APIJOSPGWs.API_VER, sg));
     }
 
 
     // Private configurers
 
-    private Docket createAPIsGroup(JCPAPIsGroups.APIGroup api) {
+    private Docket createAPIsGroup(APIGroup api) {
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .groupName(api.getName())
                 .apiInfo(metadata(api))
@@ -158,11 +166,10 @@ public class SwaggerConfigurer {
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.ant(api.getPath()))
                 .build()
-                .useDefaultResponseMessages(false)
-                ;
+                .useDefaultResponseMessages(false);
 
         Tag[] tags = subGroupsToTags(api.getSubGroups());
-        if (tags.length>0) {
+        if (tags.length > 0) {
             Tag tag = tags[0];
             tags = Arrays.copyOfRange(tags, 1, tags.length);
             docket.tags(tag, tags);
@@ -194,7 +201,7 @@ public class SwaggerConfigurer {
                 "https://" + urlBaseAuth + OAUTH_PATH_TOKEN
         ));
 
-        return new OAuth(OAUTH_CRED,getScopesList(),grants);
+        return new OAuth(OAUTH_CRED, getScopesList(), grants);
     }
 
     private OAuth oauthImplicitFlow() {
@@ -205,7 +212,7 @@ public class SwaggerConfigurer {
                 OAUTH_TOKEN_NAME
         ));
 
-        return new OAuth(OAUTH_IMPL,getScopesList(),grants);
+        return new OAuth(OAUTH_IMPL, getScopesList(), grants);
     }
 
     private List<AuthorizationScope> getScopesList() {
@@ -220,10 +227,10 @@ public class SwaggerConfigurer {
         return scopes;
     }
 
-    private ApiInfo metadata(JCPAPIsGroups.APIGroup api) {
-        String title = api!=null ? api.getTitle() : "JCP APIs";
-        String description = api!=null ? api.getDescription() : JCPAPIsGroups.APIGroup.getLoadDescription(String.format(RES_PATH_DESC, "home"));
-        String version = api!=null ? api.getVersion() : "";
+    private ApiInfo metadata(APIGroup api) {
+        String title = api != null ? api.getTitle() : "JCP APIs";
+        String description = api != null ? getDescription(api) : getLoadDescription(String.format(RES_PATH_DESC, "home"));
+        String version = api != null ? api.getVersion() : "";
 
         return new ApiInfoBuilder()
                 .title(title)
@@ -233,10 +240,61 @@ public class SwaggerConfigurer {
                 .build();
     }
 
-    private Tag[] subGroupsToTags(JCPAPIsGroups.APISubGroup[] subGroups) {
+    private Tag[] subGroupsToTags(APISubGroup[] subGroups) {
         Tag[] tags = new Tag[subGroups.length];
-        for (int i=0; i< subGroups.length; i++)
-            tags[i] = new Tag(subGroups[i].getName(),subGroups[i].getDescription());
+        for (int i = 0; i < subGroups.length; i++)
+            tags[i] = new Tag(subGroups[i].getName(), subGroups[i].getDescription());
         return tags;
+    }
+
+
+    private String getDescription(APIGroup api) {
+        return getLoadDescription(api.getDescriptionPath());
+    }
+
+    private static String getLoadDescription(String resPath) {
+        try {
+            ResourceLoader loader = new DefaultResourceLoader();
+            Resource res = loader.getResource(resPath);
+            Reader reader = new InputStreamReader(res.getInputStream());
+            return FileCopyUtils.copyToString(reader);
+
+        } catch (IOException err) {
+            return String.format("Description not found, check '%s' file.", resPath);
+        }
+    }
+
+    // Data types
+
+    @Data
+    public static class APIGroup {
+
+        private final String name;
+
+        private final String version;
+
+        private final APISubGroup[] subGroups;
+
+
+        public String getPath() {
+            return String.format("%s/%s/%s/**", JcpAPI.PATH_API_BASE, getName(), getVersion());
+        }
+
+        public String getTitle() {
+            return String.format("JCP APIs - %s", getName());
+        }
+
+        public String getDescriptionPath() {
+            return String.format(RES_PATH_DESC, name).toLowerCase();
+        }
+
+    }
+
+    @Data
+    public static class APISubGroup {
+
+        private final String name;
+        private final String description;
+
     }
 }

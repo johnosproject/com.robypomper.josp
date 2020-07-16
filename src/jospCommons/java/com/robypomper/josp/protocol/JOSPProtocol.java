@@ -21,9 +21,11 @@ import java.util.TimeZone;
 public class JOSPProtocol {
 
     // Class constants
+    public static final String JOSP_PROTO_VERSION_2_0 = "2.0";
 
     public static final String DISCOVERY_TYPE = "_josp2._tcp";
-    protected static final String JOSP_PROTO = "JOSP/2.0";
+    public static final String JOSP_PROTO_VERSION = JOSP_PROTO_VERSION_2_0;
+    protected static final String JOSP_PROTO = "JOSP/" + JOSP_PROTO_VERSION;
 
     private static final String UPD_MSG_BASE = JOSPProtocol.JOSP_PROTO + " UPD_MSG";
     private static final String UPD_MSG = UPD_MSG_BASE + " %s\nobjId:%s\ncompPath:%s\nupdType:%s\n%s";

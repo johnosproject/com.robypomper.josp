@@ -10,6 +10,8 @@ import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+
 /**
  * Default {@link JOD} implementation, initialization excluded.
  * <p>
@@ -145,8 +147,9 @@ public abstract class AbsJOD implements JOD {
 
         log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' started", objInfo.getObjId()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj status           = %s", status()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj version          = %s", version()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj settings version = %s", settings.version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP JOD version         = %s", version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP protocol supported  = %s", Arrays.asList(versionsJOSPProtocol())));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JCP APIs supported       = %s", Arrays.asList(versionsJCPAPIs())));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj id               = %s", objInfo.getObjId()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj name             = %s", objInfo.getObjName()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj owner id         = %s", objInfo.getOwnerId()));

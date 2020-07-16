@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.apis.usr;
+package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.apis.params.usrs.UsrName;
@@ -7,7 +7,6 @@ import com.robypomper.josp.jcp.db.UserDBService;
 import com.robypomper.josp.jcp.db.entities.User;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.external.resources.auth.AuthDefault;
-import com.robypomper.josp.jcp.info.JCPAPIsGroups;
 import com.robypomper.josp.jcp.security.SecurityUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,7 +30,7 @@ import java.util.Optional;
  * Base JCP API Usrs controller, dedicated to provide current user info.
  */
 @RestController
-@Api(tags = {JCPAPIsGroups.API_USRS_SG_BASE_NAME})
+@Api(tags = {APIUsrs.SubGroupInfo.NAME})
 public class UserController {
 
     // Internal vars
