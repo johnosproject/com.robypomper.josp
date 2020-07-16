@@ -51,11 +51,11 @@ task dbms_Down {
     dependsOn dbmsComposeDown
 }
 
-task dbms_Clean {
-    description = 'Runs...'
-    group = 'JOSP cleaners'
-    //...delete evs/docker/dbms dir
+task dbms_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/dockers/dbms"
 }
+clean.dependsOn dbms_Clean
 
 // Auth
 
