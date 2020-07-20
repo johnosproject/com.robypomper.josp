@@ -1,5 +1,6 @@
 package com.robypomper.josp.jsl;
 
+import com.robypomper.java.JavaVersionUtils;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.info.JCPAPIsVersions;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
@@ -23,7 +24,7 @@ public class JSL_002 extends AbsJSL {
 
     // Class constants
 
-    private static final String VERSION = FactoryJSL.JSL_VER_2_0_0;   // Upgraded to 2.0.0
+    public static final String VERSION = FactoryJSL.JSL_VER_2_0_0;   // Upgraded to 2.0.0
     private static final int MAX_INSTANCE_ID = 10000;
 
 
@@ -39,6 +40,8 @@ public class JSL_002 extends AbsJSL {
     }
 
     public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException {
+        log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Service Library",VERSION));
+
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JSL.JSL_MAIN, String.format("Init JSL instance id '%s'", instanceId));
 

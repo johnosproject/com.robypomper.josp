@@ -3,6 +3,7 @@ package com.robypomper.josp.jsl;
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jsl.info.JSLInfo;
+import com.robypomper.josp.jsl.shell.CmdsShell;
 import com.robypomper.josp.jsl.shell.CmdsJCPClient;
 import com.robypomper.josp.jsl.shell.CmdsJSL;
 import com.robypomper.josp.jsl.shell.CmdsJSLCommunication;
@@ -215,6 +216,7 @@ public class JSLShell {
     public void startShell(String objName) throws IOException {
         shell = ShellFactory.createConsoleShell(JSLInfo.APP_NAME + "-" + objName, JSLInfo.APP_NAME_FULL,
                 this,
+                new CmdsShell(shell),
                 new CmdsJSL(jsl),
                 new CmdsJCPClient(jsl.getJCPClient()),
                 new CmdsJSLServiceInfo(jsl.getServiceInfo()),
