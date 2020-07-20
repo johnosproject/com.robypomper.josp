@@ -146,7 +146,13 @@ clean.dependsOn javaJOD_Clean
 
 // JSL
 makeJSLJavaRunnable('','jsl_default.yml',false)
+makeJSLJavaRunnable('OnlyLocal','jsl_only-local.yml',false)
+makeJSLJavaRunnable('OnlyCloud','jsl_only-cloud.yml',false)
+makeJSLJavaRunnable('NoComm','jsl_no-comm.yml',false)
 makeJSLJavaRunnable('Vanilla','jsl_default.yml')
+makeJSLJavaRunnable('VanillaOnlyLocal','jsl_only-local.yml')
+makeJSLJavaRunnable('VanillaOnlyCloud','jsl_only-cloud.yml')
+makeJSLJavaRunnable('VanillaNoComm','jsl_no-comm.yml')
 task javaJSL_Clean(type: Delete) {
     group 'JOSP cleaners'
     delete "envs/runnables/jsl/JSL"
