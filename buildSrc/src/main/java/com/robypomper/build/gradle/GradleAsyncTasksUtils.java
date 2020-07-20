@@ -10,11 +10,14 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Add tasks to run java application as a AsyncTask.
+ */
 public class GradleAsyncTasksUtils {
 
     // StartAsync
 
-    public static class StartAsync extends DefaultTask {
+    static public class StartAsync extends DefaultTask {
 
         public String command;                             // cmd to execute
         public String ready;                               // log line printed on successfully startup
@@ -164,7 +167,7 @@ public class GradleAsyncTasksUtils {
 
     // StopAsync
 
-    public static class StopAsync extends DefaultTask {
+    static public class StopAsync extends DefaultTask {
 
         public File pidFile = null;                        // file to read process pid
         public boolean throwOnError = true;                // if true, each error throw an exception, otherwise the task exits
@@ -207,7 +210,7 @@ public class GradleAsyncTasksUtils {
 
     // Utils methods
 
-    public static void waitAfter(Task task, int seconds, Task secondTask) {
+    static public void waitAfter(Task task, int seconds, Task secondTask) {
         task.doLast(it -> {
             if (seconds>0)
                 log(String.format("DEB: Wait %d seconds before executing next task...", seconds));
@@ -219,7 +222,7 @@ public class GradleAsyncTasksUtils {
         secondTask.mustRunAfter(task);
     }
 
-    public static void log(String msg) {
+    static public void log(String msg) {
         System.out.println(msg);
     }
 
