@@ -3,6 +3,7 @@ package com.robypomper.josp.jod;
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jod.info.JODInfo;
+import com.robypomper.josp.jod.shell.CmdsShell;
 import com.robypomper.josp.jod.shell.CmdsJCPClient;
 import com.robypomper.josp.jod.shell.CmdsJOD;
 import com.robypomper.josp.jod.shell.CmdsJODCommunication;
@@ -213,6 +214,7 @@ public class JODShell {
     public void startShell(String objName) throws IOException {
         shell = ShellFactory.createConsoleShell(JODInfo.APP_NAME + "-" + objName, JODInfo.APP_NAME_FULL,
                 this,
+                new CmdsShell(shell),
                 new CmdsJOD(jod),
                 new CmdsJCPClient(jod.getJCPClient()),
                 new CmdsJODObjectInfo(jod.getObjectInfo()),

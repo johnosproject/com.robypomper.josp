@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod;
 
+import com.robypomper.java.JavaVersionUtils;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.info.JCPAPIsVersions;
 import com.robypomper.josp.jod.comm.JODCommunication;
@@ -25,7 +26,7 @@ public class JOD_002 extends AbsJOD {
 
     // Class constants
 
-    private static final String VERSION = FactoryJOD.JOD_VER_2_0_0;   // Upgraded to 2.0.0
+    public static final String VERSION = FactoryJOD.JOD_VER_2_0_0;   // Upgraded to 2.0.0
     private static final int MAX_INSTANCE_ID = 10000;
 
 
@@ -41,6 +42,8 @@ public class JOD_002 extends AbsJOD {
     }
 
     public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JODPermissions.PermissionsFileException {
+        log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Object Daemon", VERSION));
+
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JOD.JOD_MAIN, String.format("Init JOD instance id '%s'", instanceId));
 
