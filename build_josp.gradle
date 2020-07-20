@@ -131,7 +131,13 @@ def makeJSLJavaRunnable(String runnableName, String config_yml, String group_nam
 
 // JOD
 makeJODJavaRunnable('','jod_default.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('OnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('OnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('NoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod',false)
 makeJODJavaRunnable('Vanilla','jod_default.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('VanillaOnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('VanillaOnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('VanillaNoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod')
 task javaJOD_Clean(type: Delete) {
     group 'JOSP cleaners'
     delete "envs/runnables/jod/JOD"
