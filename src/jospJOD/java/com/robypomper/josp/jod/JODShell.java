@@ -40,9 +40,6 @@ public class JODShell {
     private static final String ARG_CONFIGS_FILE_SHORT = "c";
     private static final String ARG_CONFIGS_FILE_DESCR = "specify JOD config file path (default: jod.yml)";
     private static final String ARGS_DEF_CONFIGS_FILE = "jod.yml";
-    private static final String ARG_JOD_VERSION = "jod-version";
-    private static final String ARG_JOD_VERSION_SHORT = "v";
-    private static final String ARG_JOD_VERSION_DESCR = "specify which JOD version to use (default: jod.version property from JOD config file)";
 
 
     // Exit codes
@@ -72,14 +69,13 @@ public class JODShell {
         Options options = createArgsParser();
         CommandLine parsedArgs = parseArgs(options, args);
         String configsFile = parsedArgs.getOptionValue(ARG_CONFIGS_FILE, ARGS_DEF_CONFIGS_FILE);
-        String jodVer = parsedArgs.getOptionValue(ARG_JOD_VERSION, "");
 
         // Initialize JOD
         System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
         System.out.println("INF: Load JOD Obj.");
         try {
-            JOD.Settings settings = FactoryJOD.loadSettings(configsFile, jodVer);
-            shell.createJOD(settings, jodVer);
+            JOD.Settings settings = FactoryJOD.loadSettings(configsFile);
+            shell.createJOD(settings);
         } catch (JODShell.Exception | JOD.FactoryException e) {
             shell.fatal(e, EXIT_ERROR_CONFIG);
             return;
@@ -172,14 +168,12 @@ public class JODShell {
      * Create new instance of the JOD object.
      *
      * @param settings settings used by the JOD object returned.
-     * @param jodVer   used to force JOD Object version to create, if empty latest
-     *                 version is used.
      */
-    public void createJOD(JOD.Settings settings, String jodVer) throws JODShell.Exception, JOD.FactoryException {
+    public void createJOD(JOD.Settings settings) throws JODShell.Exception, JOD.FactoryException {
         if (jod != null)
             throw new JODShell.Exception("Can't initialize JOD object twice.");
 
-        jod = FactoryJOD.createJOD(settings, jodVer);
+        jod = FactoryJOD.createJOD(settings);
     }
 
     /**
@@ -236,10 +230,6 @@ public class JODShell {
      *         {@value #ARG_CONFIGS_FILE} ({@value #ARG_CONFIGS_FILE_SHORT}):
      *         {@value #ARG_CONFIGS_FILE_DESCR}
      *     </li>
-     *     <li>
-     *         {@value #ARG_JOD_VERSION} ({@value #ARG_JOD_VERSION_SHORT}):
-     *         {@value #ARG_JOD_VERSION_DESCR}
-     *     </li>
      * </ul>
      *
      * @return {@link Options} object to use for args parsing.
@@ -251,11 +241,6 @@ public class JODShell {
         configsFile.setRequired(false);
         configsFile.setType(String.class);
         options.addOption(configsFile);
-
-        Option jodVer = new Option(ARG_JOD_VERSION_SHORT, ARG_JOD_VERSION, true, ARG_JOD_VERSION_DESCR);
-        jodVer.setRequired(false);
-        jodVer.setType(String.class);
-        options.addOption(jodVer);
 
         return options;
     }
