@@ -51,20 +51,19 @@ It's a software lib composed by:
 ## Gradle tasks
 
 **Runner tasks:**<br>
-  The JOSP JSL's running tasks execute the JSL library with the interactive shell:
+  The JOSP JSL's running tasks execute the JSL library with the interactive shell.
+  This JSL implementation is called JSL Shell and can be executed with following tasks:
   
   * ```./gradlew javaJSLRun```<br>
-    this task start a JSL agent from a persistent working dir. This means that,
+    this task start a JSL library from a persistent working dir. This means that,
     each JSL execution preserve the latest execution state (p.e. user login).
     After the first git commit, this task's working dir is added to ```.gitignore```
-    so any modification will not commit to the repository.<br>
-    **NB:** not yet implemented.
+    so any modification will not commit to the repository.
   
   * ```./gradlew javaJSLVanillaRun```<br>
     at every execution, the task's working dir (and then his configs and data)
     are cleaned. So with this task is always possible execute a JSL service
-    with default configs.<br>
-    **NB:** not yet implemented.
+    with default configs.
   
   * ```./gradlew javaJSL{UC}Run```<br>
     like the ```javaJSLVanillaRun``` task but with pre-set configs:<br>
@@ -75,11 +74,30 @@ It's a software lib composed by:
     | uf | Unset | No  |
     | so | Set (Pinco) | Yes |
     | sf | Set (Pinco) | No  |
+  
+  * ```./gradlew javaJSL{Disc}Run```<br>
+    like the ```javaJSL{UC}Run``` tasks, but use different configs that sets
+    local discovery sub-systems. This tasks can be used to test different
+    ZeroConf implementations compatibilities and/or JSL services tolerance to
+    test Discovery/Network errors.<br>
+
+    | Disc   | Discovery sub-system |
+    |--------|----------------------|
+    | Avahi  | Use the avahi damon installed on hosting Operating System |
+    | JmDNS  | Use the JmDNS implementation of the ZeroConfig protocol   |
+    | JmmDNS | Use the JmDNS implementation of the ZeroConfig protocol   |
     
+  For most used tasks ```javaJSLRun``` and ```javaJSLVanillaRun``` task modifiers
+  are available adding strings ```OnlyCloud```, ```OnlyLocal``` and ```NoComm```
+  to the tasks name ```javaJSL{Mod}Run``` and ```javaJSLVanilla{Mod}Run```.<br>
+  Each modifier start a JSL Shell instance with configurations that disable the
+  cloud communication, or disable the local communication or disable both
+  communications.
+        
 **Cleaner tasks:**<br>
   * ```./gradlew javaJSL_Clean```<br>
     delete working dir of ```javaJSLRun``` task.<br>
-    **NB:** not yet implemented.
+    **NB:** not yet implemented ####.
 
 **Publish tasks:**<br>
   The JOSP JOD publication package and publish following files:

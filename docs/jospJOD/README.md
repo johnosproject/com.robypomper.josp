@@ -67,14 +67,12 @@ It's a software java app composed by:
     all other execution keep the same configs. In other words when executed with
     this task, the JOD agent always represent the same object.
     After the first git commit, this task's working dir is added to ```.gitignore```
-    so any modification will not commit to the repository.<br>
-    **NB:** not yet implemented.
+    so any modification will not commit to the repository.
   
   * ```./gradlew javaJODVanillaRun```<br>
     at every execution, the task's working dir (and then his configs and data)
     are cleaned. So with this task is always possible execute a new JOD object
-    with default configs.<br>
-    **NB:** not yet implemented.
+    with default configs.
   
   * ```./gradlew javaJOD{IOC}Run```<br>
     like the ```javaJODVanillaRun``` task but with pre-set configs:<br>
@@ -94,10 +92,29 @@ It's a software java app composed by:
     | lsn | Set (Local) | Set (Pinco) | Yes |
     | lsf | Set (Local) | Set (Pinco) | No  |
     
+  * ```./gradlew javaJOD{Disc}Run```<br>
+    like the ```javaJOD{UC}Run``` tasks, but use different configs that sets
+    local discovery sub-systems. This tasks can be used to test different
+    ZeroConf implementations compatibilities and/or JOD object tolerance to
+    test Discovery/Network errors.<br>
+
+    | Disc   | Discovery sub-system |
+    |--------|----------------------|
+    | Avahi  | Use the avahi damon installed on hosting Operating System |
+    | JmDNS  | Use the JmDNS implementation of the ZeroConfig protocol   |
+    | JmmDNS | Use the JmDNS implementation of the ZeroConfig protocol   |
+    
+  For most used tasks ```javaJODRun``` and ```javaJODVanillaRun``` task modifiers
+  are available adding strings ```OnlyCloud```, ```OnlyLocal``` and ```NoComm```
+  to the tasks name ```javaJOD{Mod}Run``` and ```javaJODVanilla{Mod}Run```.<br>
+  Each modifier start a JOD agent instance with configurations that disable the
+  cloud communication, or disable the local communication or disable both
+  communications.
+    
 **Cleaner tasks:**<br>
   * ```./gradlew javaJOD_Clean```<br>
     delete working dir of ```javaJODRun``` task.<br>
-    **NB:** not yet implemented.
+    **NB:** not yet implemented ####.
 
 **Publish tasks:**<br>
   The JOSP JOD publication package and publish following files:
