@@ -38,8 +38,7 @@ user's password is ```root```.
   * ```./gradlew dbms_Clean```<br>
     delete all docker container's volumes.
     this tasks remove all the Docker's image, container and network generated
-    with ```dbms_Up``` task<br>
-    **NB:** not yet implemented.
+    with ```dbms_Up``` task
 
 
 ## Properties

@@ -39,8 +39,7 @@ administrator user credentials are ```admin/password```.
   * ```./gradlew auth_Clean```<br>
     delete all docker container's volumes.
     this tasks remove all the Docker's image, container and network generated
-    with ```auth_Up``` task<br>
-    **NB:** not yet implemented.
+    with ```auth_Up``` task
 
 
 ## Properties

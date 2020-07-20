@@ -218,6 +218,23 @@ The JOSP project split an IoT eco-system in 3 different components:
 ...
 
 
+## Versions
+
+...link to [JOSP Versions](docs/josp_versions.md)
+
+| Component | Latest Version |
+|-----------|----------------|
+| JOSP Protocol | 2.0 |
+| JCP APIs Ver  | 2.0 |
+| JOSP Commons  | unset |
+| JOSP JOD      | 2.0.0 |
+| JOSP JSL      | 2.0.0 |
+| JOSP GWs      | same as JCP APIs |
+| JCP APIs      | 2.0.0 |
+| JCP FrontEnd  | n/a |
+| BuildSrc      | unset |
+
+
 ## Licences
 
 JOSP Project's provide different software (JOSP Components) and each one of them

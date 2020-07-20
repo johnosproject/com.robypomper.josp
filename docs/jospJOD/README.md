@@ -45,6 +45,7 @@ It's a software java app composed by:
 * [Communication](communication.md)
 * [Permissions](permissions.md)
 * [JCP Client](jcpclient.md)
+* [JOD defaults](jod_defaults.md)
 
 **Versions:**<br>
   * v. 2.0.0:

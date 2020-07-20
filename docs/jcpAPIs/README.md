@@ -44,12 +44,12 @@ APIs Public** and is shared with [JOSP JOD](../jospJOD/README.md) and
     
   * ```./gradlew jcpAPI_Stop```<br>
     halt the Spring Boot application for JCP APIs.<br>
-    **NB:** not yet implemented.
+    **NB:** not yet implemented (kill ps).
 
 **Cleaner tasks:**<br>
   * ```./gradlew jcpAPI_Clean```<br>
     delete all tables from the ```jcp_apis``` DB.<br>
-    **NB:** not yet implemented.
+    **NB:** not yet implemented (sql statements).
 
 **Publish tasks:**<br>
   The JCP APIs Public can publish only "src" and "docs" packages. The binary
