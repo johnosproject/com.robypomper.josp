@@ -2,29 +2,29 @@
 
 <h2>API's Groups:</h2>
 <ul>
-  <li>
-    <a href="/swagger-ui.html?urls.primaryName=Examples">
+  <!-- <li>
+    <a href="/swagger-ui.html?urls.primaryName=examples">
       Examples
     </a>
-  </li>
-  <li>
+  </li> -->
+  <!-- <li>
     <a href="/swagger-ui.html?urls.primaryName=Login">
       Login
     </a>
-  </li>
+  </li> -->
   <li>
     <a href="/swagger-ui.html?urls.primaryName=User">
-      Users
+      User
     </a>
   </li>
   <li>
     <a href="/swagger-ui.html?urls.primaryName=Object">
-      Objects
+      Object
     </a>
   </li>
   <li>
     <a href="/swagger-ui.html?urls.primaryName=Service">
-      Services
+      Service
     </a>
   </li>
   <li>
@@ -32,14 +32,19 @@
       Permissions
     </a>
   </li>
-  <li>
+  <!-- <li>
     <a href="/swagger-ui.html?urls.primaryName=Configs">
       Configs
     </a>
-  </li>
-  <li>
+  </li> -->
+  <!-- <li>
     <a href="/swagger-ui.html?urls.primaryName=Updates">
       Updates
+    </a>
+  </li> -->
+  <li>
+    <a href="/swagger-ui.html?urls.primaryName=Gateways">
+      JOSP Gateways
     </a>
   </li>
 </ul>

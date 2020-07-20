@@ -7,6 +7,7 @@ import com.robypomper.build.java.JavaRunnableUtils
  * - JOSP Commons configs
  * - Runners Tasks
  * - Runners Configs Tasks
+ * - Runners Discovery Tasks
  * - Publication include
  *
  * This file configure and provide tasks for JOD and JSL artifacts:
@@ -45,30 +46,17 @@ dependencies {
 }
 
 
-// -------------
-// Runners Tasks
-// -------------
-
-// JOD
-
-// run JOD Apple (resilient)...group("JOSP runners")
-// clean JOD Apple (resilient)...group("JOSP cleaners")
-// run JOD Fruit (new)...group("JOSP runners")
-
-
-// JSL
-
-// run JSL Resilient...group("JOSP runners")
-// clean JSL Resilient...group("JOSP cleaners")
-// run JSL New...group("JOSP runners")
-
-
-// ---------------------
-// Runners Configs Tasks
-// ---------------------
-
 // Make Java Runnable
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod) {
+    makeJODJavaRunnable(runnableName, config_yml, struct_jod, perms_jod, null, true)
+}
+def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, String group_name) {
+    makeJODJavaRunnable(runnableName, config_yml, struct_jod, perms_jod, group_name, true)
+}
+def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, boolean overrideIfExist) {
+    makeJODJavaRunnable(runnableName, config_yml, struct_jod, perms_jod, null, overrideIfExist)
+}
+def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, String group_name, boolean overrideIfExist) {
     runnableName = "JOD${runnableName}"
     String mainClass = 'com.robypomper.josp.jod.JODShell'
     File workingDir = file("envs/runnables/jod/${runnableName}")
@@ -77,26 +65,38 @@ def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jo
     String jarTaskName = "java${runnableName}Run"
 
     tasks.getByName(jarTaskName) {
-        group 'JOSP runners jod'
+        group = group_name==null ? 'JOSP runners jod' : "JOSP runners jod ($group_name)"
         standardInput = System.in
         //args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
         //jvmArgs = ['-Djavax.net.debug=ssl']
 
         doFirst {
-            delete workingDir
-            copy {
-                from "src/jospJOD/configs/${config_yml}"
-                from "src/jospJOD/configs/${struct_jod}"
-                from "src/jospJOD/configs/${perms_jod}"
-                rename 'jod(.+).yml', 'jod.yml'
-                rename 'struct(.+).jod', 'struct.jod'
-                rename 'perms(.+).jod', 'perms.jod'
-                into workingDir
-            }
+            if (workingDir.exists() && overrideIfExist)
+                delete workingDir
+
+            if (!workingDir.exists())
+                copy {
+                    from "src/jospJOD/configs/${config_yml}"
+                    from "src/jospJOD/configs/${struct_jod}"
+                    from "src/jospJOD/configs/${perms_jod}"
+                    rename 'jod(.+).yml', 'jod.yml'
+                    rename 'struct(.+).jod', 'struct.jod'
+                    rename 'perms(.+).jod', 'perms.jod'
+                    into workingDir
+                }
         }
     }
 }
 def makeJSLJavaRunnable(String runnableName, String config_yml) {
+    makeJSLJavaRunnable(runnableName, config_yml, null, true)
+}
+def makeJSLJavaRunnable(String runnableName, String config_yml, String group_name) {
+    makeJSLJavaRunnable(runnableName, config_yml, group_name, true)
+}
+def makeJSLJavaRunnable(String runnableName, String config_yml, boolean overrideIfExist) {
+    makeJSLJavaRunnable(runnableName, config_yml, null, overrideIfExist)
+}
+def makeJSLJavaRunnable(String runnableName, String config_yml, String group_name, boolean overrideIfExist) {
     runnableName = "JSL${runnableName}"
     String mainClass = 'com.robypomper.josp.jsl.JSLShell'
     File workingDir = file("envs/runnables/jsl/${runnableName}")
@@ -105,21 +105,64 @@ def makeJSLJavaRunnable(String runnableName, String config_yml) {
     String jarTaskName = "java${runnableName}Run"
 
     tasks.getByName(jarTaskName) {
-        group 'JOSP runners jsl'
+        group = group_name==null ? 'JOSP runners jsl' : "JOSP runners jsl ($group_name)"
         standardInput = System.in
         //args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
         //jvmArgs = ['-Djavax.net.debug=ssl']
 
         doFirst {
-            delete workingDir
-            copy {
-                from "src/jospJSL/configs/${config_yml}"
-                rename 'jsl(.+).yml', 'jsl.yml'
-                into workingDir
-            }
+            if (workingDir.exists() && overrideIfExist)
+                delete workingDir
+
+            if (!workingDir.exists())
+                copy {
+                    from "src/jospJSL/configs/${config_yml}"
+                    rename 'jsl(.+).yml', 'jsl.yml'
+                    into workingDir
+                }
         }
     }
 }
+
+
+// -------------
+// Runners Tasks
+// -------------
+
+// JOD
+makeJODJavaRunnable('','jod_default.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('OnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('OnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('NoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaRunnable('Vanilla','jod_default.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('VanillaOnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('VanillaOnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('VanillaNoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod')
+task javaJOD_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jod/JOD"
+}
+clean.dependsOn javaJOD_Clean
+
+// JSL
+makeJSLJavaRunnable('','jsl_default.yml',false)
+makeJSLJavaRunnable('OnlyLocal','jsl_only-local.yml',false)
+makeJSLJavaRunnable('OnlyCloud','jsl_only-cloud.yml',false)
+makeJSLJavaRunnable('NoComm','jsl_no-comm.yml',false)
+makeJSLJavaRunnable('Vanilla','jsl_default.yml')
+makeJSLJavaRunnable('VanillaOnlyLocal','jsl_only-local.yml')
+makeJSLJavaRunnable('VanillaOnlyCloud','jsl_only-cloud.yml')
+makeJSLJavaRunnable('VanillaNoComm','jsl_no-comm.yml')
+task javaJSL_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jsl/JSL"
+}
+clean.dependsOn javaJSL_Clean
+
+
+// ---------------------
+// Runners Configs Tasks
+// ---------------------
 
 // JOD
 /*
@@ -128,18 +171,18 @@ def makeJSLJavaRunnable(String runnableName, String config_yml) {
  *
  * Configs (ObjId, OwnerId, Off/Online)
  */
-makeJODJavaRunnable('uuf','jod_uuf.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('uun','jod_uun.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('usf','jod_usf.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('usn','jod_usn.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('luf','jod_luf.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('lun','jod_lun.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('lsf','jod_lsf.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('lsn','jod_lsn.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('cuf','jod_cuf.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('cun','jod_cun.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('csf','jod_csf.yml','struct_default.jod','perms_default.jod')
-makeJODJavaRunnable('csn','jod_csn.yml','struct_default.jod','perms_default.jod')
+makeJODJavaRunnable('uuf','configs/jod_uuf.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('uun','configs/jod_uun.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('usf','configs/jod_usf.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('usn','configs/jod_usn.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('luf','configs/jod_luf.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('lun','configs/jod_lun.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('lsf','configs/jod_lsf.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('lsn','configs/jod_lsn.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('cuf','configs/jod_cuf.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('cun','configs/jod_cun.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('csf','configs/jod_csf.yml','struct_default.jod','perms_default.jod','Configs')
+makeJODJavaRunnable('csn','configs/jod_csn.yml','struct_default.jod','perms_default.jod','Configs')
 
 
 // JSL
@@ -149,10 +192,37 @@ makeJODJavaRunnable('csn','jod_csn.yml','struct_default.jod','perms_default.jod'
  *
  * Configs (Usr, Off/Online)
  */
-makeJSLJavaRunnable('uf','jsl_uf.yml')
-makeJSLJavaRunnable('un','jsl_un.yml')
-makeJSLJavaRunnable('sf','jsl_sf.yml')
-makeJSLJavaRunnable('sn','jsl_sn.yml')
+makeJSLJavaRunnable('uf','configs/jsl_uf.yml','Configs')
+makeJSLJavaRunnable('un','configs/jsl_un.yml','Configs')
+makeJSLJavaRunnable('sf','configs/jsl_sf.yml','Configs')
+makeJSLJavaRunnable('sn','configs/jsl_sn.yml','Configs')
+
+
+// -----------------------
+// Runners Discovery Tasks
+// -----------------------
+
+// JOD
+/*
+ * ObjId    =>  unset   local   cloud
+ * Owner    =>  unset   set
+ *
+ * Configs (ObjId, OwnerId, Off/Online)
+ */
+makeJODJavaRunnable('Avahi','discovery/jod_avahi.yml','struct_default.jod','perms_default.jod','Discovery')
+makeJODJavaRunnable('JmDNS','discovery/jod_jmdns.yml','struct_default.jod','perms_default.jod','Discovery')
+makeJODJavaRunnable('JmmDNS','discovery/jod_jmmdns.yml','struct_default.jod','perms_default.jod','Discovery')
+
+// JSL
+/**
+ * Usr    =>  unset   set   anonymous
+ *            when set, check that set token is valid and not expired
+ *
+ * Configs (Usr, Off/Online)
+ */
+makeJSLJavaRunnable('Avahi','discovery/jsl_avahi.yml','Discovery')
+makeJSLJavaRunnable('JmDNS','discovery/jsl_jmdns.yml','Discovery')
+makeJSLJavaRunnable('JmmDNS','discovery/jsl_jmmdns.yml','Discovery')
 
 
 // -------------------
@@ -161,12 +231,12 @@ makeJSLJavaRunnable('sn','jsl_sn.yml')
 
 apply from: 'build_josp_publish.gradle'
 
+// JOD
 task jospJOD_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJodPublicationToMavenLocal
 }
-
 task jospJOD_PublishToSonatype {
     description = 'Publish...'
     group = 'JOSP publishers (sonatype)'
@@ -179,7 +249,6 @@ task jospJSL_PublishToLocal {
     group = 'JOSP publishers (locals)'
     dependsOn publishJslPublicationToMavenLocal
 }
-
 task jospJSL_PublishToSonatype {
     description = 'Publish...'
     group = 'JOSP publishers (sonatype)'

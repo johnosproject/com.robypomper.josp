@@ -1,0 +1,173 @@
+import com.robypomper.build.gradle.GradleAsyncTasksUtils
+import com.robypomper.build.gradle.GradleAsyncTasksUtils.StartAsync
+import com.robypomper.build.gradle.GradleAsyncTasksUtils.StopAsync
+
+
+// --------------------
+// JCP APIs Async tasks
+// --------------------
+
+task jcpAPI_StartAsync(type: StartAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    command = "./gradlew jcpAPI_Start"// --debug"
+    //workingDir = project.file(workingDirBase + 'jcpAPI_StartAsync')
+    ready = 'Self connected'
+    //suppressConsoleOutputs = true
+    addLogFileStartTime = true
+    logFile = file('envs/runnables/jcp/' + 'jcpAPI_StartAsync/' + 'jcp.log')
+    pidFile = file('envs/runnables/jcp/' + 'jcpAPI_StartAsync/' + 'jcp.pid')
+    throwOnError = false
+}
+jcpAPI_StartAsync.dependsOn printGradleVersions
+task jcpAPI_StopAsync(type: StopAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    pidFile = (jcpAPI_StartAsync as StartAsync).pidFile
+    throwOnError = false
+}
+task jcpAPI_StatusAsync() {
+    group 'JOSP runners jcp (soft)'
+
+    doFirst {
+        println 'jcpAPI_Async task is ' + (jcpAPI_StartAsync.isRunning() ? "running" : "NOT running")
+    }
+}
+task jcpAPI_CleanAsync(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jcp/jcpAPI_StartAsync"
+
+    //...delete and recreate jcp_api database in dbms
+}
+jcpAPI_Clean.dependsOn jcpAPI_CleanAsync
+
+
+// -------------------
+// JOSP Platform tasks
+// -------------------
+
+int dbms_Up_WAIT_AFTER = 10
+/**int jcpAPI_StartAsync_WAIT_AFTER = 10*/
+int jospCloudDockers_Start_WAIT_AFTER = 20
+
+// Start cloud
+task jospCloudDockers_Start {
+    group 'JOSP runners Platform (dockers)'
+
+    dependsOn dbms_Up, auth_Up
+    GradleAsyncTasksUtils.waitAfter(dbms_Up as Task, dbms_Up_WAIT_AFTER, auth_Up as Task)
+}
+task jospCloudSoft_Start {
+    group 'JOSP runners Platform (soft)'
+
+    dependsOn jcpAPI_StartAsync/*, jospGW_Start*/
+    /*GradleAsyncTasksUtils.waitAfter(jcpAPI_StartAsync as Task, jcpAPI_StartAsync_WAIT_AFTER, jospGW_Start as Task)*/
+}
+task jospCloud_Start {
+    group 'JOSP runners Platform'
+
+    dependsOn jospCloudDockers_Start, jospCloudSoft_Start
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Start as Task, jospCloudDockers_Start_WAIT_AFTER, jospCloudSoft_Start as Task)
+}
+
+// Stop cloud (soft)
+task jospCloudDockers_Stop {
+    group 'JOSP runners Platform (dockers)'
+
+    dependsOn auth_Down, dbms_Down
+    GradleAsyncTasksUtils.waitAfter(auth_Down as Task, 0, dbms_Down as Task)
+}
+task jospCloudSoft_Stop {
+    group 'JOSP runners Platform (soft)'
+
+    dependsOn /*jospGW_Stop, */ jcpAPI_StopAsync
+    /*GradleAsyncTasksUtils.waitAfter(jospGW_Stop as Task, 0, jcpAPI_StopAsync as Task)*/
+}
+task jospCloud_Stop {
+    group 'JOSP runners Platform'
+
+    dependsOn jospCloudSoft_Stop, jospCloudDockers_Stop
+    GradleAsyncTasksUtils.waitAfter(jospCloudSoft_Stop as Task, 0, jospCloudDockers_Stop as Task)
+}
+
+// Clean cloud
+task jospCloudDockers_Clean {
+    group 'JOSP runners Platform (dockers)'
+
+    dependsOn dbms_Clean, auth_Clean
+}
+task jospCloudSoft_Clean {
+    group 'JOSP runners Platform (soft)'
+
+    dependsOn jcpAPI_CleanAsync/*, jospGW_CleanAsync*/
+}
+task jospCloud_Clean {
+    group 'JOSP runners Platform'
+
+    dependsOn jospCloudDockers_Clean, jospCloudSoft_Clean
+}
+
+// Restart cloud
+task jospCloudDockers_Restart {
+    group 'JOSP runners Platform (dockers)'
+
+    dependsOn jospCloudDockers_Stop, jospCloudDockers_Start
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Stop as Task, 0, jospCloudDockers_Start as Task)
+}
+task jospCloudSoft_Restart {
+    group 'JOSP runners Platform (soft)'
+
+    dependsOn jospCloudSoft_Stop, jospCloudSoft_Start
+    GradleAsyncTasksUtils.waitAfter(jospCloudSoft_Stop as Task, 0, jospCloudSoft_Start as Task)
+}
+task jospCloud_Restart {
+    group 'JOSP runners Platform'
+
+    dependsOn jospCloudSoft_Stop, jospCloudDockers_Stop, jospCloudDockers_Start, jospCloudSoft_Start
+    GradleAsyncTasksUtils.waitAfter(jospCloudSoft_Stop as Task, 0, jospCloudDockers_Stop as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Stop as Task, 0, jospCloudDockers_Start as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Start as Task, 0, jospCloudSoft_Start as Task)
+}
+
+// Restart and clean cloud
+task jospCloudDockers_Refresh {
+    group 'JOSP runners Platform (dockers)'
+
+    dependsOn jospCloudDockers_Stop, jospCloudDockers_Clean, jospCloudDockers_Start
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Stop as Task, 0, jospCloudDockers_Clean as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Clean as Task, 0, jospCloudDockers_Start as Task)
+}
+task jospCloudSoft_Refresh {
+    group 'JOSP runners Platform (soft)'
+
+    dependsOn jospCloudSoft_Stop, jospCloudSoft_Clean, jospCloudSoft_Start
+    GradleAsyncTasksUtils.waitAfter(jospCloudSoft_Stop as Task, 0, jospCloudSoft_Clean as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudSoft_Clean as Task, 0, jospCloudSoft_Start as Task)
+}
+task jospCloud_Refresh {
+    group 'JOSP runners Platform'
+
+    dependsOn jospCloudSoft_Stop, jospCloudDockers_Stop, jospCloudDockers_Clean, jospCloudSoft_Clean, jospCloudDockers_Start, jospCloudSoft_Start
+    GradleAsyncTasksUtils.waitAfter(jospCloudSoft_Stop as Task, 0, jospCloudDockers_Stop as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Stop as Task, 0, jospCloudDockers_Clean as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Clean as Task, 0, jospCloudSoft_Clean as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudSoft_Clean as Task, 0, jospCloudDockers_Start as Task)
+    GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Start as Task, 0, jospCloudSoft_Start as Task)
+}
+
+
+// ------------------
+// Eco-Systems tasks
+// ------------------
+
+// Avvia Local Eco-System + JOD + JSL
+// JOD (only local) + JSL (only local)
+
+// Avvia Cloud Eco-System + JOD + JSL
+// JCP All + JOD (only cloud) + JSL (only cloud)
+
+// Avvia Full Eco-System + JOD + JSL
+// JCP All + JOD + JSL
+
+// Clean
+//???

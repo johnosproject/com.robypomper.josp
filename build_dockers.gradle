@@ -41,33 +41,33 @@ DockerNetworkUtils.setDockerNetworkDependency(project,dockerCompose.auth,"jcp-de
 
 task dbms_Up {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn dbmsComposeUp
 }
 
 task dbms_Down {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn dbmsComposeDown
 }
 
-task dbms_Clean {
-    description = 'Runs...'
-    group = 'JOSP cleaners'
-    //...delete evs/docker/dbms dir
+task dbms_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/dockers/dbms"
 }
+clean.dependsOn dbms_Clean
 
 // Auth
 
 task auth_Up {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn authComposeUp
 }
 
 task auth_Down {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (dockers)'
     dependsOn authComposeDown
 }
 

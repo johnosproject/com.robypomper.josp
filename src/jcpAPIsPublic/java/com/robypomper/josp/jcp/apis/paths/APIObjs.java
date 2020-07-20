@@ -1,21 +1,34 @@
 package com.robypomper.josp.jcp.apis.paths;
 
+import com.robypomper.josp.jcp.info.JCPAPIsVersions;
+
 public class APIObjs {
 //@formatter:off
 
-    private static final String version = "ver";
+    // API info
+
+    public static final String API_NAME = "Object";
+    public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
+    public static final String API_PATH = JcpAPI.PATH_API_BASE + "/" + API_NAME;
 
 
-    public static final String PATH_BASE    = "/object";
+    // API's SubGroups
 
-    public static final String FULL_PATH_BASE   = JcpAPI.PATH_API_BASE + PATH_BASE;
+    public static class SubGroupInfo {
+        public final static String NAME = "Object's info";
+        public final static String DESCR = "Register/get object info, generate object ids...";
+    }
 
 
-    public static final String PATH_GENERATEID      = "/" + version + "/generate_id";
-    public static final String PATH_REGENERATEID      = "/" + version + "/regenerate_id";
+    // API's methods
 
-    public static final String FULL_PATH_GENERATEID     = FULL_PATH_BASE + PATH_GENERATEID;
-    public static final String FULL_PATH_REGENERATEID     = FULL_PATH_BASE + PATH_REGENERATEID;
+    // '{mthdName}
+    private static final String MTHD_GENERATEID         = "generate_id";
+    private static final String MTHD_REGENERATEID       = "regenerate_id";
+
+    // '/apis/{apiName}/{apiVersion}/{mthdName}
+    public static final String FULL_PATH_GENERATEID         = API_PATH + "/" + API_VER + "/" + MTHD_GENERATEID;
+    public static final String FULL_PATH_REGENERATEID       = API_PATH + "/" + API_VER + "/" + MTHD_REGENERATEID;
 
 
     public static final String HEADER_OBJID = "JOSP-Obj-ID";

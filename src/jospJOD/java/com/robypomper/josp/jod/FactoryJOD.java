@@ -21,7 +21,13 @@ public class FactoryJOD {
     // Version constants
 
     public static final String JOD_VER_002 = "0.0.2";
-    public static final String JOD_VER_LATEST = JOD_VER_002;
+    private static final Class<? extends AbsJOD> JOD_VER_002_CLASS = JOD_002.class;
+    private static final Class<? extends JOD.Settings> JOD_VER_002_CONFIG_CLASS = JODSettings_002.class;
+    public static final String JOD_VER_2_0_0 = "2.0.0";
+    private static final Class<? extends AbsJOD> JOD_VER_2_0_0_CLASS = JOD_002.class;
+    private static final Class<? extends JOD.Settings> JOD_VER_2_0_0_CONFIG_CLASS = JODSettings_002.class;
+
+    public static final String JOD_VER_LATEST = JOD_VER_2_0_0;
 
 
     // New instance method name
@@ -56,7 +62,6 @@ public class FactoryJOD {
     public static JOD.Settings loadSettings(String fileName, String jodVer) throws JOD.FactoryException {
         File file = Paths.get(fileName).toFile();
         if (!file.exists()) throw new JOD.FactoryException(String.format("JOD config file '%s' not found.", file.getAbsolutePath()));
-        boolean updJODVerOnSettings = !jodVer.isEmpty();
         if (jodVer.isEmpty()) jodVer = JOD_VER_LATEST;
 
         Class<? extends JOD.Settings> jodSettingsClass = getJODSettingsClass(jodVer);
@@ -66,12 +71,8 @@ public class FactoryJOD {
             Object instance = method.invoke(null,file);
             if (instance==null)
                 throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return null object.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName()));
-            if (jodSettingsClass.isInstance(instance)) {
-                JOD.Settings settings = jodSettingsClass.cast(instance);
-                if (updJODVerOnSettings)
-                    settings.setJODVersion_Required(jodVer,false);
-                return settings;
-            }
+            if (jodSettingsClass.isInstance(instance))
+                return jodSettingsClass.cast(instance);
             if (instance instanceof JOD.Settings)
                 throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return object of wrong sub-type '%s'.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName(),instance.getClass().getSimpleName()));
             else
@@ -93,7 +94,7 @@ public class FactoryJOD {
      * @return JOD Object.
      */
     public static JOD createJOD(JOD.Settings settings) throws JOD.FactoryException {
-        return createJOD(settings,settings.getJODVersion_Required());
+        return createJOD(settings,JOD_VER_LATEST);
     }
 
     /**
@@ -106,7 +107,7 @@ public class FactoryJOD {
      */
     public static JOD createJOD(JOD.Settings settings, String jodVer) throws JOD.FactoryException {
         if (settings==null) throw new JOD.FactoryException("JOD init method require Settings param");
-        if (jodVer.isEmpty()) jodVer = settings.getJODVersion_Required();
+        if (jodVer.isEmpty()) jodVer = JOD_VER_LATEST;
 
         Class<? extends AbsJOD> jodClass = getJODClass(jodVer);
 
@@ -134,7 +135,7 @@ public class FactoryJOD {
     /**
      * <ul>
      *     <li>
-     *         {@value JOD_VER_002} => {@link JODSettings_002}
+     *         {@value JOD_VER_2_0_0} => {@link JODSettings_002}
      *     </li>
      * </ul>
      *
@@ -142,7 +143,8 @@ public class FactoryJOD {
      * @return JOD.Settings class corresponding to given <code>jodVer</code> version.
      */
     private static Class<? extends JOD.Settings> getJODSettingsClass(String jodVer) throws JOD.FactoryException {
-        if (JOD_VER_002.compareToIgnoreCase(jodVer) == 0) return JODSettings_002.class;
+        if (JOD_VER_002.compareToIgnoreCase(jodVer) == 0) return JOD_VER_002_CONFIG_CLASS;
+        if (JOD_VER_2_0_0.compareToIgnoreCase(jodVer) == 0) return JOD_VER_2_0_0_CONFIG_CLASS;
 
         throw new JOD.FactoryException(String.format("JOD.Settings '%s' version not found.", jodVer));
     }
@@ -150,7 +152,7 @@ public class FactoryJOD {
     /**
      * <ul>
      *     <li>
-     *         {@value JOD_VER_002} => {@link JOD_002}
+     *         {@value JOD_VER_2_0_0} => {@link JOD_002}
      *     </li>
      * </ul>
      *
@@ -158,7 +160,8 @@ public class FactoryJOD {
      * @return JOD class corresponding to given <code>jodVer</code> version.
      */
     private static Class<? extends AbsJOD> getJODClass(String jodVer) throws JOD.FactoryException {
-        if (JOD_VER_002.compareToIgnoreCase(jodVer)==0) return JOD_002.class;
+        if (JOD_VER_002.compareToIgnoreCase(jodVer)==0) return JOD_VER_002_CLASS;
+        if (JOD_VER_2_0_0.compareToIgnoreCase(jodVer)==0) return JOD_VER_2_0_0_CLASS;
 
         throw new JOD.FactoryException(String.format("JOD.Settings '%s' version not found.", jodVer));
     }

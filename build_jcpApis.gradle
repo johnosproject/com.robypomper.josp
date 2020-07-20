@@ -1,3 +1,4 @@
+import com.robypomper.build.gradle.GradleUtils.PrintGradleVersion
 import com.robypomper.build.spring.SpringBuildUtils
 
 /**
@@ -85,21 +86,20 @@ dependencies {
 
 task jcpAPI_Start {
     description = 'Runs...'
-    group = 'JOSP runners'
+    group = 'JOSP runners jcp (soft)'
     dependsOn bootJcpAPIsRun
 }
 
-task jcpAPI_Stop {
-    description = 'Runs...'
-    group = 'JOSP runners'
-    //...kill jcpAPIStart task
-}
+task jcpAPI_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jcp"
 
-task jcpAPI_Clean {
-    description = 'Runs...'
-    group = 'JOSP cleaners'
     //...delete and recreate jcp_api database in dbms
 }
+clean.dependsOn jcpAPI_Clean
+
+task printGradleVersions(type: PrintGradleVersion)
+bootJcpAPIsRun.dependsOn printGradleVersions
 
 // JOSP GWs
 
@@ -111,3 +111,17 @@ task jcpAPI_Clean {
 // -------------------
 
 apply from: 'build_jcpApis_publish.gradle'
+
+
+// JCP APIs Public
+task jcpAPI_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJcpAPIsPublicationToMavenLocal
+}
+
+task jcpAPI_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJcpAPIsPublicationToSonatype
+}

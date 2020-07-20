@@ -9,17 +9,14 @@ import java.util.Map;
 public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
 
     //@formatter:off
-    public static final String JSLVERSION_REQUIRED = "jsl.version";
-    public static final String JSLVERSION_REQUIRED_DEF = JSL_002.VERSION;
-
     public static final String JCP_CONNECT              = "jcp.connect";
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
     public static final String JCP_REFRESH_TIME_DEF     = "30";
     public static final String JCP_URL_APIS             = "jcp.url.apis";
-    public static final String JCP_URL_DEF_APIS         = "localhost:9001";
+    public static final String JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
     public static final String JCP_URL_AUTH             = "jcp.url.auth";
-    public static final String JCP_URL_DEF_AUTH         = "localhost:8998";
+    public static final String JCP_URL_DEF_AUTH         = "auth.johnosproject.com:443";
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
     public static final String JCP_CLIENT_ID_DEF        = "";
     public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";
@@ -43,16 +40,12 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JSLCOMM_LOCAL_ENABLED_DEF        = "true";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST     = "jsl.comm.local.onlyLocalhost";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF = "false";
-    public static final String JSLCOMM_LOCAL_DISCOVERY          = "jsl.comm.local.impl";
+    public static final String JSLCOMM_LOCAL_DISCOVERY          = "jsl.comm.local.discovery";
     public static final String JSLCOMM_LOCAL_DISCOVERY_DEF      = "avahi";
 
     public static final String JSLCOMM_CLOUD_ENABLED            = "jsl.comm.cloud.enabled";
     public static final String JSLCOMM_CLOUD_ENABLED_DEF        = "true";
     //@formatter:on
-
-    // Internal vars
-
-    private String jslVer = null;
 
 
     // Constructor
@@ -67,27 +60,6 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
 
     public JSLSettings_002(Map<String, Object> properties) {
         super(properties);
-    }
-
-
-    // JSL
-
-    @Override
-    public String version() {
-        return JSL_002.VERSION;
-    }
-
-    @Override
-    public String getJSLVersion_Required() {
-        return jslVer != null ? jslVer :
-                getString(JSLVERSION_REQUIRED, JSLVERSION_REQUIRED_DEF);
-    }
-
-    @Override
-    public void setJSLVersion_Required(String jslVer, boolean storageUpd) {
-        this.jslVer = jslVer;
-        if (storageUpd)
-            store(JSLVERSION_REQUIRED, jslVer, true);
     }
 
 

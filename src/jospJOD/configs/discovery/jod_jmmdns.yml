@@ -1,0 +1,77 @@
+## Discovery configs
+
+# JODCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
+jod.comm.local.discovery: 'JmmDNS'
+
+
+## JCP Client
+
+# JCP_CONNECT_DEF          = "true";
+#jcp.connect: 'false'
+# JCP_REFRESH_TIME_DEF     = "30";
+#jcp.client.refresh: '5'
+# JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
+jcp.url.apis: 'localhost:9001'
+# JCP_URL_DEF_AUTH         = "auth.johnosproject.com:443";
+jcp.url.auth: 'localhost:8998'
+# JCP_CLIENT_ID_DEF        = "";
+jcp.client.id: 'test-client-obj'
+# JCP_CLIENT_SECRET_DEF    = "";
+jcp.client.secret: '2d1f9b96-70d3-443b-b21b-08a401ddc16c'
+
+
+## JOD Object
+
+# JODOBJ_NAME_DEF          = "";
+#jod.obj.name: 'Banana_99'
+# JODOBJ_IDCLOUD_DEF       = "";
+#jod.obj.id_cloud: 'XXXXX-XXXXX-XXXXX'
+# JODOBJ_IDHW_DEF          = "";
+#jod.obj.id_hw: 'XXXXX'
+
+
+## Executors
+
+# JODPULLER_IMPLS_DEF      = "";
+jod.executor_mngr.pullers:
+  'tstP://com.robypomper.josp.jod.executor.PullerTest'
+# JODLISTENER_IMPLS_DEF    = "";
+jod.executor_mngr.listeners:
+  'tstL://com.robypomper.josp.jod.executor.ListenerTest
+   tstLAdv://com.robypomper.josp.jod.executor.ListenerTestAdv'
+# JODEXECUTOR_IMPLS_DEF    = "";
+jod.executor_mngr.executors:
+  'tstE://com.robypomper.josp.jod.executor.ExecutorTest'
+
+
+## Structure
+
+# JODSTRUCT_PATH_DEF       = "struct.jod";
+#jod.structure.path: 'struct.jod'
+
+
+## Permissions
+
+# JODPERM_PATH_DEF         = "perms.jod";
+#jod.permissions.path: 'perms.jod'
+# JODPERM_REFRESH_DEF      = "300";
+#jod.permissions.refresh: '30'
+# JODPERM_GENSTARTEGY_DEF  = "standard";
+#jod.permissions.generation_strategy: 'standard'
+# JODPERM_OWNER_DEF        = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
+jod.permissions.owner: '00000-00000-00000'
+
+
+## Communication local
+
+# JODCOMM_LOCAL_ENABLED_DEF    = "true";
+#jod.comm.local.enabled: 'false'
+# JODCOMM_LOCAL_PORT_DEF       = "1234";
+#jod.comm.local.port: '1234'
+
+
+## Communication cloud
+
+# JODCOMM_CLOUD_ENABLED_DEF    = "true";
+#jod.comm.cloud.enabled: 'false'
+

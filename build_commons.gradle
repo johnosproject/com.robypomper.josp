@@ -41,3 +41,17 @@ dependencies {
 // -------------------
 
 apply from: 'build_commons_publish.gradle'
+
+
+// JOSP Commons
+task jospCommons_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJospCommonsPublicationToMavenLocal
+}
+
+task jospCommons_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJospCommonsPublicationToSonatype
+}

@@ -108,7 +108,7 @@ public class JODRangeState extends AbsJODState {
 
         @Override
         public String encode() {
-            return String.format("new:%f\nold:%f", newState, oldState);
+            return String.format("new:%s\nold:%s", Double.toString(newState), Double.toString(oldState));
         }
 
     }

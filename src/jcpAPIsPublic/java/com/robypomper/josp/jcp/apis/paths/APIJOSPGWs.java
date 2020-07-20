@@ -1,21 +1,34 @@
 package com.robypomper.josp.jcp.apis.paths;
 
+import com.robypomper.josp.jcp.info.JCPAPIsVersions;
+
 public class APIJOSPGWs {
 //@formatter:off
 
-    private static final String version = "ver";
+    // API info
+
+    public static final String API_NAME = "Gateways";
+    public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
+    public static final String API_PATH = JcpAPI.PATH_API_BASE + "/" + API_NAME;
 
 
-    public static final String PATH_BASE    = "/jospgw";
+    // API's SubGroups
 
-    public static final String FULL_PATH_BASE   = JcpAPI.PATH_API_BASE + PATH_BASE;
+    public static class SubGroupGWs {
+        public final static String NAME = "All";
+        public final static String DESCR = "\"Object2Service and Service2Object Gateway's APIs";
+    }
 
 
-    public static final String PATH_O2S_ACCESS      = "/" + version + "/o2s/access";
-    public static final String PATH_S2O_ACCESS      = "/" + version + "/s2o/access";
+    // API's methods
 
-    public static final String FULL_PATH_O2S_ACCESS     = FULL_PATH_BASE + PATH_O2S_ACCESS;
-    public static final String FULL_PATH_S2O_ACCESS     = FULL_PATH_BASE + PATH_S2O_ACCESS;
+    // '{mthdName}
+    private static final String MTHD_O2S_ACCESS      = "o2s/access";
+    private static final String MTHD_S2O_ACCESS      = "s2o/access";
+
+    // '/apis/{apiName}/{apiVersion}/{mthdName}
+    public static final String FULL_PATH_O2S_ACCESS     = API_PATH + "/" + API_VER + "/" + MTHD_O2S_ACCESS;
+    public static final String FULL_PATH_S2O_ACCESS     = API_PATH + "/" + API_VER + "/" + MTHD_S2O_ACCESS;
 
 //@formatter:on
 }

@@ -40,9 +40,21 @@ public interface JOD {
     // JOD implementation version
 
     /**
-     * @return the JOD object implementation version.
+     * @return the JOSP JOD agent's implementation version.
      */
     String version();
+
+
+    /**
+     * @return the list of supported JOSP Protocol versions.
+     */
+    String[] versionsJOSPProtocol();
+
+
+    /**
+     * @return the list of supported JCP APIs versions.
+     */
+    String[] versionsJCPAPIs();
 
 
     // JOD mngm
@@ -161,41 +173,6 @@ public interface JOD {
         static Settings instance(File file) {
             return null;
         }
-
-
-        // JOD.Settings implementation version
-
-        /**
-         * @return the JOD.Settings implementation version.
-         */
-        String version();
-
-
-        // JOD settings
-
-        /**
-         * JOD required version.
-         *
-         * The required JOD version is read from configs file (optionally from
-         * cmdLine args) and is used to get right {@link JOD} and
-         * {@link JOD.Settings} implementations. Then this implementations can
-         * expose different JOD's version.
-         *
-         * To get actually using JOD's version, look at {@link JOD#version()}
-         * method.
-         *
-         * @return the JOD required version.
-         */
-        String getJODVersion_Required();
-
-        /**
-         * Set JOD required version.
-         *
-         * @param jodVer the JOD required version to set.
-         * @param storageUpd if true, store given value on configs file and make
-         *                   it available at next JOD reboot.
-         */
-        void setJODVersion_Required(String jodVer, boolean storageUpd);
 
     }
 
