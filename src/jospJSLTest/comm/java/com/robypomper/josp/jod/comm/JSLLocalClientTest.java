@@ -413,6 +413,16 @@ public class JSLLocalClientTest {
 
         }
 
+        @Override
+        public void addListener(CommunicationListener listener) {
+
+        }
+
+        @Override
+        public void removeListener(CommunicationListener listener) {
+
+        }
+
     }
 
     public static class MockJSLServiceInfo implements JSLServiceInfo {
