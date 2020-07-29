@@ -4,7 +4,6 @@ import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,8 @@ public abstract class AbsDiscover implements Discover {
     private static final Logger log = LogManager.getLogger();
     private final String srvType;
     private final List<DiscoverListener> listeners = new ArrayList<>();
+    private final List<DiscoveryService> discoveredServices = new ArrayList<>();
+    private final List<String> interfaces = new ArrayList<>();
 
 
     // Constructor
@@ -48,6 +49,22 @@ public abstract class AbsDiscover implements Discover {
         return srvType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DiscoveryService> getServicesDiscovered() {
+        return discoveredServices;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getInterfaces(){
+        return interfaces;
+    }
+
 
     // Listener mngm
 
@@ -57,6 +74,8 @@ public abstract class AbsDiscover implements Discover {
     @Override
     public void addListener(DiscoverListener listener) {
         listeners.add(listener);
+        for (DiscoveryService srv : getServicesDiscovered())
+            listener.onServiceDiscovered(srv);
     }
 
     /**
@@ -65,33 +84,77 @@ public abstract class AbsDiscover implements Discover {
     @Override
     public void removeListener(DiscoverListener listener) {
         listeners.remove(listener);
+        for (DiscoveryService srv : getServicesDiscovered())
+            listener.onServiceDiscovered(srv);
     }
 
     /**
      * Method for sub-classes to emit service discovered event to all registered
      * listeners.
      *
-     * @param type      the type of the service discovered.
-     * @param name      the name of the service discovered.
-     * @param address   the address of the service discovered.
-     * @param port      the port of the service discovered.
-     * @param extraText the extra text related to the service discovered.
+     * @param discSrv the discovered service info.
      */
-    protected void emitOnServiceDiscovered(String type, String name, InetAddress address, int port, String extraText) {
+    private void emitOnServiceDiscovered(DiscoveryService discSrv) {
         for (DiscoverListener l : listeners)
-            l.onServiceDiscovered(type, name, address, port, extraText);
+            l.onServiceDiscovered(discSrv);
     }
 
     /**
      * Method for sub-classes to emit service lost event to all registered
      * listeners.
      *
-     * @param type the type of the service discovered.
-     * @param name the name of the service discovered.
+     * @param lostSrv the lost service info.
      */
-    protected void emitOnServiceLost(String type, String name) {
+    private void emitOnServiceLost(DiscoveryService lostSrv) {
         for (DiscoverListener l : listeners)
-            l.onServiceLost(type, name);
+            l.onServiceLost(lostSrv);
+    }
+
+
+    // Service registration methods
+
+    protected void registerService(DiscoveryService discSrv) {
+        if (discSrv.alreadyIn(discoveredServices))
+            return;
+
+        System.out.println(String.format("Discoverer(%s)\tAdd %s", Integer.toHexString(hashCode()), discSrv));
+        discoveredServices.add(discSrv);
+        if (!interfaces.contains(discSrv.intf))
+            registerInterface(discSrv.intf);
+        emitOnServiceDiscovered(discSrv);
+    }
+
+    protected void deregisterService(DiscoveryService lostSrv) {
+        if (!lostSrv.alreadyIn(discoveredServices))
+            return;
+
+        System.out.println(String.format("Discoverer(%s)\tRem %s", Integer.toHexString(hashCode()), lostSrv));
+        discoveredServices.remove(lostSrv.extractFrom(discoveredServices));
+        emitOnServiceLost(lostSrv);
+    }
+
+    protected void deregisterAllServices() {
+        List<DiscoveryService> toRemove = new ArrayList<>(discoveredServices);
+        for (DiscoveryService srv : toRemove) {
+            deregisterService(srv);
+        }
+    }
+
+
+    // Interfaces registration methods
+
+    protected void registerInterface(String addIntf) {
+        if (interfaces.contains(addIntf))
+            return;
+
+        interfaces.add(addIntf);
+    }
+
+    protected void deregisterInterface(String remIntf) {
+        if (!interfaces.contains(remIntf))
+            return;
+
+        interfaces.remove(remIntf);
     }
 
 }

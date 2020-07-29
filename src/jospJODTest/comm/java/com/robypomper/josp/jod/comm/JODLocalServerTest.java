@@ -648,6 +648,16 @@ public class JODLocalServerTest {
 
         }
 
+        @Override
+        public void addListener(CommunicationListener listener) {
+
+        }
+
+        @Override
+        public void removeListener(CommunicationListener listener) {
+
+        }
+
     }
 
 }

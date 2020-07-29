@@ -14,12 +14,7 @@ import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.structure.JSLAction;
-import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
-import com.robypomper.josp.jsl.objs.structure.JSLComponent;
-import com.robypomper.josp.jsl.objs.structure.JSLContainer;
-import com.robypomper.josp.jsl.objs.structure.JSLRoot;
-import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
+import com.robypomper.josp.jsl.objs.structure.*;
 import com.robypomper.josp.protocol.JOSPPerm;
 import org.junit.jupiter.api.Test;
 
@@ -412,6 +407,11 @@ public class JOSPStructIntegration {
         }
 
         @Override
+        public void removeLocalClient(JSLLocalClient localClient) {
+
+        }
+
+        @Override
         public void replaceLocalClient(JSLLocalClient oldConnection, JSLLocalClient newConnection) {
 
         }
@@ -420,6 +420,26 @@ public class JOSPStructIntegration {
         @Override
         public boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) {
             return false;
+        }
+
+        @Override
+        public void addListener(RemoteObjectConnListener listener) {
+
+        }
+
+        @Override
+        public void removeListener(RemoteObjectConnListener listener) {
+
+        }
+
+        @Override
+        public void addListener(RemoteObjectInfoListener listener) {
+
+        }
+
+        @Override
+        public void removeListener(RemoteObjectInfoListener listener) {
+
         }
     }
 

@@ -2,6 +2,7 @@ package com.robypomper.discovery.impl;
 
 import com.robypomper.discovery.AbsDiscover;
 import com.robypomper.discovery.AbsPublisher;
+import com.robypomper.discovery.DiscoveryService;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,8 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implementations of the discovery system based on Avahi.
@@ -34,7 +34,6 @@ public class DiscoveryAvahi {
      * Avahi publisher.
      */
     public static class Publisher extends AbsPublisher {
-
 
         // Internal vars
 
@@ -65,15 +64,35 @@ public class DiscoveryAvahi {
         @Override
         public void publish(boolean waitForPublished) throws PublishException {
             log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Publish service '%s' on '%d'", getServiceName(), getServicePort()));
-            if (!setIsPublishing(true)) {return;}
+            if (!setIsPublishing(true)) return;
 
             // Init discovery system for service publication checks
             startAutoDiscovery(IMPL_NAME);
 
             // Publish service with avahi cmd
             try {
-                String cmd = String.format("avahi-publish -s %s %s. %d %s", getServiceName(), getServiceType(), getServicePort(), getServiceExtraText());
-                avahiProcess = Runtime.getRuntime().exec(cmd);
+
+                String[] cmdArray;
+                if (getServiceExtraText() != null && !getServiceExtraText().isEmpty())
+                    cmdArray = new String[]{
+                            "avahi-publish",
+                            "-s",
+                            getServiceName(),
+                            getServiceType() + ".",
+                            Integer.toString(getServicePort()),
+                            getServiceExtraText()
+                    };
+                else
+                    cmdArray = new String[]{
+                            "avahi-publish",
+                            "-s",
+                            getServiceName(),
+                            getServiceType() + ".",
+                            Integer.toString(getServicePort()),
+                    };
+                log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec avahi publisher cmd '%s'", String.join(" ", cmdArray)));
+                avahiProcess = Runtime.getRuntime().exec(cmdArray);
+
             } catch (IOException e) {
                 throw new PublishException(String.format("ERR: can't publish service '%s' because %s", getServiceName(), e.getMessage()));
             }
@@ -91,10 +110,14 @@ public class DiscoveryAvahi {
         @Override
         public void hide(boolean waitForDepublished) throws PublishException {
             log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Hide service '%s'", getServiceName()));
-            if (!setIsDepublishing(true)) {return;}
+            if (!setIsDepublishing(true)) return;
 
             // Stop avahi cmd used to publish the service
             avahiProcess.destroy();
+            try {
+                avahiProcess.waitFor(1, TimeUnit.SECONDS);
+            } catch (InterruptedException ignore) {
+            }
             avahiProcess = null;
 
             // Wait for service de-publication
@@ -116,11 +139,10 @@ public class DiscoveryAvahi {
 
         // Internal vars
 
-        private Thread avahiThread = null;
-        private Process avahiProcess = null;
-        private final List<String> knownServices = new ArrayList<>();
-        private IOException avahiStartException = null;
-        private boolean isShutingDown = false;
+        private Thread avahiBrowseThread = null;
+        private Process avahiBrowseProcess = null;
+        private IOException avahiBrowseStartException = null;
+        private boolean isShuttingDown = false;
 
 
         // Constructor
@@ -143,7 +165,7 @@ public class DiscoveryAvahi {
          */
         @Override
         public boolean isRunning() {
-            return avahiThread != null && avahiThread.isAlive();
+            return avahiBrowseThread != null && avahiBrowseThread.isAlive();
         }
 
         /**
@@ -157,20 +179,22 @@ public class DiscoveryAvahi {
             }
             log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Start discovery services '%s'", getServiceType()));
 
-            // Start AvahiRunnable thread
-            avahiThread = new Thread(new AvahiRunnable());
-            avahiThread.setName("DiscoveryAvahiProcess");
+            // Start Avahi Browse Runnable thread
+            isShuttingDown = false;
+            avahiBrowseThread = new Thread(new AvahiBrowseRunnable());
+            avahiBrowseThread.setName(AvahiBrowseRunnable.class.getSimpleName());
             log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Starting thread avahi browser for '%s' service's type", getServiceType()));
-            avahiThread.start();
+            avahiBrowseThread.start();
 
-            // wait some time, to catch startup error on AvahiRunnable thread
+            // wait some time, to catch startup error on Avahi Browse Runnable thread
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException ignore) {}
+            } catch (InterruptedException ignore) {
+            }
 
-            // Check if was throw exception on AvahiRunnable thread
-            if (avahiStartException != null)
-                throw new DiscoveryException(String.format("ERR: can't start discovery services '%s' because %s", getServiceType(), avahiStartException.getMessage()), avahiStartException);
+            // Check if was throw exception on Avahi Browse Runnable thread
+            if (avahiBrowseStartException != null)
+                throw new DiscoveryException(String.format("ERR: can't start discovery services '%s' because %s", getServiceType(), avahiBrowseStartException.getMessage()), avahiBrowseStartException);
         }
 
         /**
@@ -184,24 +208,29 @@ public class DiscoveryAvahi {
             }
             log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Stop discovery services '%s'", getServiceType()));
 
-            isShutingDown = true;
+            isShuttingDown = true;
 
-            // Stop avahi process (cmd line executor)
-            try {
-                avahiProcess.destroy();
-                avahiProcess.waitFor();
-                avahiProcess = null;
-            } catch (InterruptedException ignored) {
-                throw new DiscoveryException(String.format("ERR: can't stop discovery system '%s' process service type because %s", getServiceType(), avahiStartException.getMessage()), avahiStartException);
-            }
+            // Stop Avahi Browse Runnable process (cmd line executor)
+            if (avahiBrowseProcess != null)
+                try {
+                    avahiBrowseProcess.destroy();
+                    avahiBrowseProcess.waitFor();
+                    avahiBrowseProcess = null;
+                } catch (InterruptedException ignored) {
+                    throw new DiscoveryException(String.format("ERR: can't stop discovery system '%s' process service type because %s", getServiceType(), avahiBrowseStartException.getMessage()), avahiBrowseStartException);
+                }
 
+            // Wait Avahi Browse Runnable thread
             try {
-                avahiThread.join(1000);
-                log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Thread avhai browse '%s' stopped", avahiThread.getName()));
+                avahiBrowseThread.join(1000);
+                log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Thread avhai browse '%s' stopped", avahiBrowseThread.getName()));
+
             } catch (InterruptedException e) {
-                throw new DiscoveryException(String.format("ERR: can't stop discovery system '%s' thread because %s", getServiceType(), avahiStartException.getMessage()), avahiStartException);
+                throw new DiscoveryException(String.format("ERR: can't stop discovery system '%s' thread because %s", getServiceType(), avahiBrowseStartException.getMessage()), avahiBrowseStartException);
             }
-            avahiThread = null;
+            avahiBrowseThread = null;
+
+            deregisterAllServices();
         }
 
 
@@ -209,13 +238,14 @@ public class DiscoveryAvahi {
          * Runnable implementation for read and parsing <code>avahi-browse</code>
          * command output.
          */
-        private class AvahiRunnable implements Runnable {
+        private class AvahiBrowseRunnable implements Runnable {
             @Override
             public void run() {
                 try {
                     String cmd = String.format("avahi-browse -pr %s.", getServiceType());
-                    avahiProcess = Runtime.getRuntime().exec(cmd);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(avahiProcess.getInputStream()));
+                    log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec avahi publisher cmd '%s'", cmd));
+                    avahiBrowseProcess = Runtime.getRuntime().exec(cmd);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(avahiBrowseProcess.getInputStream()));
                     log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Thread avahi browser '%s' started with command '%s'", Thread.currentThread().getName(), cmd));
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -231,19 +261,15 @@ public class DiscoveryAvahi {
                             String[] fields = line.split(";");
                             String intf = fields[1];
                             String proto = fields[2];
-                            String name = fields[3];
+                            String name = AbsPublisher.getServiceNameDecoded_Avahi(fields[3]);
                             String type = fields[4];
-                            String extra = fields[9];
-                            String nameUnique = type + ":" + name + "@" + intf + "/" + proto;
+                            String extra = fields.length == 10 ? fields[9] : null;
                             InetAddress inetAddr = InetAddress.getByName(fields[7]);
                             int port = Integer.parseInt(fields[8]);
 
-                            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Discover service '%s'", nameUnique));
-
-                            if (!knownServices.contains(nameUnique)) {
-                                emitOnServiceDiscovered(type, name, inetAddr, port, extra);
-                                knownServices.add(nameUnique);
-                            }
+                            DiscoveryService discSrv = new DiscoveryService(name, type, intf, proto, inetAddr, port, extra);
+                            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Discover service '%s'", discSrv));
+                            registerService(discSrv);
 
                         } else if (line.startsWith("-;")) {
                             log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", line));
@@ -253,34 +279,22 @@ public class DiscoveryAvahi {
                             String[] fields = line.split(";");
                             String intf = fields[1];
                             String proto = fields[2];
-                            String name = fields[3];
+                            String name = AbsPublisher.getServiceNameDecoded_Avahi(fields[3]);
                             String type = fields[4];
-                            String nameUnique = type + ":" + name + "@" + intf + "/" + proto;
 
-                            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", nameUnique));
-
-                            if (knownServices.contains(nameUnique)) {
-                                emitOnServiceLost(type, name);
-                                knownServices.remove(nameUnique);
-                            }
+                            DiscoveryService lostSrv = new DiscoveryService(name, type, intf, proto, null, null, null);
+                            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", lostSrv));
+                            deregisterService(lostSrv);
                         }
                     }
-
                     log.debug(Mrk_Commons.DISC_DISC_IMPL, String.format("Terminating thread avahi browser '%s'", Thread.currentThread().getName()));
-
-                    for (String srv : knownServices) {
-                        String type = srv.substring(0, srv.indexOf(":"));
-                        String name = srv.substring(srv.indexOf(":") + 1, srv.indexOf("@"));
-                        emitOnServiceLost(type, name);
-                    }
-                    knownServices.clear();
 
                 } catch (IOException e) {
 
-                    if (isShutingDown)
+                    if (isShuttingDown)
                         return; // stop() method called
 
-                    avahiStartException = e;
+                    avahiBrowseStartException = e;
                     log.error(Mrk_Commons.DISC_DISC_IMPL, String.format("Thrown IOException during discovering service '%s'.", getServiceType()));
                 }
 
