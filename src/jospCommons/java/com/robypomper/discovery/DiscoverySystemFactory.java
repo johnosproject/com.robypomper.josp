@@ -1,6 +1,7 @@
 package com.robypomper.discovery;
 
 import com.robypomper.discovery.impl.DiscoveryAvahi;
+import com.robypomper.discovery.impl.DiscoveryDNSSD;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
 import com.robypomper.discovery.impl.DiscoveryJmmDNS;
 
@@ -49,6 +50,8 @@ public class DiscoverySystemFactory {
             return new DiscoveryJmDNS.Publisher(srvType, srvName, srvPort, extraText);
         if (DiscoveryJmmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
             return new DiscoveryJmmDNS.Publisher(srvType, srvName, srvPort, extraText);
+        if (DiscoveryDNSSD.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new DiscoveryDNSSD.Publisher(srvType, srvName, srvPort, extraText);
 
         throw new Publisher.PublishException(String.format("ERR: can't find '%s' AbsPublisher implementation", implementation));
     }
@@ -68,6 +71,8 @@ public class DiscoverySystemFactory {
             return new DiscoveryJmDNS.Discover(srvType);
         if (DiscoveryJmmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
             return new DiscoveryJmmDNS.Discover(srvType);
+        if (DiscoveryDNSSD.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new DiscoveryDNSSD.Discover(srvType);
 
         throw new Discover.DiscoveryException(String.format("ERR: can't find '%s' AbsDiscovery implementation", implementation));
     }
