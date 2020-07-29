@@ -3,6 +3,7 @@ package com.robypomper.josp.jsl.comm;
 import com.robypomper.communication.client.Client;
 import com.robypomper.discovery.Discover;
 import com.robypomper.discovery.DiscoverListener;
+import com.robypomper.discovery.DiscoveryService;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
 import com.robypomper.josp.jsl.JSLSettings_002;
@@ -22,7 +23,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -292,29 +292,30 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      * {@inheritDoc}
      */
     @Override
-    public void onServiceDiscovered(String type, String name, InetAddress address, int port, String extraText) {
+    public void onServiceDiscovered(DiscoveryService discSrv) {
         Thread.currentThread().setName("JSLDiscovery");
-        log.info(Mrk_JSL.JSL_COMM, String.format("Discover object's service '%s' at '%s:%d' by '%s' service", name, address, port, srvInfo.getSrvId()));
+        log.info(Mrk_JSL.JSL_COMM, String.format("Discover object's service '%s' at '%s:%d' by '%s' service", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId()));
 
-        if (locSettings.getLocalOnlyLocalhost() && !address.isLoopbackAddress()) {
+        if (locSettings.getLocalOnlyLocalhost() && !discSrv.address.isLoopbackAddress()) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Object's service '%s' at '%s:%d' use not Localhost address then discarded", discSrv.name, discSrv.address, discSrv.port));
             return;
         }
-        if (address instanceof Inet6Address) {
-            log.warn(Mrk_JSL.JSL_COMM, String.format("Object's service '%s' at '%s:%d' use IPv6 then discarded", name, address, port));
+        if (discSrv.address instanceof Inet6Address) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Object's service '%s' at '%s:%d' use IPv6 then discarded", discSrv.name, discSrv.address, discSrv.port));
             return;
         }
 
         JSLLocalClient locConn;
         try {
-            log.debug(Mrk_JSL.JSL_COMM, String.format("Connecting to '%s' object on server '%s:%d' from '%s' service", name, address, port, srvInfo.getSrvId()));
-            String clientPubCertFile = File.createTempFile(String.format("jslCert-%s-%d", address, port), ".crt").getAbsolutePath();
+            log.debug(Mrk_JSL.JSL_COMM, String.format("Connecting to '%s' object on server '%s:%d' from '%s' service", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId()));
+            String clientPubCertFile = File.createTempFile(String.format("jslCert-%s-%d", discSrv.address, discSrv.port), ".crt").getAbsolutePath();
             log.trace(Mrk_JSL.JSL_COMM, String.format("Local service's client use public certificate file '%s'", clientPubCertFile));
-            locConn = new JSLLocalClient(this, srvInfo.getFullId(), address, port, clientPubCertFile);
+            locConn = new JSLLocalClient(this, srvInfo.getFullId(), discSrv.address, discSrv.port, clientPubCertFile);
             locConn.connect();
-            log.debug(Mrk_JSL.JSL_COMM, String.format("Service connected to '%s' object on server '%s:%d' from '%s' service", name, address, port, srvInfo.getSrvId()));
+            log.debug(Mrk_JSL.JSL_COMM, String.format("Service connected to '%s' object on server '%s:%d' from '%s' service", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId()));
 
         } catch (IOException | Client.ConnectionException e) {
-            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on connecting to '%s' object on server '%s:%d' from '%s' service because %s", name, address, port, srvInfo.getSrvId(), e.getMessage()), e);
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on connecting to '%s' object on server '%s:%d' from '%s' service because %s", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId(), e.getMessage()), e);
             return;
         }
 
@@ -326,7 +327,8 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      * {@inheritDoc}
      */
     @Override
-    public void onServiceLost(String type, String name) {}
+    public void onServiceLost(DiscoveryService lostSrv) {
+    }
 
 
     // Listeners connections
