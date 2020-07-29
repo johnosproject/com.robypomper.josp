@@ -1,5 +1,7 @@
 package com.robypomper.discovery;
 
+import java.util.List;
+
 
 /**
  * Interface for Discover implementations.
@@ -39,6 +41,16 @@ public interface Discover {
      * Return the service type looked from current discover object.
      */
     String getServiceType();
+
+    /**
+     * Return all services discovered.
+     */
+    List<DiscoveryService> getServicesDiscovered();
+
+    /**
+     * Return all available interfaces.
+     */
+    List<String> getInterfaces();
 
 
     // Listener mngm

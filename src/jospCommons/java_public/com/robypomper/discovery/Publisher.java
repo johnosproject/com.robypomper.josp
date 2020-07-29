@@ -1,5 +1,7 @@
 package com.robypomper.discovery;
 
+import java.util.List;
+
 
 /**
  * Interface for Publisher implementations.
@@ -12,9 +14,14 @@ public interface Publisher {
     // Publication mngm
 
     /**
-     * @return <code>true</code> if the represented service's info are published.
+     * @return <code>true</code> if the represented service's info are published on ALL available interfaces.
      */
-    boolean isPublished();
+    boolean isPublishedFully();
+
+    /**
+     * @return <code>true</code> if the represented service's info are published at least on one interface.
+     */
+    boolean isPublishedPartially();
 
     /**
      * Publish represented service.
@@ -52,6 +59,16 @@ public interface Publisher {
      * @return the extra text related with service.
      */
     String getServiceExtraText();
+
+    /**
+     * @return the internal discover to check if current service is published or not.
+     */
+    Discover getInternalDiscovered();
+
+    /**
+     * Return all available interfaces.
+     */
+    List<String> getInterfaces();
 
 
     // Exceptions
