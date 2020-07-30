@@ -6,15 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.communication.client.Client;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
-import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
-import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
-import com.robypomper.josp.jsl.objs.structure.JSLAction;
-import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
-import com.robypomper.josp.jsl.objs.structure.JSLComponent;
-import com.robypomper.josp.jsl.objs.structure.JSLComponentPath;
-import com.robypomper.josp.jsl.objs.structure.JSLRoot;
-import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
-import com.robypomper.josp.jsl.objs.structure.JSLState;
+import com.robypomper.josp.jsl.objs.structure.*;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
@@ -24,11 +16,7 @@ import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -284,7 +272,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
                     break;
                 }
                 log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", name, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
-                cl.disconnect();
+                localClient.disconnect();
                 return;
             }
         if (toUpdate == null)
