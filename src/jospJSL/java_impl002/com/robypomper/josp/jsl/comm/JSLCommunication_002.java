@@ -22,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet6Address;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -298,10 +297,6 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
 
         if (locSettings.getLocalOnlyLocalhost() && !discSrv.address.isLoopbackAddress()) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Object's service '%s' at '%s:%d' use not Localhost address then discarded", discSrv.name, discSrv.address, discSrv.port));
-            return;
-        }
-        if (discSrv.address instanceof Inet6Address) {
-            log.warn(Mrk_JSL.JSL_COMM, String.format("Object's service '%s' at '%s:%d' use IPv6 then discarded", discSrv.name, discSrv.address, discSrv.port));
             return;
         }
 
