@@ -1,5 +1,6 @@
 package com.robypomper.josp.jsl.objs.structure.pillars;
 
+import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
 import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
@@ -93,7 +94,7 @@ public class JSLRangeAction extends JSLRangeState implements JSLAction {
 
         @Override
         public String encode() {
-            return String.format("new:%f\nold:%f", newState, oldState);
+            return String.format("new:%s\nold:%s", JavaFormatter.doubleToStr(newState), JavaFormatter.doubleToStr(oldState));
         }
 
     }
