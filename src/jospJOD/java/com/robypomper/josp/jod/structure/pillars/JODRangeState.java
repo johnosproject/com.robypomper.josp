@@ -80,6 +80,9 @@ public class JODRangeState extends AbsJODState {
     // Status's methods
 
     public void setUpdate(double newState) {
+        if (state == newState)
+            return;
+
         double oldState = state;
         state = newState;
         try {
