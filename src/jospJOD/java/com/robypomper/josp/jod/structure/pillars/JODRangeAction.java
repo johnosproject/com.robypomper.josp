@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.structure.pillars;
 
+import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODExecutor;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
@@ -111,8 +112,10 @@ public class JODRangeAction extends JODRangeState implements JODAction {
         public JOSPRange(String updData) {
             String[] lines = updData.split("\n");
 
-            newState = Double.parseDouble(lines[0].substring(lines[0].indexOf(":") + 1));
-            oldState = Double.parseDouble(lines[1].substring(lines[1].indexOf(":") + 1));
+            Double newVal = JavaFormatter.strToDouble(lines[0].substring(lines[0].indexOf(":") + 1));
+            newState = newVal != null ? newVal : 0;
+            Double oldVal = JavaFormatter.strToDouble(lines[1].substring(lines[1].indexOf(":") + 1));
+            oldState = oldVal != null ? oldVal : 0;
         }
 
         @Override
