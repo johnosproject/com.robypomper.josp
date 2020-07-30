@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.josp.jod.structure.pillars.JODRangeState;
@@ -50,8 +51,8 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
      * @param configsStr configs string, parse {@value #PROP_FREQUENCY}(int) and
      *                   {@value #PROP_SLEEP_TIME}(int)properties.
      */
-    public ListenerTestAdv(String name, String proto, String configsStr) throws MissingPropertyException, ParsingPropertyException {
-        super(name, proto);
+    public ListenerTestAdv(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException, ParsingPropertyException {
+        super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
         Map<String, String> properties = splitConfigsStrings(configsStr);

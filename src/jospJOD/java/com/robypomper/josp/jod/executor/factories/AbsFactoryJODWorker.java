@@ -2,6 +2,7 @@ package com.robypomper.josp.jod.executor.factories;
 
 import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODWorker;
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.executor.JODComponentWorker;
 
 import java.lang.reflect.Constructor;
@@ -110,9 +111,8 @@ public abstract class AbsFactoryJODWorker<T extends AbsJODWorker> {
             throw new T.FactoryException(String.format("Can't init JOD " + getType() + " because no implementation found for '%s' protocol", proto));
 
         try {
-            Constructor<? extends T> c = implClasses.get(proto).getConstructor(String.class, String.class, String.class);
-            T t = c.newInstance(name, proto, configStr);
-            t.setComponent(componentWorker.getComponent());
+            Constructor<? extends T> c = implClasses.get(proto).getConstructor(String.class, String.class, String.class, JODComponent.class);
+            T t = c.newInstance(name, proto, configStr, componentWorker.getComponent());
             return t;
 
         } catch (NoSuchMethodException e) {

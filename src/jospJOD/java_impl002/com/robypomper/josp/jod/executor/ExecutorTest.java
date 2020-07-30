@@ -1,6 +1,7 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
 import com.robypomper.josp.protocol.JOSPProtocol;
@@ -27,8 +28,8 @@ public class ExecutorTest extends AbsJODExecutor implements JODBooleanAction.JOS
      * @param proto      proto of the executor.
      * @param configsStr configs string, can be an empty string.
      */
-    public ExecutorTest(String name, String proto, String configsStr) {
-        super(name, proto);
+    public ExecutorTest(String name, String proto, String configsStr, JODComponent component) {
+        super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorTest for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
     }
 

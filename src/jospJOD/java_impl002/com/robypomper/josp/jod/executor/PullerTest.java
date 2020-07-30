@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.josp.jod.structure.pillars.JODRangeState;
@@ -23,8 +24,8 @@ public class PullerTest extends AbsJODPuller {
      * @param proto      proto of the puller.
      * @param configsStr configs string, can be an empty string.
      */
-    public PullerTest(String name, String proto, String configsStr) {
-        super(name, proto);
+    public PullerTest(String name, String proto, String configsStr, JODComponent component) {
+        super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest for component '%s' init with config string '%s://%s'.", getName(), proto, configsStr));
     }
 

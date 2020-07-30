@@ -20,7 +20,7 @@ public abstract class AbsJODWorker implements JODWorker {
 
     private final String proto;
     private final String name;
-    private JODComponent component;
+    private final JODComponent component;
 
 
     // Constructor
@@ -31,28 +31,9 @@ public abstract class AbsJODWorker implements JODWorker {
      * @param name  the JODWorker's name.
      * @param proto the JODWorker's protocol.
      */
-    public AbsJODWorker(String name, String proto) {
+    public AbsJODWorker(String name, String proto, JODComponent component) {
         this.proto = proto;
         this.name = name;
-    }
-
-
-    // Setter
-
-    /**
-     * Set the {@link JODComponent} associated to the current JODWorker.
-     * <p>
-     * The owner component must be set via this method, and not via constructor,
-     * because the implementation classes must not access to JODComponent
-     * directly.
-     * <p>
-     * NB: the component owner can be set only once.
-     *
-     * @param component the owner {@link JODComponent}.
-     */
-    public void setComponent(JODComponent component) {
-        if (this.component != null)
-            throw new IllegalStateException(String.format("JOD Worker for component '%s' already have a JOD Component owner.", getName()));
         this.component = component;
     }
 

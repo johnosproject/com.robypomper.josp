@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +29,8 @@ public abstract class AbsJODListenerLoop extends AbsJODListener {
     /**
      * {@inheritDoc}
      */
-    public AbsJODListenerLoop(String name, String proto) {
-        super(name, proto);
+    public AbsJODListenerLoop(String name, String proto, JODComponent component) {
+        super(name, proto, component);
     }
 
 

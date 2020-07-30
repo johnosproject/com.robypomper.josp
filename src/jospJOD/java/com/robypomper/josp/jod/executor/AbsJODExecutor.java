@@ -1,9 +1,15 @@
 package com.robypomper.josp.jod.executor;
 
 
+import com.robypomper.java.JavaFormatter;
+import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
+import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 
 /**
  * Default Executor class used by {@link JODExecutor} implementations.
@@ -21,8 +27,8 @@ public abstract class AbsJODExecutor extends AbsJODWorker implements JODExecutor
     /**
      * {@inheritDoc}
      */
-    public AbsJODExecutor(String name, String proto) {
-        super(name, proto);
+    public AbsJODExecutor(String name, String proto, JODComponent component) {
+        super(name, proto, component);
     }
 
 
