@@ -407,7 +407,6 @@ public class DiscoveryJmDNS {
     }
 
     private static void register(String intfUniqueId, JmDNS jmDNS, Service srv) throws IOException {
-        //System.out.println(String.format("+ Publishing service '%s' on interface '%s'.", srv.getName(), intfUniqueId));
         log.debug(Mrk_Commons.DISC_IMPL, String.format("Publishing service '%s' on interface '%s'.", srv.getName(), intfUniqueId));
         jmDNS.registerServiceType(srv.generateServiceInfo().getType());
         jmDNS.registerService(srv.generateServiceInfo());
@@ -418,7 +417,6 @@ public class DiscoveryJmDNS {
     }
 
     private static void deregister(String intfUniqueId, JmDNS jmDNS, Service srv) {
-        //System.out.println( String.format("- DePublishing service '%s' from interface '%s'", srv.getName(), intfUniqueId));
         log.debug(Mrk_Commons.DISC_IMPL, String.format("DePublishing published service '%s' from interface '%s'.", srv.getName(), intfUniqueId));
         jmDNS.unregisterService(srv.generateServiceInfo());
         try {

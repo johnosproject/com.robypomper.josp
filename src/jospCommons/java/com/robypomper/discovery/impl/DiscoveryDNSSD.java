@@ -237,7 +237,6 @@ public class DiscoveryDNSSD {
             while ((line = reader.readLine()) != null) {
 
                 if (line.startsWith(getServiceType())) {
-                    //System.out.println(String.format("R [%s] %s", Discover.this, line));
                     log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Resolved service string '%s'", line));
                     //_josp2._tcp                                     PTR     Star_apple_78-6499._josp2._tcp
                     //Star_apple_78-6499._josp2._tcp                  SRV     0 0 1234 fe80-0-0-0-c41-51f0-dc6-78ee-en0.local. ; Replace with unicast FQDN of target host
@@ -335,7 +334,6 @@ public class DiscoveryDNSSD {
                         boolean removed = fields[1].equalsIgnoreCase("Rmv");
 
                         if (added) {
-                            //System.out.println(String.format("B [%s] %s", Discover.this, line));
                             log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Added service string '%s'", line));
                             ////Browsing for _discTest._tcp
                             ////DATE: ---Thu 23 Jul 2020---
@@ -352,7 +350,6 @@ public class DiscoveryDNSSD {
 
                             // Exec Resolution
                             try {
-                                //System.out.println(String.format("B>R [%s] %s", Discover.this, name));
                                 //resolveViaZ(name.toString().trim(), intf);
                                 resolveViaL(name.toString().trim(), intf);
 
@@ -365,7 +362,6 @@ public class DiscoveryDNSSD {
 
 
                         } else if (removed) {
-                            //System.out.println(String.format("B [%s] %s", Discover.this, line));
                             log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Removed service string '%s'", line));
                             ////Browsing for _discTest._tcp
                             ////DATE: ---Thu 23 Jul 2020---

@@ -117,7 +117,6 @@ public abstract class AbsDiscover implements Discover {
         if (discSrv.alreadyIn(discoveredServices))
             return;
 
-        System.out.println(String.format("Discoverer(%s)\tAdd %s", Integer.toHexString(hashCode()), discSrv));
         discoveredServices.add(discSrv);
         if (!interfaces.contains(discSrv.intf))
             registerInterface(discSrv.intf);
@@ -128,7 +127,6 @@ public abstract class AbsDiscover implements Discover {
         if (!lostSrv.alreadyIn(discoveredServices))
             return;
 
-        System.out.println(String.format("Discoverer(%s)\tRem %s", Integer.toHexString(hashCode()), lostSrv));
         discoveredServices.remove(lostSrv.extractFrom(discoveredServices));
         emitOnServiceLost(lostSrv);
     }

@@ -4,7 +4,6 @@ import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -315,7 +314,6 @@ public abstract class AbsPublisher implements Publisher {
         if (discSrv.alreadyIn(discoveredPublications))
             return;
 
-        System.out.println(String.format("DiscovePub(%s)\tAdd %s", Integer.toHexString(discover.hashCode()), discSrv));
         discoveredPublications.add(discSrv);
         //emit discovered
     }
@@ -327,7 +325,6 @@ public abstract class AbsPublisher implements Publisher {
         if (!lostSrv.alreadyIn(discoveredPublications))
             return;
 
-        System.out.println(String.format("DiscovePub(%s)\tRem %s", Integer.toHexString(discover.hashCode()), lostSrv));
         discoveredPublications.remove(lostSrv.extractFrom(discoveredPublications));
         //emit lost
     }
