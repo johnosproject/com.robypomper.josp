@@ -356,8 +356,6 @@ public class DiscoveryDNSSD {
                             } catch (IOException e) {
                                 if (isShuttingDown)
                                     return; // stop() method called
-
-                                log.error(Mrk_Commons.DISC_DISC_IMPL, String.format("Thrown IOException during resolve service '%s'.", getServiceType()));
                             }
 
 
