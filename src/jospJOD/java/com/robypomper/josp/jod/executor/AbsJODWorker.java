@@ -65,6 +65,17 @@ public abstract class AbsJODWorker implements JODWorker {
     }
 
 
+    // Substutution methods
+
+    protected static String genericSubstitution(String str, JODComponent component) {
+        if (str == null) return null;
+        if (str.isEmpty()) return str;
+
+        return str
+                .replaceAll(Substitutions.COMP_NAME, component.getName());
+    }
+
+
     // Full config string mngm
 
     /**
