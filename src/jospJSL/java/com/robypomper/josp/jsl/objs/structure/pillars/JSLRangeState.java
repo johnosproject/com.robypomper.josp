@@ -18,7 +18,7 @@ public class JSLRangeState extends AbsJSLState {
     private final double min;
     private final double max;
     private final double step;
-    private List<RangeStateListener> listeners = new ArrayList<>();
+    private final List<RangeStateListener> listeners = new ArrayList<>();
 
 
     // Constructor

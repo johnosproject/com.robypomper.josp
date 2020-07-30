@@ -15,3 +15,5 @@ jcp.client.callback: 'https://localhost:9001'
 # Communication
 #jsl.comm.local.enabled: false
 jsl.comm.cloud.enabled: true
+
+#jsl.comm.local.onlyLocalhost: true
