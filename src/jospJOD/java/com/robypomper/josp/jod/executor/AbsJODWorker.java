@@ -1,6 +1,9 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
+import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,11 +68,32 @@ public abstract class AbsJODWorker implements JODWorker {
     }
 
 
-    // Substutution methods
+    // Status convert & set methods
+
+    protected boolean convertAndSetStatus(String newStatus) {
+        if (getComponent() instanceof JODBooleanState) {
+            ((JODBooleanState) getComponent()).setUpdate(JavaFormatter.strToBoolean(newStatus.toUpperCase()));
+            return true;
+        }
+
+        if (getComponent() instanceof JODRangeState) {
+            Double val = JavaFormatter.strToDouble(newStatus);
+            if (val != null)
+                ((JODRangeState) getComponent()).setUpdate(val);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    // Substitution methods
 
     protected static String genericSubstitution(String str, JODComponent component) {
-        if (str == null) return null;
-        if (str.isEmpty()) return str;
+        if (component == null
+                || str == null
+                || str.isEmpty()
+        ) return str;
 
         return str
                 .replaceAll(Substitutions.COMP_NAME, component.getName());
