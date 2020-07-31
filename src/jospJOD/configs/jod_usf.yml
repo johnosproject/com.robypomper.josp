@@ -19,9 +19,13 @@ jod.comm.cloud.enabled: false
 
 # Executor
 jod.executor_mngr.pullers:
-  'tstP://com.robypomper.josp.jod.executor.PullerTest'
+  'tstP://com.robypomper.josp.jod.executor.PullerTest
+   shell://com.robypomper.josp.jod.executor.PullerUnixShell'
 jod.executor_mngr.listeners:
   'tstL://com.robypomper.josp.jod.executor.ListenerTest
-   tstLAdv://com.robypomper.josp.jod.executor.ListenerTestAdv'
+   tstLAdv://com.robypomper.josp.jod.executor.ListenerTestAdv
+   file://com.robypomper.josp.jod.executor.ListenerFiles'
 jod.executor_mngr.executors:
-  'tstE://com.robypomper.josp.jod.executor.ExecutorTest'
+  'tstE://com.robypomper.josp.jod.executor.ExecutorTest
+   shell://com.robypomper.josp.jod.executor.ExecutorUnixShell
+   file://com.robypomper.josp.jod.executor.ExecutorFiles'
