@@ -174,6 +174,15 @@ sourceSets {
             srcDirs = ['src/jospJODTest/comm/java']
         }
     }
+    jospJODExecutorTest {
+        java {
+            compileClasspath += sourceSets.jospJOD.output
+            runtimeClasspath += sourceSets.jospJOD.output
+            compileClasspath += sourceSets.jospJSL.output
+            runtimeClasspath += sourceSets.jospJSL.output
+            srcDirs = ['src/jospJODTest/executors/java']
+        }
+    }
     jospJSLCommTest {
         compileClasspath += sourceSets.jospJSL.output
         runtimeClasspath += sourceSets.jospJSL.output
@@ -190,6 +199,9 @@ configurations {
     jospJODCommTestImplementation.extendsFrom jospJODImplementation
     jospJODCommTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
 
+    jospJODExecutorTestImplementation.extendsFrom jospJODImplementation
+    jospJODExecutorTestRuntimeOnly.extendsFrom jospJODRuntimeOnly
+
     jospJSLCommTestImplementation.extendsFrom jospJSLImplementation
     jospJSLCommTestRuntimeOnly.extendsFrom jospJSLRuntimeOnly
 }
@@ -200,6 +212,9 @@ dependencies {
 
     jospJODCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     jospJODCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+
+    jospJODExecutorTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    jospJODExecutorTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
 
     jospJSLCommTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     jospJSLCommTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
@@ -234,6 +249,18 @@ task jospJODCommTest(type: Test) {
     //jvmArgs '-Djavax.net.debug=all'
 }
 jospJODTest.dependsOn jospJODCommTest
+
+task jospJODExecTest(type: Test) {
+    description = 'Runs JOD Executor tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.jospJODExecutorTest.output.classesDirs
+    classpath = sourceSets.jospJODExecutorTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+jospJODTest.dependsOn jospJODExecTest
 
 task jospJSLTest {
     description = 'Runs all JSL tests.'
