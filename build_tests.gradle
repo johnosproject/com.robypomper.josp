@@ -39,6 +39,11 @@ sourceSets {
         resources.srcDirs 'tests/test_jospCommonsComm/resources'
     }
 
+    test_jospCommonsDisc {
+        java.srcDirs 'tests/test_jospCommonsDisc/java'
+        resources.srcDirs 'tests/test_jospCommonsDisc/resources'
+    }
+
 
     // JOD
 
@@ -50,6 +55,11 @@ sourceSets {
     test_jospJODComm {
         java.srcDirs 'tests/test_jospJODComm/java'
         resources.srcDirs 'tests/test_jospJODComm/resources'
+    }
+
+    test_jospJODExec {
+        java.srcDirs 'tests/test_jospJODExec/java'
+        resources.srcDirs 'tests/test_jospJODExec/resources'
     }
 
 
@@ -77,12 +87,16 @@ dependencies {
     // JOSP Commons
     test_jospCommonsCommImplementation sourceSets.test_Commons.output
     test_jospCommonsCommImplementation sourceSets.test_Commons.runtimeClasspath
+    test_jospCommonsDiscImplementation sourceSets.test_Commons.output
+    test_jospCommonsDiscImplementation sourceSets.test_Commons.runtimeClasspath
 
     // JOD
     test_jospJODStructImplementation sourceSets.test_Commons.output
     test_jospJODStructImplementation sourceSets.test_Commons.runtimeClasspath
     test_jospJODCommImplementation sourceSets.test_Commons.output
     test_jospJODCommImplementation sourceSets.test_Commons.runtimeClasspath
+    test_jospJODExecImplementation sourceSets.test_Commons.output
+    test_jospJODExecImplementation sourceSets.test_Commons.runtimeClasspath
 
     // JSL
     test_jospJSLCommImplementation sourceSets.test_Commons.output
@@ -113,6 +127,18 @@ task jospJOSPCommonsCommTest(type: Test) {
     //jvmArgs '-Djavax.net.debug=all'
 }
 jospJOSPCommonsAllTest.dependsOn jospJOSPCommonsCommTest
+
+task jospJOSPCommonsDiscTest(type: Test) {
+    description = 'Runs JOD Executors tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.test_jospCommonsDisc.output.classesDirs
+    classpath = sourceSets.test_jospCommonsDisc.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+jospJOSPCommonsAllTest.dependsOn jospJOSPCommonsDiscTest
 
 
 // JOD
@@ -146,6 +172,18 @@ task jospJODCommTest(type: Test) {
     //jvmArgs '-Djavax.net.debug=all'
 }
 jospJODAllTest.dependsOn jospJODCommTest
+
+task jospJODExecTest(type: Test) {
+    description = 'Runs JOD Executors tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.test_jospJODExec.output.classesDirs
+    classpath = sourceSets.test_jospJODExec.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    //jvmArgs '-Djavax.net.debug=all'
+}
+jospJODAllTest.dependsOn jospJODExecTest
 
 
 // JSL

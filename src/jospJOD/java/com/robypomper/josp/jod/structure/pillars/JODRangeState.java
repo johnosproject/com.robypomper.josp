@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.structure.pillars;
 
+import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
@@ -79,6 +80,9 @@ public class JODRangeState extends AbsJODState {
     // Status's methods
 
     public void setUpdate(double newState) {
+        if (state == newState)
+            return;
+
         double oldState = state;
         state = newState;
         try {
@@ -108,7 +112,7 @@ public class JODRangeState extends AbsJODState {
 
         @Override
         public String encode() {
-            return String.format("new:%s\nold:%s", Double.toString(newState), Double.toString(oldState));
+            return String.format("new:%s\nold:%s", JavaFormatter.doubleToStr(newState), JavaFormatter.doubleToStr(oldState));
         }
 
     }

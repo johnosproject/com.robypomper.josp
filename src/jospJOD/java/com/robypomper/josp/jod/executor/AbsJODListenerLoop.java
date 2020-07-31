@@ -1,9 +1,10 @@
 package com.robypomper.josp.jod.executor;
 
-
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 
 /**
  * Convenient Listener class used by {@link JODListener} implementations that
@@ -28,8 +29,8 @@ public abstract class AbsJODListenerLoop extends AbsJODListener {
     /**
      * {@inheritDoc}
      */
-    public AbsJODListenerLoop(String name, String proto) {
-        super(name, proto);
+    public AbsJODListenerLoop(String name, String proto, JODComponent component) {
+        super(name, proto, component);
     }
 
 
@@ -97,7 +98,13 @@ public abstract class AbsJODListenerLoop extends AbsJODListener {
             @Override
             public void run() {
                 log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Thread listener server '%s' started", Thread.currentThread().getName()));
-                getServerLoop();
+                while (!mustShoutingDown()) {
+                    try {
+                        getServerLoop();
+                    } catch (Throwable t) {
+                        log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Thread listener server '%s' thrown exception: %s", Thread.currentThread().getName(), t.getMessage()), t);
+                    }
+                }
                 log.trace(Mrk_JOD.JOD_EXEC_SUB, String.format("Thread listener server '%s' terminated", Thread.currentThread().getName()));
             }
         });

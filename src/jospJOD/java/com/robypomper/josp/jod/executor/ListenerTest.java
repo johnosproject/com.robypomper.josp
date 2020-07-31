@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.josp.jod.structure.pillars.JODRangeState;
@@ -26,8 +27,8 @@ public class ListenerTest extends AbsJODListenerLoop {
      * @param proto      proto of the listener.
      * @param configsStr configs string, can be an empty string.
      */
-    public ListenerTest(String name, String proto, String configsStr) {
-        super(name, proto);
+    public ListenerTest(String name, String proto, String configsStr, JODComponent component) {
+        super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
     }
 

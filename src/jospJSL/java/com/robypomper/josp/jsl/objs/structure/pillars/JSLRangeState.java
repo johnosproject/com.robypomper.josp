@@ -1,5 +1,6 @@
 package com.robypomper.josp.jsl.objs.structure.pillars;
 
+import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.objs.structure.JSLStateUpdate;
@@ -17,7 +18,7 @@ public class JSLRangeState extends AbsJSLState {
     private final double min;
     private final double max;
     private final double step;
-    private List<RangeStateListener> listeners = new ArrayList<>();
+    private final List<RangeStateListener> listeners = new ArrayList<>();
 
 
     // Constructor
@@ -109,8 +110,10 @@ public class JSLRangeState extends AbsJSLState {
         public JOSPRange(String updData) {
             String[] lines = updData.split("\n");
 
-            newState = Double.parseDouble(lines[0].substring(lines[0].indexOf(":") + 1));
-            oldState = Double.parseDouble(lines[1].substring(lines[1].indexOf(":") + 1));
+            Double newVal = JavaFormatter.strToDouble(lines[0].substring(lines[0].indexOf(":") + 1));
+            newState = newVal != null ? newVal : 0;
+            Double oldVal = JavaFormatter.strToDouble(lines[1].substring(lines[1].indexOf(":") + 1));
+            oldState = oldVal != null ? oldVal : 0;
         }
 
         @Override

@@ -4,7 +4,9 @@ import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Base class for {@link Publisher} implementations.
@@ -30,8 +32,9 @@ public abstract class AbsPublisher implements Publisher {
 
     private boolean isPublishing = false;
     private boolean isDepublishing = false;
-    private boolean isPublished = false;
-    private Discover discover;
+    protected Discover discover;
+    private final List<DiscoveryService> discoveredPublications = new ArrayList<>();
+    private final List<String> interfaces = new ArrayList<>();
 
 
     // Constructor
@@ -57,10 +60,26 @@ public abstract class AbsPublisher implements Publisher {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Basic implementation that use only the <code>boolean isPublished</code> field set on first service (self) resolving
+     * and on first service (self) lost.
      */
     @Override
-    public boolean isPublished() {
-        return isPublished;
+    public boolean isPublishedFully() {
+        // published on ALL jmdns
+        return isPublishedPartially() && discoveredPublications.size() == interfaces.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Basic implementation that use only the <code>boolean isPublished</code> field set on first service (self) resolving
+     * and on first service (self) lost.
+     */
+    @Override
+    public boolean isPublishedPartially() {
+        // published at last ONE self-publication (discovered by internal discovery)
+        return discover != null && discoveredPublications.size() > 0;
     }
 
     protected boolean isPublishing() {
@@ -106,8 +125,24 @@ public abstract class AbsPublisher implements Publisher {
         return srvText;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Discover getInternalDiscovered() {
+        return discover;
+    }
 
-    // Subclass support methods
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getInterfaces() {
+        return interfaces;
+    }
+
+
+    // Publishing methods (SubClass Support Methods)
 
     /**
      * Sub class must call this method to set the instance in publishing mode.
@@ -121,7 +156,7 @@ public abstract class AbsPublisher implements Publisher {
     protected boolean setIsPublishing(boolean enable) {
         // Checks on publishing
         if (enable) {
-            if (isPublished()) {
+            if (isPublishedPartially()) {
                 log.warn(Mrk_Commons.DISC_PUB, String.format("Can't publish service '%s' because already published", getServiceName()));
                 return false;
             }
@@ -146,12 +181,12 @@ public abstract class AbsPublisher implements Publisher {
      */
     protected boolean setIsDepublishing(boolean enable) {
         if (enable) {
-            if (!isPublished()) {
+            if (!isPublishedPartially()) {
                 log.warn(Mrk_Commons.DISC_PUB, String.format("Can't hide service '%s' because already hided", getServiceName()));
                 return false;
             }
             if (isPublishing || isDepublishing) {
-                log.warn(Mrk_Commons.DISC_PUB, String.format("Can't publish service '%s' because is publishing/hiding", getServiceName()));
+                log.warn(Mrk_Commons.DISC_PUB, String.format("Can't hide service '%s' because is publishing/hiding", getServiceName()));
                 return false;
             }
         }
@@ -159,6 +194,9 @@ public abstract class AbsPublisher implements Publisher {
         isDepublishing = enable;
         return true;
     }
+
+
+    // Internal discovery mngm (SubClass Support Methods)
 
     /**
      * Start internal auto discovery service used to detect if current service
@@ -175,18 +213,15 @@ public abstract class AbsPublisher implements Publisher {
 
         discover.addListener(new DiscoverListener() {
             @Override
-            public void onServiceDiscovered(String type, String name, InetAddress address, int port, String extraText) {
-                if (type.equalsIgnoreCase(getServiceType())
-                        && name.startsWith(getServiceName())        /* Published services can include as suffix interface or other identifier */
-                        && port == getServicePort())
-                    isPublished = true;
+            public void onServiceDiscovered(DiscoveryService discService) {
+                registerPublication(discService);
+                if (!interfaces.contains(discService.intf))
+                    registerInterface(discService.intf);
             }
 
             @Override
-            public void onServiceLost(String type, String name) {
-                if (type.equalsIgnoreCase(getServiceType())
-                        && name.startsWith(getServiceName()))       /* Published services can include as suffix interface or other identifier */
-                    isPublished = false;
+            public void onServiceLost(DiscoveryService lostService) {
+                deregisterPublication(lostService);
             }
 
         });
@@ -203,12 +238,16 @@ public abstract class AbsPublisher implements Publisher {
      */
     protected void stopAutoDiscovery() {
         try {
-            discover.stop();
+            if (discover != null)
+                discover.stop();
         } catch (Discover.DiscoveryException e) {
             log.warn(Mrk_Commons.DISC_PUB, String.format("Can't destroy service's published checks '%s' because %s", getServiceName(), e.getMessage()));
         }
         discover = null;
     }
+
+
+    // Wait methods (SubClass Support Methods)
 
     /**
      * Method to wait for current service publication via internal auto discovery
@@ -220,18 +259,23 @@ public abstract class AbsPublisher implements Publisher {
     protected void waitServicePublication() throws PublishException {
         try {
             int count = 0;
-            while (!isPublished() && count < WAIT_MAX_COUNT) {
+            Date startAt = new Date();
+            while (!isPublishedFully() && count < WAIT_MAX_COUNT) {
                 //noinspection BusyWait
                 Thread.sleep(WAIT_LOOP_TIME);
                 count++;
             }
-            if (!isPublished())
-                throw new PublishException(String.format("ERR: service '%s' not published after %d seconds", getServiceName(), WAIT_MAX_COUNT * WAIT_LOOP_TIME / 1000));
 
-        } catch (InterruptedException e) {
-            if (!isPublished())
-                throw new PublishException(String.format("ERR: can't wait service '%s' publication because %s", getServiceName(), e.getMessage()));
-        }
+            double timeElapsed = (double) (new Date().getTime() - startAt.getTime()) / 1000;
+            if (!isPublishedPartially()) {
+                System.out.println("\n\n\n\n--\n");
+                hide(false);
+                throw new PublishException(String.format("ERR: service '%s' not published after %f seconds", getServiceName(), timeElapsed));
+            }
+            if (!isPublishedFully())
+                log.warn(Mrk_Commons.DISC_PUB, String.format("WAR: service '%s' not published on all interfaces after %f seconds", getServiceName(), timeElapsed));
+
+        } catch (InterruptedException ignore) {}
     }
 
     /**
@@ -244,17 +288,99 @@ public abstract class AbsPublisher implements Publisher {
     protected void waitServiceDepublication() throws PublishException {
         try {
             int count = 0;
-            while (isPublished() && count < WAIT_MAX_COUNT) {
+            Date startAt = new Date();
+            while (isPublishedPartially() && count < WAIT_MAX_COUNT) {
                 //noinspection BusyWait
                 Thread.sleep(WAIT_LOOP_TIME);
                 count++;
             }
-            if (isPublished())
-                throw new PublishException(String.format("ERR: service '%s' not hided after %d seconds", getServiceName(), WAIT_MAX_COUNT * WAIT_LOOP_TIME));
 
-        } catch (InterruptedException e) {
-            throw new PublishException(String.format("ERR: can't wait service '%s' publication because %s", getServiceName(), e.getMessage()));
+            double timeElapsed = (double) (new Date().getTime() - startAt.getTime()) / 1000;
+            if (isPublishedFully())
+                throw new PublishException(String.format("ERR: service '%s' not hided after %f seconds", getServiceName(), timeElapsed));
+            if (isPublishedPartially())
+                log.warn(Mrk_Commons.DISC_PUB, String.format("WAR: service '%s' not hided on all interfaces after %f seconds", getServiceName(), timeElapsed));
+
+        } catch (InterruptedException ignore) {
         }
+    }
+
+
+    // Publications registration methods (SubClass Support Methods)
+
+    private void registerPublication(DiscoveryService discSrv) {
+        if (!discSrv.name.equalsIgnoreCase(getServiceName()))
+            return;
+
+        if (discSrv.alreadyIn(discoveredPublications))
+            return;
+
+        discoveredPublications.add(discSrv);
+        //emit discovered
+    }
+
+    private void deregisterPublication(DiscoveryService lostSrv) {
+        if (!lostSrv.name.equalsIgnoreCase(getServiceName()))
+            return;
+
+        if (!lostSrv.alreadyIn(discoveredPublications))
+            return;
+
+        discoveredPublications.remove(lostSrv.extractFrom(discoveredPublications));
+        //emit lost
+    }
+
+    private void deregisterAllPublication() {
+        List<DiscoveryService> toRemove = new ArrayList<>(discoveredPublications);
+        for (DiscoveryService srv : toRemove) {
+            deregisterPublication(srv);
+        }
+    }
+
+
+    // Interfaces registration methods (SubClass Support Methods)
+
+    public void registerInterface(String addIntf) {
+        if (interfaces.contains(addIntf))
+            return;
+
+        interfaces.add(addIntf);
+    }
+
+    public void deregisterInterface(String remIntf) {
+        if (!interfaces.contains(remIntf))
+            return;
+
+        interfaces.remove(remIntf);
+    }
+
+
+    // DNS-SD names de/encoding (Static Support Methods)
+
+    public static String getServiceNameEncoded_DNSSD(String decoded) {
+        return decoded
+                .replaceAll(" ", "\\\\032");
+    }
+
+    public static String getServiceNameDecoded_DNSSD(String encoded) {
+        return encoded
+                .replaceAll("\\\\032", " ");
+    }
+
+    public static String getServiceNameEncoded_Avahi(String decoded) {
+        return decoded
+                .replaceAll(" ", "\\\\032")
+                .replaceAll("&", "\\\\038")
+                .replaceAll("\\(", "\\\\040")
+                .replaceAll("\\)", "\\\\041");
+    }
+
+    public static String getServiceNameDecoded_Avahi(String encoded) {
+        return encoded
+                .replaceAll("\\\\032", " ")
+                .replaceAll("\\\\038", "&")
+                .replaceAll("\\\\040", "(")
+                .replaceAll("\\\\041", ")");
     }
 
 }

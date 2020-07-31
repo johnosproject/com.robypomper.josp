@@ -1,5 +1,6 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,8 +31,8 @@ public abstract class AbsJODPuller extends AbsJODWorker implements JODPuller {
     /**
      * {@inheritDoc}
      */
-    public AbsJODPuller(String name, String proto) {
-        super(name, proto);
+    public AbsJODPuller(String name, String proto, JODComponent component) {
+        super(name, proto, component);
     }
 
 

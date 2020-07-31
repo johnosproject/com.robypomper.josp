@@ -7,24 +7,24 @@
     "contains": {
         "BoolState" : {
             "type": "BooleanState",
-            "listener" : "tstLAdv://sleep=1000;frequency=60;"
+            "listener" : "file://path=status/BoolState_State.txt"
         },
         "RangeState" : {
             "type": "RangeState",
-            "listener" : "tstLAdv://sleep=1000;frequency=60;",
+            "listener" : "file://path=status/RangeState_State.txt",
             "min": "-10",
             "max": "35",
             "step": "5"
         },
         "BoolAction" : {
             "type": "BooleanAction",
-            "listener" : "tstLAdv://sleep=1000;frequency=60;",
-            "executor" : "tstE://none"
+            "listener" : "file://path=status/%C_NAME%_State.txt",
+            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
         },
         "RangeAction" : {
             "type": "RangeAction",
-            "listener" : "tstLAdv://sleep=1000;frequency=60;",
-            "executor" : "tstE://none",
+            "listener" : "file://path=status/%C_NAME%_State.txt",
+            "executor" : "file://path=status/%C_NAME%_State.txt",
             "min": "-10",
             "max": "35",
             "step": "5"
