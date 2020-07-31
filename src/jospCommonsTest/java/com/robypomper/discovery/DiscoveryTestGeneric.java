@@ -53,7 +53,7 @@ public class DiscoveryTestGeneric {
 
     @AfterEach
     public void tearDownEach() {
-        System.out.println("\n\n\n########################                    ciao\n\n\n\n");
+        System.out.println("\n\n\n########################                    test's tearDown\n\n\n\n");
         try {
             if (pub != null && pub.isPublishedPartially()) pub.hide(true);
             pub = null;
