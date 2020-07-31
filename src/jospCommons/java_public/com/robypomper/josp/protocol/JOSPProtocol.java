@@ -246,7 +246,7 @@ public class JOSPProtocol {
 
         // Constructor
 
-        ActionCmd(String serviceId, String userId, String instanceId, String objectId, String componentPath, JOSPActionCommandParams command) {
+        protected ActionCmd(String serviceId, String userId, String instanceId, String objectId, String componentPath, JOSPActionCommandParams command) {
             this.serviceId = serviceId;
             this.userId = userId;
             this.instanceId = instanceId;
