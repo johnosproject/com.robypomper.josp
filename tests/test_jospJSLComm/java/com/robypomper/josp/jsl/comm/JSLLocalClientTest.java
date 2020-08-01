@@ -1,8 +1,8 @@
-package com.robypomper.josp.jod.comm;
+package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.communication.client.Client;
 import com.robypomper.communication.server.Server;
-import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jod.comm.JODLocalServer;
 import com.robypomper.josp.test.mocks.jod.MockJODCommunication;
 import com.robypomper.josp.test.mocks.jod.MockJODObjectInfo;
 import com.robypomper.josp.test.mocks.jod.MockJODPermissions;

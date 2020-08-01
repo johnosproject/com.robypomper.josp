@@ -1,13 +1,13 @@
-package com.robypomper.josp.jod.comm;
+package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.josp.jod.JODSettings_002;
+import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.comm.JODCommunication_002;
+import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.comm.JSLCommunication;
-import com.robypomper.josp.jsl.comm.JSLCommunication_002;
-import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
