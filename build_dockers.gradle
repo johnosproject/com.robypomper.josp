@@ -43,6 +43,15 @@ task dbms_Up {
     description = 'Runs...'
     group = 'JOSP runners jcp (dockers)'
     dependsOn dbmsComposeUp
+    dbmsComposeUp.doFirst {
+        println "Create'envs' dir..."
+        project.file('envs/dockers').mkdir()
+    }
+
+    doLast {
+        println "INF: 'envs/dockers/dbms''s dir was created with root as owner, exec following command to change dir's access"
+        println "# sudo chmod a+rw -R envs"
+    }
 }
 
 task dbms_Down {
