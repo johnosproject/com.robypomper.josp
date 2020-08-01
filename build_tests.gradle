@@ -221,12 +221,16 @@ idea {
         // JOSP Commons
         testSourceDirs += project.sourceSets.test_jospCommonsComm.java.srcDirs
         testSourceDirs += project.sourceSets.test_jospCommonsComm.resources.srcDirs
+        testSourceDirs += project.sourceSets.test_jospCommonsDisc.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospCommonsDisc.resources.srcDirs
 
         // JOD
         testSourceDirs += project.sourceSets.test_jospJODStruct.java.srcDirs
         testSourceDirs += project.sourceSets.test_jospJODStruct.resources.srcDirs
         testSourceDirs += project.sourceSets.test_jospJODComm.java.srcDirs
         testSourceDirs += project.sourceSets.test_jospJODComm.resources.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODExec.java.srcDirs
+        testSourceDirs += project.sourceSets.test_jospJODExec.resources.srcDirs
 
         // JSL
         testSourceDirs += project.sourceSets.test_jospJSLComm.java.srcDirs
