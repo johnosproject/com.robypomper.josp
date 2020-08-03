@@ -110,7 +110,7 @@ bootJcpAPIsRun.dependsOn printGradleVersions
 // Publication include
 // -------------------
 
-apply from: 'build_jcpApis_publish.gradle'
+apply from: 'gradle/build_jcpApis_publish.gradle'
 
 
 // JCP APIs Public
