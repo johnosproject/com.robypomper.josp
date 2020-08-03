@@ -84,7 +84,7 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
             JavaExecProcess.execCmdConcat(cmdUpd, redirectUpd != null ? Paths.get(redirectUpd) : null, 0);
 
         } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s'", cmd, getName()));
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
 
@@ -108,7 +108,7 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
             JavaExecProcess.execCmdConcat(cmdUpd, redirectUpd != null ? Paths.get(redirectUpd) : null, 0);
 
         } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s'", cmd, getName()));
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
 

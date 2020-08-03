@@ -1,4 +1,5 @@
 import com.robypomper.build.docker.DockerNetworkUtils
+import java.nio.file.Files
 
 /**
  * Gradle configurations to manage docker artifacts for JOSP project.
@@ -45,7 +46,7 @@ task dbms_Up {
     dependsOn dbmsComposeUp
     dbmsComposeUp.doFirst {
         println "Create'envs' dir..."
-        project.file('envs/dockers').mkdir()
+        Files.createDirectories(project.file('envs/dockers').toPath())
     }
 
     doLast {
