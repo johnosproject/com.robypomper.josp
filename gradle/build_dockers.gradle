@@ -1,4 +1,5 @@
 import com.robypomper.build.docker.DockerNetworkUtils
+import java.nio.file.Files
 
 /**
  * Gradle configurations to manage docker artifacts for JOSP project.
@@ -43,6 +44,15 @@ task dbms_Up {
     description = 'Runs...'
     group = 'JOSP runners jcp (dockers)'
     dependsOn dbmsComposeUp
+    dbmsComposeUp.doFirst {
+        println "Create'envs' dir..."
+        Files.createDirectories(project.file('envs/dockers').toPath())
+    }
+
+    doLast {
+        println "INF: 'envs/dockers/dbms''s dir was created with root as owner, exec following command to change dir's access"
+        println "# sudo chmod a+rw -R envs"
+    }
 }
 
 task dbms_Down {

@@ -41,23 +41,23 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JODSTRUCT_PATH_DEF       = "struct.jod";
 
     public static final String JODPERM_PATH             = "jod.permissions.path";
-    public static final String JODPERM_PATH_DEF         = "perms.jod";
-    public static final String JODPERM_REFRESH          = "jod.permissions.refresh";
-    public static final String JODPERM_REFRESH_DEF      = "30";
-    public static final String JODPERM_GENSTARTEGY      = "jod.permissions.generation_strategy";
-    public static final String JODPERM_GENSTARTEGY_DEF  = "standard";
-    public static final String JODPERM_OWNER            = "jod.permissions.owner";
-    public static final String JODPERM_OWNER_DEF        = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
+    public static final String JODPERM_PATH_DEF = "perms.jod";
+    public static final String JODPERM_REFRESH = "jod.permissions.refresh";
+    public static final String JODPERM_REFRESH_DEF = "30";
+    public static final String JODPERM_GENSTARTEGY = "jod.permissions.generation_strategy";
+    public static final String JODPERM_GENSTARTEGY_DEF = "standard";
+    public static final String JODPERM_OWNER = "jod.permissions.owner";
+    public static final String JODPERM_OWNER_DEF = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
 
-    public static final String JODCOMM_LOCAL_ENABLED        = "jod.comm.local.enabled";
-    public static final String JODCOMM_LOCAL_ENABLED_DEF    = "true";
-    public static final String JODCOMM_LOCAL_DISCOVERY      = "jod.comm.local.discovery";
-    public static final String JODCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
-    public static final String JODCOMM_LOCAL_PORT           = "jod.comm.local.port";
-    public static final String JODCOMM_LOCAL_PORT_DEF       = "1234";
+    public static final String JODCOMM_LOCAL_ENABLED = "jod.comm.local.enabled";
+    public static final String JODCOMM_LOCAL_ENABLED_DEF = "true";
+    public static final String JODCOMM_LOCAL_DISCOVERY = "jod.comm.local.discovery";
+    public static final String JODCOMM_LOCAL_DISCOVERY_DEF = "JmDNS";
+    public static final String JODCOMM_LOCAL_PORT = "jod.comm.local.port";
+    public static final String JODCOMM_LOCAL_PORT_DEF = "1234";
 
-    public static final String JODCOMM_CLOUD_ENABLED        = "jod.comm.cloud.enabled";
-    public static final String JODCOMM_CLOUD_ENABLED_DEF    = "true";
+    public static final String JODCOMM_CLOUD_ENABLED = "jod.comm.cloud.enabled";
+    public static final String JODCOMM_CLOUD_ENABLED_DEF = "true";
     //@formatter:on
 
 

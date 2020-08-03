@@ -25,8 +25,6 @@ public class JODLocalServerTest {
     // Class constants
 
     protected static final String TEST_FILES_PREFIX = "tmp/tests/";
-    protected static final String KS_FILE = String.format("%s.p12", JODLocalServerTest.class.getSimpleName());
-    protected static final String KS_PASS = "ksPass";
     protected static final String PUB_CERT_PATH = String.format("%s.crt", JODLocalServerTest.class.getSimpleName());
     protected static final String JOD_PUB_CERT_PATH = TEST_FILES_PREFIX + PUB_CERT_PATH;
     protected static final InetAddress LOCALHOST = InetAddress.getLoopbackAddress();

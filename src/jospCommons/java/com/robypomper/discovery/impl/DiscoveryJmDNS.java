@@ -1,6 +1,5 @@
 package com.robypomper.discovery.impl;
 
-import com.robypomper.discovery.AbsDiscover;
 import com.robypomper.discovery.AbsPublisher;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
@@ -11,18 +10,8 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.net.*;
+import java.util.*;
 
 
 /**
@@ -48,27 +37,77 @@ public class DiscoveryJmDNS {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private static Timer intfTimer = null;
     private static final List<NetworkInterface> interfaces = new ArrayList<>();
     private static final Map<String, JmDNS> jmDNSs = new HashMap<>();
     private static final List<Service> pubServices = new ArrayList<>();
     private static final Map<ServiceListener, String> discListeners = new HashMap<>();
+    private static Timer intfTimer = null;
 
 
     // JmDNS sub-system mngm
 
     /**
      * Return an unique id related to interface, address and protocol.
-     * This id is used in conjunction with {@link #jmDNSs} map to associate
-     * uniquely a {@link JmDNS} object to his interface/address/protocol.
+     * <p>
+     * If it's a loop back interface, keep only first address for each IP protocol version.<br>
+     * Otherwise it keep only the address string and the IP protocol version used.
      *
      * @param intf    interface to associate at returned unique id.
      * @param address address (and protocol) to associate at returned unique id.
-     * @return a string containing the unique id.
+     * @return a string containing the interface unique id.
      */
-    private static String toUniqueId(NetworkInterface intf, InetAddress address) {
-        String proto = address instanceof Inet4Address ? "Ipv4" : "IPv6";
-        return intf.getDisplayName() + "/" + address + "/" + proto;
+    public static String toUniqueId(NetworkInterface intf, InetAddress address) {
+        String proto = address instanceof Inet4Address ? "IPv4" : "IPv6";
+
+        // un unica interfaccia loopback
+        try {
+            if (intf.isLoopback()) {
+                return "localhost/" + proto;
+            }
+        } catch (SocketException ignore) {
+        }
+
+        // un unico indirizzo per interface
+        return intf.getDisplayName();
+
+//        String addStr = address.getHostAddress();
+//        if (addStr.startsWith("/"))
+//            addStr = addStr.substring(1);
+//        if (addStr.contains("%"))
+//            addStr = addStr.substring(0,addStr.indexOf("%"));
+//        return addStr + "/" + proto;
+
+        // un unico indirizzo per interface/indirizzo/versioneIP
+//        return intf.getDisplayName() + "/" + addStr + "/" + proto;
+
+//        // un unico indirizzo per interfaccia/versioneIP
+//        String addStr = address.toString();
+//        if (addStr.contains("%"))
+//            addStr = addStr.substring(0,addStr.indexOf("%"));
+//        return addStr + "/" + proto;
+    }
+
+    /**
+     * Return an unique id related to discovered service.
+     * <p>
+     * The service id is composed by:
+     * <ul>
+     *     <li>Discovered service's name</li>
+     *     <li>Discovering interface's unique id</li>
+     * </ul>
+     *
+     * @param event        the JmDNS event that discovered/resolved the service.
+     * @param intfUniqueId the unique id associated to the discovering interface..
+     * @return a string containing the service unique id.
+     */
+    public static String toUniqueId(ServiceEvent event, String intfUniqueId) {
+        if (event.getInfo().getHostAddresses().length == 0)
+            return String.format("%s/(intf)%s", event.getName(), intfUniqueId);
+
+        StringBuilder address = new StringBuilder();
+        for (String s : event.getInfo().getHostAddresses())
+            address.append(s).append(",");
+        return String.format("%s/(intf)%s/(srv)%s", event.getName(), intfUniqueId, address.substring(0, address.length() - 1));
     }
 
     /**
@@ -107,23 +146,52 @@ public class DiscoveryJmDNS {
                 Thread.currentThread().setName("JmDNS_Thread");
                 try {
                     List<NetworkInterface> newInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-                    List<NetworkInterface> oldInterfaces = Collections.unmodifiableList(interfaces);
+                    List<NetworkInterface> oldInterfaces = new ArrayList<>(interfaces);
+
+                    // Print all "interfaces <address, list>"
+                    //for (NetworkInterface intf : newInterfaces) {
+                    //    System.out.print(intf.getDisplayName() + ": <");
+                    //    for (InterfaceAddress iAddr : intf.getInterfaceAddresses()) {
+                    //        System.out.print(iAddr.getAddress() + ", ");
+                    //    }
+                    //    System.out.println(">");
+                    //}
 
                     // check for added interfaces
                     for (NetworkInterface intf : newInterfaces)
-                        if (!interfaces.contains(intf))
-                            addInterface(intf);
+                        if (!interfaces.contains(intf)) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    Thread.currentThread().setName("JmDNS - Add Intf " + intf.getDisplayName());
+                                    addInterface(intf);
+                                }
+                            }.start();
+                        }
 
                     // check for removed interfaces
                     for (NetworkInterface intf : oldInterfaces)
-                        if (!newInterfaces.contains(intf))
-                            removeInterface(intf);
+                        if (!newInterfaces.contains(intf)) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    Thread.currentThread().setName("JmDNS - Rem Intf " /*+ intf.getDisplayName()*/);
+                                    removeInterface(intf);
+                                }
+                            }.start();
+                        }
 
                 } catch (SocketException e) {
                     log.error(Mrk_Commons.DISC_IMPL, String.format("Can't list localhost interfaces because %s.", e.getMessage()));
                 }
             }
         }, 0, UPD_TIME);
+
+        try {
+            Thread.sleep(5 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -152,10 +220,18 @@ public class DiscoveryJmDNS {
                 log.error(Mrk_Commons.DISC_IMPL, String.format("Can't close JmDNS instance because %s.", e.getMessage()));
             }
 
-        interfaces.clear();
-        jmDNSs.clear();
+        List<NetworkInterface> intfsList = new ArrayList<>(interfaces);
+        for (NetworkInterface intf : intfsList)
+            new Thread() {
+                @Override
+                public void run() {
+                    Thread.currentThread().setName("JmDNS - Rem Intf " + intf.getDisplayName());
+                    removeInterface(intf);
+                }
+            }.start();
 
-
+        //jmDNSs.clear();
+        //interfaces.clear();
     }
 
 
@@ -178,31 +254,39 @@ public class DiscoveryJmDNS {
         // Get interface address
         for (InterfaceAddress iAddr : intf.getInterfaceAddresses()) {
             InetAddress addr = iAddr.getAddress();
-            String uniqueId = toUniqueId(intf, addr);
-            if (jmDNSs.containsKey(uniqueId)) {
-                log.warn(Mrk_Commons.DISC_IMPL, String.format("Interface '%s' already added as JmDNS interface", addr));
-                return;
-            }
+            String intfUniqueId = toUniqueId(intf, addr);
+
+            // Check interface's multi cast
             try {
                 if (!intf.supportsMulticast()) {
                     log.warn(Mrk_Commons.DISC_IMPL, String.format("Interface '%s' don't support multicast", addr));
-                    return;
+                    continue;
                 }
             } catch (SocketException e) {
                 log.warn(Mrk_Commons.DISC_IMPL, String.format("Interface '%s' don't support multicast", addr));
-                return;
+                continue;
             }
 
-            // Add interface
+            // Create interface
             JmDNS jmDNS;
             try {
-                log.debug(Mrk_Commons.DISC_IMPL, String.format("Adding interface '%s' from address '%s'.", intf.getDisplayName(), addr));
+                log.info(Mrk_Commons.DISC_IMPL, String.format("Adding interface '%s' with '%s/%s' (interface/address).", intfUniqueId, intf.getDisplayName(), addr));
                 jmDNS = JmDNS.create(addr);
-                jmDNSs.put(uniqueId, jmDNS);
 
             } catch (IOException e) {
                 log.error(Mrk_Commons.DISC_IMPL, String.format("Error adding interface '%s' because %s.", intf.getDisplayName(), e.getMessage()));
-                return;
+                continue;
+            }
+
+            // Add new interface to jmDNSs list (ATOMIC)
+            synchronized (jmDNSs) {
+                if (jmDNSs.containsKey(intfUniqueId)) {
+                    log.warn(Mrk_Commons.DISC_IMPL, String.format("Interface '%s/%s' already added as JmDNS interface %s", intf.getDisplayName(), addr, intfUniqueId));
+                    //jmDNS.close();
+                    continue;
+                }
+
+                jmDNSs.put(intfUniqueId, jmDNS);
             }
 
             // Register already registered listeners
@@ -214,12 +298,11 @@ public class DiscoveryJmDNS {
             // Publish already publicized services
             for (Service s : pubServices)
                 try {
-                    log.debug(Mrk_Commons.DISC_IMPL, String.format("Publish service '%s' on interface '%s'.", s.getName(), intf.getDisplayName()));
-                    jmDNS.registerService(s.generateServiceInfo());
+                    register(intfUniqueId, jmDNS, s);
 
                 } catch (IOException e) {
                     log.error(Mrk_Commons.DISC_IMPL, String.format("Error publishing service '%s' on interface '%s' because %s.", s.getName(), intf.getDisplayName(), e.getMessage()));
-                    return;
+                    continue;
                 }
         }
     }
@@ -231,29 +314,31 @@ public class DiscoveryJmDNS {
      * @param intf interface to add to the jmDNS sub-system.
      */
     private static void removeInterface(NetworkInterface intf) {
-        if (!isStarted()) {
-            log.error(Mrk_Commons.DISC_IMPL, "ERR: JmDNS sub system must be started before remove interfaces");
-            return;
-        }
+        //if (!isStarted()) {
+        //    log.error(Mrk_Commons.DISC_IMPL, "ERR: JmDNS sub system must be started before remove interfaces");
+        //    return;
+        //}
         interfaces.remove(intf);
 
         for (InterfaceAddress iAddr : intf.getInterfaceAddresses()) {
             InetAddress addr = iAddr.getAddress();
-            String uniqueId = toUniqueId(intf, addr);
-            if (!jmDNSs.containsKey(uniqueId)) {
-                log.warn(Mrk_Commons.DISC_IMPL, String.format("Interface '%s' not present in JmDNS interfaces list", addr));
-                return;
-            }
+            String intfUniqueId = toUniqueId(intf, addr);
 
             // Remove interface
-            log.debug(Mrk_Commons.DISC_IMPL, String.format("Remove interface '%s'.", intf.getDisplayName()));
-            JmDNS jmDNS = jmDNSs.remove(uniqueId);
+            JmDNS jmDNS;
+            synchronized (jmDNSs) {
+                if (!jmDNSs.containsKey(intfUniqueId)) {
+                    log.warn(Mrk_Commons.DISC_IMPL, String.format("Interface '%s' not present in JmDNS interfaces list", addr));
+                    continue;
+
+                }
+                log.debug(Mrk_Commons.DISC_IMPL, String.format("Remove interface '%s'.", intf.getDisplayName()));
+                jmDNS = jmDNSs.remove(intfUniqueId);
+            }
 
             // De-publish all services
-            for (Service s : pubServices) {
-                log.debug(Mrk_Commons.DISC_IMPL, String.format("De-publish service '%s' on interface '%s'.", s.getName(), intf.getDisplayName()));
-                jmDNS.unregisterService(s.generateServiceInfo());
-            }
+            for (Service srv : pubServices)
+                deregister(intfUniqueId, jmDNS, srv);
 
             // De-register all listeners
             for (Map.Entry<ServiceListener, String> s : discListeners.entrySet()) {
@@ -282,16 +367,18 @@ public class DiscoveryJmDNS {
         pubServices.add(srv);
 
         // Publish service on all interfaces
-        for (JmDNS jmDNS : jmDNSs.values())
+        for (Map.Entry<String, JmDNS> entry : jmDNSs.entrySet()) {
+            String intfUniqueId = entry.getKey();
+            JmDNS jmDNS = entry.getValue();
             try {
-                log.debug(Mrk_Commons.DISC_IMPL, String.format("Adding published service '%s' to '%s' interface.", srv.getName(), jmDNS.getName()));
-                jmDNS.registerService(srv.generateServiceInfo());
+                register(intfUniqueId, jmDNS, srv);
 
             } catch (IOException e) {
                 if (removeOnError)
                     removePubService(srv);
                 throw new JmDNSException(String.format("WAR: error adding service '%s' to interface '%s' because %s.", srv.getName(), jmDNS.getName(), e.getMessage()));
             }
+        }
     }
 
     /**
@@ -302,7 +389,7 @@ public class DiscoveryJmDNS {
      */
     private static void removePubService(Service srv) throws JmDNSException {
         if (!isStarted())
-            throw new JmDNSException("ERR: JmDNS sub system must be started before add services");
+            throw new JmDNSException("ERR: JmDNS sub system must be started before remove services");
         if (!pubServices.contains(srv))
             throw new JmDNSException(String.format("WAR: service '%s' not present in JmDNS published service", srv.getName()));
 
@@ -311,9 +398,30 @@ public class DiscoveryJmDNS {
         pubServices.remove(srv);
 
         // Hide service from all interfaces
-        for (JmDNS jmDNS : jmDNSs.values()) {
-            log.debug(Mrk_Commons.DISC_IMPL, String.format("Removing published service '%s' from '%s' interface.", srv.getName(), jmDNS.getName()));
-            jmDNS.unregisterService(srv.generateServiceInfo());
+        for (Map.Entry<String, JmDNS> e : jmDNSs.entrySet()) {
+            String intfUniqueId = e.getKey();
+            JmDNS jmDNS = e.getValue();
+
+            deregister(intfUniqueId, jmDNS, srv);
+        }
+    }
+
+    private static void register(String intfUniqueId, JmDNS jmDNS, Service srv) throws IOException {
+        log.debug(Mrk_Commons.DISC_IMPL, String.format("Publishing service '%s' on interface '%s'.", srv.getName(), intfUniqueId));
+        jmDNS.registerServiceType(srv.generateServiceInfo().getType());
+        jmDNS.registerService(srv.generateServiceInfo());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignore) {
+        }
+    }
+
+    private static void deregister(String intfUniqueId, JmDNS jmDNS, Service srv) {
+        log.debug(Mrk_Commons.DISC_IMPL, String.format("DePublishing published service '%s' from interface '%s'.", srv.getName(), intfUniqueId));
+        jmDNS.unregisterService(srv.generateServiceInfo());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignore) {
         }
     }
 
@@ -326,7 +434,7 @@ public class DiscoveryJmDNS {
         if (!isStarted())
             throw new JmDNSException("ERR: JmDNS sub system must be started before add listeners");
         if (discListeners.containsKey(listener))
-            throw new JmDNSException(String.format("WAR: listener '%s' already added as JmDNS listener", listener));
+            throw new JmDNSException(String.format("WAR: listener '%s' already present in JmDNS listeners", listener));
 
         // Add listener to listeners list
         log.debug(Mrk_Commons.DISC_IMPL, String.format("Adding discovery listener for service type '%s'.", type));
@@ -450,7 +558,7 @@ public class DiscoveryJmDNS {
         @Override
         public void publish(boolean waitForPublished) throws PublishException {
             log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Publish service '%s' on '%d'", getServiceName(), getServicePort()));
-            if (!setIsPublishing(true)) {return;}
+            if (!setIsPublishing(true)) return;
 
             // Init discovery system for service publication checks
             startAutoDiscovery(IMPL_NAME);
@@ -475,13 +583,15 @@ public class DiscoveryJmDNS {
         @Override
         public void hide(boolean waitForDepublished) throws PublishException {
             log.info(Mrk_Commons.DISC_PUB_IMPL, String.format("Hide service '%s'", getServiceName()));
-            if (!setIsDepublishing(true)) {return;}
+            if (!setIsDepublishing(true)) {
+                return;
+            }
 
             // Remove service from all available JmDNS instance used to publish the service
             try {
                 removePubService(internalService);
             } catch (JmDNSException e) {
-                throw new PublishException(String.format("ERR: can't hide service '%s' because %s", getServiceName(), e.getMessage()));
+                log.warn(Mrk_Commons.DISC_PUB_IMPL, String.format("ERR: can't hide service '%s' because %s", getServiceName(), e.getMessage()));
             }
 
             // Wait for service de-publication
@@ -499,7 +609,7 @@ public class DiscoveryJmDNS {
     /**
      * JmDNS discover.
      */
-    public static class Discover extends AbsDiscover implements ServiceListener {
+    public static class Discover extends AbsJmDNSDiscover {
 
         // Internal vars
 
@@ -570,41 +680,8 @@ public class DiscoveryJmDNS {
                 throw new DiscoveryException(String.format("ERR: can't remove '%s' service type to discovery system because %s", getServiceType(), e.getMessage()), e);
             }
 
+            deregisterAllServices();
             isRunning = false;
-        }
-
-
-        // JmDNS listener methods
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void serviceAdded(ServiceEvent event) {
-            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Detected service string '%s'", event.getName()));
-            event.getDNS().requestServiceInfo(getServiceType(), event.getName());
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void serviceResolved(ServiceEvent event) {
-            ServiceInfo si = event.getInfo();
-            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Resolved service string '%s'", event.getName()));
-            String extraText = new String(si.getTextBytes()).trim();
-            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Discover service '%s'", si.getNiceTextString()));
-            emitOnServiceDiscovered(event.getType(), event.getName(), si.getInetAddresses()[0], si.getPort(), extraText);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void serviceRemoved(ServiceEvent event) {
-            log.trace(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", event.getName()));
-            log.info(Mrk_Commons.DISC_DISC_IMPL, String.format("Lost service '%s'", event.getInfo().getNiceTextString()));
-            emitOnServiceLost(event.getType(), event.getName());
         }
 
     }

@@ -25,11 +25,11 @@ repositories {
     mavenCentral()
 }
 
-apply from: 'spring_support.gradle'
+apply from: 'gradle/spring_support.gradle'
 
-apply from: 'build_commons.gradle'
-apply from: 'build_dockers.gradle'
-apply from: 'build_jcpApis.gradle'
-apply from: 'build_josp.gradle'
-apply from: 'build_josp_platform.gradle'
-apply from: 'build_tests.gradle'
+apply from: 'gradle/build_commons.gradle'
+apply from: 'gradle/build_dockers.gradle'
+apply from: 'gradle/build_jcpApis.gradle'
+apply from: 'gradle/build_josp.gradle'
+apply from: 'gradle/build_josp_platform.gradle'
+apply from: 'gradle/build_tests.gradle'

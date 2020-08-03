@@ -1,6 +1,9 @@
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
+import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +23,7 @@ public abstract class AbsJODWorker implements JODWorker {
 
     private final String proto;
     private final String name;
-    private JODComponent component;
+    private final JODComponent component;
 
 
     // Constructor
@@ -31,28 +34,9 @@ public abstract class AbsJODWorker implements JODWorker {
      * @param name  the JODWorker's name.
      * @param proto the JODWorker's protocol.
      */
-    public AbsJODWorker(String name, String proto) {
+    public AbsJODWorker(String name, String proto, JODComponent component) {
         this.proto = proto;
         this.name = name;
-    }
-
-
-    // Setter
-
-    /**
-     * Set the {@link JODComponent} associated to the current JODWorker.
-     * <p>
-     * The owner component must be set via this method, and not via constructor,
-     * because the implementation classes must not access to JODComponent
-     * directly.
-     * <p>
-     * NB: the component owner can be set only once.
-     *
-     * @param component the owner {@link JODComponent}.
-     */
-    public void setComponent(JODComponent component) {
-        if (this.component != null)
-            throw new IllegalStateException(String.format("JOD Worker for component '%s' already have a JOD Component owner.", getName()));
         this.component = component;
     }
 
@@ -81,6 +65,38 @@ public abstract class AbsJODWorker implements JODWorker {
     @Override
     public JODComponent getComponent() {
         return component;
+    }
+
+
+    // Status convert & set methods
+
+    protected boolean convertAndSetStatus(String newStatus) {
+        if (getComponent() instanceof JODBooleanState) {
+            ((JODBooleanState) getComponent()).setUpdate(JavaFormatter.strToBoolean(newStatus.toUpperCase()));
+            return true;
+        }
+
+        if (getComponent() instanceof JODRangeState) {
+            Double val = JavaFormatter.strToDouble(newStatus);
+            if (val != null)
+                ((JODRangeState) getComponent()).setUpdate(val);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    // Substitution methods
+
+    protected static String genericSubstitution(String str, JODComponent component) {
+        if (component == null
+                || str == null
+                || str.isEmpty()
+        ) return str;
+
+        return str
+                .replaceAll(Substitutions.COMP_NAME, component.getName());
     }
 
 

@@ -15,6 +15,7 @@ public interface JODExecutor extends JODWorker {
      *
      * @return true if the action was execute successfully, false otherwise.
      */
+    @Deprecated
     boolean exec();
 
     // Mngm

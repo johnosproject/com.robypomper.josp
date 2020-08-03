@@ -317,9 +317,13 @@ public class CertSharingIntegration {
 
         // Re-create server and client
         // (client with already existing keystore containing the server certificate)
-        serverLatchAuth = new CertSharingSSLServer(ID_SERVER, PORT,
-                SERVER_KS_PATH + 2, SERVER_KS_PASS, SERVER_CERT_ALIAS, SERVER_CERT_PATH + 2, true,
-                latchSLE, latchSCE, latchSME);
+        try {
+            serverLatchAuth = new CertSharingSSLServer(ID_SERVER, PORT,
+                    SERVER_KS_PATH + 2, SERVER_KS_PASS, SERVER_CERT_ALIAS, SERVER_CERT_PATH + 2, true,
+                    latchSLE, latchSCE, latchSME);
+        } catch (UtilsJKS.LoadingException e) {
+            return;
+        }
         clientLatchAuth = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_KS_PATH + 2, CLIENT_KS_PASS, CLIENT_CERT_ALIAS, CLIENT_CERT_PATH + 2,
                 latchCLE, latchCSE, latchCME);

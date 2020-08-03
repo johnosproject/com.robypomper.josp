@@ -28,14 +28,16 @@ jcp.client.secret: '2d1f9b96-70d3-443b-b21b-08a401ddc16c'
 
 # JODPULLER_IMPLS_DEF      = "";
 jod.executor_mngr.pullers:
-  'tstP://com.robypomper.josp.jod.executor.PullerTest'
-# JODLISTENER_IMPLS_DEF    = "";
+  'tstP://com.robypomper.josp.jod.executor.PullerTest
+   shell://com.robypomper.josp.jod.executor.PullerUnixShell'
 jod.executor_mngr.listeners:
   'tstL://com.robypomper.josp.jod.executor.ListenerTest
-   tstLAdv://com.robypomper.josp.jod.executor.ListenerTestAdv'
-# JODEXECUTOR_IMPLS_DEF    = "";
+   tstLAdv://com.robypomper.josp.jod.executor.ListenerTestAdv
+   file://com.robypomper.josp.jod.executor.ListenerFiles'
 jod.executor_mngr.executors:
-  'tstE://com.robypomper.josp.jod.executor.ExecutorTest'
+  'tstE://com.robypomper.josp.jod.executor.ExecutorTest
+   shell://com.robypomper.josp.jod.executor.ExecutorUnixShell
+   file://com.robypomper.josp.jod.executor.ExecutorFiles'
 
 
 ## Structure
