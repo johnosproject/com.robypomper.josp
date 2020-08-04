@@ -1,11 +1,26 @@
+/* *****************************************************************************
+ * The John Cloud Platform set of infrastructure and software required to provide
+ * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
 package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.events.DefaultServerClientEventsListener;
-import com.robypomper.communication.server.events.DefaultServerMessagingEventsListener;
-import com.robypomper.communication.server.events.ServerClientEvents;
-import com.robypomper.communication.server.events.ServerLocalEvents;
-import com.robypomper.communication.server.events.ServerMessagingEvents;
+import com.robypomper.communication.server.events.*;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.log.Mrk_Commons;

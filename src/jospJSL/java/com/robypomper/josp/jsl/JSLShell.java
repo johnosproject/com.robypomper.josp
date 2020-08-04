@@ -1,21 +1,28 @@
+/* *****************************************************************************
+ * The John Service Library is the software library to connect "software"
+ * to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2020 Roberto Pompermaier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **************************************************************************** */
+
 package com.robypomper.josp.jsl;
 
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jsl.info.JSLInfo;
-import com.robypomper.josp.jsl.shell.CmdsShell;
-import com.robypomper.josp.jsl.shell.CmdsJCPClient;
-import com.robypomper.josp.jsl.shell.CmdsJSL;
-import com.robypomper.josp.jsl.shell.CmdsJSLCommunication;
-import com.robypomper.josp.jsl.shell.CmdsJSLObjsMngr;
-import com.robypomper.josp.jsl.shell.CmdsJSLServiceInfo;
-import com.robypomper.josp.jsl.shell.CmdsJSLUserMngr;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import com.robypomper.josp.jsl.shell.*;
+import org.apache.commons.cli.*;
 
 import java.io.IOException;
 

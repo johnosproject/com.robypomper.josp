@@ -1,3 +1,22 @@
+/* *****************************************************************************
+ * The John Cloud Platform set of infrastructure and software required to provide
+ * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
 package com.robypomper.josp.jcp.docs;
 
 import com.google.common.collect.Lists;
@@ -16,18 +35,7 @@ import org.springframework.util.FileCopyUtils;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.AuthorizationCodeGrant;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.ClientCredentialsGrant;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.GrantType;
-import springfox.documentation.service.ImplicitGrant;
-import springfox.documentation.service.LoginEndpoint;
-import springfox.documentation.service.OAuth;
-import springfox.documentation.service.Tag;
-import springfox.documentation.service.TokenEndpoint;
-import springfox.documentation.service.TokenRequestEndpoint;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;

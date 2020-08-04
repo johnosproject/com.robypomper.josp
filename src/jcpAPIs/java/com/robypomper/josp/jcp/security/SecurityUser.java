@@ -1,3 +1,22 @@
+/* *****************************************************************************
+ * The John Cloud Platform set of infrastructure and software required to provide
+ * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
 package com.robypomper.josp.jcp.security;
 
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -102,9 +121,7 @@ public class SecurityUser {
             Collection<String> authority = new ArrayList<>();
             auth.getAuthorities().forEach(grantedAuthority -> authority.add(grantedAuthority.getAuthority()));
             return authority;
-        }
-
-        else if (auth instanceof KeycloakAuthenticationToken)
+        } else if (auth instanceof KeycloakAuthenticationToken)
             return Arrays.asList(((KeycloakPrincipal<? extends KeycloakSecurityContext>) auth.getPrincipal()).getKeycloakSecurityContext().getToken().getScope().split("\\s"));
 
         else throw new AuthNotFoundException(auth);
@@ -119,9 +136,7 @@ public class SecurityUser {
                 return (String) getUserAttrs().get("clientId");     // Client Credential Flow
             if (getUserAttrs().get("azp") != null)
                 return (String) getUserAttrs().get("azp");               // Auth Code Flow
-        }
-
-        else if (auth instanceof KeycloakAuthenticationToken)
+        } else if (auth instanceof KeycloakAuthenticationToken)
             return ((KeycloakPrincipal<? extends KeycloakSecurityContext>) auth.getPrincipal()).getKeycloakSecurityContext().getToken().getIssuedFor();
 
         else throw new AuthNotFoundException(auth);

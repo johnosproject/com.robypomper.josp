@@ -1,3 +1,22 @@
+/* *****************************************************************************
+ * The John Object Daemon is the agent software to connect "objects"
+ * to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
 package com.robypomper.josp.jod.comm;
 
 import com.robypomper.communication.client.Client;
@@ -9,14 +28,7 @@ import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
-import com.robypomper.josp.jod.structure.AbsJODAction;
-import com.robypomper.josp.jod.structure.DefaultJODComponentPath;
-import com.robypomper.josp.jod.structure.JODAction;
-import com.robypomper.josp.jod.structure.JODComponent;
-import com.robypomper.josp.jod.structure.JODComponentPath;
-import com.robypomper.josp.jod.structure.JODState;
-import com.robypomper.josp.jod.structure.JODStateUpdate;
-import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.jod.structure.*;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
