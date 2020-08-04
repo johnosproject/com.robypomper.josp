@@ -62,10 +62,6 @@ sourceSets {
 SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs)
 
 configurations {
-    jcpAPIsPublicImplementation.extendsFrom jospCommonsImplementation
-    jcpAPIsPublicCompileOnly.extendsFrom jospCommonsCompileOnly
-    jcpAPIsPublicAnnotationProcessor.extendsFrom jospCommonsAnnotationProcessor
-
     jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
     jcpAPIsCompileOnly.extendsFrom jcpAPIsPublicCompileOnly
     jcpAPIsAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
@@ -73,7 +69,9 @@ configurations {
 
 dependencies {
     // JCP API's Public dependencies
-    jcpAPIsPublicImplementation sourceSets.jospCommons.output
+    jcpAPIsPublicImplementation 'com.robypomper.josp:jospCommons:2.0.+'
+    jcpAPIsPublicCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
+    jcpAPIsPublicAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     // JCP API's dependencies
     jcpAPIsImplementation sourceSets.jcpAPIsPublic.output
