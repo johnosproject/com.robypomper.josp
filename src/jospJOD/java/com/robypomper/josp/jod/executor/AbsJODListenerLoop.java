@@ -59,7 +59,7 @@ public abstract class AbsJODListenerLoop extends AbsJODListener {
      * <p>
      * Implementation of this function must execute the main loop of the listener
      * and when received updates then send the update to the corresponding JOD
-     * Component via the {@link #sendUpdate()} method.
+     * Component via the <code>update()</code> method.
      * <p>
      * This runnable will be executed on listener start and stopped (interrupted)
      * on listener stop. On stop, the server's thread receive an interrupt and

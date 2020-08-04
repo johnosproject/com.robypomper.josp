@@ -34,12 +34,12 @@ public class JODRoot_Jackson extends AbsJODRoot {
      *
      * <code>
      * ObjectMapper objMapper = new ObjectMapper();
-     * <p>
+     *
      * InjectableValues.Std injectVars = new InjectableValues.Std();
      * injectVars.addValue(JODStructure.class, this);
      * injectVars.addValue(JODExecutorMngr.class, executorMngr);
      * objMapper.setInjectableValues(injectVars);
-     * <p>
+     *
      * return objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
      * </code>
      * <p>

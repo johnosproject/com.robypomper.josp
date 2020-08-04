@@ -34,7 +34,7 @@ import java.util.Arrays;
  * implemented using {@link JSL.Settings} param or his sub-class.
  * Returned class from {@link FactoryJSL#getJSLClass(String)} must implement a
  * <code>instance(...)</code> method with a param corresponding to class returned
- * by {@link FactoryJOD#getJODSettingsClass(String)}. Both method are called using
+ * by <code>FactoryJOD#getJODSettingsClass</code>. Both method are called using
  * same String param corresponding to JSL version.
  */
 @SuppressWarnings("JavadocReference")

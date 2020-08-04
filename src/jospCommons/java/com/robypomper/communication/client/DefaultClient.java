@@ -339,7 +339,7 @@ public class DefaultClient implements Client {
      * The server's process thread.
      * <p>
      * This tread receive all data rx from the server and emit the
-     * {@link ClientMessagingEvents#onDataReceived()} event.
+     * {@link ClientMessagingEvents#onDataReceived(byte[])} event.
      */
     @SuppressWarnings("JavadocReference")
     protected void processServer() {

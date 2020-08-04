@@ -20,7 +20,7 @@ import java.util.Map;
  * Default settings implementation class.
  * <p>
  * This class provide a common way to read settings from a <code>yaml</code>
- * file or from a <code>Map<String,String></code>object.
+ * file or from a <code>Map(String,String)</code>object.
  * <p>
  * This class provide to his sub classes the methods to parse/get different
  * types of settings ({@link String}, {@link Integer}, {@link Boolean} and

@@ -3,7 +3,6 @@ package com.robypomper.josp.jsl.shell;
 import asg.cliche.Command;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
-import com.robypomper.josp.jsl.user.JSLUserMngr_002;
 
 import java.util.Scanner;
 
@@ -91,8 +90,8 @@ public class CmdsJCPClient {
      * containing the code as param). Finally the user must copy that code in the
      * service console.
      *
-     * <b>NB:</b> this method trigger the {@link JCPClient_Service.LoginManager#onLogin()}
-     * event, handled by {@link JSLUserMngr_002#onLogin()} method.
+     * <b>NB:</b> this method trigger the <code>JCPClient_Service.LoginManager#onLogin()</code>
+     * event, handled by <code>JSLUserMngr_002#onLogin()</code> method.
      *
      * @return a string indicating if the user was logged in successfully or not.
      */
@@ -124,8 +123,8 @@ public class CmdsJCPClient {
     /**
      * With this method users can logout to JCP cloud thought current service.
      *
-     * <b>NB:</b> this method trigger the {@link JCPClient_Service.LoginManager#onLogout()} ()}
-     * event, handled by {@link JSLUserMngr_002#onLogout()} method.
+     * <b>NB:</b> this method trigger the <code>JCPClient_Service.LoginManager#onLogout()</code>
+     * event, handled by <code>JSLUserMngr_002#onLogout()</code> method.
      *
      * @return a string indicating if the user was logged out successfully or not.
      */

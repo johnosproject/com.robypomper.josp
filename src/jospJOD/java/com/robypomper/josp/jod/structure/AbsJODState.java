@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
  * Default implementation of {@link JODState} interface.
  * <p>
  * In addition to the method defined by the interface, this class manage the
- * instance of the JODWorker delegated to monitoring the status's resource (FW&Apps).
+ * instance of the JODWorker delegated to monitoring the status's resource (FW	&amp;	Apps).
  * The instance Worker can be both type: a {@link com.robypomper.josp.jod.executor.JODListener}
  * or a {@link com.robypomper.josp.jod.executor.JODPuller}, depending on params
  * given to the constructor.

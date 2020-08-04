@@ -9,7 +9,7 @@ import java.util.List;
  * ComponentPath instances help to identify a component(s) of an object. Each
  * path is initialized from a path string with following format:
  * <code>
- * [>][SuperCompL1[>SuperCompL2[...]]]|[>] compName|*
+ * [&gt;][SuperCompL1[&gt;SuperCompL2[...]]]|[&gt;] compName|*
  * </code>
  * <p>
  * A ComponentPath can identify a unique component or a set of components using
@@ -18,17 +18,17 @@ import java.util.List;
  * Here a list of valid Component paths:
  * <code>
  * compName                 Single  1st level, component with compName
- * cont1>compName           Single  2nd level (with name cont1), component with compName
- * cont1>cont2>compName     Single  3rd level (with name cont1 and cont2), component with compName
- * >compName                Set     All levels, all components with compName
- * >contXY>compName         Set     All levels (with name contXY), all components with compName
- * >contXY>contZK>compName  Set     All levels (with name contXY and contZK), components with compName
+ * cont1&gt;compName           Single  2nd level (with name cont1), component with compName
+ * cont1&gt;cont2&gt;compName     Single  3rd level (with name cont1 and cont2), component with compName
+ * &gt;compName                Set     All levels, all components with compName
+ * &gt;contXY&gt;compName         Set     All levels (with name contXY), all components with compName
+ * &gt;contXY&gt;contZK&gt;compName  Set     All levels (with name contXY and contZK), components with compName
  * *                        Set     1st level, all components
- * cont1>*                  Set     2nd level (with name cont1), all components
- * cont1>cont2>*            Set     3nd level (with name cont1 + cont2), all components
- * >*                       Set     All levels, all components
- * >contXY>*                Set     All level (with name contXY), all components
- * >contXY>contZK>*         Set     All level (with name contXY + contZK), all components
+ * cont1&gt;*                  Set     2nd level (with name cont1), all components
+ * cont1&gt;cont2&gt;*            Set     3nd level (with name cont1 + cont2), all components
+ * &gt;*                       Set     All levels, all components
+ * &gt;contXY&gt;*                Set     All level (with name contXY), all components
+ * &gt;contXY&gt;contZK&gt;*         Set     All level (with name contXY + contZK), all components
  * </code>
  */
 public interface JSLComponentPath {

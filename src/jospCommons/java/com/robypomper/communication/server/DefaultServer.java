@@ -379,7 +379,7 @@ public class DefaultServer implements Server {
      * The client's process thread.
      * <p>
      * This tread receive all data rx from the client and emit the
-     * {@link ServerMessagingEvents#onDataReceived()} event.
+     * {@link ServerMessagingEvents#onDataReceived(ClientInfo, byte[])} event.
      *
      * @param client the reference of client that send data to current server.
      */

@@ -2,7 +2,6 @@ package com.robypomper.josp.jsl.objs.structure;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.robypomper.josp.jsl.objs.DefaultJSLRemoteObject;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
 import java.util.Collection;
@@ -35,16 +34,16 @@ public class JSLRoot_Jackson extends AbsJSLRoot {
      *
      * <code>
      * ObjectMapper objMapper = new ObjectMapper();
-     * <p>
+     *
      * InjectableValues.Std injectVars = new InjectableValues.Std();
      * injectVars.addValue(JODStructure.class, this);
      * injectVars.addValue(JODExecutorMngr.class, executorMngr);
      * objMapper.setInjectableValues(injectVars);
-     * <p>
+     *
      * return objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
      * </code>
      * <p>
-     * This constructor is used by the {@link DefaultJSLRemoteObject#loadStructure(String)}
+     * This constructor is used by the <code>DefaultJSLRemoteObject#loadStructure(String)</code>
      * method.
      *
      * @param remoteObject the {@link JSLRemoteObject} representing JOD object.

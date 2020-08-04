@@ -7,8 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * State component representation.
  * <p>
  * State component must propagate monitored status changes to connected services.
- * This is allow by the method {@link #propagateState(JODStateUpdate)} that can
- * be called from {@link com.robypomper.josp.jod.executor.AbsJODWorker#sendUpdate(JODStateUpdate)}.
  */
 @SuppressWarnings("JavadocReference")
 public interface JODState extends JODComponent {
