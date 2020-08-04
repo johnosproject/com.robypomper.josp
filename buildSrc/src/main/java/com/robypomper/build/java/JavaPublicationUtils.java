@@ -56,12 +56,12 @@ public class JavaPublicationUtils {
 
     static public void injectDependenciesToPom(MavenPom pom, Configuration fromConfig, boolean preClean) {
         pom.withXml(xmlProvider -> {
-            Node dependenciesMngrNode = (Node) xmlProvider.asNode().getAt(new QName("dependencyManagement")).get(0);
-            if (dependenciesMngrNode == null)
-                dependenciesMngrNode = xmlProvider.asNode().appendNode(new QName("dependencyManagement"));
-
-            Node dependenciesNode = (Node) dependenciesMngrNode.getAt(new QName("dependencies")).get(0);
-            if (dependenciesNode == null) dependenciesNode = dependenciesMngrNode.appendNode(new QName("dependencies"));
+            Node dependenciesNode = null;
+            try {
+                dependenciesNode = (Node) xmlProvider.asNode().getAt(new QName("dependencies")).get(0);
+            } catch (IndexOutOfBoundsException ignore) {
+            }
+            if (dependenciesNode == null) dependenciesNode = xmlProvider.asNode().appendNode(new QName("dependencies"));
             final Node dependenciesNodeFinal = dependenciesNode;
 
             if (preClean)

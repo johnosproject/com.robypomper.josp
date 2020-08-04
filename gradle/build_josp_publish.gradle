@@ -11,8 +11,6 @@ def jodArtifact = 'jod'
 def jodVersion = '2.0.0'
 
 task jospJODJar(type: Jar) {
-    classifier = 'java'
-
     // JOD source code
     from sourceSets.jospJOD.output
     // JOSP Commons and JCP APIs Public
@@ -87,8 +85,6 @@ def jslArtifact = 'jsl'
 def jslVersion = '2.0.0'
 
 task jospJSLJar(type: Jar) {
-    classifier = 'java'
-
     // JOD source code
     from sourceSets.jospJSL.output
     // JOSP Commons and JCP APIs Public

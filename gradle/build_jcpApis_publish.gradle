@@ -10,8 +10,6 @@ def jcpAPIsArtifact = 'jcpAPIs'
 def jcpAPIsVersion = '2.0.0'
 
 task jcpAPIsJar(type: Jar) {
-    classifier = 'java'
-
     // JOD source code
     from sourceSets.jcpAPIsPublic.output
     // JOSP Commons and JCP APIs Public
@@ -71,6 +69,7 @@ publishing {
             artifactId = jcpAPIsArtifact
             version = jcpAPIsVersion
 
+            artifact tasks.jcpAPIsJar
             artifact tasks.jcpAPIsSrcJar
             artifact tasks.jcpAPIsDocsJar
 
