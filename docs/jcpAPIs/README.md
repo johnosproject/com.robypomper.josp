@@ -5,6 +5,7 @@ core APIs. These APIs are called exclusively by [JOSP JOD](../jospJOD/README.md)
 and [JOSP JSL](../jospJSL/README.md).
 
 The APIs are provided by following controllers:
+
 * [Object](object.md)
 * [ObjectPermissions](object_permissions.md)
 * [Service](service.md)
@@ -24,50 +25,66 @@ APIs Public** and is shared with [JOSP JOD](../jospJOD/README.md) and
 
 **NB:** in the 2.0.0 version of JCP APIs, it includes also the [JOSP GWs](../jospGWs/README.md).
 
-**Versions:**<br>
-  * v. 2.0.0:
-    initial version that provide JCP APIs v 2.0 used by JOSP JOD v. 2.0.0,
-    JOSP JSL v. 2.0.0 and JOSP GWs v. 2.0.0
+**Versions:**
 
-[changelog](CHANGELOG.md) - [todos](TODOS.md)
+* v. 2.0.0:
+  initial version that provide JCP APIs v 2.0 used by JOSP JOD v. 2.0.0,
+  JOSP JSL v. 2.0.0 and JOSP GWs v. 2.0.0
+
+[changelog](CHANGELOG.md) - [todos](TODOS.md) - [versions](../josp_versions.md#JCP-APIs)
 
 
 ## Gradle tasks
 
-**Runner tasks:**<br>
-  During the JCP APIs startup, it connects to the DBMS and (if not) initialize
-  the ```jcp_apis``` DB's tables; and start listening for incoming HTTPS requests.
+### Runner tasks
 
-  * ```./gradlew jcpAPI_Start```<br>
-    startup the Spring Boot application for JCP APIs.
-    the JCP APIs's default port is ```9001```
-    
-  * ```./gradlew jcpAPI_Stop```<br>
-    halt the Spring Boot application for JCP APIs.<br>
-    **NB:** not yet implemented (kill ps).
+During the JCP APIs startup, it connects to the DBMS and (if not) initialize
+the ```jcp_apis``` DB's tables; and start listening for incoming HTTPS requests.
 
-**Cleaner tasks:**<br>
-  * ```./gradlew jcpAPI_Clean```<br>
-    delete all tables from the ```jcp_apis``` DB.<br>
-    **NB:** not yet implemented (sql statements).
+---
+```./gradlew jcpAPI_Start```
 
-**Publish tasks:**<br>
-  The JCP APIs Public can publish only "src" and "docs" packages. The binary
-  package is not provided because the other JOSP components resolve the dependencies
-  via JOSP Commons's sourceSet output.
-   
-  * ```./gradlew jcpAPI_PublishToLocal```<br>
-    generate the Java docs of the JCP APIs Public source code, pack them in a jar
-    archive, like the source code files; and publish them to local maven repo.
-   
-  * ```./gradlew jcpAPI_PublishToSonatype```<br>
-    generate the Java docs of the JCP APIs Public source code, pack them in a jar
-    archive, like the source code files; and publish them to public Sonatype repo.
+startup the Spring Boot application for JCP APIs.
+the JCP APIs's default port is ```9001```
+
+---
+```./gradlew jcpAPI_Stop```
+
+halt the Spring Boot application for JCP APIs.
+**NB:** not yet implemented (kill ps).
+
+
+### Cleaner tasks
+
+```./gradlew jcpAPI_Clean```
+
+delete all tables from the ```jcp_apis``` DB.
+**NB:** not yet implemented (missing sql statements).
+
+
+### Publish tasks
+
+The JCP APIs Public can publish only "src" and "docs" packages. The binary
+package is not provided because the other JOSP components resolve the dependencies
+via JOSP Commons's sourceSet output.
+
+---
+```./gradlew jcpAPI_PublishToLocal```
+
+generate the Java docs of the JCP APIs Public source code, pack them in a jar
+archive, like the source code files; and publish them to local maven repo.
+
+---
+```./gradlew jcpAPI_PublishToSonatype```
+
+generate the Java docs of the JCP APIs Public source code, pack them in a jar
+archive, like the source code files; and publish them to public Sonatype repo.
 
 
 ## Properties
 
 *SpringBoot's properties:*
+
 db
 auth
 ...
@@ -75,17 +92,26 @@ auth
 
 ## Connections
 
-**From clients:**<br>
-  Clients: self, JOD, JSL
+### From clients
 
-**To JCP APIs (self):**<br>
-  ...
+Clients: self, JOD, JSL
 
-**To DBMS:**<br>
-  [DBMS - Connections](../dockers/dbms.md#Connections)
 
-**To Auth:**<br>
-  [Auth - Connections](../dockers/auth.md#Connections)
+### To JCP APIs (self)
 
-**To JOSP GWs:**<br>
-  [JOSP GWs - Connections](../jospGWs/README.md#Connections)
+...
+
+
+### To DBMS
+
+[DBMS - Connections](../dockers/dbms.md#Connections)
+
+
+### To Auth
+
+[Auth - Connections](../dockers/auth.md#Connections)
+
+
+### To JOSP GWs
+
+[JOSP GWs - Connections](../jospGWs/README.md#Connections)

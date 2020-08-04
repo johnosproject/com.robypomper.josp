@@ -28,7 +28,7 @@ are included in the JCP APIs, it includes the JOSP Commons library automatically
 
 ## Gradle tasks
 
-**Publish tasks:**<br>
+### Publish tasks
   The JOSP Commons library can publish only "src" and "docs" packages. The binary
   package is not provided because the other JOSP components resolve the dependencies
   via JOSP Commons's sourceSet output.

@@ -1,4 +1,4 @@
-# JOSP JOD - How to config JOD agent
+# JOSP JOD - Default config of JOD agent
 
 TODO
 

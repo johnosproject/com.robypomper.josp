@@ -34,86 +34,107 @@ service and interact with connected JOSP Objects. All JSL execution tasks
 configured in Gradle's files, run the JSL library in interactive shell mode.
 
 It's a software lib composed by:
+
 * [Service Info](service_info.md)
 * [Objects Manager](objects_manager.md)
 * [Remote Object](remote_object.md)
 * [Communication](communication.md)
 * [JCP Client](jcpclient.md)
 
-**Versions:**<br>
-  * v. 2.0.0:
-    initial version that require JCP APIs v. 2.0, JOSP GWs v. 2.0.0 and use
-    JOSP Protocol v. 2.0.
+**Versions:**
 
-[changelog](CHANGELOG.md) - [todos](TODOS.md)
+* v. 2.0.0:
+  initial version that require JCP APIs v. 2.0, JOSP GWs v. 2.0.0 and use
+  JOSP Protocol v. 2.0.
+
+[changelog](CHANGELOG.md) - [todos](TODOS.md) - [versions](../josp_versions.md#JOSP-JSL)
 
 
 ## Gradle tasks
 
-**Runner tasks:**<br>
-  The JOSP JSL's running tasks execute the JSL library with the interactive shell.
-  This JSL implementation is called JSL Shell and can be executed with following tasks:
-  
-  * ```./gradlew javaJSLRun```<br>
-    this task start a JSL library from a persistent working dir. This means that,
-    each JSL execution preserve the latest execution state (p.e. user login).
-    After the first git commit, this task's working dir is added to ```.gitignore```
-    so any modification will not commit to the repository.
-  
-  * ```./gradlew javaJSLVanillaRun```<br>
-    at every execution, the task's working dir (and then his configs and data)
-    are cleaned. So with this task is always possible execute a JSL service
-    with default configs.
-  
-  * ```./gradlew javaJSL{UC}Run```<br>
-    like the ```javaJSLVanillaRun``` task but with pre-set configs:<br>
+### Runner tasks
 
-    | UC | User | Cloud auto-connect |
-    |----|------|--------------------|
-    | un | Unset | Yes |
-    | uf | Unset | No  |
-    | so | Set (Pinco) | Yes |
-    | sf | Set (Pinco) | No  |
-  
-  * ```./gradlew javaJSL{Disc}Run```<br>
-    like the ```javaJSL{UC}Run``` tasks, but use different configs that sets
-    local discovery sub-systems. This tasks can be used to test different
-    ZeroConf implementations compatibilities and/or JSL services tolerance to
-    test Discovery/Network errors.<br>
+The JOSP JSL's running tasks execute the JSL library with the interactive shell.
+This JSL implementation is called JSL Shell and can be executed with following tasks:
 
-    | Disc   | Discovery sub-system |
-    |--------|----------------------|
-    | Avahi  | Use the avahi damon installed on hosting Operating System |
-    | JmDNS  | Use the JmDNS implementation of the ZeroConfig protocol   |
-    | JmmDNS | Use the JmDNS implementation of the ZeroConfig protocol   |
+---
+```./gradlew javaJSLRun```
+
+this task start a JSL library from a persistent working dir. This means that,
+each JSL execution preserve the latest execution state (p.e. user login).
+After the first git commit, this task's working dir is added to ```.gitignore```
+so any modification will not commit to the repository.
+
+---
+```./gradlew javaJSLVanillaRun```
     
-  For most used tasks ```javaJSLRun``` and ```javaJSLVanillaRun``` task modifiers
-  are available adding strings ```OnlyCloud```, ```OnlyLocal``` and ```NoComm```
-  to the tasks name ```javaJSL{Mod}Run``` and ```javaJSLVanilla{Mod}Run```.<br>
-  Each modifier start a JSL Shell instance with configurations that disable the
-  cloud communication, or disable the local communication or disable both
-  communications.
-        
-**Cleaner tasks:**<br>
-  * ```./gradlew javaJSL_Clean```<br>
-    delete working dir of ```javaJSLRun``` task.<br>
-    **NB:** not yet implemented ####.
+at every execution, the task's working dir (and then his configs and data)
+are cleaned. So with this task is always possible execute a JSL service
+with default configs.
 
-**Publish tasks:**<br>
-  The JOSP JOD publication package and publish following files:
-  
-  | File | Content |
-  |------|---------|
-  | ```jsl-{VERSION}-java.jar``` | Jar file to include to JSL services |
-  | ```jsl-{VERSION}-src.jar```  | Src package containing all sources used to compile the JOSP JSL library |
-  | ```jsl-{VERSION}-doc.jar```  | Docs archive contains all Java docs from JSL's source code |
-  | ```jsl-{VERSION}-deps.jar``` | Deps jar archive provide all dependencies required by the JOSP JSL library |
-   
-  * ```./gradlew jospJSL_PublishToLocal```<br>
-    generate the publication artifacts and publish them to local maven repo.
-   
-  * ```./gradlew jospJSL_PublishToSonatype```<br>
-    generate the publication artifacts and publish them to public Sonatype repo.
+---
+```./gradlew javaJSL{UC}Run```
+    
+like the ```javaJSLVanillaRun``` task but with pre-set configs:
+
+| UC | User | Cloud auto-connect |
+|----|------|--------------------|
+| un | Unset | Yes |
+| uf | Unset | No  |
+| so | Set (Pinco) | Yes |
+| sf | Set (Pinco) | No  |
+
+---
+```./gradlew javaJSL{Disc}Run```
+
+like the ```javaJSL{UC}Run``` tasks, but use different configs that sets
+local discovery sub-systems. This tasks can be used to test different
+ZeroConf implementations compatibilities and/or JSL services tolerance to
+test Discovery/Network errors.
+
+| Disc   | Discovery sub-system |
+|--------|----------------------|
+| Avahi  | Use the avahi damon installed on hosting Operating System |
+| JmDNS  | Use the JmDNS implementation of the ZeroConfig protocol   |
+| JmmDNS | Use the JmDNS implementation of the ZeroConfig protocol   |
+
+---
+For most used tasks ```javaJSLRun``` and ```javaJSLVanillaRun``` task modifiers
+are available adding strings ```OnlyCloud```, ```OnlyLocal``` and ```NoComm```
+to the tasks name ```javaJSL{Mod}Run``` and ```javaJSLVanilla{Mod}Run```.
+Each modifier start a JSL Shell instance with configurations that disable the
+cloud communication, or disable the local communication or disable both
+communications.
+
+
+### Cleaner tasks
+
+```./gradlew javaJSL_Clean```
+
+delete working dir of ```javaJSLRun``` task.
+**NB:** not yet implemented ####.
+
+
+### Publish tasks
+
+The JOSP JOD publication package and publish following files:
+
+| File | Content |
+|------|---------|
+| ```jsl-{VERSION}-java.jar``` | Jar file to include to JSL services |
+| ```jsl-{VERSION}-src.jar```  | Src package containing all sources used to compile the JOSP JSL library |
+| ```jsl-{VERSION}-doc.jar```  | Docs archive contains all Java docs from JSL's source code |
+| ```jsl-{VERSION}-deps.jar``` | Deps jar archive provide all dependencies required by the JOSP JSL library |
+
+---
+```./gradlew jospJSL_PublishToLocal```
+
+generate the publication artifacts and publish them to local maven repo.
+
+---   
+```./gradlew jospJSL_PublishToSonatype```
+
+generate the publication artifacts and publish them to public Sonatype repo.
 
 
 ## Properties
@@ -127,11 +148,16 @@ It's a software lib composed by:
 
 ## Connections
 
-**To JOSP JOD:**<br>
-  [JOSP JOD - Connections](../jospJOD/README.md#Connections)
+### To JOSP JOD
 
-**To JCP APIs:**<br>
-  [JCP APIs - Connections](../jcpAPIs/README.md#Connections)
+[JOSP JOD - Connections](../jospJOD/README.md#Connections)
 
-**To JOSP GWs:**<br>
-  [JOSP GWs - Connections](../jospGWs/README.md#Connections)
+
+### To JCP APIs
+
+[JCP APIs - Connections](../jcpAPIs/README.md#Connections)
+
+
+### To JOSP GWs
+
+[JOSP GWs - Connections](../jospGWs/README.md#Connections)
