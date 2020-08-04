@@ -16,8 +16,8 @@ group = 'com.robypomper.josp'
 sourceCompatibility = '1.8'
 ext {
     set('projectUrl', 'http://johnosproject.com')
-    set('projectGit', 'bitbucket.org:johnosproject/com.robypomper.josp.jcp.git')
-    set('projectGitUrl', 'https://bitbucket.org/johnosproject/com.robypomper.josp.jcp/src/master/')
+    set('projectGit', 'bitbucket.org:johnosproject/com.robypomper.josp.git')
+    set('projectGitUrl', 'https://bitbucket.org/johnosproject/com.robypomper.josp/src/master/')
 }
 
 

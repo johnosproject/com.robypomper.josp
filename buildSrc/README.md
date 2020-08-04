@@ -1,6 +1,6 @@
 # com.robypomper.josp.cloud.spring/buildSrc
 
-This is ```buildSrc``` project for [com.robypomper.josp.jcp](../README.md)
+This is ```buildSrc``` project for [com.robypomper.josp](../README.md)
 project. This buildSrc project add support for Docker and Spring based
 micro-services with a set of static method that extends default Gradle plugins. 
 

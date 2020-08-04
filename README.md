@@ -283,7 +283,11 @@ versions buildable with this **JOSP's release 2.0.0**:
 | [JOSP Gateways](docs/josp_versions.md#JOSP-Gateways) | same as JCP APIs |
 | BuildSrc      | unset |
 
-More info on JOSP project's version [here](docs/josp_versions.md).
+More info on current JOSP project's version [here](docs/josp_versions.md).
+
+Older version of JOSP projects:
+
+* [2.0.0](https://bitbucket.org/johnosproject/com.robypomper.josp/src/2.0.0/)
 
 
 ## Licences
