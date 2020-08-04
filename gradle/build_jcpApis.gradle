@@ -1,0 +1,146 @@
+/* *****************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
+import com.robypomper.build.gradle.GradleUtils.PrintGradleVersion
+import com.robypomper.build.spring.SpringBuildUtils
+
+/**
+ * Gradle configurations to manage JCP APIs and JOSP GWs as SpringBoot applications.
+ *
+ * Summary:
+ * - JCP's Services configs
+ * - Runners Tasks
+ * - Publication include
+ *
+ * This file configure and provide tasks for JCP Cloud artifacts:
+ * - JCP APIs: the JOSP Platform APIs, based on Spring Controllers and JPA access
+ *             to the database.
+ *             The JCP APIs are contained in 2 different sourceSets, because some
+ *             classes are required by JOD and JSL and must be published in a
+ *             separate artifact.
+ * - JOSP GWs: the JOSP Platform Gateways that provide communication between
+ *             Services and Objects and vice-versa. Actually is only an external
+ *             source dir for JCP APIs artifact.
+ */
+
+
+// -------------------------
+// Spring's Services configs
+// -------------------------
+
+// Source Sets declaration
+sourceSets {
+    // JCP APIs Public
+    jcpAPIsPublic {}
+
+    // JCP APIs
+    jcpAPIs {
+        java {
+            srcDirs 'src/jcpAPIs/java'
+            srcDirs 'src/jospGWs/java'      // JOSP GWs is included in JCP APIs
+        }
+    }
+}
+
+// JCP APIs's run tasks
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs)
+
+configurations {
+    jcpAPIsPublicImplementation.extendsFrom jospCommonsImplementation
+    jcpAPIsPublicCompileOnly.extendsFrom jospCommonsCompileOnly
+    jcpAPIsPublicAnnotationProcessor.extendsFrom jospCommonsAnnotationProcessor
+
+    jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
+    jcpAPIsCompileOnly.extendsFrom jcpAPIsPublicCompileOnly
+    jcpAPIsAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
+}
+
+dependencies {
+    // JCP API's Public dependencies
+    jcpAPIsPublicImplementation sourceSets.jospCommons.output
+
+    // JCP API's dependencies
+    jcpAPIsImplementation sourceSets.jcpAPIsPublic.output
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-web'
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'       // Database support
+    jcpAPIsImplementation 'mysql:mysql-connector-java'
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
+    jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-jose'    // OAuth (Resource) support
+    jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-client'
+    jcpAPIsImplementation 'org.keycloak:keycloak-spring-boot-starter'
+    def excludeSwagger = {                                                              // Swagger support
+        exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.swagger', module: 'swagger-models'
+    }
+    jcpAPIsImplementation 'io.springfox:springfox-swagger2:2.9.2', excludeSwagger
+    jcpAPIsImplementation 'io.springfox:springfox-swagger-ui:2.9.2', excludeSwagger
+    jcpAPIsImplementation 'io.swagger:swagger-annotations:1.5.21'
+    jcpAPIsImplementation 'io.swagger:swagger-models:1.5.21'
+    jcpAPIsImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.10.2'
+}
+
+
+// -------------
+// Runners Tasks
+// -------------
+
+// JCP APIs
+
+task jcpAPI_Start {
+    description = 'Runs...'
+    group = 'JOSP runners jcp (soft)'
+    dependsOn bootJcpAPIsRun
+}
+
+task jcpAPI_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jcp"
+
+    //...delete and recreate jcp_api database in dbms
+}
+clean.dependsOn jcpAPI_Clean
+
+task printGradleVersions(type: PrintGradleVersion)
+bootJcpAPIsRun.dependsOn printGradleVersions
+
+// JOSP GWs
+
+// Actually is included in JCP APIs
+
+
+// -------------------
+// Publication include
+// -------------------
+
+apply from: 'gradle/build_jcpApis_publish.gradle'
+
+
+// JCP APIs Public
+task jcpAPI_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJcpAPIsPublicationToMavenLocal
+}
+
+task jcpAPI_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJcpAPIsPublicationToSonatype
+}

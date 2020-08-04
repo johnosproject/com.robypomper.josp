@@ -1,0 +1,100 @@
+/*******************************************************************************
+ * The John Cloud Platform set of infrastructure and software required to provide
+ * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
+import com.robypomper.build.java.JavaPublicationUtils
+
+// --------------------------
+// Jar Tasks for publications
+// --------------------------
+
+// JOSP Commons (Docs and Src)
+def jcpAPIsName = 'JOSP Cloud Platform Public Library'
+def jcpAPIsArtifact = 'jcpAPIs'
+def jcpAPIsVersion = '2.0.0'
+
+task jcpAPIsJar(type: Jar) {
+    // JOD source code
+    from sourceSets.jcpAPIsPublic.output
+    // JOSP Commons and JCP APIs Public
+    from {
+        sourceSets.jcpAPIsPublic.runtimeClasspath.collect {
+            if (!it.exists()) return
+            if (!it.isDirectory()) return
+            it
+        } }
+
+    manifest {
+        attributes 'Implementation-Title': jcpAPIsName,
+                'Implementation-Version': jcpAPIsVersion
+    }
+}
+
+task jcpAPIsDocs(type: Javadoc) {
+    source sourceSets.jcpAPIsPublic.allJava
+    classpath += sourceSets.jcpAPIsPublic.runtimeClasspath
+    classpath += sourceSets.jcpAPIsPublic.compileClasspath
+    classpath += sourceSets.jcpAPIs.runtimeClasspath
+    classpath += sourceSets.jcpAPIs.compileClasspath
+}
+
+task jcpAPIsDocsJar(type: Jar) {
+    classifier = 'doc'
+    from jcpAPIsDocs
+
+    manifest {
+        attributes 'Implementation-Title': jcpAPIsName + " - Docs",
+                'Implementation-Version': jcpAPIsVersion
+    }
+}
+
+task jcpAPIsSrcJar(type: Jar) {
+    classifier = 'src'
+
+    from sourceSets.jcpAPIsPublic.allSource
+
+    manifest {
+        attributes 'Implementation-Title': jcpAPIsName + " - Sources",
+                'Implementation-Version': jcpAPIsVersion
+    }
+}
+
+
+// ------------
+// Publications
+// ------------
+
+publishing {
+    publications {
+
+        // JCP APIs Public
+        jcpAPIs(MavenPublication) {
+            groupId = project.group
+            artifactId = jcpAPIsArtifact
+            version = jcpAPIsVersion
+
+            artifact tasks.jcpAPIsJar
+            artifact tasks.jcpAPIsSrcJar
+            artifact tasks.jcpAPIsDocsJar
+
+            JavaPublicationUtils.initPom(pom, jcpAPIsName, 'The JCP APIs Public Library', projectUrl, projectGit, projectGitUrl, "AGPLv3", "https://www.gnu.org/licenses/agpl-3.0.html")
+            JavaPublicationUtils.injectDependenciesToPom(pom, configurations.jcpAPIsPublicImplementation, true)
+        }
+
+    }
+}

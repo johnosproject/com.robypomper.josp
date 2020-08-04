@@ -1,0 +1,75 @@
+/* *****************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
+/**
+ * Gradle configurations to manage JOSP Commons as java implementations.
+ *
+ * Summary:
+ * - JOSP Commons configs
+ * - Publication include
+ *
+ * This file provide the jospCommons sourceSet linked by other JOSP's Project's
+ * Gradle files (build_jcpAPIs.gradle,build_josp.gradle and build_tests.gradle).
+ */
+
+
+// --------------------
+// JOSP Commons configs
+// --------------------
+
+sourceSets {
+    jospCommons {
+        java {
+            srcDirs 'src/jospCommons/java'
+        }
+    }
+}
+
+dependencies {
+    // Commons - Internal
+    jospCommonsImplementation 'org.apache.logging.log4j:log4j-api:2.13.1'
+    jospCommonsImplementation 'org.apache.logging.log4j:log4j-core:2.13.1'
+    jospCommonsImplementation 'org.yaml:snakeyaml:1.25'
+    jospCommonsImplementation 'com.github.scribejava:scribejava-core:6.9.0'           // HTTP & OAuth2
+    jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
+    jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
+    jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    jospCommonsImplementation 'org.jmdns:jmdns:3.5.5'                                 // mDNS
+}
+
+
+// -------------------
+// Publication include
+// -------------------
+
+apply from: 'gradle/build_commons_publish.gradle'
+
+
+// JOSP Commons
+task jospCommons_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJospCommonsPublicationToMavenLocal
+}
+
+task jospCommons_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJospCommonsPublicationToSonatype
+}

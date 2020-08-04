@@ -1,4 +1,4 @@
-# com.robypomper.josp.cloud.spring/buildSrc - Docker Support
+# com.robypomper.josp.cloud.spring/buildSrc<br>Docker Support
 
 Docker ([docker-compose](https://docs.docker.com/compose/reference/overview/))
 support is based on

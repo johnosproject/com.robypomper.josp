@@ -1,4 +1,4 @@
-# com.robypomper.josp.cloud.spring/buildSrc - Multiple Spring Boot micro-services in single instance
+# com.robypomper.josp.cloud.spring/buildSrc<br>Multiple Spring Boot micro-services in single instance
 
 This buildSrc project allow to run Spring Boot micro-services as stand alone instance.
 But somtimes is required to execute multiple micr-services in a single instance,

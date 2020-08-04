@@ -1,3 +1,22 @@
+/* *****************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
 package com.robypomper.build.docker;
 
 import com.avast.gradle.dockercompose.ComposeSettings;
@@ -5,6 +24,7 @@ import com.robypomper.build.commons.Naming;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Exec;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Objects;
 
 
@@ -44,10 +64,11 @@ public class DockerNetworkUtils {
      */
     static private Exec tryConfigureTestNetworkTask(Project project, String networkName) {
         String taskName = String.format("test%sNetwork", Naming.capitalize(networkName));
-        Exec exec = project.getTasks().create(taskName, Exec.class);
+        Exec exec = project.getTasks().maybeCreate(taskName, Exec.class);
         exec.setGroup(DockerNetworkUtils.DOCKER_MAINTENANCE_GROUP);
-        exec.setCommandLine("docker", "network", "inspect", "rp-test");
+        exec.setCommandLine("docker", "network", "inspect", networkName);
         exec.setIgnoreExitValue(true);
+        exec.setStandardOutput(new ByteArrayOutputStream());
         return exec;
     }
 
@@ -65,9 +86,9 @@ public class DockerNetworkUtils {
      */
     static private Exec tryConfigureCreateNetworkTask(Project project, String networkName, Exec testNetworkTask) {
         String taskName = String.format("create%sNetwork", Naming.capitalize(networkName));
-        Exec exec = project.getTasks().create(taskName, Exec.class);
+        Exec exec = project.getTasks().maybeCreate(taskName, Exec.class);
         exec.setGroup(DockerNetworkUtils.DOCKER_MAINTENANCE_GROUP);
-        exec.setCommandLine("docker", "network", "create", "rp-test");
+        exec.setCommandLine("docker", "network", "create", networkName);
         exec.dependsOn(testNetworkTask);
         exec.onlyIf(task -> Objects.requireNonNull(testNetworkTask.getExecResult()).getExitValue() != 0);
         return exec;
@@ -84,9 +105,9 @@ public class DockerNetworkUtils {
      */
     static private Exec tryConfigureRemoveNetworkTask(Project project, String networkName) {
         String taskName = String.format("remove%sNetwork", Naming.capitalize(networkName));
-        Exec exec = project.getTasks().create(taskName, Exec.class);
+        Exec exec = project.getTasks().maybeCreate(taskName, Exec.class);
         exec.setGroup(DockerNetworkUtils.DOCKER_MAINTENANCE_GROUP);
-        exec.setCommandLine("docker", "network", "rm", "rp-test");
+        exec.setCommandLine("docker", "network", "rm", networkName);
         exec.setIgnoreExitValue(true);
         return exec;
     }
