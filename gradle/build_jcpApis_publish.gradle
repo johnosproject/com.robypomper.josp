@@ -30,7 +30,10 @@ task jcpAPIsJar(type: Jar) {
 
 task jcpAPIsDocs(type: Javadoc) {
     source sourceSets.jcpAPIsPublic.allJava
-    classpath = sourceSets.jcpAPIsPublic.runtimeClasspath
+    classpath += sourceSets.jcpAPIsPublic.runtimeClasspath
+    classpath += sourceSets.jcpAPIsPublic.compileClasspath
+    classpath += sourceSets.jcpAPIs.runtimeClasspath
+    classpath += sourceSets.jcpAPIs.compileClasspath
 }
 
 task jcpAPIsDocsJar(type: Jar) {
@@ -71,7 +74,7 @@ publishing {
             artifact tasks.jcpAPIsSrcJar
             artifact tasks.jcpAPIsDocsJar
 
-            JavaPublicationUtils.initPom(pom, jcpAPIsName, 'The JCP APIs Public Library',projectUrl, projectGit, projectGitUrl)
+            JavaPublicationUtils.initPom(pom, jcpAPIsName, 'The JCP APIs Public Library', projectUrl, projectGit, projectGitUrl, "AGPLv3", "https://www.gnu.org/licenses/agpl-3.0.html")
             JavaPublicationUtils.injectDependenciesToPom(pom, configurations.jcpAPIsPublicImplementation, true)
         }
 

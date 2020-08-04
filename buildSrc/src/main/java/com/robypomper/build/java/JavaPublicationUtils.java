@@ -20,6 +20,12 @@ public class JavaPublicationUtils {
 
     static public void initPom(org.gradle.api.publish.maven.MavenPom pom, String name, String description,
                                String url, String urlGit, String urlGitRepo) {
+        initPom(pom, name, description, url, urlGit, urlGitRepo, null, null);
+    }
+
+    static public void initPom(org.gradle.api.publish.maven.MavenPom pom, String name, String description,
+                               String url, String urlGit, String urlGitRepo,
+                               String licence, String urlLicence) {
 
         pom.getName().set(name);
         pom.getDescription().set(description);
@@ -27,8 +33,8 @@ public class JavaPublicationUtils {
 
         pom.licenses(mavenPomLicenseSpec -> {
             mavenPomLicenseSpec.license(mavenPomLicense -> {
-                mavenPomLicense.getName().set("???");
-                mavenPomLicense.getUrl().set("???");
+                if (licence != null) mavenPomLicense.getName().set(licence);
+                if (urlLicence != null) mavenPomLicense.getUrl().set(urlLicence);
             });
         });
 

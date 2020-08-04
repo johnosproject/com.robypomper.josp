@@ -12,6 +12,7 @@ def jospCommonsVersion = '2.0.0'
 task jospCommonsDocs(type: Javadoc) {
     source sourceSets.jospCommons.allJava
     classpath = sourceSets.jospCommons.runtimeClasspath
+    classpath = sourceSets.jospCommons.compileClasspath
 }
 
 task jospCommonsDocsJar(type: Jar) {
@@ -52,7 +53,7 @@ publishing {
             artifact tasks.jospCommonsSrcJar
             artifact tasks.jospCommonsDocsJar
 
-            JavaPublicationUtils.initPom(pom, jospCommonsName, 'The JOSP Commons Library', projectUrl, projectGit, projectGitUrl)
+            JavaPublicationUtils.initPom(pom, jospCommonsName, 'The JOSP Commons Library', projectUrl, projectGit, projectGitUrl, "GPLv3", "https://www.gnu.org/licenses/gpl-3.0.html")
             JavaPublicationUtils.clearAllDependenciesToPom(pom)
         }
 

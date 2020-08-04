@@ -34,6 +34,7 @@ task jospJODJar(type: Jar) {
 task jospJODDocs(type: Javadoc) {
     source sourceSets.jospJOD.allJava
     classpath = sourceSets.jospJOD.runtimeClasspath
+    classpath = sourceSets.jospJOD.compileClasspath
 }
 
 task jospJODDocsJar(type: Jar) {
@@ -109,6 +110,7 @@ task jospJSLJar(type: Jar) {
 task jospJSLDocs(type: Javadoc) {
     source sourceSets.jospJSL.allJava
     classpath = sourceSets.jospJSL.runtimeClasspath
+    classpath = sourceSets.jospJSL.compileClasspath
 }
 
 task jospJSLDocsJar(type: Jar) {
@@ -173,7 +175,7 @@ publishing {
             artifact tasks.jospJODDocsJar
             artifact tasks.jospJODDepsJar
 
-            JavaPublicationUtils.initPom(pom, jslName, 'The JSL library', projectUrl, projectGit, projectGitUrl)
+            JavaPublicationUtils.initPom(pom, jslName, 'The JSL library', projectUrl, projectGit, projectGitUrl, "GPLv3", "https://www.gnu.org/licenses/gpl-3.0.html")
             JavaPublicationUtils.injectDependenciesToPom(pom, configurations.jospJODImplementation, true)
         }
 
@@ -188,7 +190,7 @@ publishing {
             artifact tasks.jospJSLDocsJar
             artifact tasks.jospJSLDepsJar
 
-            JavaPublicationUtils.initPom(pom, jslName, 'The JSL library', projectUrl, projectGit, projectGitUrl)
+            JavaPublicationUtils.initPom(pom, jslName, 'The JSL library', projectUrl, projectGit, projectGitUrl, "Apache Licence 2.0", "https://www.apache.org/licenses/LICENSE-2.0")
             JavaPublicationUtils.injectDependenciesToPom(pom, configurations.jospJSLImplementation, true)
 
         }
