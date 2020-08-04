@@ -1,3 +1,21 @@
+/* *****************************************************************************
+ * The John Service Library is the software library to connect "software"
+ * to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2020 Roberto Pompermaier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **************************************************************************** */
+
 package com.robypomper.josp.jsl;
 
 import java.io.File;
@@ -21,7 +39,13 @@ public class FactoryJSL {
     // Version constants
 
     public static final String JSL_VER_002 = "0.0.2";
-    public static final String JSL_VER_LATEST = JSL_VER_002;
+    private static final Class<? extends AbsJSL> JSL_VER_002_CLASS = JSL_002.class;
+    private static final Class<? extends JSL.Settings> JSL_VER_002_CONFIG_CLASS = JSLSettings_002.class;
+    public static final String JSL_VER_2_0_0 = "2.0.0";
+    private static final Class<? extends AbsJSL> JSL_VER_2_0_0_CLASS = JSL_002.class;
+    private static final Class<? extends JSL.Settings> JSL_VER_2_0_0_CONFIG_CLASS = JSLSettings_002.class;
+
+    public static final String JSL_VER_LATEST = JSL_VER_2_0_0;
 
 
     // New instance method name
@@ -67,12 +91,8 @@ public class FactoryJSL {
             Object instance = method.invoke(null, file);
             if (instance == null)
                 throw new JSL.FactoryException(String.format("JSL.Settings init method '%s::%s(%s)' return null object.", jslSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName()));
-            if (jslSettingsClass.isInstance(instance)) {
-                JSL.Settings settings = jslSettingsClass.cast(instance);
-                if (updJSLVerOnSettings)
-                    settings.setJSLVersion_Required(jslVer, false);
-                return settings;
-            }
+            if (jslSettingsClass.isInstance(instance))
+                return jslSettingsClass.cast(instance);
             if (instance instanceof JSL.Settings)
                 throw new JSL.FactoryException(String.format("JSL.Settings init method '%s::%s(%s)' return object of wrong sub-type '%s'.", jslSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName(), instance.getClass().getSimpleName()));
             else
@@ -94,7 +114,7 @@ public class FactoryJSL {
      * @return JSL Object.
      */
     public static JSL createJSL(JSL.Settings settings) throws JSL.FactoryException {
-        return createJSL(settings, settings.getJSLVersion_Required());
+        return createJSL(settings, JSL_VER_LATEST);
     }
 
     /**
@@ -107,7 +127,7 @@ public class FactoryJSL {
      */
     public static JSL createJSL(JSL.Settings settings, String jslVer) throws JSL.FactoryException {
         if (settings == null) throw new JSL.FactoryException("JSL init method require Settings param");
-        if (jslVer.isEmpty()) jslVer = settings.getJSLVersion_Required();
+        if (jslVer.isEmpty()) jslVer = JSL_VER_LATEST;
 
         Class<? extends AbsJSL> jslClass = getJSLClass(jslVer);
 
@@ -143,7 +163,8 @@ public class FactoryJSL {
      * @return JSL.Settings class corresponding to given <code>jslVer</code> version.
      */
     private static Class<? extends JSL.Settings> getJSLSettingsClass(String jslVer) throws JSL.FactoryException {
-        if (JSL_VER_002.compareToIgnoreCase(jslVer) == 0) return JSLSettings_002.class;
+        if (JSL_VER_002.compareToIgnoreCase(jslVer) == 0) return JSL_VER_002_CONFIG_CLASS;
+        if (JSL_VER_2_0_0.compareToIgnoreCase(jslVer) == 0) return JSL_VER_2_0_0_CONFIG_CLASS;
 
         throw new JSL.FactoryException(String.format("JSL.Settings '%s' version not found.", jslVer));
     }
@@ -159,7 +180,8 @@ public class FactoryJSL {
      * @return JSL class corresponding to given <code>jslVer</code> version.
      */
     private static Class<? extends AbsJSL> getJSLClass(String jslVer) throws JSL.FactoryException {
-        if (JSL_VER_002.compareToIgnoreCase(jslVer) == 0) return JSL_002.class;
+        if (JSL_VER_002.compareToIgnoreCase(jslVer) == 0) return JSL_VER_002_CLASS;
+        if (JSL_VER_2_0_0.compareToIgnoreCase(jslVer) == 0) return JSL_VER_2_0_0_CLASS;
 
         throw new JSL.FactoryException(String.format("JSL.Settings '%s' version not found.", jslVer));
     }

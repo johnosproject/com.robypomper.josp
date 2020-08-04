@@ -1,3 +1,21 @@
+/* *****************************************************************************
+ * The John Service Library is the software library to connect "software"
+ * to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2020 Roberto Pompermaier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **************************************************************************** */
+
 package com.robypomper.josp.jsl;
 
 import com.robypomper.josp.jsl.comm.JSLCommunication;
@@ -5,9 +23,12 @@ import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
 
 
 /**
@@ -31,7 +52,7 @@ import org.apache.logging.log4j.Logger;
  * implemented using {@link JSL.Settings} param or his sub-class.
  * Returned class from {@link FactoryJSL#getJSLClass(String)} must implement a
  * <code>instance(...)</code> method with a param corresponding to class returned
- * by {@link FactoryJOD#getJODSettingsClass(String)}. Both method are called using
+ * by <code>FactoryJOD#getJODSettingsClass</code>. Both method are called using
  * same String param corresponding to JSL version.
  */
 @SuppressWarnings("JavadocReference")
@@ -125,7 +146,11 @@ public abstract class AbsJSL implements JSL {
         log.info(Mrk_JSL.JSL_MAIN, "JSL Srv is started");
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv status           = %s", status()));
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv version          = %s", version()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv settings version = %s", settings.version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP JOD supported       = %s", Arrays.asList(versionsJOSPObject())));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP protocol supported  = %s", Arrays.asList(versionsJOSPProtocol())));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    Cloud comm.              = %s", comm.isCloudConnected()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    Local comm.              = %s", comm.isLocalRunning()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JCP APIs supported       = %s", Arrays.asList(versionsJCPAPIs())));
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv id               = %s", srvInfo.getSrvId()));
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JSL Srv name             = %s", srvInfo.getSrvName()));
     }

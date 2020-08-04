@@ -1,3 +1,21 @@
+/* *****************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
 
 plugins {
     // Docker service management
@@ -7,21 +25,29 @@ plugins {
     id 'org.springframework.boot' //version '2.2.4.RELEASE'                     version not required because specified in buildSrc/build.gradle
     id 'io.spring.dependency-management' //version '1.0.9.RELEASE'              version not required because specified in buildSrc/build.gradle
     id 'java'
+    id 'maven-publish'
 
     id 'idea'
 }
 
-group = 'com.robypomper.josp.jcp'
+group = 'com.robypomper.josp'
 sourceCompatibility = '1.8'
+ext {
+    set('projectUrl', 'http://johnosproject.com')
+    set('projectGit', 'bitbucket.org:johnosproject/com.robypomper.josp.git')
+    set('projectGitUrl', 'https://bitbucket.org/johnosproject/com.robypomper.josp/src/master/')
+}
+
 
 repositories {
     mavenCentral()
 }
 
-apply from: 'spring_support.gradle'
+apply from: 'gradle/spring_support.gradle'
 
-apply from: 'build_commons.gradle'
-apply from: 'build_jcpMngm.gradle'
-apply from: 'build_jcpApis.gradle'
-apply from: 'build_josp.gradle'
-apply from: 'build_tests.gradle'
+apply from: 'gradle/build_commons.gradle'
+apply from: 'gradle/build_dockers.gradle'
+apply from: 'gradle/build_jcpApis.gradle'
+apply from: 'gradle/build_josp.gradle'
+apply from: 'gradle/build_josp_platform.gradle'
+apply from: 'gradle/build_tests.gradle'

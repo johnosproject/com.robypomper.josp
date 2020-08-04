@@ -1,3 +1,22 @@
+/* *****************************************************************************
+ * The John Object Daemon is the agent software to connect "objects"
+ * to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
 package com.robypomper.discovery;
 
 import com.robypomper.log.Mrk_Commons;
@@ -60,7 +79,7 @@ public abstract class AbsPublisher implements Publisher {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Basic implementation that use only the <code>boolean isPublished</code> field set on first service (self) resolving
      * and on first service (self) lost.
      */
@@ -72,14 +91,14 @@ public abstract class AbsPublisher implements Publisher {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Basic implementation that use only the <code>boolean isPublished</code> field set on first service (self) resolving
      * and on first service (self) lost.
      */
     @Override
     public boolean isPublishedPartially() {
         // published at last ONE self-publication (discovered by internal discovery)
-        return discover!=null && discoveredPublications.size() > 0;
+        return discover != null && discoveredPublications.size() > 0;
     }
 
     protected boolean isPublishing() {
@@ -137,7 +156,7 @@ public abstract class AbsPublisher implements Publisher {
      * {@inheritDoc}
      */
     @Override
-    public List<String> getInterfaces(){
+    public List<String> getInterfaces() {
         return interfaces;
     }
 
@@ -238,7 +257,7 @@ public abstract class AbsPublisher implements Publisher {
      */
     protected void stopAutoDiscovery() {
         try {
-            if (discover!=null)
+            if (discover != null)
                 discover.stop();
         } catch (Discover.DiscoveryException e) {
             log.warn(Mrk_Commons.DISC_PUB, String.format("Can't destroy service's published checks '%s' because %s", getServiceName(), e.getMessage()));
@@ -266,7 +285,7 @@ public abstract class AbsPublisher implements Publisher {
                 count++;
             }
 
-            double timeElapsed = (double)(new Date().getTime() - startAt.getTime() ) / 1000;
+            double timeElapsed = (double) (new Date().getTime() - startAt.getTime()) / 1000;
             if (!isPublishedPartially()) {
                 System.out.println("\n\n\n\n--\n");
                 hide(false);
@@ -295,13 +314,14 @@ public abstract class AbsPublisher implements Publisher {
                 count++;
             }
 
-            double timeElapsed = (double)(new Date().getTime() - startAt.getTime() ) / 1000;
+            double timeElapsed = (double) (new Date().getTime() - startAt.getTime()) / 1000;
             if (isPublishedFully())
                 throw new PublishException(String.format("ERR: service '%s' not hided after %f seconds", getServiceName(), timeElapsed));
             if (isPublishedPartially())
                 log.warn(Mrk_Commons.DISC_PUB, String.format("WAR: service '%s' not hided on all interfaces after %f seconds", getServiceName(), timeElapsed));
 
-        } catch (InterruptedException ignore) {}
+        } catch (InterruptedException ignore) {
+        }
     }
 
 
@@ -363,7 +383,7 @@ public abstract class AbsPublisher implements Publisher {
 
     public static String getServiceNameDecoded_DNSSD(String encoded) {
         return encoded
-                .replaceAll("\\\\032"," ");
+                .replaceAll("\\\\032", " ");
     }
 
     public static String getServiceNameEncoded_Avahi(String decoded) {
@@ -376,10 +396,10 @@ public abstract class AbsPublisher implements Publisher {
 
     public static String getServiceNameDecoded_Avahi(String encoded) {
         return encoded
-                .replaceAll("\\\\032"," ")
-                .replaceAll("\\\\038","&")
-                .replaceAll("\\\\040","(")
-                .replaceAll("\\\\041",")");
+                .replaceAll("\\\\032", " ")
+                .replaceAll("\\\\038", "&")
+                .replaceAll("\\\\040", "(")
+                .replaceAll("\\\\041", ")");
     }
 
 }

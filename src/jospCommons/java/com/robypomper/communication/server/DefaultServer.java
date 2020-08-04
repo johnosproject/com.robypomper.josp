@@ -1,3 +1,22 @@
+/* *****************************************************************************
+ * The John Object Daemon is the agent software to connect "objects"
+ * to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2020 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ **************************************************************************** */
+
 package com.robypomper.communication.server;
 
 import com.robypomper.communication.client.DefaultClient;
@@ -379,7 +398,7 @@ public class DefaultServer implements Server {
      * The client's process thread.
      * <p>
      * This tread receive all data rx from the client and emit the
-     * {@link ServerMessagingEvents#onDataReceived()} event.
+     * {@link ServerMessagingEvents#onDataReceived(ClientInfo, byte[])} event.
      *
      * @param client the reference of client that send data to current server.
      */
