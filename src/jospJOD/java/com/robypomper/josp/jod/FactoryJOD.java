@@ -23,14 +23,16 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * JOD Object factory.
- *
+ * <p>
  * This class allow create JOD objects specifying their settings and JOD version.
- *
+ * <p>
  * JOD and JOD.Settings versions must match.
- *
+ * <p>
  * String versions are resolved with {@link JOD.Settings} implementation class
  * or a {@link AbsJOD} sub-class by {@link #getJODSettingsClass(String)} and
  * {@link #getJODSettingsClass(String)}.
@@ -63,46 +65,97 @@ public class FactoryJOD {
      * @return JOD Settings object.
      */
     public static JOD.Settings loadSettings(String fileName) throws JOD.FactoryException {
-        return loadSettings(fileName,"");
+        return loadSettings(fileName, "");
     }
 
     /**
      * Create new JOD Settings object from given <code>fileName</code> and required
      * <code>jodVer</code>.
-     *
+     * <p>
      * If <code>jodVer</code> is not empty, then his value will be updated on
      * JOD.Settings loaded object. Otherwise {@link #JOD_VER_LATEST}
      * ({@value #JOD_VER_LATEST}) version will be used.
      *
      * @param fileName file path of JOD config file.
-     * @param jodVer version corresponding to JOD.Settings implementation required.
+     * @param jodVer   version corresponding to JOD.Settings implementation required.
      * @return JOD Settings object.
      */
     public static JOD.Settings loadSettings(String fileName, String jodVer) throws JOD.FactoryException {
         File file = Paths.get(fileName).toFile();
-        if (!file.exists()) throw new JOD.FactoryException(String.format("JOD config file '%s' not found.", file.getAbsolutePath()));
+        if (!file.exists())
+            throw new JOD.FactoryException(String.format("JOD config file '%s' not found.", file.getAbsolutePath()));
         if (jodVer.isEmpty()) jodVer = JOD_VER_LATEST;
 
         Class<? extends JOD.Settings> jodSettingsClass = getJODSettingsClass(jodVer);
 
         try {
-            Method method = jodSettingsClass.getMethod(NEW_INSTANCE_METHOD,file.getClass());
-            Object instance = method.invoke(null,file);
-            if (instance==null)
-                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return null object.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName()));
+            Method method = jodSettingsClass.getMethod(NEW_INSTANCE_METHOD, file.getClass());
+            Object instance = method.invoke(null, file);
+            if (instance == null)
+                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return null object.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName()));
             if (jodSettingsClass.isInstance(instance))
                 return jodSettingsClass.cast(instance);
             if (instance instanceof JOD.Settings)
-                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return object of wrong sub-type '%s'.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName(),instance.getClass().getSimpleName()));
+                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return object of wrong sub-type '%s'.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName(), instance.getClass().getSimpleName()));
             else
-                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return wrong object of type '%s'.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName(),instance.getClass().getSimpleName()));
+                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return wrong object of type '%s'.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName(), instance.getClass().getSimpleName()));
 
         } catch (NoSuchMethodException e) {
-            throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' not found.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName()),e);
+            throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' not found.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName()), e);
         } catch (IllegalAccessException e) {
-            throw new JOD.FactoryException(String.format("Can't access to JOD.Settings init method '%s::%s(%s)'.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName()),e);
+            throw new JOD.FactoryException(String.format("Can't access to JOD.Settings init method '%s::%s(%s)'.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName()), e);
         } catch (InvocationTargetException e) {
-            throw new JOD.FactoryException(String.format("Error.Settings occurred during '%s::%s(%s)' JOD.Settings init method execution.", jodSettingsClass.getName(),NEW_INSTANCE_METHOD,file.getClass().getSimpleName()),e);
+            throw new JOD.FactoryException(String.format("Error.Settings occurred during '%s::%s(%s)' JOD.Settings init method execution.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, file.getClass().getSimpleName()), e);
+        }
+    }
+
+    /**
+     * Create new JOD Settings object from given <code>properties</code>.
+     *
+     * @param properties map containing the properties to set as JOD configurations.
+     * @return JOD Settings object.
+     */
+    public static JOD.Settings loadSettings(Map<String, Object> properties) throws JOD.FactoryException {
+        return loadSettings(properties, "");
+    }
+
+    /**
+     * Create new JOD Settings object from given <code>fileName</code> and required
+     * <code>jodVer</code>.
+     * <p>
+     * If <code>jodVer</code> is not empty, then his value will be updated on
+     * JOD.Settings loaded object. Otherwise {@link #JOD_VER_LATEST}
+     * ({@value #JOD_VER_LATEST}) version will be used.
+     *
+     * @param properties map containing the properties to set as JOD configurations.
+     * @param jodVer     version corresponding to JOD.Settings implementation required.
+     * @return JOD Settings object.
+     */
+    public static JOD.Settings loadSettings(Map<String, Object> properties, String jodVer) throws JOD.FactoryException {
+        if (properties == null)
+            properties = new HashMap<>();
+        if (jodVer.isEmpty()) jodVer = JOD_VER_LATEST;
+
+        Class<? extends JOD.Settings> jodSettingsClass = getJODSettingsClass(jodVer);
+
+        try {
+            Method method = jodSettingsClass.getMethod(NEW_INSTANCE_METHOD, Map.class);
+            Object instance = method.invoke(null, properties);
+            if (instance == null)
+                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return null object.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, properties.getClass().getSimpleName()));
+            if (jodSettingsClass.isInstance(instance))
+                return jodSettingsClass.cast(instance);
+            if (instance instanceof JOD.Settings)
+                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return object of wrong sub-type '%s'.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, properties.getClass().getSimpleName(), instance.getClass().getSimpleName()));
+            else
+                throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' return wrong object of type '%s'.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, properties.getClass().getSimpleName(), instance.getClass().getSimpleName()));
+
+        } catch (NoSuchMethodException e) {
+            throw new JOD.FactoryException(String.format("JOD.Settings init method '%s::%s(%s)' not found.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, properties.getClass().getSimpleName()), e);
+        } catch (IllegalAccessException e) {
+            throw new JOD.FactoryException(String.format("Can't access to JOD.Settings init method '%s::%s(%s)'.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, properties.getClass().getSimpleName()), e);
+        } catch (InvocationTargetException e) {
+            throw new JOD.FactoryException(String.format("Error.Settings occurred during '%s::%s(%s)' JOD.Settings init method execution.", jodSettingsClass.getName(), NEW_INSTANCE_METHOD, properties.getClass().getSimpleName()), e);
         }
     }
 
@@ -113,7 +166,7 @@ public class FactoryJOD {
      * @return JOD Object.
      */
     public static JOD createJOD(JOD.Settings settings) throws JOD.FactoryException {
-        return createJOD(settings,JOD_VER_LATEST);
+        return createJOD(settings, JOD_VER_LATEST);
     }
 
     /**
@@ -121,30 +174,30 @@ public class FactoryJOD {
      * <code>jodVer</code>.
      *
      * @param settings JOD Settings object.
-     * @param jodVer version corresponding to JOD implementation required.
+     * @param jodVer   version corresponding to JOD implementation required.
      * @return JOD Object.
      */
     public static JOD createJOD(JOD.Settings settings, String jodVer) throws JOD.FactoryException {
-        if (settings==null) throw new JOD.FactoryException("JOD init method require Settings param");
+        if (settings == null) throw new JOD.FactoryException("JOD init method require Settings param");
         if (jodVer.isEmpty()) jodVer = JOD_VER_LATEST;
 
         Class<? extends AbsJOD> jodClass = getJODClass(jodVer);
 
         try {
-            Method method = jodClass.getMethod(NEW_INSTANCE_METHOD,settings.getClass());
-            Object instance = method.invoke(null,settings);
-            if (instance==null)
-                throw new JOD.FactoryException(String.format("JOD init method '%s::%s(%s)' return null object.", jodClass.getName(),NEW_INSTANCE_METHOD,settings.getClass().getSimpleName()));
+            Method method = jodClass.getMethod(NEW_INSTANCE_METHOD, settings.getClass());
+            Object instance = method.invoke(null, settings);
+            if (instance == null)
+                throw new JOD.FactoryException(String.format("JOD init method '%s::%s(%s)' return null object.", jodClass.getName(), NEW_INSTANCE_METHOD, settings.getClass().getSimpleName()));
             if (instance instanceof JOD)
-                return (JOD)instance;
-            throw new JOD.FactoryException(String.format("JOD init method '%s::%s(%s)' return wrong object of type '%s'.", jodClass.getName(),NEW_INSTANCE_METHOD,settings.getClass().getSimpleName(),instance.getClass().getSimpleName()));
+                return (JOD) instance;
+            throw new JOD.FactoryException(String.format("JOD init method '%s::%s(%s)' return wrong object of type '%s'.", jodClass.getName(), NEW_INSTANCE_METHOD, settings.getClass().getSimpleName(), instance.getClass().getSimpleName()));
 
         } catch (NoSuchMethodException e) {
-            throw new JOD.FactoryException(String.format("JOD init method '%s::%s(%s)' not found.", jodClass.getName(),NEW_INSTANCE_METHOD,settings.getClass().getSimpleName()),e);
+            throw new JOD.FactoryException(String.format("JOD init method '%s::%s(%s)' not found.", jodClass.getName(), NEW_INSTANCE_METHOD, settings.getClass().getSimpleName()), e);
         } catch (IllegalAccessException e) {
-            throw new JOD.FactoryException(String.format("Can't access to JOD init method '%s::%s(%s)'.", jodClass.getName(),NEW_INSTANCE_METHOD,settings.getClass().getSimpleName()),e);
+            throw new JOD.FactoryException(String.format("Can't access to JOD init method '%s::%s(%s)'.", jodClass.getName(), NEW_INSTANCE_METHOD, settings.getClass().getSimpleName()), e);
         } catch (InvocationTargetException e) {
-            throw new JOD.FactoryException(String.format("Error occurred during '%s::%s(%s)' JOD init method execution.", jodClass.getName(),NEW_INSTANCE_METHOD,settings.getClass().getSimpleName()),e);
+            throw new JOD.FactoryException(String.format("Error occurred during '%s::%s(%s)' JOD init method execution.", jodClass.getName(), NEW_INSTANCE_METHOD, settings.getClass().getSimpleName()), e);
         }
     }
 
@@ -179,8 +232,8 @@ public class FactoryJOD {
      * @return JOD class corresponding to given <code>jodVer</code> version.
      */
     private static Class<? extends AbsJOD> getJODClass(String jodVer) throws JOD.FactoryException {
-        if (JOD_VER_002.compareToIgnoreCase(jodVer)==0) return JOD_VER_002_CLASS;
-        if (JOD_VER_2_0_0.compareToIgnoreCase(jodVer)==0) return JOD_VER_2_0_0_CLASS;
+        if (JOD_VER_002.compareToIgnoreCase(jodVer) == 0) return JOD_VER_002_CLASS;
+        if (JOD_VER_2_0_0.compareToIgnoreCase(jodVer) == 0) return JOD_VER_2_0_0_CLASS;
 
         throw new JOD.FactoryException(String.format("JOD.Settings '%s' version not found.", jodVer));
     }
