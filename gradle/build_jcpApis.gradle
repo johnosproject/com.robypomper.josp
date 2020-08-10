@@ -56,10 +56,14 @@ sourceSets {
             srcDirs 'src/jospGWs/java'      // JOSP GWs is included in JCP APIs
         }
     }
+
+    // JCP Front End
+    jcpFE {}
 }
 
 // JCP APIs's run tasks
 SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs)
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE)
 
 configurations {
     jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
@@ -92,6 +96,9 @@ dependencies {
     jcpAPIsImplementation 'io.swagger:swagger-annotations:1.5.21'
     jcpAPIsImplementation 'io.swagger:swagger-models:1.5.21'
     jcpAPIsImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.10.2'
+
+    jcpFEImplementation 'com.robypomper.josp:jsl:2.0.0'
+    jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
 }
 
 
@@ -121,6 +128,25 @@ bootJcpAPIsRun.dependsOn printGradleVersions
 // JOSP GWs
 
 // Actually is included in JCP APIs
+
+
+// JCP FrontEnd
+
+task jcpFE_Start {
+    description = 'Runs...'
+    group = 'JOSP runners jcp (soft)'
+    dependsOn bootJcpFERun
+}
+
+task jcpFE_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete 'envs/runnables/jcp-fe'
+
+    //...delete and recreate jcp_api database in dbms
+}
+clean.dependsOn jcpFE_Clean
+
+bootJcpFERun.dependsOn printGradleVersions
 
 
 // -------------------

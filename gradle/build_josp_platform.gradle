@@ -60,6 +60,44 @@ task jcpAPI_CleanAsync(type: Delete) {
 }
 jcpAPI_Clean.dependsOn jcpAPI_CleanAsync
 
+// ------------------
+// JCP FE Async tasks
+// ------------------
+
+task jcpFE_StartAsync(type: StartAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    command = "./gradlew jcpFE_Start"// --debug"
+    //workingDir = project.file(workingDirBase + 'jcpAPI_StartAsync')
+    ready = 'Self connected'
+    //suppressConsoleOutputs = true
+    addLogFileStartTime = true
+    logFile = file('envs/runnables/jcp/' + 'jcpFE_StartAsync/' + 'jcp_fe.log')
+    pidFile = file('envs/runnables/jcp/' + 'jcpFE_StartAsync/' + 'jcp_fe.pid')
+    throwOnError = false
+}
+jcpFE_StartAsync.dependsOn printGradleVersions
+task jcpFE_StopAsync(type: StopAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    pidFile = (jcpFE_StartAsync as StartAsync).pidFile
+    throwOnError = false
+}
+task jcpFE_StatusAsync() {
+    group 'JOSP runners jcp (soft)'
+
+    doFirst {
+        println 'jcpFE_Async task is ' + (jcpFE_StartAsync.isRunning() ? "running" : "NOT running")
+    }
+}
+task jcpFE_CleanAsync(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jcp/jcpFE_StartAsync"
+
+    //...delete and recreate jcp_fe database in dbms
+}
+jcpFE_Clean.dependsOn jcpFE_CleanAsync
+
 
 // -------------------
 // JOSP Platform tasks
@@ -79,7 +117,7 @@ task jospCloudDockers_Start {
 task jospCloudSoft_Start {
     group 'JOSP runners Platform (soft)'
 
-    dependsOn jcpAPI_StartAsync/*, jospGW_Start*/
+    dependsOn jcpAPI_StartAsync/*, jospGW_Start*/, jcpFE_StartAsync
     /*GradleAsyncTasksUtils.waitAfter(jcpAPI_StartAsync as Task, jcpAPI_StartAsync_WAIT_AFTER, jospGW_Start as Task)*/
 }
 task jospCloud_Start {
@@ -99,7 +137,7 @@ task jospCloudDockers_Stop {
 task jospCloudSoft_Stop {
     group 'JOSP runners Platform (soft)'
 
-    dependsOn /*jospGW_Stop, */ jcpAPI_StopAsync
+    dependsOn /*jospGW_Stop, */ jcpAPI_StopAsync, jcpFE_StopAsync
     /*GradleAsyncTasksUtils.waitAfter(jospGW_Stop as Task, 0, jcpAPI_StopAsync as Task)*/
 }
 task jospCloud_Stop {
@@ -118,7 +156,7 @@ task jospCloudDockers_Clean {
 task jospCloudSoft_Clean {
     group 'JOSP runners Platform (soft)'
 
-    dependsOn jcpAPI_CleanAsync/*, jospGW_CleanAsync*/
+    dependsOn jcpAPI_CleanAsync/*, jospGW_CleanAsync*/, jcpFE_CleanAsync
 }
 task jospCloud_Clean {
     group 'JOSP runners Platform'
