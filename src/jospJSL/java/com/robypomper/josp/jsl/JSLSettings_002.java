@@ -72,6 +72,10 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
         return new JSLSettings_002(file);
     }
 
+    public static JSL.Settings instance(Map<String, Object> properties) {
+        return new JSLSettings_002(properties);
+    }
+
     public JSLSettings_002(File file) throws IOException {
         super(file);
     }

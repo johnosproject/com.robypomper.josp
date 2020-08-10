@@ -25,6 +25,7 @@ import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 
 import java.io.File;
+import java.util.Map;
 
 
 /**
@@ -197,6 +198,21 @@ public interface JSL {
          * @return null pointer.
          */
         static Settings instance(File file) {
+            return null;
+        }
+
+        /**
+         * Static method to generate JSL.Settings object from <code>file</code>
+         * configs.
+         *
+         * <b>This method (from {@link JSL.Settings} interface) return null object</b>,
+         * because JSL.Settings sub-classes must re-implement the same method and
+         * return sub-class instance.
+         *
+         * @param properties map containing the properties to set as JSL configurations.
+         * @return null pointer.
+         */
+        static Settings instance(Map<String, Object> properties) {
             return null;
         }
 
