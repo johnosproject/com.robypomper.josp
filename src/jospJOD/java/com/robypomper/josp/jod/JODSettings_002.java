@@ -86,6 +86,10 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
         return new JODSettings_002(file);
     }
 
+    public static JOD.Settings instance(Map<String, Object> properties) {
+        return new JODSettings_002(properties);
+    }
+
     public JODSettings_002(File file) throws IOException {
         super(file);
     }

@@ -44,22 +44,16 @@ sourceSets {
     jospJSL {}
 }
 
-configurations {
-    // JOD
-    jospJODImplementation.extendsFrom jcpAPIsPublicImplementation
-
-    // JSL
-    jospJSLImplementation.extendsFrom jcpAPIsPublicImplementation
-}
+configurations {}
 
 dependencies {
     // JOD
-    jospJODImplementation sourceSets.jcpAPIsPublic.output
+    jospJODImplementation 'com.robypomper.josp:jcpAPIs:2.0.+'
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
 
     // JSL
-    jospJSLImplementation sourceSets.jcpAPIsPublic.output
+    jospJSLImplementation 'com.robypomper.josp:jcpAPIs:2.0.+'
     jospJSLImplementation 'commons-cli:commons-cli:1.4'
     jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
 }

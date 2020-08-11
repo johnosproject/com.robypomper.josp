@@ -27,11 +27,12 @@ import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
 
 import java.io.File;
+import java.util.Map;
 
 
 /**
  * Main interface for JOD object.
- *
+ * <p>
  * This interface define methods to initialize and manage a JOD object. Moreover,
  * it define also JOD support classes, struct and exceptions.
  */
@@ -80,7 +81,7 @@ public interface JOD {
 
     /**
      * Start current JOD object and all his systems.
-     *
+     * <p>
      * Update the JOD object's status {@link #status()}.
      *
      * @throws RunException thrown if errors occurs on JOD object start.
@@ -89,7 +90,7 @@ public interface JOD {
 
     /**
      * Stop current JOD object and all his systems.
-     *
+     * <p>
      * Update the JOD object's status {@link #status()}.
      *
      * @throws RunException thrown if errors occurs on JOD object stop.
@@ -98,7 +99,7 @@ public interface JOD {
 
     /**
      * Stop then restart current JOD object and all his systems.
-     *
+     * <p>
      * Update the JOD object's status {@link #status()}.
      *
      * @throws RunException thrown if errors occurs on JOD object stop and start.
@@ -134,7 +135,7 @@ public interface JOD {
     enum Status {
         /**
          * JOD object is starting.
-         *
+         * <p>
          * The method {@link #start()} was called, when finish the status become
          * {@link #RUNNING} or {@link #STOPPED} if error occurs.
          */
@@ -142,7 +143,7 @@ public interface JOD {
 
         /**
          * JOD object is running.
-         *
+         * <p>
          * The method {@link #start()} was called and the JOD object was started
          * successfully.
          */
@@ -150,7 +151,7 @@ public interface JOD {
 
         /**
          * JOD object is shouting down.
-         *
+         * <p>
          * The method {@link #stop()} was called, when finish the status become
          * {@link #STOPPED}.
          */
@@ -158,7 +159,7 @@ public interface JOD {
 
         /**
          * JOD object is stopped.
-         *
+         * <p>
          * The method {@link #stop()} was called and the JOD object was stopped
          * successfully.
          */
@@ -175,7 +176,7 @@ public interface JOD {
 
     /**
      * JOD's settings interface.
-     *
+     * <p>
      * JOD.Settings implementations can be used by JOD implementations to
      * customize settings for specific JOD implementations.
      */
@@ -198,6 +199,21 @@ public interface JOD {
             return null;
         }
 
+        /**
+         * Static method to generate JOD.Settings object from <code>file</code>
+         * configs.
+         *
+         * <b>This method (from {@link JOD.Settings} interface) return null object</b>,
+         * because JOD.Settings sub-classes must re-implement the same method and
+         * return sub-class instance.
+         *
+         * @param properties map containing the properties to set as JOD configurations.
+         * @return null pointer.
+         */
+        static Settings instance(Map<String, Object> properties) {
+            return null;
+        }
+
     }
 
 
@@ -212,7 +228,7 @@ public interface JOD {
         }
 
         public RunException(String msg, Exception e) {
-            super(msg,e);
+            super(msg, e);
         }
     }
 
@@ -225,7 +241,7 @@ public interface JOD {
         }
 
         public FactoryException(String msg, Exception e) {
-            super(msg,e);
+            super(msg, e);
         }
     }
 
