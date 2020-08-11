@@ -47,7 +47,7 @@ public class StatesController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(value,
                     String.format("%s Object's %s state", jslService.getComp(objId, compPath, JSLBooleanAction.class).getName(), jslService.getObj(objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"/test/structure/%s/\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId), APIJCPFEStructure.FULL_PATH_COMP(objId, compPath)));
+                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId), APIJCPFEStructure.FULL_PATH_COMP(objId, compPath)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
@@ -74,7 +74,7 @@ public class StatesController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(value,
                     String.format("%s Object's %s state", jslService.getComp(objId, compPath, JSLRangeAction.class).getName(), jslService.getObj(objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"/test/structure/%s/\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId), APIJCPFEStructure.FULL_PATH_COMP(objId, compPath)));
+                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId), APIJCPFEStructure.FULL_PATH_COMP(objId, compPath)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);

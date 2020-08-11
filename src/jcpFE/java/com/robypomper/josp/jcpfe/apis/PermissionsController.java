@@ -91,7 +91,7 @@ public class PermissionsController {
                 String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Connection.OnlyLocal.toString(), JOSPPerm.Connection.OnlyLocal.toString()) +
                 String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Connection.LocalAndCloud.toString(), JOSPPerm.Connection.LocalAndCloud.toString()) +
                 "    </select>" +
-                "    <input type=\"submit\" value=\"Upd\">\n" +
+                "    <input type=\"submit\" value=\"Add\">\n" +
                 "</form>\n" +
                 "</script>";
     }

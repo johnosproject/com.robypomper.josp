@@ -94,7 +94,7 @@ public class StructureController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(compHtml,
                     String.format("%s Object's Component %s", jslService.getObj(objId).getName(), compPath),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"/test/structure/%s/\">Object's structure</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId)));
+                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's structure on formatting response (%s).", objId, e.getMessage()), e);

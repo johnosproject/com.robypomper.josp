@@ -34,7 +34,7 @@ public class JSLSpringService implements HttpSessionListener {
         properties.put("jcp.url.auth", "localhost:8998");
         properties.put("jcp.client.id", "jcp-fe");
         properties.put("jcp.client.secret", "f379a100-46bb-4fc8-a660-947a98a3afab");
-        properties.put("jcp.client.callback", "http://localhost:8080/test/user/login/code/");
+        properties.put("jcp.client.callback", "http://localhost:8080//apis/user/1.0/login/code/");
         properties.put("jsl.srv.id", "jcp-fe");
         properties.put("jsl.srv.name", "JCP FrontEnd");
         JSL.Settings settings = FactoryJSL.loadSettings(properties, "2.0.0");
