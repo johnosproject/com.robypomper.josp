@@ -1,0 +1,33 @@
+logging.level.org.springframework: DEBUG
+# Spring
+#logging.level.org.springframework.boot: INFO
+#logging.level.org.springframework.boot.autoconfigure: INFO
+#logging.level.org.springframework.beans: INFO
+#logging.level.org.springframework.service: INFO
+#logging.level.org.springframework.context: INFO
+
+# Spring-Web
+#logging.level.org.springframework.web: INFO
+#logging.level.org.springframework.web.servlet: DEBUG
+logging.level.org.springframework.web.servlet.DispatcherServlet: DEBUG
+#logging.level.org.springframework.web.cors: DEBUG
+
+# Spring-Security
+#logging.level.org.springframework.security: INFO
+#logging.level.org.springframework.security.web: DEBUG
+logging.level.org.springframework.security.web.FilterChainProxy: DEBUG
+logging.level.org.springframework.security.web.access.ExceptionTranslationFilter: DEBUG
+
+
+
+# Spring-Keyclaok
+logging.level.org.keycloak: DEBUG
+logging.level.org.keycloak.adapters.KeycloakDeployment: DEBUG
+
+# Spring-Tomcat
+#logging.level.org.apache.catalina: INFO
+#logging.level.org.apache.catalina.core: INFO
+
+
+# Spring-Swagger
+logging.level.io.springfox: DEBUG

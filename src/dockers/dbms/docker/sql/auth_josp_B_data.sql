@@ -618,7 +618,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `REDIRECT_URIS` WRITE;
 /*!40000 ALTER TABLE `REDIRECT_URIS` DISABLE KEYS */;
-INSERT INTO `REDIRECT_URIS` VALUES ('0f5346de-6194-49d8-92e0-7e69f25d11b2','Client used by Swagger UI to access all APIs (All roles) using Implicit auth flow (the only onw supported by Swagger).'),('0f5346de-6194-49d8-92e0-7e69f25d11b2','https://localhost:9001/*'),('160d7294-ed23-4c0d-bed4-14727162d0e9','https://localhost:9001/*'),('3564bc5d-4650-4265-ab07-ab107580c915','https://localhost:9001/*'),('3aa884c4-dffd-498c-8056-6f75e1eb953a','/admin/jcp/console/*'),('41b8ef05-ac2a-4cf2-b710-1107b21ef56f','/admin/master/console/*'),('668cefc1-9844-43a3-bad2-00a21e312aed','/realms/JCP/account/*'),('79e472b0-e562-4535-a516-db7d7696a447','https://localhost:9001/*'),('ba0fd594-b3c1-41ef-b46b-2b7a09220353','/realms/master/account/*'),('d17936ea-07bf-4c15-8782-5d59451d39f9','/realms/jcp/account/*'),('d675fd4d-220d-4aa3-ba53-7e1de594e67d','/realms/master/account/*'),('fdb6d027-9e63-4327-a35b-611c48832b36','http://localhost:8080/*');
+INSERT INTO `REDIRECT_URIS` VALUES ('0f5346de-6194-49d8-92e0-7e69f25d11b2','Client used by Swagger UI to access all APIs (All roles) using Implicit auth flow (the only onw supported by Swagger).'),('0f5346de-6194-49d8-92e0-7e69f25d11b2','https://localhost:9001/*'),('160d7294-ed23-4c0d-bed4-14727162d0e9','https://localhost:9001/*'),('3564bc5d-4650-4265-ab07-ab107580c915','https://localhost:9001/*'),('3aa884c4-dffd-498c-8056-6f75e1eb953a','/admin/jcp/console/*'),('41b8ef05-ac2a-4cf2-b710-1107b21ef56f','/admin/master/console/*'),('668cefc1-9844-43a3-bad2-00a21e312aed','/realms/JCP/account/*'),('79e472b0-e562-4535-a516-db7d7696a447','https://localhost:9001/*'),('ba0fd594-b3c1-41ef-b46b-2b7a09220353','/realms/master/account/*'),('d17936ea-07bf-4c15-8782-5d59451d39f9','/realms/jcp/account/*'),('d675fd4d-220d-4aa3-ba53-7e1de594e67d','/realms/master/account/*'),('fdb6d027-9e63-4327-a35b-611c48832b36','https://localhost:8080/*');
 /*!40000 ALTER TABLE `REDIRECT_URIS` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -897,4 +897,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-10 15:00:43
+-- Dump completed on 2020-08-11 14:14:19
