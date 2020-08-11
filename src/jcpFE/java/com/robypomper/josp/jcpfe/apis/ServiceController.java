@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpSession;
+
 
 @RestController
 //@Api(tags = {APIJCPFEService.SubGroupService.NAME})
@@ -27,21 +29,22 @@ public class ServiceController {
 
     // Service Info
 
-    public static JOSPSrvHtml serviceDetails(JSLSpringService jslStaticService) {
+    public static JOSPSrvHtml serviceDetails(HttpSession session,
+                                             JSLSpringService jslStaticService) {
         // Convert to HTML shared structure
-        JSL jsl = jslStaticService.getJSL();
+        JSL jsl = jslStaticService.getJSL(jslStaticService.getHttp(session));
         return new JOSPSrvHtml(jsl);
     }
 
 
     @GetMapping(path = APIJCPFEService.FULL_PATH_DETAILS)
-    public ResponseEntity<JOSPSrvHtml> jsonServiceDetails() {
-        return ResponseEntity.ok(serviceDetails(jslService));
+    public ResponseEntity<JOSPSrvHtml> jsonServiceDetails(HttpSession session) {
+        return ResponseEntity.ok(serviceDetails(session, jslService));
     }
 
     @GetMapping(path = APIJCPFEService.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlServiceDetails() {
-        JOSPSrvHtml srvHtml = jsonServiceDetails().getBody();
+    public String htmlServiceDetails(HttpSession session) {
+        JOSPSrvHtml srvHtml = jsonServiceDetails(session).getBody();
         if (srvHtml == null)
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on get service info.");
 

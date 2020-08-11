@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 
 @RestController
@@ -31,9 +32,10 @@ public class ActionsController {
     // Boolean
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_SWITCH)
-    public ResponseEntity<Boolean> jsonBoolSwitch(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonBoolSwitch(HttpSession session,
+                                                  @PathVariable("obj_id") String objId,
                                                   @PathVariable("comp_path") String compPath) {
-        JSLBooleanAction comp = jslService.getComp(objId, compPath, JSLBooleanAction.class);
+        JSLBooleanAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class);
 
         try {
             comp.execSwitch();
@@ -51,14 +53,15 @@ public class ActionsController {
     public String htmlBoolSwitch(HttpServletRequest request,
                                  @PathVariable("obj_id") String objId,
                                  @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonBoolSwitch(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonBoolSwitch(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_TRUE)
-    public ResponseEntity<Boolean> jsonBoolTrue(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonBoolTrue(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLBooleanAction comp = jslService.getComp(objId, compPath, JSLBooleanAction.class);
+        JSLBooleanAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class);
 
         try {
 
@@ -77,14 +80,15 @@ public class ActionsController {
     public String htmlBoolTrue(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonBoolTrue(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonBoolTrue(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_FALSE)
-    public ResponseEntity<Boolean> jsonBoolFalse(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonBoolFalse(HttpSession session,
+                                                 @PathVariable("obj_id") String objId,
                                                  @PathVariable("comp_path") String compPath) {
-        JSLBooleanAction comp = jslService.getComp(objId, compPath, JSLBooleanAction.class);
+        JSLBooleanAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class);
 
         try {
 
@@ -103,7 +107,7 @@ public class ActionsController {
     public String htmlBoolFalse(HttpServletRequest request,
                                 @PathVariable("obj_id") String objId,
                                 @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonBoolFalse(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonBoolFalse(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
@@ -111,12 +115,13 @@ public class ActionsController {
     // Range actions
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
-    public String formRangeSet(@PathVariable("obj_id") String objId,
+    public String formRangeSet(HttpSession session,
+                               @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         // ONLY HTML
 
         return "<form id = \"form_id\" method=\"post\">\n" +
-                "    <input type=\"text\" id=\"val\" name=\"val\" value=\"" + jslService.getComp(objId, compPath, JSLRangeAction.class).getState() + "\">\n" +
+                "    <input type=\"text\" id=\"val\" name=\"val\" value=\"" + jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class).getState() + "\">\n" +
                 "    <input type=\"hidden\" id=\"origin_url\" name=\"origin_url\">\n" +
                 "    <input type=\"submit\" value=\"Set\">\n" +
                 "</form>\n" +
@@ -126,10 +131,11 @@ public class ActionsController {
     }
 
     @PostMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET)
-    public ResponseEntity<Boolean> jsonRangeSet_POST(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRangeSet_POST(HttpSession session,
+                                                     @PathVariable("obj_id") String objId,
                                                      @PathVariable("comp_path") String compPath,
                                                      @RequestParam("val") String val) {
-        return jsonRangeSet(objId, compPath, val);
+        return jsonRangeSet(session, objId, compPath, val);
     }
 
     @PostMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
@@ -142,14 +148,15 @@ public class ActionsController {
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SETg)
-    public ResponseEntity<Boolean> jsonRangeSet(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRangeSet(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath,
                                                 @PathVariable("val") String val) {
         Double dVal = JavaFormatter.strToDouble(val);
         if (dVal == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Request param 'val' can't be cast to double (%s), action '%s' on '%s' object not executed.", val, compPath, objId));
 
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             comp.execSetValue(dVal);
@@ -169,7 +176,7 @@ public class ActionsController {
                                @PathVariable("comp_path") String compPath,
                                @PathVariable("val") String val,
                                @RequestParam("origin_url") String originUrl) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeSet(objId, compPath, val).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeSet(request.getSession(), objId, compPath, val).getBody();
         //return HTMLFormatter.redirectBackAndReturn(request, success);
         // This is different to other htmlRange/ActionXXX because the value is set via an intermediate GET HTTP page
         if (originUrl == null)
@@ -178,9 +185,10 @@ public class ActionsController {
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_INC)
-    public ResponseEntity<Boolean> jsonRangeInc(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRangeInc(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             comp.execIncrease();
@@ -198,14 +206,15 @@ public class ActionsController {
     public String htmlRangeInc(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeInc(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeInc(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_DEC)
-    public ResponseEntity<Boolean> jsonRangeDec(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRangeDec(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             comp.execDecrease();
@@ -223,14 +232,15 @@ public class ActionsController {
     public String htmlRangeDec(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeDec(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeDec(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_MAX)
-    public ResponseEntity<Boolean> jsonRangeMax(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRangeMax(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             comp.execSetMax();
@@ -248,14 +258,15 @@ public class ActionsController {
     public String htmlRangeMax(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeMax(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeMax(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_MIN)
-    public ResponseEntity<Boolean> jsonRangeMin(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRangeMin(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             comp.execSetMin();
@@ -273,14 +284,15 @@ public class ActionsController {
     public String htmlRangeMin(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeMin(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRangeMin(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_1_2)
-    public ResponseEntity<Boolean> jsonRange1_2(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRange1_2(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             double half = comp.getMin() + ((comp.getMax() - comp.getMin()) / 2);
@@ -299,14 +311,15 @@ public class ActionsController {
     public String htmlRange1_2(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRange1_2(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRange1_2(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_1_3)
-    public ResponseEntity<Boolean> jsonRange1_3(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRange1_3(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             double fist_third = comp.getMin() + ((comp.getMax() - comp.getMin()) / 3);
@@ -325,15 +338,16 @@ public class ActionsController {
     public String htmlRange1_3(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRange1_3(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRange1_3(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_2_3)
-    public ResponseEntity<Boolean> jsonRange2_3(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonRange2_3(HttpSession session,
+                                                @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
 
         try {
             double second_third = comp.getMin() + ((comp.getMax() - comp.getMin()) / 3) + ((comp.getMax() - comp.getMin()) / 3);
@@ -352,7 +366,7 @@ public class ActionsController {
     public String htmlRange2_3(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonRange2_3(objId, compPath).getBody();
+        @SuppressWarnings("ConstantConditions") boolean success = jsonRange2_3(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 

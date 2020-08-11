@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +24,15 @@ public class JSLSpringService {
 
     // Internal vars
 
-    private final JSL jsl;
+    private final String jslVersion;
+    private final String urlAPIs;
+    private final String urlAuth;
+    private final String clientId;
+    private final String clientSecret;
+    private final String clientCallback;
+    private final String srvId;
+    private final String srvName = "jcpFrontEnd";
+    private final String locCommEnabled = "false";
 
 
     // Constructor
@@ -35,7 +43,7 @@ public class JSLSpringService {
                             @Value("${" + JSLSettings_002.JCP_CLIENT_ID + ":}") String clientId,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_SECRET + ":}") String clientSecret,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_CALLBACK + ":}") String clientCallback,
-                            @Value("${" + JSLSettings_002.JSLSRV_ID + ":}") String srvId) throws JSL.FactoryException, JSL.ConnectException {
+                            @Value("${" + JSLSettings_002.JSLSRV_ID + ":}") String srvId) {
         if (clientId.isEmpty())
             throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JCP_CLIENT_ID));
         if (clientSecret.isEmpty())
@@ -45,6 +53,40 @@ public class JSLSpringService {
         if (srvId.isEmpty())
             throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JSLSRV_ID));
 
+        this.jslVersion = jslVersion;
+        this.urlAPIs = urlAPIs;
+        this.urlAuth = urlAuth;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.clientCallback = clientCallback;
+        this.srvId = srvId;
+    }
+
+
+    // Sessions and JSLs
+
+    public JSL getHttp(HttpSession session) {
+        try {
+            return get(session);
+
+        } catch (JSLSpringService.JSLSpringException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can not access to JSL instance for session '%s'.", session.getId()), e);
+        }
+    }
+
+    public JSL get(HttpSession session) throws JSLSpringException {
+        if (session.getAttribute("JSL-Instance") != null)
+            return (JSL) session.getAttribute("JSL-Instance");
+
+        try {
+            return registerSessions(session);
+
+        } catch (JSL.FactoryException | JSL.ConnectException e) {
+            throw new JSLSpringException(String.format("Error creating JSL instance for sessions '%s'", session.getId()), e);
+        }
+    }
+
+    private JSL registerSessions(HttpSession session) throws JSL.FactoryException, JSL.ConnectException {
         Map<String, Object> properties = new HashMap<>();
         properties.put(JSLSettings_002.JCP_URL_APIS, urlAPIs);
         properties.put(JSLSettings_002.JCP_URL_AUTH, urlAuth);
@@ -52,23 +94,26 @@ public class JSLSpringService {
         properties.put(JSLSettings_002.JCP_CLIENT_SECRET, clientSecret);
         properties.put(JSLSettings_002.JCP_CLIENT_CALLBACK, clientCallback);
         properties.put(JSLSettings_002.JSLSRV_ID, srvId);
-        properties.put(JSLSettings_002.JSLSRV_NAME, "jcpFrontEnd");
-        properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, "false");
+        properties.put(JSLSettings_002.JSLSRV_NAME, srvName);
+        properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, locCommEnabled);
         //properties.put(JSLSettings_002.JSLCOMM_LOCAL_DISCOVERY, "DNSSD");
         JSL.Settings settings = FactoryJSL.loadSettings(properties, jslVersion);
 
-        jsl = FactoryJSL.createJSL(settings, jslVersion);
+        JSL jsl = FactoryJSL.createJSL(settings, jslVersion);
         jsl.connect();
+
+        session.setAttribute("JSL-Instance", jsl);
+        return jsl;
     }
 
 
     // Objects and components
 
-    public List<JSLRemoteObject> listObjects() {
+    public List<JSLRemoteObject> listObjects(JSL jsl) {
         return jsl.getObjsMngr().getAllObjects();
     }
 
-    public JSLRemoteObject getObj(String objId) {
+    public JSLRemoteObject getObj(JSL jsl, String objId) {
         JSLRemoteObject obj = jsl.getObjsMngr().getById(objId);
         if (obj == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Object with required id ('%s') not found.", objId));
@@ -76,7 +121,7 @@ public class JSLSpringService {
         return obj;
     }
 
-    public <T extends JSLComponent> T getComp(String objId, String compPath, Class<T> compClass) {
+    public <T extends JSLComponent> T getComp(JSL jsl, String objId, String compPath, Class<T> compClass) {
         JSLRemoteObject obj = jsl.getObjsMngr().getById(objId);
         if (obj == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Object with required id ('%s') not found.", objId));
@@ -91,18 +136,18 @@ public class JSLSpringService {
         return compClass.cast(comp);
     }
 
-    public JSLRemoteObject findObj(String objId) {
+    public JSLRemoteObject findObj(JSL jsl, String objId) {
         try {
-            return getObj(objId);
+            return getObj(jsl, objId);
 
         } catch (Throwable ignore) {
             return null;
         }
     }
 
-    public <T extends JSLComponent> T findComp(String objId, String compPath, Class<T> compClass) {
+    public <T extends JSLComponent> T findComp(JSL jsl, String objId, String compPath, Class<T> compClass) {
         try {
-            return getComp(objId, compPath, compClass);
+            return getComp(jsl, objId, compPath, compClass);
 
         } catch (Throwable ignore) {
             return null;
@@ -112,44 +157,34 @@ public class JSLSpringService {
 
     // User
 
-    @Deprecated
-    public JSLUser getJSLUser() {
-        return new JSLUser(jsl.getUserMngr());
-    }
-
-    public JSLUserMngr getUserMngr() {
+    public JSLUserMngr getUserMngr(JSL jsl) {
         return jsl.getUserMngr();
     }
 
-    public String getLoginUrl() {
+    public String getLoginUrl(JSL jsl) {
         return jsl.getJCPClient().getLoginUrl();
     }
 
-    public boolean login(String code) throws JCPClient2.ConnectionException, JCPClient2.JCPNotReachableException, JCPClient2.AuthenticationException {
+    public boolean login(JSL jsl, String code) throws JCPClient2.ConnectionException, JCPClient2.JCPNotReachableException, JCPClient2.AuthenticationException {
         jsl.getJCPClient().setLoginCodeAndReconnect(code);
         return jsl.getJCPClient().isConnected();
     }
 
-    public void logout() {
+    public void logout(JSL jsl) {
         jsl.getJCPClient().userLogout();
     }
 
 
     // Service
 
-    @Deprecated
-    public JSLService getJSLService() {
-        return new JSLService(jsl);
-    }
-
-    public JSL getJSL() {
+    public JSL getJSL(JSL jsl) {
         return jsl;
     }
 
 
     // Permissions
 
-    public JOSPPerm.Type getObjPerm(JSLRemoteObject obj) {
+    public static JOSPPerm.Type getObjPerm(JSLRemoteObject obj) {
         return obj.getServicePerm(obj.isCloudConnected() ? JOSPPerm.Connection.LocalAndCloud : JOSPPerm.Connection.OnlyLocal);
     }
 
@@ -188,93 +223,9 @@ public class JSLSpringService {
     }
 
 
-    // Structures
-
-    @Deprecated
-    public static class JSLUser {
-
-        public final String id;
-        public final String name;
-        public final boolean isAuthenticated;
-
-        public JSLUser(JSLUserMngr usrMngr) {
-            this(usrMngr.getUserId(), usrMngr.getUsername(), usrMngr.isUserAuthenticated());
-        }
-
-        public JSLUser(String userId, String name, boolean isAuthenticated) {
-            this.id = userId;
-            this.name = name;
-            this.isAuthenticated = isAuthenticated;
+    public class JSLSpringException extends Throwable {
+        public JSLSpringException(String msg, Throwable t) {
+            super(msg, t);
         }
     }
-
-    @Deprecated
-    public static class JSLService {
-
-        public final JSL jsl;
-
-        public JSLService(JSL jsl) {
-            this.jsl = jsl;
-
-            jsl.version();
-            jsl.versionsJOSPProtocol();
-            jsl.versionsJCPAPIs();
-            jsl.versionsJOSPObject();
-
-        }
-
-        // IDs
-
-        public String srvName() {
-            return jsl.getServiceInfo().getSrvName();
-        }
-
-        public String srvId() {
-            return jsl.getServiceInfo().getSrvId();
-        }
-
-        public String usrId() {
-            return jsl.getServiceInfo().getUserId();
-        }
-
-        public String instId() {
-            return jsl.getServiceInfo().getInstanceId();
-        }
-
-
-        // Connect/disconnect
-
-        public JSL.Status status() {
-            return jsl.status();
-        }
-
-        public void connect() throws JSL.ConnectException {
-            jsl.connect();
-        }
-
-        public void disconnect() throws JSL.ConnectException {
-            jsl.disconnect();
-        }
-
-
-        // Versions
-
-        public String srvVersion() {
-            return jsl.version();
-        }
-
-        public List<String> srvVersionsJOSPProtocol() {
-            return Arrays.asList(jsl.versionsJOSPProtocol());
-        }
-
-        public List<String> srvVersionsJCPAPIs() {
-            return Arrays.asList(jsl.versionsJCPAPIs());
-        }
-
-        public List<String> srvVersionsJOSPObject() {
-            return Arrays.asList(jsl.versionsJOSPObject());
-        }
-
-    }
-
 }

@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
@@ -33,21 +34,22 @@ public class UserController {
 
     // User Info
 
-    public static JOSPUserHtml userDetails(JSLSpringService jslStaticService) {
+    public static JOSPUserHtml userDetails(HttpSession session,
+                                           JSLSpringService jslStaticService) {
         // Convert to HTML shared structure
-        JSLUserMngr jslUserMngr = jslStaticService.getUserMngr();
+        JSLUserMngr jslUserMngr = jslStaticService.getUserMngr(jslStaticService.getHttp(session));
         return new JOSPUserHtml(jslUserMngr);
     }
 
     @GetMapping(path = APIJCPFEUser.FULL_PATH_DETAILS)
-    public ResponseEntity<JOSPUserHtml> jsonUserDetails() {
-        JSLUserMngr jslUserMngr = jslService.getUserMngr();
-        return ResponseEntity.ok(userDetails(jslService));
+    public ResponseEntity<JOSPUserHtml> jsonUserDetails(HttpSession session) {
+        JSLUserMngr jslUserMngr = jslService.getUserMngr(jslService.getHttp(session));
+        return ResponseEntity.ok(userDetails(session, jslService));
     }
 
     @GetMapping(path = APIJCPFEUser.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlUserDetails() {
-        JOSPUserHtml usrHtml = jsonUserDetails().getBody();
+    public String htmlUserDetails(HttpSession session) {
+        JOSPUserHtml usrHtml = jsonUserDetails(session).getBody();
         if (usrHtml == null)
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on get service info.");
 
@@ -63,8 +65,9 @@ public class UserController {
     // Login
 
     @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGIN)
-    public String htmlLoginUser(HttpServletResponse response) {
-        String redirect = jslService.getLoginUrl(); //http://localhost:8080/test/user/login/code/
+    public String htmlLoginUser(HttpSession session,
+                                HttpServletResponse response) {
+        String redirect = jslService.getLoginUrl(jslService.getHttp(session)); //http://localhost:8080/test/user/login/code/
 
         try {
             response.sendRedirect(redirect);
@@ -76,12 +79,13 @@ public class UserController {
     }
 
     @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGIN_CALLBACK)
-    public String authRedirect(HttpServletResponse response,
+    public String authRedirect(HttpSession session,
+                               HttpServletResponse response,
                                @RequestParam(name = "session_state") String sessionState,
                                @RequestParam(name = "code") String code) {
         //https://localhost:8080/login/code/?session_state=087edff3-848c-4b59-9592-e44c7410e6b0&code=8ab0ceb4-e3cf-48e2-99df-b59fe7be129d.087edff3-848c-4b59-9592-e44c7410e6b0.79e472b0-e562-4535-a516-db7d7696a447
         try {
-            jslService.login(code);
+            jslService.login(jslService.getHttp(session), code);
 
         } catch (JCPClient2.ConnectionException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't connect JCP APIs service because %s", e.getMessage()), e);
@@ -107,14 +111,15 @@ public class UserController {
     // Logout
 
     @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGOUT)
-    public ResponseEntity<Boolean> jsonLogoutUser() {
-        jslService.logout();
+    public ResponseEntity<Boolean> jsonLogoutUser(HttpSession session) {
+        jslService.logout(jslService.getHttp(session));
         return ResponseEntity.ok(true);
     }
 
     @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGOUT, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlLogoutUser(HttpServletRequest request) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonLogoutUser().getBody();
+    public String htmlLogoutUser(HttpSession session,
+                                 HttpServletRequest request) {
+        @SuppressWarnings("ConstantConditions") boolean success = jsonLogoutUser(session).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 

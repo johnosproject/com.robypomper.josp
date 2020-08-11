@@ -12,12 +12,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@SessionScope
 //@Api(tags = {APIJCPFEObjs.SubGroupObjs.NAME})
 public class ObjsMngrController {
 
@@ -29,23 +32,24 @@ public class ObjsMngrController {
 
     // List and details
 
-    public static List<JOSPObjHtml> objectsList(JSLSpringService jslStaticService) {
+    public static List<JOSPObjHtml> objectsList(HttpSession session,
+                                                JSLSpringService jslStaticService) {
         // Convert object list
         List<JOSPObjHtml> objHtml = new ArrayList<>();
-        for (JSLRemoteObject o : jslStaticService.listObjects())
+        for (JSLRemoteObject o : jslStaticService.listObjects(jslStaticService.getHttp(session)))
             objHtml.add(new JOSPObjHtml(o));
 
         return objHtml;
     }
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_LIST)
-    public ResponseEntity<List<JOSPObjHtml>> jsonObjectsList() {
-        return ResponseEntity.ok(objectsList(jslService));
+    public ResponseEntity<List<JOSPObjHtml>> jsonObjectsList(HttpSession session) {
+        return ResponseEntity.ok(objectsList(session, jslService));
     }
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectsList() {
-        List<JOSPObjHtml> objHtml = jsonObjectsList().getBody();
+    public String htmlObjectsList(HttpSession session) {
+        List<JOSPObjHtml> objHtml = jsonObjectsList(session).getBody();
         if (objHtml == null)
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on get '%s' objects list.");
 
@@ -58,20 +62,22 @@ public class ObjsMngrController {
     }
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_DETAILS)
-    public ResponseEntity<JOSPObjHtml> jsonObjectDetails(@PathVariable("obj_id") String objId) {
-        JSLRemoteObject obj = jslService.getObj(objId);
+    public ResponseEntity<JOSPObjHtml> jsonObjectDetails(HttpSession session,
+                                                         @PathVariable("obj_id") String objId) {
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         return ResponseEntity.ok(new JOSPObjHtml(obj));
     }
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectDetails(@PathVariable("obj_id") String objId) {
-        JOSPObjHtml objHtml = jsonObjectDetails(objId).getBody();
+    public String htmlObjectDetails(HttpSession session,
+                                    @PathVariable("obj_id") String objId) {
+        JOSPObjHtml objHtml = jsonObjectDetails(session, objId).getBody();
         if (objHtml == null)
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error on get '%s' object.", objId));
 
         try {
             return HTMLUtils.toHTMLFormattedJSON(objHtml,
-                    String.format("%s Object", jslService.getObj(objId).getName()),
+                    String.format("%s Object", jslService.getObj(jslService.getHttp(session), objId).getName()),
                     String.format("<a href=\"%s\">Object</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId)));
 
         } catch (JsonProcessingException e) {
@@ -83,11 +89,12 @@ public class ObjsMngrController {
     // Set owner and name
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
-    public String formObjectOwner(@PathVariable("obj_id") String objId) {
+    public String formObjectOwner(HttpSession session,
+                                  @PathVariable("obj_id") String objId) {
         // ONLY HTML
 
         return "<form id = \"form_id\" method=\"post\">\n" +
-                "    <input type=\"text\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getObj(objId).getOwnerId() + "\">\n" +
+                "    <input type=\"text\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getObj(jslService.getHttp(session), objId).getOwnerId() + "\">\n" +
                 "    <input type=\"submit\" value=\"Set\">\n" +
                 "</form>\n" +
                 "<form id = \"form_id_anonymous\" method=\"post\">\n" +
@@ -95,15 +102,16 @@ public class ObjsMngrController {
                 "    <input type=\"submit\" value=\"Set Anonymous Owner\">\n" +
                 "</form>\n" +
                 "<form id = \"form_id_self\" method=\"post\">\n" +
-                "    <input type=\"hidden\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getUserMngr().getUserId() + "\">\n" +
+                "    <input type=\"hidden\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getUserMngr(jslService.getHttp(session)).getUserId() + "\">\n" +
                 "    <input type=\"submit\" value=\"Set current user\">\n" +
                 "</form>\n";
     }
 
     @PostMapping(path = APIJCPFEObjs.FULL_PATH_OWNER)
-    public ResponseEntity<Boolean> jsonObjectOwner(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonObjectOwner(HttpSession session,
+                                                   @PathVariable("obj_id") String objId,
                                                    @RequestParam("new_owner") String newOwner) {
-        JSLRemoteObject obj = jslService.getObj(objId);
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
         if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
@@ -123,29 +131,32 @@ public class ObjsMngrController {
     }
 
     @PostMapping(path = APIJCPFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectOwner(@PathVariable("obj_id") String objId,
+    public String htmlObjectOwner(HttpSession session,
+                                  @PathVariable("obj_id") String objId,
                                   @RequestParam("new_owner") String newOwner) {
-        Boolean success = jsonObjectOwner(objId, newOwner).getBody();
+        Boolean success = jsonObjectOwner(session, objId, newOwner).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIJCPFEObjs.FULL_PATH_DETAILS(objId), success);
     }
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
-    public String formObjectRename(@PathVariable("obj_id") String objId) {
+    public String formObjectRename(HttpSession session,
+                                   @PathVariable("obj_id") String objId) {
         // ONLY HTML
 
         return "<form id = \"form_id\" method=\"post\">\n" +
-                "    <input type=\"text\" id=\"new_name\" name=\"new_name\" value=\"\n" + jslService.getObj(objId).getName() + "\">\n" +
+                "    <input type=\"text\" id=\"new_name\" name=\"new_name\" value=\"\n" + jslService.getObj(jslService.getHttp(session), objId).getName() + "\">\n" +
                 "    <input type=\"submit\" value=\"Set\">\n" +
                 "</form>\n" +
                 "</script>";
     }
 
     @PostMapping(path = APIJCPFEObjs.FULL_PATH_NAME)
-    public ResponseEntity<Boolean> jsonObjectName(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonObjectName(HttpSession session,
+                                                  @PathVariable("obj_id") String objId,
                                                   @RequestParam("new_name") String newName) {
 
-        JSLRemoteObject obj = jslService.getObj(objId);
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         try {
             obj.setName(newName);
 
@@ -160,9 +171,10 @@ public class ObjsMngrController {
     }
 
     @PostMapping(path = APIJCPFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectName(@PathVariable("obj_id") String objId,
+    public String htmlObjectName(HttpSession session,
+                                 @PathVariable("obj_id") String objId,
                                  @RequestParam("new_name") String newName) {
-        Boolean success = jsonObjectName(objId, newName).getBody();
+        Boolean success = jsonObjectName(session, objId, newName).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIJCPFEObjs.FULL_PATH_DETAILS(objId), success);
     }

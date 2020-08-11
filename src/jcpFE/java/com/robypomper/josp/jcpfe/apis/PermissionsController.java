@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,9 @@ public class PermissionsController {
     // Obj's perms list
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_LIST)
-    public ResponseEntity<List<JOSPPermHtml>> jsonObjectPermissions(@PathVariable("obj_id") String objId) {
-        JSLRemoteObject obj = jslService.getObj(objId);
+    public ResponseEntity<List<JOSPPermHtml>> jsonObjectPermissions(HttpSession session,
+                                                                    @PathVariable("obj_id") String objId) {
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
         if (!jslService.serviceCanPerm(obj, JOSPPerm.Type.CoOwner))
@@ -49,14 +51,15 @@ public class PermissionsController {
     }
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissions(@PathVariable("obj_id") String objId) {
-        List<JOSPPermHtml> permsHtml = jsonObjectPermissions(objId).getBody();
+    public String htmlObjectPermissions(HttpSession session,
+                                        @PathVariable("obj_id") String objId) {
+        List<JOSPPermHtml> permsHtml = jsonObjectPermissions(session, objId).getBody();
         if (permsHtml == null)
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error on get '%s' object's permissions.", objId));
 
         try {
             return HTMLUtils.toHTMLFormattedJSON(permsHtml,
-                    String.format("%s Object's Permissions", jslService.getObj(objId).getName()),
+                    String.format("%s Object's Permissions", jslService.getObj(jslService.getHttp(session), objId).getName()),
                     String.format("<a href=\"%s\">Object</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId)));
 
         } catch (JsonProcessingException e) {
@@ -97,12 +100,13 @@ public class PermissionsController {
     }
 
     @PostMapping(path = APIJCPFEPermissions.FULL_PATH_ADD)
-    public ResponseEntity<Boolean> jsonObjectPermissionAdd(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonObjectPermissionAdd(HttpSession session,
+                                                           @PathVariable("obj_id") String objId,
                                                            @RequestParam("srv_id") String srvId,
                                                            @RequestParam("usr_id") String usrId,
                                                            @RequestParam("type") JOSPPerm.Type type,
                                                            @RequestParam("conn") JOSPPerm.Connection connection) {
-        JSLRemoteObject obj = jslService.getObj(objId);
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
         if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
@@ -122,12 +126,13 @@ public class PermissionsController {
     }
 
     @PostMapping(path = APIJCPFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionAdd(@PathVariable("obj_id") String objId,
+    public String htmlObjectPermissionAdd(HttpSession session,
+                                          @PathVariable("obj_id") String objId,
                                           @RequestParam("srv_id") String srvId,
                                           @RequestParam("usr_id") String usrId,
                                           @RequestParam("type") JOSPPerm.Type type,
                                           @RequestParam("conn") JOSPPerm.Connection connection) {
-        Boolean success = jsonObjectPermissionAdd(objId, srvId, usrId, type, connection).getBody();
+        Boolean success = jsonObjectPermissionAdd(session, objId, srvId, usrId, type, connection).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
     }
@@ -136,10 +141,11 @@ public class PermissionsController {
     // Obj's perm upd
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
-    public String formObjectPermissionUpd(@PathVariable("obj_id") String objId,
+    public String formObjectPermissionUpd(HttpSession session,
+                                          @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
         // ONLY HTML
-        JOSPPerm p = jslService.getPerm(jslService.getObj(objId), permId);
+        JOSPPerm p = jslService.getPerm(jslService.getObj(jslService.getHttp(session), objId), permId);
 
         return "<form id = \"form_id\" method=\"post\" onsubmit=\"actionUpdater()\">\n" +
                 "    <select name=\"type\" id=\"type\">\n" +
@@ -164,11 +170,12 @@ public class PermissionsController {
     }
 
     @PostMapping(path = APIJCPFEPermissions.FULL_PATH_UPD)
-    public ResponseEntity<Boolean> jsonObjectPermissionUpd(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonObjectPermissionUpd(HttpSession session,
+                                                           @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId,
                                                            @RequestParam("type") JOSPPerm.Type type,
                                                            @RequestParam("conn") JOSPPerm.Connection connection) {
-        JSLRemoteObject obj = jslService.getObj(objId);
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
         if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
@@ -190,11 +197,12 @@ public class PermissionsController {
     }
 
     @PostMapping(path = APIJCPFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionUpd(@PathVariable("obj_id") String objId,
+    public String htmlObjectPermissionUpd(HttpSession session,
+                                          @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId,
                                           @RequestParam("type") JOSPPerm.Type type,
                                           @RequestParam("conn") JOSPPerm.Connection connection) {
-        Boolean success = jsonObjectPermissionUpd(objId, permId, type, connection).getBody();
+        Boolean success = jsonObjectPermissionUpd(session, objId, permId, type, connection).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
     }
@@ -202,9 +210,10 @@ public class PermissionsController {
     // Obj's perm remove
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DEL)
-    public ResponseEntity<Boolean> jsonObjectPermissionDel(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonObjectPermissionDel(HttpSession session,
+                                                           @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
-        JSLRemoteObject obj = jslService.getObj(objId);
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
         if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
@@ -226,9 +235,10 @@ public class PermissionsController {
     }
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DEL, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionDel(@PathVariable("obj_id") String objId,
+    public String htmlObjectPermissionDel(HttpSession session,
+                                          @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
-        Boolean success = jsonObjectPermissionDel(objId, permId).getBody();
+        Boolean success = jsonObjectPermissionDel(session, objId, permId).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
     }
@@ -237,9 +247,10 @@ public class PermissionsController {
     // Obj's perm duplicate
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DUP)
-    public ResponseEntity<Boolean> jsonObjectPermissionDup(@PathVariable("obj_id") String objId,
+    public ResponseEntity<Boolean> jsonObjectPermissionDup(HttpSession session,
+                                                           @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
-        JSLRemoteObject obj = jslService.getObj(objId);
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
         if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
@@ -261,9 +272,10 @@ public class PermissionsController {
     }
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DUP, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionDup(@PathVariable("obj_id") String objId,
+    public String htmlObjectPermissionDup(HttpSession session,
+                                          @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
-        Boolean success = jsonObjectPermissionDup(objId, permId).getBody();
+        Boolean success = jsonObjectPermissionDup(session, objId, permId).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
     }

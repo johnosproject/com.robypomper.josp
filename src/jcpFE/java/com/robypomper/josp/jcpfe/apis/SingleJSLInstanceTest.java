@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/test/")
 public class SingleJSLInstanceTest {
@@ -27,7 +29,7 @@ public class SingleJSLInstanceTest {
     // List
 
     @GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlHome() {
+    public String htmlHome(HttpSession session) {
         StringBuilder responseBuilder = new StringBuilder();
         responseBuilder.append("<h1>JCP Front-End</h1>\n");
         responseBuilder.append("<div style=\"float: left;\">\n");
@@ -35,15 +37,15 @@ public class SingleJSLInstanceTest {
         // Objects
         responseBuilder.append("<p><b>Objects:</b></p>\n");
         responseBuilder.append("<ul>\n");
-        for (JOSPObjHtml o : ObjsMngrController.objectsList(jslService))
+        for (JOSPObjHtml o : ObjsMngrController.objectsList(session, jslService))
             responseBuilder.append("<li>").append("<a href=\"").append(o.pathSingle).append("\">").append(o.name).append("</a>").append("</li>\n");
         responseBuilder.append("</ul>\n");
-        responseBuilder.append(String.format("Go to the <a href=\"%s\">full Objects list</a> (%d objects)\n", APIJCPFEObjs.FULL_PATH_LIST, ObjsMngrController.objectsList(jslService).size()));
+        responseBuilder.append(String.format("Go to the <a href=\"%s\">full Objects list</a> (%d objects)\n", APIJCPFEObjs.FULL_PATH_LIST, ObjsMngrController.objectsList(session, jslService).size()));
         responseBuilder.append("<hr>\n");
 
         // User
         responseBuilder.append("<p><b>Current user:</b></p>\n");
-        JOSPUserHtml user = UserController.userDetails(jslService);
+        JOSPUserHtml user = UserController.userDetails(session, jslService);
         responseBuilder.append("<p>");
         responseBuilder.append("User: ").append(user.name).append("(");
         responseBuilder.append(String.format("<a href=\"%s\">details</a>)<br>\n", APIJCPFEUser.FULL_PATH_DETAILS));
@@ -56,7 +58,7 @@ public class SingleJSLInstanceTest {
 
         // Service
         responseBuilder.append("<p><b>Service:</b></p>\n");
-        JOSPSrvHtml srv = ServiceController.serviceDetails(jslService);
+        JOSPSrvHtml srv = ServiceController.serviceDetails(session, jslService);
         responseBuilder.append("<p>");
         responseBuilder.append("Srv: ").append(srv.name).append("(");
         responseBuilder.append(String.format("<a href=\"%s\">details</a>)<br>\n", APIJCPFEService.FULL_PATH_DETAILS));
