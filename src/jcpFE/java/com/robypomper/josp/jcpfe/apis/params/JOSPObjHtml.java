@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEObjs;
 import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEPermissions;
 import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEStructure;
+import com.robypomper.josp.jcpfe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
 @JsonAutoDetect
@@ -22,6 +23,7 @@ public class JOSPObjHtml {
     public final String pathPermsAdd;
     public final String pathSetOwner;
     public final String pathSetName;
+    public final String permission;
 
     public JOSPObjHtml(JSLRemoteObject obj) {
         this.id = obj.getId();
@@ -37,6 +39,7 @@ public class JOSPObjHtml {
         this.pathPermsAdd = APIJCPFEPermissions.FULL_PATH_ADD.replace("{obj_id}", id);
         this.pathSetOwner = APIJCPFEObjs.FULL_PATH_OWNER.replace("{obj_id}", id);
         this.pathSetName = APIJCPFEObjs.FULL_PATH_NAME.replace("{obj_id}", id);
+        this.permission = JSLSpringService.getObjPerm(obj).toString();
     }
 
 }

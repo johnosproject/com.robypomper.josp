@@ -8,6 +8,9 @@ public class JOSPSrvHtml {
 
     public final String name;
     public final JSL.Status status;
+    public final boolean isJCPConnected;
+    public final boolean isCloudConnected;
+    public final boolean isLocalRunning;
     public final String srvId;
     public final String usrId;
     public final String instId;
@@ -19,6 +22,9 @@ public class JOSPSrvHtml {
     public JOSPSrvHtml(JSL jsl) {
         this.name = jsl.getServiceInfo().getSrvName();
         this.status = jsl.status();
+        this.isJCPConnected = jsl.getJCPClient().isConnected();
+        this.isCloudConnected = jsl.getCommunication().isCloudConnected();
+        this.isLocalRunning = jsl.getCommunication().isLocalRunning();
         this.srvId = jsl.getServiceInfo().getSrvId();
         this.usrId = jsl.getServiceInfo().getUserId();
         this.instId = jsl.getServiceInfo().getInstanceId();
