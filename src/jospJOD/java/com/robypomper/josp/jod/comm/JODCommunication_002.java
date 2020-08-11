@@ -422,10 +422,10 @@ public class JODCommunication_002 implements JODCommunication {
      */
     @Override
     public void startLocal() throws LocalCommunicationException {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Start and publish local object's server '%s'", objInfo.getObjId()));
-
         if (isLocalRunning())
             return;
+
+        log.info(Mrk_JOD.JOD_COMM, String.format("Start and publish local object's server '%s'", objInfo.getObjId()));
 
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Starting local object's server");
@@ -451,10 +451,10 @@ public class JODCommunication_002 implements JODCommunication {
      */
     @Override
     public void stopLocal() throws LocalCommunicationException {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Stop and hide local object's server '%s' on port '%d'", objInfo.getObjId(), localServer.getPort()));
-
         if (!isLocalRunning())
             return;
+
+        log.info(Mrk_JOD.JOD_COMM, String.format("Stop and hide local object's server '%s' on port '%d'", objInfo.getObjId(), localServer.getPort()));
 
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Stopping local object's server");

@@ -84,6 +84,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             generateObjIdHw();
         if (!isObjIdSet())
             generateObjId();
+        else
+            saveObjId(getObjId());
         if (getObjName().isEmpty())
             generateObjName();
 
