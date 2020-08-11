@@ -1,0 +1,31 @@
+package com.robypomper.josp.jcpfe.apis.params;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.robypomper.josp.jsl.JSL;
+
+@JsonAutoDetect
+public class JOSPSrvHtml {
+
+    public final String name;
+    public final JSL.Status status;
+    public final String srvId;
+    public final String usrId;
+    public final String instId;
+    public final String jslVersion;
+    public final String[] supportedJCPAPIsVersions;
+    public final String[] supportedJOSPProtocolVersions;
+    public final String[] supportedJODVersions;
+
+    public JOSPSrvHtml(JSL jsl) {
+        this.name = jsl.getServiceInfo().getSrvName();
+        this.status = jsl.status();
+        this.srvId = jsl.getServiceInfo().getSrvId();
+        this.usrId = jsl.getServiceInfo().getUserId();
+        this.instId = jsl.getServiceInfo().getInstanceId();
+        this.jslVersion = jsl.version();
+        this.supportedJCPAPIsVersions = jsl.versionsJCPAPIs();
+        this.supportedJOSPProtocolVersions = jsl.versionsJOSPProtocol();
+        this.supportedJODVersions = jsl.versionsJOSPObject();
+    }
+
+}
