@@ -3,23 +3,24 @@ package com.robypomper.josp.jcpfe.jsl;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jsl.FactoryJSL;
 import com.robypomper.josp.jsl.JSL;
+import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPPerm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpSessionListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
-public class JSLSpringService implements HttpSessionListener {
+public class JSLSpringService {
 
     // Internal vars
 
@@ -28,18 +29,35 @@ public class JSLSpringService implements HttpSessionListener {
 
     // Constructor
 
-    public JSLSpringService() throws JSL.FactoryException, JSL.ConnectException {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("jcp.url.apis", "localhost:9001");
-        properties.put("jcp.url.auth", "localhost:8998");
-        properties.put("jcp.client.id", "jcp-fe");
-        properties.put("jcp.client.secret", "f379a100-46bb-4fc8-a660-947a98a3afab");
-        properties.put("jcp.client.callback", "http://localhost:8080//apis/user/1.0/login/code/");
-        properties.put("jsl.srv.id", "jcp-fe");
-        properties.put("jsl.srv.name", "JCP FrontEnd");
-        JSL.Settings settings = FactoryJSL.loadSettings(properties, "2.0.0");
+    public JSLSpringService(@Value("${jsl.version:2.0.0}") String jslVersion,
+                            @Value("${" + JSLSettings_002.JCP_URL_APIS + ":" + JSLSettings_002.JCP_URL_DEF_APIS + "}") String urlAPIs,
+                            @Value("${" + JSLSettings_002.JCP_URL_AUTH + ":" + JSLSettings_002.JCP_URL_AUTH + "}") String urlAuth,
+                            @Value("${" + JSLSettings_002.JCP_CLIENT_ID + ":}") String clientId,
+                            @Value("${" + JSLSettings_002.JCP_CLIENT_SECRET + ":}") String clientSecret,
+                            @Value("${" + JSLSettings_002.JCP_CLIENT_CALLBACK + ":}") String clientCallback,
+                            @Value("${" + JSLSettings_002.JSLSRV_ID + ":}") String srvId) throws JSL.FactoryException, JSL.ConnectException {
+        if (clientId.isEmpty())
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JCP_CLIENT_ID));
+        if (clientSecret.isEmpty())
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JCP_CLIENT_SECRET));
+        if (clientCallback.isEmpty())
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JCP_CLIENT_CALLBACK));
+        if (srvId.isEmpty())
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JSLSRV_ID));
 
-        jsl = FactoryJSL.createJSL(settings, "2.0.0");
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(JSLSettings_002.JCP_URL_APIS, urlAPIs);
+        properties.put(JSLSettings_002.JCP_URL_AUTH, urlAuth);
+        properties.put(JSLSettings_002.JCP_CLIENT_ID, clientId);
+        properties.put(JSLSettings_002.JCP_CLIENT_SECRET, clientSecret);
+        properties.put(JSLSettings_002.JCP_CLIENT_CALLBACK, clientCallback);
+        properties.put(JSLSettings_002.JSLSRV_ID, srvId);
+        properties.put(JSLSettings_002.JSLSRV_NAME, "jcpFrontEnd");
+        properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, "false");
+        //properties.put(JSLSettings_002.JSLCOMM_LOCAL_DISCOVERY, "DNSSD");
+        JSL.Settings settings = FactoryJSL.loadSettings(properties, jslVersion);
+
+        jsl = FactoryJSL.createJSL(settings, jslVersion);
         jsl.connect();
     }
 
