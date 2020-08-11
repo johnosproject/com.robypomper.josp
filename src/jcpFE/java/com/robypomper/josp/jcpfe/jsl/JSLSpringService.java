@@ -154,6 +154,9 @@ public class JSLSpringService {
     }
 
     public boolean serviceCanPerm(JSLRemoteObject obj, JOSPPerm.Type type) {
+        if (obj.getOwnerId().equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
+            return true;
+
         JOSPPerm.Type objPermType = getObjPerm(obj);
         switch (type) {
             case CoOwner:
