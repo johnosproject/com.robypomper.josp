@@ -491,7 +491,12 @@ public class DefaultServer implements Server {
                 sce.onClientServerDisconnected(client);
             } else {
                 sce.onClientTerminated(client);
-                if (client.isConnected()) client.closeConnection();
+                if (client.isConnected())
+                    try {
+                        client.closeConnection();
+                    } catch (Exception e) {
+                        log.warn(Mrk_Commons.COMM_SRV, String.format("Error disconnecting client '%s' to '%s' server because %s", client.getClientId(), getServerId(), e.getMessage()), e);
+                    }
             }
             sce.onClientDisconnection(client);
         }
