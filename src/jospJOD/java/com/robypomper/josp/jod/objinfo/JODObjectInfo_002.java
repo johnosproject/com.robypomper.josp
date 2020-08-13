@@ -59,6 +59,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private JODCommunication comm;
     private JODPermissions permissions;
     private final String jodVersion;
+    private final GenerateConnectionListener generatingListener = new GenerateConnectionListener();
 
 
     // Constructor
@@ -82,10 +83,19 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         // force value caching
         if (getObjIdHw().isEmpty())
             generateObjIdHw();
-        if (!isObjIdSet())
-            generateObjId();
-        else
-            saveObjId(getObjId());
+        if (!isObjIdSet()) {
+            log.info(Mrk_JOD.JOD_INFO, "Object's id not set, generating new one");
+            generateObjId(locSettings.getCloudEnabled());
+        } else {
+            String objId = getObjId();
+            saveObjId(objId);
+            if (!objId.endsWith("00000-00000")) {
+                log.info(Mrk_JOD.JOD_INFO, String.format("Object's id '%s' load and set", objId));
+            } else {
+                log.info(Mrk_JOD.JOD_INFO, String.format("Object's id '%s' is local, try re-generate cloud obj id", objId));
+                regenerateObjId(objId, locSettings.getCloudEnabled());
+            }
+        }
         if (getObjName().isEmpty())
             generateObjName();
 
@@ -204,7 +214,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      * {@inheritDoc}
      */
     @Override
-    public String getPermsForJSL() throws JODStructure.ParsingException {
+    public String getPermsForJSL() {
         return JOSPPerm.toString(permissions.getPermissions());
     }
 
@@ -308,50 +318,22 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     // Obj's id
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void regenerateObjId() {
-        boolean wasCloudConnected = comm.isCloudConnected();
-        if (wasCloudConnected)
+        if (comm.isCloudConnected())
             comm.disconnectCloud();
-        boolean wasLocalRunning = comm.isLocalRunning();
-        try {
-            if (wasLocalRunning)
-                comm.stopLocal();
-        } catch (JODCommunication.LocalCommunicationException e) {
-            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on stopping local communication on regenerating object id because %s", e.getMessage()), e);
-        }
-
-        String oldObjId = getObjId();
-        locSettings.setObjIdCloud("");
-        regenerateObjId(oldObjId);
-        syncObjInfo();
-
-        try {
-            if (wasCloudConnected)
-                comm.connectCloud();
-        } catch (JODCommunication.CloudCommunicationException e) {
-            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on starting cloud communication on regenerating object id because %s", e.getMessage()), e);
-        }
-        try {
-            if (wasLocalRunning)
-                comm.startLocal();
-        } catch (JODCommunication.LocalCommunicationException e) {
-            log.warn(Mrk_JOD.JOD_INFO, String.format("Error on starting local communication on regenerating object id because %s", e.getMessage()), e);
-        }
+        regenerateObjId(getObjId(), comm.isCloudConnected());
     }
 
-    private void generateObjId() {
-        regenerateObjId(null);
+    private void generateObjId(boolean connectCloudAfter) {
+        regenerateObjId(null, connectCloudAfter);
     }
 
-    private void regenerateObjId(String oldObjId) {
+    private void regenerateObjId(String oldObjId, boolean connectCloudAfter) {
         try {
-            log.debug(Mrk_JOD.JOD_INFO, String.format("%senerating on cloud object ID", oldObjId == null ? "G" : "Re-g"));
+            log.debug(Mrk_JOD.JOD_INFO, "Generating new object ID on cloud");
             String generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId(), oldObjId);
-            log.debug(Mrk_JOD.JOD_INFO, String.format("Object ID %senerated on cloud", oldObjId == null ? "g" : "re-g"));
+            log.debug(Mrk_JOD.JOD_INFO, "Object ID generated on cloud");
 
             saveObjId(generated);
             if (isGenerating()) {
@@ -359,11 +341,20 @@ public class JODObjectInfo_002 implements JODObjectInfo {
                 isGenerating = false;
             }
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
+
+            if (connectCloudAfter && comm != null)
+                try {
+                    comm.connectCloud();
+                } catch (JODCommunication.CloudCommunicationException e) {
+                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on starting cloud communication on regenerating object id because %s", e.getMessage()), e);
+                }
+
             return;
 
         } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
             if (!isGenerating()) {
+                generatingListener.connectAfterCloud = connectCloudAfter;
                 jcpClient.addConnectListener(generatingListener);
                 isGenerating = true;
             }
@@ -380,14 +371,38 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     }
 
     private void saveObjId(String generatedObjId) {
+        // Stop local communication
+        boolean wasLocalRunning = false;
+        if (comm != null && comm.isLocalRunning()) {
+            wasLocalRunning = true;
+            try {
+                comm.stopLocal();
+
+            } catch (JODCommunication.LocalCommunicationException e) {
+                log.warn(Mrk_JOD.JOD_INFO, "Error on stopping local communication on save object's id");
+            }
+        }
+
+        // Store and dispatch new obj id
         locSettings.setObjIdCloud(generatedObjId);
         jcpClient.setObjectId(generatedObjId);
-
         if (permissions != null) {
             try {
                 permissions.regeneratePermissions();
             } catch (JODPermissions.PermissionsFileException e) {
                 log.warn(Mrk_JOD.JOD_INFO, String.format("Error on regenerate permissions because %s", e.getMessage()), e);
+            }
+        }
+        if (structure != null)
+            syncObjInfo();
+
+        // Start local communication
+        if (wasLocalRunning) {
+            try {
+                comm.startLocal();
+
+            } catch (JODCommunication.LocalCommunicationException e) {
+                log.warn(Mrk_JOD.JOD_INFO, "Error on starting local communication on save object's id");
             }
         }
     }
@@ -423,15 +438,18 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return isGenerating;
     }
 
-    @SuppressWarnings("Convert2Lambda")
-    private final JCPClient2.ConnectListener generatingListener = new JCPClient2.ConnectListener() {
+    class GenerateConnectionListener implements JCPClient2.ConnectListener {
+
+        public boolean connectAfterCloud;
+
         @Override
         public void onConnected(JCPClient2 jcpClient) {
-            regenerateObjId();
+            regenerateObjId(JODObjectInfo_002.this.getObjId(), connectAfterCloud);
         }
 
         @Override
-        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {}
-    };
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+    }
 
 }
