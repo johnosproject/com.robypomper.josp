@@ -24,6 +24,7 @@ import com.robypomper.discovery.DiscoverListener;
 import com.robypomper.discovery.DiscoveryService;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
@@ -80,6 +81,8 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         this.locSettings = settings;
         this.srvInfo = srvInfo;
         this.jcpClient = jcpClient;
+        jcpClient.addConnectListener(jcpConnectListener);
+        jcpClient.addDisconnectListener(jcpDisconnectListener);
         this.jcpComm = new JCPCommSrv(jcpClient, settings, instanceId);
         this.usr = usr;
         this.objs = objs;
@@ -276,11 +279,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             log.debug(Mrk_JSL.JSL_COMM, "Connecting cloud service's client");
             gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, jcpComm);
             gwClient.connect();
-            if (gwClient.isConnected()) {
-                log.debug(Mrk_JSL.JSL_COMM, "Cloud service's client connected");
-                emit_CloudConnected();
-            } else
-                log.warn(Mrk_JSL.JSL_COMM, "Cloud service's client NOT connected");
+            log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connection started");
 
         } catch (Client.ConnectionException e) {
             log.warn(Mrk_JSL.JSL_COMM, String.format("Error on connecting cloud communication client because %s", e.getMessage()), e);
@@ -299,7 +298,6 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             return;
 
         gwClient.disconnect();
-        emit_CloudDisconnected();
     }
 
 
@@ -361,13 +359,11 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     }
 
     private void emit_CloudConnected() {
-        // ToDo move emit_CloudConnected() calls to gwClient onConnected() event
         for (CommunicationListener l : listeners)
             l.onCloudConnected(this);
     }
 
     private void emit_CloudDisconnected() {
-        // ToDo move emit_CloudDisconnected() calls to gwClient onDisconnected() event
         for (CommunicationListener l : listeners)
             l.onCloudDisconnected(this);
     }
@@ -382,4 +378,34 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
             l.onLocalStopped(this);
     }
 
+    // JCP Client listeners
+
+    private final JCPClient2.ConnectListener jcpConnectListener = new JCPClient2.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient2 jcpClient) {
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client connected with %s flow", jcpClient.isClientCredentialFlowEnabled() ? "ClientCred" : "AuthCode"));
+            emit_CloudConnected();
+
+            if (!gwClient.isConnected() && gwClient.shouldBeConnected()) {
+                try {
+                    gwClient.connect();
+
+                } catch (Client.ConnectionException e) {
+                    log.warn(Mrk_JOD.JOD_COMM, String.format("Error on reconnect JOSP Gw client because %s", e.getMessage()), e);
+                }
+            }
+        }
+
+        @Override
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on connecting to JCP APIs because %s", t.getMessage()), t);
+        }
+    };
+    private final JCPClient2.DisconnectListener jcpDisconnectListener = new JCPClient2.DisconnectListener() {
+        @Override
+        public void onDisconnected(JCPClient2 jcpClient) {
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client disconnected with %s flow", jcpClient.isClientCredentialFlowEnabled() ? "ClientCred" : "AuthCode"));
+            emit_CloudDisconnected();
+        }
+    };
 }
