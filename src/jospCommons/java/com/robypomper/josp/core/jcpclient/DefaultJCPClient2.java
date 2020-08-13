@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutionException;
 public class DefaultJCPClient2 implements JCPClient2 {
 
     public static final String TH_CONNECTION_NAME = "_JCP_CONNECTION_";
+    public static final String TH_CONNECTION_CHECK_NAME = "_JCP_CONNECTION_CHECK_";
     public static final String HEAD_COOKIE = "Cookie";
     public static final String HEAD_SET_COOKIE = "Set-Cookie";
     public static final String SESSION_KEY = "JSESSIONID";
@@ -59,10 +60,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
     private final List<ConnectListener> connectListeners = new ArrayList<>();
     private final List<DisconnectListener> disconnectListeners = new ArrayList<>();
 
-
     private Timer connectionTimer = null;
     public final int connectionTimerDelaySeconds;
 
+    private Timer connectionCheckTimer = null;
 
     private final List<LoginListener> loginListeners = new ArrayList<>();
 
@@ -144,6 +145,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
         }
 
         emitConnected();
+        startConnectionCheckTimer();
     }
 
     @Override
@@ -160,6 +162,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
         authCode_isConnected = false;
         accessToken = null;
 
+        stopConnectionCheckTimer();
         emitDisconnected();
     }
 
@@ -282,6 +285,47 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
 
+    // Connection check timer
+
+    //@Override
+    private void startConnectionCheckTimer() {
+        if (!isConnected())
+            return;
+
+        connectionCheckTimer = new Timer(true);
+        connectionCheckTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName(TH_CONNECTION_CHECK_NAME);
+
+                try {
+                    execReq(Verb.GET, "/apis/Status/2.0/", true);
+
+                } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e) {
+                    cliCred_isConnected = false;
+                    authCode_isConnected = false;
+                    accessToken = null;
+
+                    stopConnectionCheckTimer();
+
+                    emitDisconnected();
+
+                    startConnectionTimer();
+                }
+
+            }
+        }, 0, connectionTimerDelaySeconds * 1000);
+    }
+
+    //@Override
+    private void stopConnectionCheckTimer() {
+        if (connectionCheckTimer == null) return;
+
+        connectionCheckTimer.cancel();
+        connectionCheckTimer = null;
+    }
+
+
     // Connection timer
 
     @Override
@@ -305,10 +349,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     if (isConnected())
                         stopConnectionTimer();
 
-                } catch (JCPNotReachableException ignore) {
+                } catch (JCPNotReachableException e) {
+                    emitConnectionFailed(e);
 
                 } catch (ConnectionException | AuthenticationException e) {
-                    //log.warn(Mrk_JOD.JOD_COMM_JCPCL, String.format("Error on authenticate JCPClient to JCP because %s", e.getMessage()), e);
                     stopConnectionTimer();
                     emitConnectionFailed(e);
                 }
@@ -319,6 +363,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     @Override
     public void stopConnectionTimer() {
+        if (connectionTimer == null) return;
+
         connectionTimer.cancel();
         connectionTimer = null;
     }
@@ -526,14 +572,15 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
             if (response.getCode() == 401) {
                 try {
+                    // Refresh access token
                     if (isClientCredentialFlowEnabled())
                         accessToken = service.refreshAccessToken(cliCred_refreshToken);
                     else if (isAuthCodeFlowEnabled())
                         accessToken = service.refreshAccessToken(authCode_refreshToken);
 
                 } catch (OAuth2AccessTokenErrorResponse e) {
-                    e.printStackTrace();
 
+                    // Get new access token with new authentication process
                     if (isClientCredentialFlowEnabled())
                         accessToken = getAccessTokenCliCredFlow(service);
                     if (isAuthCodeFlowEnabled()) {
@@ -543,14 +590,14 @@ public class DefaultJCPClient2 implements JCPClient2 {
                             emitLoggedIn();
 
                         } catch (AuthenticationException e1) {
-                            throw e1;
+
+                            // AuthCode logout but ClientCredential connected
+                            accessToken = getAccessTokenCliCredFlow(service);
                         }
                     }
                 }
 
-                request = prepareRequest(toAuth, reqType, path, secure);
-                injectDefaultHeaders(request);
-                injectSession(request);
+                service.signRequest(accessToken, request);
                 response = service.execute(request);
             }
 
