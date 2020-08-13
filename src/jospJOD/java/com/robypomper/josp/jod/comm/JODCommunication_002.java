@@ -24,6 +24,7 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
+import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
@@ -81,13 +82,10 @@ public class JODCommunication_002 implements JODCommunication {
         this.objInfo = objInfo;
         this.permissions = permissions;
         this.jcpClient = jcpClient;
+        jcpClient.addConnectListener(jcpConnectListener);
+        jcpClient.addDisconnectListener(jcpDisconnectListener);
         this.jcpComm = new JCPCommObj(jcpClient, settings, instanceId);
         this.instanceId = instanceId;
-
-//        // Init local object server
-//        log.debug(Mrk_JOD.JOD_COMM, "Initializing communication local object's server");
-//        localServer = initLocalServer();
-//        log.debug(Mrk_JOD.JOD_COMM, "Communication local object's server initialized");
 
         // Publish local object server
         String publisherImpl = locSettings.getLocalDiscovery();
@@ -492,10 +490,7 @@ public class JODCommunication_002 implements JODCommunication {
             gwClient = new JODGwO2SClient(locSettings, this, objInfo, jcpClient, jcpComm);
             log.debug(Mrk_JOD.JOD_COMM, "Connecting cloud object's client");
             gwClient.connect();
-            if (gwClient.isConnected())
-                log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connected");
-            else
-                log.warn(Mrk_JOD.JOD_COMM, "Cloud object's client NOT connected");
+            log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connection started");
 
         } catch (Client.ConnectionException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on connecting cloud communication client for '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
@@ -538,5 +533,34 @@ public class JODCommunication_002 implements JODCommunication {
             throw new StructureSetException();
         return this.structure;
     }
+
+
+    // JCP Client listeners
+
+    private final JCPClient2.ConnectListener jcpConnectListener = new JCPClient2.ConnectListener() {
+        @Override
+        public void onConnected(JCPClient2 jcpClient) {
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client connected with %s flow", jcpClient.isClientCredentialFlowEnabled() ? "ClientCred" : "AuthCode"));
+            if (!gwClient.isConnected() && gwClient.shouldBeConnected()) {
+                try {
+                    gwClient.connect();
+
+                } catch (Client.ConnectionException e) {
+                    log.warn(Mrk_JOD.JOD_COMM, String.format("Error on reconnect JOSP Gw client because %s", e.getMessage()), e);
+                }
+            }
+        }
+
+        @Override
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on connecting to JCP APIs because %s", t.getMessage()), t);
+        }
+    };
+    private final JCPClient2.DisconnectListener jcpDisconnectListener = new JCPClient2.DisconnectListener() {
+        @Override
+        public void onDisconnected(JCPClient2 jcpClient) {
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client disconnected with %s flow", jcpClient.isClientCredentialFlowEnabled() ? "ClientCred" : "AuthCode"));
+        }
+    };
 
 }
