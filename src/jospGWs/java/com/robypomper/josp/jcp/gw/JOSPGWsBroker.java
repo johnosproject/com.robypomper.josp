@@ -20,6 +20,7 @@
 package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.Server;
+import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.Permission;
@@ -46,6 +47,8 @@ public class JOSPGWsBroker {
     private final Map<String, GWService> services = new HashMap<>();
     @Autowired
     private PermissionsDBService permissionsDBService;
+    @Autowired
+    private ObjectDBService objectDBService;
 
 
     // GWObject's method
@@ -220,8 +223,9 @@ public class JOSPGWsBroker {
         List<Object> allowedObjects = permissionsDBService.getObjectAllowed(srv.getSrvId(), srv.getUsrId(), minReqPerm);
         for (Object allowedObject : allowedObjects) {
             GWObject gwObj = objects.get(allowedObject.getObjId());
-            if (gwObj != null)
-                allowedObjs.add(objects.get(allowedObject.getObjId()));
+            if (gwObj == null)
+                gwObj = new GWObject(allowedObject, objectDBService, permissionsDBService, this);
+            allowedObjs.add(objects.get(allowedObject.getObjId()));
         }
 
         return allowedObjs;

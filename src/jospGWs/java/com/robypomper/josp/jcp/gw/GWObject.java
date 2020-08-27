@@ -66,6 +66,19 @@ public class GWObject {
         gwBroker.registerObject(this);
     }
 
+    public GWObject(Object allowedObject, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, JOSPGWsBroker gwBroker) {
+        this.server = null;
+        this.client = null;
+        this.objId = allowedObject.getObjId();
+        this.objDB = allowedObject;
+        this.objectDBService = objectDBService;
+        this.permissionsDBService = permissionsDBService;
+        this.gwBroker = gwBroker;
+
+        setOffline();
+        gwBroker.registerObject(this);
+    }
+
 
     // Getters and setters
 
