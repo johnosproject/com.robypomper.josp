@@ -44,10 +44,12 @@ public class DefaultJCPClient2 implements JCPClient2 {
     public static final String SESSION_KEY = "JSESSIONID";
 
 
+    public final String clientId;
     private final OAuth20Service service;
     public final String baseUrlAuth;
     public final String baseUrlAPIs;
     private OAuth2AccessToken accessToken = null;
+    public final String authRealm;
 
     private boolean cliCred_isConnected = false;
     private String cliCred_refreshToken = null;
@@ -74,29 +76,41 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     // Constructor
 
-    public DefaultJCPClient2(String clientId, String clientSecret, String apisBaseUrl, String authBaseUrl, String authScopes, String authCallBack, String authRealm) {
+    public DefaultJCPClient2(String clientId, String clientSecret,
+                             String apisBaseUrl,
+                             String authBaseUrl, String authScopes, String authCallBack, String authRealm) {
         this(clientId, clientSecret, apisBaseUrl, authBaseUrl, authScopes, authCallBack, authRealm, null, 30);
     }
 
-    public DefaultJCPClient2(String clientId, String clientSecret, String apisBaseUrl, String authBaseUrl, String authScopes, String authCallBack, String authRealm, int connectionRetrySeconds) {
+    public DefaultJCPClient2(String clientId, String clientSecret,
+                             String apisBaseUrl,
+                             String authBaseUrl, String authScopes, String authCallBack, String authRealm,
+                             int connectionRetrySeconds) {
         this(clientId, clientSecret, apisBaseUrl, authBaseUrl, authScopes, authCallBack, authRealm, null, connectionRetrySeconds);
     }
 
-    public DefaultJCPClient2(String clientId, String clientSecret, String apisBaseUrl, String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken) {
+    public DefaultJCPClient2(String clientId, String clientSecret,
+                             String apisBaseUrl,
+                             String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken) {
         this(clientId, clientSecret, apisBaseUrl, authBaseUrl, authScopes, authCallBack, authRealm, authCodeRefreshToken, 30);
     }
 
-    public DefaultJCPClient2(String clientId, String clientSecret, String apisBaseUrl, String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken, int connectionRetrySeconds) {
-        service = new ServiceBuilder(clientId)
+    public DefaultJCPClient2(String clientId, String clientSecret,
+                             String apisBaseUrl,
+                             String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken,
+                             int connectionRetrySeconds) {
+        this.clientId = clientId;
+        this.service = new ServiceBuilder(clientId)
                 .apiSecret(clientSecret)
                 .defaultScope(authScopes)
                 .callback(authCallBack)
                 .build(KeycloakApi.instance("https://" + authBaseUrl, authRealm));
-        baseUrlAuth = authBaseUrl;
-        baseUrlAPIs = apisBaseUrl;
+        this.baseUrlAuth = authBaseUrl;
+        this.baseUrlAPIs = apisBaseUrl;
         if (authCodeRefreshToken != null && !authCodeRefreshToken.isEmpty())
-            authCode_refreshToken = authCodeRefreshToken;
-        connectionTimerDelaySeconds = connectionRetrySeconds;
+            this.authCode_refreshToken = authCodeRefreshToken;
+        this.authRealm = authRealm;
+        this.connectionTimerDelaySeconds = connectionRetrySeconds;
     }
 
 
@@ -115,7 +129,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
         if (!checkServerReachability(baseUrlAuth))
             throw new JCPNotReachableException(String.format("Error connecting to JCP because '%s' (Auth's url) not reachable", baseUrlAuth));
         if (!checkServerReachability(baseUrlAPIs))
-            throw new JCPNotReachableException(String.format("Error connecting to JCP because '%s' (Auth's url) not reachable", baseUrlAPIs));
+            throw new JCPNotReachableException(String.format("Error connecting to JCP because '%s' (API's url) not reachable", baseUrlAPIs));
 
         if (isClientCredentialFlowEnabled()) {
             accessToken = getAccessTokenCliCredFlow(service);
@@ -352,6 +366,9 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 } catch (JCPNotReachableException e) {
                     emitConnectionFailed(e);
 
+                } catch (NullPointerException e) {
+                    emitConnectionFailed(e);
+
                 } catch (ConnectionException | AuthenticationException e) {
                     stopConnectionTimer();
                     emitConnectionFailed(e);
@@ -383,16 +400,49 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
 
-    // Login
+    // Auth urls
 
     @Override
-    public boolean isLoggedIn() {
-        return isAuthCodeFlowEnabled() && isConnected();
+    public String getRegistrationUrl() {
+        //https://localhost:8998/auth/realms/jcp/login-actions/registration?client_id=jcp-fe&tab_id=6B8BOCVwsG8
+        String url = "/auth/realms/" + authRealm + "/login-actions/registration";
+        url += "?client_id=" + clientId;
+        return prepareUrl(true, url, true);
     }
 
     @Override
     public String getLoginUrl() {
         return service.getAuthorizationUrl();
+    }
+
+    private String getLogoutPath() {
+        return getLogoutPath(null);
+    }
+
+    private String getLogoutPath(String redirectUrl) {
+        //https://localhost:8998/auth/realms/jcp/protocol/openid-connect/logout?redirect_uri=https://...
+        String url = "/auth/realms/" + authRealm + "/protocol/openid-connect/logout";
+        if (redirectUrl != null)
+            url += "?redirect_uri=" + redirectUrl;
+        return url;
+    }
+
+    @Override
+    public String getLogoutUrl() {
+        return getLogoutUrl(null);
+    }
+
+    @Override
+    public String getLogoutUrl(String redirectUrl) {
+        return prepareUrl(true, getLogoutPath(redirectUrl), true);
+    }
+
+
+    // Login
+
+    @Override
+    public boolean isLoggedIn() {
+        return isAuthCodeFlowEnabled() && isConnected();
     }
 
     @Override
@@ -405,13 +455,22 @@ public class DefaultJCPClient2 implements JCPClient2 {
         if (!isLoggedIn())
             return;
 
+        try {
+            execReq(true, Verb.GET, getLogoutPath(), true);
+        } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e) {
+            e.printStackTrace();
+        }
+
+        cleanSession();
+
         disconnect();
         authCode_refreshToken = null;
         emitLoggedOut();
 
         try {
             connect();
-        } catch (JCPNotReachableException | ConnectionException | AuthenticationException ignore) { }
+        } catch (JCPNotReachableException | ConnectionException | AuthenticationException ignore) {
+        }
     }
 
 
@@ -629,10 +688,15 @@ public class DefaultJCPClient2 implements JCPClient2 {
         return fullUrl.toString();
     }
 
-    private OAuthRequest prepareRequest(boolean toAuth, Verb reqType, String path, boolean secure) {
+    private String prepareUrl(boolean toAuth, String path, boolean secure) {
         String fullUrl = secure ? "https://" : "http://";
         fullUrl += toAuth ? baseUrlAuth : baseUrlAPIs;
         fullUrl += path;
+        return fullUrl;
+    }
+
+    private OAuthRequest prepareRequest(boolean toAuth, Verb reqType, String path, boolean secure) {
+        String fullUrl = prepareUrl(toAuth, path, secure);
         OAuthRequest req = new OAuthRequest(reqType, fullUrl);
         service.signRequest(accessToken, req);
         return req;
