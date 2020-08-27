@@ -99,6 +99,7 @@ dependencies {
 
     jcpFEImplementation 'com.robypomper.josp:jsl:2.0.0'
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
+    jcpFEImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
 }
 
 
