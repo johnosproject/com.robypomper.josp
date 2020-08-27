@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -71,7 +72,8 @@ public class PermissionsController {
     // Obj's perm add
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
-    public String formObjectPermissionAdd(@PathVariable("obj_id") String objId) {
+    public String formObjectPermissionAdd(CsrfToken token,
+                                          @PathVariable("obj_id") String objId) {
         // ONLY HTML
 
         return "<form id = \"form_id\" method=\"post\">\n" +
@@ -95,6 +97,7 @@ public class PermissionsController {
                 String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Connection.LocalAndCloud.toString(), JOSPPerm.Connection.LocalAndCloud.toString()) +
                 "    </select>" +
                 "    <input type=\"submit\" value=\"Add\">\n" +
+                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n" +
                 "</script>";
     }
@@ -142,6 +145,7 @@ public class PermissionsController {
 
     @GetMapping(path = APIJCPFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
     public String formObjectPermissionUpd(HttpSession session,
+                                          CsrfToken token,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
         // ONLY HTML
@@ -159,6 +163,7 @@ public class PermissionsController {
                 String.format("        <option%s value=\"%s\">%s</option>\n", p.getConnType() == JOSPPerm.Connection.LocalAndCloud ? " selected=\"selected\"" : "", JOSPPerm.Connection.LocalAndCloud.toString(), JOSPPerm.Connection.LocalAndCloud.toString()) +
                 "    </select>" +
                 "    <input type=\"submit\" value=\"Upd\">\n" +
+                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n" +
                 "<script>\n" +
                 "function actionUpdater(){\n" +

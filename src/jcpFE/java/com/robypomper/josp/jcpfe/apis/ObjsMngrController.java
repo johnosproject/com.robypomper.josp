@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.server.ResponseStatusException;
@@ -90,20 +91,24 @@ public class ObjsMngrController {
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
     public String formObjectOwner(HttpSession session,
+                                  CsrfToken token,
                                   @PathVariable("obj_id") String objId) {
         // ONLY HTML
 
         return "<form id = \"form_id\" method=\"post\">\n" +
                 "    <input type=\"text\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getObj(jslService.getHttp(session), objId).getOwnerId() + "\">\n" +
                 "    <input type=\"submit\" value=\"Set\">\n" +
+                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n" +
                 "<form id = \"form_id_anonymous\" method=\"post\">\n" +
                 "    <input type=\"hidden\" id=\"new_owner\" name=\"new_owner\" value=\"" + JOSPPerm.WildCards.USR_ANONYMOUS_ID + "\">\n" +
                 "    <input type=\"submit\" value=\"Set Anonymous Owner\">\n" +
+                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n" +
                 "<form id = \"form_id_self\" method=\"post\">\n" +
                 "    <input type=\"hidden\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getUserMngr(jslService.getHttp(session)).getUserId() + "\">\n" +
                 "    <input type=\"submit\" value=\"Set current user\">\n" +
+                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n";
     }
 
@@ -141,12 +146,13 @@ public class ObjsMngrController {
 
     @GetMapping(path = APIJCPFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
     public String formObjectRename(HttpSession session,
+                                   CsrfToken token,
                                    @PathVariable("obj_id") String objId) {
         // ONLY HTML
-
         return "<form id = \"form_id\" method=\"post\">\n" +
                 "    <input type=\"text\" id=\"new_name\" name=\"new_name\" value=\"\n" + jslService.getObj(jslService.getHttp(session), objId).getName() + "\">\n" +
                 "    <input type=\"submit\" value=\"Set\">\n" +
+                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n" +
                 "</script>";
     }
