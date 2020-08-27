@@ -33,7 +33,7 @@ public class ServiceController {
                                              JSLSpringService jslStaticService) {
         // Convert to HTML shared structure
         JSL jsl = jslStaticService.getJSL(jslStaticService.getHttp(session));
-        return new JOSPSrvHtml(jsl);
+        return new JOSPSrvHtml(session, jsl);
     }
 
 

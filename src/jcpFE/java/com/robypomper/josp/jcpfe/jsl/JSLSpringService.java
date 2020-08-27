@@ -85,14 +85,16 @@ public class JSLSpringService {
     }
 
     public JSL get(HttpSession session) throws JSLSpringException {
-        if (session.getAttribute("JSL-Instance") != null)
-            return (JSL) session.getAttribute("JSL-Instance");
+        synchronized (this) {
+            if (session.getAttribute("JSL-Instance") != null)
+                return (JSL) session.getAttribute("JSL-Instance");
 
-        try {
-            return registerSessions(session);
+            try {
+                return registerSessions(session);
 
-        } catch (JSL.FactoryException | JSL.ConnectException e) {
-            throw new JSLSpringException(String.format("Error creating JSL instance for sessions '%s'", session.getId()), e);
+            } catch (JSL.FactoryException | JSL.ConnectException e) {
+                throw new JSLSpringException(String.format("Error creating JSL instance for sessions '%s'", session.getId()), e);
+            }
         }
     }
 
@@ -176,6 +178,10 @@ public class JSLSpringService {
         return jsl.getJCPClient().getLoginUrl();
     }
 
+    public String getLogoutUrl(JSL jsl, String redirectUrl) {
+        return jsl.getJCPClient().getLogoutUrl(redirectUrl);
+    }
+
     public boolean login(JSL jsl, String code) throws JCPClient2.ConnectionException, JCPClient2.JCPNotReachableException, JCPClient2.AuthenticationException {
         jsl.getJCPClient().setLoginCodeAndReconnect(code);
         return jsl.getJCPClient().isConnected();
@@ -183,6 +189,10 @@ public class JSLSpringService {
 
     public void logout(JSL jsl) {
         jsl.getJCPClient().userLogout();
+    }
+
+    public String getRegistrationUrl(JSL jsl) {
+        return jsl.getJCPClient().getRegistrationUrl();
     }
 
 
@@ -402,4 +412,5 @@ public class JSLSpringService {
             super(msg, t);
         }
     }
+
 }

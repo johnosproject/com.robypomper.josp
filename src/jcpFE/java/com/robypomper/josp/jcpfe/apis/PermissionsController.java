@@ -178,8 +178,10 @@ public class PermissionsController {
     public ResponseEntity<Boolean> jsonObjectPermissionUpd(HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId,
-                                                           @RequestParam("type") JOSPPerm.Type type,
-                                                           @RequestParam("conn") JOSPPerm.Connection connection) {
+                                                           @RequestParam(value = "srv_id", required = false) String srvId,
+                                                           @RequestParam(value = "usr_id", required = false) String usrId,
+                                                           @RequestParam(value = "type", required = false) JOSPPerm.Type type,
+                                                           @RequestParam(value = "conn", required = false) JOSPPerm.Connection connection) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
@@ -187,9 +189,17 @@ public class PermissionsController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         JOSPPerm perm = jslService.getPerm(obj, permId);
+        if (srvId == null)
+            srvId = perm.getSrvId();
+        if (usrId == null)
+            usrId = perm.getUsrId();
+        if (type == null)
+            type = perm.getPermType();
+        if (connection == null)
+            connection = perm.getConnType();
 
         try {
-            obj.updPerm(permId, perm.getSrvId(), perm.getUsrId(), type, connection);
+            obj.updPerm(permId, srvId, usrId, type, connection);
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId), e);
@@ -205,9 +215,11 @@ public class PermissionsController {
     public String htmlObjectPermissionUpd(HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId,
-                                          @RequestParam("type") JOSPPerm.Type type,
-                                          @RequestParam("conn") JOSPPerm.Connection connection) {
-        Boolean success = jsonObjectPermissionUpd(session, objId, permId, type, connection).getBody();
+                                          @RequestParam(value = "srv_id", required = false) String srvId,
+                                          @RequestParam(value = "usr_id", required = false) String usrId,
+                                          @RequestParam(value = "type", required = false) JOSPPerm.Type type,
+                                          @RequestParam(value = "conn", required = false) JOSPPerm.Connection connection) {
+        Boolean success = jsonObjectPermissionUpd(session, objId, srvId, usrId, permId, type, connection).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
     }
@@ -264,7 +276,7 @@ public class PermissionsController {
         JOSPPerm perm = jslService.getPerm(obj, permId);
 
         try {
-            obj.addPerm(perm.getSrvId(), perm.getSrvId(), perm.getPermType(), perm.getConnType());
+            obj.addPerm(perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType());
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on duplicate permission to '%s' object.", objId), e);

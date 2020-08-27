@@ -114,6 +114,12 @@ public class ActionsController {
 
 
     // Range actions
+    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET)
+    public String jospRangeSet_Error(HttpSession session,
+                                     @PathVariable("obj_id") String objId,
+                                     @PathVariable("comp_path") String compPath) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'val' parameter in GET request");
+    }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
     public String formRangeSet(HttpSession session,
