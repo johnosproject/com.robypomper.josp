@@ -81,8 +81,6 @@ public interface JCPClient2 {
 
     // Auth urls
 
-    String getRegistrationUrl();
-
     String getLoginUrl();
 
     String getLogoutUrl();

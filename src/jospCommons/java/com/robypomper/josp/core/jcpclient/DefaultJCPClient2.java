@@ -403,14 +403,6 @@ public class DefaultJCPClient2 implements JCPClient2 {
     // Auth urls
 
     @Override
-    public String getRegistrationUrl() {
-        //https://localhost:8998/auth/realms/jcp/login-actions/registration?client_id=jcp-fe&tab_id=6B8BOCVwsG8
-        String url = "/auth/realms/" + authRealm + "/login-actions/registration";
-        url += "?client_id=" + clientId;
-        return prepareUrl(true, url, true);
-    }
-
-    @Override
     public String getLoginUrl() {
         return service.getAuthorizationUrl();
     }
