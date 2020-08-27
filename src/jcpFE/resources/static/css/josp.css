@@ -1,0 +1,157 @@
+@import "https://fonts.googleapis.com/css2?family=Comfortaa&family=Roboto:wght@300;400;500&display=swap";
+
+/* Basic component's style */
+
+* {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+}
+
+b {
+    font-weight: 400;
+}
+
+a {
+    color: #5b9dc3;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+
+/* JOSP component's style */
+
+.box {
+    border: 1px solid #ccc!important;
+    border-radius: 16px;
+    padding: 10px;
+}
+.box h2 {
+    margin-bottom: 10px;
+    color: #404040;
+}
+
+.table_details tr td {
+    padding: 1px 10px;
+}
+
+.table_details tr .label, .table_details tr .label * {
+    text-align: right;
+}
+
+.table_details tr .value, .table_details tr .value * {
+    font-weight: 400;
+}
+
+
+/* Page component's style */
+
+header {
+  text-align: center;
+  background-color: #FFFFFF;
+  font-size: 35px;
+}
+
+nav {
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.4), 0 6px 15px 0 rgba(0, 0, 0, 0);
+    z-index: 1;
+}
+
+article {
+  background-color: #FFFFFF;
+}
+
+footer {
+  background-color: #3a4d69;
+  text-align: center;
+  color: white;
+}
+
+#div_logo {
+    background: linear-gradient(180deg, rgb(46 76 70) 0%, rgba(92,158,194,1) 58%, rgba(44,101,186,1) 90%);
+    height: 110px;
+}
+
+#div_menu {
+    padding: 0px;
+    background: rgb(44,101,186);
+}
+
+#div_menu * {
+    color: #FFFFFF;
+    font-family: 'Comfortaa', cursive;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+#div_title > h1 > * {
+    max-width: 350px;
+}
+
+#div_title > h1 > input {
+    font-size: 1em;
+}
+
+#div_title i.fa {
+    padding: 10px;
+}
+
+#div_opts > * {
+    color: #00000040;
+}
+
+#div_opts .box_opts {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+}
+
+#div_opts .dropdown {
+  position: relative;
+  display: inline-block;
+  font-size: initial;
+  text-align: left;
+}
+
+#div_opts .box_opts .box_opts_active {
+  background-color: rgb(44,101,186);
+  color: white;
+}
+
+#div_opts .dropbtn {
+  background-color: rgb(44,101,186);
+  color: white;
+}
+
+#div_opts .dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  right: 0px;
+}
+
+#div_opts .dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+#div_opts i {
+    margin: 0 10px;
+    color: #2c64ba;
+}
+
+#div_opts .dropbtn i {
+    color: #FFFFFF;
+}
+
+#div_opts .dropdown-content a:hover {background-color: #ddd;}
+
+#div_opts .dropdown:hover .dropdown-content {display: block;}
+
+#div_opts .dropdown:hover .dropbtn {background-color: rgba(92,158,194,1);}
