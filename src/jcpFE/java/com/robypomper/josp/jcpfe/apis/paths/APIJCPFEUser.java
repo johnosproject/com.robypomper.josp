@@ -23,16 +23,18 @@ public class APIJCPFEUser {
     // API's methods
 
     // '{mthdName}
-    private static final String MTHD_DETAILS    = "";
-    private static final String MTHD_LOGIN    = "login/";
-    private static final String MTHD_LOGIN_CALLBACK    = "login/code/";
-    private static final String MTHD_LOGOUT    = "logout/";
+    private static final String MTHD_DETAILS        = "";
+    private static final String MTHD_LOGIN          = "login/";
+    private static final String MTHD_LOGIN_CALLBACK = "login/code/";
+    private static final String MTHD_LOGOUT         = "logout/";
+    private static final String MTHD_REGISTRATION   = "registration/";
 
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_DETAILS        = API_PATH + "/" + API_VER + "/" + MTHD_DETAILS;
     public static final String FULL_PATH_LOGIN          = API_PATH + "/" + API_VER + "/" + MTHD_LOGIN;
     public static final String FULL_PATH_LOGIN_CALLBACK = API_PATH + "/" + API_VER + "/" + MTHD_LOGIN_CALLBACK;
     public static final String FULL_PATH_LOGOUT         = API_PATH + "/" + API_VER + "/" + MTHD_LOGOUT;
+    public static final String FULL_PATH_REGISTRATION   = API_PATH + "/" + API_VER + "/" + MTHD_REGISTRATION;
 
 //@formatter:on
 }

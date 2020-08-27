@@ -4,17 +4,25 @@ import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jsl.FactoryJSL;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.JSLSettings_002;
+import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
+import com.robypomper.josp.jsl.objs.structure.JSLContainer;
+import com.robypomper.josp.jsl.objs.structure.JSLRoot;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPPerm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +41,8 @@ public class JSLSpringService {
     private final String srvId;
     private final String srvName = "jcpFrontEnd";
     private final String locCommEnabled = "false";
+    private final Map<JSL, SseEmitter> emitters = new HashMap<>();
+    private int sseCount = 0;
 
 
     // Constructor
@@ -75,14 +85,16 @@ public class JSLSpringService {
     }
 
     public JSL get(HttpSession session) throws JSLSpringException {
-        if (session.getAttribute("JSL-Instance") != null)
-            return (JSL) session.getAttribute("JSL-Instance");
+        synchronized (this) {
+            if (session.getAttribute("JSL-Instance") != null)
+                return (JSL) session.getAttribute("JSL-Instance");
 
-        try {
-            return registerSessions(session);
+            try {
+                return registerSessions(session);
 
-        } catch (JSL.FactoryException | JSL.ConnectException e) {
-            throw new JSLSpringException(String.format("Error creating JSL instance for sessions '%s'", session.getId()), e);
+            } catch (JSL.FactoryException | JSL.ConnectException e) {
+                throw new JSLSpringException(String.format("Error creating JSL instance for sessions '%s'", session.getId()), e);
+            }
         }
     }
 
@@ -100,6 +112,7 @@ public class JSLSpringService {
         JSL.Settings settings = FactoryJSL.loadSettings(properties, jslVersion);
 
         JSL jsl = FactoryJSL.createJSL(settings, jslVersion);
+        registerListenersForSSE(jsl);
         jsl.connect();
 
         session.setAttribute("JSL-Instance", jsl);
@@ -165,6 +178,10 @@ public class JSLSpringService {
         return jsl.getJCPClient().getLoginUrl();
     }
 
+    public String getLogoutUrl(JSL jsl, String redirectUrl) {
+        return jsl.getJCPClient().getLogoutUrl(redirectUrl);
+    }
+
     public boolean login(JSL jsl, String code) throws JCPClient2.ConnectionException, JCPClient2.JCPNotReachableException, JCPClient2.AuthenticationException {
         jsl.getJCPClient().setLoginCodeAndReconnect(code);
         return jsl.getJCPClient().isConnected();
@@ -223,9 +240,173 @@ public class JSLSpringService {
     }
 
 
-    public class JSLSpringException extends Throwable {
+    // SSE Emitters
+
+    public SseEmitter newEmitter(HttpSession session) throws JSLSpringException {
+        JSL jsl;
+        jsl = get(session);
+
+        SseEmitter e = new SseEmitter(60 * 60 * 1000L);
+        emitters.put(jsl, e);
+        emitJCPFEClientConnected(jsl, e);
+        return e;
+    }
+
+    private void emitJCPFEClientConnected(JSL jsl, SseEmitter emitter) {
+        SseEmitter.SseEventBuilder event = SseEmitter.event()
+                .data("Connected:" + jsl.getServiceInfo().getInstanceId())
+                .id(String.valueOf(sseCount++));
+        try {
+            emitter.send(event);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void emit(JSL jsl, String data) {
+        SseEmitter.SseEventBuilder event = SseEmitter.event()
+                .data(data)
+                .id(String.valueOf(sseCount++));
+        try {
+            try {
+                emitters.get(jsl).send(event);
+
+            } catch (IllegalStateException e) {
+                Thread.sleep(5000);
+                emitters.get(jsl).send(event);
+            }
+
+        } catch (Exception ioException) {
+            SseEmitter e = emitters.remove(jsl);
+            if (e != null) {
+                System.out.println("Error on send event " + data + " to " + e.toString() + " emitter because " + ioException.getMessage() + ", remove emitter");
+                e.complete();
+            } else
+                System.out.println("Error on send event emitter null");
+        }
+    }
+
+    private void registerListenersForSSE(JSL jsl) {
+        jsl.getObjsMngr().addListener(new JSLObjsMngr.ObjsMngrListener() {
+
+            @Override
+            public void onObjAdded(JSLRemoteObject obj) {
+                emit(jsl, "ObjAdd:" + obj.getId());
+
+                obj.addListener(new JSLRemoteObject.RemoteObjectConnListener() {
+                    @Override
+                    public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                    }
+
+                    @Override
+                    public void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                    }
+
+                    @Override
+                    public void onCloudConnected(JSLRemoteObject obj) {
+                        emit(jsl, "ObjConnected:" + obj.getId());
+                    }
+
+                    @Override
+                    public void onCloudDisconnected(JSLRemoteObject obj) {
+                        emit(jsl, "ObjDisconnected:" + obj.getId());
+                    }
+                });
+                obj.addListener(new JSLRemoteObject.RemoteObjectInfoListener() {
+                    @Override
+                    public void onNameChanged(JSLRemoteObject obj, String newName, String oldName) {
+                        emit(jsl, "ObjUpd:" + obj.getId() + ";what:name");
+
+                    }
+
+                    @Override
+                    public void onOwnerIdChanged(JSLRemoteObject obj, String newOwnerId, String oldOwnerId) {
+                        emit(jsl, "ObjUpd:" + obj.getId() + ";what:owner");
+                    }
+
+                    @Override
+                    public void onJODVersionChanged(JSLRemoteObject obj, String newJODVersion, String oldJODVersion) {
+                        emit(jsl, "ObjUpd:" + obj.getId() + ";what:jodVersion");
+                    }
+
+                    @Override
+                    public void onModelChanged(JSLRemoteObject obj, String newModel, String oldModel) {
+                        emit(jsl, "ObjUpd:" + obj.getId() + ";what:model");
+                    }
+
+                    @Override
+                    public void onBrandChanged(JSLRemoteObject obj, String newBrand, String oldBrand) {
+                        emit(jsl, "ObjUpd:" + obj.getId() + ";what:brand");
+                    }
+
+                    @Override
+                    public void onLongDescrChanged(JSLRemoteObject obj, String newLongDescr, String oldLongDescr) {
+                        emit(jsl, "ObjUpd:" + obj.getId() + ";what:longDescr");
+                    }
+
+                    @Override
+                    public void onStructureChanged(JSLRemoteObject obj, JSLRoot newRoot) {
+                        registerListenersForSSE(jsl, obj.getStructure());
+                    }
+
+                    @Override
+                    public void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {
+                    }
+
+                    @Override
+                    public void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
+                    }
+                });
+            }
+
+            @Override
+            public void onObjRemoved(JSLRemoteObject obj) {
+                emit(jsl, "ObjRem:" + obj.getId());
+            }
+
+        });
+    }
+
+    private void registerListenersForSSE(JSL jsl, JSLComponent component) {
+        if (component instanceof JSLBooleanState)
+            ((JSLBooleanState) component).addListener(new JSLBooleanState.BooleanStateListener() {
+
+                @Override
+                public void onStateChanged(JSLBooleanState component, boolean newState, boolean oldState) {
+                    emit(jsl, "StateUpd:" + component.getRemoteObject().getId() + ";Comp:" + component.getPath().getString());
+                }
+
+            });
+        else if (component instanceof JSLRangeState)
+            ((JSLRangeState) component).addListener(new JSLRangeState.RangeStateListener() {
+
+                @Override
+                public void onStateChanged(JSLRangeState component, double newState, double oldState) {
+                    emit(jsl, "StateUpd:" + component.getRemoteObject().getId() + ";Comp:" + component.getPath().getString());
+                }
+
+                @Override
+                public void onMinReached(JSLRangeState component, double state, double min) {
+                }
+
+                @Override
+                public void onMaxReached(JSLRangeState component, double state, double max) {
+                }
+
+            });
+        else if (component instanceof JSLContainer) {
+            for (JSLComponent c : ((JSLContainer) component).getComponents())
+                registerListenersForSSE(jsl, c);
+        }
+    }
+
+
+    // Exceptions
+
+    public static class JSLSpringException extends Throwable {
         public JSLSpringException(String msg, Throwable t) {
             super(msg, t);
         }
     }
+
 }

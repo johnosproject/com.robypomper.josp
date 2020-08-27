@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -113,9 +114,16 @@ public class ActionsController {
 
 
     // Range actions
+    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET)
+    public String jospRangeSet_Error(HttpSession session,
+                                     @PathVariable("obj_id") String objId,
+                                     @PathVariable("comp_path") String compPath) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'val' parameter in GET request");
+    }
 
     @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
     public String formRangeSet(HttpSession session,
+                               CsrfToken token,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         // ONLY HTML
@@ -124,6 +132,7 @@ public class ActionsController {
                 "    <input type=\"text\" id=\"val\" name=\"val\" value=\"" + jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class).getState() + "\">\n" +
                 "    <input type=\"hidden\" id=\"origin_url\" name=\"origin_url\">\n" +
                 "    <input type=\"submit\" value=\"Set\">\n" +
+                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n" +
                 "<script>" +
                 "    document.getElementById(\"origin_url\").value = document.referrer" +

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>JOSP Objects Manager</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="css/page_layout.css">
+    <link rel="stylesheet" type="text/css" href="css/josp.css">
+
+    <script type="text/javascript" src="js/page_layout.js"></script>
+    <script type="text/javascript" src="js/ajax_calls.js"></script>
+    <script type="text/javascript" src="js/updater.js"></script>
+    <script type="text/javascript" src="js/page_objs_mngr_updater.js"></script>
+    <script type="text/javascript" src="js/page_objs_mngr_events.js"></script>
+    <script type="text/javascript" src="js/page_objs_mngr_functions.js"></script>
+    <script type="text/javascript" src="js/page_objs_mngr_fetch_fill.js"></script>
+
+</head>
+<body>
+<script>
+    window.onload = function() {
+        fillPreUpdaterInitialization();
+        updater = startUpdater("/apis/sse/1.0/init",updateOnMessage,updateOnOpen,updateOnError);
+    };
+
+</script>
+
+<section>
+    <nav id="div_nav">
+        <div id="div_logo">
+            <img src="img/placeholder.png">
+        </div>
+        <div id="div_menu">
+
+            <ul>
+                <li><a href="#">Link1</a></li>
+                <li><a href="#">Link2</a></li>
+                <li><a href="#">Link3</a></li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <div id="div_main">
+
+        <header id="div_header">
+            <div id="div_opts">
+                <!-- div_opts -->
+            </div>
+            <div id="div_title">
+                <h1>JCP FrontEnd loading...</h1>
+            </div>
+        </header>
+
+        <article id="div_content">
+            <p style="margin-top: 50px; width: 100%; text-align: center;">We're aligning the planets, this will take a
+                few seconds ...</p>
+        </article>
+
+        <footer id="div_footer">
+            <!-- div_footer -->
+        </footer>
+
+    </div>
+
+</section>
+
+</body>
+</html>

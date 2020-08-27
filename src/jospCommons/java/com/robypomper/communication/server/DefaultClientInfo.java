@@ -123,7 +123,7 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
             log.trace(Mrk_Commons.COMM_SRV, String.format("Sending goodbye message to client '%s'", getClientId()));
             getSocket().getOutputStream().write(DefaultServer.MSG_BYE_SRV);
         } catch (IOException e) {
-            log.warn(Mrk_Commons.COMM_SRV, String.format("Can't send goodbye message to disconnecting client '%s' because %s", getClientId(), e.getMessage()), e);
+            log.warn(Mrk_Commons.COMM_SRV, String.format("Can't send goodbye message to disconnecting client '%s' because %s", getClientId(), e.getMessage()));//, e);
         }
 
         // Close client's socket

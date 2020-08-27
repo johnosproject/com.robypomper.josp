@@ -6,6 +6,7 @@ import com.robypomper.josp.jcpfe.HTMLUtils;
 import com.robypomper.josp.jcpfe.apis.params.JOSPUserHtml;
 import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEUser;
 import com.robypomper.josp.jcpfe.jsl.JSLSpringService;
+import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class UserController {
 
     @Autowired
     private JSLSpringService jslService;
+    private final String URL_REDIRECT_HOME = "/";
 
 
     // User Info
@@ -67,7 +69,7 @@ public class UserController {
     @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGIN)
     public String htmlLoginUser(HttpSession session,
                                 HttpServletResponse response) {
-        String redirect = jslService.getLoginUrl(jslService.getHttp(session)); //http://localhost:8080/test/user/login/code/
+        String redirect = jslService.getLoginUrl(jslService.getHttp(session));
 
         try {
             response.sendRedirect(redirect);
@@ -97,30 +99,57 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Can't access to JCP APIs service because authentication error %s", e.getMessage()), e);
         }
 
-        String redirect = "/test/";
+        try {
+            response.sendRedirect(URL_REDIRECT_HOME);
+
+        } catch (IOException ignore) {
+        }
+
+        return String.format("Login successfully, go to <a href=\"%s\">%s</a>", URL_REDIRECT_HOME, URL_REDIRECT_HOME);
+    }
+
+
+    // Logout
+
+    @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGOUT, produces = MediaType.TEXT_HTML_VALUE)
+    public String htmlLogoutUser(HttpSession session,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response) {
+        JSL jsl = jslService.getHttp(session);
+        jslService.logout(jsl);
+        String redirect = jslService.getLogoutUrl(jsl, getCurrentBaseUrl(request) + URL_REDIRECT_HOME);
+
         try {
             response.sendRedirect(redirect);
 
         } catch (IOException ignore) {
         }
 
-        return String.format("Login successfully, go to <a href=\"%s\">%s</a>", redirect, redirect);
+        return String.format("Redirect failed, please go to <a href=\"%s\">%s</a>", redirect, redirect);
     }
 
 
-    // Logout
+    // Utils
 
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGOUT)
-    public ResponseEntity<Boolean> jsonLogoutUser(HttpSession session) {
-        jslService.logout(jslService.getHttp(session));
-        return ResponseEntity.ok(true);
-    }
+    private String getCurrentBaseUrl(HttpServletRequest request) {
+        StringBuffer url = new StringBuffer();
+        String scheme = request.getScheme();
+        int port = request.getServerPort();
+        if (port < 0) {
+            // Work around java.net.URL bug
+            port = 80;
+        }
 
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGOUT, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlLogoutUser(HttpSession session,
-                                 HttpServletRequest request) {
-        @SuppressWarnings("ConstantConditions") boolean success = jsonLogoutUser(session).getBody();
-        return HTMLUtils.redirectBackAndReturn(request, success);
+        url.append(scheme);
+        url.append("://");
+        url.append(request.getServerName());
+        if ((scheme.equals("http") && (port != 80))
+                || (scheme.equals("https") && (port != 443))) {
+            url.append(':');
+            url.append(port);
+        }
+
+        return url.toString();
     }
 
 }

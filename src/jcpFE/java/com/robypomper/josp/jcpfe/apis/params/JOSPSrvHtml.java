@@ -3,6 +3,8 @@ package com.robypomper.josp.jcpfe.apis.params;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.robypomper.josp.jsl.JSL;
 
+import javax.servlet.http.HttpSession;
+
 @JsonAutoDetect
 public class JOSPSrvHtml {
 
@@ -18,8 +20,9 @@ public class JOSPSrvHtml {
     public final String[] supportedJCPAPIsVersions;
     public final String[] supportedJOSPProtocolVersions;
     public final String[] supportedJODVersions;
+    public final String sessionId;
 
-    public JOSPSrvHtml(JSL jsl) {
+    public JOSPSrvHtml(HttpSession session, JSL jsl) {
         this.name = jsl.getServiceInfo().getSrvName();
         this.status = jsl.status();
         this.isJCPConnected = jsl.getJCPClient().isConnected();
@@ -32,6 +35,7 @@ public class JOSPSrvHtml {
         this.supportedJCPAPIsVersions = jsl.versionsJCPAPIs();
         this.supportedJOSPProtocolVersions = jsl.versionsJOSPProtocol();
         this.supportedJODVersions = jsl.versionsJOSPObject();
+        this.sessionId = session.getId();
     }
 
 }

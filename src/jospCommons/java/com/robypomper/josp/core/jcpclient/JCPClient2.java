@@ -79,11 +79,18 @@ public interface JCPClient2 {
     boolean isAuthCodeFlowEnabled();
 
 
+    // Auth urls
+
+    String getLoginUrl();
+
+    String getLogoutUrl();
+
+    String getLogoutUrl(String redirectUrl);
+
+
     // Login
 
     boolean isLoggedIn();
-
-    String getLoginUrl();
 
     void setLoginCode(String loginCode);
 
