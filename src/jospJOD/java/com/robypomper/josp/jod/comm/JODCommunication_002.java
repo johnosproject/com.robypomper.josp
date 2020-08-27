@@ -359,7 +359,7 @@ public class JODCommunication_002 implements JODCommunication {
         try {
             permId = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_PermId(msg);
             srvId = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_SrvId(msg);
-            usrId = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_SrvId(msg);
+            usrId = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_UsrId(msg);
             permType = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_PermType(msg);
             connType = JOSPProtocol_ServiceToObject.getObjectUpdPermMsg_ConnType(msg);
 
