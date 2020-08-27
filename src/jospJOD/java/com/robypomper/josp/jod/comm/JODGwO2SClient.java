@@ -67,8 +67,9 @@ public class JODGwO2SClient implements Client {
     private final JODSettings_002 locSettings;
     private final JODCommunication_002 communication;
     private final JODObjectInfo objInfo;
-    private final JCPCommObj jcpComm;
     private final JCPClient_Object jcpClient;
+    private final JCPCommObj jcpComm;
+    private boolean shuldBeConnected;
     private final Certificate clientCert;
     private final DynAddTrustManager clientTrustManager;
     private final SSLContext sslCtx;
@@ -96,6 +97,7 @@ public class JODGwO2SClient implements Client {
         this.objInfo = objInfo;
         this.jcpClient = jcpClient;
         this.jcpComm = jcpComm;
+        this.shuldBeConnected = locSettings.getCloudEnabled();
 
         try {
             log.trace(Mrk_JOD.JOD_COMM_SUB, "Generating ssl context for object's cloud client");
@@ -267,6 +269,10 @@ public class JODGwO2SClient implements Client {
         return client != null ? client.getClientId() : objInfo.getObjId();
     }
 
+    public boolean shouldBeConnected() {
+        return shuldBeConnected;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -280,6 +286,7 @@ public class JODGwO2SClient implements Client {
      */
     @Override
     public void connect() throws ConnectionException {
+        shuldBeConnected = true;
         initConnection();
     }
 
@@ -293,6 +300,7 @@ public class JODGwO2SClient implements Client {
             isInit = false;
         }
 
+        shuldBeConnected = false;
         if (client != null)
             client.disconnect();
     }

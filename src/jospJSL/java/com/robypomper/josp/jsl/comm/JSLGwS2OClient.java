@@ -65,6 +65,7 @@ public class JSLGwS2OClient implements Client {
     private final JSLServiceInfo srvInfo;
     private final JCPClient_Service jcpClient;
     private final JCPCommSrv jcpComm;
+    private boolean shuldBeConnected;
     private final Certificate clientCert;
     private final DynAddTrustManager clientTrustManager;
     private final SSLContext sslCtx;
@@ -90,6 +91,7 @@ public class JSLGwS2OClient implements Client {
         this.srvInfo = srvInfo;
         this.jcpClient = jcpClient;
         this.jcpComm = jcpComm;
+        this.shuldBeConnected = locSettings.getCloudEnabled();
 
         try {
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Generating ssl context for service's cloud client");
@@ -247,6 +249,10 @@ public class JSLGwS2OClient implements Client {
         return client != null ? client.getClientId() : srvInfo.getSrvId();
     }
 
+    public boolean shouldBeConnected() {
+        return shuldBeConnected;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -260,6 +266,7 @@ public class JSLGwS2OClient implements Client {
      */
     @Override
     public void connect() throws ConnectionException {
+        shuldBeConnected = true;
         initConnection();
     }
 
@@ -272,6 +279,8 @@ public class JSLGwS2OClient implements Client {
             jcpClient.removeConnectListener(initListener);
             isInit = false;
         }
+
+        shuldBeConnected = false;
 
         if (client != null)
             client.disconnect();
