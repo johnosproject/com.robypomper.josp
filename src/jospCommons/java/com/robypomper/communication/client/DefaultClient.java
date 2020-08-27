@@ -425,19 +425,18 @@ public class DefaultClient implements Client {
         }
 
 
+        if (isConnected() && (serverSendByeMsg || !mustShutdown))
+            disconnect(true);
+
         // Client disconnection events
         if (cse != null) {
-            if (serverSendByeMsg) {
+            if (serverSendByeMsg)
                 cse.onServerGoodbye();
-                if (isConnected()) disconnect(true);
-
-            } else if (mustShutdown)
+            else if (mustShutdown)
                 cse.onServerClientDisconnected();
-
-            else {
+            else
                 cse.onServerTerminated();
-                if (isConnected()) disconnect(true);
-            }
+
             cse.onServerDisconnection();
         }
 

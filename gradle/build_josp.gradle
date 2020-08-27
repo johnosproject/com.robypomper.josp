@@ -223,6 +223,7 @@ makeJSLJavaRunnable('sn','configs/jsl_sn.yml','Configs')
  * Configs (ObjId, OwnerId, Off/Online)
  */
 makeJODJavaRunnable('Avahi','discovery/jod_avahi.yml','struct_default.jod','perms_default.jod','Discovery')
+makeJODJavaRunnable('DNSSD','discovery/jod_dnssd.yml','struct_default.jod','perms_default.jod','Discovery')
 makeJODJavaRunnable('JmDNS','discovery/jod_jmdns.yml','struct_default.jod','perms_default.jod','Discovery')
 makeJODJavaRunnable('JmmDNS','discovery/jod_jmmdns.yml','struct_default.jod','perms_default.jod','Discovery')
 
@@ -235,6 +236,7 @@ makeJODJavaRunnable('JmmDNS','discovery/jod_jmmdns.yml','struct_default.jod','pe
  */
 makeJSLJavaRunnable('Avahi','discovery/jsl_avahi.yml','Discovery')
 makeJSLJavaRunnable('JmDNS','discovery/jsl_jmdns.yml','Discovery')
+makeJSLJavaRunnable('DNSSD','discovery/jsl_dnssd.yml','Discovery')
 makeJSLJavaRunnable('JmmDNS','discovery/jsl_jmmdns.yml','Discovery')
 
 
