@@ -191,10 +191,6 @@ public class JSLSpringService {
         jsl.getJCPClient().userLogout();
     }
 
-    public String getRegistrationUrl(JSL jsl) {
-        return jsl.getJCPClient().getRegistrationUrl();
-    }
-
 
     // Service
 

@@ -129,23 +129,6 @@ public class UserController {
     }
 
 
-    // Registration
-
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_REGISTRATION)
-    public String htmlRegisterUser(HttpSession session,
-                                   HttpServletResponse response) {
-        String redirect = jslService.getRegistrationUrl(jslService.getHttp(session));
-
-        try {
-            response.sendRedirect(redirect);
-
-        } catch (IOException ignore) {
-        }
-
-        return String.format("Redirect failed, please go to <a href=\"%s\">%s</a>", redirect, redirect);
-    }
-
-
     // Utils
 
     private String getCurrentBaseUrl(HttpServletRequest request) {
