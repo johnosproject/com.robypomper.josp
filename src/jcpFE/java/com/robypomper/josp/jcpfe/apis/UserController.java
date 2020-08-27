@@ -31,6 +31,7 @@ public class UserController {
 
     @Autowired
     private JSLSpringService jslService;
+    private final String URL_REDIRECT_HOME = "/";
 
 
     // User Info
@@ -98,14 +99,13 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Can't access to JCP APIs service because authentication error %s", e.getMessage()), e);
         }
 
-        String redirect = "/objs_mngr.html";
         try {
-            response.sendRedirect(redirect);
+            response.sendRedirect(URL_REDIRECT_HOME);
 
         } catch (IOException ignore) {
         }
 
-        return String.format("Login successfully, go to <a href=\"%s\">%s</a>", redirect, redirect);
+        return String.format("Login successfully, go to <a href=\"%s\">%s</a>", URL_REDIRECT_HOME, URL_REDIRECT_HOME);
     }
 
 
@@ -117,7 +117,7 @@ public class UserController {
                                  HttpServletResponse response) {
         JSL jsl = jslService.getHttp(session);
         jslService.logout(jsl);
-        String redirect = jslService.getLogoutUrl(jsl, getCurrentBaseUrl(request) + "/objs_mngr.html");
+        String redirect = jslService.getLogoutUrl(jsl, getCurrentBaseUrl(request) + URL_REDIRECT_HOME);
 
         try {
             response.sendRedirect(redirect);
