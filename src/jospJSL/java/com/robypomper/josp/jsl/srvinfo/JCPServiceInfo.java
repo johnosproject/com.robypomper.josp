@@ -46,7 +46,7 @@ public class JCPServiceInfo extends AbsJCPAPIs {
 
     public void registerToJCP() {
         try {
-            jcpClient.execReq(Verb.GET, APISrvs.FULL_PATH_REGISTER, SrvName.class, true);
+            jcpClient.execReq(Verb.GET, APISrvs.FULL_PATH_REGISTER, SrvName.class, isSecure());
 
         } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException ignore) {
             jcpClient.addConnectListener(new JCPClient2.ConnectListener() {

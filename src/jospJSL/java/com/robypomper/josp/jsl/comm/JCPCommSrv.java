@@ -67,7 +67,7 @@ public class JCPCommSrv extends AbsJCPAPIs {
      * @return the GW S2O access info.
      */
     public S2OAccessInfo getS2OAccessInfo(Certificate clietnPublicCertificate) throws CertificateEncodingException, JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.POST, APIJOSPGWs.FULL_PATH_S2O_ACCESS, S2OAccessInfo.class, new S2OAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), true);
+        return jcpClient.execReq(Verb.POST, APIJOSPGWs.FULL_PATH_S2O_ACCESS, S2OAccessInfo.class, new S2OAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), isSecure());
     }
 
 }
