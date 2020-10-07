@@ -29,8 +29,7 @@ import com.robypomper.java.JavaSSLIgnoreChecks;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -48,6 +47,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     private final OAuth20Service service;
     public final String baseUrlAuth;
     public final String baseUrlAPIs;
+    public final boolean securedAPIs;
     private OAuth2AccessToken accessToken = null;
     public final String authRealm;
 
@@ -77,26 +77,26 @@ public class DefaultJCPClient2 implements JCPClient2 {
     // Constructor
 
     public DefaultJCPClient2(String clientId, String clientSecret,
-                             String apisBaseUrl,
+                             String apisBaseUrl, boolean apisSecured,
                              String authBaseUrl, String authScopes, String authCallBack, String authRealm) {
-        this(clientId, clientSecret, apisBaseUrl, authBaseUrl, authScopes, authCallBack, authRealm, null, 30);
+        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, null, 30);
     }
 
     public DefaultJCPClient2(String clientId, String clientSecret,
-                             String apisBaseUrl,
+                             String apisBaseUrl, boolean apisSecured,
                              String authBaseUrl, String authScopes, String authCallBack, String authRealm,
                              int connectionRetrySeconds) {
-        this(clientId, clientSecret, apisBaseUrl, authBaseUrl, authScopes, authCallBack, authRealm, null, connectionRetrySeconds);
+        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, null, connectionRetrySeconds);
     }
 
     public DefaultJCPClient2(String clientId, String clientSecret,
-                             String apisBaseUrl,
+                             String apisBaseUrl, boolean apisSecured,
                              String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken) {
-        this(clientId, clientSecret, apisBaseUrl, authBaseUrl, authScopes, authCallBack, authRealm, authCodeRefreshToken, 30);
+        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, authCodeRefreshToken, 30);
     }
 
     public DefaultJCPClient2(String clientId, String clientSecret,
-                             String apisBaseUrl,
+                             String apisBaseUrl, boolean apisSecured,
                              String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken,
                              int connectionRetrySeconds) {
         this.clientId = clientId;
@@ -107,6 +107,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 .build(KeycloakApi.instance("https://" + authBaseUrl, authRealm));
         this.baseUrlAuth = authBaseUrl;
         this.baseUrlAPIs = apisBaseUrl;
+        this.securedAPIs = apisSecured;
         if (authCodeRefreshToken != null && !authCodeRefreshToken.isEmpty())
             this.authCode_refreshToken = authCodeRefreshToken;
         this.authRealm = authRealm;
@@ -126,10 +127,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
         if (isConnected())
             return;
 
-        if (!checkServerReachability(baseUrlAuth))
-            throw new JCPNotReachableException(String.format("Error connecting to JCP because '%s' (Auth's url) not reachable", baseUrlAuth));
-        if (!checkServerReachability(baseUrlAPIs))
-            throw new JCPNotReachableException(String.format("Error connecting to JCP because '%s' (API's url) not reachable", baseUrlAPIs));
+        checkServerReachability();
 
         if (isClientCredentialFlowEnabled()) {
             accessToken = getAccessTokenCliCredFlow(service);
@@ -180,16 +178,57 @@ public class DefaultJCPClient2 implements JCPClient2 {
         emitDisconnected();
     }
 
-    private boolean checkServerReachability(String urlBase) {
+    private boolean checkAPIsReachability(boolean toAuth, String path, boolean stopOnFail) {
         try {
-            String host = urlBase.substring(0, urlBase.indexOf(':'));
-            int port = Integer.parseInt(urlBase.substring(urlBase.indexOf(':') + 1));
-            Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(host, port), 30);
+            execReq(toAuth, Verb.GET, path, securedAPIs);
             return true;
 
+        } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e) {
+            System.out.println(String.format("Exception [%s]: %s", e.getClass().getSimpleName(), e.getMessage()));
+
+            try {
+                execReq(Verb.GET, "/apis/Status/2.0/", securedAPIs);
+                return true;
+
+            } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e1) {
+                System.out.println(String.format("Excep.2nd [%s]: %s", e1.getClass().getSimpleName(), e1.getMessage()));
+
+                if (stopOnFail) {
+                    cliCred_isConnected = false;
+                    authCode_isConnected = false;
+                    accessToken = null;
+
+                    stopConnectionCheckTimer();
+
+                    emitDisconnected();
+
+                    startConnectionTimer();
+                }
+            }
+        }
+        return false;
+    }
+
+    private void checkServerReachability() throws JCPNotReachableException {
+        checkServerReachability(false,"/apis/Status/2.0/");
+        checkServerReachability(true,"/auth/realms/jcp/.well-known/openid-configuration");
+    }
+
+    private void checkServerReachability(boolean toAuth, String path) throws JCPNotReachableException {
+        try {
+            String urlString = prepareUrl(toAuth, path, securedAPIs);
+            URL url = new URL(urlString);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            int code = con.getResponseCode();
+            if (code!=200) {
+                String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) returned '%d' code", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", code);
+                throw new JCPNotReachableException(errMsg);
+            }
+
         } catch (IOException e) {
-            return false;
+            String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) not reachable [%s:%s]", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
+            throw new JCPNotReachableException(errMsg);
         }
     }
 
@@ -210,10 +249,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
             }
 
         } catch (IOException | InterruptedException | ExecutionException e) {
-            throw new ConnectionException("Error connecting to JCP because can't get the access token for Client Credentials flow", e);
+            throw new ConnectionException(String.format("Error connecting to JCP because can't get the access token for Client Credentials flow ([%s] %s)", e.getClass().getSimpleName(), e.getMessage()), e);
 
         } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            throw new ConnectionException("Error connecting to JCP because can't ignore LOCALHOST's certificate checks", e);
+            throw new ConnectionException(String.format("Error connecting to JCP because can't ignore LOCALHOST's certificate checks ([%s] %s)", e.getClass().getSimpleName(), e.getMessage()), e);
         }
     }
 
@@ -313,9 +352,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 Thread.currentThread().setName(TH_CONNECTION_CHECK_NAME);
 
                 try {
-                    execReq(Verb.GET, "/apis/Status/2.0/", true);
+                    checkServerReachability();
 
-                } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e) {
+                } catch (JCPNotReachableException e) {
+                    System.out.println(String.format("Exception [%s]: %s", e.getClass().getSimpleName(), e.getMessage()));
                     cliCred_isConnected = false;
                     authCode_isConnected = false;
                     accessToken = null;
@@ -327,6 +367,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     startConnectionTimer();
                 }
 
+                // Check connection (auth) status
             }
         }, 0, connectionTimerDelaySeconds * 1000);
     }
@@ -359,14 +400,12 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 Thread.currentThread().setName(TH_CONNECTION_NAME);
 
                 try {
-                    DefaultJCPClient2.this.connect();
+                    if (!isConnected())
+                        DefaultJCPClient2.this.connect();
                     if (isConnected())
                         stopConnectionTimer();
 
-                } catch (JCPNotReachableException e) {
-                    emitConnectionFailed(e);
-
-                } catch (NullPointerException e) {
+                } catch (JCPNotReachableException | NullPointerException e) {
                     emitConnectionFailed(e);
 
                 } catch (ConnectionException | AuthenticationException e) {
@@ -612,13 +651,15 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
         OAuthRequest request;
         Response response;
+        if (reqType == Verb.GET || objParam == null)
+            request = prepareRequest(toAuth, reqType, path, secure);
+        else
+            request = prepareRequest(reqType, path, objParam, secure);
+
+        injectDefaultHeaders(request);
+        injectSession(request);
+
         try {
-            if (reqType == Verb.GET || objParam == null)
-                request = prepareRequest(toAuth, reqType, path, secure);
-            else
-                request = prepareRequest(reqType, path, objParam, secure);
-            injectDefaultHeaders(request);
-            injectSession(request);
             response = service.execute(request);
 
             if (response.getCode() == 401) {
@@ -657,7 +698,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 throwErrorCodes(response, path, secure);
 
         } catch (InterruptedException | ExecutionException | IOException e) {
-            throw new RequestException(String.format("Error on exec request '[%s] %s' because %s", reqType, path, e.getMessage()), e);
+            throw new RequestException(String.format("Error on exec [%s] request @ '%s' because %s", reqType, request.getUrl(), e.getMessage()), e);
         }
 
         if (reqObject == null)
@@ -681,7 +722,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
     private String prepareUrl(boolean toAuth, String path, boolean secure) {
-        String fullUrl = secure ? "https://" : "http://";
+        String fullUrl = !secure && !toAuth ? "http://" : "https://";
         fullUrl += toAuth ? baseUrlAuth : baseUrlAPIs;
         fullUrl += path;
         return fullUrl;
@@ -715,6 +756,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
         switch (response.getCode()) {
             case 200:
                 break;
+            case 400:
+                throw new BadRequest_400(path, secure);
             case 403:
                 throw new NotAuthorized_403(path, secure);
             case 404:
