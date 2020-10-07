@@ -62,8 +62,8 @@ sourceSets {
 }
 
 // JCP APIs's run tasks
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs)
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE)
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs,project.file('src/jcpApis/resources/log4j2_project.xml'))
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE,project.file('src/jcpFE/resources/log4j2_project.xml'))
 
 configurations {
     jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
@@ -80,6 +80,7 @@ dependencies {
     // JCP API's dependencies
     jcpAPIsImplementation sourceSets.jcpAPIsPublic.output
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-web'
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-log4j2'         // Login support
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'       // Database support
     jcpAPIsImplementation 'mysql:mysql-connector-java'
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
@@ -101,7 +102,9 @@ dependencies {
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
 }
-
+configurations {
+    all*.exclude module : 'spring-boot-starter-logging'
+}
 
 // -------------
 // Runners Tasks
