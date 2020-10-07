@@ -30,4 +30,9 @@ public class AbsJCPAPIs {
         this.jcpClient = jcpClient;
         this.locSettings = settings;
     }
+
+    protected boolean isSecure() {
+        return locSettings.getJCPUseSSL();
+    }
+
 }

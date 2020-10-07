@@ -33,6 +33,7 @@ public class JSLSpringService {
     // Internal vars
 
     private final String jslVersion;
+    private final boolean useSSL;
     private final String urlAPIs;
     private final String urlAuth;
     private final String clientId;
@@ -48,6 +49,7 @@ public class JSLSpringService {
     // Constructor
 
     public JSLSpringService(@Value("${jsl.version:2.0.0}") String jslVersion,
+                            @Value("${" + JSLSettings_002.JCP_SSL + ":" + JSLSettings_002.JCP_SSL_DEF + "}") boolean useSSL,
                             @Value("${" + JSLSettings_002.JCP_URL_APIS + ":" + JSLSettings_002.JCP_URL_DEF_APIS + "}") String urlAPIs,
                             @Value("${" + JSLSettings_002.JCP_URL_AUTH + ":" + JSLSettings_002.JCP_URL_AUTH + "}") String urlAuth,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_ID + ":}") String clientId,
@@ -64,6 +66,7 @@ public class JSLSpringService {
             throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JSLSRV_ID));
 
         this.jslVersion = jslVersion;
+        this.useSSL = useSSL;
         this.urlAPIs = urlAPIs;
         this.urlAuth = urlAuth;
         this.clientId = clientId;
@@ -100,6 +103,7 @@ public class JSLSpringService {
 
     private JSL registerSessions(HttpSession session) throws JSL.FactoryException, JSL.ConnectException {
         Map<String, Object> properties = new HashMap<>();
+        properties.put(JSLSettings_002.JCP_SSL, useSSL);
         properties.put(JSLSettings_002.JCP_URL_APIS, urlAPIs);
         properties.put(JSLSettings_002.JCP_URL_AUTH, urlAuth);
         properties.put(JSLSettings_002.JCP_CLIENT_ID, clientId);

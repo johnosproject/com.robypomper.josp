@@ -31,6 +31,8 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
     public static final String JCP_REFRESH_TIME_DEF     = "30";
+    public static final String JCP_SSL                  = "jcp.client.ssl";
+    public static final String JCP_SSL_DEF              = "true";
     public static final String JCP_URL_APIS             = "jcp.url.apis";
     public static final String JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
     public static final String JCP_URL_AUTH             = "jcp.url.auth";
@@ -95,6 +97,11 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     //@Override
     public int getJCPRefreshTime() {
         return getInt(JCP_REFRESH_TIME, JCP_REFRESH_TIME_DEF);
+    }
+
+    //@Override
+    public boolean getJCPUseSSL() {
+        return getBoolean(JCP_SSL, JCP_SSL_DEF);
     }
 
     //@Override

@@ -14,6 +14,7 @@ keycloak.public-client: false
 keycloak.principal-attribute: preferred_username
 keycloak.disable-trust-manager: true
 
+jcp.client.ssl: true
 jcp.client.id: test-client-api
 jcp.client.secret: 20e3f807-f2f8-427d-a048-2462c63bac7f
 jcp.urlAPIs: localhost:9001

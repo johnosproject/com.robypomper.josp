@@ -46,13 +46,18 @@ public class SpringConfigurer extends KeycloakWebSecurityConfigurerAdapter {
     @Value("${oauth2.resource.public-paths}")
     private String[] mPublicPaths;
 
+    @Value("${security.require-ssl:false}")
+    private String sshEnabled;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                // Enable HTTPs
-                .requiresChannel()
-                .anyRequest()
-                .requiresSecure()
+        if (Boolean.parseBoolean(sshEnabled)) {
+            http
+                    .requiresChannel()
+                    .anyRequest()
+                    .requiresSecure()
+            ;
+        }
 
                 // Enable CSRF token as cookie
 //                .and()
@@ -61,7 +66,8 @@ public class SpringConfigurer extends KeycloakWebSecurityConfigurerAdapter {
 //                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 
                 // Enable Auth checks
-                .and()
+
+        http
                 .authorizeRequests()
                 .antMatchers(mPublicPaths).permitAll()
                 .anyRequest().authenticated()

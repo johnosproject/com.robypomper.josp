@@ -39,6 +39,7 @@ public class DefaultJCPClient_Service extends DefaultJCPClient2 implements JCPCl
         super(settings.getJCPId(),
                 settings.getJCPSecret(),
                 settings.getJCPUrlAPIs(),
+                settings.getJCPUseSSL(),
                 settings.getJCPUrlAuth(),
                 "openid",
                 settings.getJCPCallback(),

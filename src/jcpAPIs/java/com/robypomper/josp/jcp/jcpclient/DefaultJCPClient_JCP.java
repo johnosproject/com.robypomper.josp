@@ -56,7 +56,7 @@ import org.springframework.stereotype.Component;
  * SSL checks and the connect to configured the server.
  */
 @Component
-public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener {
+public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
 
     // Internal vars
 
@@ -73,18 +73,20 @@ public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient
      * @param urlAuth the auth server url.
      */
     @Autowired
-    public DefaultJCPClient_JCP(@Value("${jcp.client.id}") String client,
+    public DefaultJCPClient_JCP(@Value("${jcp.client.ssl}") boolean useSSL,
+                                @Value("${jcp.client.id}") String client,
                                 @Value("${jcp.client.secret}") String secret,
                                 @Value("${jcp.urlAPIs}") String urlAPIs,
                                 @Value("${jcp.urlAuth}") String urlAuth) {
         super(client,
                 secret,
                 urlAPIs,
+                useSSL,
                 urlAuth,
                 "openid",
                 "",
                 "jcp",
-                5);
+                30);
         addConnectListener(this);
 
         try {
@@ -103,7 +105,12 @@ public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient
 
     @Override
     public void onConnected(JCPClient2 jcpClient) {
-        log.info("Self connected");
+        log.info("Self JCP APIs connected");
+    }
+
+    @Override
+    public void onDisconnected(JCPClient2 jcpClient) {
+        log.info("Self JCP APIs disconnected");
     }
 
     @Override
