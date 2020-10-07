@@ -60,7 +60,7 @@ public class JCPPermObj extends AbsJCPAPIs {
      */
     public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         JOSPPerm.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
-        String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE + "/" + strategy, String.class, true);
+        String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE + "/" + strategy, String.class, isSecure());
         try {
             return JOSPPerm.listFromString(permsStr);
 

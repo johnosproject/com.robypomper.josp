@@ -68,7 +68,7 @@ public class JCPCommObj extends AbsJCPAPIs {
      * @return the GW O2S access info.
      */
     public O2SAccessInfo getO2SAccessInfo(Certificate clietnPublicCertificate) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException, CertificateEncodingException {
-        return jcpClient.execReq(Verb.POST, APIJOSPGWs.FULL_PATH_O2S_ACCESS, O2SAccessInfo.class, new O2SAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), true);
+        return jcpClient.execReq(Verb.POST, APIJOSPGWs.FULL_PATH_O2S_ACCESS, O2SAccessInfo.class, new O2SAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), isSecure());
     }
 
 }
