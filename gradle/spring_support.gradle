@@ -8,7 +8,7 @@ repositories {
 ext {
     // Spring version
     set('springCloudVersion', "Hoxton.SR3")
-    set('keycloakVersion', "9.0.0")
+    set('keycloakVersion', "11.0.2")
 }
 
 dependencyManagement {
