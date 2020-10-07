@@ -1,9 +1,4 @@
 FROM jboss/keycloak:11.0.2
 
-# Keycloak crdentials
-ENV KEYCLOAK_USER=admin
-ENV KEYCLOAK_PASSWORD=password
-
-# External MySQL database
-ENV DB_VENDOR=mysql
-ENV JDBC_PARAMS='useSSL=false'
+COPY docker-entrypoint-custom.sh /opt/jboss/tools
+ENTRYPOINT [ "/opt/jboss/tools/docker-entrypoint-custom.sh" ]

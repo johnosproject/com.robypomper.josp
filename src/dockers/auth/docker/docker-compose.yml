@@ -5,14 +5,26 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8998:8443"
     environment:
-      - DB_ADDR=172.17.0.1
-      - DB_PORT=8999
-      - DB_DATABASE=auth_josp
-      - DB_USER=auth_user
-      - DB_PASSWORD=user_auth
+      # KeyCloak
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+      # DB
+      DB_VENDOR: mysql
+      DB_ADDR: 172.17.0.1
+      DB_PORT: 8999
+      DB_DATABASE: auth_josp
+      DB_USER: auth_user
+      DB_PASSWORD: user_auth
+      JDBC_PARAMS: 'useSSL=false'
+      KEYCLOAK_IMPORT: /import-export/import-jcp.json
+      #KEYCLOAK_EXPORT: /import-export/export-all.json
+      WAIT_FOR_DB: 'true'
+
+    volumes:
+      - ./import-export:/import-export
+    ports:
+      - 8998:8443
 
 networks:
   default:
