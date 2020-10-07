@@ -30,6 +30,10 @@ def jodArtifact = 'jod'
 def jodVersion = '2.0.0'
 
 task jospJODJar(type: Jar) {
+    doFirst {
+        archivesBaseName = jodArtifact;
+    }
+
     // JOD source code
     from sourceSets.jospJOD.output
     // JOSP Commons and JCP APIs Public
@@ -56,6 +60,10 @@ task jospJODDocs(type: Javadoc) {
 
 task jospJODDocsJar(type: Jar) {
     classifier = 'doc'
+    doFirst {
+        archivesBaseName = jodArtifact;
+    }
+
     from jospJODDocs
 
     manifest {
@@ -67,6 +75,9 @@ task jospJODDocsJar(type: Jar) {
 
 task jospJODSrcJar(type: Jar) {
     classifier = 'src'
+    doFirst {
+        archivesBaseName = jodArtifact;
+    }
 
     from sourceSets.jospJOD.allSource
 
@@ -79,6 +90,9 @@ task jospJODSrcJar(type: Jar) {
 
 task jospJODDepsJar(type: Jar) {
     classifier = 'deps'
+    doFirst {
+        archivesBaseName = jodArtifact;
+    }
 
     //from configurations.jospJODRuntime
     //from sourceSets.jospJOD.runtimeClasspath
@@ -104,6 +118,10 @@ def jslArtifact = 'jsl'
 def jslVersion = '2.0.0'
 
 task jospJSLJar(type: Jar) {
+    doFirst {
+        archivesBaseName = jslArtifact;
+    }
+
     // JOD source code
     from sourceSets.jospJSL.output
     // JOSP Commons and JCP APIs Public
@@ -130,6 +148,10 @@ task jospJSLDocs(type: Javadoc) {
 
 task jospJSLDocsJar(type: Jar) {
     classifier = 'doc'
+    doFirst {
+        archivesBaseName = jslArtifact;
+    }
+
     from jospJSLDocs
 
     manifest {
@@ -141,6 +163,9 @@ task jospJSLDocsJar(type: Jar) {
 
 task jospJSLSrcJar(type: Jar) {
     classifier = 'src'
+    doFirst {
+        archivesBaseName = jslArtifact;
+    }
 
     from sourceSets.jospJSL.allSource
 
@@ -153,6 +178,9 @@ task jospJSLSrcJar(type: Jar) {
 
 task jospJSLDepsJar(type: Jar) {
     classifier = 'deps'
+    doFirst {
+        archivesBaseName = jslArtifact;
+    }
 
     //from configurations.jospJSLRuntime
     //from sourceSets.jospJSL.runtimeClasspath

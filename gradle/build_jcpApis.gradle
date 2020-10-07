@@ -157,7 +157,7 @@ bootJcpFERun.dependsOn printGradleVersions
 apply from: 'gradle/build_jcpApis_publish.gradle'
 
 
-// JCP APIs Public
+// JCP APIs
 task jcpAPI_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
@@ -168,4 +168,30 @@ task jcpAPI_PublishToSonatype {
     description = 'Publish...'
     group = 'JOSP publishers (sonatype)'
 //    dependsOn publishJcpAPIsPublicationToSonatype
+}
+
+// JCP APIs Public
+task jcpAPIPublic_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJcpAPIsPublicPublicationToMavenLocal
+}
+
+task jcpAPIPublic_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJcpAPIsPublicPublicationToSonatype
+}
+
+// JCP FE
+task jcpFE_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJcpFEPublicationToMavenLocal
+}
+
+task jcpFE_PublishToSonatype {
+    description = 'Publish...'
+    group = 'JOSP publishers (sonatype)'
+//    dependsOn publishJcpFEPublicationToSonatype
 }

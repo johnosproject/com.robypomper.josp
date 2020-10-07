@@ -48,12 +48,12 @@ configurations {}
 
 dependencies {
     // JOD
-    jospJODImplementation 'com.robypomper.josp:jcpAPIs:2.0.+'
+    jospJODImplementation 'com.robypomper.josp:jcpAPIsPublic:2.0.+'
     jospJODImplementation 'commons-cli:commons-cli:1.4'
     jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
 
     // JSL
-    jospJSLImplementation 'com.robypomper.josp:jcpAPIs:2.0.+'
+    jospJSLImplementation 'com.robypomper.josp:jcpAPIsPublic:2.0.+'
     jospJSLImplementation 'commons-cli:commons-cli:1.4'
     jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
 }
