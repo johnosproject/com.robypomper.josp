@@ -47,18 +47,23 @@
         <xi:include href="jar:file:libs/jospCommons-2.0.0.jar!/log4j2/loggers/log4j2-robypomper.xml" />
         <xi:include href="jar:file:libs/jospCommons-2.0.0.jar!/log4j2/loggers/log4j2-comm.communication.xml" />
         <xi:include href="jar:file:libs/jospCommons-2.0.0.jar!/log4j2/loggers/log4j2-comm.discovery.xml" />
-        <xi:include href="jar:file:libs/jospCommons-2.0.0.jar!/log4j2/loggers/log4j2-josp.xml" />
-        <xi:include href="jar:file:libs/jospCommons-2.0.0.jar!/log4j2/loggers/log4j2-josp.core.xml" />
 
-        <!-- JOD -->
-        <xi:include href="log4j2/loggers/log4j2-jod.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jod.jcpclient.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jod.comm.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jod.structure.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jod.executor.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jod.objinfo.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jod.permissions.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jod.shell.xml" />
+        <!-- Spring & Co -->
+        <xi:include href="log4j2/loggers/springframework/log4j2-apache.xml" />
+        <xi:include href="log4j2/loggers/springframework/log4j2-com.zaxxer.xml" />
+        <xi:include href="log4j2/loggers/springframework/log4j2-hibernate.xml" />
+        <xi:include href="log4j2/loggers/springframework/log4j2-keycloak.xml" />
+        <xi:include href="log4j2/loggers/springframework/log4j2-springfox.xml" />
+        <xi:include href="log4j2/loggers/springframework/log4j2-springframework.xml" />
+
+        <!-- JCP API -->
+        <xi:include href="log4j2/loggers/log4j2-jcp.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jcp.apis.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jcp.db.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jcp.jcpclient.xml" />
+
+        <!-- JOSP GWs -->
+        <xi:include href="log4j2/loggers/log4j2-gw.xml" />
 
     </Loggers>
 

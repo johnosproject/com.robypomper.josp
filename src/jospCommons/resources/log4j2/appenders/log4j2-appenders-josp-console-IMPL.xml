@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ The John Object Daemon is the agent software to connect "objects"
+  ~ to an IoT EcoSystem, like the John Operating System Platform one.
+  ~ Copyright (C) 2020 Roberto Pompermaier
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<!-- JOSP CONSOLE -->
+
+<!-- Implementation JOSP console output -->
+<!-- Appender for JOSP loggers for extensions implementation purposes.
+It prints all log messages from extra JOSP classes. -->
+<Console name="ConsoleJOSP_IMPL" target="SYSTEM_OUT">
+    <Filters>
+        <!--<MarkerFilter marker="MAIN_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+        <MarkerFilter marker="EXT_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
+        <!--<MarkerFilter marker="SUB_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+        <!--<MarkerFilter marker="IMPL_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
+        <ThresholdFilter level="TRACE" onMatch="ACCEPT" onMismatch="DENY"/>
+    </Filters>
+    <PatternLayout alwaysWriteExceptions="true"
+                   pattern="%highlight{%d{DEFAULT} [ %-5level | %-15.15markerSimpleName | %-15.-15threadName | %-30.30logger{1.} ] %msg}%n"/>
+</Console>
