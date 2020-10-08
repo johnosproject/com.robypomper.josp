@@ -36,13 +36,21 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan
 public class ServiceApplication {
 
-    private static final boolean DISABLE_SSL_CHECKS = true;
-
     public static void main(String[] args) {
-        JSLRemoteObject r;
-        if (DISABLE_SSL_CHECKS)
+        String DISABLE_SSL_CHECKS = System.getenv("DISABLE_SSL_CHECKS");
+        if (DISABLE_SSL_CHECKS==null)
+            DISABLE_SSL_CHECKS="LOCALHOST";
+
+        if (DISABLE_SSL_CHECKS.compareToIgnoreCase("NONE")!=0)
             try {
-                JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST")==0) {
+                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                    System.out.println("\t\tLOCALHOST");
+                } else if (DISABLE_SSL_CHECKS.compareToIgnoreCase("ALL")==0) {
+                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.ALLHOSTS);
+                    System.out.println("\t\tALL");
+                }
+
             } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
                 System.out.println("Can't disable SSL checks for localhost communications, exit.");
                 System.exit(-1);
