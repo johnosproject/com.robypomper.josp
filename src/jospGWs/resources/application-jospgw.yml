@@ -1,0 +1,3 @@
+jospgw.enabled: true
+jospgw.s2o.url: localhost:9001
+jospgw.o2s.url: localhost:9001

@@ -26,6 +26,7 @@ import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
     // Class constants
 
     private static final int PORT_MIN = 9201;
-    private static final int PORT_MAX = 9300;
+    private static final int PORT_MAX = 9210;
 
 
     // Internal vars
@@ -49,6 +50,16 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
     private ServiceDBService serviceDBService;
     @Autowired
     private JOSPGWsBroker gwBroker;
+
+    /**
+     * Initialize JOSPGWsService with only one internal server.
+     *
+     * @param hostName
+     */
+    @Autowired
+    public JOSPGWsS2OService(@Value("${jospgw.s2o.url}") final String hostName) {
+        super(hostName);
+    }
 
 
     // Clients connection

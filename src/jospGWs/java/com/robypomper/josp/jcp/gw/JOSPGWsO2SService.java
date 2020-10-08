@@ -28,6 +28,7 @@ import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     // Class constants
 
     private static final int PORT_MIN = 9101;
-    private static final int PORT_MAX = 9200;
+    private static final int PORT_MAX = 9110;
 
 
     // Internal vars
@@ -55,6 +56,17 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     private JOSPGWsBroker gwBroker;
 
 
+    /**
+     * Initialize JOSPGWsService with only one internal server.
+     *
+     * @param hostName
+     */
+    @Autowired
+    public JOSPGWsO2SService(@Value("${jospgw.o2s.url}") final String hostName) {
+        super(hostName);
+    }
+
+    
     // Object's clients connection
 
     /**

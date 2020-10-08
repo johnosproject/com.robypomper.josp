@@ -53,7 +53,11 @@ sourceSets {
     jcpAPIs {
         java {
             srcDirs 'src/jcpAPIs/java'
-            srcDirs 'src/jospGWs/java'      // JOSP GWs is included in JCP APIs
+            srcDirs 'src/jospGWs/java'          // JOSP GWs is included in JCP APIs
+        }
+        resources {
+            srcDirs 'src/jcpAPIs/resources'
+            srcDirs 'src/jospGWs/resources'     // JOSP GWs is included in JCP APIs
         }
     }
 

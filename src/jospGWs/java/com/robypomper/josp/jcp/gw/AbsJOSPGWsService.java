@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.util.*;
@@ -51,6 +52,7 @@ public abstract class AbsJOSPGWsService {
     private static final List<AbsJOSPGWsService> jospGWs = new ArrayList<>();           // static because shared among all JOSPGWs
     private static final List<Integer> boundedPorts = new ArrayList<>();                // static because shared among all JOSPGWs
     private static final Random rnd = new Random();
+    private final InetAddress hostAddr;
     private final Map<String, Server> servers = new HashMap<>();
     private final Map<String, Server> clients = new HashMap<>();
 
@@ -60,7 +62,7 @@ public abstract class AbsJOSPGWsService {
     /**
      * Initialize JOSPGWsService with only one internal server.
      */
-    public AbsJOSPGWsService() {
+    public AbsJOSPGWsService(final String hostName) {
         try {
             servers.put(ONLY_SERVER_ID, initServer(ONLY_SERVER_ID));
 
@@ -69,6 +71,19 @@ public abstract class AbsJOSPGWsService {
         }
 
         jospGWs.add(this);
+
+        InetAddress tpmHostAddr;
+        try {
+            tpmHostAddr = InetAddress.getByName(hostName);
+        } catch (UnknownHostException e) {
+            try {
+                tpmHostAddr = InetAddress.getLocalHost();
+            } catch (UnknownHostException unknownHostException) {
+                tpmHostAddr = InetAddress.getLoopbackAddress();
+            }
+        }
+        log.info(String.format("Internal JOSP GWs use '%s' as public address", tpmHostAddr));
+        this.hostAddr = tpmHostAddr;
 
         log.info(String.format("Initialized JOSPGWsService instance with %d pre-initialized servers", servers.size()));
     }
@@ -113,8 +128,9 @@ public abstract class AbsJOSPGWsService {
     }
 
     public InetAddress getPublicAddress(String idClient) {
-        Server server = associateOrGetServer(idClient);
-        return server.getPublicAddress();
+//        Server server = associateOrGetServer(idClient);
+//        return server.getPublicAddress();
+        return hostAddr;
     }
 
     public int getPort(String idClient) {
@@ -205,10 +221,6 @@ public abstract class AbsJOSPGWsService {
 
 
         // Getters
-
-        public InetAddress getPublicAddress() {
-            return getAddress();
-        }
 
         public int getPort() {
             return port;
