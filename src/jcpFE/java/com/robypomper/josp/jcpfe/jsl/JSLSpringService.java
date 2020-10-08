@@ -51,7 +51,7 @@ public class JSLSpringService {
     public JSLSpringService(@Value("${jsl.version:2.0.0}") String jslVersion,
                             @Value("${" + JSLSettings_002.JCP_SSL + ":" + JSLSettings_002.JCP_SSL_DEF + "}") boolean useSSL,
                             @Value("${" + JSLSettings_002.JCP_URL_APIS + ":" + JSLSettings_002.JCP_URL_DEF_APIS + "}") String urlAPIs,
-                            @Value("${" + JSLSettings_002.JCP_URL_AUTH + ":" + JSLSettings_002.JCP_URL_AUTH + "}") String urlAuth,
+                            @Value("${" + JSLSettings_002.JCP_URL_AUTH + ":" + JSLSettings_002.JCP_URL_DEF_AUTH + "}") String urlAuth,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_ID + ":}") String clientId,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_SECRET + ":}") String clientSecret,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_CALLBACK + ":}") String clientCallback,
@@ -286,7 +286,7 @@ public class JSLSpringService {
                 System.out.println("Error on send event " + data + " to " + e.toString() + " emitter because " + ioException.getMessage() + ", remove emitter");
                 e.complete();
             } else
-                System.out.println("Error on send event emitter null");
+                System.out.println(String.format("Error on send event emitter null, [%s] %s", ioException.getClass().getSimpleName(), ioException.getMessage()));
         }
     }
 

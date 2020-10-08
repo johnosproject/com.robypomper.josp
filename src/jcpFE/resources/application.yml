@@ -1,5 +1,5 @@
 spring.application.name: jcpFrontEnd
-server.port: 8080
+server.port: 9002
 spring.profiles.active: db, ssl
 
 jsl.version: 2.0.0
