@@ -695,7 +695,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
             storeSession(response);
             if (response.getCode() != 200)
-                throwErrorCodes(response, path, secure);
+                throwErrorCodes(response, fullUrl);
 
         } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException(String.format("Error on exec [%s] request @ '%s' because %s", reqType, request.getUrl(), e.getMessage()), e);
@@ -703,11 +703,11 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
         if (reqObject == null)
             return null;
-        String body = extractBody(response, path, secure);
+        String body = extractBody(response, fullUrl);
         if (reqObject.equals(String.class))
             return (T) body;
 
-        return parseJSON(body, reqObject, path, secure);
+        return parseJSON(body, reqObject, fullUrl);
     }
 
     private String prepareGetPath(String path, Map<String, String> params) {
@@ -752,24 +752,24 @@ public class DefaultJCPClient2 implements JCPClient2 {
         return req;
     }
 
-    private void throwErrorCodes(Response response, String path, boolean secure) throws ResponseException {
+    private void throwErrorCodes(Response response, String fullUrl) throws ResponseException, IOException {
         switch (response.getCode()) {
             case 200:
                 break;
             case 400:
-                throw new BadRequest_400(path, secure);
+                throw new BadRequest_400(fullUrl);
             case 403:
-                throw new NotAuthorized_403(path, secure);
+                throw new NotAuthorized_403(fullUrl);
             case 404:
-                throw new NotFound_404(path, secure);
+                throw new NotFound_404(fullUrl);
             case 409:
-                throw new Conflict_409(path, secure);
+                throw new Conflict_409(fullUrl);
             default:
-                throw new Error_Code(path, secure, response.getCode());
+                throw new Error_Code(fullUrl, response.getCode(), response.getBody());
         }
     }
 
-    private String extractBody(Response response, String path, boolean secure) throws ResponseParsingException {
+    private String extractBody(Response response, String fullUrl) throws ResponseParsingException {
         try {
             String body = response.getBody();
             if (body.startsWith("\""))
@@ -779,17 +779,17 @@ public class DefaultJCPClient2 implements JCPClient2 {
             return body;
 
         } catch (IOException e) {
-            throw new ResponseParsingException(path, secure, e);
+            throw new ResponseParsingException(fullUrl, e);
         }
     }
 
-    private <T> T parseJSON(String body, Class<T> reqObject, String path, boolean secure) throws ResponseParsingException {
+    private <T> T parseJSON(String body, Class<T> reqObject, String fullUrl) throws ResponseParsingException {
         try {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(body, reqObject);
 
         } catch (IOException e) {
-            throw new ResponseParsingException(path, secure, e);
+            throw new ResponseParsingException(fullUrl, e);
         }
     }
 

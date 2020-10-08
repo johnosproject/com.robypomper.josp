@@ -205,17 +205,15 @@ public interface JCPClient2 {
     }
 
     class ResponseException extends Throwable {
-        protected final String url;
-        protected final boolean secure;
+        protected final String fullUrl;
 
-        public ResponseException(String msg, String url, boolean secure) {
-            this(msg, url, secure, null);
+        public ResponseException(String msg, String fullUrl) {
+            this(msg, fullUrl, null);
         }
 
-        public ResponseException(String msg, String url, boolean secure, Exception e) {
+        public ResponseException(String msg, String fullUrl, Exception e) {
             super(msg, e);
-            this.url = url;
-            this.secure = secure;
+            this.fullUrl = fullUrl;
         }
     }
 
@@ -223,8 +221,8 @@ public interface JCPClient2 {
 
         private static final String MSG = "Error on '%s' url response parsing ('%s').";
 
-        public ResponseParsingException(String url, boolean secure, Exception e) {
-            super(String.format(MSG, url, e.getMessage()), url, secure, e);
+        public ResponseParsingException(String fullUrl, Exception e) {
+            super(String.format(MSG, fullUrl, e.getMessage()), fullUrl, e);
         }
 
     }
@@ -233,8 +231,8 @@ public interface JCPClient2 {
 
         private static final String MSG = "Server received Bad request for '%s' resource.";
 
-        public BadRequest_400(String url, boolean secure) {
-            super(String.format(MSG, url), url, secure);
+        public BadRequest_400(String fullUrl) {
+            super(String.format(MSG, fullUrl), fullUrl);
         }
 
     }
@@ -243,8 +241,8 @@ public interface JCPClient2 {
 
         private static final String MSG = "Client NOT authorized to access to '%s' resource.";
 
-        public NotAuthorized_403(String url, boolean secure) {
-            super(String.format(MSG, url), url, secure);
+        public NotAuthorized_403(String fullUrl) {
+            super(String.format(MSG, fullUrl), fullUrl);
         }
 
     }
@@ -253,8 +251,8 @@ public interface JCPClient2 {
 
         private static final String MSG = "Resource '%s' NOT found.";
 
-        public NotFound_404(String url, boolean secure) {
-            super(String.format(MSG, url), url, secure);
+        public NotFound_404(String fullUrl) {
+            super(String.format(MSG, fullUrl), fullUrl);
         }
 
     }
@@ -263,8 +261,8 @@ public interface JCPClient2 {
 
         private static final String MSG = "Conflict on elaborating request on '%s' resource.";
 
-        public Conflict_409(String url, boolean secure) {
-            super(String.format(MSG, url), url, secure);
+        public Conflict_409(String fullUrl) {
+            super(String.format(MSG, fullUrl), fullUrl);
         }
 
     }
@@ -273,8 +271,16 @@ public interface JCPClient2 {
 
         private static final String MSG = "Response error '%s' code on '%s' resource.";
 
-        public Error_Code(String url, boolean secure, int code) {
-            super(String.format(MSG, code, url), url, secure);
+        public Error_Code(String fullUrl, int code) {
+            super(String.format(MSG, code, fullUrl), fullUrl);
+        }
+
+        public Error_Code(String fullUrl, int code, String body) {
+            super(String.format(MSG + " Response body: '%s'", code, fullUrl, body), fullUrl);
+        }
+
+        public Error_Code(String fullUrl, int code, Exception cause) {
+            super(String.format(MSG, code, fullUrl), fullUrl, cause);
         }
 
     }
