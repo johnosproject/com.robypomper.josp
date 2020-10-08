@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
@@ -25,6 +26,7 @@ public class SSEUpdaterController {
 
     @GetMapping(APIJCPFESSEUpdater.FULL_PATH_INIT)
     public SseEmitter streamSseMvc(HttpSession session,
+                                   HttpServletResponse response,
                                    CsrfToken token) {
         SseEmitter emitter;
         try {
@@ -44,6 +46,7 @@ public class SSEUpdaterController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
 
+        response.addHeader("X-Accel-Buffering","no");
         return emitter;
     }
 
