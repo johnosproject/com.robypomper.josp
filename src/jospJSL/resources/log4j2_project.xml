@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ The John Service Library is the software library to connect "software"
+  ~ to an IoT EcoSystem, like the John Operating System Platform one.
+  ~ Copyright 2020 Roberto Pompermaier
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<Configuration xmlns:xi="http://www.w3.org/2001/XInclude" status="warn">
+
+    <!--<xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-ALL.xml" />-->
+    <Appenders>
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-standard-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-standard-console-DEV.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console-DEV.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console-IMPL.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console-FULL.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jod-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jsl-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jcp-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jgw-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jfe-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-robypomper-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-spring-console.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-file.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-file-FULL.xml" />
+    </Appenders>
+
+    <Loggers>
+
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/loggers/log4j2-root-ALL.xml" />
+
+        <!-- Commons -->
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/loggers/log4j2-robypomper.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/loggers/log4j2-comm.communication.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/loggers/log4j2-comm.discovery.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/loggers/log4j2-josp.xml" />
+        <xi:include href="file:../../../../src/jospCommons/resources/log4j2/loggers/log4j2-josp.core.xml" />
+
+        <!-- JSL -->
+        <xi:include href="log4j2/loggers/log4j2-jsl.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jsl.jcpclient.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jsl.comm.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jsl.objs.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jsl.srvinfo.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jsl.user.xml" />
+        <xi:include href="log4j2/loggers/log4j2-jsl.shell.xml" />
+
+    </Loggers>
+
+</Configuration>
