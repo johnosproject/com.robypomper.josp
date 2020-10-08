@@ -82,6 +82,7 @@ def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jo
         standardInput = System.in
         //args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
         //jvmArgs = ['-Djavax.net.debug=ssl']
+        jvmArgs = ['-Dlog4j.configurationFile=' + project.file('src/jospJOD/resources/log4j2_project.xml').absolutePath]
 
         doFirst {
             if (workingDir.exists() && overrideIfExist)
