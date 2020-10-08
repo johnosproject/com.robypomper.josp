@@ -135,9 +135,12 @@ public class UserController {
         StringBuffer url = new StringBuffer();
         String scheme = request.getScheme();
         int port = request.getServerPort();
-        if (port < 0) {
-            // Work around java.net.URL bug
-            port = 80;
+        if (port < 0)
+            port = 80;          // Work around java.net.URL bug
+
+        if (request.getHeader("X-Forwarded-For")!=null) {
+            scheme = "https";
+            port = 443;
         }
 
         url.append(scheme);
