@@ -220,7 +220,18 @@ public class DefaultJCPClient2 implements JCPClient2 {
             URL url = new URL(urlString);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
-            int code = con.getResponseCode();
+            int code;
+            try {
+                code = con.getResponseCode();
+            } catch (SSLHandshakeException ei) {
+                try {
+                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                    code = con.getResponseCode();
+
+                } catch (SSLHandshakeException e1) {
+                    throw new JCPNotReachableException("Error connecting to JCP because SSL handshaking failed");
+                }
+            }
             if (code!=200) {
                 String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) returned '%d' code", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", code);
                 throw new JCPNotReachableException(errMsg);
@@ -228,6 +239,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
         } catch (IOException e) {
             String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) not reachable [%s:%s]", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
+            throw new JCPNotReachableException(errMsg);
+
+        } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
+            String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) can't ignore LOCALHOST's certificate checks [%s:%s]", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
             throw new JCPNotReachableException(errMsg);
         }
     }
@@ -639,14 +654,15 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
     public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
+        String fullUrl = prepareUrl(toAuth, path, secure);
         if (!isConnected())
-            throw new ConnectionException(String.format("Error on exec request '[%s] %s' because not connected to JCP", reqType, path));
+            throw new ConnectionException(String.format("Error on exec request '[%s] %s' because not connected to JCP", reqType, fullUrl));
 
         if (reqType == Verb.GET) {
             if (objParam instanceof Map)
                 path = prepareGetPath(path, (Map<String, String>) objParam);
             else
-                throw new RequestException(String.format("Error on exec request '[%s] %s' because GET request must give a Map<String,String> as parameter (get %s)", reqType, path, objParam.getClass().getSimpleName()));
+                throw new RequestException(String.format("Error on exec request '[%s] %s' because GET request must give a Map<String,String> as parameter (get %s)", reqType, fullUrl, objParam.getClass().getSimpleName()));
         }
 
         OAuthRequest request;
