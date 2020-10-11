@@ -61,18 +61,25 @@ dependencies {
 
 // Make Java Runnable
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod) {
-    makeJODJavaRunnable(runnableName, config_yml, struct_jod, perms_jod, null, true)
+    makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, null, true)
 }
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, String group_name) {
-    makeJODJavaRunnable(runnableName, config_yml, struct_jod, perms_jod, group_name, true)
+    makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, group_name, true)
 }
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, boolean overrideIfExist) {
-    makeJODJavaRunnable(runnableName, config_yml, struct_jod, perms_jod, null, overrideIfExist)
+    makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, null, overrideIfExist)
+}
+def makeJODJavaDaemon(String runnableName, String config_yml, String struct_jod, String perms_jod, boolean overrideIfExist) {
+    makeJODJavaRunnable(runnableName, true, config_yml, struct_jod, perms_jod, null, overrideIfExist)
 }
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, String group_name, boolean overrideIfExist) {
-    runnableName = "JOD${runnableName}"
-    String mainClass = 'com.robypomper.josp.jod.JODShell'
-    File workingDir = file("envs/runnables/jod/${runnableName}")
+    makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, null, overrideIfExist)
+}
+def makeJODJavaRunnable(String runnableName, boolean isDaemon, String config_yml, String struct_jod, String perms_jod, String group_name, boolean overrideIfExist) {
+    runnableName = "JOD${runnableName}" + (isDaemon ? "Daemon" : "")
+    String mainClass = isDaemon ? 'com.robypomper.josp.jod.JODDaemon' : 'com.robypomper.josp.jod.JODShell'
+    String dir = isDaemon ? "jod-daemon" : "jod"
+    File workingDir = file("envs/runnables/${dir}/${runnableName}")
 
     JavaRunnableUtils.makeJavaFromSourceSet(project, sourceSets.jospJOD, mainClass, runnableName, workingDir)
     String jarTaskName = "java${runnableName}Run"
@@ -153,6 +160,12 @@ makeJODJavaRunnable('Vanilla','jod_default.yml','struct_default.jod','perms_defa
 makeJODJavaRunnable('VanillaOnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('VanillaOnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('VanillaNoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod')
+
+makeJODJavaDaemon('','jod_default.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaDaemon('OnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaDaemon('OnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod',false)
+makeJODJavaDaemon('NoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod',false)
+
 task javaJOD_Clean(type: Delete) {
     group 'JOSP cleaners'
     delete "envs/runnables/jod/JOD"
