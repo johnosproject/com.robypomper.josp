@@ -24,7 +24,6 @@ import com.robypomper.communication.server.events.*;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.log.Mrk_Commons;
-import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +100,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     // Object's data received
 
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Data '%s...' received from '%s' object", readData.substring(0, readData.indexOf("\n")), client.getClientId()));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Data '%s...' received from '%s' object", readData.substring(0, readData.indexOf("\n")), client.getClientId()));
         GWObject obj = objects.get(client.getClientId());
         int count = 0;
         while (obj == null && count < 5) {

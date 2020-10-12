@@ -27,6 +27,7 @@ import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,7 +68,7 @@ public abstract class AbsJOSPGWsService {
             servers.put(ONLY_SERVER_ID, initServer(ONLY_SERVER_ID));
 
         } catch (UtilsJKS.GenerationException | UtilsSSL.GenerationException | com.robypomper.communication.server.Server.ListeningException e) {
-            log.warn(String.format("Error on initializing internal JOSP GWs because %s", e.getMessage()), e);
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on initializing internal JOSP GWs because %s", e.getMessage()), e);
         }
 
         jospGWs.add(this);
@@ -82,35 +83,35 @@ public abstract class AbsJOSPGWsService {
                 tpmHostAddr = InetAddress.getLoopbackAddress();
             }
         }
-        log.info(String.format("Internal JOSP GWs use '%s' as public address", tpmHostAddr));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Internal JOSP GWs use '%s' as public address", tpmHostAddr));
         this.hostAddr = tpmHostAddr;
 
-        log.info(String.format("Initialized JOSPGWsService instance with %d pre-initialized servers", servers.size()));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Initialized JOSPGWsService instance with %d pre-initialized servers", servers.size()));
     }
 
 
     // Internal JOSP GWs initializer
 
     private Server initServer(String idServer) throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, com.robypomper.communication.server.Server.ListeningException {
-        log.debug(String.format("Generating and starting internal JOSP GWs '%s' server", idServer));
+        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Generating and starting internal JOSP GWs '%s' server", idServer));
         String alias = String.format("%s@%s", idServer, CERT_ALIAS);
         int port = generateRandomPort();
 
-        log.trace(String.format("Preparing internal JOSP GWs '%s' keystore", idServer));
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' keystore", idServer));
         KeyStore ks = UtilsJKS.generateKeyStore(idServer, null, alias);
         Certificate publicCertificate = UtilsJKS.extractCertificate(ks, alias);
 
-        log.trace(String.format("Preparing internal JOSP GWs '%s' SSL context", idServer));
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' SSL context", idServer));
         SSLContext sslCtx;
         DynAddTrustManager trustmanager = new DynAddTrustManager();
         sslCtx = UtilsSSL.generateSSLContext(ks, null, trustmanager);
 
-        log.trace(String.format("Creating and starting internal JOSP GWs '%s' SSL context", idServer));
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Creating and starting internal JOSP GWs '%s' SSL context", idServer));
         Server s = new Server(this, sslCtx, idServer, port, trustmanager, publicCertificate);
         s.start();
-        log.debug(String.format("Internal JOSP GWs '%s' server generated and started", idServer));
+        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Internal JOSP GWs '%s' server generated and started", idServer));
 
-        log.info(String.format("Internal JOSP GWs '%s' server started on port '%d'", idServer, port));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Internal JOSP GWs '%s' server started on port '%d'", idServer, port));
         return s;
     }
 
@@ -119,7 +120,7 @@ public abstract class AbsJOSPGWsService {
 
     private Server associateOrGetServer(String idClient) {
         if (clients.get(idClient) == null) {
-            log.trace(String.format("Adding client '%s' internal JOSP GWs '%s' server", idClient, ONLY_SERVER_ID));
+            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Adding client '%s' internal JOSP GWs '%s' server", idClient, ONLY_SERVER_ID));
             Server newServer = servers.get(ONLY_SERVER_ID);
             clients.put(idClient, newServer);
         }
@@ -144,15 +145,15 @@ public abstract class AbsJOSPGWsService {
     }
 
     public boolean addClientCertificate(String idClient, Certificate certClient) {
-        log.debug(String.format("Adding client '%s' certificate to internal JOSP GWs", idClient));
+        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Adding client '%s' certificate to internal JOSP GWs", idClient));
         try {
             Server server = associateOrGetServer(idClient);
             server.getTrustManager().addCertificate(idClient, certClient);
-            log.debug(String.format("Client '%s' certificate added to internal JOSP GWs", idClient));
+            log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Client '%s' certificate added to internal JOSP GWs", idClient));
             return true;
 
         } catch (AbsCustomTrustManager.UpdateException e) {
-            log.warn(String.format("Error on adding client certificate to internal JOSP GWs TrustStore because %s", e.getMessage()), e);
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on adding client certificate to internal JOSP GWs TrustStore because %s", e.getMessage()), e);
             return false;
         }
     }
