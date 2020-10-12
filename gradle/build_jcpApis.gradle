@@ -68,6 +68,7 @@ sourceSets {
 // JCP APIs's run tasks
 SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs,project.file('src/jcpApis/resources/log4j2_project.xml'))
 SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE,project.file('src/jcpFE/resources/log4j2_project.xml'))
+tasks.bootJcpAPIsRun.workingDir('envs/runnables/jcp-apis')
 
 configurations {
     jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
