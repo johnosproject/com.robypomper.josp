@@ -19,6 +19,9 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <Configuration xmlns:xi="http://www.w3.org/2001/XInclude" status="warn">
+    <Properties>
+        <Property name="filename_base">jospCommons</Property>
+    </Properties>
 
     <!--<xi:include href="log4j2/appenders/log4j2-appenders-ALL.xml" />-->
     <Appenders>

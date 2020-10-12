@@ -25,7 +25,7 @@
 main and sub components's logs. It print only INFO or higher
 level messages. -->
 <RollingFile name="FileInfo" fileName="logs/jod.log"
-             filePattern="logs/jod-%d{yyyyMMdd_HHmmss}-%i.log.gz"
+             filePattern="logs/${filename_base}-%d{yyyyMMdd_HHmmss}-%i.log.gz"
              append="true">
     <Filters>
         <!--<MarkerFilter marker="MAIN_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->

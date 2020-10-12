@@ -23,7 +23,7 @@
 <!-- Full JOSP file output -->
 <!-- Default appender for JOSP loggers on file. It prints all log messages. -->
 <RollingFile name="FileFull" fileName="logs/jod_full.log"
-             filePattern="logs/jod_full-%d{yyyyMMdd_HHmmss}-%i.log.gz"
+             filePattern="logs/${filename_base}-%d{yyyyMMdd_HHmmss}-%i.log-full.gz"
              append="true">
     <Filters>
         <!--<MarkerFilter marker="MAIN_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->

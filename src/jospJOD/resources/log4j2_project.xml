@@ -19,8 +19,10 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <Configuration xmlns:xi="http://www.w3.org/2001/XInclude" status="warn">
+    <Properties>
+        <Property name="filename_base">jod</Property>
+    </Properties>
 
-    <!--<xi:include href="file:src/jospCommons/resources/log4j2/appenders/log4j2-appenders-ALL.xml" />-->
     <Appenders>
         <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-standard-console.xml" />
         <xi:include href="file:../../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-standard-console-DEV.xml" />
