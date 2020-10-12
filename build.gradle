@@ -48,7 +48,7 @@ apply from: 'gradle/spring_support.gradle'
 
 apply from: 'gradle/build_commons.gradle'
 apply from: 'gradle/build_dockers.gradle'
-apply from: 'gradle/build_jcpApis.gradle'
+apply from: 'gradle/build_jospcloud.gradle'
 apply from: 'gradle/build_josp.gradle'
 apply from: 'gradle/build_josp_platform.gradle'
 apply from: 'gradle/build_tests.gradle'

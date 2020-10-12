@@ -163,7 +163,7 @@ bootJcpFERun.dependsOn printGradleVersions
 // Publication include
 // -------------------
 
-apply from: 'gradle/build_jcpApis_publish.gradle'
+apply from: 'gradle/build_jospcloud_publish.gradle'
 
 
 // JCP APIs
