@@ -196,7 +196,7 @@ public class JODGwO2SClient implements Client {
      */
     public void onServerConnection() {
         try {
-            communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr()));
+            communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr(), client.isConnected()));
             communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()));
             communication.sendToCloud(JOSPProtocol_ObjectToService.createObjectPermsMsg(objInfo.getObjId(), objInfo.getPermsForJSL()));
 

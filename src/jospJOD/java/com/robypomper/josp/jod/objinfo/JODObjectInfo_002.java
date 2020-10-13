@@ -299,7 +299,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void syncObjInfo() {
-        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr()), JOSPPerm.Type.Status);
+        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr(), comm.isCloudConnected()), JOSPPerm.Type.Status);
     }
 
 
