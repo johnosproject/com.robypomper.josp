@@ -147,7 +147,7 @@ public class JOSPGWsBroker {
     // Sender (obj > srv)
 
     private void sendObjectInfoToService(GWObject object, GWService service) {
-        String msg = JOSPProtocol_ObjectToService.createObjectInfoMsg(object.getObjId(), object.getObj().getName(), object.getObj().getVersion(), object.getObj().getOwner().getOwnerId(), object.getObj().getInfo().getModel(), object.getObj().getInfo().getBrand(), object.getObj().getInfo().getLongDescr());
+        String msg = JOSPProtocol_ObjectToService.createObjectInfoMsg(object.getObjId(), object.getObj().getName(), object.getObj().getVersion(), object.getObj().getOwner().getOwnerId(), object.getObj().getInfo().getModel(), object.getObj().getInfo().getBrand(), object.getObj().getInfo().getLongDescr(),object.getObj().getStatus().isOnline());
         sendToSingleCloudService(object, service.getFullId(), msg, JOSPPerm.Type.Status);
     }
 
