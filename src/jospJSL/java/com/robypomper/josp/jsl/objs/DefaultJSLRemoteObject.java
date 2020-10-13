@@ -454,7 +454,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
     }
 
-    private boolean processObjectInfoMsg(String msg, JOSPPerm.Connection connType) {
+    private boolean processObjectInfoMsg(String msg, JOSPPerm.Connection connType) throws Throwable {
         try {
             String newName = JOSPProtocol_ObjectToService.getObjectInfoMsg_Name(msg);
             if (name == null || !name.equals(newName)) {
@@ -494,13 +494,15 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
             }
 
             if (connType == JOSPPerm.Connection.LocalAndCloud && !isCloudConnected) {
-                isCloudConnected = true;
-                emitConn_CloudConnected();
+                isCloudConnected = JOSPProtocol_ObjectToService.getObjectInfoMsg_IsCloudConnected(msg);
+                if (isCloudConnected)
+                    emitConn_CloudConnected();
+                else
+                    emitConn_CloudDisconnected();
             }
 
         } catch (JOSPProtocol.ParsingException e) {
-            log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
-            return false;
+            throw new Throwable(String.format("Error on processing ObjectInfo message for '%s' object because %s", objId, e.getMessage()), e);
         }
 
         return true;
@@ -547,7 +549,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
     }
 
     private boolean processObjectDisconnectMsg(String msg, JOSPPerm.Connection connType) throws Throwable {
-        if (connType == JOSPPerm.Connection.LocalAndCloud) {
+        if (connType == JOSPPerm.Connection.LocalAndCloud && isCloudConnected) {
             isCloudConnected = false;
             emitConn_CloudDisconnected();
         }
