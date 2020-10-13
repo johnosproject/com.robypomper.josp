@@ -52,10 +52,10 @@ public class JOSPProtocol_ObjectToService {
 
     public static final String OBJ_INF_REQ_NAME = "ObjectInfo";
     private static final String OBJ_INF_REQ_BASE = JOSPProtocol.JOSP_PROTO + " OBJ_INF_MSG";
-    private static final String OBJ_INF_REQ = OBJ_INF_REQ_BASE + " %s\nobjId:%s\nobjName:%s\njodVersion:%s\nownerId:%s\nmodel:%s\nbrand:%s\ndescr:%s";
+    private static final String OBJ_INF_REQ = OBJ_INF_REQ_BASE + " %s\nobjId:%s\nobjName:%s\njodVersion:%s\nownerId:%s\nmodel:%s\nbrand:%s\ndescr:%s\nisCloudConnected:%s";
 
-    public static String createObjectInfoMsg(String objId, String objName, String jodVersion, String ownerId, String model, String brand, String descr) {
-        return String.format(OBJ_INF_REQ, JOSPProtocol.getNow(), objId, objName, jodVersion, ownerId, model, brand, descr);
+    public static String createObjectInfoMsg(String objId, String objName, String jodVersion, String ownerId, String model, String brand, String descr, boolean isCloudConnected) {
+        return String.format(OBJ_INF_REQ, JOSPProtocol.getNow(), objId, objName, jodVersion, ownerId, model, brand, descr, isCloudConnected);
     }
 
     public static boolean isObjectInfoMsg(String msg) {
@@ -63,27 +63,31 @@ public class JOSPProtocol_ObjectToService {
     }
 
     public static String getObjectInfoMsg_Name(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 8, 2, OBJ_INF_REQ_NAME);
+        return JOSPProtocol.extractFieldFromResponse(msg, 9, 2, OBJ_INF_REQ_NAME);
     }
 
     public static String getObjectInfoMsg_JODVersion(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 8, 3, OBJ_INF_REQ_NAME);
+        return JOSPProtocol.extractFieldFromResponse(msg, 9, 3, OBJ_INF_REQ_NAME);
     }
 
     public static String getObjectInfoMsg_OwnerId(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 8, 4, OBJ_INF_REQ_NAME);
+        return JOSPProtocol.extractFieldFromResponse(msg, 9, 4, OBJ_INF_REQ_NAME);
     }
 
     public static String getObjectInfoMsg_Model(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 8, 5, OBJ_INF_REQ_NAME);
+        return JOSPProtocol.extractFieldFromResponse(msg, 9, 5, OBJ_INF_REQ_NAME);
     }
 
     public static String getObjectInfoMsg_Brand(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 8, 6, OBJ_INF_REQ_NAME);
+        return JOSPProtocol.extractFieldFromResponse(msg, 9, 6, OBJ_INF_REQ_NAME);
     }
 
     public static String getObjectInfoMsg_LongDescr(String msg) throws JOSPProtocol.ParsingException {
-        return JOSPProtocol.extractFieldFromResponse(msg, 8, 7, OBJ_INF_REQ_NAME);
+        return JOSPProtocol.extractFieldFromResponse(msg, 9, 7, OBJ_INF_REQ_NAME);
+    }
+
+    public static boolean getObjectInfoMsg_IsCloudConnected(String msg) throws JOSPProtocol.ParsingException {
+        return Boolean.parseBoolean(JOSPProtocol.extractFieldFromResponse(msg, 9, 8, OBJ_INF_REQ_NAME));
     }
 
 
