@@ -28,12 +28,8 @@ It's aim is to help log readers understand the JOSP program procedures
 and states. -->
 <Console name="ConsoleSpring" target="SYSTEM_OUT">
     <Filters>
-        <!--<MarkerFilter marker="MAIN_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
-        <MarkerFilter marker="EXT_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <MarkerFilter marker="SUB_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <MarkerFilter marker="IMPL_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
         <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
     </Filters>
     <PatternLayout alwaysWriteExceptions="false"
-                   pattern="  SPR   %style{%d{DEFAULT} # [ %-5level | %-15.-15threadName | %-48.48logger{1.} ]}{dim,underline} %msg%n%notEmpty{%ex{full}}"/>
+                   pattern="- SPR - %style{%d{DEFAULT} # [ %-5level | %-15.-15threadName | %-48.48logger{1.} ]}{dim,underline} %msg%n%notEmpty{%ex{full}}"/>
 </Console>

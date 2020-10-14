@@ -51,13 +51,13 @@
         <xi:include href="file:../../../src/jospCommons/resources/log4j2/loggers/log4j2-comm.discovery.xml" />
 
         <!-- JSL -->
-        <xi:include href="file:src/jospJSL/resources/log4j2/loggers/log4j2-jsl.xml" />
-        <xi:include href="file:src/jospJSL/resources/log4j2/loggers/log4j2-jsl.jcpclient.xml" />
-        <xi:include href="file:src/jospJSL/resources/log4j2/loggers/log4j2-jsl.comm.xml" />
-        <xi:include href="file:src/jospJSL/resources/log4j2/loggers/log4j2-jsl.objs.xml" />
-        <xi:include href="file:src/jospJSL/resources/log4j2/loggers/log4j2-jsl.srvinfo.xml" />
-        <xi:include href="file:src/jospJSL/resources/log4j2/loggers/log4j2-jsl.user.xml" />
-        <xi:include href="file:src/jospJSL/resources/log4j2/loggers/log4j2-jsl.shell.xml" />
+        <xi:include href="file:../../../src/jospJSL/resources/log4j2/loggers/log4j2-jsl.xml" />
+        <xi:include href="file:../../../src/jospJSL/resources/log4j2/loggers/log4j2-jsl.jcpclient.xml" />
+        <xi:include href="file:../../../src/jospJSL/resources/log4j2/loggers/log4j2-jsl.comm.xml" />
+        <xi:include href="file:../../../src/jospJSL/resources/log4j2/loggers/log4j2-jsl.objs.xml" />
+        <xi:include href="file:../../../src/jospJSL/resources/log4j2/loggers/log4j2-jsl.srvinfo.xml" />
+        <xi:include href="file:../../../src/jospJSL/resources/log4j2/loggers/log4j2-jsl.user.xml" />
+        <xi:include href="file:../../../src/jospJSL/resources/log4j2/loggers/log4j2-jsl.shell.xml" />
 
         <!-- Spring & Co -->
         <xi:include href="log4j2/loggers/springframework/log4j2-apache.xml" />

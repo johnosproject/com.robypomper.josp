@@ -122,7 +122,7 @@ public class JSLGwS2OClient implements Client {
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Getting service GW client access info");
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Getting JOSP Gw S2O access info for service's cloud client");
             s2oAccess = jcpComm.getS2OAccessInfo(clientCert);
-            log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client access info got");
+            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Service GW client access info returned: '%s:%d'", s2oAccess.gwAddress, s2oAccess.gwPort));
 
             if (isInitializing()) {
                 jcpClient.removeConnectListener(initListener);
@@ -130,7 +130,7 @@ public class JSLGwS2OClient implements Client {
             }
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | CertificateEncodingException | JCPClient2.ResponseException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on initializing service GW client because %s", e.getMessage()));
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on getting service GW info because %s", e.getMessage()), e);
             if (!isInitializing()) {
                 jcpClient.addConnectListener(initListener);
                 isInit = true;
@@ -156,13 +156,13 @@ public class JSLGwS2OClient implements Client {
 
 
         try {
-            log.debug(Mrk_JSL.JSL_COMM_SUB, "Connecting service GW client");
+            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Connecting service GW client at %s:%d", s2oAccess.gwAddress.getCanonicalHostName(), s2oAccess.gwPort));
             client.connect();
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client connected");
 
         } catch (ConnectionException e) {
             log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on connecting service GW client because %s", e.getMessage()), e);
-            throw new ConnectionException("Error on connecting service GW client");
+            throw new ConnectionException(String.format("Error on connecting service GW client at %s:%d",s2oAccess.gwAddress.toString(), s2oAccess.gwPort));
         }
     }
 

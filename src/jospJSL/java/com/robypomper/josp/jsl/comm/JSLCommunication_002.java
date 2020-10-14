@@ -153,7 +153,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
                 throw new Throwable(String.format("Object '%s' not found", objId));//throw new ObjectNotFound(objId)
 
             if (!obj.processFromObjectMsg(msg, connType))
-                throw new Throwable(String.format("Error on processing '%s' message", msg.substring(0, msg.indexOf('\n'))));
+                throw new Throwable(String.format("Unknown error on processing '%s' message", msg.substring(0, msg.indexOf('\n'))));
 
             log.info(Mrk_JSL.JSL_COMM, String.format("Message '%s' processed successfully", msg.substring(0, msg.indexOf('\n'))));
             return true;
