@@ -92,6 +92,21 @@ function showShare(updateHistory) {
             });
         }
 
+        function updObjsListFilter(owner, shared, anonymous) {
+            objsListFilterOwner = owner;
+            objsListFilterShared = shared;
+            objsListFilterAnonymous = anonymous;
+
+            fillObjsList();
+        }
+
+        function updMenuObjsListFilter() {
+              var owner = document.getElementById('objs_list_filter_owner').checked
+              var shared = document.getElementById('objs_list_filter_shared').checked;
+              var anonymous = document.getElementById('objs_list_filter_anonymous').checked;
+              updObjsListFilter(owner,shared,anonymous);
+        }
+
 
 // Feedback methods
 

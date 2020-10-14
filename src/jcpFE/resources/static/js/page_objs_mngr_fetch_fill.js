@@ -22,6 +22,10 @@ var loggedUserId = null;
 var loggedUserName = null;
 var serviceId = null;
 var serviceVersion = null;
+var objsListCache = null;
+var objsListFilterOwner = true;
+var objsListFilterShared = true;
+var objsListFilterAnonymous = false;
 
 
 // Fetch methods
@@ -132,14 +136,45 @@ function fillRequiredContent(documentUrl) {
 }
 
 function fillObjsList(objsListJson) {
-    var objsList = JSON.parse(objsListJson);
+    var objsList;
+
+    if (objsListJson != null)
+        objsList = JSON.parse(objsListJson);
+    else if (objsListCache != null)
+        objsList = objsListCache;
+
+    if (objsListJson == null && objsListCache == null) {
+        fetchObjsList();
+        return;
+    }
+    objsListCache = objsList;
 
     // Update menu
     var menuItems = [];
-    menuItems.push(["OBJECTS",null]);
-    //menuItems.push(["<i class='fa fa-lightbulb-o'></i> OBJECTS</i>",null]);
-    for (i = 0; i < objsList.length; i++)
-        menuItems.push([objsList[i].name,"showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+    menuItems.push(["<div class='title'>OBJECTS</div>" + getMenu_ObjsSelectorDropDown(),null]);
+    for (i = 0; i < objsList.length; i++) {
+        if (typeof user === "undefined" || !user.isAuthenticated)
+            if (objsList[i].owner == '00000-00000-00000')
+                menuItems.push([objsList[i].name + " [A]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+            else
+                menuItems.push([objsList[i].name,"showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+        else
+            if (objsList[i].owner == user.id && objsListFilterOwner)
+                menuItems.push([objsList[i].name,"showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+            else if (objsList[i].owner != user.id && objsList[i].owner != '00000-00000-00000' && objsListFilterShared)
+                menuItems.push([objsList[i].name + " [S]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+            else if (objsList[i].owner == '00000-00000-00000' && objsListFilterAnonymous)
+                menuItems.push([objsList[i].name + " [A]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+    }
+
+    if (menuItems.length==1) {
+        menuItems.push(["",null]);
+        menuItems.push(["<div style='font-size: 0.6em;width: 100%;'>No objects found!<br><br>" +
+                         "Check objects filters<br>" +
+                         "or register new objects.</div>",null]);
+        menuItems.push(["",null]);
+    }
+
     setMenu_List_OnClick(menuItems);
 }
 
@@ -279,11 +314,33 @@ function getTitle_Welcome_Str() {
     return "Welcome to JOSP<br><span style='text-align:right;'>Eco-System</span>";
 }
 
-function getOpts_ObjsMngr() {
+function getMenu_ObjsSelectorDropDown() {
     var html = "";
 
-    html += "<style>";
-    html += "</style>";
+    if (typeof user !== "undefined" && user.isAuthenticated) {
+        html += "<div class='dropdown'>";
+        html += "  <button class='dropbtn box_opts box_opts_active'><i class='fa fa-sliders'></i></button>";
+        html += "  <div class='dropdown-content'>";
+        html += "    <a>";
+        html += "      <input type='checkbox' onclick='updMenuObjsListFilter()' id='objs_list_filter_owner'" + (objsListFilterOwner ? " checked='true'" : "") + "' />";
+        html += "      <label for='objs_list_filter_owner'>My objects</label>";
+        html += "    </a>";
+        html += "    <a>";
+        html += "      <input type='checkbox' onclick='updMenuObjsListFilter()' id='objs_list_filter_shared'" + (objsListFilterShared ? " checked='true'" : "") + "' />";
+        html += "      <label for='objs_list_filter_shared'>Shared with me</label>";
+        html += "    </a>";
+        html += "    <a>";
+        html += "      <input type='checkbox' onclick='updMenuObjsListFilter()' id='objs_list_filter_anonymous'" + (objsListFilterAnonymous ? " checked='true'" : "") + "' />";
+        html += "      <label for='objs_list_filter_anonymous'>Anonymous objects</label>";
+        html += "    </a>";
+        html += "  </div>";
+        html += "</div>";
+    }
+    return html;
+}
+
+function getOpts_ObjsMngr() {
+    var html = "";
 
     html += "<div class='dropdown'>";
     html += "  <button class='dropbtn box_opts box_opts_active'><i class='fa fa-bars'></i></button>";
