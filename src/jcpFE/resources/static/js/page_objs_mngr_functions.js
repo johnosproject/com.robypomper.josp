@@ -74,21 +74,21 @@ function showShare(updateHistory) {
 }
 
         function execute(element,actionUrl) {
-            showWaitingButton(element.id);
+            showWaitingFeedback(element.id);
 
             apiGET(actionUrl,
             function(responseText) {
-                hideWaitingButton(element.id);
+                hideWaitingFeedback(element.id);
                 if (responseText == "true")
                     return;
 
                 alert("Error on executing: " + actionUrl + "<br>" + responseText);
-                showFailButton(element.id);
+                showFailFeedback(element.id);
             },
             function(xhttpRequest) {
-                hideWaitingButton(element.id);
+                hideWaitingFeedback(element.id);
                 alert("Error on executing: " + actionUrl + "<br>" + xhttpRequest.responseText);
-                showFailButton(element.id);
+                showFailFeedback(element.id);
             });
         }
 
@@ -107,68 +107,76 @@ function showShare(updateHistory) {
               updObjsListFilter(owner,shared,anonymous);
         }
 
+        function boxExpandCollapse(divExpColl) {
+            var box = divExpColl.parentElement;
+            box.classList.toggle("collapsed");
+        }
+        function boxExpandCollapseToHTML() {
+            var html = "";
+            html += "    <div style='float: right;' onClick='boxExpandCollapse(this)'>";
+            html += "        <i class='fa fa-angle-down down' aria-hidden='true'></i>";
+            html += "        <i class='fa fa-angle-up up' aria-hidden='true'></i>";
+            html += "    </div>";
+            return html;
+        }
 
 // Feedback methods
 
-function showUpdateField(tagId) {
+var feedTimeMs = 1000;
+var feedUpdColor = "#2c64ba";
+var feedWaitColor = "#ffff0020";
+var feedSuccessColor = "#00800020";
+var feedErrorColor = "#ff000020";
+var feedOldStyles = {};
+
+function showUpdateFeedback(tagId) {
     var element = document.getElementById(tagId);
 
     var oldStyle = element.style.textShadow;
-    element.style.textShadow='0 0 15px #2c64ba';
+    element.style.textShadow='0 0 15px ' + feedUpdColor;
 
     window.setTimeout(function() {
         var element = document.getElementById(tagId);
         element.style.textShadow = oldStyle;
-    },1000);
+    },feedTimeMs);
 }
 
-function showWaitingButton(tagId) {
-    var elem = document.getElementById(tagId);
+async function showWaitingFeedback(tagId) {
+    var element = document.getElementById(tagId);
 
-    var ico = document.createElement("i");
-    ico.id = tagId + "_waitIco";
-    ico.className = "fa fa-spinner fa-spin"
-
-    elem.appendChild(ico);
+    feedOldStyles[tagId] = element.style.backgroundColor;
+    element.style.backgroundColor=feedWaitColor;
 }
 
-function hideWaitingButton(tagId) {
-    var elem = document.getElementById(tagId + "_waitIco");
-    if (elem==null)
-        return;
+function hideWaitingFeedback(tagId) {
+    var element = document.getElementById(tagId);
+    element.style.backgroundColor = feedOldStyles[tagId];
 
-    var parent = elem.parentNode;
-    parent.removeChild(elem);
-
-    showSuccessButton(parent.id);
+    showSuccessFeedback(tagId);
 }
 
-function showSuccessButton(tagId) {
-    var elem = document.getElementById(tagId);
+function showSuccessFeedback(tagId) {
+    var element = document.getElementById(tagId);
 
-    var ico = document.createElement("i");
-    ico.id = tagId + "_successIco";
-    ico.className = "fa fa-check-circle-o"
+    feedOldStyles[tagId] = element.style.backgroundColor;
+    element.style.backgroundColor=feedSuccessColor;
 
-    elem.appendChild(ico);
-
-    setTimeout(function() {
-        elem.removeChild(ico);
-    }, 1000);
+    window.setTimeout(function() {
+        var element = document.getElementById(tagId);
+        element.style.backgroundColor = feedOldStyles[tagId];
+    },feedTimeMs);
 }
 
-function showFailButton(tagId) {
-    var elem = document.getElementById(tagId);
+function showFailFeedback(tagId) {
+    var element = document.getElementById(tagId);
 
-    var ico = document.createElement("i");
-    ico.id = tagId + "_failIco";
-    ico.className = "fa fa-exclamation-circle"
+    feedOldStyles[tagId] = element.style.backgroundColor;
+    element.style.backgroundColor=feedErrorColor;
 
-    elem.appendChild(ico);
-
-    setTimeout(function() {
-        elem.removeChild(ico);
-    }, 1000);
+    window.setTimeout(function() {
+        var element = document.getElementById(tagId);
+        element.style.backgroundColor = feedOldStyles[tagId];
+    },feedTimeMs);
 }
 
 
@@ -207,7 +215,7 @@ function saveObjectName_Title(containerTag) {
     var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/name/";
     apiPOST(actionUrl,
         async function(responseText) {
-            hideWaitingButton(containerTag.id);
+            hideWaitingFeedback(containerTag.id);
             if (responseText == "true") {
                 replace(containerTag,editableObjectName_Title(input.value));
                 _originalName = null;
@@ -219,18 +227,18 @@ function saveObjectName_Title(containerTag) {
             alert("Error on executing: " + actionUrl + "<br>" + responseText);
             replace(containerTag,editableObjectName_Title(_originalName));
             _originalName = null;
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         },
         function(xhttpRequest) {
-            hideWaitingButton(containerTag.id);
+            hideWaitingFeedback(containerTag.id);
             alert("Error on executing: " + actionUrl + "<br>" + xhttpRequest.responseText);
             replace(containerTag,editableObjectName_Title(_originalName));
             _originalName = null;
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         },
         "new_name=" + input.value
     );
-    showWaitingButton(input.id);
+    showWaitingFeedback(input.id);
 }
 
 function editableObjectOwner_Field(objOwner) {
@@ -270,7 +278,7 @@ function saveObjectOwner_Field(containerTag) {
     var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/owner/";
     apiPOST(actionUrl,
     function(responseText) {
-        hideWaitingButton(containerTag.id);
+        hideWaitingFeedback(containerTag.id);
         if (responseText == "true") {
             replace(containerTag,editableObjectOwner_Field(input.value));
             _originalOwner = null;
@@ -280,17 +288,17 @@ function saveObjectOwner_Field(containerTag) {
         alert("Error on executing: " + actionUrl + "<br>" + responseText);
         replace(containerTag,editableObjectOwner_Field(_originalOwner));
         _originalOwner = null;
-        showFailButton(containerTag.id);
+        showFailFeedback(containerTag.id);
     },
     function(xhttpRequest) {
-        hideWaitingButton(containerTag.id);
+        hideWaitingFeedback(containerTag.id);
         alert("Error on executing: " + actionUrl + "<br>" + xhttpRequest.responseText);
         replace(containerTag,editableObjectOwner_Field(_originalOwner));
         _originalOwner = null;
-        showFailButton(containerTag.id);
+        showFailFeedback(containerTag.id);
     },
     "new_owner=" + input.value);
-    showWaitingButton(containerTag.id);
+    showWaitingFeedback(containerTag.id);
 }
 
 function editablePermission_Row(permId,objId,srvId,usrId,permType,connType) {
@@ -395,7 +403,7 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
 
     apiPOST(updUrl,
         async function(responseText) {
-            hideWaitingButton(rowTag.id);
+            hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {
                 if (permId==null) {
                     replace(rowTag,editablePermission_Row(permId,objId,srvIdInput.value,usrIdInput.value,permTypeInput.value,connTypeInput.value));
@@ -422,10 +430,10 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
             _originalUsrId[permId_] = null;
             _originalPermType[permId_] = null
             _originalConnType[permId_] = null;
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         },
         function(xhttpRequest) {
-            hideWaitingButton(rowTag.id);
+            hideWaitingFeedback(rowTag.id);
             alert("Error on executing: " + updUrl + "<br>" + xhttpRequest.responseText);
             replace(rowTag,editablePermission_Row(_originalPermId[permId_],_originalObjId[permId_],_originalSrvId[permId_],_originalUsrId[permId_],_originalPermType[permId_],_originalConnType[permId_]));
             _originalPermId[permId_] = null;
@@ -434,17 +442,17 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
             _originalUsrId[permId_] = null;
             _originalPermType[permId_] = null
             _originalConnType[permId_] = null;
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         },
         "srv_id=" + srvIdInput.value + "&usr_id=" + usrIdInput.value + "&type=" + permTypeInput.value + "&conn=" + connTypeInput.value
     );
-    showWaitingButton(rowTag.id);
+    showWaitingFeedback(rowTag.id);
 }
 
 function clonePermission_Row(rowTag,dupUrl,objId,permId) {
     apiGET(dupUrl,
         async function(responseText) {
-            hideWaitingButton(rowTag.id);
+            hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {
                 await new Promise(r => setTimeout(r, 2000));
                 showShare();
@@ -452,21 +460,21 @@ function clonePermission_Row(rowTag,dupUrl,objId,permId) {
             }
 
             alert("Error on executing: " + dupUrl + "<br>" + responseText);
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         },
         function(xhttpRequest) {
-            hideWaitingButton(rowTag.id);
+            hideWaitingFeedback(rowTag.id);
             alert("Error on executing: " + dupUrl + "<br>" + xhttpRequest.responseText);
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         }
     );
-    showWaitingButton(rowTag.id);
+    showWaitingFeedback(rowTag.id);
 }
 
 function deletePermission_Row(rowTag,delUrl,objId,permId) {
     apiGET(delUrl,
         async function(responseText) {
-            hideWaitingButton(rowTag.id);
+            hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {
                 await new Promise(r => setTimeout(r, 2000));
                 showShare();
@@ -474,15 +482,15 @@ function deletePermission_Row(rowTag,delUrl,objId,permId) {
             }
 
             alert("Error on executing: " + delUrl + "<br>" + responseText);
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         },
         function(xhttpRequest) {
-            hideWaitingButton(rowTag.id);
+            hideWaitingFeedback(rowTag.id);
             alert("Error on executing: " + delUrl + "<br>" + xhttpRequest.responseText);
-            showFailButton(containerTag.id);
+            showFailFeedback(containerTag.id);
         }
     );
-    showWaitingButton(rowTag.id);
+    showWaitingFeedback(rowTag.id);
 }
 
 function addCustomPermission_Row(tableTagId,objId) {

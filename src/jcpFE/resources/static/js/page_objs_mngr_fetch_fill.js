@@ -214,7 +214,7 @@ function fillComponent(compJson) {
     comp = JSON.parse(compJson);
     document.getElementById(comp.componentPath).innerHTML = componentToHtml(comp);
     // current method is called only from "SSE -> emitStateUpd(eventText) -> fetchComponent(objId,compPath)" stack
-    showUpdateField(comp.componentPath + "_state");
+    showUpdateFeedback(comp.componentPath + "_state");
 }
 
 function fillUser(userJson) {
@@ -448,6 +448,7 @@ function objectDetailsToHtml(obj) {
 function objectDetailsMainToHtmlBox(obj) {
     var html = "";
     html += "<div class='box'>";
+    html += boxExpandCollapseToHTML();
     html += "    <h2>Details</h2>";
     html += "    <table class='table_details'>";
     html += "    <tr><td class='label'>" + 'id:'            + "</td><td class='value'>" + obj['id']                 + "</td></tr>";
@@ -461,6 +462,7 @@ function objectDetailsMainToHtmlBox(obj) {
 function objectDetailsSecurityToHtmlBox(obj) {
     var html = "";
     html += "<div class='box'>";
+    html += boxExpandCollapseToHTML();
     html += "    <h2>Security</h2>";
     html += "    <table class='table_details'>";
     html += "    <tr><td class='label'>" + 'owner:'      + "</td>";
@@ -478,6 +480,7 @@ function objectStructureToHtmlBox(root) {
     html += objectRootDetailsToHtmlBox(root);
 
     html += "<div class='box box_obj_struct'>";
+    html += boxExpandCollapseToHTML();
     html += "    <h2>Structure</h2>";
     html += containerToHtmlList(root);
     html += "</div>";
@@ -487,6 +490,7 @@ function objectStructureToHtmlBox(root) {
 function objectRootDetailsToHtmlBox(root) {
     var html = "";
     html += "<div class='box box_obj_details'>";
+    html += boxExpandCollapseToHTML();
     html += "<h2>Model:</h2>";
     html += "    <b>Model:</b> " + root.model + "<br>";
     html += "    <b>Brand:</b> " + root.brand + "<br>";
@@ -499,7 +503,8 @@ function containerToHtmlList(contJson) {
     var html = "";
     html += "<ul class='action_first'>";
     for (var i=0; i<contJson.subComps.length; i++) {
-        html += "<li id='" + contJson.subComps[i].componentPath + "' class='box_obj_comp'>";
+        html += "<li id='" + contJson.subComps[i].componentPath + "' class='box_obj_comp box_obj_comp_" + contJson.subComps[i].type + "'>";
+        html += boxExpandCollapseToHTML();
         html += componentToHtml(contJson.subComps[i]);
         html += "</li>";
     }
@@ -510,7 +515,7 @@ function containerToHtmlList(contJson) {
 function componentToHtml(comp) {
     var html = "";
 
-    html += "<p><spam style='color:gray;'>";
+    html += "<p class='info'><spam style='color:gray;'>";
     html += comp.componentPath.substring(0,comp.componentPath.length-comp.name.length);
     html += "</spam><b>";
     html += comp.name;
@@ -524,6 +529,7 @@ function componentToHtml(comp) {
 
     } else if (comp.type == "BooleanAction") {
         html += "<p id='" + comp.componentPath + "_state' class='state action_first'>" + comp.state + "</p>";
+        html += "<div id='" + comp.componentPath + "_action' class='action action_single action_first' onClick='execute(this,\"" + comp.pathSwitch + "\");'>Switch</div>";
         html += "<div id='" + comp.componentPath + "_action_switch' class='action action_main action_first' onClick='execute(this,\"" + comp.pathSwitch + "\");'>Switch</div>";
         html += "<div id='" + comp.componentPath + "_action_true' class='action action_first' onClick='execute(this,\"" + comp.pathTrue + "\");'>Set TRUE</div>";
         html += "<div id='" + comp.componentPath + "_action_false' class='action' onClick='execute(this,\"" + comp.pathFalse + "\");'>Set FALSE</div>";
@@ -533,6 +539,15 @@ function componentToHtml(comp) {
 
     } else if (comp.type == "RangeAction") {
         html += "<p id='" + comp.componentPath + "_state' class='state action_first'>" + comp.state + "</p>";
+        html += "<div id='" + comp.componentPath + "_action' class='action action_single action_first'>";
+        var value_slider_id = comp.componentPath + "_action_slider";
+        var value_slider_path = comp.pathSetValue + "\" + document.getElementById(\"" + value_slider_id + "\").value";
+        html += "    <p style='width: auto;padding: 5px;'>" + comp.min + "</p>";
+        html += "    <input id='" + value_slider_id + "' type='range' min='" + comp.min + "' max='" + comp.max + "' step='" + comp.step + "' value='" + comp.state + "' onChange='execute(this.parentElement,\"" + value_slider_path + ");'>";
+        html += "    <p style='width: auto;padding: 5px;'>" + comp.max + "</p>";
+        html += "</div>";
+
+
         html += "<div id='" + comp.componentPath + "_action_dec' class='action action_first' onClick='execute(this,\"" + comp.pathDec + "\");'>Decrease</div>";
         html += "<div id='" + comp.componentPath + "_action_inc' class='action' onClick='execute(this,\"" + comp.pathInc + "\");'>Increase</div>";
         html += "<div id='" + comp.componentPath + "_action_min' class='action action_main action_first' onClick='execute(this,\"" + comp.pathMin + "\");'>Set MIN</div>";
@@ -543,7 +558,7 @@ function componentToHtml(comp) {
         var value_input_id = "aaa1234";
         var value_path = comp.pathSetValue + "\" + document.getElementById(\"" + value_input_id + "\").value";
         html += "<div id='" + comp.componentPath + "_action_value' class='action action_main action_first' onClick='execute(this,\"" + value_path + ");'>Set Value</div>";
-        html += "<input id='" + value_input_id + "' type='text' style='margin: 10px; width: 100px;'>";
+        html += "<input id='" + value_input_id + "' class='action action_main' type='text' style='margin: 10px; width: 100px;'>";
 
     } else if (comp.type == "Container")
         for (var i=0; i<comp.subComps.length; i++)
@@ -578,6 +593,7 @@ function objectPermissionsToHtmlBox(permsList,objName,objOwner,isConnected,curre
     html += objectPermissionsStyles();
 
     html += "<div id='" + divId + "' class='box obj_perms" + (!isConnected ? " disabled" : "") + "'>";
+    html += boxExpandCollapseToHTML();
 
     html += "    <h2 id='" + titleId + "'>";
     html += "       " + objName;
@@ -653,11 +669,11 @@ function objectStyles() {
     html += "        margin: 0 10px;";
     html += "    }";
 
-    html += "    @media only screen and (max-width: 600px) {";
+    html += "    @media only screen and (max-width: 700px) {";
     html += "        .div_obj_row div  {";
-    html += "            margin: auto;";
+    //html += "            margin: auto;";
     html += "            float: none;";
-    html += "            width: 80%;";
+    //html += "            width: 80%;";
     html += "        }";
     html += "       .div_obj_row_first div {";
     html += "            flex-grow: 1;";
@@ -691,10 +707,29 @@ function objectStructureStyles() {
     html += "        border-radius: 16px;";
     html += "        padding: 10px;";
     html += "        overflow: auto;";
+    html += "        box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.4), 0 6px 15px 0 rgba(0, 0, 0, 0);";
+    html += "        background-color: #FFFFFF;";
+    html += "        margin: 5px;";
     html += "    }";
     html += "    .box_obj_comp > * {";
     html += "        float: left;";
-    html += "        padding: 10px;";
+    html += "        padding: 5px;";
+    html += "    }";
+    html += "    .box_obj_comp.collapsed > * {";
+    html += "        padding: 5px;";
+    html += "        display: none";
+    html += "    }";
+    html += "    .box_obj_comp.collapsed > div:first-child {";
+    html += "        display: block";
+    html += "    }";
+    html += "    .box_obj_comp.collapsed .info {";
+    html += "        display: block";
+    html += "    }";
+    html += "    .box_obj_comp.collapsed .info > spam {";
+    html += "        display: none";
+    html += "    }";
+    html += "    .box_obj_comp.collapsed .state {";
+    html += "        display: block";
     html += "    }";
     html += "    .state {";
     html += "        clear: none !important;";
@@ -723,7 +758,14 @@ function objectStructureStyles() {
     html += "        display: none;";
     html += "    }";
     html += "    .action_main, .action_main * {";
+    html += "        display: none;";
+    html += "    }";
+    html += "    .action_single, .action_single * {";
     html += "        display: flex;";
+    html += "        width: 90%;";
+    html += "        margin: auto !important;";
+    html += "        float: none;";
+    html += "        max-width: 300px;";
     html += "    }";
     html += "    .action:hover {";
     html += "        box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.8), 0 6px 15px 0 rgba(0, 0, 0, 0);";

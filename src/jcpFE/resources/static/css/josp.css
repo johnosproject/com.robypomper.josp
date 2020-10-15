@@ -26,7 +26,27 @@ table {
     border: 1px solid #ccc!important;
     border-radius: 16px;
     padding: 10px;
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
 }
+.box.collapsed,
+.box_obj_comp.collapsed {
+    height: 25px;
+    overflow-y: hidden;
+}
+.box.collapsed > div > i:last-child,
+.box> div > i:first-child,
+.box_obj_comp.collapsed > div > i:last-child,
+.box_obj_comp> div > i:first-child {
+    display: none;
+}
+.box.collapsed > div > i:first-child,
+.box> div > i:last-child,
+.box_obj_comp.collapsed > div > i:first-child,
+.box_obj_comp> div > i:last-child {
+    display: block;
+}
+
 .box h2 {
     margin-bottom: 10px;
     color: #404040;
@@ -46,6 +66,28 @@ table {
 
 
 /* Page component's style */
+
+@media only screen and (max-width: 700px) {
+    section {
+        flex-direction: column;
+    }
+}
+    @media only screen and (max-width: 700px) {
+        nav {
+            width: 100%;
+            max-width: 700px;
+        }
+    }
+        @media only screen and (max-width: 700px) {
+            #div_menu {
+                overflow-y: hidden;
+            }
+        }
+    @media only screen and (max-width: 700px) {
+        #div_main {
+            overflow-y: visible;
+        }
+    }
 
 header {
   text-align: center;
