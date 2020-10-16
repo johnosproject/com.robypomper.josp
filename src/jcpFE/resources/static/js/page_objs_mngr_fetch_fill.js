@@ -26,6 +26,8 @@ var objsListCache = null;
 var objsListFilterOwner = true;
 var objsListFilterShared = true;
 var objsListFilterAnonymous = false;
+var defaultObjCompsCollapsed = true;
+
 
 
 // Fetch methods
@@ -43,6 +45,17 @@ function fetchObjDetails(objId) {
             apiGET(url,fillObjDetails,onErrorFetch);
         }
     );
+}
+
+function fetchObjInfo(objId) {
+    //apiGET("/apis/objsmngr/1.0/" + objId + "/",fillObj_Header,onErrorFetch);
+    apiGET("/apis/objsmngr/1.0/" + objId + "/",fillObjInfo_Obj,onErrorFetch);
+    apiGET("/apis/structure/1.0/" + objId + "/",fillObjInfo_Struct,onErrorFetch);
+}
+
+function fetchObjPerms(objId) {
+    apiGET("/apis/objsmngr/1.0/" + objId + "/",fillObjInfo_Obj,onErrorFetch);
+    apiGET("/apis/permissions/1.0/" + objId + "/",fillObjPerms,onErrorFetch);
 }
 
 function fetchObjStruct(objId) {
@@ -114,6 +127,18 @@ function fillRequiredContent(documentUrl) {
             return false;
         showObjectDetails(objId,false);
 
+    } else if (page == PAGE_OBJ_INFO) {
+        var objId = findGetParameter(documentUrl,'objId');
+        if (objId==null)
+            return false;
+        showObjectInfo(objId,false);
+
+    } else if (page == PAGE_OBJ_PERMS) {
+        var objId = findGetParameter(documentUrl,'objId');
+        if (objId==null)
+            return false;
+        showObjectPermissions(objId,false);
+
     } else if (page == PAGE_OBJS_LIST) {
         showObjects(false);
 
@@ -151,20 +176,21 @@ function fillObjsList(objsListJson) {
 
     // Update menu
     var menuItems = [];
-    menuItems.push(["<div class='title'>OBJECTS</div>" + getMenu_ObjsSelectorDropDown(),null]);
+    menuItems.push(["<div class='title'>OBJECTS</div>" + getMenu_ObjsSelectorDropDown_HTML(),null]);
     for (i = 0; i < objsList.length; i++) {
+        var connI = objsList[i].isConnected ? "C" : "D";
         if (typeof user === "undefined" || !user.isAuthenticated)
             if (objsList[i].owner == '00000-00000-00000')
-                menuItems.push([objsList[i].name + " [A]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+                menuItems.push([objsList[i].name + " [" + connI + "A]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
             else
                 menuItems.push([objsList[i].name,"showObjectDetails(\"" + objsList[i].id + "\",true)"]);
         else
             if (objsList[i].owner == user.id && objsListFilterOwner)
-                menuItems.push([objsList[i].name,"showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+                menuItems.push([objsList[i].name + " [" + connI + "]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
             else if (objsList[i].owner != user.id && objsList[i].owner != '00000-00000-00000' && objsListFilterShared)
-                menuItems.push([objsList[i].name + " [S]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+                menuItems.push([objsList[i].name + " [" + connI + "S]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
             else if (objsList[i].owner == '00000-00000-00000' && objsListFilterAnonymous)
-                menuItems.push([objsList[i].name + " [A]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
+                menuItems.push([objsList[i].name + " [" + connI + "A]","showObjectDetails(\"" + objsList[i].id + "\",true)"]);
     }
 
     if (menuItems.length==1) {
@@ -182,16 +208,19 @@ function fillObjDetails(objJson) {
     obj = JSON.parse(objJson);
     detailObjId = obj.id;
 
-    // Update title
-    var titleId = "obj_" + obj.id + "_title";
-    setTitle("<h1 id='" + titleId + "'>" + obj.name + "<a href='javascript:void(0);' onclick='editObjectName_Title(this.parentElement,\"" + obj.name + "\");'><i class='fa fa-pencil' style='font-size: 0.8em;'></i></a></h1>");
+    if (currentPage == PAGE_OBJ_DETAILS)
+        setTitle("<p>Object</p>");
 
-    // Update content
+    var html = "";
+    html += "    <div id='div_obj_title'>" + objectTitleToHtml(obj) + "</div>";
+    html += "    <div id='div_obj_links'>" + objectLinksToHtml(obj) + "</div>";
+
+    html += "    <hr>";
+
     var contentId = "obj_" + obj.id + "_content";
-    var html = "<div id='" + contentId + "'>";
-    html += objectDetailsToHtml(obj);
-    html += "<hr>";
-    html += "<div id='div_struct' class='div_obj_row' style='width: fit-content; margin: 10px auto;' />"     // for fetchObjStruct() -> fillObjStructure()
+    html += "<div id='" + contentId + "'>";
+    //html += "    <div id='div_struct' class='div_obj_row' style='width: fit-content; margin: 10px auto;' />"     // for fetchObjStruct() -> fillObjStructure()        // CONTENT CENTRED
+    html += "    <div id='div_struct' class='div_obj_row' style='margin: 10px auto;' />"     // for fetchObjStruct() -> fillObjStructure()
     html += "</div>";
 
     setContent(html);
@@ -217,11 +246,91 @@ function fillComponent(compJson) {
     showUpdateFeedback(comp.componentPath + "_state");
 }
 
+function fillObj_Header(objJson) {
+    obj = JSON.parse(objJson);
+
+
+    //more object info: Id, brand, model
+    //<span style='color:gray;font-size:0.7em;'>(" + permsList[0].objId + ")</span>
+
+    if (document.getElementById("div_obj_title") != null)
+        document.getElementById("div_obj_title").innerHTML = objectTitleToHtml(obj);
+    if (document.getElementById("div_obj_links") != null)
+        document.getElementById("div_obj_links").innerHTML = objectLinksToHtml(obj);
+
+
+    if (!obj.isCloudConnected) {
+        addDisabledCssClassById("obj_" + obj.id + "_title");
+        addDisabledCssClassById("obj_" + obj.id + "_content");
+    }
+}
+
+function fillObjInfo_Obj(objJson) {
+    fillObj_Header(objJson, "Info");
+
+    obj = JSON.parse(objJson);
+
+    if (currentPage == PAGE_OBJ_INFO)
+        setTitle("<p><a href='javascript:void(0);' onclick='showObjectDetails(&quot;" + obj.id + "&quot;,true)'>Object</a> > Info</p>");
+
+    if (document.getElementById("val_obj_id") != null)
+        document.getElementById("val_obj_id").innerHTML = obj.id;
+    if (document.getElementById("val_obj_name") != null)
+        document.getElementById("val_obj_name").innerHTML = obj.name;
+    if (document.getElementById("val_obj_permission") != null)
+        document.getElementById("val_obj_permission").innerHTML = obj.permission;
+    if (document.getElementById("val_obj_owner") != null)
+        document.getElementById("val_obj_owner").innerHTML = obj.owner;
+    if (document.getElementById("val_obj_isConnected") != null)
+        document.getElementById("val_obj_isConnected").innerHTML = obj.isConnected;
+    if (document.getElementById("val_obj_isCloudConnected") != null)
+        document.getElementById("val_obj_isCloudConnected").innerHTML = obj.isCloudConnected;
+    if (document.getElementById("val_obj_isLocalConnected") != null)
+        document.getElementById("val_obj_isLocalConnected").innerHTML = obj.isLocalConnected;
+    if (document.getElementById("val_obj_jodVersion") != null)
+        document.getElementById("val_obj_jodVersion").innerHTML = obj.jodVersion;
+}
+
+function fillObjInfo_Struct(objStructJson) {
+    objStruct = JSON.parse(objStructJson);
+    if (document.getElementById("val_obj_brand") != null)
+        document.getElementById("val_obj_brand").innerHTML = objStruct.brand;
+    if (document.getElementById("val_obj_description") != null)
+        document.getElementById("val_obj_description").innerHTML = objStruct.description;
+    if (document.getElementById("val_obj_descrLong") != null)
+        document.getElementById("val_obj_descrLong").innerHTML = objStruct.descrLong;
+    if (document.getElementById("val_obj_model") != null)
+        document.getElementById("val_obj_model").innerHTML = objStruct.model;
+}
+
+function fillObjPerms(objPermsJson) {
+    objPerms = JSON.parse(objPermsJson);
+
+    if (currentPage == PAGE_OBJ_PERMS)
+        setTitle("<p><a href='javascript:void(0);' onclick='showObjectDetails(&quot;" + objPerms[0].objId + "&quot;,true)'>Object</a> > Access Control</p>");
+
+    var html = "        <tr>";
+    html += "        <th>Service's ID</th>";
+    html += "        <th>User's ID</th>";
+    html += "        <th>Permission</th>";
+    html += "        <th>Connection Type</th>";
+    html += "        <th>Actions</th>";
+    html += "        </tr>";
+    for (var i = 0; i < objPerms.length; i++) {
+        html += editablePermission_Row(objPerms[i].id,objPerms[i].objId,objPerms[i].srvId,objPerms[i].usrId,objPerms[i].type,objPerms[i].connection);
+    }
+
+    var tableId = "table_" + objPerms[0].objId + "_perms";
+    if (document.getElementById(tableId) != null)
+        document.getElementById(tableId).innerHTML = html;
+}
+
 function fillUser(userJson) {
-    if (document.getElementById("val_user_id") != null)
+    if (currentPage == PAGE_USR_INFO)
         setTitle_Str("User Profile:");
 
     user = JSON.parse(userJson);
+
     if (document.getElementById("val_user_id") != null)
         document.getElementById("val_user_id").innerHTML = user.id;
     if (document.getElementById("val_user_name") != null)
@@ -241,7 +350,8 @@ function fillUser(userJson) {
 }
 
 function fillService(serviceJson) {
-    setTitle_Str("Service details:");
+    if (currentPage == PAGE_SRV_INFO)
+        setTitle_Str("Service Details:");
 
     service = JSON.parse(serviceJson);
 
@@ -314,7 +424,7 @@ function getTitle_Welcome_Str() {
     return "Welcome to JOSP<br><span style='text-align:right;'>Eco-System</span>";
 }
 
-function getMenu_ObjsSelectorDropDown() {
+function getMenu_ObjsSelectorDropDown_HTML() {
     var html = "";
 
     if (typeof user !== "undefined" && user.isAuthenticated) {
@@ -373,6 +483,101 @@ function getContent_Objects_Html() {
     html += "</span>";
     html += "<a href='#'>add new one</a>.</p>";
     html += "</div>";
+    return html;
+}
+
+function getContent_ObjectInfo_Html() {
+    var tableStyle = "width: 70%; margin: auto;"
+    var html = "";
+
+    var html = "";
+    html += "    <div id='div_obj_title'></div>";
+    html += "    <div id='div_obj_links'></div>";
+
+    html += "    <hr>";
+
+    var contentId = "obj_" + obj.id + "_content";
+    html += "<div id='" + contentId + "'>";
+    html += "    <h2>Info</h2>";
+    html += "    <div style='" + tableStyle + "'>";
+    html += "        <table class='table_details'>";
+    html += "            <tr><td class='label'>ID</td><td class='value'><span id='val_obj_id'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Name</td><td class='value'><span id='val_obj_name'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Current Access Level</td><td class='value'><span id='val_obj_permission'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Owner</td><td class='value'><span id='val_obj_owner'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Brand</td><td class='value'><span id='val_obj_brand'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Model</td><td class='value'><span id='val_obj_model'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Description</td><td class='value'><span id='val_obj_description'>...</span></td></tr>";
+    html += "            <tr><td class='label'></td><td class='value'><span id='val_obj_descrLong'>...</span></td></tr>";
+    html += "        </table>";
+    html += "    </div>";
+
+    html += "<hr>";
+
+    html += "    <h2>Communication</h2>";
+    html += "    <div style='" + tableStyle + "'>";
+    html += "        <table class='table_details'>";
+    html += "            <tr><td class='label'>Is Connected</td><td class='value'><span id='val_obj_isConnected'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Is Cloud Connected</td><td class='value'><span id='val_obj_isCloudConnected'>...</span></td></tr>";
+    html += "            <tr><td class='label'>Is Local Connected</td><td class='value'><span id='val_obj_isLocalConnected'>...</span></td></tr>";
+    html += "        </table>";
+    html += "    </div>";
+
+    html += "<hr>";
+
+    html += "    <h2>Versions</h2>";
+    html += "    <div style='" + tableStyle + "'>";
+    html += "        <table class='table_details'>";
+    html += "            <tr><td class='label'>JOD Version</td><td class='value'><span id='val_obj_jodVersion'>...</span></td></tr>";
+    html += "        </table>";
+    html += "    </div>";
+
+    html += "</div>";
+
+    return html;
+}
+
+function getContent_ObjectPerms_Html(objId) {
+    var tableStyle = "width: 70%; margin: auto;"
+    var html = "";
+    var tableId = "table_" + objId + "_perms";
+    var linksId = "links_" + objId + "_perms";
+
+    var html = "";
+    html += "    <div id='div_obj_title'></div>";
+    html += "    <div id='div_obj_links'></div>";
+
+    html += "    <hr>";
+
+    var contentId = "obj_" + obj.id + "_content";
+    html += "<div id='" + contentId + "'>";
+
+    html += "    <h2>Access Control</h2>";
+
+    html += objectPermissionsStyles();
+    html += "    <p>Object's owner '<b id='val_obj_owner'>...</b>'</p>";
+    html += "    <p>Current service/user has '<b id='val_obj_permission'>...</b>' permission on object</p>";
+
+    html += "    <div class='obj_perms'>";
+    html += "       <table id='" + tableId + "'></table>";
+    html += "    </div>";
+
+    html += "    <ul id='" + linksId + "'>";
+    html += "        <li>Add ";
+    html += "            <a href='javascript:void(0);' onclick='addPermission_Row(\"" + tableId + "\",\"" + objId + "\",\"#All\",\"#All\",\"Actions\",\"OnlyLocal\",true)'>Public for Local</a>";
+    html += "            permission";
+    html += "        </li>";
+    html += "        <li>Add ";
+    html += "            <a href='javascript:void(0);' onclick='addPermission_Row(\"" + tableId + "\",\"" + objId + "\",\"#All\",\"#All\",\"Actions\",\"LocalAndCloud\",true)'>Public for All</a>";
+    html += "            permission";
+    html += "        </li>";
+    html += "        <li>Add custom permission ";
+    html += "            <a href='javascript:void(0);' onclick='addCustomPermission_Row(\"" + tableId + "\",\"" + objId + "\")'><i class='fa fa-plus-square-o'></i></a>";
+    html += "        </li>";
+    html += "    </ul>";
+
+    html += "</div>";
+
     return html;
 }
 
@@ -445,11 +650,31 @@ function objectDetailsToHtml(obj) {
     return html;
 }
 
+function objectTitleToHtml(obj) {
+    var titleId = "obj_" + obj.id + "_title";
+    var html = "<h1 id='" + titleId + "'>";
+    html += "    " + obj.name;
+    html += "    <a href='javascript:void(0);' onclick='editObjectName_Title(this.parentElement,\"" + obj.name + "\");'>";
+    html += "        <i class='fa fa-pencil' style='font-size: 0.8em;'></i>";
+    html += "    </a>";
+    html += "</h1>";
+    return html;
+}
+
+function objectLinksToHtml(obj) {
+    var html = "";
+    html += "<div style='padding: 20px 0 20px 10px;'>";
+    html += "    <p>Get more <a href='javascript:void(0);' onclick='showObjectInfo(&quot;" + obj['id'] + "&quot;,true)'>Obj Info</a>";
+    html += "    <p>Setup the Obj's <a href='javascript:void(0);' onclick='showObjectPermissions(&quot;" + obj['id'] + "&quot;,true)'>Access Control</a>";
+    html += "</div>";
+    return html;
+}
+
 function objectDetailsMainToHtmlBox(obj) {
     var html = "";
     html += "<div class='box'>";
     html += boxExpandCollapseToHTML();
-    html += "    <h2>Details</h2>";
+    html += "    <h2><a href='javascript:void(0);' onclick='showObjectInfo(&quot;" + obj['id'] + "&quot;,true)'>Details</a></h2>";
     html += "    <table class='table_details'>";
     html += "    <tr><td class='label'>" + 'id:'            + "</td><td class='value'>" + obj['id']                 + "</td></tr>";
     html += "    <tr><td class='label'>" + 'is Connected:'  + "</td><td class='value'>" + obj['isCloudConnected']   + "</td></tr>";
@@ -463,7 +688,7 @@ function objectDetailsSecurityToHtmlBox(obj) {
     var html = "";
     html += "<div class='box'>";
     html += boxExpandCollapseToHTML();
-    html += "    <h2>Security</h2>";
+    html += "    <h2><a href='javascript:void(0);' onclick='showObjectInfo(&quot;" + obj['id'] + "&quot;,true)'>Security</a></h2>";
     html += "    <table class='table_details'>";
     html += "    <tr><td class='label'>" + 'owner:'      + "</td>";
     html += "        " + editableObjectOwner_Field(obj['owner']);
@@ -477,13 +702,13 @@ function objectDetailsSecurityToHtmlBox(obj) {
 function objectStructureToHtmlBox(root) {
     var html = "";
     html += objectStructureStyles();
-    html += objectRootDetailsToHtmlBox(root);
+    //html += objectRootDetailsToHtmlBox(root);
 
-    html += "<div class='box box_obj_struct'>";
-    html += boxExpandCollapseToHTML();
+    //html += "<div class='box box_obj_struct'>";
+    //html += boxExpandCollapseToHTML();
     html += "    <h2>Structure</h2>";
     html += containerToHtmlList(root);
-    html += "</div>";
+    //html += "</div>";
     return html;
 }
 
@@ -503,7 +728,7 @@ function containerToHtmlList(contJson) {
     var html = "";
     html += "<ul class='action_first'>";
     for (var i=0; i<contJson.subComps.length; i++) {
-        html += "<li id='" + contJson.subComps[i].componentPath + "' class='box_obj_comp box_obj_comp_" + contJson.subComps[i].type + "'>";
+        html += "<li id='" + contJson.subComps[i].componentPath + "' class='box_obj_comp box_obj_comp_" + contJson.subComps[i].type + " " + (defaultObjCompsCollapsed ? "collapsed" : "") + "'>";
         html += boxExpandCollapseToHTML();
         html += componentToHtml(contJson.subComps[i]);
         html += "</li>";
@@ -547,7 +772,6 @@ function componentToHtml(comp) {
         html += "    <p style='width: auto;padding: 5px;'>" + comp.max + "</p>";
         html += "</div>";
 
-
         html += "<div id='" + comp.componentPath + "_action_dec' class='action action_first' onClick='execute(this,\"" + comp.pathDec + "\");'>Decrease</div>";
         html += "<div id='" + comp.componentPath + "_action_inc' class='action' onClick='execute(this,\"" + comp.pathInc + "\");'>Increase</div>";
         html += "<div id='" + comp.componentPath + "_action_min' class='action action_main action_first' onClick='execute(this,\"" + comp.pathMin + "\");'>Set MIN</div>";
@@ -561,8 +785,7 @@ function componentToHtml(comp) {
         html += "<input id='" + value_input_id + "' class='action action_main' type='text' style='margin: 10px; width: 100px;'>";
 
     } else if (comp.type == "Container")
-        for (var i=0; i<comp.subComps.length; i++)
-            html += containerToHtmlList(comp);
+        html += containerToHtmlList(comp);
 
     return html;
 }
@@ -708,7 +931,7 @@ function objectStructureStyles() {
     html += "        padding: 10px;";
     html += "        overflow: auto;";
     html += "        box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.4), 0 6px 15px 0 rgba(0, 0, 0, 0);";
-    html += "        background-color: #FFFFFF;";
+    html += "        background-color: #00000005;";
     html += "        margin: 5px;";
     html += "    }";
     html += "    .box_obj_comp > * {";
@@ -730,6 +953,10 @@ function objectStructureStyles() {
     html += "    }";
     html += "    .box_obj_comp.collapsed .state {";
     html += "        display: block";
+    html += "    }";
+    html += "    .box_obj_comp ul {";
+    html += "       width: 100%;";
+    html += "       padding-left: 0px;";
     html += "    }";
     html += "    .state {";
     html += "        clear: none !important;";

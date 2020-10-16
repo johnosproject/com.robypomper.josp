@@ -20,6 +20,32 @@ table {
 }
 
 
+#div_main {
+    margin-top: 0px;
+}
+
+header {
+    padding-bottom: 0px;
+}
+
+article {
+    padding-left: 30px;
+}
+article h1 {
+    font-size: 3em;
+    font-weight: 400;
+}
+article h2 {
+    font-size: 2em;
+    font-weight: 400;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+article hr {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
 /* JOSP component's style */
 
 .box {
@@ -58,10 +84,13 @@ table {
 
 .table_details tr .label, .table_details tr .label * {
     text-align: right;
+    font-weight: 400;
+    white-space: nowrap;
 }
 
 .table_details tr .value, .table_details tr .value * {
-    font-weight: 400;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 

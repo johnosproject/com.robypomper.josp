@@ -19,11 +19,14 @@ var currentPage = false;
 
 // Page's names
 const PAGE_OBJ_DETAILS = "objDetails";
+const PAGE_OBJ_INFO = "objInfo";
+const PAGE_OBJ_PERMS = "objPerms";
 const PAGE_OBJS_LIST = "objsList";
 const PAGE_USR_INFO = "usrInfo";
 const PAGE_SRV_INFO = "srvInfo";
 const PAGE_ABOUT = "about";
 const PAGE_SHARE = "share";
+var defaultPermissionUpdate = 5000;
 
 
 // Show content methods
@@ -33,6 +36,22 @@ function showObjectDetails(objId,updateHistory) {
 
     currentPage = PAGE_OBJ_DETAILS;
     fetchObjDetails(objId);
+}
+
+function showObjectInfo(objId,updateHistory) {
+    if (updateHistory) setNewPageHistory(PAGE_OBJ_INFO, "Object Info","objId=" + objId);
+
+    currentPage = PAGE_OBJ_INFO;
+    setContent(getContent_ObjectInfo_Html());
+    fetchObjInfo(objId);
+}
+
+function showObjectPermissions(objId,updateHistory) {
+    if (updateHistory) setNewPageHistory(PAGE_OBJ_PERMS, "Object Access Control","objId=" + objId);
+
+    currentPage = PAGE_OBJ_PERMS;
+    setContent(getContent_ObjectPerms_Html(objId));
+    fetchObjPerms(objId);
 }
 
 function showObjects(updateHistory) {
@@ -407,8 +426,9 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
             if (responseText == "true") {
                 if (permId==null) {
                     replace(rowTag,editablePermission_Row(permId,objId,srvIdInput.value,usrIdInput.value,permTypeInput.value,connTypeInput.value));
-                    await new Promise(r => setTimeout(r, 2000));
-                    showShare();
+                    await new Promise(r => setTimeout(r, defaultPermissionUpdate));
+                    //showShare();
+                    fillRequiredContent(document.location);
                     return;
                 }
                 replace(rowTag,editablePermission_Row(permId,objId,srvIdInput.value,usrIdInput.value,permTypeInput.value,connTypeInput.value));
@@ -454,8 +474,9 @@ function clonePermission_Row(rowTag,dupUrl,objId,permId) {
         async function(responseText) {
             hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {
-                await new Promise(r => setTimeout(r, 2000));
-                showShare();
+                await new Promise(r => setTimeout(r, defaultPermissionUpdate));
+                //showShare();
+                fillRequiredContent(document.location);
                 return;
             }
 
@@ -476,8 +497,9 @@ function deletePermission_Row(rowTag,delUrl,objId,permId) {
         async function(responseText) {
             hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {
-                await new Promise(r => setTimeout(r, 2000));
-                showShare();
+                await new Promise(r => setTimeout(r, defaultPermissionUpdate));
+                //showShare();
+                fillRequiredContent(document.location);
                 return;
             }
 
