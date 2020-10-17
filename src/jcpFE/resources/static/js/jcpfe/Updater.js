@@ -1,12 +1,8 @@
-/*********************+
-    Updater
- **********************/
-
-/**
- * This file provide the var and methods for the SSE updater connected to the JCP FE Backend.
- */
 
 var updater = null;
+
+
+// Updated event listeners
 
 function updateOnMessage(event) {
     console.log("SSE " + event.data);

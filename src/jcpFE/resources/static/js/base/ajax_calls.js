@@ -35,6 +35,16 @@ function apiGET(path,processResponse,processError) {
     } catch {}
 }
 
+function apiGET_retry(path,processResponse,processError,retryTime) {
+    if (retryTime==null) retryTime=1000;
+
+    apiGET(path,processResponse,
+        async function onError_RetryFetchObjDetails() {
+            await new Promise(r => setTimeout(r, retryTime));
+            apiGET(path,processResponse,processError);
+        }
+    );}
+
 
 // Post calls
 

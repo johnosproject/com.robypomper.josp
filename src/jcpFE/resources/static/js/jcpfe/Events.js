@@ -1,15 +1,3 @@
-/*********************+
-    Events
- **********************/
-
-/*
- * This file provide functions to control the JCP FE UI: show main content, display action's feedback, made editable
- * UI fields and manage the browser history.
- *
- * sse events
- * objects list events
- * single object events
- */
 
 // Events vars
 
@@ -24,9 +12,9 @@ function emitOnConnected() {
 
         fillPostUpdaterInitialization();
 
-        fetchObjsList();                    // Objs list (Nav Bar)
-        fetchUser();                        // User (Opts links)
-        fetchService();                     // Service (Opts links)
+        fetchObjsListMenu();                    // Objs list (Nav Bar)
+        fetchUsrMngm();                        // User (Opts links)
+        fetchSrvMngm();                     // Service (Opts links)
     }
 
     var section = document.getElementsByTagName('section')[0];
@@ -42,20 +30,20 @@ function emitOnDisconnected() {
 // Object List events
 
 function emitObjAdd(objId) {
-    fetchObjsList();
+    fetchObjsListMenu();
 
-    if (currentPage==PAGE_SHARE)
-        showShare(true);
+    if (currentPage==PAGE_ACCESS_CONTROL)
+        showAccessControl(true);
 }
 
 function emitObjRem(objId) {
-    fetchObjsList();
+    fetchObjsListMenu();
 
     if (currentPage==PAGE_OBJ_DETAILS)
         if (objId==detailObjId)
-            showObjects(true);
-    if (currentPage==PAGE_SHARE)
-        showShare(true);
+            showHome(true);
+    if (currentPage==PAGE_ACCESS_CONTROL)
+        showAccessControl(true);
 }
 
 
@@ -67,12 +55,12 @@ function emitObjConnected(objId) {
 
     if (currentPage==PAGE_OBJ_DETAILS)
         if (objId==detailObjId) {
-            showObjectDetails(objId,false);
+            showObjectContent(objId,false);
 
             removeDisabledCssClassById("obj_" + objId + "_title");
             removeDisabledCssClassById("obj_" + objId + "_content");
         }
-    if (currentPage==PAGE_SHARE)
+    if (currentPage==PAGE_ACCESS_CONTROL)
         removeDisabledCssClassById("obj_" + objId + "_perms");
 }
 
@@ -82,12 +70,12 @@ function emitObjDisconnected(objId) {
 
     if (currentPage==PAGE_OBJ_DETAILS)
         if (objId==detailObjId) {
-            showObjectDetails(objId,false);
+            showObjectContent(objId,false);
 
             addDisabledCssClassById("obj_" + objId + "_title");
             addDisabledCssClassById("obj_" + objId + "_content");
         }
-    if (currentPage==PAGE_SHARE)
+    if (currentPage==PAGE_ACCESS_CONTROL)
         addDisabledCssClassById("obj_" + objId + "_perms");
 }
 
@@ -95,7 +83,7 @@ function emitObjUpd(objId,what) {
     if (objId!=detailObjId)
         return;
 
-    showObjectDetails(objId,false);
+    showObjectContent(objId,false);
     // can be optimized...
 }
 

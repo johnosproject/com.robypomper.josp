@@ -7,22 +7,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" type="text/css" href="css/page_layout.css">
-    <link rel="stylesheet" type="text/css" href="css/josp.css">
+    <link rel="stylesheet" type="text/css" href="css/jcpfe.css">
+    <link rel="stylesheet" type="text/css" href="css/jcpfe_objects.css">
+    <link rel="stylesheet" type="text/css" href="css/jcpfe_permissions.css">
 
-    <script type="text/javascript" src="js/page_layout.js"></script>
-    <script type="text/javascript" src="js/ajax_calls.js"></script>
-    <script type="text/javascript" src="js/updater.js"></script>
-    <script type="text/javascript" src="js/page_objs_mngr_updater.js"></script>
-    <script type="text/javascript" src="js/page_objs_mngr_events.js"></script>
-    <script type="text/javascript" src="js/page_objs_mngr_functions.js"></script>
-    <script type="text/javascript" src="js/page_objs_mngr_fetch_fill.js"></script>
+    <script type="text/javascript" src="js/base/page_layout.js"></script>
+    <script type="text/javascript" src="js/base/ajax_calls.js"></script>
+    <script type="text/javascript" src="js/base/updater.js"></script>
+
+    <script type="text/javascript" src="js/menus/ObjsList.js"></script>
+    <script type="text/javascript" src="js/contents/Home.js"></script>
+    <script type="text/javascript" src="js/contents/Object.js"></script>
+    <script type="text/javascript" src="js/contents/UserProfile.js"></script>
+    <script type="text/javascript" src="js/contents/AccessControl.js"></script>
+    <script type="text/javascript" src="js/contents/JSLStatus.js"></script>
+    <script type="text/javascript" src="js/contents/About.js"></script>
+
+    <script type="text/javascript" src="js/jcpfe/Commons.js"></script>
+    <script type="text/javascript" src="js/jcpfe/WebApp.js"></script>
+    <script type="text/javascript" src="js/jcpfe/Events.js"></script>
+    <script type="text/javascript" src="js/jcpfe/UsrMngm.js"></script>
+    <script type="text/javascript" src="js/jcpfe/SrvMngm.js"></script>
+    <script type="text/javascript" src="js/jcpfe/Updater.js"></script>
+    <script type="text/javascript" src="js/jcpfe/UIFeedback.js"></script>
 
 </head>
 <body>
 <script>
     window.onload = function() {
-        fillPreUpdaterInitialization();
-        updater = startUpdater("/apis/sse/1.0/init",updateOnMessage,updateOnOpen,updateOnError);
+        startWebApp();
     };
 
 </script>

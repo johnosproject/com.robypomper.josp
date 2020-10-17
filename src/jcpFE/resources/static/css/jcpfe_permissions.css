@@ -1,0 +1,21 @@
+.obj_perms table {
+    margin: 20px auto;
+}
+.obj_perms td, .obj_perms th {
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+.obj_perms th {
+    font-size: 1.1em;
+    padding: 10px;
+    background-color: #5b9dc326;
+}
+.obj_perms td p {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.obj_perms .btn_actions {
+    text-align: center;
+}
