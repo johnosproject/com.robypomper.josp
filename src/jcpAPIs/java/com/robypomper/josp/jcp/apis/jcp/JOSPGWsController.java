@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.apis.gw;
+package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
