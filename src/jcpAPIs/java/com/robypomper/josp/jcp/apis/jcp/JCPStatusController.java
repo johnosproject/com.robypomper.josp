@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Deprecated     // for CloudStatusController
 @RestController
 @Api(tags = {APIJCPStatus.SubGroupStatus.NAME})
 public class JCPStatusController {
@@ -59,6 +60,5 @@ public class JCPStatusController {
     public String getJCPStatusFull() {
         return JavaVersionUtils.buildJavaVersionStr("John Cloud Platform", JCPAPIsVersions.VER_JCP_APIs_2_0);
     }
-
 
 }

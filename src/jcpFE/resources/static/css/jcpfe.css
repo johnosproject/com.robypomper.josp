@@ -41,6 +41,12 @@ article h2 {
     margin-top: 20px;
     margin-bottom: 10px;
 }
+article h3 {
+    font-size: 1.7em;
+    font-weight: 400;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
 article hr {
     margin-top: 20px;
     margin-bottom: 30px;
@@ -78,6 +84,11 @@ article hr {
     color: #404040;
 }
 
+.table_details {
+    width: 100%;
+    table-layout: fixed;
+}
+
 .table_details tr td {
     padding: 1px 10px;
 }
@@ -86,6 +97,13 @@ article hr {
     text-align: right;
     font-weight: 400;
     white-space: nowrap;
+}
+
+.table_details tr .value {
+    max-width: 70%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .table_details tr .value, .table_details tr .value * {

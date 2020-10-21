@@ -46,6 +46,12 @@ public interface JSLUserMngr {
      */
     boolean isUserAuthenticated();
 
+    boolean isAdmin();
+
+    boolean isMaker();
+
+    boolean isDeveloper();
+
     /**
      * The logged user ID.
      *

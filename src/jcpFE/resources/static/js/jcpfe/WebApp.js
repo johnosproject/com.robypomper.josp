@@ -10,7 +10,7 @@ function startWebApp() {
 }
 
 
-// PRe/Post/Required fill methods
+// Pre/Post/Required fill methods
 
 function fillPreUpdaterInitialization() {
     // Nav bar
@@ -25,8 +25,22 @@ function fillPreUpdaterInitialization() {
 function fillPostUpdaterInitialization() {
     setOpts(dropDownUserMenu());
 
-    if (!fillRequiredContent(document.location))        // fill required content
-        showHome(false);                                // or default (showHome)
+    pollReady();
+}
+
+var waitTime = 1000;
+
+function pollReady () {
+    if (!isConnected)
+        setTimeout(pollReady, waitTime);
+
+    else if (isAuthenticated==null
+     || serviceId==null)
+        setTimeout(pollReady, waitTime);
+
+    else
+        if (!fillRequiredContent(document.location))        // fill required content
+            showHome(false);                                // or default (showHome)
 }
 
 function fillRequiredContent(documentUrl) {
@@ -64,6 +78,22 @@ function fillRequiredContent(documentUrl) {
     } else if (page == PAGE_ACCESS_CONTROL) {
         showAccessControl(false);
 
+    } else if (page == PAGE_ADMIN_HOME) {
+        showAdminContent(false);
+    } else if (page == PAGE_ADMIN_SYSTEM) {
+        showAdminContentSystem(false);
+    } else if (page == PAGE_ADMIN_SYSTEM_JSL) {
+        showAdminContentSystemJSL(false);
+    } else if (page == PAGE_ADMIN_APIS) {
+        showAdminContentAPIs(false);
+    } else if (page == PAGE_ADMIN_GWS) {
+        showAdminContentGWs(false);
+    } else if (page == PAGE_ADMIN_OBJECTS) {
+        showAdminContentObjects(false);
+    } else if (page == PAGE_ADMIN_SERVICES) {
+        showAdminContentServices(false);
+    } else if (page == PAGE_ADMIN_USER) {
+        showAdminContentUsers(false);
     } else
         return false;
 

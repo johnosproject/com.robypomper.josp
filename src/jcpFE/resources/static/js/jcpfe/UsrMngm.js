@@ -2,6 +2,10 @@
 var isAuthenticated = null;
 var loggedUserId = "00000-00000-00000";
 var loggedUserName = "Anonymous";
+var loggedUser_isAuthenticated = false;
+var loggedUser_isAdmin = false;
+var loggedUser_isMaker = false;
+var loggedUser_isDeveloper = false;
 var onUserLoggedListeners = [];
 var onUserLogoutListeners = [];
 
@@ -33,8 +37,14 @@ function fillUsrMngm(userJson) {
 onUserLoggedListeners.push(function(user) {
     loggedUserId = user.id;
     loggedUserName = user.name;
+    loggedUser_isAuthenticated = user.isAuthenticated;
+    loggedUser_isAdmin = user.isAdmin;
+    loggedUser_isMaker = user.isMaker;
+    loggedUser_isDeveloper = user.isDeveloper;
     showLoginCssClass();
     hideLogoutCssClass();
+
+    setOpts(dropDownUserMenu());
 });
 
 onUserLogoutListeners.push(function(user) {

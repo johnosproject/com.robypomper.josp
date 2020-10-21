@@ -21,6 +21,7 @@ package com.robypomper.josp.jcp.apis.paths;
 
 import com.robypomper.josp.jcp.info.JCPAPIsVersions;
 
+@Deprecated // for APICloudStatus
 public class APIJCPStatus {
 //@formatter:off
 

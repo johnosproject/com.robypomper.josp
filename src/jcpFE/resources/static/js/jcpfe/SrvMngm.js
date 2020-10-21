@@ -1,5 +1,5 @@
 
-var serviceId = "00000-00000-00000";
+var serviceId = null;
 var serviceVersion = "0.0.0";
 
 

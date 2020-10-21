@@ -75,4 +75,28 @@ public class ObjectDBService {
         return objectsStatus.save(objStatus);
     }
 
+    public long count() {
+        return objects.count();
+    }
+
+    public long countActive() {
+        return objects.countByActive(true);
+    }
+
+    public long countInactive() {
+        return objects.countByActive(false);
+    }
+
+    public long countOnline() {
+        return objectsStatus.countByOnline(true);
+    }
+
+    public long countOffline() {
+        return objectsStatus.countByOnline(false);
+    }
+
+    public long countOwners() {
+        return objectsOwner.countOwners();
+    }
+
 }

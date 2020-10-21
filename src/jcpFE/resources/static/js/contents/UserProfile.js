@@ -34,7 +34,7 @@ function fetchUserContent() {
 }
 
 function fillUserContent(userJson) {
-    user = JSON.parse(userJson);
+    var user = JSON.parse(userJson);
     if (document.getElementById("val_user_id") != null)
         document.getElementById("val_user_id").innerHTML = user.id;
     if (document.getElementById("val_user_name") != null)

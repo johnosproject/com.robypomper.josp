@@ -16,7 +16,9 @@ function dropDownUserMenu() {
     html += "    <a class='login' href='javascript:showUserContent(true)'><i class='fa a-id-card-o'></i>Profile</a>";
     html += "    <a class='login' href='/apis/user/1.0/logout/'><i class='fa fa-sign-out'></i>Logout</a>";
     html += "    <hr>";
-    html += "    <a href='javascript:showJSLStatus(true)'><i class='fa fa-info'></i>JCP FE Info</a>";
+    html += "    <a href='javascript:showJSLStatus(true)'><i class='fa fa-info'></i>JSL Status</a>";
+    if (loggedUser_isAdmin)
+        html += "    <a href='javascript:showAdminContent(true)'><i class='fa fa-info'></i>JCP FE Mngm</a>";
     html += "    <a href='javascript:showAbout(true)'><i class='fa fa-question-circle-o'></i>About</a>";
     html += "  </div>";
     html += "</div>";
@@ -137,4 +139,60 @@ function findGetParameter(documentUrl,parameterName) {
         });
 
     return result;
+}
+
+function jsonToHTMLList(json) {
+    var obj = typeof json === 'string' ? JSON.parse(json) : json;
+
+    var html = "<ul>";
+    for (const property in obj) {
+        html += "<li style='display: flex;'>"
+        if (typeof obj[property] === 'object') {
+            html += property + ": ";
+            html += jsonToHTML(obj[property]);
+
+        } else {
+            //html += property + ": " + obj[property];
+            html += "<div>" + property + ":</div>";
+            //html += "<div style='float:right;'>" + obj[property] + "</div>";
+            //html += "<div style='float:right; width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>" + obj[property] + "</div>";
+            html += "<div style='flex-grow: 1; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>" + obj[property] + "</div>";
+        }
+        html += "</li>"
+    }
+    html += "</ul>";
+    return html;
+}
+
+function jsonToHTMLTable(json) {
+    var obj = typeof json === 'string' ? JSON.parse(json) : json;
+
+    var html = "<table class='table_details'>";
+    for (const property in obj) {
+        html += "<tr>"
+        html += "<td class='label'>" + property + "</td>";
+        html += "<td class='value'>" + obj[property] + "</td>";
+        html += "</tr>"
+    }
+    html += "</table>";
+    return html;
+}
+
+function doubleTruncateDigit(double,display) {
+    var strDouble = "" + double;
+    return strDouble.substring(0,strDouble.indexOf('.')+display+1);
+}
+
+function stringToDate(str) {
+    return new Date(Date.parse(str));
+}
+
+function dateToString(date) {
+    return "" +
+        ("0" + date.getUTCHours()).slice(-2) + ":" +
+        ("0" + date.getUTCMinutes()).slice(-2) + ":" +
+        ("0" + date.getUTCSeconds()).slice(-2) + " " +
+        ("0" + date.getUTCDate()).slice(-2) + "/" +
+        ("0" + (date.getUTCMonth()+1)).slice(-2) + "/" +
+        date.getUTCFullYear();
 }
