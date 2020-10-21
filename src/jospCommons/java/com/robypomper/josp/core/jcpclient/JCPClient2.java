@@ -30,6 +30,8 @@ public interface JCPClient2 {
 
     boolean isConnected();
 
+    boolean isSecured();
+
     void connect() throws JCPNotReachableException, ConnectionException, AuthenticationException;
 
     void disconnect();

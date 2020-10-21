@@ -123,6 +123,11 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
     @Override
+    public boolean isSecured() {
+        return securedAPIs;
+    }
+
+    @Override
     public void connect() throws JCPNotReachableException, ConnectionException, AuthenticationException {
         if (isConnected())
             return;
