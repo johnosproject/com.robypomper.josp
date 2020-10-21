@@ -10,7 +10,7 @@ function startWebApp() {
 }
 
 
-// PRe/Post/Required fill methods
+// Pre/Post/Required fill methods
 
 function fillPreUpdaterInitialization() {
     // Nav bar
@@ -25,8 +25,22 @@ function fillPreUpdaterInitialization() {
 function fillPostUpdaterInitialization() {
     setOpts(dropDownUserMenu());
 
-    if (!fillRequiredContent(document.location))        // fill required content
-        showHome(false);                                // or default (showHome)
+    pollReady();
+}
+
+var waitTime = 1000;
+
+function pollReady () {
+    if (!isConnected)
+        setTimeout(pollReady, waitTime);
+
+    else if (isAuthenticated==null
+     || serviceId==null)
+        setTimeout(pollReady, waitTime);
+
+    else
+        if (!fillRequiredContent(document.location))        // fill required content
+            showHome(false);                                // or default (showHome)
 }
 
 function fillRequiredContent(documentUrl) {

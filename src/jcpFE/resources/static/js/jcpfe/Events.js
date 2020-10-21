@@ -2,11 +2,13 @@
 // Events vars
 
 var isFirstFilled = false;
+var isConnected = false;
 
 
 // SSE Events
 
 function emitOnConnected() {
+    isConnected = true;
     if (!isFirstFilled) {
         isFirstFilled=true;
 
@@ -22,6 +24,7 @@ function emitOnConnected() {
 }
 
 function emitOnDisconnected() {
+    isConnected = false;
     var section = document.getElementsByTagName('section')[0];
     addDisabledCssClass(section);
 }
