@@ -39,6 +39,11 @@ public class MockJCPClient_Object implements JCPClient_Object {
     }
 
     @Override
+    public boolean isSecured() {
+        return false;
+    }
+
+    @Override
     public void connect() {
 
     }

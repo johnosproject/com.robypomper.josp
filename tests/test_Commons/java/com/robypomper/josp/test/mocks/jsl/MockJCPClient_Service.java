@@ -44,6 +44,11 @@ public class MockJCPClient_Service implements JCPClient_Service {
     }
 
     @Override
+    public boolean isSecured() {
+        return false;
+    }
+
+    @Override
     public void connect() throws JCPNotReachableException, ConnectionException, AuthenticationException {
 
     }

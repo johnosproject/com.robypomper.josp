@@ -29,6 +29,21 @@ public class MockJSLUserMngr_002 implements JSLUserMngr {
     }
 
     @Override
+    public boolean isAdmin() {
+        return false;
+    }
+
+    @Override
+    public boolean isMaker() {
+        return false;
+    }
+
+    @Override
+    public boolean isDeveloper() {
+        return false;
+    }
+
+    @Override
     public String getUserId() {
         return null;
     }
