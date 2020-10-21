@@ -31,12 +31,15 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpSession;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -92,7 +95,13 @@ public class UserController {
         try {
             String usrId = SecurityUser.getUserID();
             User user = getOrRegisterUser(usrId);
-            return ResponseEntity.ok(new UsrName(user.getUsrId(), user.getUsername()));
+            Collection<String> roles = SecurityUser.getUserRoles();
+            boolean isAuthenticated = SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
+            boolean isAdmin = roles.contains("mng");
+            boolean isMaker = roles.contains("maker");
+            boolean isDeveloper = roles.contains("devs");
+            return ResponseEntity.ok(new UsrName(user.getUsrId(), user.getUsername(), isAuthenticated, isAdmin, isMaker, isDeveloper));
+
         } catch (SecurityUser.UserNotAuthenticated e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated.", e);
         } catch (SecurityUser.AuthNotFoundException e) {

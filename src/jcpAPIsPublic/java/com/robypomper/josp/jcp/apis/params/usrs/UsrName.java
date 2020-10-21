@@ -21,6 +21,8 @@ package com.robypomper.josp.jcp.apis.params.usrs;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.robypomper.josp.protocol.JOSPPerm;
 import lombok.Data;
 
 /**
@@ -35,14 +37,57 @@ public class UsrName {
 
     public final String username;
 
+    public final boolean authenticated;
+
+    public final boolean admin;
+
+    public final boolean maker;
+
+    public final boolean developer;
+
 
     // Constructor
 
     @JsonCreator
     public UsrName(@JsonProperty("usrId") String usrId,
-                   @JsonProperty("username") String username) {
+                   @JsonProperty("username") String username,
+                   @JsonProperty("isAuthenticated") boolean isAuthenticated,
+                   @JsonProperty("isAdmin") boolean isAdmin,
+                   @JsonProperty("isMaker") boolean isMaker,
+                   @JsonProperty("isDeveloper") boolean isDeveloper) {
         this.usrId = usrId;
         this.username = username;
+        this.authenticated = isAuthenticated;
+        this.admin = isAdmin;
+        this.maker = isMaker;
+        this.developer = isDeveloper;
+    }
+
+
+    public static UsrName ANONYMOUS = new UsrName(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString(),JOSPPerm.WildCards.USR_ANONYMOUS_NAME.toString(),false,false,false,false);
+
+    public static UsrName fromLocal(String usrId, String usrName) {
+        return new UsrName(usrId,usrName,false,false,false,false);
+    }
+
+
+    public static void main(String[] args) {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        UsrName usr = ANONYMOUS;
+
+        try {
+
+            String jsonInString2 = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(usr);
+            System.out.println(jsonInString2);
+
+            UsrName usr2 = mapper.readValue(jsonInString2, UsrName.class);
+
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
