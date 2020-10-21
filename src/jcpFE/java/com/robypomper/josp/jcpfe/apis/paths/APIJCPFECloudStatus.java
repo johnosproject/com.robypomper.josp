@@ -45,10 +45,6 @@ public class APIJCPFECloudStatus {
     private static final String MTHD_STATE_JCPAPIS_DISKS            = "state/jcpapis/disks";
     private static final String MTHD_STATE_JCPAPIS_NETWORK          = "state/jcpapis/network";
     private static final String MTHD_STATE_JCPAPIS_NETWORK_INTFS    = "state/jcpapis/network/intfs";
-    private static final String MTHD_STATE_JCPAPIS_GWS              = "state/jcpapi/gws";
-    private static final String MTHD_STATE_JCPAPIS_OBJS             = "state/jcpapi/objects";
-    private static final String MTHD_STATE_JCPAPIS_SRVS             = "state/jcpapi/services";
-    private static final String MTHD_STATE_JCPAPIS_USRS             = "state/jcpapi/users";
 
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_STATE                  = API_PATH + "/" + API_VER + "/" + MTHD_STATE;
@@ -73,10 +69,6 @@ public class APIJCPFECloudStatus {
     public static final String FULL_PATH_STATE_JCPAPIS_DISKS            = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS_DISKS;
     public static final String FULL_PATH_STATE_JCPAPIS_NETWORK          = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS_NETWORK;
     public static final String FULL_PATH_STATE_JCPAPIS_NETWORK_INTFS    = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS_NETWORK_INTFS;
-    public static final String FULL_PATH_STATE_JCPAPIS_GWS          = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS_GWS;
-    public static final String FULL_PATH_STATE_JCPAPIS_OBJS         = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS_OBJS;
-    public static final String FULL_PATH_STATE_JCPAPIS_SRVS         = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS_SRVS;
-    public static final String FULL_PATH_STATE_JCPAPIS_USRS         = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS_USRS;
 
 //@formatter:on
 }
