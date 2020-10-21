@@ -78,6 +78,22 @@ function fillRequiredContent(documentUrl) {
     } else if (page == PAGE_ACCESS_CONTROL) {
         showAccessControl(false);
 
+    } else if (page == PAGE_ADMIN_HOME) {
+        showAdminContent(false);
+    } else if (page == PAGE_ADMIN_SYSTEM) {
+        showAdminContentSystem(false);
+    } else if (page == PAGE_ADMIN_SYSTEM_JSL) {
+        showAdminContentSystemJSL(false);
+    } else if (page == PAGE_ADMIN_APIS) {
+        showAdminContentAPIs(false);
+    } else if (page == PAGE_ADMIN_GWS) {
+        showAdminContentGWs(false);
+    } else if (page == PAGE_ADMIN_OBJECTS) {
+        showAdminContentObjects(false);
+    } else if (page == PAGE_ADMIN_SERVICES) {
+        showAdminContentServices(false);
+    } else if (page == PAGE_ADMIN_USER) {
+        showAdminContentUsers(false);
     } else
         return false;
 
