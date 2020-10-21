@@ -20,36 +20,12 @@ public class APICloudStatus {
         public final static String DESCR = "";
     }
 
-    public static class SubGroupGWs {
-        public final static String NAME = "JOSP GWs Status APIs";
-        public final static String DESCR = "";
-    }
-
-    public static class SubGroupObjs {
-        public final static String NAME = "JCP APIs's Objects Status APIs";
-        public final static String DESCR = "";
-    }
-
-    public static class SubGroupSrvs {
-        public final static String NAME = "JCP APIs's Services Status APIs";
-        public final static String DESCR = "";
-    }
-
-    public static class SubGroupUsrs {
-        public final static String NAME = "JCP APIs's Users Status APIs";
-        public final static String DESCR = "";
-    }
-
 
     // API's methods
 
     // '{mthdName}
     private static final String MTHD_STATE                  = "";
     private static final String MTHD_STATE_JCPAPIS          = "state/jcpapi";
-    private static final String MTHD_STATE_GW               = "state/jcpapi/gws";
-    private static final String MTHD_STATE_OBJS             = "state/jcpapi/objects";
-    private static final String MTHD_STATE_SRVS             = "state/jcpapi/services";
-    private static final String MTHD_STATE_USRS             = "state/jcpapi/users";
     private static final String MTHD_STATE_PROCESS          = "state/process";
     private static final String MTHD_STATE_JAVA             = "state/java";
     private static final String MTHD_STATE_JAVA_THREADS     = "state/java/threads";
@@ -63,10 +39,6 @@ public class APICloudStatus {
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_STATE                  = API_PATH + "/" + API_VER + "/" + MTHD_STATE;
     public static final String FULL_PATH_STATE_JCPAPIS          = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JCPAPIS;
-    public static final String FULL_PATH_STATE_GW               = API_PATH + "/" + API_VER + "/" + MTHD_STATE_GW;
-    public static final String FULL_PATH_STATE_OBJS             = API_PATH + "/" + API_VER + "/" + MTHD_STATE_OBJS;
-    public static final String FULL_PATH_STATE_SRVS             = API_PATH + "/" + API_VER + "/" + MTHD_STATE_SRVS;
-    public static final String FULL_PATH_STATE_USRS             = API_PATH + "/" + API_VER + "/" + MTHD_STATE_USRS;
     public static final String FULL_PATH_STATE_PROCESS          = API_PATH + "/" + API_VER + "/" + MTHD_STATE_PROCESS;
     public static final String FULL_PATH_STATE_JAVA             = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JAVA;
     public static final String FULL_PATH_STATE_JAVA_THREADS     = API_PATH + "/" + API_VER + "/" + MTHD_STATE_JAVA_THREADS;
