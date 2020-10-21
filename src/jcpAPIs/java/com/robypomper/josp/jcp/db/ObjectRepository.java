@@ -24,4 +24,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface ObjectRepository extends JpaRepository<Object, String> {
+    long countByActive(boolean active);
 }

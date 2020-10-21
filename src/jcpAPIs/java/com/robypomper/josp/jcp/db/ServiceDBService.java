@@ -60,4 +60,28 @@ public class ServiceDBService {
         return servicesStatus.save(srvStatus);
     }
 
+    public long count() {
+        return services.count();
+    }
+
+    public long countOnline() {
+        return servicesStatus.countServicesOnline();
+    }
+
+    public long countOffline() {
+        return count() - countOnline();
+    }
+
+    public long countInstances() {
+        return servicesStatus.count();
+    }
+
+    public long countInstancesOnline() {
+        return servicesStatus.countByOnline(true);
+    }
+
+    public long countInstancesOffline() {
+        return servicesStatus.countByOnline(false);
+    }
+
 }

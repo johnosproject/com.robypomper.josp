@@ -20,8 +20,29 @@
 package com.robypomper.josp.jcp.db;
 
 import com.robypomper.josp.jcp.db.entities.ObjectOwner;
+import com.robypomper.josp.jcp.db.entities.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 
 public interface ObjectOwnerRepository extends JpaRepository<ObjectOwner, String> {
+
+    /**
+     * <pre>
+     * 	SELECT count(*) FROM (
+     * 	  SELECT owner_id, count(*) FROM jcp_apis.object_owner
+     * 	    GROUP BY owner_id
+     * 	) as t
+     * </pre>
+     */
+    @Query(value = "SELECT count(*) FROM (\n" +
+            "  SELECT owner_id, count(*) FROM jcp_apis.object_owner\n" +
+            "    GROUP BY owner_id\n" +
+            ") as t\n",
+            nativeQuery = true)
+    long countOwners();
+
 }

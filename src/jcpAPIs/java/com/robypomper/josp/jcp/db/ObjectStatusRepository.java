@@ -24,4 +24,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface ObjectStatusRepository extends JpaRepository<ObjectStatus, String> {
+
+    long countByOnline(boolean online);
+
 }

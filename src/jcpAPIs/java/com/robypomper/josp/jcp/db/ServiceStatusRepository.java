@@ -21,6 +21,7 @@ package com.robypomper.josp.jcp.db;
 
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -34,4 +35,22 @@ public interface ServiceStatusRepository extends JpaRepository<ServiceStatus, St
 
     List<ServiceStatus> findBySrvIdAndUsrId(String srvId, String usrId);
 
+    long countByOnline(boolean online);
+
+    /**
+     * <pre>
+     *  SELECT count(*) FROM (
+     *    SELECT srv_id, count(*) FROM jcp_apis.service_status
+     *      WHERE online='true'
+     *      GROUP BY srv_id
+     *  ) as t;
+     * </pre>
+     */
+    @Query(value = "SELECT count(*) FROM (" +
+            "  SELECT srv_id, count(*) FROM jcp_apis.service_status" +
+            "    WHERE online='true'" +
+            "    GROUP BY srv_id" +
+            ") as t",
+            nativeQuery = true)
+    long countServicesOnline();
 }

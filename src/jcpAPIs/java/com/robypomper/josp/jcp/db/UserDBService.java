@@ -58,4 +58,8 @@ public class UserDBService {
         return users.save(stock);
     }
 
+    public long count() {
+        return users.count();
+    }
+
 }
