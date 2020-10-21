@@ -33,7 +33,7 @@ public class AbsJCPAPIs {
     }
 
     protected boolean isSecure() {
-        return locSettings.getJCPUseSSL();
+        return jcpClient.isSecured();
     }
 
 }
