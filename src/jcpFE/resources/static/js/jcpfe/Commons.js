@@ -16,7 +16,9 @@ function dropDownUserMenu() {
     html += "    <a class='login' href='javascript:showUserContent(true)'><i class='fa a-id-card-o'></i>Profile</a>";
     html += "    <a class='login' href='/apis/user/1.0/logout/'><i class='fa fa-sign-out'></i>Logout</a>";
     html += "    <hr>";
-    html += "    <a href='javascript:showJSLStatus(true)'><i class='fa fa-info'></i>JCP FE Info</a>";
+    html += "    <a href='javascript:showJSLStatus(true)'><i class='fa fa-info'></i>JSL Status</a>";
+    if (loggedUser_isAdmin)
+        html += "    <a href='javascript:showAdminContent(true)'><i class='fa fa-info'></i>JCP FE Mngm</a>";
     html += "    <a href='javascript:showAbout(true)'><i class='fa fa-question-circle-o'></i>About</a>";
     html += "  </div>";
     html += "</div>";
