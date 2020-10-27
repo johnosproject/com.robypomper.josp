@@ -101,6 +101,16 @@ public class MockJCPClient_Object implements JCPClient_Object {
     }
 
     @Override
+    public String getLogoutUrl() {
+        return null;
+    }
+
+    @Override
+    public String getLogoutUrl(String redirectUrl) {
+        return null;
+    }
+
+    @Override
     public void setLoginCode(String loginCode) {
 
     }
