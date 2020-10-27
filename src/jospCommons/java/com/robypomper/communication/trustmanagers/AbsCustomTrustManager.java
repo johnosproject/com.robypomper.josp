@@ -102,9 +102,11 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      * @param cert the certificate to load in to the TrustManager.
      */
     public void addCertificate(String alias, Certificate cert) throws UpdateException {
-        certList.add(cert);
-        certsMap.put(alias, cert);
-        reloadTrustManager();
+        synchronized (certsMap) {
+            certList.add(cert);
+            certsMap.put(alias, cert);
+            reloadTrustManager();
+        }
     }
 
     /**
@@ -113,11 +115,13 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      * @param certs the certificates list to load in to the TrustManager
      */
     public void addCertificate(String alias, Collection<? extends Certificate> certs) throws UpdateException {
-        certList.addAll(certs);
-        int count = 0;
-        for (Certificate cert : certs)
-            certsMap.put(String.format("%s#%d", alias, ++count), cert);
-        reloadTrustManager();
+        synchronized (certsMap) {
+            certList.addAll(certs);
+            int count = 0;
+            for (Certificate cert : certs)
+                certsMap.put(String.format("%s#%d", alias, ++count), cert);
+            reloadTrustManager();
+        }
     }
 
     public Map<String, Certificate> getCertificates() {
@@ -147,12 +151,14 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
         }
 
         // add all temporary certs to KeyStore (ts)
-        for (Map.Entry<String, Certificate> cert : certsMap.entrySet())
-            try {
-                ks.setCertificateEntry(String.valueOf(UUID.randomUUID()), cert.getValue());
-            } catch (KeyStoreException e) {
-                throw new UpdateException("add certificate", e);
-            }
+        synchronized (certsMap) {
+            for (Map.Entry<String, Certificate> cert : certsMap.entrySet())
+                try {
+                    ks.setCertificateEntry(String.valueOf(UUID.randomUUID()), cert.getValue());
+                } catch (KeyStoreException e) {
+                    throw new UpdateException("add certificate", e);
+                }
+        }
 
         // initialize a new TMF with the ks we just loaded
         TrustManagerFactory tmf;      //TrustManagerFactory.getDefaultAlgorithm()

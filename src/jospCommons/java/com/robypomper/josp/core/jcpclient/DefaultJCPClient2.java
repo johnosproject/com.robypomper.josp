@@ -231,6 +231,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
             } catch (SSLHandshakeException ei) {
                 try {
                     JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                    con = (HttpURLConnection) url.openConnection();
+                    con.setRequestMethod("GET");
                     code = con.getResponseCode();
 
                 } catch (SSLHandshakeException e1) {
@@ -358,7 +360,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
 
-    // Connection check timer
+    // Connection check timer (Connection still UP check - Heartbeat)
 
     //@Override
     private void startConnectionCheckTimer() {
@@ -401,7 +403,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
 
-    // Connection timer
+    // Connection timer (Connection become available check - Connection)
 
     @Override
     public boolean isConnecting() {
@@ -425,7 +427,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     if (isConnected())
                         stopConnectionTimer();
 
-                } catch (JCPNotReachableException | NullPointerException e) {
+                } catch (JCPNotReachableException e) {
                     emitConnectionFailed(e);
 
                 } catch (ConnectionException | AuthenticationException e) {
