@@ -45,7 +45,6 @@ public class UserController {
 
     @GetMapping(path = APIJCPFEUser.FULL_PATH_DETAILS)
     public ResponseEntity<JOSPUserHtml> jsonUserDetails(HttpSession session) {
-        JSLUserMngr jslUserMngr = jslService.getUserMngr(jslService.getHttp(session));
         return ResponseEntity.ok(userDetails(session, jslService));
     }
 
