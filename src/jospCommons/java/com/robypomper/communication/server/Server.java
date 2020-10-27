@@ -33,7 +33,7 @@ public interface Server {
     /**
      * Return the address bounded by current server.
      *
-     * @return port used by the server.
+     * @return address bounded by the socket.
      */
     InetAddress getAddress();
 

@@ -123,7 +123,7 @@ public class DefaultServer implements Server {
      */
     @Override
     public InetAddress getAddress() {
-        return serverSocket.getInetAddress();
+        return serverSocket!=null ? serverSocket.getInetAddress() : null;
     }
 
     /**
