@@ -42,8 +42,11 @@ $ java -version
 
 **Mac switch version:**
 
-$ /usr/libexec/java_home -V $ export JAVA_HOME=`/usr/libexec/java_home -v [{JDK/JDK_NAME}]`
+$ /usr/libexec/java_home -V
+$ export JAVA_HOME=`/usr/libexec/java_home -v [{JDK/JDK_NAME}]`
 $ java -version
+    Example:
+    export JAVA_HOME=`/usr/libexec/java_home -v 1.8.0_262`
 
 ## Docker
 

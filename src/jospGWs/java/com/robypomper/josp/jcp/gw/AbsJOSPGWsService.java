@@ -31,6 +31,7 @@ import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -87,6 +88,20 @@ public abstract class AbsJOSPGWsService {
         this.hostAddr = tpmHostAddr;
 
         log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Initialized JOSPGWsService instance with %d pre-initialized servers", servers.size()));
+    }
+
+    @PreDestroy
+    public void destroy() {
+        for (Map.Entry<String,Server> e : getJOSPServers().entrySet()) {
+            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halt server %s", e.getKey()));
+            e.getValue().stop();
+        }
+        int count=0;
+        for (Map.Entry<String,Server> e : getJOSPServers().entrySet())
+            if (!e.getValue().isRunning())
+                count++;
+
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halted %s %d servers", this.getClass().getSimpleName(), count));
     }
 
 

@@ -169,6 +169,13 @@ public class SwaggerConfigurer {
         return createAPIsGroup(new APIGroup(APIJOSPGWs.API_NAME, APIJOSPGWs.API_VER, sg));
     }
 
+    @Bean
+    public Docket eventsApis() {
+        APISubGroup[] sg = new APISubGroup[1];
+        sg[0] = new APISubGroup(APIEvents.SubGroupEvent.NAME, APIEvents.SubGroupEvent.DESCR);
+        return createAPIsGroup(new APIGroup(APIEvents.API_NAME, APIEvents.API_VER, sg));
+    }
+
 
     // Private configurers
 
