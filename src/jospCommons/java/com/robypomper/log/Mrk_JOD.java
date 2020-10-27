@@ -30,6 +30,8 @@ public class Mrk_JOD extends Markers {
 
     protected static final Marker JOD               = MarkerManager.getMarker("JOD");
     public static final Marker JOD_MAIN             = MarkerManager.getMarker("JOD_MAIN").setParents(JOD,MAIN_COMP);
+    // JOD - Events
+    public static final Marker JOD_EVENTS           = MarkerManager.getMarker("JOD_EVENTS").setParents(JOD,MAIN_COMP);
     // JOD - Info
     public static final Marker JOD_INFO             = MarkerManager.getMarker("JOD_INFO").setParents(JOD,MAIN_COMP);
     // JOD - Executor
