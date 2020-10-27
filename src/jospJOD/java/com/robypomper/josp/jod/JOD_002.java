@@ -24,6 +24,9 @@ import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.info.JCPAPIsVersions;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODCommunication_002;
+import com.robypomper.josp.jod.events.Events;
+import com.robypomper.josp.jod.events.JODEvents;
+import com.robypomper.josp.jod.events.JODEvents_002;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODExecutorMngr_002;
 import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
@@ -39,6 +42,7 @@ import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Date;
 import java.util.Random;
 
 public class JOD_002 extends AbsJOD {
@@ -56,28 +60,40 @@ public class JOD_002 extends AbsJOD {
 
     // Constructor
 
-    protected JOD_002(JODSettings_002 settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
-        super(settings, jcpClient, objInfo, structure, comm, executor, permissions);
+    protected JOD_002(JODSettings_002 settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions, JODEvents events) {
+        super(settings, jcpClient, objInfo, structure, comm, executor, permissions, events);
     }
 
     public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JODPermissions.PermissionsFileException {
         log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Object Daemon", VERSION));
 
+        long start = new Date().getTime();
+
+        JODEvents events = new JODEvents_002(settings,null);
+        Events.setInstance(events);
+
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JOD.JOD_MAIN, String.format("Init JOD instance id '%s'", instanceId));
 
+        Events.registerJODStart("Start sub-system creation", instanceId);
         JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
-        try {
-            jcpClient.connect();
+        if (settings.getJCPConnect())
+            try {
+                jcpClient.connect();
+                Events.registerJCPConnection("JCP Connected", jcpClient);
 
-        } catch (JCPClient2.AuthenticationException ignore) {
+            } catch (JCPClient2.AuthenticationException e) {
+                Events.registerJCPConnection("JCP Connection failed", jcpClient, e);
 
-        } catch (JCPClient2.ConnectionException e) {
-            e.printStackTrace();
+            } catch (JCPClient2.ConnectionException e) {
+                Events.registerJCPConnection("JCP Connection failed", jcpClient, e);
+                e.printStackTrace();
 
-        } catch (JCPClient2.JCPNotReachableException e) {
-            jcpClient.startConnectionTimer();
-        }
+            } catch (JCPClient2.JCPNotReachableException e) {
+                Events.registerJCPConnection("JCP Connection failed", jcpClient, e);
+                jcpClient.startConnectionTimer();
+            }
+        events.setJCPClient(jcpClient);
 
         JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient, VERSION);
 
@@ -103,7 +119,10 @@ public class JOD_002 extends AbsJOD {
 
         objInfo.setSystems(structure, executor, comm, permissions);
 
-        return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions);
+        long time = new Date().getTime() - start;
+        Events.registerJODStart("End sub-system creation", time);
+
+        return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions, events);
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -208,10 +209,12 @@ public class JODStructure_002 implements JODStructure {
 
             log.trace(Mrk_JOD.JOD_STRU, String.format("Parsing '%s' object structure '%s...'", objInfo.getObjId(), structureStr.substring(0, 100).replace("\n", " ")));
             root = objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
+            Events.registerStructLoad(root.getModel(),"version",root.getComponents().size());
 
         } catch (JsonProcessingException e) {
             String eMessage = e.getMessage().indexOf('\n') == -1 ? e.getMessage() : e.getMessage().substring(0, e.getMessage().indexOf('\n'));
             log.warn(Mrk_JOD.JOD_STRU, String.format("Error on loading object structure because %s", eMessage), e);
+            Events.registerStructLoad(e);
             throw new ParsingException("Error on parsing JOD Structure", e);
         }
 

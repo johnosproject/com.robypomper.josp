@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.jod.structure;
 
+import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODWorker;
@@ -108,7 +109,9 @@ public abstract class AbsJODState extends AbsJODComponent
     @Override
     public void propagateState(JODStateUpdate update) throws JODStructure.CommunicationSetException {
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Propagating component '%s' state", getName()));
+        Events.registerStatusUpd(this,update);
         getStructure().getCommunication().sendObjectUpdMsg(this, update);
+
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state", getName()));
     }
 
