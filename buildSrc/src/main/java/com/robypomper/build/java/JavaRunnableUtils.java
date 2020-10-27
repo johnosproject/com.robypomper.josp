@@ -29,6 +29,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.jvm.tasks.Jar;
 
 import java.io.File;
+import java.util.Collections;
 
 
 /**
@@ -110,6 +111,7 @@ public class JavaRunnableUtils {
         run.classpath(ss.getRuntimeClasspath());
         run.setMain(mainClass);
         run.setWorkingDir(workingDir);
+        run.setJvmArgs(Collections.singletonList("-ea"));
         run.doFirst(task -> {
             if (!workingDir.exists())
                 workingDir.mkdirs();
