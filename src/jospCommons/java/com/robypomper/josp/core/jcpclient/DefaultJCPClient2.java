@@ -459,7 +459,44 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
 
+    // APIs urls
+
+    @Override
+    public String getUrlAPIs() {
+        return prepareUrl(false,"/",securedAPIs);
+    }
+
+    @Override
+    public String getIPAPIs() {
+        try {
+            return InetAddress.getByName(new URL(getUrlAPIs()).getHost()).getHostAddress();
+        } catch (UnknownHostException e) {
+            return "Unknown";
+        } catch (MalformedURLException ignore) {
+            assert false;
+            return "";
+        }
+    }
+
+
     // Auth urls
+
+    @Override
+    public String getUrlAuth() {
+        return prepareUrl(true,"/",securedAPIs);
+    }
+
+    @Override
+    public String getIPAuth() {
+        try {
+            return InetAddress.getByName(new URL(getUrlAuth()).getHost()).getHostAddress();
+        } catch (UnknownHostException e) {
+            return "Unknown";
+        } catch (MalformedURLException ignore) {
+            assert false;
+            return "";
+        }
+    }
 
     @Override
     public String getLoginUrl() {
