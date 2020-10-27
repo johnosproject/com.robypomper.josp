@@ -96,6 +96,7 @@ dependencies {
     // JCP API's dependencies
     jcpAPIsImplementation sourceSets.jcpAPIsPublic.output
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-web'
+    jcpAPIsCompileOnly 'org.springframework.boot:spring-boot-devtools'
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-log4j2'         // Login support
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'       // Database support
     jcpAPIsImplementation 'mysql:mysql-connector-java'
@@ -116,6 +117,7 @@ dependencies {
 
     jcpFEImplementation 'com.robypomper.josp:jsl:2.0.0'
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
+    jcpFECompileOnly 'org.springframework.boot:spring-boot-devtools'
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
 }
 configurations {
