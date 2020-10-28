@@ -21,6 +21,7 @@ package com.robypomper.josp.jsl.objs;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.remote.DefaultObjComm;
 import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.log.Mrk_JSL;
@@ -82,7 +83,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     public List<JSLRemoteObject> getAllConnectedObjects() {
         List<JSLRemoteObject> connObjs = new ArrayList<>();
         for (JSLRemoteObject obj : objs)
-            if (obj.isLocalConnected())
+            if (obj.getComm().isLocalConnected())
                 connObjs.add(obj);
 
         return Collections.unmodifiableList(connObjs);
@@ -106,7 +107,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     @Override
     public JSLRemoteObject getByConnection(JSLLocalClient client) {
         for (JSLRemoteObject obj : objs)
-            if (obj.getLocalClients().contains(client))
+            if (((DefaultObjComm)obj.getComm()).getLocalClients().contains(client))
                 return obj;
 
         return null;
@@ -143,7 +144,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
 
         } else {
             log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
-            remObj.addLocalClient(serverConnection);
+            ((DefaultObjComm)remObj.getComm()).addLocalClient(serverConnection);
         }
     }
 

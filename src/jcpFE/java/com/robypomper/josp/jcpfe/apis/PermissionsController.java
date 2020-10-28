@@ -45,7 +45,7 @@ public class PermissionsController {
 
         // Convert permission list
         List<JOSPPermHtml> permsHtml = new ArrayList<>();
-        for (JOSPPerm p : obj.getPerms())
+        for (JOSPPerm p : obj.getPerms().getPerms())
             permsHtml.add(new JOSPPermHtml(p));
 
         return ResponseEntity.ok(permsHtml);
@@ -116,7 +116,7 @@ public class PermissionsController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         try {
-            obj.addPerm(srvId, usrId, type, connection);
+            obj.getPerms().addPerm(srvId, usrId, type, connection);
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId), e);
@@ -199,7 +199,7 @@ public class PermissionsController {
             connection = perm.getConnType();
 
         try {
-            obj.updPerm(permId, srvId, usrId, type, connection);
+            obj.getPerms().updPerm(permId, srvId, usrId, type, connection);
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId), e);
@@ -239,7 +239,7 @@ public class PermissionsController {
         JOSPPerm perm = jslService.getPerm(obj, permId);
 
         try {
-            obj.remPerm(perm.getId());
+            obj.getPerms().remPerm(perm.getId());
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on duplicate permission to '%s' object.", objId), e);
@@ -276,7 +276,7 @@ public class PermissionsController {
         JOSPPerm perm = jslService.getPerm(obj, permId);
 
         try {
-            obj.addPerm(perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType());
+            obj.getPerms().addPerm(perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType());
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on duplicate permission to '%s' object.", objId), e);

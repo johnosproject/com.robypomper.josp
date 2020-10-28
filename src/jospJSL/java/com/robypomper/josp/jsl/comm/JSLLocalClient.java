@@ -28,6 +28,7 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.client.standard.SSLCertClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.remote.DefaultObjComm;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -131,7 +132,7 @@ public class JSLLocalClient implements Client {
     private void onServerDisconnection() {
         if (remoteObject != null) {
             log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnected object '%s' server '%s:%d' by '%s' service", remoteObject.getId(), getServerAddr(), getServerPort(), getClientId()));
-            remoteObject.removeLocalClient(this);
+            ((DefaultObjComm)remoteObject.getComm()).removeLocalClient(this);
         }
         communication.removeServer(this);
     }
