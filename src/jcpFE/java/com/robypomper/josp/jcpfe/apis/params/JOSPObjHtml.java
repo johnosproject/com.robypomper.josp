@@ -28,11 +28,11 @@ public class JOSPObjHtml {
     public JOSPObjHtml(JSLRemoteObject obj) {
         this.id = obj.getId();
         this.name = obj.getName();
-        this.owner = obj.getOwnerId();
-        this.isConnected = obj.isConnected();
-        this.isCloudConnected = obj.isCloudConnected();
-        this.isLocalConnected = obj.isLocalConnected();
-        this.jodVersion = obj.getJODVersion();
+        this.owner = obj.getInfo().getOwnerId();
+        this.isConnected = obj.getComm().isConnected();
+        this.isCloudConnected = obj.getComm().isCloudConnected();
+        this.isLocalConnected = obj.getComm().isLocalConnected();
+        this.jodVersion = obj.getInfo().getJODVersion();
         this.pathSingle = APIJCPFEObjs.FULL_PATH_DETAILS.replace("{obj_id}", id);
         this.pathStruct = APIJCPFEStructure.FULL_PATH_STRUCT.replace("{obj_id}", id);
         this.pathPerms = APIJCPFEPermissions.FULL_PATH_LIST.replace("{obj_id}", id);

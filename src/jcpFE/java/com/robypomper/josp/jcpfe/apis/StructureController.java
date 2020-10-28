@@ -51,7 +51,7 @@ public class StructureController {
         if (!jslService.serviceCanPerm(obj, JOSPPerm.Type.Status))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Access denied to current user/service on access '%s' object's structure.", objId));
 
-        return ResponseEntity.ok(new JOSPStructHtml(obj.getStructure(), true));
+        return ResponseEntity.ok(new JOSPStructHtml(obj.getStruct().getStructure(), true));
     }
 
     @GetMapping(path = APIJCPFEStructure.FULL_PATH_STRUCT, produces = MediaType.TEXT_HTML_VALUE)
@@ -84,7 +84,7 @@ public class StructureController {
         if (!jslService.serviceCanPerm(obj, JOSPPerm.Type.Status))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Access denied to current user/service on access '%s' object's structure.", objId));
 
-        JSLComponent comp = compPath.equals("-") ? obj.getStructure() : jslService.getComp(jslService.getHttp(session), objId, compPath, JSLComponent.class);
+        JSLComponent comp = compPath.equals("-") ? obj.getStruct().getStructure() : jslService.getComp(jslService.getHttp(session), objId, compPath, JSLComponent.class);
         return ResponseEntity.ok(generateJOSPComponentHtml(comp));
     }
 

@@ -7,6 +7,9 @@ import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.remote.ObjComm;
+import com.robypomper.josp.jsl.objs.remote.ObjInfo;
+import com.robypomper.josp.jsl.objs.remote.ObjStruct;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
@@ -143,7 +146,7 @@ public class JSLSpringService {
         if (obj == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Object with required id ('%s') not found.", objId));
 
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), new DefaultJSLComponentPath(compPath));
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), new DefaultJSLComponentPath(compPath));
         if (comp == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Component '%s' on object '%s' not found.", compPath, objId));
 
@@ -206,11 +209,11 @@ public class JSLSpringService {
     // Permissions
 
     public static JOSPPerm.Type getObjPerm(JSLRemoteObject obj) {
-        return obj.getServicePerm(obj.isCloudConnected() ? JOSPPerm.Connection.LocalAndCloud : JOSPPerm.Connection.OnlyLocal);
+        return obj.getPerms().getServicePerm(obj.getComm().isCloudConnected() ? JOSPPerm.Connection.LocalAndCloud : JOSPPerm.Connection.OnlyLocal);
     }
 
     public boolean serviceCanPerm(JSLRemoteObject obj, JOSPPerm.Type type) {
-        if (obj.getOwnerId().equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
+        if (obj.getInfo().getOwnerId().equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
             return true;
 
         JOSPPerm.Type objPermType = getObjPerm(obj);
@@ -232,7 +235,7 @@ public class JSLSpringService {
 
     public JOSPPerm getPerm(JSLRemoteObject obj, String permId) {
         JOSPPerm perm = null;
-        for (JOSPPerm p : obj.getPerms())
+        for (JOSPPerm p : obj.getPerms().getPerms())
             if (p.getId().equalsIgnoreCase(permId)) {
                 perm = p;
                 break;
@@ -297,7 +300,7 @@ public class JSLSpringService {
             public void onObjAdded(JSLRemoteObject obj) {
                 emit(jsl, "ObjAdd:" + obj.getId());
 
-                obj.addListener(new JSLRemoteObject.RemoteObjectConnListener() {
+                obj.getComm().addListener(new ObjComm.RemoteObjectConnListener() {
                     @Override
                     public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
                     }
@@ -316,11 +319,10 @@ public class JSLSpringService {
                         emit(jsl, "ObjDisconnected:" + obj.getId());
                     }
                 });
-                obj.addListener(new JSLRemoteObject.RemoteObjectInfoListener() {
+                obj.getInfo().addListener(new ObjInfo.RemoteObjectInfoListener() {
                     @Override
                     public void onNameChanged(JSLRemoteObject obj, String newName, String oldName) {
                         emit(jsl, "ObjUpd:" + obj.getId() + ";what:name");
-
                     }
 
                     @Override
@@ -347,18 +349,11 @@ public class JSLSpringService {
                     public void onLongDescrChanged(JSLRemoteObject obj, String newLongDescr, String oldLongDescr) {
                         emit(jsl, "ObjUpd:" + obj.getId() + ";what:longDescr");
                     }
-
+                });
+                obj.getStruct().addListener(new ObjStruct.RemoteObjectStructListener() {
                     @Override
                     public void onStructureChanged(JSLRemoteObject obj, JSLRoot newRoot) {
-                        registerListenersForSSE(jsl, obj.getStructure());
-                    }
-
-                    @Override
-                    public void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {
-                    }
-
-                    @Override
-                    public void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
+                        registerListenersForSSE(jsl, obj.getStruct().getStructure());
                     }
                 });
             }

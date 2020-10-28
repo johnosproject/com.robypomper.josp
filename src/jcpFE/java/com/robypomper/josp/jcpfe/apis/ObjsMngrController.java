@@ -96,7 +96,7 @@ public class ObjsMngrController {
         // ONLY HTML
 
         return "<form id = \"form_id\" method=\"post\">\n" +
-                "    <input type=\"text\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getObj(jslService.getHttp(session), objId).getOwnerId() + "\">\n" +
+                "    <input type=\"text\" id=\"new_owner\" name=\"new_owner\" value=\"" + jslService.getObj(jslService.getHttp(session), objId).getInfo().getOwnerId() + "\">\n" +
                 "    <input type=\"submit\" value=\"Set\">\n" +
                 "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
                 "</form>\n" +
@@ -123,7 +123,7 @@ public class ObjsMngrController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         try {
-            obj.setOwnerId(newOwner);
+            obj.getInfo().setOwnerId(newOwner);
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on set owner to '%s' object.", objId), e);
@@ -164,7 +164,7 @@ public class ObjsMngrController {
 
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         try {
-            obj.setName(newName);
+            obj.getInfo().setName(newName);
 
         } catch (JSLRemoteObject.MissingPermission e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on rename '%s' object.", objId), e);
