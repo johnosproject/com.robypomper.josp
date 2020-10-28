@@ -22,6 +22,7 @@ import asg.cliche.Command;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.remote.*;
 import com.robypomper.josp.jsl.objs.structure.*;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
@@ -32,6 +33,7 @@ import com.robypomper.josp.protocol.JOSPPerm;
 import java.util.List;
 
 
+@SuppressWarnings("unused")
 public class CmdsJSLObjsMngr {
 
     public static final String PRE = "\n\n";
@@ -73,14 +75,14 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         String s = "";
-        s += "Obj. Id:          " + obj.getId() + "\n";
-        s += "Obj. Name:        " + obj.getName() + "\n";
-        s += "Owner Id:         " + obj.getOwnerId() + "\n";
-        s += "Obj. JOD version: " + obj.getJODVersion() + "\n";
-        s += "JCP Comm:         " + obj.isCloudConnected() + "\n";
-        s += "    perm:         " + obj.getServicePerm(JOSPPerm.Connection.LocalAndCloud) + "\n";
-        s += "Direct Comm:      " + obj.isLocalConnected() + "\n";
-        s += "       perm:      " + obj.getServicePerm(JOSPPerm.Connection.OnlyLocal) + "\n";
+        s += "Obj. Id:          " + obj.getInfo().getId() + "\n";
+        s += "Obj. Name:        " + obj.getInfo().getName() + "\n";
+        s += "Owner Id:         " + obj.getInfo().getOwnerId() + "\n";
+        s += "Obj. JOD version: " + obj.getInfo().getJODVersion() + "\n";
+        s += "JCP Comm:         " + obj.getComm().isCloudConnected() + "\n";
+        s += "    perm:         " + obj.getPerms().getServicePerm(JOSPPerm.Connection.LocalAndCloud) + "\n";
+        s += "Direct Comm:      " + obj.getComm().isLocalConnected() + "\n";
+        s += "       perm:      " + obj.getPerms().getServicePerm(JOSPPerm.Connection.OnlyLocal) + "\n";
 
         return s;
     }
@@ -91,10 +93,10 @@ public class CmdsJSLObjsMngr {
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
 
-        if (obj.getStructure() == null)
+        if (!obj.getStruct().isInit())
             return String.format("Object '%s' not presented to current service", objId);
 
-        return printRecursive(obj.getStructure(), 0);
+        return printRecursive(obj.getStruct().getStructure(), 0);
     }
 
     private String printRecursive(JSLComponent comp, int indent) {
@@ -122,8 +124,8 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         StringBuilder s = new StringBuilder("KNOWN OBJECTS LIST\n");
-        s.append(String.format("- %-30s (status: %s)\n", "JCP", obj.isCloudConnected() ? "connected" : "NOT conn."));
-        for (JSLLocalClient client : obj.getLocalClients()) {
+        s.append(String.format("- %-30s (status: %s)\n", "JCP", obj.getComm().isCloudConnected() ? "connected" : "NOT conn."));
+        for (JSLLocalClient client : ((DefaultObjComm)obj.getComm()).getLocalClients()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
             s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
         }
@@ -138,7 +140,7 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         String s = "OBJECT'S PERMISSIONS LIST\n";
-        s += JOSPPerm.logPermissions(obj.getPerms());
+        s += JOSPPerm.logPermissions(obj.getPerms().getPerms());
         return s;
     }
 
@@ -150,7 +152,7 @@ public class CmdsJSLObjsMngr {
 
         String oldName = obj.getName();
         try {
-            obj.setName(objName);
+            obj.getInfo().setName(objName);
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't update name", obj.getId());
         } catch (JSLRemoteObject.MissingPermission e) {
@@ -170,7 +172,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -198,7 +200,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -225,7 +227,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -252,7 +254,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -279,7 +281,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -306,7 +308,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -333,7 +335,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -360,7 +362,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -387,7 +389,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
@@ -415,16 +417,16 @@ public class CmdsJSLObjsMngr {
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
 
-        String oldOwner = obj.getOwnerId();
+        String oldOwner = obj.getInfo().getOwnerId();
         try {
-            obj.setOwnerId(objOwnerId);
+            obj.getInfo().setOwnerId(objOwnerId);
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't update owner id", obj.getId());
         } catch (JSLRemoteObject.MissingPermission e) {
             return String.format("Missing permission to object '%s', can't update owner id\n%s", obj.getId(), e.getMessage());
         }
 
-        return String.format("Object '%s' owner updated from '%s' to '%s'", obj.getId(), oldOwner, obj.getOwnerId());
+        return String.format("Object '%s' owner updated from '%s' to '%s'", obj.getId(), oldOwner, obj.getInfo().getOwnerId());
     }
 
     @Command(description = "Add new object's permission.")
@@ -437,7 +439,7 @@ public class CmdsJSLObjsMngr {
         JOSPPerm.Connection connType = JOSPPerm.Connection.valueOf(connTypeStr);
 
         try {
-            obj.addPerm(srvId, usrId, permType, connType);
+            obj.getPerms().addPerm(srvId, usrId, permType, connType);
 
         } catch (JSLRemoteObject.ObjectNotConnected e) {
             return String.format("Object '%s' not connected, can't add permission", obj.getId());
@@ -458,7 +460,7 @@ public class CmdsJSLObjsMngr {
         JOSPPerm.Connection connType = JOSPPerm.Connection.valueOf(connTypeStr);
 
         try {
-            obj.updPerm(permId, srvId, usrId, permType, connType);
+            obj.getPerms().updPerm(permId, srvId, usrId, permType, connType);
         } catch (JSLRemoteObject.MissingPermission e) {
             return String.format("Missing permission to object '%s', can't update permission\n%s", obj.getId(), e.getMessage());
 
@@ -476,7 +478,7 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         try {
-            obj.remPerm(permId);
+            obj.getPerms().remPerm(permId);
 
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't remove permission", obj.getId());
@@ -514,29 +516,7 @@ public class CmdsJSLObjsMngr {
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
 
-        obj.addListener(new JSLRemoteObject.RemoteObjectConnListener() {
-            @Override
-            public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
-            }
-
-            @Override
-            public void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
-            }
-
-            @Override
-            public void onCloudConnected(JSLRemoteObject obj) {
-                System.out.println(PRE + String.format("cloud object '%s' connected", obj.getId()) + POST);
-            }
-
-            @Override
-            public void onCloudDisconnected(JSLRemoteObject obj) {
-                System.out.println(PRE + String.format("cloud object '%s' disconnected", obj.getId()) + POST);
-            }
-        });
-
-        obj.addListener(new JSLRemoteObject.RemoteObjectInfoListener() {
+        obj.getInfo().addListener(new ObjInfo.RemoteObjectInfoListener() {
 
             @Override
             public void onNameChanged(JSLRemoteObject obj, String newName, String oldName) {
@@ -568,10 +548,16 @@ public class CmdsJSLObjsMngr {
                 System.out.println(PRE + String.format("LongDescr changed object '%s' %-15s > %-15s", obj.getId(), oldLongDescr, newLongDescr) + POST);
             }
 
+        });
+        obj.getStruct().addListener(new ObjStruct.RemoteObjectStructListener() {
+
             @Override
             public void onStructureChanged(JSLRemoteObject obj, JSLRoot newRoot) {
                 System.out.println(PRE + String.format("Structure changed object '%s'", obj.getId()) + POST);
             }
+
+        });
+        obj.getPerms().addListener(new ObjPerms.RemoteObjectPermsListener() {
 
             @Override
             public void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {
@@ -581,6 +567,28 @@ public class CmdsJSLObjsMngr {
             @Override
             public void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
                 System.out.println(PRE + String.format("Service's permission changed object '%s' %s %-15s > %-15s", obj.getId(), connType, oldPermType, newPermType) + POST);
+            }
+
+        });
+        obj.getComm().addListener(new ObjComm.RemoteObjectConnListener() {
+            @Override
+            public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+            }
+
+            @Override
+            public void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient) {
+                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+            }
+
+            @Override
+            public void onCloudConnected(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("cloud object '%s' connected", obj.getId()) + POST);
+            }
+
+            @Override
+            public void onCloudDisconnected(JSLRemoteObject obj) {
+                System.out.println(PRE + String.format("cloud object '%s' disconnected", obj.getId()) + POST);
             }
         });
 
@@ -595,7 +603,7 @@ public class CmdsJSLObjsMngr {
 
         // search destination object/components
         JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStructure(), componentPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
         if (comp == null)
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
