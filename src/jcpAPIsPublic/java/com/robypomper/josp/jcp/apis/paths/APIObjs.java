@@ -44,10 +44,12 @@ public class APIObjs {
     // '{mthdName}
     private static final String MTHD_GENERATEID         = "generate_id";
     private static final String MTHD_REGENERATEID       = "regenerate_id";
+    private static final String MTHD_HISTORY            = "history";
 
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_GENERATEID         = API_PATH + "/" + API_VER + "/" + MTHD_GENERATEID;
     public static final String FULL_PATH_REGENERATEID       = API_PATH + "/" + API_VER + "/" + MTHD_REGENERATEID;
+    public static final String FULL_PATH_HISTORY            = API_PATH + "/" + API_VER + "/" + MTHD_HISTORY;
 
 
     public static final String HEADER_OBJID = "JOSP-Obj-ID";
