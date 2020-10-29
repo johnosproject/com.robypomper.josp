@@ -23,18 +23,24 @@ import com.robypomper.java.JavaRandomStrings;
 import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
 import com.robypomper.josp.jcp.apis.paths.APIObjs;
 import com.robypomper.josp.jcp.db.ObjectDBService;
+import com.robypomper.josp.jcp.db.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.ObjectId;
+import com.robypomper.josp.jcp.db.entities.ObjectStatusHistory;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.protocol.JOSPStatusHistory;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -53,6 +59,8 @@ public class ObjectController {
 
     @Autowired
     private ObjectDBService objectDBService;
+    @Autowired
+    private StatusHistoryDBService statusHistoryDBService;
 
 
     // Methods
@@ -129,6 +137,34 @@ public class ObjectController {
         }
 
         return ResponseEntity.ok(newObjId.getObjId());
+    }
+
+
+    @PostMapping(path = APIObjs.FULL_PATH_HISTORY)
+    @ApiOperation(value = "Store given statuses as caller object's statuses history",
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_OBJ_DESC
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Ok"/*, message = "Object's statuses", response = Event.class, responseContainer = "List"*/),
+            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
+    })
+    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
+    public ResponseEntity<Boolean> postObjectHistory(@RequestHeader(APIObjs.HEADER_OBJID) String objId,
+                                                                 @RequestBody List<JOSPStatusHistory> statusHistories) {
+        if (objId == null || objId.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
+
+        //eventService.add(Event.newObjEvent(client.getClientId(), JOSPEvent.EventType.ConnectToCloud));
+        for (JOSPStatusHistory s : statusHistories)
+            statusHistoryDBService.add(ObjectStatusHistory.fromJOSPStatusHistory(objId,s));
+
+        return ResponseEntity.ok(true);
     }
 
 
