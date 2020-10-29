@@ -352,4 +352,5 @@ public class JOSPEvent {
         this.payload = payload;
         this.errorPayload = errorPayload;
     }
+
 }
