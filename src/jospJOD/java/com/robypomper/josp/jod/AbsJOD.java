@@ -23,6 +23,7 @@ import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -72,6 +73,7 @@ public abstract class AbsJOD implements JOD {
     private final JODExecutorMngr executor;
     private final JODPermissions permissions;
     private final JODEvents events;
+    private final JODHistory history;
 
 
     // Internal vars
@@ -94,7 +96,15 @@ public abstract class AbsJOD implements JOD {
      * @param permissions {@link JODPermissions} reference.
      * @param events       {@link JODEvents} reference.
      */
-    protected AbsJOD(Settings settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions, JODEvents events) {
+    protected AbsJOD(Settings settings,
+                     JCPClient_Object jcpClient,
+                     JODObjectInfo objInfo,
+                     JODStructure structure,
+                     JODCommunication comm,
+                     JODExecutorMngr executor,
+                     JODPermissions permissions,
+                     JODEvents events,
+                     JODHistory history) {
         this.settings = settings;
         this.jcpClient = jcpClient;
         this.objInfo = objInfo;
@@ -103,6 +113,7 @@ public abstract class AbsJOD implements JOD {
         this.executor = executor;
         this.permissions = permissions;
         this.events = events;
+        this.history = history;
 
         log.info(Mrk_JOD.JOD_MAIN, String.format("Initialized AbsJOD/%s instance for '%s' ('%s') object", this.getClass().getSimpleName(), objInfo.getObjName(), objInfo.getObjId()));
     }
@@ -148,6 +159,9 @@ public abstract class AbsJOD implements JOD {
 
         log.trace(Mrk_JOD.JOD_MAIN, "JODPermissions starting");
         permissions.startAutoRefresh();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODHistory starting");
+        history.startCloudSync();
 
         log.trace(Mrk_JOD.JOD_MAIN, "JODStructure starting");
         structure.startAutoRefresh();
@@ -244,6 +258,14 @@ public abstract class AbsJOD implements JOD {
         log.trace(Mrk_JOD.JOD_MAIN, "JODStructure stopping");
         structure.stopAutoRefresh();
 
+        try {
+            history.storeCache();
+        } catch (IOException e) {
+            log.warn(Mrk_JOD.JOD_MAIN, "Can't flush status on file");
+        }
+        log.trace(Mrk_JOD.JOD_MAIN, "JODHistory stopping");
+        history.stopCloudSync();
+
         long time = new Date().getTime() - start;
         Events.registerJODStop("Sub-system stopped successfully", time);
         try {
@@ -321,6 +343,16 @@ public abstract class AbsJOD implements JOD {
     @Override
     public JODPermissions getPermission() {
         return permissions;
+    }
+
+    @Override
+    public JODEvents getEvents() {
+        return events;
+    }
+
+    @Override
+    public JODHistory getHistory() {
+        return history;
     }
 
 }

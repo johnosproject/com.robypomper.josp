@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -45,6 +46,7 @@ public class JODStructure_002 implements JODStructure {
     private static final Logger log = LogManager.getLogger();
     private final JODObjectInfo objInfo;
     private final JODExecutorMngr executorMngr;
+    private final JODHistory history;
     private final JODRoot root;
     private Date lastStructureUpdate;
     private JODCommunication comm;
@@ -61,9 +63,10 @@ public class JODStructure_002 implements JODStructure {
      * @param objInfo      the Object Info system.
      * @param executorMngr the Executor Manager system.
      */
-    public JODStructure_002(JODObjectInfo objInfo, JODExecutorMngr executorMngr) throws ParsingException {
+    public JODStructure_002(JODObjectInfo objInfo, JODExecutorMngr executorMngr, JODHistory history) throws ParsingException {
         this.objInfo = objInfo;
         this.executorMngr = executorMngr;
+        this.history = history;
 
         root = loadStructure(objInfo.readStructureStr());
 
@@ -205,6 +208,7 @@ public class JODStructure_002 implements JODStructure {
             InjectableValues.Std injectVars = new InjectableValues.Std();
             injectVars.addValue(JODStructure.class, this);
             injectVars.addValue(JODExecutorMngr.class, executorMngr);
+            injectVars.addValue(JODHistory.class, history);
             objMapper.setInjectableValues(injectVars);
 
             log.trace(Mrk_JOD.JOD_STRU, String.format("Parsing '%s' object structure '%s...'", objInfo.getObjId(), structureStr.substring(0, 100).replace("\n", " ")));

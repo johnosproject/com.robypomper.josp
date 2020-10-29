@@ -20,6 +20,7 @@
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 
 
 /**
@@ -54,8 +55,8 @@ public class AbsJODRoot extends AbsJODContainer
      * @param structure the JOD Structure system.
      * @param execMngr  the JOD Executor Mngr system.
      */
-    protected AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr) {
-        super(structure, execMngr, StructureDefinitions.ROOT_NAME, StructureDefinitions.ROOT_DESCR);
+    protected AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr, JODHistory history) {
+        super(structure, execMngr, history, StructureDefinitions.ROOT_NAME, StructureDefinitions.ROOT_DESCR);
     }
 
     /**
@@ -67,8 +68,8 @@ public class AbsJODRoot extends AbsJODContainer
      * @param brand     the object's brand.
      * @param descrLong the object's long description.
      */
-    public AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr, String model, String brand, String descrLong) {
-        this(structure, execMngr);
+    public AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String model, String brand, String descrLong) {
+        this(structure, execMngr, history);
         setModel(model);
         setBrand(brand);
         setDescr_long(descrLong);

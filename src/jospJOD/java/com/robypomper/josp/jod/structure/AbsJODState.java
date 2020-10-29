@@ -23,6 +23,7 @@ import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODWorker;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
 import com.robypomper.josp.jod.structure.executor.JODComponentPuller;
 import com.robypomper.log.Mrk_JOD;
@@ -64,8 +65,8 @@ public abstract class AbsJODState extends AbsJODComponent
      * @param listener  the listener full configs string.
      * @param puller    the puller full configs string.
      */
-    protected AbsJODState(JODStructure structure, JODExecutorMngr execMngr, String name, String descr, String listener, String puller) throws JODStructure.ComponentInitException {
-        super(structure, name, descr);
+    protected AbsJODState(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String name, String descr, String listener, String puller) throws JODStructure.ComponentInitException {
+        super(structure, history, name, descr);
 
         try {
             if (listener != null && puller == null) {
@@ -109,7 +110,9 @@ public abstract class AbsJODState extends AbsJODComponent
     @Override
     public void propagateState(JODStateUpdate update) throws JODStructure.CommunicationSetException {
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Propagating component '%s' state", getName()));
-        Events.registerStatusUpd(this,update);
+        Events.registerStatusUpd(this, update);
+
+        getHistory().register(this, update);
         getStructure().getCommunication().sendObjectUpdMsg(this, update);
 
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state", getName()));

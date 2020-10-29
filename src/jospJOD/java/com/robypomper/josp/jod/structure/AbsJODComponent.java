@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.jod.structure;
 
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,6 +41,7 @@ public abstract class AbsJODComponent implements JODComponent {
 
     private static final Logger log = LogManager.getLogger();
     private final JODStructure structure;
+    private final JODHistory history;
     private JODContainer parent = null;
     private final String name;
     private final String descr;
@@ -56,8 +58,9 @@ public abstract class AbsJODComponent implements JODComponent {
      * @param name      the name of the component.
      * @param descr     the description of the component.
      */
-    public AbsJODComponent(JODStructure structure, String name, String descr) {
+    public AbsJODComponent(JODStructure structure, JODHistory history, String name, String descr) {
         this.structure = structure;
+        this.history = history;
         this.name = name;
         this.descr = descr != null ? descr : "";
 
@@ -126,6 +129,13 @@ public abstract class AbsJODComponent implements JODComponent {
      */
     protected JODStructure getStructure() {
         return structure;
+    }
+
+    /**
+     * @return the JOD History system.
+     */
+    protected JODHistory getHistory() {
+        return history;
     }
 
 }

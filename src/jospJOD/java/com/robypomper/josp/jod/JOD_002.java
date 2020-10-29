@@ -29,6 +29,8 @@ import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.events.JODEvents_002;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODExecutorMngr_002;
+import com.robypomper.josp.jod.history.JODHistory;
+import com.robypomper.josp.jod.history.JODHistory_002;
 import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
@@ -60,8 +62,16 @@ public class JOD_002 extends AbsJOD {
 
     // Constructor
 
-    protected JOD_002(JODSettings_002 settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions, JODEvents events) {
-        super(settings, jcpClient, objInfo, structure, comm, executor, permissions, events);
+    protected JOD_002(Settings settings,
+                      JCPClient_Object jcpClient,
+                      JODObjectInfo objInfo,
+                      JODStructure structure,
+                      JODCommunication comm,
+                      JODExecutorMngr executor,
+                      JODPermissions permissions,
+                      JODEvents events,
+                      JODHistory history) {
+        super(settings, jcpClient, objInfo, structure, comm, executor, permissions, events, history);
     }
 
     public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JODPermissions.PermissionsFileException {
@@ -69,7 +79,7 @@ public class JOD_002 extends AbsJOD {
 
         long start = new Date().getTime();
 
-        JODEvents events = new JODEvents_002(settings,null);
+        JODEvents events = new JODEvents_002(settings, null);
         Events.setInstance(events);
 
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
@@ -98,8 +108,8 @@ public class JOD_002 extends AbsJOD {
         JODObjectInfo objInfo = new JODObjectInfo_002(settings, jcpClient, VERSION);
 
         JODExecutorMngr executor = new JODExecutorMngr_002(settings, objInfo);
-
-        JODStructure structure = new JODStructure_002(objInfo, executor);
+        JODHistory history = new JODHistory_002(settings, jcpClient);
+        JODStructure structure = new JODStructure_002(objInfo, executor, history);
 
         JODPermissions permissions = new JODPermissions_002(settings, objInfo, jcpClient);
 
@@ -122,7 +132,7 @@ public class JOD_002 extends AbsJOD {
         long time = new Date().getTime() - start;
         Events.registerJODStart("End sub-system creation", time);
 
-        return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions, events);
+        return new JOD_002(settings, jcpClient, objInfo, structure, comm, executor, permissions, events, history);
     }
 
     @Override

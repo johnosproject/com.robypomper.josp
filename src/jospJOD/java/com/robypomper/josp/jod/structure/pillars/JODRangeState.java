@@ -21,6 +21,7 @@ package com.robypomper.josp.jod.structure.pillars;
 
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -57,8 +58,8 @@ public class JODRangeState extends AbsJODState {
      * @param listener  the listener full configs string.
      * @param puller    the puller full configs string.
      */
-    public JODRangeState(JODStructure structure, JODExecutorMngr execMngr, String name, String descr, String listener, String puller, Double min, Double max, Double step) throws JODStructure.ComponentInitException {
-        super(structure, execMngr, name, descr, listener, puller);
+    public JODRangeState(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String name, String descr, String listener, String puller, Double min, Double max, Double step) throws JODStructure.ComponentInitException {
+        super(structure, execMngr, history, name, descr, listener, puller);
         this.min = min != null ? min : 0;
         this.max = max != null ? max : 100;
         this.step = step != null ? step : 10;

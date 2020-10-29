@@ -20,7 +20,9 @@
 package com.robypomper.josp.jod;
 
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -125,6 +127,10 @@ public interface JOD {
     JODExecutorMngr getExecutor();
 
     JODPermissions getPermission();
+
+    JODEvents getEvents();
+
+    JODHistory getHistory();
 
 
     // Support struct and classes

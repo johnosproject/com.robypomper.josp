@@ -22,6 +22,7 @@ package com.robypomper.josp.jod.structure;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 
 import java.util.Map;
 
@@ -69,8 +70,8 @@ public class JODRoot_Jackson extends AbsJODRoot {
      * @param execMngr  the JOD Executor Mngr system.
      */
     @SuppressWarnings("JavadocReference")
-    public JODRoot_Jackson(@JacksonInject final JODStructure structure, @JacksonInject final JODExecutorMngr execMngr) {
-        super(structure, execMngr);
+    public JODRoot_Jackson(@JacksonInject final JODStructure structure, @JacksonInject final JODExecutorMngr execMngr, @JacksonInject final JODHistory history) {
+        super(structure, execMngr, history);
     }
 
 
