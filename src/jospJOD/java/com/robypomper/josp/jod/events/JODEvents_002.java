@@ -22,7 +22,6 @@ package com.robypomper.josp.jod.events;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
-import com.robypomper.josp.jod.objinfo.JCPObjectInfo;
 import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -45,82 +43,6 @@ import java.util.List;
  */
 public class JODEvents_002 implements JODEvents {
 
-    private static final String EVNTS_FILE = "cache/events.jev";
-    private static final String STATS_FILE = "cache/events.jst";
-
-    public static void main(String[] args) {
-        deleteFile(EVNTS_FILE);
-        deleteFile(STATS_FILE);
-        JODEvents_002 e = null;
-
-        // Create new Events
-        e = create(true);
-        // Register
-        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_CONN, "p1","a");
-        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC, "p1","b");
-        printEvents(e.events);
-        // Store
-        storeEvents(e, true);
-
-        //// Load previous Events, Register new events and store
-        //generateEventsCD(e,true);
-
-        // Send registered events to cloud
-        printStats(e.stats);
-        e.sync();
-        printStats(e.stats);
-
-        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC,"p1", "c");
-        e.sync();
-        printStats(e.stats);
-    }
-
-    private static JODEvents_002 create(boolean print) {
-        // Create
-        JODEvents_002 e = new JODEvents_002(null, null);
-        if (print) printEvents(e.events);
-        return e;
-    }
-
-    private static void storeEvents(JODEvents_002 e, boolean print) {
-        try {
-            e.events.storeCache();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-        if (print) printEvents(e.events);
-    }
-
-    private static void deleteFile(String fileName) {
-        new File(fileName).delete();
-    }
-
-    private static void createWrongFile(String fileName) throws IOException {
-        String content = "Hello World !!";
-        Files.write(Paths.get(fileName), content.getBytes());
-    }
-
-    private static void printStats(CloudStats s) {
-        System.out.println("    #################### ");
-        System.out.println("s.lastStored    " + s.lastStored);
-        System.out.println("s.lastUploaded  " + s.lastUploaded);
-        System.out.println("s.lastDelete    " + s.lastDelete);
-
-        System.out.println("s.uploaded      " + s.uploaded);
-        System.out.println("s.deleted       " + s.deleted);
-        System.out.println("s.unUploaded    " + s.unUploaded);
-    }
-
-    public static void printEvents(EventsArray arrayFile) {
-        System.out.println(" ############################### ");
-        System.out.println("count:         " + arrayFile.count());
-        System.out.println("countBuffered: " + arrayFile.countBuffered());
-        System.out.println("countFile:     " + arrayFile.countFile());
-        System.out.println("getFirst:      " + (arrayFile.getFirst() != null ? arrayFile.getFirst().id : "null"));
-        System.out.println("getLast:       " + (arrayFile.getLast() != null ? arrayFile.getLast().id : "null"));
-    }
-
-
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
@@ -132,9 +54,11 @@ public class JODEvents_002 implements JODEvents {
     private final File eventsFile;
     private final File statsFile;
     private boolean isSyncing = false;
-    private int maxBuffered = 5;
-    private int reduceBuffer = 3;
-    private int maxFile = 50;
+    // update JODEvents_002(...) to use file paths from jod settings
+    // make JODEvents non singleton but accessible from JOD.getEvents()
+    private static final String EVNTS_FILE = "cache/events.jbe";
+    private static final String STATS_FILE = "cache/events.jst";
+    private final int REDUCE_BUFFER = 3;
 
 
     // Constructor
@@ -252,60 +176,27 @@ public class JODEvents_002 implements JODEvents {
     }
 
 
-    private static void backup(File file) throws IOException {
-        String datetime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File backup = new File(file.getParentFile(), file.getName() + "_back_" + datetime);
-        Files.copy(file.toPath(), backup.toPath());
-    }
+    // Object's systems
+    private final int MAX_FILE = 50;
 
 
-    @Override
-    public void setJCPClient(JCPClient_Object jcpClient) {
-        if (jcpClient==null) return;
-
-        this.jcpClient = jcpClient;
-        this.jcpEvents = new JCPEvents(jcpClient,locSettings);
-    }
+    // Register new event
 
     @Override
     public void register(JOSPEvent.Type type, String phase, String payload) {
         register(type,phase,payload,null);
     }
+    private final JCPClient2.ConnectListener jcpConnectListener = new JCPClient2.ConnectListener() {
 
-    public void register(JOSPEvent.Type type, String phase, String payload, Throwable error) {
-        synchronized (events) {
-            long newId = events.count() + 1;
-            String srcId = locSettings.getObjIdCloud();
-            String errorPayload = null;
-            if (error!=null)
-                errorPayload = String.format("{\"type\": \"%s\", \"msg\": \"%s\", \"stack\": \"%s\"}", error.getClass().getSimpleName(), error.getMessage(), Arrays.toString(error.getStackTrace()));
-            JOSPEvent e = new JOSPEvent(newId, type, srcId, JOSPEvent.SrcType.Obj, new Date(), phase, payload, errorPayload);
-            events.append(e);
-            stats.lastStored = e.id;
-            stats.storeIgnoreExceptions();
-        }
-
-        if (isSyncing)
+        @Override
+        public void onConnected(JCPClient2 jcpClient) {
             sync();
-
-        if (events.countBuffered()>=maxBuffered) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        synchronized (events) {
-                            int pre = events.countBuffered();
-                            events.flushCache(reduceBuffer);
-                            int post = events.countBuffered();
-                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Flushed %d events to file", pre - post));
-                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Events buffered %d events on file %d", events.countBuffered(), events.countFile()));
-                        }
-
-                    } catch (IOException ignore) { assert false; }
-                }
-            }).start();
         }
-    }
+
+        @Override
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {}
+
+    };
 
     private void sync() {
         if (stats.lastUploaded == stats.lastStored) return;
@@ -344,6 +235,9 @@ public class JODEvents_002 implements JODEvents {
         }
     }
 
+
+    // Mngm methods
+
     @Override
     public void startCloudSync() {
         isSyncing = true;
@@ -377,6 +271,127 @@ public class JODEvents_002 implements JODEvents {
     @Override
     public void storeCache() throws IOException {
         events.storeCache();
+    }
+
+
+    // JCP Client listeners
+    private int MAX_BUFFERED = 5;
+
+    public static void main(String[] args) {
+        deleteFile(EVNTS_FILE);
+        deleteFile(STATS_FILE);
+        JODEvents_002 e = null;
+
+        // Create new Events
+        e = create(true);
+        // Register
+        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_CONN, "p1","a");
+        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC, "p1","b");
+        printEvents(e.events);
+        // Store
+        storeEvents(e, true);
+
+        //// Load previous Events, Register new events and store
+        //generateEventsCD(e,true);
+
+        // Send registered events to cloud
+        printStats(e.stats);
+        e.sync();
+        printStats(e.stats);
+
+        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC,"p1", "c");
+        e.sync();
+        printStats(e.stats);
+    }
+
+    private static JODEvents_002 create(boolean print) {
+        // Create
+        JODEvents_002 e = new JODEvents_002(null, null);
+        if (print) printEvents(e.events);
+        return e;
+    }
+
+    private static void storeEvents(JODEvents_002 e, boolean print) {
+        try {
+            e.events.storeCache();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        if (print) printEvents(e.events);
+    }
+
+    private static void deleteFile(String fileName) {
+        new File(fileName).delete();
+    }
+
+    private static void createWrongFile(String fileName) throws IOException {
+        String content = "Hello World !!";
+        Files.write(Paths.get(fileName), content.getBytes());
+    }
+
+    private static void printStats(CloudStats s) {
+        System.out.println("    #################### ");
+        System.out.println("s.lastStored    " + s.lastStored);
+        System.out.println("s.lastUploaded  " + s.lastUploaded);
+        System.out.println("s.lastDelete    " + s.lastDelete);
+
+        System.out.println("s.uploaded      " + s.uploaded);
+        System.out.println("s.deleted       " + s.deleted);
+        System.out.println("s.unUploaded    " + s.unUploaded);
+    }
+
+    public static void printEvents(EventsArray arrayFile) {
+        System.out.println(" ############################### ");
+        System.out.println("count:         " + arrayFile.count());
+        System.out.println("countBuffered: " + arrayFile.countBuffered());
+        System.out.println("countFile:     " + arrayFile.countFile());
+        System.out.println("getFirst:      " + (arrayFile.getFirst() != null ? arrayFile.getFirst().id : "null"));
+        System.out.println("getLast:       " + (arrayFile.getLast() != null ? arrayFile.getLast().id : "null"));
+    }
+
+    @Override
+    public void setJCPClient(JCPClient_Object jcpClient) {
+        if (jcpClient==null) return;
+
+        this.jcpClient = jcpClient;
+        this.jcpClient.addConnectListener(jcpConnectListener);
+        this.jcpEvents = new JCPEvents(jcpClient,locSettings);
+    }
+
+    @Override
+    public void register(JOSPEvent.Type type, String phase, String payload, Throwable error) {
+        synchronized (events) {
+            long newId = events.count() + 1;
+            String srcId = locSettings.getObjIdCloud();
+            String errorPayload = null;
+            if (error!=null)
+                errorPayload = String.format("{\"type\": \"%s\", \"msg\": \"%s\", \"stack\": \"%s\"}", error.getClass().getSimpleName(), error.getMessage(), Arrays.toString(error.getStackTrace()));
+            JOSPEvent e = new JOSPEvent(newId, type, srcId, JOSPEvent.SrcType.Obj, new Date(), phase, payload, errorPayload);
+            events.append(e);
+            stats.lastStored = e.id;
+            stats.storeIgnoreExceptions();
+        }
+
+        if (isSyncing)
+            sync();
+
+        if (events.countBuffered()>= MAX_BUFFERED) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        synchronized (events) {
+                            int pre = events.countBuffered();
+                            events.flushCache(REDUCE_BUFFER);
+                            int post = events.countBuffered();
+                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Flushed %d events to file", pre - post));
+                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Events buffered %d events on file %d", events.countBuffered(), events.countFile()));
+                        }
+
+                    } catch (IOException ignore) { assert false; }
+                }
+            }).start();
+        }
     }
 
 }

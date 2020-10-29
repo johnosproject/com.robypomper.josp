@@ -61,7 +61,7 @@ public class JCPEvents extends AbsJCPAPIs {
 
 
     /**
-     * Upload a list of evente to the cloud.
+     * Upload a list of events to the cloud.
      *
      * @param events the events to upload.
      */
