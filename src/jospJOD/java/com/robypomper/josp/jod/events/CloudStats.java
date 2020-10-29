@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 
-class CloudStats {
+public class CloudStats {
 
     private final File file;
 
@@ -36,7 +36,7 @@ class CloudStats {
         this.unUploaded = unUploaded;
     }
 
-    CloudStats(File file) throws IOException {
+    public CloudStats(File file) throws IOException {
         this.file = file;
 
         if (file.exists()) {
