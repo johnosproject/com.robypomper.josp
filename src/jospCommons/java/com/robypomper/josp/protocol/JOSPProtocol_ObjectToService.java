@@ -20,6 +20,7 @@
 package com.robypomper.josp.protocol;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JOSPProtocol_ObjectToService {
@@ -155,6 +156,7 @@ public class JOSPProtocol_ObjectToService {
 
     // Status Upd Msg class
 
+    public static final String UPD_MSG_NAME = "StatusUpdate";
     private static final String UPD_MSG_BASE = JOSPProtocol.JOSP_PROTO + " UPD_MSG";
     private static final String UPD_MSG = UPD_MSG_BASE + " %s\nobjId:%s\ncompPath:%s\ncmdType:%s\n%s";
 
@@ -209,6 +211,42 @@ public class JOSPProtocol_ObjectToService {
                     upd.getComponentPath(), upd.getUpdate().getType(), upd.getUpdate().encode());
         }
 
+    }
+
+
+    // Status History Msg class (Response)
+
+    public static final String HISTORY_STATUS_REQ_NAME = "HistoryStatusRes";
+    private static final String HISTORY_STATUS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_STATUS_MSG";
+    private static final String HISTORY_STATUS_REQ = HISTORY_STATUS_REQ_BASE + " %s\nobjId:%s\ncompPath:%s\nreqId:%s\n%s";
+
+    public static String createHistoryCompStatusMsg(String objId, String compPath, String reqId, List<JOSPStatusHistory> statusesHistory) {
+        return String.format(HISTORY_STATUS_REQ, JOSPProtocol.getNow(), objId, compPath, reqId, JOSPStatusHistory.toString(statusesHistory));
+    }
+
+    public static boolean isHistoryCompStatusMsg(String msg) {
+        return msg.startsWith(HISTORY_STATUS_REQ_BASE);
+    }
+
+    public static String getHistoryCompStatusMsg_ObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 1, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_CompPath(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 2, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_ReqId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 4, 3, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static List<JOSPStatusHistory> getHistoryCompStatusMsg_HistoryStatus(String msg) throws JOSPProtocol.ParsingException {
+        try {
+            String historyStatusesStr = JOSPProtocol.extractPayloadFromResponse(msg, 4, 4, HISTORY_STATUS_REQ_NAME);
+            return JOSPStatusHistory.listFromString(historyStatusesStr);
+        } catch (JOSPProtocol.ParsingException ignore) {}
+
+        return new ArrayList<>();
     }
 
 }

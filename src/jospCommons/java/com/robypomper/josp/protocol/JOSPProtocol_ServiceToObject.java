@@ -249,4 +249,40 @@ public class JOSPProtocol_ServiceToObject {
 
     }
 
+
+    // Status History Msg class (Request)
+
+    public static final String HISTORY_STATUS_REQ_NAME = "HistoryStatusReq";
+    private static final String HISTORY_STATUS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_STATUS_MSG";
+    private static final String HISTORY_STATUS_REQ = HISTORY_STATUS_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\ncompPath:%s\nreqId:%s\nlimits:%s";
+
+    public static String createHistoryCompStatusMsg(String fullSrvId, String objId, String compPath, String reqId, HistoryLimits limits) {
+        return String.format(HISTORY_STATUS_REQ, JOSPProtocol.getNow(), fullSrvId, objId, compPath, reqId, HistoryLimits.toString(limits));
+    }
+
+    public static boolean isHistoryCompStatusMsg(String msg) {
+        return msg.startsWith(HISTORY_STATUS_REQ_BASE);
+    }
+
+    public static String getHistoryCompStatusMsg_FullSrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 1, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_ObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 2, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_CompPath(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 3, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_ReqId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 4, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static HistoryLimits getHistoryCompStatusMsg_Limits(String msg) throws JOSPProtocol.ParsingException {
+        String limitsStr = JOSPProtocol.extractFieldFromResponse(msg, 6, 5, HISTORY_STATUS_REQ_NAME);
+        return HistoryLimits.fromString(limitsStr);
+    }
+
 }
