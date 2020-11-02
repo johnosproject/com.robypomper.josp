@@ -262,7 +262,8 @@ public class JOSPPerm {
         str.append("  | ObjId              | SrvId                | UsrId                | Perm. and Connection Type | Updated At              | PermId  |\n");
         str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+---------+\n");
         for (JOSPPerm p : permissions)
-            str.append(String.format("  | %-18s | %-20s | %-20s | %-10s, %-13s | %-23s | %-23s |\n", p.getObjId(), p.getSrvId(), p.getUsrId(), p.getPermType(), p.getConnType(), p.getUpdatedAtStr(), p.getId()));
+            str.append(String.format("  | %-18s | %-20s | %-20s | %-10s, %-13s | %-23s | %-23s |\n",
+                    p.getObjId(), p.getSrvId(), p.getUsrId(), p.getPermType(), p.getConnType(), p.getUpdatedAtStr(), p.getId()));
         str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+\n");
         return str.toString();
     }
