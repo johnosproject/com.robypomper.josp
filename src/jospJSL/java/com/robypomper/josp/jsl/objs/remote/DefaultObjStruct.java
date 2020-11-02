@@ -134,6 +134,18 @@ public class DefaultObjStruct extends ObjBase implements ObjStruct {
         return true;
     }
 
+    public boolean processHistoryCompStatusMsg(String msg) {
+        String compPath;
+        try {
+            compPath = JOSPProtocol_ObjectToService.getHistoryCompStatusMsg_CompPath(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on parsing update '%s...' because %s", msg.substring(0, msg.indexOf("\n")), e.getMessage()), e);
+            return false;
+        }
+        JSLComponent component = getComponent(compPath);
+        DefaultHistoryCompStatus compStatus = (DefaultHistoryCompStatus) getComponentHistory(component);
+        return compStatus.processHistoryCompStatusMsg(msg);
+    }
 
     // Listeners
 

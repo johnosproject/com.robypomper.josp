@@ -30,8 +30,6 @@ import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Date;
-
 
 /**
  * Default implementation of {@link JSLRemoteObject} interface.
@@ -155,6 +153,8 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
             return ((DefaultObjStruct) getStruct()).processObjectStructMsg(msg);
         else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg))
             return ((DefaultObjStruct) getStruct()).processObjectUpdMsg(msg);
+        else if (JOSPProtocol_ObjectToService.isHistoryCompStatusMsg(msg))
+            return ((DefaultObjStruct) getStruct()).processHistoryCompStatusMsg(msg);
 
         else if (JOSPProtocol_ObjectToService.isObjectPermsMsg(msg))
             return ((DefaultObjPerms) getPerms()).processObjectPermsMsg(msg);
