@@ -1,11 +1,13 @@
 package com.robypomper.josp.jod.history;
 
+import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.events.CloudStats;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPStatusHistory;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -159,7 +162,7 @@ public class JODHistory_002 implements JODHistory {
             long newId = statuses.count() + 1;
             JOSPStatusHistory s = new JOSPStatusHistory(newId, comp.getPath().getString(), comp.getType(), new Date(), update.encode());
             statuses.append(s);
-            stats.lastStored = s.id;
+            stats.lastStored = s.getId();
             stats.storeIgnoreExceptions();
         }
 
@@ -194,7 +197,7 @@ public class JODHistory_002 implements JODHistory {
         List<JOSPStatusHistory> toUpload;
         synchronized (statuses) {
             try {
-                toUpload = statuses.getRange(stats.lastUploaded != -1 ? stats.lastUploaded : null, stats.lastStored);
+                toUpload = statuses.getById(stats.lastUploaded != -1 ? stats.lastUploaded : null, stats.lastStored);
                 if (stats.lastUploaded != -1 && toUpload.size() > 1) toUpload.remove(0);
 
             } catch (IOException e) {
@@ -208,9 +211,9 @@ public class JODHistory_002 implements JODHistory {
                 return;
             }
 
-            log.debug(Mrk_JOD.JOD_HISTORY, String.format("Upload from %d to %d (%d statuses)", toUpload.get(0).id, toUpload.get(toUpload.size() - 1).id, toUpload.size()));
+            log.debug(Mrk_JOD.JOD_HISTORY, String.format("Upload from %d to %d (%d statuses)", toUpload.get(0).getId(), toUpload.get(toUpload.size() - 1).getId(), toUpload.size()));
             for (JOSPStatusHistory e : toUpload)
-                log.trace(Mrk_JOD.JOD_HISTORY, String.format("- event[%d] %s", e.id, e.payload));
+                log.trace(Mrk_JOD.JOD_HISTORY, String.format("- event[%d] %s", e.getId(), e.getPayload()));
 
             try {
                 jcpHistory.uploadEvents(toUpload);
@@ -219,8 +222,40 @@ public class JODHistory_002 implements JODHistory {
             }
 
             stats.uploaded += toUpload.size();
-            stats.lastUploaded = toUpload.get(toUpload.size() - 1).id;
+            stats.lastUploaded = toUpload.get(toUpload.size() - 1).getId();
             stats.storeIgnoreExceptions();
+        }
+    }
+
+
+    // Get statuses
+
+    @Override
+    public List<JOSPStatusHistory> getHistoryStatus(JODComponent comp, HistoryLimits limits) {
+        JavaJSONArrayToFile.Filter<JOSPStatusHistory> filter = new JavaJSONArrayToFile.Filter<JOSPStatusHistory>() {
+            @Override
+            public boolean accepted(JOSPStatusHistory o) {
+                return o.getCompPath().equalsIgnoreCase(comp.getPath().getString());
+            }
+        };
+
+        if (limits.isLatestCount())
+            return statuses.tryLatest(filter,limits.getLatestCount());
+
+        if (limits.isAncientCount())
+            return statuses.tryAncient(filter,limits.getAncientCount());
+
+        if (limits.isIDRange())
+            return statuses.tryById(filter,limits.getFromId(),limits.getToId());
+
+        if (limits.isDateRange())
+            return statuses.tryByDate(filter,limits.getFromDate(),limits.getToDate());
+
+        try {
+            return statuses.filterAll(filter);
+
+        } catch (IOException e) {
+            return new ArrayList<>();
         }
     }
 

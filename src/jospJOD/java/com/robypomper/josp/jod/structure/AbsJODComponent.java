@@ -20,10 +20,13 @@
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.history.JODHistory;
+import com.robypomper.josp.protocol.HistoryLimits;
+import com.robypomper.josp.protocol.JOSPStatusHistory;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -102,6 +105,17 @@ public abstract class AbsJODComponent implements JODComponent {
         if (parent == null)
             return new DefaultJODComponentPath(StructureDefinitions.PATH_STR_ROOT);
         return parent.getPath().add(getName());
+    }
+
+
+    // Status History
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<JOSPStatusHistory> getHistoryStatus(HistoryLimits limits) {
+        return getHistory().getHistoryStatus(this,limits);
     }
 
 
