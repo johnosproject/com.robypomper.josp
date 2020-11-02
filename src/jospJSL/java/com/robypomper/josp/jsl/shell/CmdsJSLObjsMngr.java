@@ -28,7 +28,9 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
+import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.protocol.JOSPStatusHistory;
 
 import java.util.List;
 
@@ -162,6 +164,7 @@ public class CmdsJSLObjsMngr {
         return String.format("Object '%s' name updated from '%s' to '%s'", obj.getId(), oldName, obj.getName());
     }
 
+
     // Object's status
 
     @Command(description = "Print object's component status.")
@@ -187,6 +190,52 @@ public class CmdsJSLObjsMngr {
             return String.format("%s::%s = %s", objId, compPath, compVal);
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Print object's component status history.")
+    public String objStatusHistory(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId,compPath,HistoryLimits.NO_LIMITS);
+    }
+
+    @Command(description = "Print latest 10 object's component status history.")
+    public String objStatusHistoryLatest(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId,compPath,HistoryLimits.LATEST_10);
+    }
+
+    @Command(description = "Print ancient 10 object's component status history.")
+    public String objStatusHistoryAncient(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId,compPath,HistoryLimits.ANCIENT_10);
+    }
+
+    @Command(description = "Print latest hour object's component status history.")
+    public String objStatusHistoryLastHour(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId,compPath,HistoryLimits.LAST_HOUR);
+    }
+
+    @Command(description = "Print latest hour object's component status history.")
+    public String objStatusHistoryPastHour(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId,compPath,HistoryLimits.PAST_HOUR);
+    }
+
+    private String doObjStatusHistoryLatest(String objId, String compPath, HistoryLimits limits) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        // Get statuses history
+        List<JOSPStatusHistory> statusHistory = obj.getStruct().getComponentHistory(comp, limits,30);
+
+        if (statusHistory.isEmpty())
+            return String.format("No history for Component '%s' of '%s' Object", compPath, objId);
+
+        return String.format("Status History for Component '%s' of '%s' Object\n", compPath, objId) +
+                JOSPStatusHistory.logStatuses(statusHistory, false);
     }
 
 
