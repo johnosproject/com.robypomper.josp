@@ -69,6 +69,10 @@ public class JOSPGWsBroker {
             sendObjectDisconnectionToService(object, service);
     }
 
+    public GWObject findObject(String objId) {
+        return objects.get(objId);
+    }
+
 
     // GWService's method
 
@@ -112,7 +116,7 @@ public class JOSPGWsBroker {
 
     public boolean sendToSingleCloudService(GWObject object, String fullSrvId, String msg, JOSPPerm.Type minReqPerm) {
         GWService service = services.get(fullSrvId);
-        if (!objectCanSendToService(object, service, minReqPerm))
+        if (minReqPerm != JOSPPerm.Type.None && !objectCanSendToService(object, service, minReqPerm))
             return false;
 
         try {

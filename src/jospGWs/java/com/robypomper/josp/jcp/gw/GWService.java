@@ -24,13 +24,11 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
-import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_Service;
-import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
+import com.robypomper.josp.protocol.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -135,18 +133,53 @@ public class GWService {
             return false;
         }
 
+        // JOD redirect JSL requests
+
         JOSPPerm.Type minReqPerm = JOSPPerm.Type.None;
         if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg)
                 || JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg)
                 || JOSPProtocol_ServiceToObject.isObjectAddPermMsg(msg)
                 || JOSPProtocol_ServiceToObject.isObjectUpdPermMsg(msg)
-                || JOSPProtocol_ServiceToObject.isObjectRemPermMsg(msg))
+                || JOSPProtocol_ServiceToObject.isObjectRemPermMsg(msg)) {
             minReqPerm = JOSPPerm.Type.CoOwner;
+            return gwBroker.sendToObject(this, objId, msg, minReqPerm);
+        }
 
-        if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
+        if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg)) {
             minReqPerm = JOSPPerm.Type.Actions;
+            return gwBroker.sendToObject(this, objId, msg, minReqPerm);
+        }
 
-        return gwBroker.sendToObject(this, objId, msg, minReqPerm);
+        // JCP processed JSL requests
+
+        if (JOSPProtocol_ServiceToObject.isHistoryCompStatusMsg(msg)) {
+            try {
+                minReqPerm = JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM;
+                GWObject object = gwBroker.findObject(objId);
+                String reqId = JOSPProtocol_ServiceToObject.getHistoryCompStatusMsg_ReqId(msg);
+                String compPath = JOSPProtocol_ServiceToObject.getHistoryCompStatusMsg_CompPath(msg);
+                HistoryLimits limits = JOSPProtocol_ServiceToObject.getHistoryCompStatusMsg_Limits(msg);
+                List<JOSPStatusHistory> statusesHistory = object.getStatusesHistory(compPath, limits);
+                String resMsg = JOSPProtocol_ObjectToService.createHistoryCompStatusMsg(objId, compPath, reqId, statusesHistory);
+                return gwBroker.sendToSingleCloudService(object, fullSrvId, resMsg, minReqPerm);
+            } catch (JOSPProtocol.ParsingException e) {
+                return false;
+            }
+        }
+        if (JOSPProtocol_ServiceToObject.isHistoryEventsMsg(msg)) {
+            try {
+                minReqPerm = JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM;
+                GWObject object = gwBroker.findObject(objId);
+                String reqId = JOSPProtocol_ServiceToObject.getHistoryEventsMsg_ReqId(msg);
+                HistoryLimits limits = JOSPProtocol_ServiceToObject.getHistoryEventsMsg_Limits(msg);
+                List<JOSPEvent> eventsHistory = object.getEvents(limits);
+                String resMsg = JOSPProtocol_ObjectToService.createHistoryEventsMsg(objId, reqId, eventsHistory);
+                return gwBroker.sendToSingleCloudService(object, fullSrvId, resMsg, minReqPerm);
+            } catch (JOSPProtocol.ParsingException e) {
+            }
+        }
+
+        return false;
     }
 
     // Communication

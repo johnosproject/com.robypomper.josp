@@ -23,15 +23,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
+import com.robypomper.josp.jcp.db.EventDBService;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
+import com.robypomper.josp.jcp.db.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.*;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
-import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
+import com.robypomper.josp.protocol.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,23 +52,29 @@ public class GWObject {
     private Object objDB;
     private final ObjectDBService objectDBService;
     private final PermissionsDBService permissionsDBService;
+    private final EventDBService eventsDBService;
+    private final StatusHistoryDBService statusesHistoryDBService;
     private final JOSPGWsBroker gwBroker;
 
 
     // Constructor
 
-    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, JOSPGWsBroker gwBroker) {
+    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, JOSPGWsBroker gwBroker) {
         this.server = server;
         this.client = client;
         this.objId = client.getClientId();
         this.objectDBService = objectDBService;
         this.permissionsDBService = permissionsDBService;
+        this.eventsDBService = eventsDBService;
+        this.statusesHistoryDBService = statusesHistoryDBService;
         this.gwBroker = gwBroker;
 
         gwBroker.registerObject(this);
     }
 
-    public GWObject(Object allowedObject, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, JOSPGWsBroker gwBroker) {
+    public GWObject(Object allowedObject, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, JOSPGWsBroker gwBroker) {
+        this.eventsDBService = eventsDBService;
+        this.statusesHistoryDBService = statusesHistoryDBService;
         this.server = null;
         this.client = null;
         this.objId = allowedObject.getObjId();
@@ -330,6 +336,30 @@ public class GWObject {
         permissionsDBService.addAll(permsDB);
 
         gwBroker.updateObjectPerms(this);
+    }
+
+
+    // Events and statuses internal requests
+
+    public List<JOSPStatusHistory> getStatusesHistory(String compPath, HistoryLimits limits) {
+        List<ObjectStatusHistory> objStatuses = statusesHistoryDBService.find(getObjId(), compPath, limits);
+
+        List<JOSPStatusHistory> statusesHistory = new ArrayList<>();
+        for (ObjectStatusHistory s : objStatuses)
+            statusesHistory.add(ObjectStatusHistory.toJOSPStatusHistory(s));
+
+        return statusesHistory;
+    }
+
+    public List<JOSPEvent> getEvents(HistoryLimits limits) {
+
+        List<Event> objEvents = eventsDBService.find(getObjId(), limits);
+
+        List<JOSPEvent> eventsHistory = new ArrayList<>();
+        for (Event e : objEvents)
+            eventsHistory.add(Event.toJOSPEvent(e));
+
+        return eventsHistory;
     }
 
 
