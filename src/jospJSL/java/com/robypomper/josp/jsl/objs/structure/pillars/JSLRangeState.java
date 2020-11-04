@@ -126,11 +126,11 @@ public class JSLRangeState extends AbsJSLState {
         public final double oldState;
 
         public JOSPRange(String updData) {
-            String[] lines = updData.split("\n");
+            String[] lines = updData.split(ITEMS_SEP);
 
-            Double newVal = JavaFormatter.strToDouble(lines[0].substring(lines[0].indexOf(":") + 1));
+            Double newVal = JavaFormatter.strToDouble(lines[0].substring(lines[0].indexOf(KEY_VALUE_SEP) + 1));
             newState = newVal != null ? newVal : 0;
-            Double oldVal = JavaFormatter.strToDouble(lines[1].substring(lines[1].indexOf(":") + 1));
+            Double oldVal = JavaFormatter.strToDouble(lines[1].substring(lines[1].indexOf(KEY_VALUE_SEP) + 1));
             oldState = oldVal != null ? oldVal : 0;
         }
 
