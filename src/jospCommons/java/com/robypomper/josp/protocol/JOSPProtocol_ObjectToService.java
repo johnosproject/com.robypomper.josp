@@ -250,6 +250,7 @@ public class JOSPProtocol_ObjectToService {
 
     // Status History Msg class (Response)
 
+    public static final JOSPPerm.Type HISTORY_STATUS_REQ_MIN_PERM = JOSPPerm.Type.Status;
     public static final String HISTORY_STATUS_REQ_NAME = "HistoryStatusRes";
     private static final String HISTORY_STATUS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_STATUS_MSG";
     private static final String HISTORY_STATUS_REQ = HISTORY_STATUS_REQ_BASE + " %s\nobjId:%s\ncompPath:%s\nreqId:%s\n%s";

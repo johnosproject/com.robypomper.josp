@@ -308,7 +308,7 @@ public class JOSPProtocol {
 
     // Message classes (internal purposes)
 
-    private static class JOSPStateUpdateStr implements JOSPStateUpdateParams {
+    public static class JOSPStateUpdateStr implements JOSPStateUpdateParams {
 
         private final String updType;
         private final String updData;
@@ -330,7 +330,7 @@ public class JOSPProtocol {
 
     }
 
-    private static class JOSPActionCommandStr implements JOSPActionCommandParams {
+    public static class JOSPActionCommandStr implements JOSPActionCommandParams {
 
         private final String cmdType;
         private final String cmdData;
