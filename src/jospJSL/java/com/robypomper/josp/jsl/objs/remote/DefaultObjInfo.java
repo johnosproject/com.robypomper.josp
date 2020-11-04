@@ -214,14 +214,14 @@ public class DefaultObjInfo extends ObjBase implements ObjInfo {
     // Events History
 
     @Override
-    public List<JOSPEvent> getEventsHistory(HistoryLimits limits, int timeoutSeconds) {
+    public List<JOSPEvent> getEventsHistory(HistoryLimits limits, int timeoutSeconds) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         if (eventsHistory == null) eventsHistory = new DefaultHistoryObjEvents(getRemote(), getServiceInfo());
         return eventsHistory.getEventsHistory(limits, timeoutSeconds);
     }
 
 
     @Override
-    public void getEventsHistory(HistoryLimits limits, HistoryObjEvents.EventsListener listener) {
+    public void getEventsHistory(HistoryLimits limits, HistoryObjEvents.EventsListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         if (eventsHistory == null) eventsHistory = new DefaultHistoryObjEvents(getRemote(), getServiceInfo());
         eventsHistory.getEventsHistory(limits, listener);
     }

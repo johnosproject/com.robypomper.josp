@@ -86,8 +86,8 @@ public interface ObjInfo {
 
     // Events History
 
-    List<JOSPEvent> getEventsHistory(HistoryLimits limits, int timeoutSeconds);
+    List<JOSPEvent> getEventsHistory(HistoryLimits limits, int timeoutSeconds) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission;
 
-    void getEventsHistory(HistoryLimits limits, HistoryObjEvents.EventsListener listener);
+    void getEventsHistory(HistoryLimits limits, HistoryObjEvents.EventsListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission;
 
 }

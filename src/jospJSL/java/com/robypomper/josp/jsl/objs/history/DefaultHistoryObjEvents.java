@@ -41,7 +41,7 @@ public class DefaultHistoryObjEvents extends HistoryBase implements HistoryObjEv
     }
 
     @Override
-    public List<JOSPEvent> getEventsHistory(HistoryLimits limits, long timeout) {
+    public List<JOSPEvent> getEventsHistory(HistoryLimits limits, long timeout) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         final List<JOSPEvent> result = new ArrayList<>();
         final CountDownLatch countdown = new CountDownLatch(1);
         // register internal listener
@@ -68,7 +68,7 @@ public class DefaultHistoryObjEvents extends HistoryBase implements HistoryObjEv
     }
 
     @Override
-    public void getEventsHistory(HistoryLimits limits, EventsListener listener) {
+    public void getEventsHistory(HistoryLimits limits, EventsListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         // register listener
         int reqId = registerListener(listener);
         // send

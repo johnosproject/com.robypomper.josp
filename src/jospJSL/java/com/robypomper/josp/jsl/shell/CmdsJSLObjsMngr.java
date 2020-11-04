@@ -177,7 +177,14 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         // Get statuses history
-        List<JOSPEvent> eventsHistory = obj.getInfo().getEventsHistory(limits, 10);
+        List<JOSPEvent> eventsHistory = null;
+        try {
+            eventsHistory = obj.getInfo().getEventsHistory(limits, 10);
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't get Events", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't get Events name\n%s", obj.getId(), e.getMessage());
+        }
 
         if (eventsHistory.isEmpty())
             return String.format("No events for '%s' Object", objId);
@@ -269,7 +276,12 @@ public class CmdsJSLObjsMngr {
             return String.format("No component found with path '%s' in '%s' object", compPath, objId);
 
         // Get statuses history
-        List<JOSPStatusHistory> statusHistory = obj.getStruct().getComponentHistory(comp, limits, 30);
+        List<JOSPStatusHistory> statusHistory = null;
+        try {
+            statusHistory = obj.getStruct().getComponentHistory(comp, limits, 30);
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't get component's Status History", obj.getId());
+        }
 
         if (statusHistory.isEmpty())
             return String.format("No history for Component '%s' of '%s' Object", compPath, objId);

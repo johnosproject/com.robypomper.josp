@@ -51,8 +51,8 @@ public interface ObjStruct {
 
     // Components History
 
-    List<JOSPStatusHistory> getComponentHistory(JSLComponent component, HistoryLimits limits, int timeoutSeconds);
+    List<JOSPStatusHistory> getComponentHistory(JSLComponent component, HistoryLimits limits, int timeoutSeconds) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission;
 
-    void getComponentHistory(JSLComponent component, HistoryLimits limits, HistoryCompStatus.StatusHistoryListener listener);
+    void getComponentHistory(JSLComponent component, HistoryLimits limits, HistoryCompStatus.StatusHistoryListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission;
 
 }

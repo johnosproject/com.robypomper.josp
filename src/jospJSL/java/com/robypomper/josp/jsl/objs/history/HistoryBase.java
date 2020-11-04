@@ -59,23 +59,13 @@ public abstract class HistoryBase {
         }
     }
 
-    protected void sendToObjectCloudly(JOSPPerm.Type minReqPerm, String msg) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
-        if (!getRemote().getComm().isCloudConnected())
-            throw new JSLRemoteObject.ObjectNotConnected(getRemote());
-
+    protected void sendToObjectCloudly(JOSPPerm.Type minReqPerm, String msg) throws JSLRemoteObject.MissingPermission, Client.ServerNotConnectedException {
         // Send via cloud communication
-        if (getRemote().getComm().isCloudConnected()) {
-            JOSPPerm.Type permType = getRemote().getPerms().getPermTypes().get(JOSPPerm.Connection.LocalAndCloud);
-            if (permType.compareTo(minReqPerm) < 0)
-                throw new JSLRemoteObject.MissingPermission(getRemote(), JOSPPerm.Connection.LocalAndCloud, permType, minReqPerm, msg);
+        JOSPPerm.Type permType = getRemote().getPerms().getPermTypes().get(JOSPPerm.Connection.LocalAndCloud);
+        if (permType.compareTo(minReqPerm) < 0)
+            throw new JSLRemoteObject.MissingPermission(getRemote(), JOSPPerm.Connection.LocalAndCloud, permType, minReqPerm, msg);
 
-            try {
-                ((DefaultObjComm) getRemote().getComm()).getCloudConnection().sendData(msg);
-
-            } catch (Client.ServerNotConnectedException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via cloud) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
-            }
-        }
+        ((DefaultObjComm) getRemote().getComm()).getCloudConnection().sendData(msg);
     }
 
 }

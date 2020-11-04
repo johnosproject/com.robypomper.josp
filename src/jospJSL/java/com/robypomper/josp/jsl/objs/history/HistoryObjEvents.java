@@ -10,9 +10,9 @@ public interface HistoryObjEvents {
 
     JSLRemoteObject getObject();
 
-    List<JOSPEvent> getEventsHistory(HistoryLimits limits, long timeout);
+    List<JOSPEvent> getEventsHistory(HistoryLimits limits, long timeout) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission;
 
-    void getEventsHistory(HistoryLimits limits, EventsListener listener);
+    void getEventsHistory(HistoryLimits limits, EventsListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission;
 
     interface EventsListener {
 

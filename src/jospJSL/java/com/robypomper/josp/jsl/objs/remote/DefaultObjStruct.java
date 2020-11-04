@@ -181,12 +181,12 @@ public class DefaultObjStruct extends ObjBase implements ObjStruct {
     // Components History
 
     @Override
-    public List<JOSPStatusHistory> getComponentHistory(JSLComponent component, HistoryLimits limits, int timeoutSeconds) {
+    public List<JOSPStatusHistory> getComponentHistory(JSLComponent component, HistoryLimits limits, int timeoutSeconds) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         return getComponentHistory(component).getStatusHistory(limits, timeoutSeconds);
     }
 
     @Override
-    public void getComponentHistory(JSLComponent component, HistoryLimits limits, HistoryCompStatus.StatusHistoryListener listener) {
+    public void getComponentHistory(JSLComponent component, HistoryLimits limits, HistoryCompStatus.StatusHistoryListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         getComponentHistory(component).getStatusHistory(limits, listener);
     }
 

@@ -45,7 +45,7 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
     }
 
     @Override
-    public List<JOSPStatusHistory> getStatusHistory(HistoryLimits limits, long timeout) {
+    public List<JOSPStatusHistory> getStatusHistory(HistoryLimits limits, long timeout) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         final List<JOSPStatusHistory> result = new ArrayList<>();
         final CountDownLatch countdown = new CountDownLatch(1);
         // register internal listener
@@ -72,7 +72,7 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
     }
 
     @Override
-    public void getStatusHistory(HistoryLimits limits, StatusHistoryListener listener) {
+    public void getStatusHistory(HistoryLimits limits, StatusHistoryListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         // register listener
         int reqId = registerListener(listener);
         // send
