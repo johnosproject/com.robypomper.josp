@@ -22,5 +22,11 @@ package com.robypomper.josp.jcp.db;
 import com.robypomper.josp.jcp.db.entities.ObjectStatusHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 
-public interface StatusHistoryRepository extends JpaRepository<ObjectStatusHistory, Long> { }
+
+public interface StatusHistoryRepository extends JpaRepository<ObjectStatusHistory, Long> {
+
+    List<ObjectStatusHistory> findByObjIdAndCompPath(String objId, String compPath);
+
+}

@@ -69,4 +69,8 @@ public class ObjectStatusHistory {
         return s;
     }
 
+    public static JOSPStatusHistory toJOSPStatusHistory(ObjectStatusHistory status) {
+        return new JOSPStatusHistory(status.getId(), status.getCompPath(), status.getCompType(), status.getUpdatedAt(), status.getPayload());
+    }
+
 }
