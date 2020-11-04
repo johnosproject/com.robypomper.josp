@@ -115,6 +115,8 @@ dependencies {
     jcpAPIsImplementation 'io.swagger:swagger-models:1.5.21'
     jcpAPIsImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.10.2'
 
+    jcpAPIsImplementation 'com.robypomper.josp:jsl:2.0.+'                               // Required by JOSP GWs > GWObject
+
     jcpFEImplementation 'com.robypomper.josp:jsl:2.0.0'
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpFECompileOnly 'org.springframework.boot:spring-boot-devtools'

@@ -27,6 +27,8 @@ import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.*;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -250,9 +252,18 @@ public class GWObject {
             } catch (JOSPProtocol.ParsingException e) {
                 return;
             }
-            String newState = upd.getUpdate().encode().split("\n")[0];
-            newState = newState.substring(newState.indexOf(':') + 1).trim();
 
+            // Extract new state
+            String newState;
+            JOSPProtocol.JOSPStateUpdateStr updStr = (JOSPProtocol.JOSPStateUpdateStr) upd.getUpdate();
+            if (JSLBooleanState.JOSPBoolean.class.getSimpleName().compareToIgnoreCase(updStr.getType()) == 0)
+                newState = Boolean.toString(new JSLBooleanState.JOSPBoolean(updStr.encode()).newState);
+            else if (JSLRangeState.JOSPRange.class.getSimpleName().compareToIgnoreCase(updStr.getType()) == 0)
+                newState = Double.toString(new JSLRangeState.JOSPRange(updStr.encode()).newState);
+            else
+                return;
+
+            // Write new state in component
             String structStr = objDB.getStatus().getStructure();
             ObjectMapper mapper = new ObjectMapper();
             Map<String, java.lang.Object> structMap;
