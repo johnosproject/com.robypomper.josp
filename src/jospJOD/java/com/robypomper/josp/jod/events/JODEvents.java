@@ -20,10 +20,13 @@
 package com.robypomper.josp.jod.events;
 
 
+import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Interface for Object's events.
@@ -55,6 +58,13 @@ public interface JODEvents {
     void register(JOSPEvent.Type type, String phase, String payload);
 
     void register(JOSPEvent.Type type, String phase, String payload, Throwable error);
+
+
+    // Status History
+
+    List<JOSPEvent> getHistoryEvents(HistoryLimits limits);
+
+    List<JOSPEvent> filterHistoryEvents(HistoryLimits limits, JavaJSONArrayToFile.Filter<JOSPEvent> filter);
 
 
     // Mngm methods

@@ -19,9 +19,11 @@
 
 package com.robypomper.josp.jod.events;
 
+import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -29,8 +31,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -58,6 +59,7 @@ public class JODEvents_002 implements JODEvents {
     // make JODEvents non singleton but accessible from JOD.getEvents()
     private static final String EVNTS_FILE = "cache/events.jbe";
     private static final String STATS_FILE = "cache/events.jst";
+    private final int MAX_BUFFERED = 5;
     private final int REDUCE_BUFFER = 3;
 
 
@@ -184,8 +186,47 @@ public class JODEvents_002 implements JODEvents {
 
     @Override
     public void register(JOSPEvent.Type type, String phase, String payload) {
-        register(type,phase,payload,null);
+        register(type, phase, payload, null);
     }
+
+    @Override
+    public void register(JOSPEvent.Type type, String phase, String payload, Throwable error) {
+        synchronized (events) {
+            long newId = events.count() + 1;
+            String srcId = locSettings.getObjIdCloud();
+            String errorPayload = null;
+            if (error != null)
+                errorPayload = String.format("{\"type\": \"%s\", \"msg\": \"%s\", \"stack\": \"%s\"}", error.getClass().getSimpleName(), error.getMessage(), Arrays.toString(error.getStackTrace()));
+            JOSPEvent e = new JOSPEvent(newId, type, srcId, JOSPEvent.SrcType.Obj, new Date(), phase, payload, errorPayload);
+            events.append(e);
+            stats.lastStored = e.getId();
+            stats.storeIgnoreExceptions();
+        }
+
+        if (isSyncing)
+            sync();
+
+        if (events.countBuffered() >= MAX_BUFFERED) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        synchronized (events) {
+                            int pre = events.countBuffered();
+                            events.flushCache(REDUCE_BUFFER);
+                            int post = events.countBuffered();
+                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Flushed %d events to file", pre - post));
+                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Events buffered %d events on file %d", events.countBuffered(), events.countFile()));
+                        }
+
+                    } catch (IOException ignore) {
+                        assert false;
+                    }
+                }
+            }).start();
+        }
+    }
+
     private final JCPClient2.ConnectListener jcpConnectListener = new JCPClient2.ConnectListener() {
 
         @Override
@@ -194,18 +235,19 @@ public class JODEvents_002 implements JODEvents {
         }
 
         @Override
-        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {}
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+        }
 
     };
 
     private void sync() {
         if (stats.lastUploaded == stats.lastStored) return;
-        if (jcpClient==null || !jcpClient.isConnected()) return;
+        if (jcpClient == null || !jcpClient.isConnected()) return;
 
         List<JOSPEvent> toUpload;
         synchronized (events) {
             try {
-                toUpload = events.getRange(stats.lastUploaded != -1 ? stats.lastUploaded : null, stats.lastStored);
+                toUpload = events.getById(stats.lastUploaded != -1 ? stats.lastUploaded : null, stats.lastStored);
                 if (stats.lastUploaded != -1 && toUpload.size() > 1) toUpload.remove(0);
 
             } catch (IOException e) {
@@ -219,9 +261,9 @@ public class JODEvents_002 implements JODEvents {
                 return;
             }
 
-            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Upload from %d to %d (%d events)", toUpload.get(0).id, toUpload.get(toUpload.size() - 1).id, toUpload.size()));
+            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Upload from %d to %d (%d events)", toUpload.get(0).getId(), toUpload.get(toUpload.size() - 1).getId(), toUpload.size()));
             for (JOSPEvent e : toUpload)
-                log.trace(Mrk_JOD.JOD_EVENTS, String.format("- event[%d] %s", e.id, e.payload));
+                log.trace(Mrk_JOD.JOD_EVENTS, String.format("- event[%d] %s", e.getId(), e.getPayload()));
 
             try {
                 jcpEvents.uploadEvents(toUpload);
@@ -230,7 +272,7 @@ public class JODEvents_002 implements JODEvents {
             }
 
             stats.uploaded += toUpload.size();
-            stats.lastUploaded = toUpload.get(toUpload.size() - 1).id;
+            stats.lastUploaded = toUpload.get(toUpload.size() - 1).getId();
             stats.storeIgnoreExceptions();
         }
     }
@@ -274,123 +316,47 @@ public class JODEvents_002 implements JODEvents {
     }
 
 
-    // JCP Client listeners
-    private int MAX_BUFFERED = 5;
-
-    public static void main(String[] args) {
-        deleteFile(EVNTS_FILE);
-        deleteFile(STATS_FILE);
-        JODEvents_002 e = null;
-
-        // Create new Events
-        e = create(true);
-        // Register
-        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_CONN, "p1","a");
-        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC, "p1","b");
-        printEvents(e.events);
-        // Store
-        storeEvents(e, true);
-
-        //// Load previous Events, Register new events and store
-        //generateEventsCD(e,true);
-
-        // Send registered events to cloud
-        printStats(e.stats);
-        e.sync();
-        printStats(e.stats);
-
-        e.register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC,"p1", "c");
-        e.sync();
-        printStats(e.stats);
-    }
-
-    private static JODEvents_002 create(boolean print) {
-        // Create
-        JODEvents_002 e = new JODEvents_002(null, null);
-        if (print) printEvents(e.events);
-        return e;
-    }
-
-    private static void storeEvents(JODEvents_002 e, boolean print) {
-        try {
-            e.events.storeCache();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-        if (print) printEvents(e.events);
-    }
-
-    private static void deleteFile(String fileName) {
-        new File(fileName).delete();
-    }
-
-    private static void createWrongFile(String fileName) throws IOException {
-        String content = "Hello World !!";
-        Files.write(Paths.get(fileName), content.getBytes());
-    }
-
-    private static void printStats(CloudStats s) {
-        System.out.println("    #################### ");
-        System.out.println("s.lastStored    " + s.lastStored);
-        System.out.println("s.lastUploaded  " + s.lastUploaded);
-        System.out.println("s.lastDelete    " + s.lastDelete);
-
-        System.out.println("s.uploaded      " + s.uploaded);
-        System.out.println("s.deleted       " + s.deleted);
-        System.out.println("s.unUploaded    " + s.unUploaded);
-    }
-
-    public static void printEvents(EventsArray arrayFile) {
-        System.out.println(" ############################### ");
-        System.out.println("count:         " + arrayFile.count());
-        System.out.println("countBuffered: " + arrayFile.countBuffered());
-        System.out.println("countFile:     " + arrayFile.countFile());
-        System.out.println("getFirst:      " + (arrayFile.getFirst() != null ? arrayFile.getFirst().id : "null"));
-        System.out.println("getLast:       " + (arrayFile.getLast() != null ? arrayFile.getLast().id : "null"));
-    }
-
     @Override
     public void setJCPClient(JCPClient_Object jcpClient) {
-        if (jcpClient==null) return;
+        if (jcpClient == null) return;
 
         this.jcpClient = jcpClient;
         this.jcpClient.addConnectListener(jcpConnectListener);
-        this.jcpEvents = new JCPEvents(jcpClient,locSettings);
+        this.jcpEvents = new JCPEvents(jcpClient, locSettings);
     }
 
     @Override
-    public void register(JOSPEvent.Type type, String phase, String payload, Throwable error) {
-        synchronized (events) {
-            long newId = events.count() + 1;
-            String srcId = locSettings.getObjIdCloud();
-            String errorPayload = null;
-            if (error!=null)
-                errorPayload = String.format("{\"type\": \"%s\", \"msg\": \"%s\", \"stack\": \"%s\"}", error.getClass().getSimpleName(), error.getMessage(), Arrays.toString(error.getStackTrace()));
-            JOSPEvent e = new JOSPEvent(newId, type, srcId, JOSPEvent.SrcType.Obj, new Date(), phase, payload, errorPayload);
-            events.append(e);
-            stats.lastStored = e.id;
-            stats.storeIgnoreExceptions();
-        }
+    public List<JOSPEvent> getHistoryEvents(HistoryLimits limits) {
 
-        if (isSyncing)
-            sync();
+        JavaJSONArrayToFile.Filter<JOSPEvent> filter = new JavaJSONArrayToFile.Filter<JOSPEvent>() {
+            @Override
+            public boolean accepted(JOSPEvent o) {
+                return true;
+            }
+        };
 
-        if (events.countBuffered()>= MAX_BUFFERED) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        synchronized (events) {
-                            int pre = events.countBuffered();
-                            events.flushCache(REDUCE_BUFFER);
-                            int post = events.countBuffered();
-                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Flushed %d events to file", pre - post));
-                            log.debug(Mrk_JOD.JOD_EVENTS, String.format("Events buffered %d events on file %d", events.countBuffered(), events.countFile()));
-                        }
+        return filterHistoryEvents(limits, filter);
+    }
 
-                    } catch (IOException ignore) { assert false; }
-                }
-            }).start();
+    @Override
+    public List<JOSPEvent> filterHistoryEvents(HistoryLimits limits, JavaJSONArrayToFile.Filter<JOSPEvent> filter) {
+        if (limits.isLatestCount())
+            return events.tryLatest(filter, limits.getLatestCount());
+
+        if (limits.isAncientCount())
+            return events.tryAncient(filter, limits.getAncientCount());
+
+        if (limits.isIDRange())
+            return events.tryById(filter, limits.getFromId(), limits.getToId());
+
+        if (limits.isDateRange())
+            return events.tryByDate(filter, limits.getFromDate(), limits.getToDate());
+
+        try {
+            return events.filterAll(filter);
+
+        } catch (IOException e) {
+            return new ArrayList<>();
         }
     }
 
