@@ -15,7 +15,7 @@ public class StatusHistoryArray extends JavaJSONArrayToFile<JOSPStatusHistory, L
 
     @Override
     protected int compareItemIds(Long id1, Long id2) {
-        return (int) (id2 - id1);
+        return (int) (id1 - id2);
     }
 
     @Override
