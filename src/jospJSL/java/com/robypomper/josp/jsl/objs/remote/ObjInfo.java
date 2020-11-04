@@ -1,7 +1,11 @@
 package com.robypomper.josp.jsl.objs.remote;
 
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.structure.JSLRoot;
+import com.robypomper.josp.jsl.objs.history.HistoryObjEvents;
+import com.robypomper.josp.protocol.HistoryLimits;
+import com.robypomper.josp.protocol.JOSPEvent;
+
+import java.util.List;
 
 public interface ObjInfo {
 
@@ -78,5 +82,12 @@ public interface ObjInfo {
         void onLongDescrChanged(JSLRemoteObject obj, String newLongDescr, String oldLongDescr);
 
     }
+
+
+    // Events History
+
+    List<JOSPEvent> getEventsHistory(HistoryLimits limits, int timeoutSeconds);
+
+    void getEventsHistory(HistoryLimits limits, HistoryObjEvents.EventsListener listener);
 
 }
