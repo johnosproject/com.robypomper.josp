@@ -86,7 +86,10 @@ public class JSLBooleanAction extends JSLBooleanState implements JSLAction {
 
         @Override
         public String encode() {
-            return String.format("new:%b\nold:%b", newState, oldState);
+            // No '\n', no ';'
+            String newVal = String.format(KEY_VALUE_FORMAT, "new", Boolean.toString(newState));
+            String oldVal = String.format(KEY_VALUE_FORMAT, "old", Boolean.toString(oldState));
+            return newVal + ITEMS_SEP + oldVal;
         }
 
     }
