@@ -19,6 +19,7 @@
 
 package com.robypomper.communication.client;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.client.events.ClientLocalEvents;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
@@ -41,13 +42,13 @@ import java.util.Arrays;
 /**
  * Default implementation of Client interface.
  */
-public class DefaultClient implements Client {
+public class DefaultClient extends CommunicationBase implements Client {
 
     // Class constants
 
     public static final String TH_CLI_NAME_FORMAT = "CLI-%s@%s";
     public static final String ID_SRV_FORMAT = "SRV-%s:%d";
-    public static final String MSG_BYE_CLI_STR = "byecli";
+    public static final String MSG_BYE_CLI_STR = "byecli" + DELIMITER_STR;
     public static final byte[] MSG_BYE_CLI = MSG_BYE_CLI_STR.getBytes(PeerInfo.CHARSET);
 
 
@@ -66,6 +67,8 @@ public class DefaultClient implements Client {
     private DataInputStream server2ClientStream;
     private DataOutputStream client2ServerStream;
     private ServerInfo serverInfo;
+    private final boolean delimiter = true;
+    private final boolean sleep = false;
 
 
     // Constructor
@@ -295,12 +298,13 @@ public class DefaultClient implements Client {
             throw new ServerNotConnectedException(getServerInfo().getServerId());
 
         try {
-            client2ServerStream.write(data, 0, data.length);
+            transmitData(client2ServerStream, data, delimiter);
+
         } catch (IOException e) {
             throw new ServerNotConnectedException(getServerInfo().getServerId(), e);
         }
 
-        log.debug(Mrk_Commons.COMM_CL, String.format("Client '%s' send to server '%s' data '%s...'", getClientId(), getServerInfo().getServerId(), new String(data, PeerInfo.CHARSET).substring(0, Math.min(data.length, 10))));
+        log.debug(Mrk_Commons.COMM_CL, String.format("Client '%s' send to server '%s' data '%s...'", getClientId(), getServerInfo().getServerId(), truncateMid(data, 30)));
         cme.onDataSend(data);
         cme.onDataSend(new String(data, PeerInfo.CHARSET));
     }
@@ -360,37 +364,30 @@ public class DefaultClient implements Client {
      * This tread receive all data rx from the server and emit the
      * {@link ClientMessagingEvents#onDataReceived(byte[])} event.
      */
-    @SuppressWarnings("JavadocReference")
     protected void processServer() {
-        log.debug(Mrk_Commons.COMM_CL, String.format("server '%s' processor thread '%s' started", getServerInfo().getServerId(), Thread.currentThread().getName()));
-
+        try {
+            log.debug(Mrk_Commons.COMM_CL, String.format("server '%s' processor thread '%s' started", getServerInfo().getServerId(), Thread.currentThread().getName()));
+        } catch (NullPointerException e) {
+            log.debug(Mrk_Commons.COMM_CL, String.format("server '%s' processor thread '%s' started", getServerInfo(), Thread.currentThread().getName()));
+            log.warn(Mrk_Commons.COMM_CL, String.format("server '%s' missing server's id", getServerInfo()));
+        }
         mustShutdown = false;
         boolean serverSendByeMsg = false;
+        DataInputStream in = server2ClientStream;
+        byte[] dataBuffered = new byte[0];
         while (!mustShutdown) {
 
             try {
-                DataInputStream in = server2ClientStream;
+                // Listen for server data
+                byte[][] dataReadTmp = DefaultClient.listenForData(in, dataBuffered, delimiter);
 
-                // Read data, force blocking read op
-                int available = in.available();
-                byte[] dataRead = new byte[available > 0 ? available : 1];
-                int bytesRead = in.read(dataRead);
-
-                // Check if disconnected by client
-                if (bytesRead == -1)
+                if (dataReadTmp == null)
                     break;
 
-                // Check if there are missing data
-                if (available == 0) {
-                    byte[] dataMissing = new byte[in.available()];
-                    int bytesMissing = in.read(dataMissing);
-                    byte[] dataTmp = new byte[bytesRead + bytesMissing];
-                    System.arraycopy(dataRead, 0, dataTmp, 0, bytesRead);
-                    System.arraycopy(dataMissing, 0, dataTmp, bytesRead, bytesMissing);
-                    dataRead = dataTmp;
-                }
+                byte[] dataRead = dataReadTmp[0];
+                dataBuffered = dataReadTmp[1];
 
-                // Process received data
+                // Process received data from server
                 try {
                     if (isSrvByeMsg(dataRead)) {
                         serverSendByeMsg = true;
@@ -428,7 +425,8 @@ public class DefaultClient implements Client {
         if (isConnected() && (serverSendByeMsg || !mustShutdown))
             disconnect(true);
 
-        // Client disconnection events
+        // Server disconnection events
+        log.info(Mrk_Commons.COMM_CL, String.format("Disconnect server '%s' to '%s' client", serverInfo.getServerId(), getClientId()));
         if (cse != null) {
             if (serverSendByeMsg)
                 cse.onServerGoodbye();
