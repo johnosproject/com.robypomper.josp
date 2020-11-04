@@ -21,8 +21,10 @@ package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.events.*;
+import com.robypomper.josp.jcp.db.EventDBService;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
+import com.robypomper.josp.jcp.db.StatusHistoryDBService;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,6 +53,10 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     private ObjectDBService objectDBService;
     @Autowired
     private PermissionsDBService permissionsDBService;
+    @Autowired
+    private EventDBService eventsDBService;
+    @Autowired
+    private StatusHistoryDBService statusesHistoryDBService;
     @Autowired
     private JOSPGWsBroker gwBroker;
 
@@ -82,7 +88,7 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             return;
         }
 
-        gwObj = new GWObject(server, client, objectDBService, permissionsDBService, gwBroker);
+        gwObj = new GWObject(server, client, objectDBService, permissionsDBService, eventsDBService, statusesHistoryDBService, gwBroker);
         objects.put(client.getClientId(), gwObj);
     }
 
