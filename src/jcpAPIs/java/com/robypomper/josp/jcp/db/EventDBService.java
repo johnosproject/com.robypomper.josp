@@ -20,6 +20,7 @@
 package com.robypomper.josp.jcp.db;
 
 import com.robypomper.josp.jcp.db.entities.Event;
+import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -55,14 +56,12 @@ public class EventDBService {
         return events.findBySrcIdAndEvnType(srcId, type);
     }
 
-//    public Optional<User> get(JOSPEvent.SourceType src, JOSPEvent.EventType type) {
-//        if (!user.isPresent() || user.get().getUsrId().compareTo(usrId) != 0)
-//            user = users.findById(usrId);
-//        return user;
-//    }
-
     public Event add(Event stock) throws DataIntegrityViolationException {
         return events.save(stock);
+    }
+
+    public List<Event> find(String srcId, HistoryLimits limits) {
+        return events.findBySrcId(srcId);
     }
 
 }

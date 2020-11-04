@@ -81,4 +81,8 @@ public class Event {
         return e;
     }
 
+    public static JOSPEvent toJOSPEvent(Event event) {
+        return new JOSPEvent(event.getEvnId(), event.getEvnType(), event.getSrcId(), event.getSrcType(), event.getEmittedAt(), event.getPhase(), event.getEvnPayload(), event.getErrorPayload());
+    }
+
 }

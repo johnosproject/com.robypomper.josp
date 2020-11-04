@@ -32,4 +32,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findBySrcIdAndEvnType(String srcId, JOSPEvent.Type evnType);
 
+    List<Event> findBySrcId(String objId);
+
 }
