@@ -24,6 +24,10 @@ package com.robypomper.josp.protocol;
  */
 public interface JOSPMsgParams {
 
+    String ITEMS_SEP = ",";
+    String KEY_VALUE_SEP = "=";
+    String KEY_VALUE_FORMAT = "%s=%s";
+
     String getType();
 
     String encode();
