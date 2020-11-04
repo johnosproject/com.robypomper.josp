@@ -60,12 +60,12 @@ public class ObjectStatusHistory {
 
     public static ObjectStatusHistory fromJOSPStatusHistory(String objId, JOSPStatusHistory status) {
         ObjectStatusHistory s = new ObjectStatusHistory();
-        s.shId = status.id;
+        s.shId = status.getId();
         s.objId = objId;
-        s.compPath = status.compPath;
-        s.compType = status.compType;
-        s.updatedAt = status.updatedAt;
-        s.payload = status.payload;
+        s.compPath = status.getCompPath();
+        s.compType = status.getCompType();
+        s.updatedAt = status.getUpdatedAt();
+        s.payload = status.getPayload();
         return s;
     }
 

@@ -69,15 +69,15 @@ public class Event {
 
     public static Event fromJOSPEvent(JOSPEvent event) {
         Event e = new Event();
-        e.evnId = event.id;
-        e.srcType = event.srcType;
-        e.srcId = event.srcId;//objId
-        e.evnType = event.type;
-        e.isError = event.errorPayload != null;
-        e.phase = event.phase;
-        e.evnPayload = event.payload;
-        e.errorPayload = event.errorPayload;
-        e.emittedAt = event.emittedAt;
+        e.evnId = event.getId();
+        e.srcType = event.getSrcType();
+        e.srcId = event.getSrcId();//objId
+        e.evnType = event.getType();
+        e.isError = event.getErrorPayload() != null;
+        e.phase = event.getPhase();
+        e.evnPayload = event.getPayload();
+        e.errorPayload = event.getErrorPayload();
+        e.emittedAt = event.getEmittedAt();
         return e;
     }
 
