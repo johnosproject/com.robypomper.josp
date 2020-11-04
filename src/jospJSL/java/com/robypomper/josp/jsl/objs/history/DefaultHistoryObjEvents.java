@@ -1,5 +1,6 @@
 package com.robypomper.josp.jsl.objs.history;
 
+import com.robypomper.communication.client.Client;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.*;
@@ -79,25 +80,12 @@ public class DefaultHistoryObjEvents extends HistoryBase implements HistoryObjEv
         return reqCount++;
     }
 
-    private void send(int reqId, HistoryLimits limits) {
-        // to cloud
-        // ...
+    private void send(int reqId, HistoryLimits limits) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         try {
-            sendToObjectCloudly(JOSPProtocol_ObjectToService.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
-        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
-            //objectNotConnected.printStackTrace();
-        } catch (JSLRemoteObject.MissingPermission missingPermission) {
-            missingPermission.printStackTrace();
-        }
+            sendToObjectCloudly(JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
 
-        // to jod
-        // ...
-        try {
-            sendToObjectLocally(JOSPProtocol_ObjectToService.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
-        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
-            objectNotConnected.printStackTrace();
-        } catch (JSLRemoteObject.MissingPermission missingPermission) {
-            missingPermission.printStackTrace();
+        } catch (Client.ServerNotConnectedException ignore) {
+            sendToObjectLocally(JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
         }
     }
 
