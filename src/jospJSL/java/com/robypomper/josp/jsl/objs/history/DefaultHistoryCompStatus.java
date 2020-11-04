@@ -21,19 +21,19 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
 
     private static final Logger log = LogManager.getLogger();
     private final JSLComponent comp;
+    private Map<Integer, StatusHistoryListener> listeners = new HashMap<>();
+    private int reqCount = 0;
 
 
     // Constructor
-    private Map<Integer, StatusHistoryListener> listeners = new HashMap<>();
-
-
-    // Getters
-    private int reqCount = 0;
 
     public DefaultHistoryCompStatus(JSLComponent comp, JSLServiceInfo srvInfo) {
         super(comp.getRemoteObject(), srvInfo);
         this.comp = comp;
     }
+
+
+    // Getters
 
     protected JSLComponent getComponent() {
         return comp;
@@ -143,4 +143,5 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
 
         return true;
     }
+
 }

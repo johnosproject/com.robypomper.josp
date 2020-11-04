@@ -54,7 +54,7 @@ public abstract class HistoryBase {
                 return;
 
             } catch (Client.ServerNotConnectedException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+                log.warn(Mrk_JSL.JSL_OBJS, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
             }
         }
     }
