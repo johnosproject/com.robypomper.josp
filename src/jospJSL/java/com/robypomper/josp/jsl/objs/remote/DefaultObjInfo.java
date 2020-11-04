@@ -226,4 +226,8 @@ public class DefaultObjInfo extends ObjBase implements ObjInfo {
         eventsHistory.getEventsHistory(limits, listener);
     }
 
+    public boolean processHistoryEventsMsg(String msg) {
+        return ((DefaultHistoryObjEvents) eventsHistory).processHistoryEventsMsg(msg);
+    }
+
 }
