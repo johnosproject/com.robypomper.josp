@@ -19,6 +19,7 @@
 
 package com.robypomper.communication.server;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.client.DefaultClient;
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.events.ServerClientEvents;
@@ -30,7 +31,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLException;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -44,13 +44,13 @@ import java.util.List;
 /**
  * Default implementation of Server interface.
  */
-public class DefaultServer implements Server {
+public class DefaultServer extends CommunicationBase implements Server {
 
     // Class constants
 
     public static final String TH_SRV_NAME_FORMAT = "_SRV_%s";
     public static final String ID_CLI_FORMAT = "CL-%s:%d";
-    public static final String MSG_BYE_SRV_STR = "byesrv";
+    public static final String MSG_BYE_SRV_STR = "byesrv" + DELIMITER_STR;
     public static final byte[] MSG_BYE_SRV = MSG_BYE_SRV_STR.getBytes(PeerInfo.CHARSET);
 
 
@@ -66,6 +66,8 @@ public class DefaultServer implements Server {
     private Thread serverThread = null;
     private boolean mustShutdown = false;
     private ServerSocket serverSocket = null;
+    private final boolean delimiter = true;
+    private final boolean sleep = false;
 
 
     // Constructor
@@ -78,7 +80,7 @@ public class DefaultServer implements Server {
      * @param port                          the server's port.
      * @param serverMessagingEventsListener the tx and rx messaging listener.
      */
-    protected DefaultServer(String serverId, int port, ServerMessagingEvents serverMessagingEventsListener) {
+    public DefaultServer(String serverId, int port, ServerMessagingEvents serverMessagingEventsListener) {
         this(serverId, port, null, null, serverMessagingEventsListener);
     }
 
@@ -92,10 +94,10 @@ public class DefaultServer implements Server {
      * @param serverClientEventsListener    the clients events listener.
      * @param serverMessagingEventsListener the tx and rx messaging listener.
      */
-    protected DefaultServer(String serverId, int port,
-                            ServerLocalEvents serverLocalEventsListener,
-                            ServerClientEvents serverClientEventsListener,
-                            ServerMessagingEvents serverMessagingEventsListener) {
+    public DefaultServer(String serverId, int port,
+                         ServerLocalEvents serverLocalEventsListener,
+                         ServerClientEvents serverClientEventsListener,
+                         ServerMessagingEvents serverMessagingEventsListener) {
         this.serverId = serverId;
         this.port = port;
         this.sle = serverLocalEventsListener;
@@ -123,7 +125,7 @@ public class DefaultServer implements Server {
      */
     @Override
     public InetAddress getAddress() {
-        return serverSocket!=null ? serverSocket.getInetAddress() : null;
+        return serverSocket != null ? serverSocket.getInetAddress() : null;
     }
 
     /**
@@ -251,14 +253,13 @@ public class DefaultServer implements Server {
             throw new ServerStoppedException();
 
         try {
-            DataOutputStream out = client.getOutStream();
-            out.write(data, 0, data.length);
+            transmitData(client.getOutStream(), data, delimiter);
+
         } catch (PeerInfo.PeerNotConnectedException | PeerInfo.PeerStreamsException | IOException e) {
             throw new ClientNotConnectedException(client.getClientId(), e);
         }
 
-        String dataStr = new String(data, PeerInfo.CHARSET);
-        log.trace(Mrk_Commons.COMM_SRV, String.format("Server '%s' send to client '%s' data '%s...'", getServerId(), client.getClientId(), dataStr.substring(0, Math.min(dataStr.length(), 10))));
+        log.trace(Mrk_Commons.COMM_SRV, String.format("Server '%s' send to client '%s' data '%s...'", getServerId(), client.getClientId(), truncateMid(data, 30)));
         sme.onDataSend(client, data);
         sme.onDataSend(client, new String(data, PeerInfo.CHARSET));
     }
@@ -402,7 +403,6 @@ public class DefaultServer implements Server {
      *
      * @param client the reference of client that send data to current server.
      */
-    @SuppressWarnings("JavadocReference")
     protected void processClient(DefaultClientInfo client) {
         // Get client's input stream
         DataInputStream in;
@@ -416,29 +416,20 @@ public class DefaultServer implements Server {
 
         log.debug(Mrk_Commons.COMM_SRV, String.format("Thread client processor '%s'  started for client '%s'", Thread.currentThread().getName(), client.getClientId()));
         boolean clientSendByeMsg = false;
+        byte[] dataBuffered = new byte[0];
         while (!mustShutdown) {
+
             try {
+                // Listen for client data
+                byte[][] dataReadTmp = listenForData(in, dataBuffered, delimiter);
 
-                // Read data, force blocking read op
-                int available = in.available();
-                byte[] dataRead = new byte[available > 0 ? available : 1];
-                int bytesRead = in.read(dataRead);
-
-                // Check if disconnected by client
-                if (bytesRead == -1)
+                if (dataReadTmp == null)
                     break;
 
-                // Check if there are missing data
-                if (available == 0) {
-                    byte[] dataMissing = new byte[in.available()];
-                    int bytesMissing = in.read(dataMissing);
-                    byte[] dataTmp = new byte[bytesRead + bytesMissing];
-                    System.arraycopy(dataRead, 0, dataTmp, 0, bytesRead);
-                    System.arraycopy(dataMissing, 0, dataTmp, bytesRead, bytesMissing);
-                    dataRead = dataTmp;
-                }
+                byte[] dataRead = dataReadTmp[0];
+                dataBuffered = dataReadTmp[1];
 
-                // Process received data
+                // Process received data from client
                 try {
                     if (isCliByeMsg(dataRead)) {
                         clientSendByeMsg = true;
