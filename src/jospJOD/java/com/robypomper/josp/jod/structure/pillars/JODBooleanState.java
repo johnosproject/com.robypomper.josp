@@ -113,7 +113,10 @@ public class JODBooleanState extends AbsJODState {
 
         @Override
         public String encode() {
-            return String.format("new:%s\nold:%s", newState, oldState);
+            // No '\n', no ';'
+            String newVal = String.format(KEY_VALUE_FORMAT, "new", Boolean.toString(newState));
+            String oldVal = String.format(KEY_VALUE_FORMAT, "old", Boolean.toString(oldState));
+            return newVal + ITEMS_SEP + oldVal;
         }
 
     }

@@ -132,7 +132,10 @@ public class JODRangeState extends AbsJODState {
 
         @Override
         public String encode() {
-            return String.format("new:%s\nold:%s", JavaFormatter.doubleToStr(newState), JavaFormatter.doubleToStr(oldState));
+            // No '\n', no ';'
+            String newVal = String.format(KEY_VALUE_FORMAT, "new", JavaFormatter.doubleToStr(newState));
+            String oldVal = String.format(KEY_VALUE_FORMAT, "old", JavaFormatter.doubleToStr(oldState));
+            return newVal + ITEMS_SEP + oldVal;
         }
 
     }
