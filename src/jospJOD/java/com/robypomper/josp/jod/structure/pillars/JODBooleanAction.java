@@ -128,10 +128,10 @@ public class JODBooleanAction extends JODBooleanState implements JODAction {
         public final boolean oldState;
 
         public JOSPBoolean(String updData) {
-            String[] lines = updData.split("\n");
+            String[] lines = updData.split(ITEMS_SEP);
 
-            newState = Boolean.parseBoolean(lines[0].substring(lines[0].indexOf(":") + 1));
-            oldState = Boolean.parseBoolean(lines[1].substring(lines[1].indexOf(":") + 1));
+            newState = Boolean.parseBoolean(lines[0].substring(lines[0].indexOf(KEY_VALUE_SEP) + 1));
+            oldState = Boolean.parseBoolean(lines[1].substring(lines[1].indexOf(KEY_VALUE_SEP) + 1));
         }
 
         @Override
