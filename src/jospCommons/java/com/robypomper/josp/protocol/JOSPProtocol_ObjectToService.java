@@ -214,6 +214,40 @@ public class JOSPProtocol_ObjectToService {
     }
 
 
+    // Events History Msg class (Response)
+
+    public static final JOSPPerm.Type HISTORY_EVENTS_REQ_MIN_PERM = JOSPPerm.Type.None;
+    public static final String HISTORY_EVENTS_REQ_NAME = "HistoryEventsRes";
+    private static final String HISTORY_EVENTS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_EVENTS_MSG";
+    private static final String HISTORY_EVENTS_REQ = HISTORY_EVENTS_REQ_BASE + " %s\nobjId:%s\nreqId:%s\n%s";
+
+    public static String createHistoryEventsMsg(String objId, String reqId, List<JOSPEvent> eventsHistory) {
+        return String.format(HISTORY_EVENTS_REQ, JOSPProtocol.getNow(), objId, reqId, JOSPEvent.toString(eventsHistory));
+    }
+
+    public static boolean isHistoryEventsMsg(String msg) {
+        return msg.startsWith(HISTORY_EVENTS_REQ_BASE);
+    }
+
+    public static String getHistoryEventsMsg_ObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 3, 1, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static String getHistoryEventsMsg_ReqId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 3, 2, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static List<JOSPEvent> getHistoryEventsMsg_HistoryStatus(String msg) {
+        try {
+            String eventsHistoryStr = JOSPProtocol.extractPayloadFromResponse(msg, 3, 3, HISTORY_EVENTS_REQ_NAME);
+            return JOSPEvent.listFromString(eventsHistoryStr);
+        } catch (JOSPProtocol.ParsingException ignore) {
+        }
+
+        return new ArrayList<>();
+    }
+
+
     // Status History Msg class (Response)
 
     public static final String HISTORY_STATUS_REQ_NAME = "HistoryStatusRes";
@@ -240,11 +274,12 @@ public class JOSPProtocol_ObjectToService {
         return JOSPProtocol.extractFieldFromResponse(msg, 4, 3, HISTORY_STATUS_REQ_NAME);
     }
 
-    public static List<JOSPStatusHistory> getHistoryCompStatusMsg_HistoryStatus(String msg) throws JOSPProtocol.ParsingException {
+    public static List<JOSPStatusHistory> getHistoryCompStatusMsg_HistoryStatus(String msg) {
         try {
             String historyStatusesStr = JOSPProtocol.extractPayloadFromResponse(msg, 4, 4, HISTORY_STATUS_REQ_NAME);
             return JOSPStatusHistory.listFromString(historyStatusesStr);
-        } catch (JOSPProtocol.ParsingException ignore) {}
+        } catch (JOSPProtocol.ParsingException ignore) {
+        }
 
         return new ArrayList<>();
     }
