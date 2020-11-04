@@ -39,6 +39,35 @@ public class JOSPStatusHistory {
 
     // Getters
 
+    public long getId() {
+        return id;
+    }
+
+
+    public String getCompPath() {
+        return compPath;
+    }
+
+    public String getCompType() {
+        return compType;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    @JsonIgnore
+    public String getUpdatedAtStr() {
+        return JOSPProtocol.getDateFormatter().format(updatedAt);
+    }
+
+    public String getPayload() {
+        return payload;
+    }
+
+
+    // Converters
+
     public static JOSPStatusHistory fromString(String statusesHistoryStr) throws JOSPProtocol.ParsingException {
         String[] statusHistoryStrs = statusesHistoryStr.split(";");
         if (statusHistoryStrs.length != 5)
@@ -67,7 +96,7 @@ public class JOSPStatusHistory {
     }
 
     public static String toString(JOSPStatusHistory statusHistory) {
-        return String.format(STATUS_HISTORY_REQ_FORMAT, statusHistory.getId(), statusHistory.compPath, statusHistory.compType, JOSPProtocol.getDateFormatter().format(statusHistory.getUpdatedAt()), statusHistory.getPayload());
+        return String.format(STATUS_HISTORY_REQ_FORMAT, statusHistory.getId(), statusHistory.getCompPath(), statusHistory.getCompType(), JOSPProtocol.getDateFormatter().format(statusHistory.getUpdatedAt()), statusHistory.getPayload());
     }
 
     public static String toString(List<JOSPStatusHistory> statusesHistory) {
@@ -112,34 +141,6 @@ public class JOSPStatusHistory {
             str.append("  +-------+--------------------+--------------------------------+\n");
 
         return str.toString();
-    }
-
-    public long getId() {
-        return id;
-    }
-
-
-    // Converters
-
-    public String getCompPath() {
-        return compPath;
-    }
-
-    public String getCompType() {
-        return compType;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    @JsonIgnore
-    public String getUpdatedAtStr() {
-        return JOSPProtocol.getDateFormatter().format(updatedAt);
-    }
-
-    public String getPayload() {
-        return payload;
     }
 
 }
