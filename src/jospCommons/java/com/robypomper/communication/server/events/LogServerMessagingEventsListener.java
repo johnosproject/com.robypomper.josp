@@ -19,7 +19,7 @@
 
 package com.robypomper.communication.server.events;
 
-import com.robypomper.communication.peer.PeerInfo;
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
@@ -47,7 +47,8 @@ public class LogServerMessagingEventsListener extends DefaultServerEvent impleme
      */
     @Override
     public void onDataSend(ClientInfo client, byte[] writtenData) {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataSend(%s, byte[] %s)", getServer().getServerId(), client.getClientId(), new String(writtenData, PeerInfo.CHARSET)));
+        String dataTruncated = CommunicationBase.truncateMid(writtenData, 30);
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%-10s.onDataSend     (>Cli: %s, byte[%d] %s)", getServer().getServerId(), client.getClientId(), writtenData.length, dataTruncated));
     }
 
     /**
@@ -57,7 +58,6 @@ public class LogServerMessagingEventsListener extends DefaultServerEvent impleme
      */
     @Override
     public void onDataSend(ClientInfo client, String writtenData) {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataSend(%s, String %s)", getServer().getServerId(), client.getClientId(), writtenData));
     }
 
 
@@ -70,8 +70,9 @@ public class LogServerMessagingEventsListener extends DefaultServerEvent impleme
      */
     @Override
     public boolean onDataReceived(ClientInfo client, byte[] readData) throws Throwable {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataReceived(%s, byte[] %s)", getServer().getServerId(), client.getClientId(), new String(readData, PeerInfo.CHARSET)));
-        return false;
+        String dataTruncated = CommunicationBase.truncateMid(readData, 30);
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%-10s.onDataReceived (<Cli: %s, byte[%d] %s)", getServer().getServerId(), client.getClientId(), readData.length, dataTruncated));
+        return true;
     }
 
     /**
@@ -81,7 +82,7 @@ public class LogServerMessagingEventsListener extends DefaultServerEvent impleme
      */
     @Override
     public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("%s.onDataReceived(%s, String %s)", getServer().getServerId(), client.getClientId(), readData));
-        return true;
+        return false;
     }
+
 }

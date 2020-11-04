@@ -19,7 +19,7 @@
 
 package com.robypomper.communication.client.events;
 
-import com.robypomper.communication.peer.PeerInfo;
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +44,8 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public void onDataSend(byte[] writtenData) {
-        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataSend(byte[] %s)", getClient().getClientId(), new String(writtenData, PeerInfo.CHARSET)));
+        String dataTruncated = CommunicationBase.truncateMid(writtenData, 30);
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataSend     (>Srv: %s, byte[%d] %s)", getClient().getClientId(), getServer().getServerId(), writtenData.length, dataTruncated));
     }
 
     /**
@@ -52,7 +53,6 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public void onDataSend(String writtenData) {
-        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataSend(String %s)", getClient().getClientId(), writtenData));
     }
 
 
@@ -63,8 +63,9 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public boolean onDataReceived(byte[] readData) throws Throwable {
-        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataReceived(byte[] %s)", getClient().getClientId(), new String(readData, PeerInfo.CHARSET)));
-        return false;
+        String dataTruncated = CommunicationBase.truncateMid(readData, 30);
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataReceived (<Srv: %s, byte[%d] %s)", getClient().getClientId(), getServer().getServerId(), readData.length, dataTruncated));
+        return true;
     }
 
     /**
@@ -72,8 +73,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
      */
     @Override
     public boolean onDataReceived(String readData) throws Throwable {
-        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%s.onDataReceived(String %s)", getClient().getClientId(), readData));
-        return true;
+        return false;
     }
 
 }
