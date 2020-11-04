@@ -113,7 +113,7 @@ public class JOD_002 extends AbsJOD {
 
         JODPermissions permissions = new JODPermissions_002(settings, objInfo, jcpClient);
 
-        JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions, instanceId);
+        JODCommunication comm = new JODCommunication_002(settings, objInfo, jcpClient, permissions, events, instanceId);
 
         try {
             comm.setStructure(structure);
