@@ -21,17 +21,29 @@ package com.robypomper.josp.jcp.db;
 
 import com.robypomper.josp.jcp.db.entities.Event;
 import com.robypomper.josp.protocol.JOSPEvent;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
+import java.util.Date;
 import java.util.List;
 
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    //List<Event> findBySrcId(String srcId);
     List<Event> findBySrcIdOrderByEmittedAtDesc(String srcId);
 
     List<Event> findBySrcIdAndEvnType(String srcId, JOSPEvent.Type evnType);
 
-    List<Event> findBySrcId(String objId);
+    List<Event> findBySrcId(@Param("srcId") String srcId);
+
+    List<Event> findBySrcId(@Param("srcId") String srcId, Pageable pageable);
+
+    List<Event> findBySrcIdAndEmittedAtBetween(@Param("srcId") String srcId,
+                                               @Param("startDate") Date startDate,
+                                               @Param("endDate") Date endDate);
+
+    List<Event> findBySrcIdAndEvnIdBetween(@Param("srcId") String srcId,
+                                           @Param("startShId") long startShId,
+                                           @Param("endShId") long endShId);
 
 }

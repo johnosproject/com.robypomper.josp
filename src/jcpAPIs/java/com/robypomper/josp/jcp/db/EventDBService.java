@@ -23,6 +23,8 @@ import com.robypomper.josp.jcp.db.entities.Event;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,6 +63,18 @@ public class EventDBService {
     }
 
     public List<Event> find(String srcId, HistoryLimits limits) {
+        if (limits.isLatestCount())
+            return events.findBySrcId(srcId, PageRequest.of(0, (int) (long) limits.getLatestCount(), Sort.by(Sort.Direction.DESC, "evnId")));
+
+        if (limits.isAncientCount())
+            return events.findBySrcId(srcId, PageRequest.of(0, (int) (long) limits.getAncientCount(), Sort.by(Sort.Direction.ASC, "evnId")));
+
+        if (limits.isDateRange())
+            return events.findBySrcIdAndEmittedAtBetween(srcId, limits.getFromDate(), limits.getToDate());
+
+        if (limits.isIDRange())
+            return events.findBySrcIdAndEvnIdBetween(srcId, limits.getFromId(), limits.getToId());
+
         return events.findBySrcId(srcId);
     }
 
