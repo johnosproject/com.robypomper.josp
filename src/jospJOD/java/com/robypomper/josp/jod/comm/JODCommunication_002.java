@@ -249,9 +249,9 @@ public class JODCommunication_002 implements JODCommunication {
                 processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.Actions, connType) && processObjectCmdMsg(msg, srvId, usrId, connType);
 
             else if (JOSPProtocol_ServiceToObject.isHistoryCompStatusMsg(msg))
-                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.Status, connType) && processHistoryCompStatusMsg(msg, srvId, usrId, connType);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, connType) && processHistoryCompStatusMsg(msg, srvId, usrId, connType);
             else if (JOSPProtocol_ServiceToObject.isHistoryEventsMsg(msg))
-                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPProtocol_ObjectToService.HISTORY_EVENTS_REQ_MIN_PERM, connType) && processHistoryEventsMsg(msg, srvId, usrId, connType);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, connType) && processHistoryEventsMsg(msg, srvId, usrId, connType);
 
             else
                 throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
