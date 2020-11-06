@@ -70,6 +70,11 @@ public class MockJODCommunication implements JODCommunication {
     }
 
     @Override
+    public JODLocalClientInfo findLocalClientsInfo(String serviceId) {
+        return null;
+    }
+
+    @Override
     public boolean isLocalRunning() {
         return false;
     }

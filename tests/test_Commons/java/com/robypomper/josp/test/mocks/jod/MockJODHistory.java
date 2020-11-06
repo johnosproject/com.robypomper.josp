@@ -22,21 +22,33 @@ package com.robypomper.josp.test.mocks.jod;
 import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
+import com.robypomper.josp.protocol.HistoryLimits;
+import com.robypomper.josp.protocol.JOSPStatusHistory;
 
 import java.io.IOException;
+import java.util.List;
 
 public class MockJODHistory implements JODHistory {
 
     @Override
-    public void register(JODComponent comp, JODStateUpdate update) {}
+    public void register(JODComponent comp, JODStateUpdate update) {
+    }
 
     @Override
-    public void startCloudSync() {}
+    public List<JOSPStatusHistory> getHistoryStatus(JODComponent comp, HistoryLimits limits) {
+        return null;
+    }
 
     @Override
-    public void stopCloudSync() {}
+    public void startCloudSync() {
+    }
 
     @Override
-    public void storeCache() throws IOException {}
+    public void stopCloudSync() {
+    }
+
+    @Override
+    public void storeCache() throws IOException {
+    }
 
 }
