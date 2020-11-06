@@ -183,7 +183,7 @@ public class CmdsJSLObjsMngr {
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't get Events", obj.getId());
         } catch (JSLRemoteObject.MissingPermission e) {
-            return String.format("Missing permission to object '%s', can't get Events name\n%s", obj.getId(), e.getMessage());
+            return String.format("Missing permission to object '%s', can't get Events\n%s", obj.getId(), e.getMessage());
         }
 
         if (eventsHistory.isEmpty())
@@ -281,6 +281,8 @@ public class CmdsJSLObjsMngr {
             statusHistory = obj.getStruct().getComponentHistory(comp, limits, 30);
         } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
             return String.format("Object '%s' not connected, can't get component's Status History", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't get Status History\n%s", obj.getId(), e.getMessage());
         }
 
         if (statusHistory.isEmpty())

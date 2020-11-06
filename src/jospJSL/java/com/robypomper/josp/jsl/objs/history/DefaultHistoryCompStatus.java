@@ -86,10 +86,10 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
 
     private void send(int reqId, HistoryLimits limits) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         try {
-            sendToObjectCloudly(JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
+            sendToObjectCloudly(JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryCompStatusMsg(getServiceInfo().getFullId(), getRemote().getId(), getComponent().getPath().getString(), Integer.toString(reqId), limits));
 
         } catch (Client.ServerNotConnectedException ignore) {
-            sendToObjectLocally(JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
+            sendToObjectLocally(JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryCompStatusMsg(getServiceInfo().getFullId(), getRemote().getId(), getComponent().getPath().getString(), Integer.toString(reqId), limits));
         }
     }
 
