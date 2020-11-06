@@ -6,6 +6,8 @@ import com.robypomper.josp.jcpfe.apis.params.JOSPObjHtml;
 import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEObjs;
 import com.robypomper.josp.jcpfe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.protocol.HistoryLimits;
+import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.josp.protocol.JOSPPerm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -186,6 +188,21 @@ public class ObjsMngrController {
     }
 
 
-    // Shared structures
+    // Events
+
+    @GetMapping(path = APIJCPFEObjs.FULL_PATH_EVENTS)
+    public ResponseEntity<List<JOSPEvent>> jsonObjectEvents(HttpSession session,
+                                                            @PathVariable("obj_id") String objId,
+                                                            HistoryLimits limits) {
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
+        try {
+            return ResponseEntity.ok(obj.getInfo().getEventsHistory(limits, 20));
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            objectNotConnected.printStackTrace();
+        } catch (JSLRemoteObject.MissingPermission missingPermission) {
+            missingPermission.printStackTrace();
+        }
+        return null;
+    }
 
 }
