@@ -48,7 +48,7 @@ public class DefaultClient extends CommunicationBase implements Client {
 
     public static final String TH_CLI_NAME_FORMAT = "CLI-%s@%s";
     public static final String ID_SRV_FORMAT = "SRV-%s:%d";
-    public static final String MSG_BYE_CLI_STR = "byecli" + DELIMITER_STR;
+    public static final String MSG_BYE_CLI_STR = "byecli";
     public static final byte[] MSG_BYE_CLI = MSG_BYE_CLI_STR.getBytes(PeerInfo.CHARSET);
 
 
@@ -239,7 +239,8 @@ public class DefaultClient extends CommunicationBase implements Client {
 
         log.info(Mrk_Commons.COMM_CL, String.format("Disconnecting client '%s'", getClientId()));
         try {
-            clientSocket.getOutputStream().write(MSG_BYE_CLI);
+            CommunicationBase.transmitData(clientSocket.getOutputStream(), MSG_BYE_CLI);
+
         } catch (IOException e) {
             log.warn(Mrk_Commons.COMM_CL, String.format("Client '%s' can't send BYE message", getClientId()));
             if (cle != null) cle.onDisconnectionError(e);
@@ -421,7 +422,7 @@ public class DefaultClient extends CommunicationBase implements Client {
             }
         }
 
-
+        boolean wasMustShutdown = mustShutdown;
         if (isConnected() && (serverSendByeMsg || !mustShutdown))
             disconnect(true);
 
@@ -430,7 +431,7 @@ public class DefaultClient extends CommunicationBase implements Client {
         if (cse != null) {
             if (serverSendByeMsg)
                 cse.onServerGoodbye();
-            else if (mustShutdown)
+            else if (wasMustShutdown)
                 cse.onServerClientDisconnected();
             else
                 cse.onServerTerminated();

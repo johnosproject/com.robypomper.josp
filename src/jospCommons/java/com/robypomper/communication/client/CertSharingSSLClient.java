@@ -352,11 +352,13 @@ public class CertSharingSSLClient implements Client {
 
             // Get server's cert
             certClient.connect();
+            boolean stored = false;
             try {
-                certStoredLatch.await(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                throw new ConnectionException("Can't get server public certificate");
+                stored = certStoredLatch.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException ignore2) {
             }
+            if (!stored)
+                throw new ConnectionException("Can't get server public certificate");
 
             // 2nd try connect
             sslClient.connect();

@@ -20,6 +20,7 @@
 package com.robypomper.communication.server.standard;
 
 import com.robypomper.communication.UtilsJKS;
+import com.robypomper.communication.client.standard.SSLCertClient;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.DefaultServer;
 import com.robypomper.communication.server.events.DefaultServerEvent;
@@ -31,7 +32,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -114,14 +114,11 @@ public class SSLCertServer extends DefaultServer {
      */
     private void sendServerCertificate(ClientInfo client) {
         try {
-            FileInputStream in = new FileInputStream(certPubFile);
-            byte[] dataRead = new byte[in.available()];
+            byte[] dataRead = SSLCertClient.readFile(certPubFile);
 
-            while (in.read(dataRead) != -1) {
-                //dataRead = trim(dataRead);
-                sendData(client, dataRead);
-            }
+            sendData(client, dataRead);
             log.debug(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server send local certificate to client '%s'", client.getClientId()));
+
             if (listener != null) listener.onCertificateSend(client);
             Thread.sleep(100);
 
@@ -155,9 +152,8 @@ public class SSLCertServer extends DefaultServer {
             clientCertBuffer.put(client.getClientId(), readData);
         else
             clientCertBuffer.put(client.getClientId(), concatenate(clientCertBuffer.get(client.getClientId()), readData));
-        //System.out.println(String.format("Rx %d bytes", readData.length));
-        //System.out.println(String.format("%s -> %s", clientCertPath, new String(readData).substring(0, 10)));
 
+        storeClientCertificate(client);
         return true;
     }
 
@@ -203,10 +199,8 @@ public class SSLCertServer extends DefaultServer {
     // Server event listeners
 
     /**
-     * Link the {@link #onClientConnection(ClientInfo)} and
-     * {@link #onClientDisconnection(ClientInfo)} events respectively to
-     * {@link SSLCertServer#sendServerCertificate(ClientInfo)} and
-     * {@link SSLCertServer#storeClientCertificate(ClientInfo)} methods.
+     * Link the {@link #onClientConnection(ClientInfo)} event to
+     * {@link SSLCertServer#sendServerCertificate(ClientInfo)} method.
      */
     private static class SSLCertServerClientEventsListener extends DefaultServerEvent implements ServerClientEvents {
 
@@ -228,13 +222,9 @@ public class SSLCertServer extends DefaultServer {
 
         /**
          * {@inheritDoc}
-         * <p>
-         * Link to the {@link SSLCertServer#storeClientCertificate(ClientInfo)}
-         * method.
          */
         @Override
         public void onClientDisconnection(ClientInfo client) {
-            ((SSLCertServer) getServer()).storeClientCertificate(client);
         }
 
 

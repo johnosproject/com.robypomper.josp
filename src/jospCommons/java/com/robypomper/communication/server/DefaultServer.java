@@ -50,7 +50,7 @@ public class DefaultServer extends CommunicationBase implements Server {
 
     public static final String TH_SRV_NAME_FORMAT = "_SRV_%s";
     public static final String ID_CLI_FORMAT = "CL-%s:%d";
-    public static final String MSG_BYE_SRV_STR = "byesrv" + DELIMITER_STR;
+    public static final String MSG_BYE_SRV_STR = "byesrv";
     public static final byte[] MSG_BYE_SRV = MSG_BYE_SRV_STR.getBytes(PeerInfo.CHARSET);
 
 
