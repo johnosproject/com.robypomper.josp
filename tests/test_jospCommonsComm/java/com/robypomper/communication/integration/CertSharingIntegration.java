@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class CertSharingIntegration {
@@ -346,6 +347,7 @@ public class CertSharingIntegration {
         clientLatchAuth = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_KS_PATH + 2, CLIENT_KS_PASS, CLIENT_CERT_ALIAS, CLIENT_CERT_PATH + 2,
                 latchCLE, latchCSE, latchCME);
+        latchSCE.onClientConnection = new CountDownLatch(1);
         server = serverLatchAuth;
         client = clientLatchAuth;
 

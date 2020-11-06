@@ -19,6 +19,7 @@
 
 package com.robypomper.communication.server;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.server.events.LatchServerClientEventsListener;
 import com.robypomper.communication.server.events.LatchServerLocalEventsListener;
 import com.robypomper.communication.server.events.LatchServerMessagingEventsListener;
@@ -44,8 +45,8 @@ public class DefaultServerTest_Base {
 
     // Class constants
 
-    final static String ID_SERVER = "TestServer";
-    final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
+    public final static String ID_SERVER = "TestServer";
+    public final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
 
 
     // Internal vars
@@ -131,7 +132,7 @@ public class DefaultServerTest_Base {
     }
 
     public static void clientSend(Socket socket, byte[] data) throws IOException {
-        socket.getOutputStream().write(data);
+        CommunicationBase.transmitData(socket.getOutputStream(), data);
     }
 
 }

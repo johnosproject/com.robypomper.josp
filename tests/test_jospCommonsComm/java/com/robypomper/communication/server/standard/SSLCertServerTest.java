@@ -19,7 +19,9 @@
 
 package com.robypomper.communication.server.standard;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.UtilsJKS;
+import com.robypomper.communication.client.standard.SSLCertClient;
 import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.events.LatchSSLCertServerListener;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
@@ -28,7 +30,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.KeyStore;
@@ -161,23 +165,15 @@ public class SSLCertServerTest {
         Assertions.assertEquals(0, serverCertTrustManager.getAcceptedIssuers().length);
 
         // Read from file and send to server
-        InputStream clientCertIn = new FileInputStream(CLI_CERT_PUB_PATH);
-        OutputStream out = s.getOutputStream();
-        int byteReadTx;
-        //noinspection unused
-        int countTx = 0;
-        while ((byteReadTx = clientCertIn.read()) != -1) {
-            out.write(byteReadTx);
-            countTx++;
-        }
-        //System.out.println(String.format("Tx %d bytes", countTx));
+        byte[] fileData = SSLCertClient.readFile(new File(CLI_CERT_PUB_PATH));
+        CommunicationBase.transmitData(s.getOutputStream(), fileData);
 
         // Wait that server read all send bytes and close connection
-        Thread.sleep(100);
         s.close();
 
+        Thread.sleep(1000);
         Assertions.assertTrue(latchSSLCertServer.onCertificateSend.await(1, TimeUnit.SECONDS));
-        Assertions.assertTrue(latchSSLCertServer.onCertificateStored.await(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(latchSSLCertServer.onCertificateStored.await(10, TimeUnit.SECONDS));
 
         // Wait that server store certificate and check added certificate
         Thread.sleep(100);
