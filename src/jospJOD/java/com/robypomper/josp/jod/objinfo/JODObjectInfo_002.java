@@ -22,6 +22,7 @@ package com.robypomper.josp.jod.objinfo;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -85,7 +86,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             generateObjIdHw();
         if (!isObjIdSet()) {
             log.info(Mrk_JOD.JOD_INFO, "Object's id not set, generating new one");
-            generateObjId(locSettings.getCloudEnabled());
+            generateObjId();
         } else {
             String objId = getObjId();
             saveObjId(objId);
@@ -93,7 +94,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
                 log.info(Mrk_JOD.JOD_INFO, String.format("Object's id '%s' load and set", objId));
             } else {
                 log.info(Mrk_JOD.JOD_INFO, String.format("Object's id '%s' is local, try re-generate cloud obj id", objId));
-                regenerateObjId(objId, locSettings.getCloudEnabled());
+                regenerateObjId(objId);
             }
         }
         if (getObjName().isEmpty())
@@ -320,20 +321,20 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     @Override
     public void regenerateObjId() {
-        if (comm.isCloudConnected())
-            comm.disconnectCloud();
-        regenerateObjId(getObjId(), comm.isCloudConnected());
+        regenerateObjId(getObjId());
     }
 
-    private void generateObjId(boolean connectCloudAfter) {
-        regenerateObjId(null, connectCloudAfter);
+    private void generateObjId() {
+        regenerateObjId(null);
     }
 
-    private void regenerateObjId(String oldObjId, boolean connectCloudAfter) {
+    private void regenerateObjId(String oldObjId) {
         try {
             log.debug(Mrk_JOD.JOD_INFO, "Generating new object ID on cloud");
             String generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId(), oldObjId);
             log.debug(Mrk_JOD.JOD_INFO, "Object ID generated on cloud");
+
+            Events.registerInfoUpd("objId",oldObjId, generated);
 
             saveObjId(generated);
             if (isGenerating()) {
@@ -341,20 +342,12 @@ public class JODObjectInfo_002 implements JODObjectInfo {
                 isGenerating = false;
             }
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
-
-            if (connectCloudAfter && comm != null)
-                try {
-                    comm.connectCloud();
-                } catch (JODCommunication.CloudCommunicationException e) {
-                    log.warn(Mrk_JOD.JOD_INFO, String.format("Error on starting cloud communication on regenerating object id because %s", e.getMessage()), e);
-                }
-
             return;
 
         } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
+            Events.registerInfoUpd("objId",e);
             if (!isGenerating()) {
-                generatingListener.connectAfterCloud = connectCloudAfter;
                 jcpClient.addConnectListener(generatingListener);
                 isGenerating = true;
             }
@@ -364,6 +357,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             log.debug(Mrk_JOD.JOD_INFO, "Generating locally a temporary object ID");
             String generated = String.format("%s-00000-00000", getObjIdHw());
             log.debug(Mrk_JOD.JOD_INFO, "Temporary Object ID generated locally");
+            Events.registerInfoUpd("objId", generated);
 
             saveObjId(generated);
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated locally '%s'", getObjId()));
@@ -382,6 +376,12 @@ public class JODObjectInfo_002 implements JODObjectInfo {
                 log.warn(Mrk_JOD.JOD_INFO, "Error on stopping local communication on save object's id");
             }
         }
+        // Stop cloud communication
+        boolean wasCloudRunning = false;
+        if (comm != null && comm.isCloudConnected()) {
+            wasCloudRunning = true;
+            comm.disconnectCloud();
+        }
 
         // Store and dispatch new obj id
         locSettings.setObjIdCloud(generatedObjId);
@@ -395,6 +395,16 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
         if (structure != null)
             syncObjInfo();
+
+        // Start cloud communication
+        if (wasCloudRunning) {
+            try {
+                comm.connectCloud();
+
+            } catch (JODCommunication.CloudCommunicationException e) {
+                log.warn(Mrk_JOD.JOD_INFO, "Error on re-connecting to cloud on save object's id");
+            }
+        }
 
         // Start local communication
         if (wasLocalRunning) {
@@ -440,11 +450,9 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     class GenerateConnectionListener implements JCPClient2.ConnectListener {
 
-        public boolean connectAfterCloud;
-
         @Override
         public void onConnected(JCPClient2 jcpClient) {
-            regenerateObjId(JODObjectInfo_002.this.getObjId(), connectAfterCloud);
+            regenerateObjId(JODObjectInfo_002.this.getObjId());
         }
 
         @Override

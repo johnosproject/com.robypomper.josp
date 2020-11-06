@@ -81,7 +81,18 @@ public interface JCPClient2 {
     boolean isAuthCodeFlowEnabled();
 
 
+    // APIs urls
+
+    String getUrlAPIs();
+
+    String getIPAPIs();
+
+
     // Auth urls
+
+    String getUrlAuth();
+
+    String getIPAuth();
 
     String getLoginUrl();
 

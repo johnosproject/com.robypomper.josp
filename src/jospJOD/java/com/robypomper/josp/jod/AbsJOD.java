@@ -20,7 +20,10 @@
 package com.robypomper.josp.jod;
 
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.events.Events;
+import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -29,7 +32,9 @@ import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * Default {@link JOD} implementation, initialization excluded.
@@ -67,6 +72,8 @@ public abstract class AbsJOD implements JOD {
     private final JODCommunication comm;
     private final JODExecutorMngr executor;
     private final JODPermissions permissions;
+    private final JODEvents events;
+    private final JODHistory history;
 
 
     // Internal vars
@@ -87,8 +94,17 @@ public abstract class AbsJOD implements JOD {
      * @param comm        {@link JODCommunication} reference.
      * @param executor    {@link JODExecutorMngr} reference.
      * @param permissions {@link JODPermissions} reference.
+     * @param events       {@link JODEvents} reference.
      */
-    protected AbsJOD(Settings settings, JCPClient_Object jcpClient, JODObjectInfo objInfo, JODStructure structure, JODCommunication comm, JODExecutorMngr executor, JODPermissions permissions) {
+    protected AbsJOD(Settings settings,
+                     JCPClient_Object jcpClient,
+                     JODObjectInfo objInfo,
+                     JODStructure structure,
+                     JODCommunication comm,
+                     JODExecutorMngr executor,
+                     JODPermissions permissions,
+                     JODEvents events,
+                     JODHistory history) {
         this.settings = settings;
         this.jcpClient = jcpClient;
         this.objInfo = objInfo;
@@ -96,6 +112,8 @@ public abstract class AbsJOD implements JOD {
         this.comm = comm;
         this.executor = executor;
         this.permissions = permissions;
+        this.events = events;
+        this.history = history;
 
         log.info(Mrk_JOD.JOD_MAIN, String.format("Initialized AbsJOD/%s instance for '%s' ('%s') object", this.getClass().getSimpleName(), objInfo.getObjName(), objInfo.getObjId()));
     }
@@ -119,6 +137,8 @@ public abstract class AbsJOD implements JOD {
     public void start() throws RunException {
         log.info(Mrk_JOD.JOD_MAIN, String.format("Start JOD instance for '%s' object", objInfo.getObjId()));
 
+        long start = new Date().getTime();
+
         log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD status is %s", status()));
         if (status() != Status.STOPPED
                 && status() != Status.REBOOTING)
@@ -129,11 +149,19 @@ public abstract class AbsJOD implements JOD {
             log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.STARTING));
         }
 
+        Events.registerJODStart("Startup sub-system");
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODEvents starting");
+        events.startCloudSync();
+
         log.trace(Mrk_JOD.JOD_MAIN, "JODObjectInfo starting");
         objInfo.startAutoRefresh();
 
         log.trace(Mrk_JOD.JOD_MAIN, "JODPermissions starting");
         permissions.startAutoRefresh();
+
+        log.trace(Mrk_JOD.JOD_MAIN, "JODHistory starting");
+        history.startCloudSync();
 
         log.trace(Mrk_JOD.JOD_MAIN, "JODStructure starting");
         structure.startAutoRefresh();
@@ -164,6 +192,9 @@ public abstract class AbsJOD implements JOD {
             log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.RUNNING));
         }
 
+        long time = new Date().getTime() - start;
+        Events.registerJODStart("Sub-systems started successfully", time);
+
         log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' started", objInfo.getObjId()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj status           = %s", status()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP JOD version         = %s", version()));
@@ -192,10 +223,14 @@ public abstract class AbsJOD implements JOD {
     public void stop() throws RunException {
         log.info(Mrk_JOD.JOD_MAIN, String.format("Shutdown JOD instance for '%s' object", objInfo.getObjId()));
 
+        long start = new Date().getTime();
+
         log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD status is %s", status()));
         if (status() != Status.RUNNING
                 && status() != Status.REBOOTING)
             throw new RunException(String.format("Can't stop JOD object because his state is '%s'.", status()));
+
+        Events.registerJODStop("Stopping sub-system");
 
         if (status != Status.REBOOTING) {
             status = Status.SHUTDOWN;
@@ -222,6 +257,24 @@ public abstract class AbsJOD implements JOD {
 
         log.trace(Mrk_JOD.JOD_MAIN, "JODStructure stopping");
         structure.stopAutoRefresh();
+
+        try {
+            history.storeCache();
+        } catch (IOException e) {
+            log.warn(Mrk_JOD.JOD_MAIN, "Can't flush status on file");
+        }
+        log.trace(Mrk_JOD.JOD_MAIN, "JODHistory stopping");
+        history.stopCloudSync();
+
+        long time = new Date().getTime() - start;
+        Events.registerJODStop("Sub-system stopped successfully", time);
+        try {
+            Events.storeCache();
+        } catch (IOException e) {
+            log.warn(Mrk_JOD.JOD_MAIN, "Can't flush events on file");
+        }
+        log.trace(Mrk_JOD.JOD_MAIN, "JODEvents stopping");
+        events.stopCloudSync();
 
         if (status != Status.REBOOTING) {
             status = Status.STOPPED;
@@ -290,6 +343,16 @@ public abstract class AbsJOD implements JOD {
     @Override
     public JODPermissions getPermission() {
         return permissions;
+    }
+
+    @Override
+    public JODEvents getEvents() {
+        return events;
+    }
+
+    @Override
+    public JODHistory getHistory() {
+        return history;
     }
 
 }

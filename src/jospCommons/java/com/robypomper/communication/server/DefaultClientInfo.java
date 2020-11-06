@@ -19,6 +19,7 @@
 
 package com.robypomper.communication.server;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.peer.DefaultPeerInfo;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
@@ -121,7 +122,7 @@ public class DefaultClientInfo extends DefaultPeerInfo implements ClientInfo {
         // Send goodbye message
         try {
             log.trace(Mrk_Commons.COMM_SRV, String.format("Sending goodbye message to client '%s'", getClientId()));
-            getSocket().getOutputStream().write(DefaultServer.MSG_BYE_SRV);
+            CommunicationBase.transmitData(getSocket().getOutputStream(), DefaultServer.MSG_BYE_SRV);
         } catch (IOException e) {
             log.warn(Mrk_Commons.COMM_SRV, String.format("Can't send goodbye message to disconnecting client '%s' because %s", getClientId(), e.getMessage()));//, e);
         }

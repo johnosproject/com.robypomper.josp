@@ -20,8 +20,10 @@
 package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.Server;
+import com.robypomper.josp.jcp.db.EventDBService;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
+import com.robypomper.josp.jcp.db.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
 import com.robypomper.josp.jcp.db.entities.Permission;
 import com.robypomper.josp.jcp.db.entities.ServiceStatus;
@@ -49,6 +51,10 @@ public class JOSPGWsBroker {
     private PermissionsDBService permissionsDBService;
     @Autowired
     private ObjectDBService objectDBService;
+    @Autowired
+    private EventDBService eventsDBService;
+    @Autowired
+    private StatusHistoryDBService statusesHistoryDBService;
 
 
     // GWObject's method
@@ -61,6 +67,10 @@ public class JOSPGWsBroker {
         objects.remove(object.getObjId());
         for (GWService service : getAllowedServices(object, JOSPPerm.Type.Status))
             sendObjectDisconnectionToService(object, service);
+    }
+
+    public GWObject findObject(String objId) {
+        return objects.get(objId);
     }
 
 
@@ -106,7 +116,7 @@ public class JOSPGWsBroker {
 
     public boolean sendToSingleCloudService(GWObject object, String fullSrvId, String msg, JOSPPerm.Type minReqPerm) {
         GWService service = services.get(fullSrvId);
-        if (!objectCanSendToService(object, service, minReqPerm))
+        if (minReqPerm != JOSPPerm.Type.None && !objectCanSendToService(object, service, minReqPerm))
             return false;
 
         try {
@@ -224,7 +234,7 @@ public class JOSPGWsBroker {
         for (Object allowedObject : allowedObjects) {
             GWObject gwObj = objects.get(allowedObject.getObjId());
             if (gwObj == null)
-                gwObj = new GWObject(allowedObject, objectDBService, permissionsDBService, this);
+                gwObj = new GWObject(allowedObject, objectDBService, permissionsDBService, eventsDBService, statusesHistoryDBService, this);
             allowedObjs.add(objects.get(allowedObject.getObjId()));
         }
 

@@ -19,6 +19,7 @@
 
 package com.robypomper.communication.client;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
 import com.robypomper.communication.peer.PeerInfo;
@@ -73,7 +74,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
 
         // Send bye msg from server
         Socket serverClient = server.accept();
-        serverClient.getOutputStream().write(DefaultServer.MSG_BYE_SRV);
+        CommunicationBase.transmitData(serverClient.getOutputStream(), DefaultServer.MSG_BYE_SRV);
 
         // Stop server
         server.close();
@@ -162,7 +163,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
 
         // Server send data
         Socket serverClient = server.accept();
-        serverClient.getOutputStream().write("ExampleData".getBytes(PeerInfo.CHARSET));
+        CommunicationBase.transmitData(serverClient.getOutputStream(), ("ExampleData").getBytes(PeerInfo.CHARSET));
 
         // Check client error event
         Assertions.assertTrue(latchCSE.onServerError.await(1, TimeUnit.SECONDS));

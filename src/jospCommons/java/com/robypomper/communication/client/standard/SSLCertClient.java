@@ -19,6 +19,7 @@
 
 package com.robypomper.communication.client.standard;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.client.DefaultClient;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
@@ -159,14 +160,11 @@ public class SSLCertClient extends DefaultClient {
             return;
 
         try {
-            FileInputStream in = new FileInputStream(certPubFile);
-            byte[] dataRead = new byte[in.available()];
+            byte[] dataRead = readFile(certPubFile);
 
-            while (in.read(dataRead) != -1) {
-                //dataRead = trim(dataRead);
-                sendData(dataRead);
-            }
+            sendData(dataRead);
             log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client send local certificate to server '%s'", getServerInfo().getServerId()));
+
             if (listener != null) listener.onCertificateSend();
             Thread.sleep(100);
 
@@ -178,6 +176,25 @@ public class SSLCertClient extends DefaultClient {
 
         } catch (InterruptedException ignore) {
         }
+    }
+
+    /**
+     * Read data from give file.
+     *
+     * @param certPubFile file to read.
+     * @return byte array containing the file's data
+     */
+    public static byte[] readFile(File certPubFile) throws IOException {
+        FileInputStream in = new FileInputStream(certPubFile);
+        byte[] dataRead = new byte[0];
+
+        byte[] dataTmp = new byte[in.available()];
+        while (in.read(dataTmp) != -1) {
+            dataRead = CommunicationBase.append(dataRead, dataTmp);
+            dataTmp = new byte[in.available() > 0 ? in.available() : 1];
+        }
+
+        return dataRead;
     }
 
     /**

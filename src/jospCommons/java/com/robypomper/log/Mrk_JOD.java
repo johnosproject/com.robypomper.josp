@@ -30,6 +30,8 @@ public class Mrk_JOD extends Markers {
 
     protected static final Marker JOD               = MarkerManager.getMarker("JOD");
     public static final Marker JOD_MAIN             = MarkerManager.getMarker("JOD_MAIN").setParents(JOD,MAIN_COMP);
+    // JOD - Events
+    public static final Marker JOD_EVENTS           = MarkerManager.getMarker("JOD_EVENTS").setParents(JOD,MAIN_COMP);
     // JOD - Info
     public static final Marker JOD_INFO             = MarkerManager.getMarker("JOD_INFO").setParents(JOD,MAIN_COMP);
     // JOD - Executor
@@ -45,6 +47,8 @@ public class Mrk_JOD extends Markers {
     public static final Marker JOD_COMM             = MarkerManager.getMarker("JOD_COMM").setParents(JOD,MAIN_COMP);
     public static final Marker JOD_COMM_SUB         = MarkerManager.getMarker("JOD_COMM_SUB").setParents(JOD,SUB_COMP);
     public static final Marker JOD_COMM_JCPCL       = MarkerManager.getMarker("JOD_COMM_JCPCL").setParents(JOD, Mrk_Commons.COMM_JCPCL);
+    // JOD - History
+    public static final Marker JOD_HISTORY          = MarkerManager.getMarker("JOD_HISTORY").setParents(JOD,MAIN_COMP);
     // JOD - Shell
     public static final Marker JOD_SHELL            = MarkerManager.getMarker("JOD_SHELL").setParents(JOD,MAIN_COMP);
     public static final Marker JOD_SHELL_SUB        = MarkerManager.getMarker("JOD_SHELL_SUB").setParents(JOD,SUB_COMP);

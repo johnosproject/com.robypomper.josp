@@ -23,12 +23,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot_Jackson;
 import com.robypomper.josp.test.mocks.jod.MockJODExecutorManager;
+import com.robypomper.josp.test.mocks.jod.MockJODHistory;
 import com.robypomper.josp.test.mocks.jod.MockJODStructure;
 import com.robypomper.josp.test.mocks.jsl.MockJSLRemoteObject;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,7 @@ public class JOSPStructIntegration {
         // Support objects
         JODStructure structure = new MockJODStructure();
         JODExecutorMngr executorMngr = new MockJODExecutorManager();
+        JODHistory history = new MockJODHistory();
 
         JODRoot_Jackson jodRoot;
         // From: JODRoot JODStructure_002::loadStructure(String)
@@ -58,6 +61,7 @@ public class JOSPStructIntegration {
             InjectableValues.Std injectVars = new InjectableValues.Std();
             injectVars.addValue(JODStructure.class, structure);
             injectVars.addValue(JODExecutorMngr.class, executorMngr);
+            injectVars.addValue(JODHistory.class, history);
             objMapper.setInjectableValues(injectVars);
 
             jodRoot = objMapper.readerFor(JODRoot_Jackson.class).readValue(file);

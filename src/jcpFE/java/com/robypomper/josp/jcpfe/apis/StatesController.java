@@ -6,8 +6,12 @@ import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEObjs;
 import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEState;
 import com.robypomper.josp.jcpfe.apis.paths.APIJCPFEStructure;
 import com.robypomper.josp.jcpfe.jsl.JSLSpringService;
+import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
+import com.robypomper.josp.protocol.HistoryLimits;
+import com.robypomper.josp.protocol.JOSPStatusHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 
 @RestController
@@ -85,6 +90,26 @@ public class StatesController {
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
         }
+    }
+
+
+    // History
+
+    @GetMapping(path = APIJCPFEState.FULL_STATUS_HISTORY)
+    public ResponseEntity<List<JOSPStatusHistory>> jsonStatusHistory(HttpSession session,
+                                                                     @PathVariable("obj_id") String objId,
+                                                                     @PathVariable("comp_path") String compPath,
+                                                                     HistoryLimits limits) {
+        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
+        JSLComponent comp = obj.getStruct().getComponent(compPath);
+        try {
+            return ResponseEntity.ok(obj.getStruct().getComponentHistory(comp, limits, 20));
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            objectNotConnected.printStackTrace();
+        } catch (JSLRemoteObject.MissingPermission missingPermission) {
+            missingPermission.printStackTrace();
+        }
+        return null;
     }
 
 }

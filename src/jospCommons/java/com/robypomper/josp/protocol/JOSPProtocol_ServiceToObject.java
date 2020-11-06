@@ -249,4 +249,82 @@ public class JOSPProtocol_ServiceToObject {
 
     }
 
+
+    // Events History Msg class (Request)
+
+    public static final JOSPPerm.Type HISTORY_EVENTS_REQ_MIN_PERM = JOSPPerm.Type.None;
+    public static final String HISTORY_EVENTS_REQ_NAME = "HistoryEventsReq";
+    private static final String HISTORY_EVENTS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_EVENTS_MSG";
+    private static final String HISTORY_EVENTS_REQ = HISTORY_EVENTS_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nreqId:%s\nlimits:%s\nevType:%s";
+
+    public static String createHistoryEventsMsg(String fullSrvId, String objId, String reqId, HistoryLimits limits) {
+        return createHistoryEventsMsg(fullSrvId, objId, reqId, limits, "");
+    }
+
+    public static String createHistoryEventsMsg(String fullSrvId, String objId, String reqId, HistoryLimits limits, String filterEventType) {
+        return String.format(HISTORY_EVENTS_REQ, JOSPProtocol.getNow(), fullSrvId, objId, reqId, HistoryLimits.toString(limits), filterEventType);
+    }
+
+    public static boolean isHistoryEventsMsg(String msg) {
+        return msg.startsWith(HISTORY_EVENTS_REQ_BASE);
+    }
+
+    public static String getHistoryEventsMsg_FullSrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 1, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static String getHistoryEventsMsg_ObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 2, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static String getHistoryEventsMsg_ReqId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 3, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static HistoryLimits getHistoryEventsMsg_Limits(String msg) throws JOSPProtocol.ParsingException {
+        String limitsStr = JOSPProtocol.extractFieldFromResponse(msg, 6, 4, HISTORY_EVENTS_REQ_NAME);
+        return HistoryLimits.fromString(limitsStr);
+    }
+
+    public static String getHistoryEventsMsg_FilterEventType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 5, HISTORY_EVENTS_REQ_NAME);
+    }
+
+
+    // Status History Msg class (Request)
+
+    public static final JOSPPerm.Type HISTORY_STATUS_REQ_MIN_PERM = JOSPPerm.Type.Status;
+    public static final String HISTORY_STATUS_REQ_NAME = "HistoryStatusReq";
+    private static final String HISTORY_STATUS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_STATUS_MSG";
+    private static final String HISTORY_STATUS_REQ = HISTORY_STATUS_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\ncompPath:%s\nreqId:%s\nlimits:%s";
+
+    public static String createHistoryCompStatusMsg(String fullSrvId, String objId, String compPath, String reqId, HistoryLimits limits) {
+        return String.format(HISTORY_STATUS_REQ, JOSPProtocol.getNow(), fullSrvId, objId, compPath, reqId, HistoryLimits.toString(limits));
+    }
+
+    public static boolean isHistoryCompStatusMsg(String msg) {
+        return msg.startsWith(HISTORY_STATUS_REQ_BASE);
+    }
+
+    public static String getHistoryCompStatusMsg_FullSrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 1, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_ObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 2, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_CompPath(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 3, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_ReqId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 4, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static HistoryLimits getHistoryCompStatusMsg_Limits(String msg) throws JOSPProtocol.ParsingException {
+        String limitsStr = JOSPProtocol.extractFieldFromResponse(msg, 6, 5, HISTORY_STATUS_REQ_NAME);
+        return HistoryLimits.fromString(limitsStr);
+    }
+
 }

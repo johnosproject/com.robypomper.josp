@@ -23,13 +23,19 @@ import java.util.Random;
 
 public class JavaRandomStrings {
 
+    public static String repeatedString(int length, char c) {
+        StringBuilder buffer = new StringBuilder(length);
+        for (int i = 0; i < length; i++)
+            buffer.append(c);
+        return buffer.toString();
+    }
+
     public static String randomAlfaString(int length) {
         int leftLimit = 'A'; // letter 'a'
         int rightLimit = 'Z'; // letter 'z'
-        int targetStringLength = length;
         Random random = new Random();
-        StringBuilder buffer = new StringBuilder(targetStringLength);
-        for (int i = 0; i < targetStringLength; i++) {
+        StringBuilder buffer = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
             int randomLimitedInt = leftLimit + (int)
                     (random.nextFloat() * (rightLimit - leftLimit + 1));
             buffer.append((char) randomLimitedInt);

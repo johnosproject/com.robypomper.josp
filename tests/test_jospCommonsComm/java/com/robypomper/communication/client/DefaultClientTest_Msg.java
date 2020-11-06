@@ -19,6 +19,7 @@
 
 package com.robypomper.communication.client;
 
+import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
 import com.robypomper.communication.peer.PeerInfo;
@@ -82,11 +83,11 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
 
         // Server send bytes data
         Socket serverClient = server.accept();
-        serverClient.getOutputStream().write(originalDataByte);
+        CommunicationBase.transmitData(serverClient.getOutputStream(), originalDataByte);
         Assertions.assertTrue(onDataReceivedBytes.await(1, TimeUnit.SECONDS));
 
         // Server send string data
-        serverClient.getOutputStream().write(originalDataString.getBytes(PeerInfo.CHARSET));
+        CommunicationBase.transmitData(serverClient.getOutputStream(), originalDataString.getBytes(PeerInfo.CHARSET));
         Assertions.assertTrue(onDataReceivedString.await(1, TimeUnit.SECONDS));
 
         // Close client connection

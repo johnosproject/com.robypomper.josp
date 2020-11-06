@@ -4,6 +4,10 @@ const PAGE_OBJ_INFO = "objInfo";
 const PAGE_OBJ_INFO_TITLE = "Object > Info";
 const PAGE_OBJ_PERMS = "objPerms";
 const PAGE_OBJ_PERMS_TITLE = "Object > Access Control";
+const PAGE_OBJ_EVENTS = "objEvents";
+const PAGE_OBJ_EVENTS_TITLE = "Object > Events";
+const PAGE_OBJ_STATUS_HISTORY = "objStatusHistory";
+const PAGE_OBJ_STATUS_HISTORY_TITLE = "Object > Status History";
 
 var detailObjId = null;
 var defaultObjCompsCollapsed = true;
@@ -12,6 +16,8 @@ var defaultObjCompsCollapsed = true;
 // showObjectContent()                          *1
 // showObjectContentInfo()                      *2
 // showObjectContentAccessControl()             *3
+// showObjectContentEvents()                    *4
+// showObjectContentStatusHistory()             *5
 // -> htmlObjectContent()
 // -> fetchObjectContent()
 //   -> fillObjectContent()
@@ -22,8 +28,16 @@ var defaultObjCompsCollapsed = true;
 // -> fetchObjectContentInfo() ...              *2
 // -> htmlObjectContentAccessControl()          *3
 // -> fetchObjectContentAccessControl() ...     *3
+// -> htmlObjectContentEvents()                 *4
+// -> fetchObjectContentEvents() ...            *4
+// -> htmlObjectContentStatusHistory()          *5
+// -> fetchObjectContentStatusHistory() ...     *5
 
 function showObjectContent(objId,updateHistory) {
+    showObjectContent(objId,null,updateHistory);
+}
+
+function showObjectContent(objId,compPath,updateHistory) {
     if (updateHistory) setNewPageHistory(PAGE_OBJ_DETAILS, PAGE_OBJ_DETAILS_TITLE, "objId=" + objId);
 
     currentPage = PAGE_OBJ_DETAILS;
@@ -72,6 +86,38 @@ function showObjectContentAccessControl(objId,updateHistory) {
     fetchObjectContentAccessControl(objId);
 }
 
+function showObjectContentEvents(objId,updateHistory) {
+    if (updateHistory) setNewPageHistory(PAGE_OBJ_EVENTS, PAGE_OBJ_EVENTS_TITLE, "objId=" + objId);
+
+    currentPage = PAGE_OBJ_EVENTS;
+    var isSwitchObject = detailObjId != objId;
+    detailObjId = objId;
+    if (document.getElementById("div_obj_content") == null  || isSwitchObject) {
+        setContent(htmlObjectContent());
+        fetchObjectContent(objId);
+    }
+    if (document.getElementById("div_obj_content") != null)
+        document.getElementById("div_obj_content").innerHTML = htmlObjectContentEvents(objId);
+
+    fetchObjectContentEvents(objId);
+}
+
+function showObjectContentStatusHistory(objId, compPath, updateHistory) {
+    if (updateHistory) setNewPageHistory(PAGE_OBJ_STATUS_HISTORY, PAGE_OBJ_STATUS_HISTORY_TITLE, "objId=" + objId + "&compPath=" + compPath);
+
+    currentPage = PAGE_OBJ_STATUS_HISTORY;
+    var isSwitchObject = detailObjId != objId;
+    detailObjId = objId;
+    if (document.getElementById("div_obj_content") == null  || isSwitchObject) {
+        setContent(htmlObjectContent());
+        fetchObjectContent(objId);
+    }
+    if (document.getElementById("div_obj_content") != null)
+        document.getElementById("div_obj_content").innerHTML = htmlObjectContentStatusHistory(objId,compPath);
+
+    fetchObjectContentStatusHistory(objId,compPath);
+}
+
 function htmlObjectContent() {
     setTitle(PAGE_OBJ_DETAILS_TITLE);
 
@@ -117,6 +163,7 @@ function htmlObjectContentLinks(obj) {
     html += "<div style='padding: 20px 0 20px 10px;'>";
     html += "    <p>Get more <a href='javascript:void(0);' onclick='showObjectContentInfo(&quot;" + obj.id + "&quot;,true)'>Obj Info</a>";
     html += "    <p>Setup the Obj's <a href='javascript:void(0);' onclick='showObjectContentAccessControl(&quot;" + obj.id + "&quot;,true)'>Access Control</a>";
+    html += "    <p>Show latest object's <a href='javascript:void(0);' onclick='showObjectContentEvents(&quot;" + obj.id + "&quot;,true)'>Events</a>";
     html += "</div>";
     return html;
 }
@@ -200,11 +247,15 @@ function htmlComponent(comp) {
         html += "<br><spam style='color:gray; font-size: 0.8em;'>(" + comp.type + ")</span>";
     html += "</p>";
 
+    if (comp.type != "Container")
+        html += "<a href='javascript:void(0);' style='float: right;' onclick='showObjectContentStatusHistory(&quot;" + obj.id + "&quot;,&quot;" + comp.componentPath + "&quot;,true)'>H</a>";
+
     if (comp.type == "BooleanState") html += htmlComponentBooleanState(comp);
     else if (comp.type == "BooleanAction") html += htmlComponentBooleanAction(comp);
     else if (comp.type == "RangeState") html += htmlComponentRangeState(comp);
     else if (comp.type == "RangeAction") html += htmlComponentRangeAction(comp);
     else if (comp.type == "Container") html += htmlContainer(comp);
+
 
     return html;
 }
@@ -429,6 +480,329 @@ function fillObjectContentAccessControl_Perms(objPermsJson) {
         document.getElementById(tableId).innerHTML = html;
 }
 
+// Object's Events
+
+// htmlObjectContentEvents()
+// fetchObjectContentEvents()
+// -> fillObjectContentEvents_...()
+
+function htmlObjectContentEvents(objId) {
+    setTitle("<p><a href='javascript:void(0);' onclick='showObjectContent(&quot;" + objId + "&quot;,true)'>Object</a> > Events</p>");
+
+        var tableStyle = "width: 70%; margin: auto;"
+        var html = "";
+        var sumId = "summary_" + objId + "_events";
+        var tableId = "table_" + objId + "_events";
+
+        var contentId = "obj_" + objId + "_content";
+        html += "<div id='" + contentId + "'>";
+
+        html += "    <h2>Events History</h2>";
+
+        html += "    <p id='" + sumId + "'></p>";
+
+        html += "    <div class='obj_perms'>";
+        html += "       <table id='" + tableId + "'></table>";
+        html += "    </div>";
+
+        html += "</div>";
+
+    return html;
+}
+
+function fetchObjectContentEvents(objId) {
+    apiGET("/apis/objsmngr/1.0/" + objId + "/events/",fillObjectContentEvents_Table,onErrorFetch);
+}
+
+function fillObjectContentEvents_Table(eventsJson) {
+    events = JSON.parse(eventsJson);
+
+    var style = ""
+    style += "<style>";
+    style += ".tooltip {";
+    style += "  position: relative;";
+    style += "  display: inline-block;";
+    style += "  border-bottom: 1px dotted black;";
+    style += "}";
+
+    style += ".tooltip .tooltiptext {";
+    style += "  visibility: hidden;";
+    style += "  max-width: 200px;";
+    style += "  background-color: #f1f1f1;";
+    style += "  color: #808080;";
+    style += "  box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.4), 0 6px 15px 0 rgba(0, 0, 0, 0);";
+    style += "  padding: 10px;";
+    style += "  font-family: monospace;";
+    style += "  overflow: auto;";
+
+    style += "  /* Position the tooltip */";
+    style += "  position: absolute;";
+    style += "  z-index: 1;";
+    style += "  top: -5px;";
+    style += "  right: 95%;";
+    style += "}";
+
+    style += ".tooltip:hover .tooltiptext {";
+    style += "  visibility: visible;";
+    style += "}";
+    style += "</style>";
+
+    var html = style + "        <tr>";
+    html += "        <th>ID</th>";
+    html += "        <th>Type</th>";
+    //html += "        <th>Src ID</th>";
+    //html += "        <th>Src Type</th>";
+    html += "        <th>Emitted At</th>";
+    html += "        <th>Phase</th>";
+    html += "        </tr>";
+    for (var i = 0; i < events.length; i++) {
+        var objId = events[i].srcId;
+        var elemId = "row_" + objId + "_" + events[i].id;
+
+        html += "<tr id='" + elemId + "'>";
+        html += "    <td><p>" + events[i].id + "</p></td>";
+        html += "    <td><p>" + events[i].type + "</p></td>";
+        //html += "    <td><p>" + events[i].srcId + "</p></td>";
+        //html += "    <td><p>" + events[i].srcType + "</p></td>";
+        html += "    <td><p>" + dateToString(stringToDate(events[i].emittedAt)) + "</p></td>";
+
+        html += "    <td><p>";
+        html += "        <div class='tooltip'>" + events[i].phase;
+        if (events[i].errorPayload=='null')
+            html += "            <span class='tooltiptext'>" + events[i].payload + "</span>";
+        else
+            html += "            <span class='tooltiptext' style='color: red'>" + events[i].errorPayload + "</span> <i class='fa fa-exclamation-circle' aria-hidden='true'></i>";
+        html += "        </div>";
+        html += "    </p></td>";
+        html += "</tr>";
+    }
+
+    var tableId = "table_" + objId + "_events";
+    if (document.getElementById(tableId) != null)
+        document.getElementById(tableId).innerHTML = html;
+
+
+    var sumId = "summary_" + objId + "_events";
+    if (document.getElementById(sumId) != null)
+        document.getElementById(sumId).innerHTML = "Listed " + events.length + " Object's events<br>from " +
+        dateToString(stringToDate(events[0].emittedAt))  + "<br>to " + dateToString(stringToDate(events[events.length-1].emittedAt)) + "</p>";
+
+}
+
+
+// Object's StatusHistory
+
+// htmlObjectContentStatusHistory()
+// fetchObjectContentStatusHistory()
+// -> fillObjectContentStatusHistory_...()
+
+var statusHistoryChart = null;
+var minDate = null;
+var maxDate = null;
+
+function htmlObjectContentStatusHistory(objId,compPath) {
+    setTitle("<p><a href='javascript:void(0);' onclick='showObjectContent(&quot;" + objId + "&quot;,true)'>Object</a> > Status History</p>");
+
+        var tableStyle = "width: 70%; margin: auto;"
+        var html = "";
+        var chartId = "chart_" + objId + "_history";
+        var canvasId = "chart_" + objId + "_history_canvas";
+        var sumId = "summary_" + objId + "_history";
+        var tableId = "table_" + objId + "_history";
+
+        var contentId = "obj_" + objId + "_content";
+        html += "<div id='" + contentId + "'>";
+
+        html += "    <h2>Status History</h2>";
+        html += "    Back to <a href='javascript:void(0);' onClick='showObjectContent(\"" + objId + "\",\"" + compPath + "\",false)'>" + compPath + "</a>";
+        html += "    <div>";
+        html += "       <p style='text-align: right;'>";
+        html += "           From: <input id='" + chartId + "_from'></input>";
+        html += "           To: <input id='" + chartId + "_to'></input>";
+        html += "       </p>";
+        //<a href="javascript:void(0);" style="float: right;" onclick="showObjectContentStatusHistory(&quot;CUQWI-00000-00000&quot;,&quot;Volume (Mac)&quot;,true)">H</a>
+        html += "       <a style='float:left; margin: 5px;' href='javascript:void(0);' onClick='showObjectContentStatusHistory(\"" + objId + "\",\"" + compPath + "\",false)'>Reload data</a>";
+        var now = new Date();
+        var pastday = new Date(now.getTime() - (1000*60*60*24));
+        var pasthour = new Date(now.getTime() - (1000*60*60));
+        var pastfiveminutes = new Date(now.getTime() - (1000*60*5));
+        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + pastfiveminutes.toISOString() + "\",\"" + now.toISOString() + "\")'>Last 5 minutes</a>";
+        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + pasthour.toISOString() + "\",\"" + now.toISOString() + "\")'>Last hour</a>";
+        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + pastday.toISOString() + "\",\"" + now.toISOString() + "\")'>Last 24 hours</a>";
+        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",minDate,maxDate)'>Reset</a>";
+        html += "    </div>";
+        html += "    <div 'style='max-width: 600px; margin: auto;'>";
+        html += "       <canvas id='" + canvasId + "'></canvas>";
+        html += "    </div>";
+
+        html += "    <h2>Status History</h2>";
+
+        html += "    <p id='" + sumId + "'></p>";
+
+        html += "    <div class='obj_perms'>";
+        html += "       <table id='" + tableId + "'></table>";
+        html += "    </div>";
+
+        html += "</div>";
+
+    return html;
+}
+
+function setRange(chartId,from,to) {
+    if (statusHistoryChart==null) return;
+
+    document.getElementById(chartId + "_from").value = from;
+    document.getElementById(chartId + "_to").value = to;
+
+    statusHistoryChart.options.scales.xAxes[0].ticks = {
+        min: document.getElementById(chartId + "_from").value,
+        max: document.getElementById(chartId + "_to").value
+    };
+    statusHistoryChart.update();
+}
+
+function fetchObjectContentStatusHistory(objId,compPath) {
+    apiGET("/apis/state/1.0/history/" + objId + "/" + compPath + "/",fillObjectContentStatusHistory_Chart,onErrorFetch);
+}
+
+function fillObjectContentStatusHistory_Chart(statusHistoryJson) {
+    statusHistory = JSON.parse(statusHistoryJson);
+    if (statusHistory.length==0) {
+        alert("MESSAGE TO USER: Warning no status history for required object/component '" + xhttpRequest + "' resource");
+        return;
+    }
+
+    var objId = detailObjId;
+
+    var chartId = "chart_" + objId + "_history";
+    var canvasId = "chart_" + objId + "_history_canvas";
+
+    var ctx = document.getElementById(canvasId).getContext('2d');
+    minDate = stringToDate(statusHistory[0].updatedAt);
+    maxDate = stringToDate(statusHistory[statusHistory.length-1].updatedAt);
+    var type = statusHistory[0].compType;
+    // Populate dataset
+    var dataStatus = [];
+    for (var i = 0; i < statusHistory.length; i++) {
+        var status = extractStatusFromPayload(statusHistory[i].payload,statusHistory[i].compType);
+        if (status==='true') status=1;
+        if (status==='false') status=0;
+        dataStatus[i] = { t: statusHistory[i].updatedAt, y: status };
+    }
+    statusHistoryChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Statuses',
+                data: dataStatus,
+                backgroundColor: [ 'rgba(92,158,194,0.2)' ],
+                borderColor:     [ 'rgba(92,158,194,1)' ],
+                borderWidth:     1,
+                steppedLine:     (type==="BooleanState" || type==="BooleanAction"),
+                lineTension:     0.1
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    offset: true,
+                    distribution: 'linear',
+                    ticks: {
+                        min: minDate,
+                        max: maxDate
+                    }
+                }],
+                yAxes: [{
+                    //offset: true,
+                    ticks: {
+                        min: (type==="BooleanState" || type==="BooleanAction") ? -0.5 : undefined,
+                        max: (type==="BooleanState" || type==="BooleanAction") ? 1.5 : undefined
+                    }
+                }]
+            }
+        }
+    });
+
+    if (document.getElementById(chartId + "_from") != null)
+        flatpickr(document.getElementById(chartId + "_from"), {
+            enableTime:     true,
+            altInput:       true,
+            altFormat:      "H:i d/m/Y",
+            dateFormat:     "Y-m-d H:i",    //"2020-11-04T14:02:21.100+0000"
+            defaultDate:    minDate,
+            minDate:        minDate,
+            maxDate:        maxDate,
+            time_24hr:      true,
+            weekNumbers:    true,
+            onChange:       function(selectedDates, dateStr, instance) {
+                                statusHistoryChart.options.scales.xAxes[0].ticks = {
+                                    min: document.getElementById(chartId + "_from").value,
+                                    max: document.getElementById(chartId + "_to").value
+                                };
+                                statusHistoryChart.update();
+                            }
+        });
+    if (document.getElementById(chartId + "_to") != null)
+        flatpickr(document.getElementById(chartId + "_to"), {
+            enableTime:     true,
+            altInput:       true,
+            altFormat:      "H:i d/m/Y",
+            dateFormat:     "Y-m-d H:i",    //"2020-11-04T14:02:21.100+0000"
+            defaultDate:    maxDate,
+            minDate:        minDate,
+            maxDate:        maxDate,
+            time_24hr:      true,
+            weekNumbers:    true,
+            onChange:       function(selectedDates, dateStr, instance) {
+                                statusHistoryChart.options.scales.xAxes[0].ticks = {
+                                    min: document.getElementById(chartId + "_from").value,
+                                    max: document.getElementById(chartId + "_to").value
+                                };
+                                statusHistoryChart.update();
+                            }
+        });
+
+    var html = "        <tr>";
+    html += "        <th>ID</th>";
+    html += "        <th>Status</th>";
+    html += "        <th>Updated At</th>";
+    html += "        </tr>";
+    for (var i = 0; i < statusHistory.length; i++) {
+
+        var elemId = "row_" + objId + "_" + statusHistory[i].id;
+
+        var status = extractStatusFromPayload(statusHistory[i].payload,statusHistory[i].compType);
+        html += "<tr id='" + elemId + "'>";
+        html += "    <td><p>" + statusHistory[i].id + "</p></td>";
+        html += "    <td><p>" + status + "</p></td>";
+        html += "    <td><p>" + dateToString(stringToDate(statusHistory[i].updatedAt)) + "</p></td>";
+        html += "</tr>";
+    }
+
+    var tableId = "table_" + objId + "_history";
+    if (document.getElementById(tableId) != null)
+        document.getElementById(tableId).innerHTML = html;
+
+
+    var sumId = "summary_" + objId + "_history";
+    if (document.getElementById(sumId) != null)
+        document.getElementById(sumId).innerHTML = "Listed " + statusHistory.length + " Object Status Histories<br>from " +
+        dateToString(stringToDate(statusHistory[0].updatedAt))  + "<br>to " + dateToString(stringToDate(statusHistory[statusHistory.length-1].updatedAt)) + "</p>";
+
+}
+
+function extractStatusFromPayload(payload,compType) {
+    if (compType === "BooleanState"
+      || compType === "BooleanAction"
+      || compType === "RangeState"
+      || compType === "RangeAction") {
+      return payload.substring("new:".length,payload.indexOf(','));
+
+    } else if (compType === "Container") {
+        return "error: container has no status";
+    }
+}
 
 // Editables
 

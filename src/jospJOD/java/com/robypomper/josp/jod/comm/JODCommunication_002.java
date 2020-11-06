@@ -24,16 +24,16 @@ import com.robypomper.communication.server.Server;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
+import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
+import com.robypomper.josp.jod.events.Events;
+import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.*;
-import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
+import com.robypomper.josp.protocol.*;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,6 +55,7 @@ public class JODCommunication_002 implements JODCommunication {
     private final JODSettings_002 locSettings;
     private final JODObjectInfo objInfo;
     private final JODPermissions permissions;
+    private final JODEvents events;
     private JODStructure structure;
     private final JCPClient_Object jcpClient;
     private final JCPCommObj jcpComm;
@@ -75,9 +76,9 @@ public class JODCommunication_002 implements JODCommunication {
      * @param jcpClient   the jcp object client.
      * @param permissions the {@link JODPermissions} instance used to check
      *                    connected services's permissions to receive updates or
-     *                    exec actions.
+     * @param events      the object's events manager.
      */
-    public JODCommunication_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPClient_Object jcpClient, JODPermissions permissions, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
+    public JODCommunication_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPClient_Object jcpClient, JODPermissions permissions, JODEvents events, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
         this.locSettings = settings;
         this.objInfo = objInfo;
         this.permissions = permissions;
@@ -86,6 +87,7 @@ public class JODCommunication_002 implements JODCommunication {
         jcpClient.addDisconnectListener(jcpDisconnectListener);
         this.jcpComm = new JCPCommObj(jcpClient, settings, instanceId);
         this.instanceId = instanceId;
+        this.events = events;
 
         // Publish local object server
         String publisherImpl = locSettings.getLocalDiscovery();
@@ -231,7 +233,7 @@ public class JODCommunication_002 implements JODCommunication {
             String usrId = JOSPProtocol_ServiceToObject.getUsrId(msg);
 
             // dispatch to processor
-            boolean processedSuccessfully = false;
+            boolean processedSuccessfully;
             if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(msg))
                 processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.CoOwner, connType) && processObjectSetNameMsg(msg);
             else if (JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(msg))
@@ -244,7 +246,12 @@ public class JODCommunication_002 implements JODCommunication {
                 processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.CoOwner, connType) && processObjectRemPermMsg(msg);
 
             else if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg))
-                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.Actions, connType) && processObjectCmdMsg(msg);
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPPerm.Type.Actions, connType) && processObjectCmdMsg(msg, srvId, usrId, connType);
+
+            else if (JOSPProtocol_ServiceToObject.isHistoryCompStatusMsg(msg))
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, connType) && processHistoryCompStatusMsg(msg, srvId, usrId, connType);
+            else if (JOSPProtocol_ServiceToObject.isHistoryEventsMsg(msg))
+                processedSuccessfully = permissions.checkPermission(srvId, usrId, JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, connType) && processHistoryEventsMsg(msg, srvId, usrId, connType);
 
             else
                 throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
@@ -261,7 +268,7 @@ public class JODCommunication_002 implements JODCommunication {
         }
     }
 
-    private boolean processObjectCmdMsg(String msg) {
+    private boolean processObjectCmdMsg(String msg, String srvId, String usrId, JOSPPerm.Connection connType) {
         if (!JOSPProtocol.isCmdMsg(msg))
             return false;
 
@@ -274,6 +281,7 @@ public class JODCommunication_002 implements JODCommunication {
         }
 
         log.info(Mrk_JOD.JOD_COMM, String.format("Forward command to component '%s'", cmd.getComponentPath()));
+        Events.registerActionReq(srvId, usrId, connType, cmd);
 
         // search destination components
         JODComponentPath compPath = new DefaultJODComponentPath(cmd.getComponentPath());
@@ -283,10 +291,12 @@ public class JODCommunication_002 implements JODCommunication {
         log.trace(Mrk_JOD.JOD_COMM, String.format("Processing command on '%s' component", compPath.getString()));
         if (comp == null) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing update on '%s' component because component not found", compPath.getString()));
+            Events.registerActionExecFail("Component not found", srvId, usrId, connType, cmd);
             return false;
         }
         if (!(comp instanceof JODAction)) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing update on '%s' component because component not an action component", compPath.getString()));
+            Events.registerActionExecFail("Component is not an action", srvId, usrId, connType, cmd);
             return false;
         }
         JODAction actionComp = (JODAction) comp;
@@ -294,11 +304,107 @@ public class JODCommunication_002 implements JODCommunication {
         // exec component's action
         if (!actionComp.execAction(cmd)) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing command on '%s' component", compPath.toString()));
+            Events.registerActionExecFail("Unknown error on executing action command", srvId, usrId, connType, cmd);
             return false;
         }
         log.info(Mrk_JOD.JOD_COMM, String.format("Command status of '%s' component", compPath.toString()));
 
         log.debug(Mrk_JOD.JOD_COMM, String.format("Command '%s...' processed", msg.substring(0, Math.min(10, msg.length()))));
+        Events.registerActionExec(srvId, usrId, connType, cmd);
+        return true;
+    }
+
+    private boolean processHistoryCompStatusMsg(String msg, String srvId, String usrId, JOSPPerm.Connection connType) {
+        if (connType == JOSPPerm.Connection.LocalAndCloud) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because received from cloud communication", JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_NAME));
+            return false;
+        }
+
+        String fullSrvId;
+        String compPathStr;
+        String reqId;
+        HistoryLimits limits;
+        try {
+            fullSrvId = JOSPProtocol_ServiceToObject.getHistoryCompStatusMsg_FullSrvId(msg);
+            compPathStr = JOSPProtocol_ServiceToObject.getHistoryCompStatusMsg_CompPath(msg);
+            reqId = JOSPProtocol_ServiceToObject.getHistoryCompStatusMsg_ReqId(msg);
+            limits = JOSPProtocol_ServiceToObject.getHistoryCompStatusMsg_Limits(msg);
+
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because %s", JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_NAME, e.getMessage()), e);
+            return false;
+        }
+
+        // search destination components
+        JODComponentPath compPath = new DefaultJODComponentPath(compPathStr);
+        JODComponent comp = DefaultJODComponentPath.searchComponent(structure.getRoot(), compPath);
+        if (comp == null) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because component '%s' not found", JOSPProtocol_ObjectToService.HISTORY_STATUS_REQ_NAME, compPathStr));
+            return false;
+        }
+
+        // prepare response
+        List<JOSPStatusHistory> statusesHistory = comp.getHistoryStatus(limits);
+        String response = JOSPProtocol_ObjectToService.createHistoryCompStatusMsg(objInfo.getObjId(), compPathStr, reqId, statusesHistory);
+
+        // send response
+        JODLocalClientInfo locConn = findLocalClientsInfo(fullSrvId);
+        try {
+            sendToSingleLocalService(locConn, response, JOSPPerm.Type.Status);
+        } catch (ServiceNotConnected e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending message %s because %s", JOSPProtocol_ObjectToService.HISTORY_STATUS_REQ_NAME, e.getMessage()), e);
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean processHistoryEventsMsg(String msg, String srvId, String usrId, JOSPPerm.Connection connType) {
+        if (connType == JOSPPerm.Connection.LocalAndCloud) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because received from cloud communication", JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_NAME));
+            return false;
+        }
+
+        String fullSrvId;
+        String reqId;
+        HistoryLimits limits;
+        String filterEventType;
+        try {
+            fullSrvId = JOSPProtocol_ServiceToObject.getHistoryEventsMsg_FullSrvId(msg);
+            reqId = JOSPProtocol_ServiceToObject.getHistoryEventsMsg_ReqId(msg);
+            limits = JOSPProtocol_ServiceToObject.getHistoryEventsMsg_Limits(msg);
+            filterEventType = JOSPProtocol_ServiceToObject.getHistoryEventsMsg_FilterEventType(msg);
+
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing message %s because %s", JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_NAME, e.getMessage()), e);
+            return false;
+        }
+
+
+        // prepare response
+        List<JOSPEvent> eventsHistory;
+        if (filterEventType.isEmpty())
+            eventsHistory = events.getHistoryEvents(limits);
+        else {
+            JOSPEvent.Type type = JOSPEvent.Type.valueOf(filterEventType);
+            eventsHistory = events.filterHistoryEvents(limits, new JavaJSONArrayToFile.Filter<JOSPEvent>() {
+                @Override
+                public boolean accepted(JOSPEvent o) {
+                    return o.getType() == type;
+                }
+            });
+        }
+        String response = JOSPProtocol_ObjectToService.createHistoryEventsMsg(objInfo.getObjId(), reqId, eventsHistory);
+
+        // send response
+        JODLocalClientInfo locConn = findLocalClientsInfo(fullSrvId);
+        try {
+            sendToSingleLocalService(locConn, response, JOSPProtocol_ObjectToService.HISTORY_EVENTS_REQ_MIN_PERM);
+        } catch (ServiceNotConnected e) {
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on sending message %s because %s", JOSPProtocol_ObjectToService.HISTORY_STATUS_REQ_NAME, e.getMessage()), e);
+            return false;
+        }
+
         return true;
     }
 
@@ -404,6 +510,21 @@ public class JODCommunication_002 implements JODCommunication {
         return localServer == null ? new ArrayList<>() : localServer.getLocalClientsInfo();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JODLocalClientInfo findLocalClientsInfo(String fullSrvId) {
+        if (localServer == null)
+            return null;
+
+        for (JODLocalClientInfo cl : localServer.getLocalClientsInfo())
+            if (cl.getFullSrvId().equalsIgnoreCase(fullSrvId))
+                return cl;
+
+        return null;
+    }
+
 
     // Mngm methods
 
@@ -430,16 +551,21 @@ public class JODCommunication_002 implements JODCommunication {
             localServer = initLocalServer();
             localServer.start();
             log.debug(Mrk_JOD.JOD_COMM, "Local object's server started");
+            Events.registerLocalStart("Comm Local Started", localServer);
+
             log.debug(Mrk_JOD.JOD_COMM, "Publishing local object's server");
             localServerPublisher.publish(true);
             log.debug(Mrk_JOD.JOD_COMM, "Local object's server published");
+            Events.registerLocalStart("Comm Local Published", localServer);
 
         } catch (Server.ListeningException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on starting local communication object's server '%s' because %s", objInfo.getObjId(), e.getMessage()), e);
+            Events.registerLocalStart("Comm Local Started", localServer, e);
             throw new LocalCommunicationException(String.format("Error on starting local communication object's server '%s'", objInfo.getObjId()), e);
 
         } catch (Publisher.PublishException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on publishing local communication object's server '%s' because %s", objInfo.getObjId(), e.getMessage()), e);
+            Events.registerLocalStart("Comm Local Published", localServer, e);
             throw new LocalCommunicationException(String.format("Error on publishing local communication object's server '%s'", objInfo.getObjId()), e);
         }
     }
@@ -458,12 +584,16 @@ public class JODCommunication_002 implements JODCommunication {
             log.debug(Mrk_JOD.JOD_COMM, "Stopping local object's server");
             localServer.stop();
             log.debug(Mrk_JOD.JOD_COMM, "Local object's server stopped");
+            Events.registerLocalStop("Comm Local Stopped", localServer);
+
             log.debug(Mrk_JOD.JOD_COMM, "Hiding local object's server");
             localServerPublisher.hide(true);
             log.debug(Mrk_JOD.JOD_COMM, "Local object's server hided");
+            Events.registerLocalStop("Comm Local Hided", localServer);
 
         } catch (Publisher.PublishException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on hiding local communication object's server '%s' because %s", objInfo.getObjId(), e.getMessage()), e);
+            Events.registerLocalStop("Comm Local Hided", localServer, e);
             throw new LocalCommunicationException(String.format("Error on hiding local communication object's server '%s'", objInfo.getObjId()), e);
         }
     }
@@ -491,9 +621,11 @@ public class JODCommunication_002 implements JODCommunication {
             log.debug(Mrk_JOD.JOD_COMM, "Connecting cloud object's client");
             gwClient.connect();
             log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connection started");
+            Events.registerCloudConnect("Comm Cloud Connected", gwClient);
 
         } catch (Client.ConnectionException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on connecting cloud communication client for '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
+            Events.registerCloudConnect("Comm Cloud Connected", gwClient, e);
             throw new CloudCommunicationException(String.format("Error on connecting cloud communication client for '%s' object", objInfo.getObjId()), e);
         }
     }
@@ -509,6 +641,7 @@ public class JODCommunication_002 implements JODCommunication {
             return;
 
         gwClient.disconnect();
+        Events.registerCloudDisconnect("Comm Cloud Disconnected", gwClient);
     }
 
 
@@ -538,10 +671,13 @@ public class JODCommunication_002 implements JODCommunication {
     // JCP Client listeners
 
     private final JCPClient2.ConnectListener jcpConnectListener = new JCPClient2.ConnectListener() {
+
         @Override
         public void onConnected(JCPClient2 jcpClient) {
-            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client connected with %s flow", jcpClient.isClientCredentialFlowEnabled() ? "ClientCred" : "AuthCode"));
-            if (!gwClient.isConnected() && gwClient.shouldBeConnected()) {
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client connected with %s flow", getFlowName(jcpClient)));
+            Events.registerJCPConnection("JCP Connected", jcpClient, getFlowName(jcpClient));
+
+            if (gwClient != null && !gwClient.isConnected() && gwClient.shouldBeConnected()) {
                 try {
                     gwClient.connect();
 
@@ -554,13 +690,23 @@ public class JODCommunication_002 implements JODCommunication {
         @Override
         public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on connecting to JCP APIs because %s", t.getMessage()), t);
+            Events.registerJCPConnection("JCP Connection failed", jcpClient, getFlowName(jcpClient), t);
         }
+
     };
+
     private final JCPClient2.DisconnectListener jcpDisconnectListener = new JCPClient2.DisconnectListener() {
+
         @Override
         public void onDisconnected(JCPClient2 jcpClient) {
-            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client disconnected with %s flow", jcpClient.isClientCredentialFlowEnabled() ? "ClientCred" : "AuthCode"));
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client disconnected with %s flow", getFlowName(jcpClient)));
+            Events.registerJCPDisconnection("JCP Disconnected", jcpClient, getFlowName(jcpClient));
         }
+
     };
+
+    private static String getFlowName(JCPClient2 jcpClient) {
+        return jcpClient.isClientCredentialFlowEnabled() ? "ClientCred" : "AuthCode";
+    }
 
 }

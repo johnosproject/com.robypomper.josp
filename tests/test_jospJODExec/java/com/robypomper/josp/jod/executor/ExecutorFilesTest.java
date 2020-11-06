@@ -23,6 +23,7 @@ import com.robypomper.java.JavaFiles;
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
+import com.robypomper.josp.protocol.JOSPMsgParams;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.test.mocks.jod.MockActionCmd;
 import org.junit.jupiter.api.Assertions;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 public class ExecutorFilesTest {
+
+    private final String ITEMS_SEP = JOSPMsgParams.ITEMS_SEP;
 
     @Test
     public void executorTest() throws InterruptedException, IOException {
@@ -45,14 +48,16 @@ public class ExecutorFilesTest {
         JOSPProtocol.ActionCmd commandAction = new MockActionCmd();
 
         System.out.println("\nEXECUTE RANGE ACTION");
-        JODBooleanAction.JOSPBoolean cmdActionBoolean = new JODBooleanAction.JOSPBoolean(String.format("new:%s\nold:%s", true, false));
+        String updStr = ExecutorUnixShellTest.formatUpdStr(true, false);
+        JODBooleanAction.JOSPBoolean cmdActionBoolean = new JODBooleanAction.JOSPBoolean(updStr);
         e.exec(commandAction, cmdActionBoolean);
         Thread.sleep(1000);
         String readFile = JavaFiles.readString(Paths.get(filePath));
         Assertions.assertTrue(JavaFormatter.strToBoolean(readFile));
 
         System.out.println("\nEXECUTE RANGE ACTION");
-        JODRangeAction.JOSPRange cmdActionRange = new JODRangeAction.JOSPRange(String.format("new:%s\nold:%s", JavaFormatter.doubleToStr(5.33), JavaFormatter.doubleToStr(0.0)));
+        updStr = ExecutorUnixShellTest.formatUpdStr(5.33, 0.0);
+        JODRangeAction.JOSPRange cmdActionRange = new JODRangeAction.JOSPRange(updStr);
         e.exec(commandAction, cmdActionRange);
         Thread.sleep(1000);
         String readFile2 = JavaFiles.readString(Paths.get(filePath));

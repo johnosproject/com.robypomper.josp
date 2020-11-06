@@ -1,11 +1,10 @@
 package com.robypomper.josp.jsl.objs.remote;
 
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.history.DefaultHistoryObjEvents;
+import com.robypomper.josp.jsl.objs.history.HistoryObjEvents;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
-import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
+import com.robypomper.josp.protocol.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,6 +23,7 @@ public class DefaultObjInfo extends ObjBase implements ObjInfo {
     private String brand = null;
     private String longDescr = null;
     private final List<RemoteObjectInfoListener> listenersInfo = new ArrayList<>();
+    private HistoryObjEvents eventsHistory;
 
 
     // Constructor
@@ -208,6 +208,26 @@ public class DefaultObjInfo extends ObjBase implements ObjInfo {
     private void emitInfo_LongDescrChanged(String longDescr, String oldLongDescr) {
         for (RemoteObjectInfoListener l : listenersInfo)
             l.onLongDescrChanged(getRemote(), longDescr, oldLongDescr);
+    }
+
+
+    // Events History
+
+    @Override
+    public List<JOSPEvent> getEventsHistory(HistoryLimits limits, int timeoutSeconds) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
+        if (eventsHistory == null) eventsHistory = new DefaultHistoryObjEvents(getRemote(), getServiceInfo());
+        return eventsHistory.getEventsHistory(limits, timeoutSeconds);
+    }
+
+
+    @Override
+    public void getEventsHistory(HistoryLimits limits, HistoryObjEvents.EventsListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
+        if (eventsHistory == null) eventsHistory = new DefaultHistoryObjEvents(getRemote(), getServiceInfo());
+        eventsHistory.getEventsHistory(limits, listener);
+    }
+
+    public boolean processHistoryEventsMsg(String msg) {
+        return ((DefaultHistoryObjEvents) eventsHistory).processHistoryEventsMsg(msg);
     }
 
 }

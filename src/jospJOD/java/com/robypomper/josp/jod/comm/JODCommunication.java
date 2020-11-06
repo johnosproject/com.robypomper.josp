@@ -84,6 +84,11 @@ public interface JODCommunication {
      */
     List<JODLocalClientInfo> getAllLocalClientsInfo();
 
+    /**
+     * @return an array containing all local connections.
+     */
+    JODLocalClientInfo findLocalClientsInfo(String serviceId);
+
 
     // Mngm methods
 

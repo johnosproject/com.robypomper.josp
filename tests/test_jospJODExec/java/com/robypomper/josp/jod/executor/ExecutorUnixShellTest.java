@@ -22,6 +22,7 @@ package com.robypomper.josp.jod.executor;
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
+import com.robypomper.josp.protocol.JOSPMsgParams;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.test.mocks.jod.MockActionCmd;
 import org.junit.jupiter.api.Test;
@@ -42,18 +43,34 @@ public class ExecutorUnixShellTest {
         JOSPProtocol.ActionCmd commandAction = new MockActionCmd();
 
         System.out.println("\nEXECUTE RANGE ACTION");
-        JODBooleanAction.JOSPBoolean cmdActionBoolean = new JODBooleanAction.JOSPBoolean(String.format("new:%s\nold:%s", true, false));
+        String updStr = formatUpdStr(true, false);
+        JODBooleanAction.JOSPBoolean cmdActionBoolean = new JODBooleanAction.JOSPBoolean(updStr);
         e.exec(commandAction, cmdActionBoolean);
         Thread.sleep(1000);
         //String readFile = JavaFiles.readString(Paths.get(filePath));
         //Assertions.assertTrue(JavaFormatter.strToBoolean(readFile));
 
         System.out.println("\nEXECUTE RANGE ACTION");
-        JODRangeAction.JOSPRange cmdActionRange = new JODRangeAction.JOSPRange(String.format("new:%s\nold:%s", JavaFormatter.doubleToStr(5.33), JavaFormatter.doubleToStr(0.0)));
+        updStr = formatUpdStr(5.33, 0.0);
+        JODRangeAction.JOSPRange cmdActionRange = new JODRangeAction.JOSPRange(updStr);
         e.exec(commandAction, cmdActionRange);
         Thread.sleep(1000);
         //String readFile2 = JavaFiles.readString(Paths.get(filePath));
         //Assertions.assertEquals(new Double(5.33), JavaFormatter.strToDouble(readFile2));
+    }
+
+    public static String formatUpdStr(boolean newState, boolean oldState) {
+        String updStr = String.format(JOSPMsgParams.KEY_VALUE_FORMAT, "new", newState);
+        updStr += JOSPMsgParams.ITEMS_SEP;
+        updStr += String.format(JOSPMsgParams.KEY_VALUE_FORMAT, "old", oldState);
+        return updStr;
+    }
+
+    public static String formatUpdStr(double newState, double oldState) {
+        String updStr = String.format(JOSPMsgParams.KEY_VALUE_FORMAT, "new", JavaFormatter.doubleToStr(newState));
+        updStr += JOSPMsgParams.ITEMS_SEP;
+        updStr += String.format(JOSPMsgParams.KEY_VALUE_FORMAT, "old", JavaFormatter.doubleToStr(oldState));
+        return updStr;
     }
 
 }

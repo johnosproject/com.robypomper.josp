@@ -219,7 +219,7 @@ public class JODShell {
                 new CmdsJOD(jod),
                 new CmdsJCPClient(jod.getJCPClient()),
                 new CmdsJODObjectInfo(jod.getObjectInfo()),
-                new CmdsJODExecutorMngr(jod.getObjectStructure(), jod.getExecutor()),
+                new CmdsJODExecutorMngr(jod.getObjectStructure(), jod.getExecutor(), jod.getHistory()),
                 new CmdsJODStructure(jod.getObjectStructure()),
                 new CmdsJODPermissions(jod.getPermission()),
                 new CmdsJODCommunication(jod.getCommunication())

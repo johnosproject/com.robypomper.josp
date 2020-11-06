@@ -22,6 +22,7 @@ import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODCommunication_002;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
+import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -32,6 +33,7 @@ import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.test.mocks.jod.MockJCPClient_Object;
+import com.robypomper.josp.test.mocks.jod.MockJODEvents;
 import com.robypomper.josp.test.mocks.jod.MockJODObjectInfo;
 import com.robypomper.josp.test.mocks.jod.MockJODPermissions;
 import com.robypomper.josp.test.mocks.jsl.MockJCPClient_Service;
@@ -69,6 +71,7 @@ public class JOSPCommunicationIntegration {
     JCPClient_Object jcpClientObj;
     JODObjectInfo objInfo;
     JODPermissions jodPermissions;
+    JODEvents jodEvents;
     JSLSettings_002 jslSettings;
     JCPClient_Service jcpClientSrv;
     JSLServiceInfo srvInfo;
@@ -94,6 +97,7 @@ public class JOSPCommunicationIntegration {
         jcpClientObj = new MockJCPClient_Object();
         objInfo = new MockJODObjectInfo("objId");
         jodPermissions = new MockJODPermissions();
+        jodEvents = new MockJODEvents();
 
         // Init JSL Comm params
         jslSettings = new JSLSettings_002(getDefaultJSLSettings());
@@ -125,7 +129,7 @@ public class JOSPCommunicationIntegration {
     @Test
     public void testLocalPublishAndDiscoveryFirstJOD() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException, SocketException {
         System.out.println("\nJOD LOCAL COMM START");
-        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
+        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, jodEvents, UNIQUE_ID);
         jodComm.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");
@@ -155,7 +159,7 @@ public class JOSPCommunicationIntegration {
         jslComm.startLocal();
 
         System.out.println("\nJOD LOCAL COMM START");
-        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
+        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, jodEvents, UNIQUE_ID);
         jodComm.startLocal();
 
         try {
@@ -180,7 +184,7 @@ public class JOSPCommunicationIntegration {
     @Test
     public void testLocalPublishAndDiscoveryStopJOD() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException, SocketException {
         System.out.println("\nJOD LOCAL COMM START");
-        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
+        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, jodEvents, UNIQUE_ID);
         jodComm.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");
@@ -213,7 +217,7 @@ public class JOSPCommunicationIntegration {
     @Test
     public void testLocalPublishAndDiscoveryStopJSL() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException, SocketException {
         System.out.println("\nJOD LOCAL COMM START");
-        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
+        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, jodEvents, UNIQUE_ID);
         jodComm.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");
@@ -252,14 +256,14 @@ public class JOSPCommunicationIntegration {
     @Test()
     public void testLocalPublishAndDiscoveryTwoJOD() throws JODCommunication.LocalCommunicationException, JODCommunication.CloudCommunicationException, JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException {
         System.out.println("\nJOD LOCAL COMM START (1st)");
-        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, UNIQUE_ID);
+        JODCommunication jodComm = new JODCommunication_002(jodSettings, objInfo, jcpClientObj, jodPermissions, jodEvents, UNIQUE_ID);
         jodComm.startLocal();
 
         System.out.println("\nJOD LOCAL COMM START (2nd)");
         port += 2;
         JODSettings_002 jodSettings2 = new JODSettings_002(getDefaultJODSettings(port));
         JODObjectInfo objInfo2 = new MockJODObjectInfo("objId_2");
-        JODCommunication jodComm2 = new JODCommunication_002(jodSettings2, objInfo2, jcpClientObj, jodPermissions, UNIQUE_ID + "bis");
+        JODCommunication jodComm2 = new JODCommunication_002(jodSettings2, objInfo2, jcpClientObj, jodPermissions, jodEvents, UNIQUE_ID + "bis");
         jodComm2.startLocal();
 
         System.out.println("\nJSL LOCAL COMM START");

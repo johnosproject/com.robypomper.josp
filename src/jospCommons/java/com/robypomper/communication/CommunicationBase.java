@@ -1,11 +1,11 @@
 package com.robypomper.communication;
 
-import com.robypomper.communication.client.DefaultClient;
 import com.robypomper.communication.peer.PeerInfo;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 public class CommunicationBase {
@@ -74,35 +74,46 @@ public class CommunicationBase {
         while (to > 0 && array[to - 1] == ' ')
             to--;
 
+        if (from >= to)
+            return new byte[0];
+
         return Arrays.copyOfRange(array, from, to);
     }
 
     public static byte[][] listenForData(DataInputStream in, byte[] dataBuffered, boolean delimiter) throws IOException {
         byte[] dataRead = new byte[0];
-        int bytesRead = 0;
 
-        // Get buffered data
-        if (dataBuffered.length > 0) {
-            dataRead = dataBuffered;
-            bytesRead = dataBuffered.length;
-            dataBuffered = new byte[0];
-        }
+        while (dataRead.length == 0) {
+            int bytesRead = 0;
 
-        while (bytesRead != -1 && !(delimiter && DefaultClient.contains(dataRead, DELIMITER))) {
-            int available = in.available();
-            byte[] dataRead_More = new byte[available > 0 ? available : 1];
-            bytesRead = in.read(dataRead_More);
-            dataRead_More = DefaultClient.trim(dataRead_More);
-            dataRead = DefaultClient.append(dataRead, dataRead_More);
-        }
+            // Get buffered data
+            if (dataBuffered.length > 0) {
+                dataRead = dataBuffered;
+                bytesRead = dataBuffered.length;
+                dataBuffered = new byte[0];
+            }
 
-        // Check if disconnected by client
-        if (bytesRead == -1)
-            return null;
+            // Read data
+            int bytesReadTmp = 0;
+            while (bytesReadTmp != -1 && !(delimiter && contains(dataRead, DELIMITER))) {
+                int available = in.available();
+                byte[] dataRead_More = new byte[available > 0 ? (Math.min(available, 1024)) : 1];
+                bytesReadTmp = in.read(dataRead_More);
+                bytesRead += bytesReadTmp;
+                dataRead_More = trim(dataRead_More);
+                dataRead = append(dataRead, dataRead_More);
+            }
 
-        if (delimiter && DefaultClient.contains(dataRead, DELIMITER)) {
-            dataBuffered = DefaultClient.afterDelimiter(dataRead, DELIMITER);
-            dataRead = DefaultClient.beforeDelimiter(dataRead, DELIMITER);
+            // Check if disconnected by client
+            if (bytesReadTmp == -1) {
+                if (bytesRead > 0)
+                    System.out.println("Error, more data received but discarded because disconnected");
+                return null;
+            }
+            if (delimiter && contains(dataRead, DELIMITER)) {
+                dataBuffered = afterDelimiter(dataRead, DELIMITER);
+                dataRead = beforeDelimiter(dataRead, DELIMITER);
+            }
         }
 
         byte[][] ret = new byte[2][];
@@ -111,10 +122,18 @@ public class CommunicationBase {
         return ret;
     }
 
+    public static void transmitData(OutputStream out, byte[] data) throws IOException {
+        transmitData(new DataOutputStream(out), data, true);
+    }
+
+    public static void transmitData(DataOutputStream out, byte[] data) throws IOException {
+        transmitData(out, data, true);
+    }
+
     public static void transmitData(DataOutputStream out, byte[] data, boolean delimiter) throws IOException {
         synchronized (out) {
             if (delimiter)
-                data = DefaultClient.append(data, DefaultClient.DELIMITER);
+                data = append(data, DELIMITER);
             out.write(data, 0, data.length);
         }
     }

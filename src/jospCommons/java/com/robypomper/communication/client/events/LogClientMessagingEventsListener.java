@@ -45,7 +45,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
     @Override
     public void onDataSend(byte[] writtenData) {
         String dataTruncated = CommunicationBase.truncateMid(writtenData, 30);
-        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataSend     (>Srv: %s, byte[%d] %s)", getClient().getClientId(), getServer().getServerId(), writtenData.length, dataTruncated));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataSend     (>Srv: %s, byte[%d] %s)", getClient().getClientId(), (getServer() != null ? getServer().getServerId() : "UNKNOW"), writtenData.length, dataTruncated));
     }
 
     /**

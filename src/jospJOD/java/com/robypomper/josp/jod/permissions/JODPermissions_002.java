@@ -23,6 +23,7 @@ import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
+import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -209,8 +210,14 @@ public class JODPermissions_002 implements JODPermissions {
 
         JOSPPerm newPerm = new JOSPPerm(objInfo.getObjId(), srvId, usrId, type, connection, new Date());
         permissions.add(newPerm);
+        Events.registerPermAdded(newPerm);
 
         comm.syncObject();
+        try {
+            savePermissionsToFile();
+        } catch (PermissionsNotSavedException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -229,8 +236,14 @@ public class JODPermissions_002 implements JODPermissions {
         JOSPPerm newDelPerm = new JOSPPerm(existingPerm.getId(), existingPerm.getObjId(), srvId, usrId, type, connection, JOSPProtocol.getNowDate());
         permissions.remove(existingPerm);
         permissions.add(newDelPerm);
+        Events.registerPermUpdated(existingPerm,newDelPerm);
 
         comm.syncObject();
+        try {
+            savePermissionsToFile();
+        } catch (PermissionsNotSavedException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -245,8 +258,14 @@ public class JODPermissions_002 implements JODPermissions {
             return false;
 
         permissions.remove(oldPerm);
+        Events.registerPermRemoved(oldPerm);
 
         comm.syncObject();
+        try {
+            savePermissionsToFile();
+        } catch (PermissionsNotSavedException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
@@ -263,8 +282,19 @@ public class JODPermissions_002 implements JODPermissions {
     public void setOwnerId(String ownerId) {
         log.info(Mrk_JOD.JOD_PERM, String.format("Permission for '%s' object set ownerID '%s'", objInfo.getObjId(), ownerId));
 
+        String oldOwner = getOwnerId();
         locSettings.setOwnerId(ownerId);
-        objInfo.regenerateObjId();
+
+        Events.registerInfoUpd("objOwner", oldOwner, ownerId);
+        Thread regenerateThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                objInfo.regenerateObjId();
+                // cause regenerate Permissions and object info sync
+            }
+        });
+        regenerateThread.setName("REGENERATE_OBJ_ID");
+        regenerateThread.start();
     }
 
     /**
@@ -306,10 +336,14 @@ public class JODPermissions_002 implements JODPermissions {
                 if (p.getObjId().compareTo(objInfo.getObjId()) == 0)
                     validatedPerms.add(p);
             permissions = validatedPerms;
+            Events.registerPermLoaded("Load permissions from file",permissions);
 
         } catch (FileNotFoundException e) {
+            Events.registerPermLoaded("Load permissions from file", e);
             throw e;
+
         } catch (JOSPProtocol.ParsingException | IOException e) {
+            Events.registerPermLoaded("Load permissions from file", e);
             throw new PermissionsNotLoadedException(locSettings.getPermissionsPath().getAbsolutePath(), e);
         }
     }
@@ -321,8 +355,17 @@ public class JODPermissions_002 implements JODPermissions {
     private void savePermissionsToFile() throws PermissionsNotSavedException {
         try {
             Files.write(locSettings.getPermissionsPath().toPath(), Arrays.asList(JOSPPerm.toString(permissions).split("\n")));
-        } catch (IOException e) {
-            throw new PermissionsNotSavedException(locSettings.getPermissionsPath().getAbsolutePath(), e);
+            Events.registerPermLoaded("Save permissions to file",permissions);
+
+        } catch (IOException retry) {
+            try {
+                Files.write(locSettings.getPermissionsPath().toPath(), Arrays.asList(JOSPPerm.toString(permissions).split("\n")));
+                Events.registerPermLoaded("Save permissions to file",permissions);
+
+            } catch (IOException e) {
+                Events.registerPermLoaded("Save permissions to file", e);
+                throw new PermissionsNotSavedException(locSettings.getPermissionsPath().getAbsolutePath(), e);
+            }
         }
     }
 
@@ -358,9 +401,11 @@ public class JODPermissions_002 implements JODPermissions {
                 generatePermissionsFromJCP();
                 genCloud = true;
                 log.debug(Mrk_JOD.JOD_PERM, "Object permissions generated from JCP");
+                Events.registerPermLoaded("Gen permissions on cloud",permissions);
 
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
                 log.warn(Mrk_JOD.JOD_PERM, String.format("Error on generating object permission from JCP because %s", e.getMessage()), e);
+                Events.registerPermLoaded("Gen permissions on cloud", e);
             }
         }
 
@@ -368,6 +413,7 @@ public class JODPermissions_002 implements JODPermissions {
             log.debug(Mrk_JOD.JOD_PERM, "Generating object permissions locally");
             generatePermissionsLocally();
             log.debug(Mrk_JOD.JOD_PERM, "Object permissions generated locally");
+            Events.registerPermLoaded("Gen permissions locally",permissions);
         }
 
         savePermissionsToFile();

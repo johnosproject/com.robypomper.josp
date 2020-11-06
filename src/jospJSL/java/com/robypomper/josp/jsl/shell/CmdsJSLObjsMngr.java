@@ -28,12 +28,14 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
+import com.robypomper.josp.protocol.HistoryLimits;
+import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.protocol.JOSPStatusHistory;
 
 import java.util.List;
 
 
-@SuppressWarnings("unused")
 public class CmdsJSLObjsMngr {
 
     public static final String PRE = "\n\n";
@@ -125,7 +127,7 @@ public class CmdsJSLObjsMngr {
 
         StringBuilder s = new StringBuilder("KNOWN OBJECTS LIST\n");
         s.append(String.format("- %-30s (status: %s)\n", "JCP", obj.getComm().isCloudConnected() ? "connected" : "NOT conn."));
-        for (JSLLocalClient client : ((DefaultObjComm)obj.getComm()).getLocalClients()) {
+        for (JSLLocalClient client : ((DefaultObjComm) obj.getComm()).getLocalClients()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
             s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
         }
@@ -142,6 +144,53 @@ public class CmdsJSLObjsMngr {
         String s = "OBJECT'S PERMISSIONS LIST\n";
         s += JOSPPerm.logPermissions(obj.getPerms().getPerms());
         return s;
+    }
+
+    @Command(description = "Print all events of given objId.")
+    public String objPrintObjectEvents(String objId) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.NO_LIMITS);
+    }
+
+    @Command(description = "Print latest 10 events of given objId.")
+    public String objPrintObjectEventsLatest(String objId) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.LATEST_10);
+    }
+
+    @Command(description = "Print ancient 10 events of given objId.")
+    public String objPrintObjectEventsAncient(String objId) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.ANCIENT_10);
+    }
+
+    @Command(description = "Print last hour events of given objId.")
+    public String objPrintObjectEventsLastHour(String objId) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.LAST_HOUR);
+    }
+
+    @Command(description = "Print past hour all events of given objId.")
+    public String objPrintObjectEventsPastHour(String objId) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.PAST_HOUR);
+    }
+
+    private String doObjPrintObjectEvents(String objId, HistoryLimits limits) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // Get statuses history
+        List<JOSPEvent> eventsHistory = null;
+        try {
+            eventsHistory = obj.getInfo().getEventsHistory(limits, 10);
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't get Events", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't get Events\n%s", obj.getId(), e.getMessage());
+        }
+
+        if (eventsHistory.isEmpty())
+            return String.format("No events for '%s' Object", objId);
+
+        return String.format("Events for '%s' Object\n", objId) +
+                JOSPEvent.logEvents(eventsHistory, false);
     }
 
     @Command(description = "Set object's name.")
@@ -161,6 +210,7 @@ public class CmdsJSLObjsMngr {
 
         return String.format("Object '%s' name updated from '%s' to '%s'", obj.getId(), oldName, obj.getName());
     }
+
 
     // Object's status
 
@@ -187,6 +237,59 @@ public class CmdsJSLObjsMngr {
             return String.format("%s::%s = %s", objId, compPath, compVal);
 
         return String.format("Component '%s' in '%s' object is not supported (%s)", compPath, objId, comp.getClass().getName());
+    }
+
+    @Command(description = "Print object's component status history.")
+    public String objStatusHistory(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.NO_LIMITS);
+    }
+
+    @Command(description = "Print latest 10 object's component status history.")
+    public String objStatusHistoryLatest(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.LATEST_10);
+    }
+
+    @Command(description = "Print ancient 10 object's component status history.")
+    public String objStatusHistoryAncient(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.ANCIENT_10);
+    }
+
+    @Command(description = "Print latest hour object's component status history.")
+    public String objStatusHistoryLastHour(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.LAST_HOUR);
+    }
+
+    @Command(description = "Print latest hour object's component status history.")
+    public String objStatusHistoryPastHour(String objId, String compPath) {
+        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.PAST_HOUR);
+    }
+
+    private String doObjStatusHistoryLatest(String objId, String compPath, HistoryLimits limits) {
+        JSLRemoteObject obj = objs.getById(objId);
+        if (obj == null)
+            return String.format("No object found with id '%s'", objId);
+
+        // search destination object/components
+        JSLComponentPath componentPath = new DefaultJSLComponentPath(compPath);
+        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), componentPath);
+        if (comp == null)
+            return String.format("No component found with path '%s' in '%s' object", compPath, objId);
+
+        // Get statuses history
+        List<JOSPStatusHistory> statusHistory = null;
+        try {
+            statusHistory = obj.getStruct().getComponentHistory(comp, limits, 30);
+        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+            return String.format("Object '%s' not connected, can't get component's Status History", obj.getId());
+        } catch (JSLRemoteObject.MissingPermission e) {
+            return String.format("Missing permission to object '%s', can't get Status History\n%s", obj.getId(), e.getMessage());
+        }
+
+        if (statusHistory.isEmpty())
+            return String.format("No history for Component '%s' of '%s' Object", compPath, objId);
+
+        return String.format("Status History for Component '%s' of '%s' Object\n", compPath, objId) +
+                JOSPStatusHistory.logStatuses(statusHistory, false);
     }
 
 

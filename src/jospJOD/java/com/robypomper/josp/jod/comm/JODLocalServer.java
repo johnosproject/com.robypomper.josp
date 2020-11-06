@@ -28,6 +28,7 @@ import com.robypomper.communication.server.events.DefaultServerEvent;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.server.standard.SSLCertServer;
+import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -156,38 +157,45 @@ public class JODLocalServer implements Server {
      * @param client the new client's info.
      */
     private void onClientConnection(ClientInfo client) {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Connected client '%s' to '%s' object", client.getPeerFullAddress(), objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_COMM, String.format("Connected client '%s' to '%s' object", client.getPeerFullAddress(), objInfo.getObjId()));
 
         JODLocalClientInfo locConn = new DefaultJODLocalClientInfo(client);
 
-        log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Registering service '%s' of '%s' client to '%s' object", locConn.getClientId(), client.getPeerFullAddress(), objInfo.getObjId()));
-        for (JODLocalClientInfo c : localClients)
-            if (c.getClientId().equals(locConn.getClientId())) {
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' already registered to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+        log.debug(Mrk_JOD.JOD_COMM, String.format("Registering service '%s' of '%s' client to '%s' object", locConn.getClientId(), client.getPeerFullAddress(), objInfo.getObjId()));
+        synchronized (localClients) {
+            for (JODLocalClientInfo c : localClients)
+                if (c.getClientId().equals(locConn.getClientId())) {
+                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' already registered to '%s' object", locConn.getClientId(), objInfo.getObjId()));
 
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Checking service '%s' connection to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-                boolean wasConnected = c.isConnected();
-                if (!wasConnected) {
-                    localClients.remove(c);
-                    localClients.add(locConn);
-                    sendObjectPresentation(locConn);
-                    log.trace(Mrk_JOD.JOD_COMM_SUB, String.format("Updated connection because service '%s' was NOT connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-                } else {
-                    try {
-                        locConn.disconnectLocal();
-                    } catch (JODCommunication.LocalCommunicationException e) {
-                        log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on disconnect new client '%s' because %s", client.getPeerFullAddress(), e.getMessage()), e);
+                    log.debug(Mrk_JOD.JOD_COMM, String.format("Checking service '%s' connection to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+                    boolean wasConnected = c.isConnected();
+                    if (!wasConnected) {
+                        localClients.remove(c);
+                        localClients.add(locConn);
+                        sendObjectPresentation(locConn);
+                        log.trace(Mrk_JOD.JOD_COMM, String.format("Updated connection because service '%s' was NOT connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+                        Events.registerLocalConn("Local JSL updated connection", locConn,client);
+
+                    } else {
+                        try {
+                            locConn.disconnectLocal();
+                        } catch (JODCommunication.LocalCommunicationException e) {
+                            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on disconnect new client '%s' because %s", client.getPeerFullAddress(), e.getMessage()), e);
+                        }
+                        log.trace(Mrk_JOD.JOD_COMM, String.format("New client discarded because service '%s' was already connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+                        Events.registerLocalConn("Local JSL refused connection because already connected service", locConn,client);
                     }
-                    log.trace(Mrk_JOD.JOD_COMM_SUB, String.format("New client discarded because service '%s' was already connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-                }
-                log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' connection to '%s' object checked and%s updated", locConn.getClientId(), objInfo.getObjId(), wasConnected ? " NOT" : ""));
-                return;
-            }
 
-        localClients.add(locConn);
+                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' connection to '%s' object checked and%s updated", locConn.getClientId(), objInfo.getObjId(), wasConnected ? " NOT" : ""));
+                    return;
+                }
+
+            localClients.add(locConn);
+        }
         sendObjectPresentation(locConn);
-        log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' with client '%s' registered to '%s' object", locConn.getClientId(), locConn.getClientFullAddress(), objInfo.getObjId()));
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Registered service '%s' to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+        log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' with client '%s' registered to '%s' object", locConn.getClientId(), locConn.getClientFullAddress(), objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_COMM, String.format("Registered service '%s' to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+        Events.registerLocalConn("Local JSL connected",locConn,client);
     }
 
     private void sendObjectPresentation(JODLocalClientInfo locConn) {
@@ -212,18 +220,25 @@ public class JODLocalServer implements Server {
      * @param client the disconnected client's info.
      */
     private void onClientDisconnection(ClientInfo client) {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' from '%s' object", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_COMM, String.format("Disconnected client '%s' for service '%s' from '%s' object", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
 
-        JODLocalClientInfo locConn = getLocalConnectionByServiceId(client.getClientId());
+        JODLocalClientInfo locConn;
+        synchronized (localClients) {
+            locConn = getLocalConnectionByServiceId(client.getClientId());
+        }
         if (locConn == null) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Disconnected client '%s' for service '%s' was not present in '%s' object registered clients list", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Disconnected client '%s' for service '%s' was not present in '%s' object registered clients list", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
             return;
         }
 
-        if (locConn.isConnected())
-            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' still connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-        else
-            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Service '%s' disconnected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+        if (locConn.isConnected()) {
+            log.info(Mrk_JOD.JOD_COMM, String.format("Service '%s' still connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+            //Events.registerLocalDisc("Local JSL discharged", locConn, client);
+        }
+        else {
+            log.info(Mrk_JOD.JOD_COMM, String.format("Service '%s' disconnected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
+            Events.registerLocalDisc("Local JSL disconnected", locConn, client);
+        }
     }
 
 

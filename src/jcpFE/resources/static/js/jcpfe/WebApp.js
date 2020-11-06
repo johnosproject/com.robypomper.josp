@@ -63,6 +63,19 @@ function fillRequiredContent(documentUrl) {
             return false;
         showObjectContentAccessControl(objId,false);
 
+    } else if (page == PAGE_OBJ_EVENTS) {
+        var objId = findGetParameter(documentUrl,'objId');
+        if (objId==null)
+            return false;
+        showObjectContentEvents(objId,false);
+
+    } else if (page == PAGE_OBJ_STATUS_HISTORY) {
+        var objId = findGetParameter(documentUrl,'objId');
+        var compPath = findGetParameter(documentUrl,'compPath');
+        if (objId==null || compPath==null)
+            return false;
+        showObjectContentStatusHistory(objId,compPath,false);
+
     } else if (page == PAGE_HOME) {
         showHome(false);
 

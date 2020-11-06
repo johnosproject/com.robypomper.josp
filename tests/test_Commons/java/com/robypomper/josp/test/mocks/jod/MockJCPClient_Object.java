@@ -91,6 +91,26 @@ public class MockJCPClient_Object implements JCPClient_Object {
     }
 
     @Override
+    public String getUrlAPIs() {
+        return null;
+    }
+
+    @Override
+    public String getIPAPIs() {
+        return null;
+    }
+
+    @Override
+    public String getUrlAuth() {
+        return null;
+    }
+
+    @Override
+    public String getIPAuth() {
+        return null;
+    }
+
+    @Override
     public boolean isLoggedIn() {
         return false;
     }

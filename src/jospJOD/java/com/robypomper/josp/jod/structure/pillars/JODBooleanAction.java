@@ -23,6 +23,7 @@ import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODExecutor;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODWorker;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.JODAction;
 import com.robypomper.josp.jod.structure.JODActionParams;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -50,17 +51,17 @@ public class JODBooleanAction extends JODBooleanState implements JODAction {
      * <b>NB:</b> only once of <code>listener</code> and <code>puller</code>
      * params can be set, the other one must be null.
      * <p>
-     *
-     * @param structure the JOD Structure system.
+     *  @param structure the JOD Structure system.
      * @param execMngr  the JOD Executor Mngr system.
+     * @param history
      * @param name      the name of the component.
      * @param descr     the description of the component.
      * @param listener  the listener full configs string.
      * @param puller    the puller full configs string.
      * @param executor  the executor full configs string.
      */
-    public JODBooleanAction(JODStructure structure, JODExecutorMngr execMngr, String name, String descr, String listener, String puller, String executor) throws JODStructure.ComponentInitException {
-        super(structure, execMngr, name, descr, listener, puller);
+    public JODBooleanAction(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String name, String descr, String listener, String puller, String executor) throws JODStructure.ComponentInitException {
+        super(structure, execMngr, history, name, descr, listener, puller);
 
         try {
             if (executor != null) {

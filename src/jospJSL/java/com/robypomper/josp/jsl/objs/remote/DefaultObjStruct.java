@@ -4,17 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.jsl.objs.history.DefaultHistoryCompStatus;
+import com.robypomper.josp.jsl.objs.history.HistoryCompStatus;
 import com.robypomper.josp.jsl.objs.structure.*;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
-import com.robypomper.josp.protocol.JOSPProtocol;
-import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
+import com.robypomper.josp.protocol.*;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DefaultObjStruct extends ObjBase implements ObjStruct {
 
@@ -23,6 +25,7 @@ public class DefaultObjStruct extends ObjBase implements ObjStruct {
     private static final Logger log = LogManager.getLogger();
     private JSLRoot root = null;
     private final List<RemoteObjectStructListener> listenersInfo = new ArrayList<>();
+    private Map<JSLComponent, HistoryCompStatus> compsStatusHistory = new HashMap<>();
 
 
     // Constructor
@@ -48,6 +51,20 @@ public class DefaultObjStruct extends ObjBase implements ObjStruct {
     @Override
     public JSLRoot getStructure() {
         return root;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public JSLComponent getComponent(String compPath) {
+        return getComponent(new DefaultJSLComponentPath(compPath));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public JSLComponent getComponent(JSLComponentPath compPath) {
+        return DefaultJSLComponentPath.searchComponent(root, compPath);
     }
 
 
@@ -117,6 +134,18 @@ public class DefaultObjStruct extends ObjBase implements ObjStruct {
         return true;
     }
 
+    public boolean processHistoryCompStatusMsg(String msg) {
+        String compPath;
+        try {
+            compPath = JOSPProtocol_ObjectToService.getHistoryCompStatusMsg_CompPath(msg);
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on parsing update '%s...' because %s", msg.substring(0, msg.indexOf("\n")), e.getMessage()), e);
+            return false;
+        }
+        JSLComponent component = getComponent(compPath);
+        DefaultHistoryCompStatus compStatus = (DefaultHistoryCompStatus) getComponentHistory(component);
+        return compStatus.processHistoryCompStatusMsg(msg);
+    }
 
     // Listeners
 
@@ -146,6 +175,25 @@ public class DefaultObjStruct extends ObjBase implements ObjStruct {
 
     public void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         sendToObject(JOSPProtocol_ServiceToObject.createObjectActionCmdMsg(getServiceInfo().getFullId(), getRemote().getId(), component.getPath().getString(), command));
+    }
+
+
+    // Components History
+
+    @Override
+    public List<JOSPStatusHistory> getComponentHistory(JSLComponent component, HistoryLimits limits, int timeoutSeconds) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
+        return getComponentHistory(component).getStatusHistory(limits, timeoutSeconds);
+    }
+
+    @Override
+    public void getComponentHistory(JSLComponent component, HistoryLimits limits, HistoryCompStatus.StatusHistoryListener listener) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
+        getComponentHistory(component).getStatusHistory(limits, listener);
+    }
+
+    private HistoryCompStatus getComponentHistory(JSLComponent component) {
+        if (compsStatusHistory.get(component) == null)
+            compsStatusHistory.put(component, new DefaultHistoryCompStatus(component, getServiceInfo()));
+        return compsStatusHistory.get(component);
     }
 
 }
