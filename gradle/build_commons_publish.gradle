@@ -26,7 +26,7 @@ import com.robypomper.build.java.JavaPublicationUtils
 // JOSP Commons (Docs and Src)
 def jospCommonsName = 'JOSP Commons Library'
 def jospCommonsArtifact = 'jospCommons'
-def jospCommonsVersion = '2.0.0'
+def jospCommonsVersion = project.ext.get("version.jospCommons_DEV")
 
 task jospCommonsJar(type: Jar) {
     doFirst {

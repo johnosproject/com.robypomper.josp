@@ -27,7 +27,7 @@ import com.robypomper.build.java.JavaPublicationUtils
 // JOD (Lib, Docs, Src, Deps)
 def jodName = 'John Object Daemon'
 def jodArtifact = 'jod'
-def jodVersion = '2.0.0'
+def jodVersion = project.ext.get("version.jospJOD_DEV")
 
 task jospJODJar(type: Jar) {
     doFirst {
@@ -115,7 +115,7 @@ task jospJODDepsJar(type: Jar) {
 // JSL (Lib, Docs, Src, Deps)
 def jslName = 'John Service Library'
 def jslArtifact = 'jsl'
-def jslVersion = '2.0.0'
+def jslVersion = project.ext.get("version.jospJSL_DEV")
 
 task jospJSLJar(type: Jar) {
     doFirst {

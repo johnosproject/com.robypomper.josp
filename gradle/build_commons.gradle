@@ -43,14 +43,14 @@ sourceSets {
 
 dependencies {
     // Commons - Internal
-    jospCommonsImplementation 'org.apache.logging.log4j:log4j-api:2.13.1'
-    jospCommonsImplementation 'org.apache.logging.log4j:log4j-core:2.13.1'
-    jospCommonsImplementation 'org.yaml:snakeyaml:1.25'
-    jospCommonsImplementation 'com.github.scribejava:scribejava-core:6.9.0'           // HTTP & OAuth2
-    jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
-    jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
-    jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
-    jospCommonsImplementation 'org.jmdns:jmdns:3.5.5'                                 // mDNS
+    jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
+    jospCommonsImplementation "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
+    jospCommonsImplementation "org.yaml:snakeyaml:${project.ext.get("version.snakeyaml")}"                              // YAML
+    jospCommonsImplementation "com.github.scribejava:scribejava-core:${project.ext.get("version.scribejava")}"          // HTTP & OAuth2
+    jospCommonsImplementation "com.github.scribejava:scribejava-apis:${project.ext.get("version.scribejava")}"
+    jospCommonsCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                              // Lombok annotations
+    jospCommonsAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
+    jospCommonsImplementation "org.jmdns:jmdns:${project.ext.get("version.jmdns")}"                                     // mDNS
 }
 
 

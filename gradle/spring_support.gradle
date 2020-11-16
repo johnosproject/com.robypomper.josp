@@ -5,15 +5,9 @@ repositories {
     maven { url 'https://repo.spring.io/milestone' }
 }
 
-ext {
-    // Spring version
-    set('springCloudVersion', "Hoxton.SR3")
-    set('keycloakVersion', "11.0.2")
-}
-
 dependencyManagement {
     imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-        mavenBom "org.keycloak.bom:keycloak-adapter-bom:${keycloakVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${project.ext.get("version.SpringCloud")}"
+        mavenBom "org.keycloak.bom:keycloak-adapter-bom:${project.ext.get("version.Keycloak")}"
     }
 }

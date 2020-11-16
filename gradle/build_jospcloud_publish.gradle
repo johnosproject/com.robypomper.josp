@@ -28,7 +28,7 @@ import java.text.SimpleDateFormat
 // JCP API
 def jcpAPIsName = 'JOSP Cloud Platform API'
 def jcpAPIsArtifact = 'jcpAPIs'
-def jcpAPIsVersion = '2.0.0'
+def jcpAPIsVersion = project.ext.get("version.jcpAPIs_DEV")
 
 task jcpAPIsJar(type: Jar) {
     doFirst {
@@ -109,7 +109,7 @@ task jcpAPIsSrcJar(type: Jar) {
 // JCP API Public
 def jcpAPIsPublicName = 'JOSP Cloud Platform Public Library'
 def jcpAPIsPublicArtifact = 'jcpAPIsPublic'
-def jcpAPIsPublicVersion = '2.0.0'
+def jcpAPIsPublicVersion = project.ext.get("version.jcpAPIsPublic_DEV")
 
 task jcpAPIsPublicJar(type: Jar) {
     doFirst {
@@ -192,7 +192,7 @@ task jcpAPIsPublicSrcJar(type: Jar) {
 // JCP FE
 def jcpFEName = 'JOSP Cloud Platform FrontEnd'
 def jcpFEArtifact = 'jcpFE'
-def jcpFEVersion = '2.0.0'
+def jcpFEVersion = project.ext.get("version.jcpFEs_DEV")
 
 task jcpFEJar(type: Jar) {
     doFirst {
