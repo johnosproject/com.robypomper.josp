@@ -24,48 +24,47 @@
     </Properties>
 
     <Appenders>
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-standard-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-standard-console-DEV.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console-DEV.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console-IMPL.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-console-FULL.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jod-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jsl-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jcp-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jgw-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-jfe-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-robypomper-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-spring-console.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-file.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/log4j2-appenders-josp-file-FULL.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/error-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/error-dark-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/error-file-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/info-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/info-dark-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/info-file-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/debug-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/debug-dark-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/debug-file-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/trace-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/trace-dark-DEV.xml" />
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/trace-file-DEV.xml" />
     </Appenders>
 
     <Loggers>
 
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/loggers/log4j2-root-ALL.xml" />
+        <Logger name="com.robypomper" additivity="false">
+            <AppenderRef ref="debug-dark"/>
+            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="info-file"/>
+        </Logger>
 
-        <!-- Commons -->
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/loggers/log4j2-robypomper.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/loggers/log4j2-comm.communication.xml" />
-        <xi:include href="file:../../../src/jospCommons/resources/log4j2/loggers/log4j2-comm.discovery.xml" />
+        <Logger name="com.robypomper.josp" additivity="false">
+            <AppenderRef ref="debug-dark"/>
+            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="info-file"/>
+            <AppenderRef ref="debug-file"/>
+        </Logger>
 
-        <!-- Spring & Co -->
-        <xi:include href="log4j2/loggers/springframework/log4j2-apache.xml" />
-        <xi:include href="log4j2/loggers/springframework/log4j2-com.zaxxer.xml" />
-        <xi:include href="log4j2/loggers/springframework/log4j2-hibernate.xml" />
-        <xi:include href="log4j2/loggers/springframework/log4j2-keycloak.xml" />
-        <xi:include href="log4j2/loggers/springframework/log4j2-springfox.xml" />
-        <xi:include href="log4j2/loggers/springframework/log4j2-springframework.xml" />
+        <Logger name="com.robypomper.josp.jcp" additivity="false">
+            <AppenderRef ref="debug"/>
+            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="info-file"/>
+            <AppenderRef ref="debug-file"/>
+        </Logger>
 
-        <!-- JCP API -->
-        <xi:include href="log4j2/loggers/log4j2-jcp.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jcp.apis.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jcp.db.xml" />
-        <xi:include href="log4j2/loggers/log4j2-jcp.jcpclient.xml" />
-
-        <!-- JOSP GWs -->
-        <xi:include href="../../jospGWs/resources/log4j2/loggers/log4j2-gw.xml" />
+        <Root additivity="false" level="ALL">
+            <AppenderRef ref="info-dark"/>
+            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="info-file"/>
+        </Root>
 
     </Loggers>
 
