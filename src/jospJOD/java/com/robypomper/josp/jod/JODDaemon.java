@@ -111,7 +111,8 @@ public class JODDaemon {
         System.out.println("         # kill $PID");
         System.out.println("     To identify current process id try one of the following commands");
         System.out.println("         # jps | grep JODDaemon | awk '{print $1}'");
-        System.out.println("         # jps | grep JOD.jar | awk '{print $1}'");
+        System.out.println("     or");
+        System.out.println("         # jps | grep JospJOD.jar | awk '{print $1}'");
         System.out.println();
         System.out.println();
         try {
