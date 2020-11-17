@@ -17,10 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcpfe;
+package com.robypomper.josp.jcp;
 
 import com.robypomper.java.JavaSSLIgnoreChecks;
-import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,19 +33,19 @@ import org.springframework.context.annotation.Configuration;
 @SpringBootApplication
 @Configuration
 @ComponentScan
-public class ServiceApplication {
+public class JcpAPIs {
 
     public static void main(String[] args) {
         String DISABLE_SSL_CHECKS = System.getenv("DISABLE_SSL_CHECKS");
-        if (DISABLE_SSL_CHECKS==null)
-            DISABLE_SSL_CHECKS="LOCALHOST";
+        if (DISABLE_SSL_CHECKS == null)
+            DISABLE_SSL_CHECKS = "LOCALHOST";
 
-        if (DISABLE_SSL_CHECKS.compareToIgnoreCase("NONE")!=0)
+        if (DISABLE_SSL_CHECKS.compareToIgnoreCase("NONE") != 0)
             try {
-                if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST")==0) {
+                if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST") == 0) {
                     JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
                     System.out.println("\t\tLOCALHOST");
-                } else if (DISABLE_SSL_CHECKS.compareToIgnoreCase("ALL")==0) {
+                } else if (DISABLE_SSL_CHECKS.compareToIgnoreCase("ALL") == 0) {
                     JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.ALLHOSTS);
                     System.out.println("\t\tALL");
                 }
@@ -56,7 +55,7 @@ public class ServiceApplication {
                 System.exit(-1);
             }
 
-        SpringApplication.run(ServiceApplication.class, args);
+        SpringApplication.run(JcpAPIs.class, args);
     }
 
 }
