@@ -18,34 +18,49 @@
  **************************************************************************** */
 
 import com.robypomper.build.gradle.GradleUtils.PrintGradleVersion
+import com.robypomper.build.java.JavaPublicationUtils
 import com.robypomper.build.spring.SpringBuildUtils
 
 /**
- * Gradle configurations to manage JCP APIs and JOSP GWs as SpringBoot applications.
+ * Gradle configurations to manage JCP components.
+ *
+ * Components list:
+ * <ul>
+ *     <li>
+ *         JCP APIs Public
+ *     </li>
+ *     <li>
+ *         JCP APIs
+ *     </li>
+ *     <li>
+ *         JCP FE
+ *     </li>
+ * </ul>
  *
  * Summary:
- * - JCP's Services configs
- * - Runners Tasks
- * - Publication include
- *
- * This file configure and provide tasks for JCP Cloud artifacts:
- * - JCP APIs: the JOSP Platform APIs, based on Spring Controllers and JPA access
- *             to the database.
- *             The JCP APIs are contained in 2 different sourceSets, because some
- *             classes are required by JOD and JSL and must be published in a
- *             separate artifact.
- * - JOSP GWs: the JOSP Platform Gateways that provide communication between
- *             Services and Objects and vice-versa. Actually is only an external
- *             source dir for JCP APIs artifact.
+ * <ul>
+ *     <li>
+ *         Components configs
+ *     </li>
+ *     <li>
+ *         Runners Tasks
+ *     </li>
+ *     <li>
+ *         Publication configs
+ *     </li>
+ *     <li>
+ *         Publication tasks
+ *     </li>
+ * </ul>
  */
 
 
-// -------------------------
-// Spring's Services configs
-// -------------------------
+// ------------------
+// Components configs
+// ------------------
 
-// Source Sets declaration
 sourceSets {
+
     // JCP APIs Public
     jcpAPIsPublic {}
 
@@ -61,39 +76,31 @@ sourceSets {
         }
     }
 
-    // JCP Front End
+    // JCP FE
     jcpFE {}
-}
 
-// JCP APIs's run tasks
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs,project.file('src/jcpApis/resources/log4j2_project.xml'))
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE,project.file('src/jcpFE/resources/log4j2_project.xml'))
-tasks.bootJcpAPIsRun {
-    workingDir('envs/runnables/jcp-apis')
-    doFirst {
-        workingDir.mkdirs()
-    }
-}
-tasks.bootJcpFERun  {
-    workingDir('envs/runnables/jcp-fe')
-    doFirst {
-        workingDir.mkdirs()
-    }
 }
 
 configurations {
+
+    // JCP APIs extendsFrom JCP APIs Public
     jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
     jcpAPIsCompileOnly.extendsFrom jcpAPIsPublicCompileOnly
     jcpAPIsAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
+
 }
+//configurations {
+//    all*.exclude module : 'spring-boot-starter-logging'
+//}
 
 dependencies {
-    // JCP API's Public dependencies
+
+    // JCP APIs Public dependencies
     jcpAPIsPublicImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
     jcpAPIsPublicCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                            // Lombok annotations
     jcpAPIsPublicAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
 
-    // JCP API's dependencies
+    // JCP APIs dependencies
     jcpAPIsImplementation sourceSets.jcpAPIsPublic.output
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpAPIsCompileOnly 'org.springframework.boot:spring-boot-devtools'
@@ -114,30 +121,37 @@ dependencies {
     jcpAPIsImplementation "io.swagger:swagger-annotations:${project.ext.get("version.swagger")}"
     jcpAPIsImplementation "io.swagger:swagger-models:${project.ext.get("version.swagger")}"
     jcpAPIsImplementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${project.ext.get("version.jackson")}"
+    jcpAPIsImplementation "com.robypomper.josp:jospJSL:${project.ext.get("version.jospJSL")}"                               // Required by JOSP GWs > GWObject
 
-    jcpAPIsImplementation "com.robypomper.josp:jsl:${project.ext.get("version.jospJSL")}"                               // Required by JOSP GWs > GWObject
-
-    jcpFEImplementation "com.robypomper.josp:jsl:${project.ext.get("version.jospJSL")}"
+    // JCP FE
+    jcpFEImplementation "com.robypomper.josp:jospJSL:${project.ext.get("version.jospJSL")}"
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpFECompileOnly 'org.springframework.boot:spring-boot-devtools'
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
+
 }
-configurations {
-    all*.exclude module : 'spring-boot-starter-logging'
-}
+
 
 // -------------
 // Runners Tasks
 // -------------
 
-// JCP APIs
+// Utils
+task printGradleVersions(type: PrintGradleVersion)
 
+// JCP APIs
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs,project.file('src/jcpApis/resources/log4j2_project.xml'))
+tasks.bootJcpAPIsRun {
+    workingDir('envs/runnables/jcp-apis')
+    doFirst {
+        workingDir.mkdirs()
+    }
+}
 task jcpAPI_Start {
     description = 'Runs...'
     group = 'JOSP runners jcp (soft)'
     dependsOn bootJcpAPIsRun
 }
-
 task jcpAPI_Clean(type: Delete) {
     group 'JOSP cleaners'
     delete "envs/runnables/jcp"
@@ -145,23 +159,21 @@ task jcpAPI_Clean(type: Delete) {
     //...delete and recreate jcp_api database in dbms
 }
 clean.dependsOn jcpAPI_Clean
-
-task printGradleVersions(type: PrintGradleVersion)
 bootJcpAPIsRun.dependsOn printGradleVersions
 
-// JOSP GWs
-
-// Actually is included in JCP APIs
-
-
-// JCP FrontEnd
-
+// JCP FE
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE,project.file('src/jcpFE/resources/log4j2_project.xml'))
+tasks.bootJcpFERun  {
+    workingDir('envs/runnables/jcp-fe')
+    doFirst {
+        workingDir.mkdirs()
+    }
+}
 task jcpFE_Start {
     description = 'Runs...'
     group = 'JOSP runners jcp (soft)'
     dependsOn bootJcpFERun
 }
-
 task jcpFE_Clean(type: Delete) {
     group 'JOSP cleaners'
     delete 'envs/runnables/jcp-fe'
@@ -169,41 +181,67 @@ task jcpFE_Clean(type: Delete) {
     //...delete and recreate jcp_api database in dbms
 }
 clean.dependsOn jcpFE_Clean
-
 bootJcpFERun.dependsOn printGradleVersions
 
 
 // -------------------
-// Publication include
+// Publication configs
 // -------------------
 
-apply from: 'gradle/build_jospcloud_publish.gradle'
-
+// JCP APIs Public
+String jcpAPIsPublicName = 'JCP APIs Public'
+String jcpAPIsPublicArtifact = 'jcpAPIsPublic'
+String jcpAPIsPublicVersion = project.ext.get("version.jcpAPIsPublic_DEV")
+def jcpAPIsPublicPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jcpAPIsPublic,jcpAPIsPublicName,jcpAPIsPublicArtifact,jcpAPIsPublicVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setArtifactOpens()
+        .setGroupId((String)project.getGroup() + ".jcp")
+JavaPublicationUtils.generatePublication(project,jcpAPIsPublicPubDesc)
 
 // JCP APIs
-task jcpAPI_PublishToLocal {
-    description = 'Publish...'
-    group = 'JOSP publishers (locals)'
-    dependsOn publishJcpAPIsPublicationToMavenLocal
-}
+String jcpAPIsName = 'JCP APIs'
+String jcpAPIsArtifact = 'jcpAPIs'
+String jcpAPIsVersion = project.ext.get("version.jcpAPIs_DEV")
+def jcpAPIsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jcpAPIs,jcpAPIsName,jcpAPIsArtifact,jcpAPIsVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setExecutable()
+        .setArtifactOpens()
+        .setArtifactDistr()
+        .setGroupId((String)project.getGroup() + ".jcp")
+JavaPublicationUtils.generatePublication(project,jcpAPIsPubDesc)
 
-task jcpAPI_PublishToSonatype {
-    description = 'Publish...'
-    group = 'JOSP publishers (sonatype)'
-//    dependsOn publishJcpAPIsPublicationToSonatype
-}
+// JCP FE
+String jcpFEName = 'JCP Front End'
+String jcpFEArtifact = 'jcpFE'
+String jcpFEVersion = project.ext.get("version.jcpFE_DEV")
+def jcpFEPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jcpFE,jcpFEName,jcpFEArtifact,jcpFEVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setExecutable()
+        .setArtifactOpens()
+        .setArtifactDistr()
+        .setGroupId((String)project.getGroup() + ".jcp")
+JavaPublicationUtils.generatePublication(project,jcpFEPubDesc)
+
+
+// -----------------
+// Publication tasks
+// -----------------
 
 // JCP APIs Public
-task jcpAPIPublic_PublishToLocal {
+task jcpAPIsPublic_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpAPIsPublicPublicationToMavenLocal
 }
 
-task jcpAPIPublic_PublishToSonatype {
+// JCP APIs
+task jcpAPIs_PublishToLocal {
     description = 'Publish...'
-    group = 'JOSP publishers (sonatype)'
-//    dependsOn publishJcpAPIsPublicPublicationToSonatype
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJcpAPIsPublicationToMavenLocal
 }
 
 // JCP FE
@@ -211,10 +249,4 @@ task jcpFE_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpFEPublicationToMavenLocal
-}
-
-task jcpFE_PublishToSonatype {
-    description = 'Publish...'
-    group = 'JOSP publishers (sonatype)'
-//    dependsOn publishJcpFEPublicationToSonatype
 }

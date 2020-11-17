@@ -1,3 +1,5 @@
+import com.robypomper.build.java.JavaPublicationUtils
+
 /* *****************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
@@ -20,29 +22,47 @@
 /**
  * Gradle configurations to manage JOSP Commons as java implementations.
  *
- * Summary:
- * - JOSP Commons configs
- * - Publication include
+ * Components list:
+ * <ul>
+ *     <li>
+ *         JOSP Commons
+ *     </li>
+ * </ul>
  *
- * This file provide the jospCommons sourceSet linked by other JOSP's Project's
- * Gradle files (build_jcpAPIs.gradle,build_josp.gradle and build_tests.gradle).
+ * Summary:
+ * <ul>
+ *     <li>
+ *         Components configs
+ *     </li>
+ *     <li>
+ *         Runners Tasks: no runners
+ *     </li>
+ *     <li>
+ *         Publication configs
+ *     </li>
+ *     <li>
+ *         Publication tasks
+ *     </li>
+ * </ul>
  */
 
 
-// --------------------
-// JOSP Commons configs
-// --------------------
+// ------------------
+// Components configs
+// ------------------
 
 sourceSets {
-    jospCommons {
-        java {
-            srcDirs 'src/jospCommons/java'
-        }
-    }
+
+    // JOSP Commons
+    jospCommons {}
+
 }
 
+configurations {}
+
 dependencies {
-    // Commons - Internal
+
+    // JOSP Commons
     jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
     jospCommonsImplementation "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
     jospCommonsImplementation "org.yaml:snakeyaml:${project.ext.get("version.snakeyaml")}"                              // YAML
@@ -50,26 +70,33 @@ dependencies {
     jospCommonsImplementation "com.github.scribejava:scribejava-apis:${project.ext.get("version.scribejava")}"
     jospCommonsCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                              // Lombok annotations
     jospCommonsAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
-    jospCommonsImplementation "org.jmdns:jmdns:${project.ext.get("version.jmdns")}"                                     // mDNS
+    jospCommonsImplementation "org.jmdns:jmdns:${project.ext.get("version.jmdns")}"                                     // JmDNS
+
 }
 
 
 // -------------------
-// Publication include
+// Publication configs
 // -------------------
 
-apply from: 'gradle/build_commons_publish.gradle'
+// JOSP Commons
+String jospCommonsName = 'JOSP Commons Library'
+String jospCommonsArtifact = 'jospCommons'
+String jospCommonsVersion = project.ext.get("version.jospCommons_DEV")
+def jospCommonsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospCommons,jospCommonsName,jospCommonsArtifact,jospCommonsVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setArtifactOpens()
+JavaPublicationUtils.generatePublication(project,jospCommonsPubDesc)
 
+
+// -----------------
+// Publication tasks
+// -----------------
 
 // JOSP Commons
 task jospCommons_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospCommonsPublicationToMavenLocal
-}
-
-task jospCommons_PublishToSonatype {
-    description = 'Publish...'
-    group = 'JOSP publishers (sonatype)'
-//    dependsOn publishJospCommonsPublicationToSonatype
 }
