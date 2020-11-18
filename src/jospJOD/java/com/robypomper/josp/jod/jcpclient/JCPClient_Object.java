@@ -20,7 +20,7 @@
 package com.robypomper.josp.jod.jcpclient;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
+import com.robypomper.josp.paths.APIObjs;
 
 
 /**
