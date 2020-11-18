@@ -19,7 +19,7 @@
 package com.robypomper.josp.jsl.user;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.params.usrs.UsrName;
+import com.robypomper.josp.params.usrs.UsrName;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;

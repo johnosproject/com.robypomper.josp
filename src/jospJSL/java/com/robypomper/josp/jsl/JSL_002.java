@@ -20,7 +20,7 @@ package com.robypomper.josp.jsl;
 
 import com.robypomper.java.JavaVersionUtils;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.info.JCPAPIsVersions;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLCommunication_002;
 import com.robypomper.josp.jsl.jcpclient.DefaultJCPClient_Service;
