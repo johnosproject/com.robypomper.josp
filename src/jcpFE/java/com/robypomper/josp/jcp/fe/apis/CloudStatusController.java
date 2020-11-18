@@ -1,7 +1,7 @@
 package com.robypomper.josp.jcp.fe.apis;
 
 import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.cloud.params.CloudStatus;
+import com.robypomper.josp.params.cloud.CloudStatus;
 import com.robypomper.josp.jcp.fe.apis.params.JOSPCloudStatus;
 import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFECloudStatus;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;

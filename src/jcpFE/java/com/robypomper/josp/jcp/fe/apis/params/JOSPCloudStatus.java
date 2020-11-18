@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.fe.apis.params;
 
-import com.robypomper.cloud.params.CloudStatus;
+import com.robypomper.josp.params.cloud.CloudStatus;
 import com.robypomper.josp.jsl.JSL;
 
 import javax.servlet.http.HttpSession;

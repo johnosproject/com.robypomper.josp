@@ -2,8 +2,8 @@ package com.robypomper.josp.jcp.fe.apis;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.params.admin.JCPCloudStatus;
-import com.robypomper.josp.jcp.apis.paths.APIMngr;
+import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.paths.APIMngr;
 import com.robypomper.josp.jcp.fe.apis.paths.APIJCPAPIMngm;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.JSL;
