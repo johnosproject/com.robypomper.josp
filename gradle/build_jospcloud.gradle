@@ -82,24 +82,15 @@ sourceSets {
 }
 
 configurations {
-
-    // JCP APIs extendsFrom JCP APIs Public
-    jcpAPIsImplementation.extendsFrom jcpAPIsPublicImplementation
-    jcpAPIsCompileOnly.extendsFrom jcpAPIsPublicCompileOnly
-    jcpAPIsAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
-
-    // JCP FE extendsFrom JCP APIs Public
-    jcpFEImplementation.extendsFrom jcpAPIsPublicImplementation
-    jcpFECompileOnly.extendsFrom jcpAPIsPublicCompileOnly
-    jcpFEAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
-
-}
-configurations {
     jcpAPIsImplementation.exclude module : 'spring-boot-starter-logging'
     jcpFEImplementation.exclude module : 'spring-boot-starter-logging'
 }
 
 dependencies {
+    def excludeSwagger = {
+        exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.swagger', module: 'swagger-models'
+    }
 
     // JCP APIs Public dependencies
     jcpAPIsPublicImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
@@ -107,10 +98,12 @@ dependencies {
     jcpAPIsPublicAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
 
     // JCP APIs dependencies
-    jcpAPIsImplementation sourceSets.jcpAPIsPublic.output
+    jcpAPIsImplementation "com.robypomper.josp:jcpAPIsPublic:${project.ext.get("version.jcpAPIsPublic")}"
+    jcpAPIsCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                                  // Lombok annotations
+    jcpAPIsAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpAPIsCompileOnly 'org.springframework.boot:spring-boot-devtools'
-    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-log4j2'                                         // Login
+    jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-log4j2'                                         // Logger
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'                                       // Database
     jcpAPIsImplementation 'mysql:mysql-connector-java'
     jcpAPIsImplementation 'org.springframework.boot:spring-boot-starter-security'                                       // SSL
@@ -118,22 +111,21 @@ dependencies {
     jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-resource-server'
     jcpAPIsImplementation 'org.springframework.security:spring-security-oauth2-client'
     jcpAPIsImplementation 'org.keycloak:keycloak-spring-boot-starter'
-    def excludeSwagger = {                                                                                              // Swagger support
-        exclude group: 'io.swagger', module: 'swagger-annotations'
-        exclude group: 'io.swagger', module: 'swagger-models'
-    }
-    jcpAPIsImplementation "io.springfox:springfox-swagger2:${project.ext.get("version.swaggerSpring")}", excludeSwagger
+    jcpAPIsImplementation "io.springfox:springfox-swagger2:${project.ext.get("version.swaggerSpring")}", excludeSwagger // Swagger support
     jcpAPIsImplementation "io.springfox:springfox-swagger-ui:${project.ext.get("version.swaggerSpring")}", excludeSwagger
     jcpAPIsImplementation "io.swagger:swagger-annotations:${project.ext.get("version.swagger")}"
     jcpAPIsImplementation "io.swagger:swagger-models:${project.ext.get("version.swagger")}"
     jcpAPIsImplementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${project.ext.get("version.jackson")}"
-    jcpAPIsImplementation "com.robypomper.josp:jospJSL:${project.ext.get("version.jospJSL")}"                               // Required by JOSP GWs > GWObject
+    jcpAPIsImplementation "com.robypomper.josp:jospJSL:${project.ext.get("version.jospJSL")}"                           // Required by JOSP GWs > GWObject
 
     // JCP FE
+    jcpFEImplementation "com.robypomper.josp:jcpAPIsPublic:${project.ext.get("version.jcpAPIsPublic")}"
+    jcpFECompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                                    // Lombok annotations
+    jcpFEAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
     jcpFEImplementation "com.robypomper.josp:jospJSL:${project.ext.get("version.jospJSL")}"
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpFECompileOnly 'org.springframework.boot:spring-boot-devtools'
-    jcpFEImplementation 'org.springframework.boot:spring-boot-starter-log4j2'                                           // Login
+    jcpFEImplementation 'org.springframework.boot:spring-boot-starter-log4j2'                                           // Logger
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-security'                                         // SSL support
 
 }
