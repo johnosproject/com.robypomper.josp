@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jcp.apis.examples;
 
-import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
+import com.robypomper.josp.paths.ExampleAPIs;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.springframework.security.access.prepost.PreAuthorize;

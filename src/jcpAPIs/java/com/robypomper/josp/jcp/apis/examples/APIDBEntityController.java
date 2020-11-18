@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jcp.apis.examples;
 
-import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
+import com.robypomper.josp.paths.ExampleAPIs;
 import com.robypomper.josp.jcp.db.UsernameDBService;
 import com.robypomper.josp.jcp.db.entities.UserName;
 import io.swagger.annotations.*;

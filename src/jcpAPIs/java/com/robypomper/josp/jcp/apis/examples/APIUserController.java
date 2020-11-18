@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jcp.apis.examples;
 
-import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
+import com.robypomper.josp.paths.ExampleAPIs;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.security.SecurityUser;
 import io.swagger.annotations.*;

@@ -19,8 +19,8 @@
 
 package com.robypomper.josp.jcp.apis.jcp;
 
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
-import com.robypomper.josp.jcp.apis.paths.APIPermissions;
+import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.paths.APIPermissions;
 import com.robypomper.josp.jcp.db.PermissionsDBService;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
 import com.robypomper.josp.protocol.JOSPPerm;

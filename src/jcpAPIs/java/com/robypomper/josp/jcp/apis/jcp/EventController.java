@@ -20,9 +20,9 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.java.JavaString;
-import com.robypomper.josp.jcp.apis.paths.APIEvents;
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
-import com.robypomper.josp.jcp.apis.paths.APISrvs;
+import com.robypomper.josp.paths.APIEvents;
+import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.paths.APISrvs;
 import com.robypomper.josp.jcp.db.EventDBService;
 import com.robypomper.josp.jcp.db.entities.Event;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;

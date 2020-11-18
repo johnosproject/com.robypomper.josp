@@ -1,8 +1,8 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.josp.jcp.apis.params.admin.JCPCloudStatus;
-import com.robypomper.josp.jcp.apis.paths.APIMngr;
+import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.paths.APIMngr;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.UserDBService;

@@ -20,8 +20,8 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.params.srvs.SrvName;
-import com.robypomper.josp.jcp.apis.paths.APISrvs;
+import com.robypomper.josp.params.srvs.SrvName;
+import com.robypomper.josp.paths.APISrvs;
 import com.robypomper.josp.jcp.db.ServiceDBService;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;

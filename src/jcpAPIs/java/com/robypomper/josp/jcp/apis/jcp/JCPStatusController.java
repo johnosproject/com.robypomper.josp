@@ -20,8 +20,8 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.java.JavaVersionUtils;
-import com.robypomper.josp.jcp.apis.paths.APIJCPStatus;
-import com.robypomper.josp.jcp.info.JCPAPIsVersions;
+import com.robypomper.josp.paths.APIJCPStatus;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;

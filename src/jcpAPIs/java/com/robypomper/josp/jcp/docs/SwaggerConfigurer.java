@@ -20,9 +20,9 @@
 package com.robypomper.josp.jcp.docs;
 
 import com.google.common.collect.Lists;
-import com.robypomper.josp.jcp.apis.paths.*;
-import com.robypomper.josp.jcp.info.JCPAPIsVersions;
-import com.robypomper.josp.jcp.info.JCPContacts;
+import com.robypomper.josp.paths.*;
+import com.robypomper.josp.info.JCPAPIsVersions;
+import com.robypomper.josp.info.JCPContacts;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

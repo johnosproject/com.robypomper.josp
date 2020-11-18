@@ -20,8 +20,8 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.params.usrs.UsrName;
-import com.robypomper.josp.jcp.apis.paths.APIUsrs;
+import com.robypomper.josp.params.usrs.UsrName;
+import com.robypomper.josp.paths.APIUsrs;
 import com.robypomper.josp.jcp.db.UserDBService;
 import com.robypomper.josp.jcp.db.entities.User;
 import com.robypomper.josp.jcp.docs.SwaggerConfigurer;

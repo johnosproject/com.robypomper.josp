@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jcp.apis.examples;
 
-import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
+import com.robypomper.josp.paths.ExampleAPIs;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;

@@ -21,7 +21,7 @@ package com.robypomper.josp.jcp.external.resources.auth;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.paths.APIAuth;
+import com.robypomper.josp.paths.APIAuth;
 import com.robypomper.josp.jcp.db.entities.Service;
 import com.robypomper.josp.jcp.db.entities.ServiceDetails;
 import com.robypomper.josp.jcp.db.entities.User;

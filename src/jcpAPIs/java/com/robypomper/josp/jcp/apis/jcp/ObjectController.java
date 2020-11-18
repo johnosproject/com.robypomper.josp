@@ -20,8 +20,8 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.java.JavaRandomStrings;
-import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
+import com.robypomper.josp.params.objs.GenerateObjId;
+import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.jcp.db.ObjectDBService;
 import com.robypomper.josp.jcp.db.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.entities.Object;
