@@ -1,6 +1,6 @@
 package com.robypomper.cloud.apis;
 
-import com.robypomper.cloud.params.CloudStatus;
+import com.robypomper.josp.params.cloud.CloudStatus;
 
 import java.lang.management.ManagementFactory;
 import java.net.NetworkInterface;
