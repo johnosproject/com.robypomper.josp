@@ -53,6 +53,9 @@ import com.robypomper.build.java.JavaPublicationUtils
 
 sourceSets {
 
+    // JOSP APIs
+    jospAPIs {}
+
     // JOSP Commons
     jospCommons {}
 
@@ -62,7 +65,16 @@ configurations {}
 
 dependencies {
 
+    // JOSP APIs
+    jospAPIsCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                                 // Lombok annotations
+    jospAPIsAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
+    jospAPIsImplementation "com.fasterxml.jackson.core:jackson-databind:${project.ext.get("version.jackson")}"
+    jospAPIsImplementation "com.fasterxml.jackson.core:jackson-annotations:${project.ext.get("version.jackson")}"
+
     // JOSP Commons
+    if (!project.ext.get("deps.jospAPIsDisabled"))
+        jospCommonsImplementation "com.robypomper.josp:jospAPIs:${project.ext.get("version.jospAPIs")}"
+    jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
     jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
     jospCommonsImplementation "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
     jospCommonsImplementation "org.yaml:snakeyaml:${project.ext.get("version.snakeyaml")}"                              // YAML
@@ -80,6 +92,16 @@ dependencies {
 // -------------------
 
 // JOSP Commons
+String jospAPIsName = 'JOSP APIs Library'
+String jospAPIsArtifact = 'jospAPIs'
+String jospAPIsVersion = project.ext.get("version.jospAPIs_DEV")
+def jospAPIsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospAPIs,jospAPIsName,jospAPIsArtifact,jospAPIsVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setArtifactOpens()
+JavaPublicationUtils.generatePublication(project,jospAPIsPubDesc)
+
+// JOSP Commons
 String jospCommonsName = 'JOSP Commons Library'
 String jospCommonsArtifact = 'jospCommons'
 String jospCommonsVersion = project.ext.get("version.jospCommons_DEV")
@@ -93,6 +115,13 @@ JavaPublicationUtils.generatePublication(project,jospCommonsPubDesc)
 // -----------------
 // Publication tasks
 // -----------------
+
+// JOSP APIs
+task jospAPIs_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJospAPIsPublicationToMavenLocal
+}
 
 // JOSP Commons
 task jospCommons_PublishToLocal {

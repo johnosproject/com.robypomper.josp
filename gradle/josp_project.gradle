@@ -1,4 +1,8 @@
 
+// ---------------
+// Project configs
+// ---------------
+
 group = 'com.robypomper.josp'
 sourceCompatibility = '1.8'
 
@@ -6,4 +10,14 @@ ext {
     set('projectUrl', 'http://johnosproject.com')
     set('projectGit', 'bitbucket.org:johnosproject_shared/com.robypomper.josp.git')
     set('projectGitUrl', 'hhttps://bitbucket.org/johnosproject_shared/com.robypomper.josp')
+}
+
+
+// ----------------------------
+// Project dependencies configs
+// ----------------------------
+
+ext {
+    set('deps.jospAPIsDisabled', false)
+    set('deps.jospCommonsDisabled', false)
 }

@@ -33,7 +33,7 @@ def v210 = '2.1.0'      // Under development
 
 ext {
     // JOSP
-    //set('version.jospAPIs'          , v210)             // since v210
+    set('version.jospAPIs'          , v210)             // since v210
     set('version.jospAPIs_DEV'      , v210)
     set('version.jospCommons'       , v200)
     set('version.jospCommons_DEV'   , v210)
@@ -49,23 +49,23 @@ ext {
     set('version.jcpCommons_DEV'    , v210)
 
     // JCP DB
-    //set('version.jcpDBCommons'      , v210)             // since v210
+    set('version.jcpDBCommons'      , v210)             // since v210
     set('version.jcpDBCommons_DEV'  , v210)
-    //set('version.jcpDBAPIs'         , v210)             // since v210
+    set('version.jcpDBAPIs'         , v210)             // since v210
     set('version.jcpDBAPIs_DEV'     , v210)
-    //set('version.jcpDBFE'           , v210)             // since v210
+    set('version.jcpDBFE'           , v210)             // since v210
     set('version.jcpDBFE_DEV'       , v210)
 
     // JCP Services
     set('version.jcpAPIs'           , v200)
     set('version.jcpAPIs_DEV'       , v210)
-    //set('version.jcpGWs'            , v210)             // since v210
+    set('version.jcpGWs'            , v210)             // since v210
     set('version.jcpGW_DEV'         , v210)
-    //set('version.jslWebBridge'      , v210)             // since v210
+    set('version.jslWebBridge'      , v210)             // since v210
     set('version.jslWebBridge_DEV'  , v210)
-    set('version.jcpFE'            , v200)
-    set('version.jcpFE_DEV'        , v210)
-    //set('version.jcpAll'            , v210)             // since v210
+    set('version.jcpFE'             , v200)
+    set('version.jcpFE_DEV'         , v210)
+    set('version.jcpAll'            , v210)             // since v210
     set('version.jcpAll_DEV'        , v210)
 }
 //@formatter:on
