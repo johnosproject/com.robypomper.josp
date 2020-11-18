@@ -88,10 +88,16 @@ configurations {
     jcpAPIsCompileOnly.extendsFrom jcpAPIsPublicCompileOnly
     jcpAPIsAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
 
+    // JCP FE extendsFrom JCP APIs Public
+    jcpFEImplementation.extendsFrom jcpAPIsPublicImplementation
+    jcpFECompileOnly.extendsFrom jcpAPIsPublicCompileOnly
+    jcpFEAnnotationProcessor.extendsFrom jcpAPIsPublicAnnotationProcessor
+
 }
-//configurations {
-//    all*.exclude module : 'spring-boot-starter-logging'
-//}
+configurations {
+    jcpAPIsImplementation.exclude module : 'spring-boot-starter-logging'
+    jcpFEImplementation.exclude module : 'spring-boot-starter-logging'
+}
 
 dependencies {
 
@@ -127,7 +133,8 @@ dependencies {
     jcpFEImplementation "com.robypomper.josp:jospJSL:${project.ext.get("version.jospJSL")}"
     jcpFEImplementation 'org.springframework.boot:spring-boot-starter-web'
     jcpFECompileOnly 'org.springframework.boot:spring-boot-devtools'
-    jcpFEImplementation 'org.springframework.boot:spring-boot-starter-security'       // SSL support
+    jcpFEImplementation 'org.springframework.boot:spring-boot-starter-log4j2'                                           // Login
+    jcpFEImplementation 'org.springframework.boot:spring-boot-starter-security'                                         // SSL support
 
 }
 
@@ -154,7 +161,7 @@ task jcpAPI_Start {
 }
 task jcpAPI_Clean(type: Delete) {
     group 'JOSP cleaners'
-    delete "envs/runnables/jcp"
+    delete "envs/runnables/jcp-apis"
 
     //...delete and recreate jcp_api database in dbms
 }

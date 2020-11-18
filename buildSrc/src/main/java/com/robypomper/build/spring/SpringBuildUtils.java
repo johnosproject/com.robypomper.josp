@@ -53,7 +53,7 @@ public class SpringBuildUtils {
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File logConfigs) {
         SpringBuildUtils.configureBootJarTask(project, ss);
         BootRun br = SpringBuildUtils.configureBootRunTask(project, ss);
-        br.setJvmArgs(Collections.singletonList("-Dlogging.config=" + logConfigs.getAbsolutePath()));
+        br.setJvmArgs(Collections.singletonList("-Dlog4j.configurationFile=" + logConfigs.getAbsolutePath()));
     }
 
     static private BootJar configureBootJarTask(Project project, SourceSet ss) {
