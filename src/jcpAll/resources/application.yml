@@ -1,0 +1,27 @@
+spring.application.name: jcpAll
+server.port: 9000
+spring.profiles.active: auth, db-all, ssl
+
+# JCP Clients
+jcp.client.ssl: true
+jcp.client.id: jcp-all
+jcp.client.secret: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+jcp.client.callback: https://localhost:${server.port}/apis/user/1.0/login/code/
+jcp.urlAuth: localhost:8998
+jcp.urlAPIs: localhost:9000
+#jcp.urlGWs: localhost:9000         # registered via APIs
+jcp.urlJSLWebBridge: localhost:9000
+jcp.urlFE: localhost:9000
+
+# JCP GWs
+jcp.gws.enabled: true
+jcp.gws.s2o.url: localhost:9000
+jcp.gws.o2s.url: localhost:9000
+
+# JSL Configs
+jsl.version: 2.0.0
+jcp.url.apis: localhost:9000
+jcp.url.auth: localhost:8998
+jsl.srv.id: jcp-fe
+jsl.srv.name: JCP FrontEnd
+jsl.comm.local.discovery: DNSSD
