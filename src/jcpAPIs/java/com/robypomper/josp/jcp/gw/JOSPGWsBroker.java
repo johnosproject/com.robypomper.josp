@@ -20,13 +20,13 @@
 package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.Server;
-import com.robypomper.josp.jcp.db.EventDBService;
-import com.robypomper.josp.jcp.db.ObjectDBService;
-import com.robypomper.josp.jcp.db.PermissionsDBService;
-import com.robypomper.josp.jcp.db.StatusHistoryDBService;
-import com.robypomper.josp.jcp.db.entities.Object;
-import com.robypomper.josp.jcp.db.entities.Permission;
-import com.robypomper.josp.jcp.db.entities.ServiceStatus;
+import com.robypomper.josp.jcp.db.apis.EventDBService;
+import com.robypomper.josp.jcp.db.apis.ObjectDBService;
+import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
+import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
+import com.robypomper.josp.jcp.db.apis.entities.Object;
+import com.robypomper.josp.jcp.db.apis.entities.Permission;
+import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;

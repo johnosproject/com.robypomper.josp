@@ -21,9 +21,9 @@ package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
-import com.robypomper.josp.jcp.db.ServiceDBService;
-import com.robypomper.josp.jcp.db.entities.Service;
-import com.robypomper.josp.jcp.db.entities.ServiceStatus;
+import com.robypomper.josp.jcp.db.apis.ServiceDBService;
+import com.robypomper.josp.jcp.db.apis.entities.Service;
+import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
 import com.robypomper.josp.protocol.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

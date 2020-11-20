@@ -21,7 +21,10 @@ package com.robypomper.josp.jcp.gw;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.events.*;
-import com.robypomper.josp.jcp.db.ServiceDBService;
+import com.robypomper.josp.jcp.db.apis.EventDBService;
+import com.robypomper.josp.jcp.db.apis.ObjectDBService;
+import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
+import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,22 +37,29 @@ import java.util.Map;
 
 
 @Service
-public class JOSPGWsS2OService extends AbsJOSPGWsService {
+public class JOSPGWsO2SService extends AbsJOSPGWsService {
 
     // Class constants
 
-    private static final int PORT_MIN = 9201;
-    private static final int PORT_MAX = 9210;
+    private static final int PORT_MIN = 9101;
+    private static final int PORT_MAX = 9110;
 
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private static final Map<String, GWService> services = new HashMap<>();          // static because shared among all JOSPGWsS2O
+    private static final Map<String, GWObject> objects = new HashMap<>();          // static because shared among all JOSPGWsO2S
     @Autowired
-    private ServiceDBService serviceDBService;
+    private ObjectDBService objectDBService;
+    @Autowired
+    private PermissionsDBService permissionsDBService;
+    @Autowired
+    private EventDBService eventsDBService;
+    @Autowired
+    private StatusHistoryDBService statusesHistoryDBService;
     @Autowired
     private JOSPGWsBroker gwBroker;
+
 
     /**
      * Initialize JOSPGWsService with only one internal server.
@@ -57,53 +67,60 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
      * @param hostName
      */
     @Autowired
-    public JOSPGWsS2OService(@Value("${jospgw.s2o.url}") final String hostName) {
+    public JOSPGWsO2SService(@Value("${jospgw.o2s.url}") final String hostName) {
         super(hostName);
     }
 
-
-    // Clients connection
+    
+    // Object's clients connection
 
     /**
-     * Create {@link GWService} instance and send ObjectStructure of all
-     * available (and allowed) objects to connected service.
+     * Create {@link GWObject} instance and send ObjectStructure request to
+     * connected object.
      */
     private void onClientConnection(com.robypomper.communication.server.Server server, ClientInfo client) {
         // Check if objects already know
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected object '%s' already know", client.getClientId()));
-        GWService gwSrv = services.get(client.getClientId());
-        if (gwSrv != null) {
-            // multiple connection at same time
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected object '%s' already connected", client.getClientId()));
+        GWObject gwObj = objects.get(client.getClientId());
+        if (gwObj != null) {
             client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Service '%s' already connected to JOSP GW, disconnecting", client.getClientId()));
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Object '%s' already connected to JOSP GW, disconnecting", client.getClientId()));
             return;
         }
 
-        try {
-            gwSrv = new GWService(server, client, serviceDBService, gwBroker);
-        } catch (GWService.ServiceNotRegistered serviceNotRegistered) {
-            client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Service '%s' not registered to JOSP GW, disconnecting", client.getClientId()));
-            return;
-        }
-        services.put(client.getClientId(), gwSrv);
+        gwObj = new GWObject(server, client, objectDBService, permissionsDBService, eventsDBService, statusesHistoryDBService, gwBroker);
+        objects.put(client.getClientId(), gwObj);
     }
 
     private void onClientDisconnection(ClientInfo client) {
         try {
-            GWService disconnectedService = services.remove(client.getClientId());
-            disconnectedService.setOffline();
-            gwBroker.deregisterService(disconnectedService);
-
+            GWObject disconnectedObject = objects.remove(client.getClientId());
+            disconnectedObject.setOffline();
+            gwBroker.deregisterObject(disconnectedObject);
         } catch (NullPointerException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because service '%s' not known", client.getClientId()));
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because object '%s' not known", client.getClientId()));
         }
     }
 
+
+    // Object's data received
+
     private boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Data '%s...' received from '%s' service", readData.substring(0, readData.indexOf("\n")), client.getClientId()));
-        GWService srv = services.get(client.getClientId());
-        return srv.processFromServiceMsg(readData);
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Data '%s...' received from '%s' object", readData.substring(0, readData.indexOf("\n")), client.getClientId()));
+        GWObject obj = objects.get(client.getClientId());
+        int count = 0;
+        while (obj == null && count < 5) {
+            count++;
+            try {
+                Thread.sleep(100);
+
+            } catch (InterruptedException e) {
+                return false;
+            }
+            obj = objects.get(client.getClientId());
+        }
+
+        return obj != null && obj.processFromObjectMsg(readData);
     }
 
 
@@ -124,6 +141,9 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
     int getMaxPort() {
         return PORT_MAX;
     }
+
+
+    // AbsJOSPGWsService implementations
 
     /**
      * {@inheritDoc}
@@ -148,21 +168,21 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
             /**
              * {@inheritDoc}
              * <p>
-             * Link to the {@link JOSPGWsS2OService#onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} method.
+             * Link to the {@link JOSPGWsO2SService#onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} method.
              */
             @Override
             public void onClientConnection(ClientInfo client) {
-                JOSPGWsS2OService.this.onClientConnection(getServer(), client);
+                JOSPGWsO2SService.this.onClientConnection(getServer(), client);
             }
 
             /**
              * {@inheritDoc}
              * <p>
-             * Link to the {@link JOSPGWsS2OService#onClientDisconnection(ClientInfo)} method.
+             * Link to the {@link JOSPGWsO2SService#onClientDisconnection(ClientInfo)} method.
              */
             @Override
             public void onClientDisconnection(ClientInfo client) {
-                JOSPGWsS2OService.this.onClientDisconnection(client);
+                JOSPGWsO2SService.this.onClientDisconnection(client);
             }
 
         };
@@ -181,11 +201,11 @@ public class JOSPGWsS2OService extends AbsJOSPGWsService {
             /**
              * {@inheritDoc}
              * <p>
-             * Link to the {@link JOSPGWsS2OService#onDataReceived(ClientInfo, String)} method.
+             * Link to the {@link JOSPGWsO2SService#onDataReceived(ClientInfo, String)} method.
              */
             @Override
             public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
-                return JOSPGWsS2OService.this.onDataReceived(client, readData);
+                return JOSPGWsO2SService.this.onDataReceived(client, readData);
             }
 
         };
