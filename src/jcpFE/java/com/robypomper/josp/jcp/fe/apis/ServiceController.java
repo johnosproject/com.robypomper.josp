@@ -2,8 +2,8 @@ package com.robypomper.josp.jcp.fe.apis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.apis.params.JOSPSrvHtml;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEService;
+import com.robypomper.josp.jcp.params.fe.JOSPSrvHtml;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEService;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.JSL;
 import org.springframework.beans.factory.annotation.Autowired;

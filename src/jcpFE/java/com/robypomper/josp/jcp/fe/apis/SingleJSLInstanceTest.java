@@ -1,11 +1,11 @@
 package com.robypomper.josp.jcp.fe.apis;
 
-import com.robypomper.josp.jcp.fe.apis.params.JOSPObjHtml;
-import com.robypomper.josp.jcp.fe.apis.params.JOSPSrvHtml;
-import com.robypomper.josp.jcp.fe.apis.params.JOSPUserHtml;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEObjs;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEService;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEUser;
+import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
+import com.robypomper.josp.jcp.params.fe.JOSPSrvHtml;
+import com.robypomper.josp.jcp.params.fe.JOSPUserHtml;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEService;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEUser;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.protocol.JOSPProtocol_Service;
 import org.springframework.beans.factory.annotation.Autowired;

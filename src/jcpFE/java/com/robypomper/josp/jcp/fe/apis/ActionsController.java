@@ -2,8 +2,8 @@ package com.robypomper.josp.jcp.fe.apis;
 
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEAction;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEStructure;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEAction;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
