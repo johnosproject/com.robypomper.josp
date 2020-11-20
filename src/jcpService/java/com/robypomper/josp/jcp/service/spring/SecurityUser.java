@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.security;
+package com.robypomper.josp.jcp.service.spring;
 
 import com.robypomper.josp.protocol.JOSPPerm;
 import org.keycloak.KeycloakPrincipal;

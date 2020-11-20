@@ -1,5 +1,6 @@
-package com.robypomper.josp.jcp.fe.security;
+package com.robypomper.josp.jcp.service.spring;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@Profile("auth-none")
 public class HttpSessionCollector implements HttpSessionListener {
 
     private static final Map<String, HttpSession> sessions = new HashMap<>();

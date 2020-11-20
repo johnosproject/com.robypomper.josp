@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.docs;
+package com.robypomper.josp.jcp.service.docs;
 
 import com.google.common.collect.Lists;
 import com.robypomper.josp.paths.*;

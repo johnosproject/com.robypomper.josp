@@ -17,9 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.fe.security;
+package com.robypomper.josp.jcp.service.spring;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,7 +32,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
         prePostEnabled = true,
         securedEnabled = true,
         jsr250Enabled = true)
-public class SpringConfigurer extends WebSecurityConfigurerAdapter {
+@Profile("auth-none")
+public class SpringConfigurerNoAuth extends WebSecurityConfigurerAdapter {
+
 
     @Value("${security.require-ssl:false}")
     private String sshEnabled;
@@ -42,6 +45,8 @@ public class SpringConfigurer extends WebSecurityConfigurerAdapter {
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .maximumSessions(2);
+
+        http.httpBasic().disable();
 
         if (Boolean.parseBoolean(sshEnabled))
             http
