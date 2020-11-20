@@ -1,7 +1,6 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
-import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.paths.APIMngr;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
@@ -17,7 +16,7 @@ import javax.annotation.security.RolesAllowed;
 
 @RestController
 @Api(tags = {APIMngr.SubGroupObjs.NAME})
-public class MngmObjsController extends CloudStatusControllerBase {
+public class MngmObjsController {
 
     @Autowired
     private ObjectDBService objDB;
@@ -37,20 +36,20 @@ public class MngmObjsController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP APIs's Objects info and stats", response = JCPCloudStatus.JCPObjects.class),
+            @ApiResponse(code = 200, message = "JCP APIs's Objects info and stats", response = JCPAPIsStatus.Objects.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPCloudStatus.JCPObjects> getJCPAPIsReq() {
-        JCPCloudStatus.JCPObjects jcpStatus = new JCPCloudStatus.JCPObjects();
+    public ResponseEntity<JCPAPIsStatus.Objects> getJCPAPIsReq() {
+        JCPAPIsStatus.Objects jcpStatus = new JCPAPIsStatus.Objects();
 
-        jcpStatus.objectsCount = objDB.count();
-        jcpStatus.objectsOnlineCount = objDB.countOnline();
-        jcpStatus.objectsOfflineCount = objDB.countOffline();
-        jcpStatus.objectsActiveCount = objDB.countActive();
-        jcpStatus.objectsInactiveCount = objDB.countInactive();
-        jcpStatus.objectsOwnersCount = objDB.countOwners();
+        jcpStatus.count = objDB.count();
+        jcpStatus.onlineCount = objDB.countOnline();
+        jcpStatus.offlineCount = objDB.countOffline();
+        jcpStatus.activeCount = objDB.countActive();
+        jcpStatus.inactiveCount = objDB.countInactive();
+        jcpStatus.ownersCount = objDB.countOwners();
 
         return ResponseEntity.ok(jcpStatus);
     }

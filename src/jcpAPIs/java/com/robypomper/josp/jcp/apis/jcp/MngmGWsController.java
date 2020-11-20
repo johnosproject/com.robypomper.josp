@@ -1,13 +1,13 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
-import com.robypomper.cloud.apis.CloudStatusControllerBase;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
-import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.paths.APIMngr;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
 import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
+import com.robypomper.josp.types.josp.gw.GWType;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @Api(tags = {APIMngr.SubGroupGWs.NAME})
-public class MngmGWsController extends CloudStatusControllerBase {
+public class MngmGWsController {
 
     // Internal vars
 
@@ -44,18 +44,18 @@ public class MngmGWsController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JOSP GW's info and stats", response = JCPCloudStatus.JCPGWs.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "JOSP GW's info and stats", response = JCPAPIsStatus.GWs.class, responseContainer = "List"),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<List<JCPCloudStatus.JCPGWs>> getJCPAPIs_GWReq() {
-        List<JCPCloudStatus.JCPGWs> gws = new ArrayList<>();
+    public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIs_GWReq() {
+        List<JCPAPIsStatus.GWs> gws = new ArrayList<>();
 
         for (Server s : gwO2SService.getJOSPServers().values()) {
-            JCPCloudStatus.JCPGWs gw = new JCPCloudStatus.JCPGWs();
+            JCPAPIsStatus.GWs gw = new JCPAPIsStatus.GWs();
             gw.id = s.getServerId();
-            gw.type = JCPCloudStatus.JCPGWs.Type.O2S;
+            gw.type = GWType.Obj2Srv;
             gw.isRunning = s.isRunning();
             gw.address = s.getAddress().getHostAddress();
             gw.hostName = s.getAddress().getHostName();
@@ -64,15 +64,15 @@ public class MngmGWsController extends CloudStatusControllerBase {
             gw.clientsCount = s.getClients().size();
             gw.clientsList = new ArrayList<>();
             for (ClientInfo c : s.getClients())
-                gw.clientsList.add(new JCPCloudStatus.JCPGWs.Client(c.getClientId(), c.isConnected()));
+                gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getClientId(), c.isConnected()));
 
             gws.add(gw);
         }
 
         for (Server s : gwS2OService.getJOSPServers().values()) {
-            JCPCloudStatus.JCPGWs gw = new JCPCloudStatus.JCPGWs();
+            JCPAPIsStatus.GWs gw = new JCPAPIsStatus.GWs();
             gw.id = s.getServerId();
-            gw.type = JCPCloudStatus.JCPGWs.Type.S2O;
+            gw.type = GWType.Srv2Obj;
             gw.isRunning = s.isRunning();
             gw.address = s.getAddress().getHostAddress();
             gw.hostName = s.getAddress().getHostName();
@@ -81,7 +81,7 @@ public class MngmGWsController extends CloudStatusControllerBase {
             gw.clientsCount = s.getClients().size();
             gw.clientsList = new ArrayList<>();
             for (ClientInfo c : s.getClients())
-                gw.clientsList.add(new JCPCloudStatus.JCPGWs.Client(c.getClientId(), c.isConnected()));
+                gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getClientId(), c.isConnected()));
 
             gws.add(gw);
         }

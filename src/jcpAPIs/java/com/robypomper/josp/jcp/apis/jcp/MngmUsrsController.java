@@ -1,7 +1,6 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
-import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.paths.APIMngr;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
@@ -17,7 +16,7 @@ import javax.annotation.security.RolesAllowed;
 
 @RestController
 @Api(tags = {APIMngr.SubGroupUsrs.NAME})
-public class MngmUsrsController extends CloudStatusControllerBase {
+public class MngmUsrsController {
 
     @Autowired
     private ObjectDBService objDB;
@@ -37,15 +36,15 @@ public class MngmUsrsController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP APIs's Users info and stats", response = JCPCloudStatus.JCPUsers.class),
+            @ApiResponse(code = 200, message = "JCP APIs's Users info and stats", response = JCPAPIsStatus.Users.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPCloudStatus.JCPUsers> getJCPAPIsReq() {
-        JCPCloudStatus.JCPUsers jcpStatus = new JCPCloudStatus.JCPUsers();
+    public ResponseEntity<JCPAPIsStatus.Users> getJCPAPIsReq() {
+        JCPAPIsStatus.Users jcpStatus = new JCPAPIsStatus.Users();
 
-        jcpStatus.usersCount = usrDB.count();
+        jcpStatus.count = usrDB.count();
 
         return ResponseEntity.ok(jcpStatus);
     }

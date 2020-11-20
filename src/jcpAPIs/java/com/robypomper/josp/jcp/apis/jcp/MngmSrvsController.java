@@ -1,7 +1,6 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
-import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.paths.APIMngr;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
@@ -17,7 +16,7 @@ import javax.annotation.security.RolesAllowed;
 
 @RestController
 @Api(tags = {APIMngr.SubGroupSrvs.NAME})
-public class MngmSrvsController extends CloudStatusControllerBase {
+public class MngmSrvsController {
 
     @Autowired
     private ObjectDBService objDB;
@@ -37,20 +36,20 @@ public class MngmSrvsController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP APIs's Services info and stats", response = JCPCloudStatus.JCPServices.class),
+            @ApiResponse(code = 200, message = "JCP APIs's Services info and stats", response = JCPAPIsStatus.Services.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPCloudStatus.JCPServices> getJCPAPIsReq() {
-        JCPCloudStatus.JCPServices jcpStatus = new JCPCloudStatus.JCPServices();
+    public ResponseEntity<JCPAPIsStatus.Services> getJCPAPIsReq() {
+        JCPAPIsStatus.Services jcpStatus = new JCPAPIsStatus.Services();
 
-        jcpStatus.servicesCount = srvDB.count();
-        jcpStatus.servicesOnlineCount = srvDB.countOnline();
-        jcpStatus.servicesOfflineCount = srvDB.countOffline();
-        jcpStatus.servicesInstancesCount = srvDB.countInstances();
-        jcpStatus.servicesInstancesOnlineCount = srvDB.countInstancesOnline();
-        jcpStatus.servicesInstancesOfflineCount = srvDB.countInstancesOffline();
+        jcpStatus.count = srvDB.count();
+        jcpStatus.onlineCount = srvDB.countOnline();
+        jcpStatus.offlineCount = srvDB.countOffline();
+        jcpStatus.instancesCount = srvDB.countInstances();
+        jcpStatus.instancesOnlineCount = srvDB.countInstancesOnline();
+        jcpStatus.instancesOfflineCount = srvDB.countInstancesOffline();
 
         return ResponseEntity.ok(jcpStatus);
     }
