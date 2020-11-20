@@ -1,10 +1,9 @@
-package com.robypomper.josp.jcp.apis.jcp;
+package com.robypomper.josp.jcp.service.controllers.jcp;
 
-import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.josp.params.cloud.CloudStatus;
-import com.robypomper.josp.params.admin.JCPCloudStatus;
-import com.robypomper.josp.paths.APICloudStatus;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import com.robypomper.josp.params.jcp.JCPStatus;
+import com.robypomper.josp.paths.APIJCP;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,18 +12,38 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpSession;
+import java.lang.management.ManagementFactory;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @RestController
-@Api(tags = {APICloudStatus.SubGroupStatus.NAME})
-public class CloudStatusController extends CloudStatusControllerBase {
+@Api(tags = {APIJCP.SubGroupStatus.NAME})
+public class APIJCPController {
 
     // Internal vars
 
     @Autowired
     private HttpSession httpSession;
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_PROCESS)
+
+    // Controller's Methods
+
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS)
+    @ApiOperation(value = "Return ONLINE if the service is up")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JCP Service's local date", response = Date.class),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+    })
+    public ResponseEntity<Date> getStateReq() {
+        return ResponseEntity.ok(JOSPProtocol.getNowDate());
+    }
+
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_PROCESS)
     @ApiOperation(value = "Return process info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -35,16 +54,16 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's process info and stats", response = CloudStatus.Process.class),
+            @ApiResponse(code = 200, message = "JCP Service's process info and stats", response = JCPStatus.Process.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<CloudStatus.Process> getProcessReq() {
-        return ResponseEntity.ok(getProcess());
+    public ResponseEntity<JCPStatus.Process> getProcessReq() {
+        return ResponseEntity.ok(new JCPStatus.Process());
     }
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_JAVA)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_JAVA)
     @ApiOperation(value = "Return java vm + process info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -55,16 +74,16 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's java vm and process info and stats", response = CloudStatus.Java.class),
+            @ApiResponse(code = 200, message = "JCP Service's java vm and process info and stats", response = JCPStatus.Java.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<CloudStatus.Java> getJavaReq() {
-        return ResponseEntity.ok(getJava());
+    public ResponseEntity<JCPStatus.Java> getJavaReq() {
+        return ResponseEntity.ok(new JCPStatus.Java());
     }
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_JAVA_THREADS)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_JAVA_THREADS)
     @ApiOperation(value = "Return java threads info",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -75,16 +94,21 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's java threads info and stats", response = CloudStatus.JavaThread.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "JCP Service's java threads info and stats", response = JCPStatus.JavaThread.class, responseContainer = "List"),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<List<CloudStatus.JavaThread>> getJavaThreadReq() {
-        return ResponseEntity.ok(getJavaThreads());
+    public ResponseEntity<List<JCPStatus.JavaThread>> getJavaThreadReq() {
+        List<JCPStatus.JavaThread> threads = new ArrayList<>();
+        for (long thId : ManagementFactory.getThreadMXBean().getAllThreadIds())
+            threads.add(new JCPStatus.JavaThread(thId));
+        ;
+
+        return ResponseEntity.ok(threads);
     }
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_OS)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_OS)
     @ApiOperation(value = "Return operating system info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -95,16 +119,16 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's operating system info and stats", response = CloudStatus.Os.class),
+            @ApiResponse(code = 200, message = "JCP Service's operating system info and stats", response = JCPStatus.Os.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<CloudStatus.Os> getOsReq() {
-        return ResponseEntity.ok(getOs());
+    public ResponseEntity<JCPStatus.Os> getOsReq() {
+        return ResponseEntity.ok(new JCPStatus.Os());
     }
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_CPU)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_CPU)
     @ApiOperation(value = "Return CPU info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -115,16 +139,16 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's CPU info and stats", response = CloudStatus.CPU.class),
+            @ApiResponse(code = 200, message = "JCP Service's CPU info and stats", response = JCPStatus.CPU.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<CloudStatus.CPU> getCPUReq() {
-        return ResponseEntity.ok(getCPU());
+    public ResponseEntity<JCPStatus.CPU> getCPUReq() {
+        return ResponseEntity.ok(new JCPStatus.CPU());
     }
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_MEMORY)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_MEMORY)
     @ApiOperation(value = "Return memory info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -135,16 +159,16 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's memory info and stats", response = CloudStatus.Memory.class),
+            @ApiResponse(code = 200, message = "JCP Service's memory info and stats", response = JCPStatus.Memory.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<CloudStatus.Memory> getMemoryReq() {
-        return ResponseEntity.ok(getMemory());
+    public ResponseEntity<JCPStatus.Memory> getMemoryReq() {
+        return ResponseEntity.ok(new JCPStatus.Memory());
     }
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_DISKS)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_DISKS)
     @ApiOperation(value = "Return disks info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -155,16 +179,16 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's disks info and stats", response = CloudStatus.Disks.class),
+            @ApiResponse(code = 200, message = "JCP Service's disks info and stats", response = JCPStatus.Disks.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<CloudStatus.Disks> getDisksReq() {
-        return ResponseEntity.ok(getDisks());
+    public ResponseEntity<JCPStatus.Disks> getDisksReq() {
+        return ResponseEntity.ok(new JCPStatus.Disks());
     }
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_NETWORK)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_NETWORK)
     @ApiOperation(value = "Return networks's info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -175,17 +199,16 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's network info and stats", response = CloudStatus.Network.class),
+            @ApiResponse(code = 200, message = "JCP Service's network info and stats", response = JCPStatus.Network.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<CloudStatus.Network> getNetworkReq() {
-        return ResponseEntity.ok(getNetwork());
+    public ResponseEntity<JCPStatus.Network> getNetworkReq() {
+        return ResponseEntity.ok(new JCPStatus.Network());
     }
 
-
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_NETWORK_INTFS)
+    @GetMapping(path = APIJCP.FULL_PATH_STATUS_NETWORK_INTFS)
     @ApiOperation(value = "Return network's interfaces info and stats",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -196,37 +219,31 @@ public class CloudStatusController extends CloudStatusControllerBase {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP API's network's interfaces info and stats", response = CloudStatus.Network.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "JCP Service's network's interfaces info and stats", response = JCPStatus.Network.class, responseContainer = "List"),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<List<CloudStatus.NetworkIntf>> getNetworkIntfsReq() {
-        return ResponseEntity.ok(getNetworkIntfs());
-    }
+    public ResponseEntity<List<JCPStatus.NetworkIntf>> getNetworkIntfsReq() {
+        List<JCPStatus.NetworkIntf> listInterfaces = new ArrayList<>();
+        List<NetworkInterface> itfs;
+        try {
+            itfs = Collections.list(NetworkInterface.getNetworkInterfaces());
 
-    @GetMapping(path = APICloudStatus.FULL_PATH_STATE_JCPAPIS)
-    @ApiOperation(value = "Return JCP APIs info and stats",
-            authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
-                    scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
-                    )
-            )
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP APIs's info and stats", response = JCPCloudStatus.JCPAPI.class),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
-    })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPCloudStatus.JCPAPI> getJCPAPIsReq() {
-        JCPCloudStatus.JCPAPI jcpStatus = new JCPCloudStatus.JCPAPI();
+        } catch (SocketException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        try {
+            for (NetworkInterface itf : itfs)
+                listInterfaces.add(new JCPStatus.NetworkIntf(itf));
 
-        // ...
+        } catch (SocketException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
 
-        return ResponseEntity.ok(jcpStatus);
+        return ResponseEntity.ok(listInterfaces);
     }
 
 }

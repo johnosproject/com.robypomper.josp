@@ -110,8 +110,8 @@ public class SwaggerConfigurer {
     @Bean
     public Docket cloudStatusApis() {
         APISubGroup[] sg = new APISubGroup[1];
-        sg[0] = new APISubGroup(APICloudStatus.SubGroupStatus.NAME, APICloudStatus.SubGroupStatus.DESCR);
-        return createAPIsGroup(new APIGroup(APICloudStatus.API_NAME, APICloudStatus.API_VER, sg));
+        sg[0] = new APISubGroup(APIJCP.SubGroupStatus.NAME, APIJCP.SubGroupStatus.DESCR);
+        return createAPIsGroup(new APIGroup(APIJCP.API_NAME, APIJCP.API_VER, sg));
     }
 
     @Bean
