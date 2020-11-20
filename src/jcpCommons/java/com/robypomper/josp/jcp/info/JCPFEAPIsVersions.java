@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.info;
+package com.robypomper.josp.jcp.info;
 
 
 /**

@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis.params;
+package com.robypomper.josp.jcp.params.fe;
 
 import com.robypomper.josp.params.cloud.CloudStatus;
 import com.robypomper.josp.jsl.JSL;

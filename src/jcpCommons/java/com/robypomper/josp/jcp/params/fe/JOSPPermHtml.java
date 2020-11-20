@@ -1,7 +1,7 @@
-package com.robypomper.josp.jcp.fe.apis.params;
+package com.robypomper.josp.jcp.params.fe;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEPermissions;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEPermissions;
 import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.Date;

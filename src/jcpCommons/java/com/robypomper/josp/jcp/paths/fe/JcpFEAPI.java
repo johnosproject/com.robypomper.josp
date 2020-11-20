@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis.paths;
+package com.robypomper.josp.jcp.paths.fe;
 
 
 /**

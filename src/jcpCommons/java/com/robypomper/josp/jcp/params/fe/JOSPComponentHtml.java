@@ -1,6 +1,6 @@
-package com.robypomper.josp.jcp.fe.apis.params;
+package com.robypomper.josp.jcp.params.fe;
 
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEStructure;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 

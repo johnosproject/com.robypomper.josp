@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.jcpclient;
+package com.robypomper.josp.jcp.clients;
 
 import com.robypomper.josp.core.jcpclient.DefaultJCPClient2;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
 
 /**
- * Cloud default implementation of {@link JCPClient2} interface.
+ * Cloud JCP APIs implementation of {@link JCPClient2} interface.
  * <p>
  * This class initialize a JCPClient that can be used by JCP instance to access
  * to him self. As Spring component it can be declared in any other component
@@ -45,10 +45,10 @@ import org.springframework.stereotype.Component;
  *         <b>jcp.client.secret</b>: client's secret.
  *     </li>
  *     <li>
- *         <b>jcp.urlAPIs</b>: apis server url.
+ *         <b>jcp.url.apis</b>: jcp apis server url.
  *     </li>
  *     <li>
- *         <b>jcp.urlAuth</b>: auth server url.
+ *         <b>jcp.url.auth</b>: auth server url.
  *     </li>
  * </ul>
  * <p>
@@ -61,6 +61,7 @@ public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
+    public static final String JCP_NAME = "JCP APIs";
 
 
     // Constructor
@@ -93,7 +94,7 @@ public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient
             connect();
 
         } catch (ConnectionException | AuthenticationException e) {
-            log.warn(String.format("Error on self connecting because %s", e.getMessage()), e);
+            log.warn(String.format("Error on %s connecting because %s", JCP_NAME, e.getMessage()), e);
 
         } catch (JCPNotReachableException ignore) {
             startConnectionTimer();
@@ -105,17 +106,17 @@ public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient
 
     @Override
     public void onConnected(JCPClient2 jcpClient) {
-        log.info("Self JCP APIs connected");
+        log.info(String.format("%s connected", JCP_NAME));
     }
 
     @Override
     public void onDisconnected(JCPClient2 jcpClient) {
-        log.info("Self JCP APIs disconnected");
+        log.info(String.format("%s disconnected", JCP_NAME));
     }
 
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-        log.warn(String.format("Error on self connecting because %s", t.getMessage()), t);
+        log.warn(String.format("Error on %S connection because %s", JCP_NAME, t.getMessage()), t);
     }
 
 }

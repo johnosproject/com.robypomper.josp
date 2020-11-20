@@ -1,10 +1,10 @@
-package com.robypomper.josp.jcp.fe.apis.params;
+package com.robypomper.josp.jcp.params.fe;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEObjs;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEPermissions;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEStructure;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEPermissions;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
+//import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
 @JsonAutoDetect
@@ -39,7 +39,7 @@ public class JOSPObjHtml {
         this.pathPermsAdd = APIJCPFEPermissions.FULL_PATH_ADD.replace("{obj_id}", id);
         this.pathSetOwner = APIJCPFEObjs.FULL_PATH_OWNER.replace("{obj_id}", id);
         this.pathSetName = APIJCPFEObjs.FULL_PATH_NAME.replace("{obj_id}", id);
-        this.permission = JSLSpringService.getObjPerm(obj).toString();
+        this.permission = "N/A"; //JSLSpringService.getObjPerm(obj).toString();
     }
 
 }

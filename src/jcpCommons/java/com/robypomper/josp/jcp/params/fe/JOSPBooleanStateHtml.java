@@ -1,6 +1,6 @@
-package com.robypomper.josp.jcp.fe.apis.params;
+package com.robypomper.josp.jcp.params.fe;
 
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEState;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 
 public class JOSPBooleanStateHtml extends JOSPComponentHtml {

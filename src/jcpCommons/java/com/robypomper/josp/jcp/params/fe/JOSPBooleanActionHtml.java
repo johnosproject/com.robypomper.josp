@@ -1,6 +1,6 @@
-package com.robypomper.josp.jcp.fe.apis.params;
+package com.robypomper.josp.jcp.params.fe;
 
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEAction;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 
 public class JOSPBooleanActionHtml extends JOSPBooleanStateHtml {

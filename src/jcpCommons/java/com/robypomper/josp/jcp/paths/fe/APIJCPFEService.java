@@ -1,6 +1,6 @@
-package com.robypomper.josp.jcp.fe.apis.paths;
+package com.robypomper.josp.jcp.paths.fe;
 
-import com.robypomper.josp.jcp.fe.info.JCPFEAPIsVersions;
+import com.robypomper.josp.jcp.info.JCPFEAPIsVersions;
 
 public class APIJCPFEService {
 //@formatter:off
