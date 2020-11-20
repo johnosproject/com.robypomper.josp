@@ -1,12 +1,20 @@
-spring.application.name: jcpFrontEnd
-server.port: 9002
-spring.profiles.active: db, ssl
+spring.application.name: jcpFE
+server.port: 9004
+spring.profiles.active: auth-none, db-fe, ssl
 
-jsl.version: 2.0.0
+# JCP Clients
 jcp.client.ssl: true
 jcp.client.id: jcp-fe
 jcp.client.secret: f379a100-46bb-4fc8-a660-947a98a3afab
 jcp.client.callback: https://localhost:${server.port}/apis/user/1.0/login/code/
+jcp.urlAuth: localhost:8998
+jcp.urlAPIs: localhost:9001
+#jcp.urlGWs: localhost:9001         # registered via APIs
+jcp.urlJSLWebBridge: localhost:9003
+jcp.urlFE: localhost:9004
+
+# Temporary
+jsl.version: 2.0.0
 jcp.url.apis: localhost:9001
 jcp.url.auth: localhost:8998
 jsl.srv.id: jcp-fe
