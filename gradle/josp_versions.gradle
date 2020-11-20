@@ -49,20 +49,22 @@ ext {
     set('version.jcpCommons_DEV'    , v210)
 
     // JCP DB
-    set('version.jcpDBCommons'      , v210)             // since v210
-    set('version.jcpDBCommons_DEV'  , v210)
+    set('version.jcpDB'             , v210)             // since v210
+    set('version.jcpDB_DEV'         , v210)
     set('version.jcpDBAPIs'         , v210)             // since v210
     set('version.jcpDBAPIs_DEV'     , v210)
     set('version.jcpDBFE'           , v210)             // since v210
     set('version.jcpDBFE_DEV'       , v210)
 
     // JCP Services
+    set('version.jcpService'        , v200)
+    set('version.jcpService_DEV'    , v210)
     set('version.jcpAPIs'           , v200)
     set('version.jcpAPIs_DEV'       , v210)
     set('version.jcpGWs'            , v210)             // since v210
-    set('version.jcpGW_DEV'         , v210)
-    set('version.jslWebBridge'      , v210)             // since v210
-    set('version.jslWebBridge_DEV'  , v210)
+    set('version.jcpGWs_DEV'        , v210)
+    set('version.jcpJSLWebBridge'      , v210)             // since v210
+    set('version.jcpJSLWebBridge_DEV'  , v210)
     set('version.jcpFE'             , v200)
     set('version.jcpFE_DEV'         , v210)
     set('version.jcpAll'            , v210)             // since v210
@@ -78,6 +80,7 @@ ext {
 //@formatter:off
 ext {
     set('version.SpringCloud'       , 'Hoxton.SR3')
+    set('version.tomcat'            , '9.0.30')
     set('version.Keycloak'          , '11.0.2')
     set('version.apache.log4j'      , '2.13.1')
     set('version.snakeyaml'         , '1.25')

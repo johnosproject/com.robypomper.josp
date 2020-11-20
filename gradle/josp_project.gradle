@@ -20,4 +20,20 @@ ext {
 ext {
     set('deps.jospAPIsDisabled', false)
     set('deps.jospCommonsDisabled', false)
+
+    set('deps.jospJODDisabled', false)
+    set('deps.jospJSLDisabled', false)
+
+    set('deps.jcpCommonsDisabled', false)
+    set('deps.jcpDBDisabled', false)
+    set('deps.jcpDBAPIsDisabled', false)
+    set('deps.jcpDBFEDisabled', false)
+
+    set('deps.jcpServiceDisabled', false)
+    set('deps.jcpAPIsDisabled', false)
+    set('deps.jcpGWsDisabled', false)
+    set('deps.jcpJSLWebBridgeDisabled', false)
+    set('deps.jcpFEDisabled', false)
+
+    set('deps.jcpAllDisabled', false)
 }

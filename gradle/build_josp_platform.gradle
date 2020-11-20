@@ -22,53 +22,122 @@ import com.robypomper.build.gradle.GradleAsyncTasksUtils.StartAsync
 import com.robypomper.build.gradle.GradleAsyncTasksUtils.StopAsync
 
 
-// --------------------
-// JCP APIs Async tasks
-// --------------------
+// -----------
+// Async tasks
+// -----------
 
-task jcpAPI_StartAsync(type: StartAsync) {
+// JCP APIs
+String jcpAPIs = "jcpAPIs"
+task jcpAPIs_StartAsync(type: StartAsync) {
     group 'JOSP runners jcp (soft)'
 
-    command = "./gradlew jcpAPI_Start"// --debug"
-    //workingDir = project.file(workingDirBase + 'jcpAPI_StartAsync')
+    command = "./gradlew jcpAPIs_Start"// --debug"
+    //workingDir = project.file(workingDirBase + 'jcpAPIs_StartAsync')
     ready = 'Self connected'
     //suppressConsoleOutputs = true
     addLogFileStartTime = true
-    logFile = file('envs/runnables/jcp/' + 'jcpAPI_StartAsync/' + 'jcp.log')
-    pidFile = file('envs/runnables/jcp/' + 'jcpAPI_StartAsync/' + 'jcp.pid')
+    logFile = file('envs/runnables/jcp/' + 'jcpAPIs_StartAsync/' + 'jcp.log')
+    pidFile = file('envs/runnables/jcp/' + 'jcpAPIs_StartAsync/' + 'jcp.pid')
     throwOnError = false
 }
-jcpAPI_StartAsync.dependsOn printGradleVersions
-task jcpAPI_StopAsync(type: StopAsync) {
+jcpAPIs_StartAsync.dependsOn printGradleVersions
+task jcpAPIs_StopAsync(type: StopAsync) {
     group 'JOSP runners jcp (soft)'
 
-    pidFile = (jcpAPI_StartAsync as StartAsync).pidFile
+    pidFile = (jcpAPIs_StartAsync as StartAsync).pidFile
     throwOnError = false
 }
-task jcpAPI_StatusAsync() {
+task jcpAPIs_StatusAsync() {
     group 'JOSP runners jcp (soft)'
 
     doFirst {
-        println 'jcpAPI_Async task is ' + (jcpAPI_StartAsync.isRunning() ? "running" : "NOT running")
+        println 'jcpAPIs_Async task is ' + (jcpAPIs_StartAsync.isRunning() ? "running" : "NOT running")
     }
 }
-task jcpAPI_CleanAsync(type: Delete) {
+task jcpAPIs_CleanAsync(type: Delete) {
     group 'JOSP cleaners'
-    delete "envs/runnables/jcp/jcpAPI_StartAsync"
+    delete "envs/runnables/jcp/jcpAPIs_StartAsync"
 
     //...delete and recreate jcp_api database in dbms
 }
-jcpAPI_Clean.dependsOn jcpAPI_CleanAsync
+jcpAPIs_Clean.dependsOn jcpAPIs_CleanAsync
 
-// ------------------
-// JCP FE Async tasks
-// ------------------
+// JCP GWs
+task jcpGWs_StartAsync(type: StartAsync) {
+    group 'JOSP runners jcp (soft)'
 
+    command = "./gradlew jcpGWs_Start"// --debug"
+    //workingDir = project.file(workingDirBase + 'jcpGWs_StartAsync')
+    ready = 'Self connected'
+    //suppressConsoleOutputs = true
+    addLogFileStartTime = true
+    logFile = file('envs/runnables/jcp/' + 'jcpGWs_StartAsync/' + 'jcp.log')
+    pidFile = file('envs/runnables/jcp/' + 'jcpGWs_StartAsync/' + 'jcp.pid')
+    throwOnError = false
+}
+jcpGWs_StartAsync.dependsOn printGradleVersions
+task jcpGWs_StopAsync(type: StopAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    pidFile = (jcpGWs_StartAsync as StartAsync).pidFile
+    throwOnError = false
+}
+task jcpGWs_StatusAsync() {
+    group 'JOSP runners jcp (soft)'
+
+    doFirst {
+        println 'jcpGWs_Async task is ' + (jcpGWs_StartAsync.isRunning() ? "running" : "NOT running")
+    }
+}
+task jcpGWs_CleanAsync(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jcp/jcpGWs_StartAsync"
+
+    //...delete and recreate jcp_api database in dbms
+}
+jcpGWs_Clean.dependsOn jcpGWs_CleanAsync
+
+// JSL Web Bridge
+task jcpJSLWebBridge_StartAsync(type: StartAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    command = "./gradlew jcpJSLWebBridge_Start"// --debug"
+    //workingDir = project.file(workingDirBase + 'jcpJSLWebBridge_StartAsync')
+    ready = 'Self connected'
+    //suppressConsoleOutputs = true
+    addLogFileStartTime = true
+    logFile = file('envs/runnables/jcp/' + 'jcpJSLWebBridge_StartAsync/' + 'jcp.log')
+    pidFile = file('envs/runnables/jcp/' + 'jcpJSLWebBridge_StartAsync/' + 'jcp.pid')
+    throwOnError = false
+}
+jcpJSLWebBridge_StartAsync.dependsOn printGradleVersions
+task jcpJSLWebBridge_StopAsync(type: StopAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    pidFile = (jcpJSLWebBridge_StartAsync as StartAsync).pidFile
+    throwOnError = false
+}
+task jcpJSLWebBridge_StatusAsync() {
+    group 'JOSP runners jcp (soft)'
+
+    doFirst {
+        println 'jcpJSLWebBridge_Async task is ' + (jcpJSLWebBridge_StartAsync.isRunning() ? "running" : "NOT running")
+    }
+}
+task jcpJSLWebBridge_CleanAsync(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jcp/jcpJSLWebBridge_StartAsync"
+
+    //...delete and recreate jcp_api database in dbms
+}
+jcpJSLWebBridge_Clean.dependsOn jcpJSLWebBridge_CleanAsync
+
+// JCP FE
 task jcpFE_StartAsync(type: StartAsync) {
     group 'JOSP runners jcp (soft)'
 
     command = "./gradlew jcpFE_Start"// --debug"
-    //workingDir = project.file(workingDirBase + 'jcpAPI_StartAsync')
+    //workingDir = project.file(workingDirBase + 'jcpFE_StartAsync')
     ready = 'Self connected'
     //suppressConsoleOutputs = true
     addLogFileStartTime = true
@@ -98,13 +167,48 @@ task jcpFE_CleanAsync(type: Delete) {
 }
 jcpFE_Clean.dependsOn jcpFE_CleanAsync
 
+// JCP All
+task jcpAll_StartAsync(type: StartAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    command = "./gradlew jcpAll_Start"// --debug"
+    //workingDir = project.file(workingDirBase + 'jcpAll_StartAsync')
+    ready = 'Self connected'
+    //suppressConsoleOutputs = true
+    addLogFileStartTime = true
+    logFile = file('envs/runnables/jcp/' + 'jcpAll_StartAsync/' + 'jcp_fe.log')
+    pidFile = file('envs/runnables/jcp/' + 'jcpAll_StartAsync/' + 'jcp_fe.pid')
+    throwOnError = false
+}
+jcpAll_StartAsync.dependsOn printGradleVersions
+task jcpAll_StopAsync(type: StopAsync) {
+    group 'JOSP runners jcp (soft)'
+
+    pidFile = (jcpAll_StartAsync as StartAsync).pidFile
+    throwOnError = false
+}
+task jcpAll_StatusAsync() {
+    group 'JOSP runners jcp (soft)'
+
+    doFirst {
+        println 'jcpAll_Async task is ' + (jcpAll_StartAsync.isRunning() ? "running" : "NOT running")
+    }
+}
+task jcpAll_CleanAsync(type: Delete) {
+    group 'JOSP cleaners'
+    delete "envs/runnables/jcp/jcpAll_StartAsync"
+
+    //...delete and recreate jcp_fe database in dbms
+}
+jcpAll_Clean.dependsOn jcpAll_CleanAsync
+
 
 // -------------------
 // JOSP Platform tasks
 // -------------------
 
 int dbms_Up_WAIT_AFTER = 10
-/**int jcpAPI_StartAsync_WAIT_AFTER = 10*/
+/**int jcpAPIs_StartAsync_WAIT_AFTER = 10*/
 int jospCloudDockers_Start_WAIT_AFTER = 20
 
 // Start cloud
@@ -117,8 +221,10 @@ task jospCloudDockers_Start {
 task jospCloudSoft_Start {
     group 'JOSP runners Platform (soft)'
 
-    dependsOn jcpAPI_StartAsync/*, jospGW_Start*/, jcpFE_StartAsync
-    /*GradleAsyncTasksUtils.waitAfter(jcpAPI_StartAsync as Task, jcpAPI_StartAsync_WAIT_AFTER, jospGW_Start as Task)*/
+    dependsOn jcpAPIs_StartAsync, jcpGWs_StartAsync, jcpJSLWebBridge_StartAsync, jcpFE_StartAsync
+    GradleAsyncTasksUtils.waitAfter(jcpAPIs_StartAsync as Task, 0, jcpGWs_StartAsync as Task)
+    GradleAsyncTasksUtils.waitAfter(jcpGWs_StartAsync as Task, 0, jcpJSLWebBridge_StartAsync as Task)
+    GradleAsyncTasksUtils.waitAfter(jcpJSLWebBridge_StartAsync as Task, 0, jcpFE_StartAsync as Task)
 }
 task jospCloud_Start {
     group 'JOSP runners Platform'
@@ -127,7 +233,7 @@ task jospCloud_Start {
     GradleAsyncTasksUtils.waitAfter(jospCloudDockers_Start as Task, jospCloudDockers_Start_WAIT_AFTER, jospCloudSoft_Start as Task)
 }
 
-// Stop cloud (soft)
+// Stop cloud
 task jospCloudDockers_Stop {
     group 'JOSP runners Platform (dockers)'
 
@@ -137,8 +243,10 @@ task jospCloudDockers_Stop {
 task jospCloudSoft_Stop {
     group 'JOSP runners Platform (soft)'
 
-    dependsOn /*jospGW_Stop, */ jcpAPI_StopAsync, jcpFE_StopAsync
-    /*GradleAsyncTasksUtils.waitAfter(jospGW_Stop as Task, 0, jcpAPI_StopAsync as Task)*/
+    dependsOn jcpFE_StopAsync, jcpJSLWebBridge_StopAsync, jcpGWs_StopAsync, jcpAPIs_StopAsync
+    GradleAsyncTasksUtils.waitAfter(jcpFE_StopAsync as Task, 0, jcpJSLWebBridge_StopAsync as Task)
+    GradleAsyncTasksUtils.waitAfter(jcpJSLWebBridge_StopAsync as Task, 0, jcpGWs_StopAsync as Task)
+    GradleAsyncTasksUtils.waitAfter(jcpGWs_StopAsync as Task, 0, jcpAPIs_StopAsync as Task)
 }
 task jospCloud_Stop {
     group 'JOSP runners Platform'
@@ -156,7 +264,7 @@ task jospCloudDockers_Clean {
 task jospCloudSoft_Clean {
     group 'JOSP runners Platform (soft)'
 
-    dependsOn jcpAPI_CleanAsync/*, jospGW_CleanAsync*/, jcpFE_CleanAsync
+    dependsOn jcpAPIs_CleanAsync, jcpJSLWebBridge_CleanAsync, jcpGWs_CleanAsync, jcpFE_CleanAsync
 }
 task jospCloud_Clean {
     group 'JOSP runners Platform'
