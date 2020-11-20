@@ -20,8 +20,8 @@
 package com.robypomper.josp.jcp.apis.examples;
 
 import com.robypomper.josp.paths.ExampleAPIs;
-import com.robypomper.josp.jcp.db.UsernameDBService;
-import com.robypomper.josp.jcp.db.entities.UserName;
+import com.robypomper.josp.jcp.db.apis.UsernameDBService;
+import com.robypomper.josp.jcp.db.apis.entities.UserName;
 import io.swagger.annotations.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

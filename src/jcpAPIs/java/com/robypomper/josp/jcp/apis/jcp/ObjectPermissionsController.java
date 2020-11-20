@@ -21,8 +21,7 @@ package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APIPermissions;
-import com.robypomper.josp.jcp.db.PermissionsDBService;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
