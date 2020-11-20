@@ -25,7 +25,7 @@ import com.robypomper.josp.paths.APISrvs;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.external.resources.auth.AuthDefault;
-import com.robypomper.josp.jcp.security.SecurityUser;
+import com.robypomper.josp.jcp.service.spring.SecurityUser;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpSession;

@@ -27,7 +27,7 @@ import com.robypomper.josp.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.paths.APIJOSPGWs;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
 import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
 import io.swagger.annotations.*;

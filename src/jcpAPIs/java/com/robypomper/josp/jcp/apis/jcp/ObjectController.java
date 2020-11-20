@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.List;

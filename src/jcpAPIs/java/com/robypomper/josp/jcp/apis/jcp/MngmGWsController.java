@@ -5,7 +5,7 @@ import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.params.admin.JCPCloudStatus;
 import com.robypomper.josp.paths.APIMngr;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
 import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
 import io.swagger.annotations.*;

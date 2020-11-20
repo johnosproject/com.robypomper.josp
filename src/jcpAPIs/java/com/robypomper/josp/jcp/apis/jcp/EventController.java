@@ -33,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.List;
