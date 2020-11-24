@@ -3,8 +3,8 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.params.fe.JOSPPermHtml;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEPermissions;
+import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIFEPermissions;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @RestController
-//@Api(tags = {APIJCPFEPermissions.SubGroupPermissions.NAME})
+//@Api(tags = {APIFEPermissions.SubGroupPermissions.NAME})
 public class APIFEPermissionsController {
 
     // Internal vars
@@ -34,7 +34,7 @@ public class APIFEPermissionsController {
 
     // Obj's perms list
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_LIST)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_LIST)
     public ResponseEntity<List<JOSPPermHtml>> jsonObjectPermissions(HttpSession session,
                                                                     @PathVariable("obj_id") String objId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
@@ -51,7 +51,7 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(permsHtml);
     }
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectPermissions(HttpSession session,
                                         @PathVariable("obj_id") String objId) {
         List<JOSPPermHtml> permsHtml = jsonObjectPermissions(session, objId).getBody();
@@ -61,7 +61,7 @@ public class APIFEPermissionsController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(permsHtml,
                     String.format("%s Object's Permissions", jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId)));
+                    String.format("<a href=\"%s\">Object</a>", APIFEObjs.FULL_PATH_DETAILS(objId)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
@@ -71,7 +71,7 @@ public class APIFEPermissionsController {
 
     // Obj's perm add
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
     public String formObjectPermissionAdd(CsrfToken token,
                                           @PathVariable("obj_id") String objId) {
         // ONLY HTML
@@ -102,7 +102,7 @@ public class APIFEPermissionsController {
                 "</script>";
     }
 
-    @PostMapping(path = APIJCPFEPermissions.FULL_PATH_ADD)
+    @PostMapping(path = APIFEPermissions.FULL_PATH_ADD)
     public ResponseEntity<Boolean> jsonObjectPermissionAdd(HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @RequestParam("srv_id") String srvId,
@@ -128,7 +128,7 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(path = APIJCPFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
+    @PostMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectPermissionAdd(HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @RequestParam("srv_id") String srvId,
@@ -137,13 +137,13 @@ public class APIFEPermissionsController {
                                           @RequestParam("conn") JOSPPerm.Connection connection) {
         Boolean success = jsonObjectPermissionAdd(session, objId, srvId, usrId, type, connection).getBody();
         success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
+        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
 
 
     // Obj's perm upd
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
     public String formObjectPermissionUpd(HttpSession session,
                                           CsrfToken token,
                                           @PathVariable("obj_id") String objId,
@@ -174,7 +174,7 @@ public class APIFEPermissionsController {
                 "</script>";
     }
 
-    @PostMapping(path = APIJCPFEPermissions.FULL_PATH_UPD)
+    @PostMapping(path = APIFEPermissions.FULL_PATH_UPD)
     public ResponseEntity<Boolean> jsonObjectPermissionUpd(HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId,
@@ -211,7 +211,7 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(path = APIJCPFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
+    @PostMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectPermissionUpd(HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId,
@@ -221,12 +221,12 @@ public class APIFEPermissionsController {
                                           @RequestParam(value = "conn", required = false) JOSPPerm.Connection connection) {
         Boolean success = jsonObjectPermissionUpd(session, objId, srvId, usrId, permId, type, connection).getBody();
         success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
+        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
 
     // Obj's perm remove
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DEL)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_DEL)
     public ResponseEntity<Boolean> jsonObjectPermissionDel(HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
@@ -251,19 +251,19 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(true);
     }
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DEL, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_DEL, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectPermissionDel(HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
         Boolean success = jsonObjectPermissionDel(session, objId, permId).getBody();
         success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
+        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
 
 
     // Obj's perm duplicate
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DUP)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_DUP)
     public ResponseEntity<Boolean> jsonObjectPermissionDup(HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
@@ -288,13 +288,13 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(true);
     }
 
-    @GetMapping(path = APIJCPFEPermissions.FULL_PATH_DUP, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEPermissions.FULL_PATH_DUP, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectPermissionDup(HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
         Boolean success = jsonObjectPermissionDup(session, objId, permId).getBody();
         success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIJCPFEPermissions.FULL_PATH_LIST(objId), success);
+        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
 
 

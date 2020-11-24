@@ -2,8 +2,8 @@ package com.robypomper.josp.jcp.fe.controllers;
 
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEAction;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
+import com.robypomper.josp.jcp.paths.fe.APIFEAction;
+import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 
 
 @RestController
-//@Api(tags = {APIJCPFEAction.SubGroupAction.NAME})
+//@Api(tags = {APIFEAction.SubGroupAction.NAME})
 public class APIFEActionController {
 
     // Internal vars
@@ -32,7 +32,7 @@ public class APIFEActionController {
 
     // Boolean
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_SWITCH)
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_SWITCH)
     public ResponseEntity<Boolean> jsonBoolSwitch(HttpSession session,
                                                   @PathVariable("obj_id") String objId,
                                                   @PathVariable("comp_path") String compPath) {
@@ -50,7 +50,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_SWITCH, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_SWITCH, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlBoolSwitch(HttpServletRequest request,
                                  @PathVariable("obj_id") String objId,
                                  @PathVariable("comp_path") String compPath) {
@@ -58,7 +58,7 @@ public class APIFEActionController {
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_TRUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_TRUE)
     public ResponseEntity<Boolean> jsonBoolTrue(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -77,7 +77,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_TRUE, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_TRUE, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlBoolTrue(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -85,7 +85,7 @@ public class APIFEActionController {
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_FALSE)
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_FALSE)
     public ResponseEntity<Boolean> jsonBoolFalse(HttpSession session,
                                                  @PathVariable("obj_id") String objId,
                                                  @PathVariable("comp_path") String compPath) {
@@ -104,7 +104,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_BOOL_FALSE, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_FALSE, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlBoolFalse(HttpServletRequest request,
                                 @PathVariable("obj_id") String objId,
                                 @PathVariable("comp_path") String compPath) {
@@ -114,14 +114,14 @@ public class APIFEActionController {
 
 
     // Range actions
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SET)
     public String jospRangeSet_Error(HttpSession session,
                                      @PathVariable("obj_id") String objId,
                                      @PathVariable("comp_path") String compPath) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'val' parameter in GET request");
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
     public String formRangeSet(HttpSession session,
                                CsrfToken token,
                                @PathVariable("obj_id") String objId,
@@ -139,7 +139,7 @@ public class APIFEActionController {
                 "</script>";
     }
 
-    @PostMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET)
+    @PostMapping(path = APIFEAction.FULL_PATH_RANGE_SET)
     public ResponseEntity<Boolean> jsonRangeSet_POST(HttpSession session,
                                                      @PathVariable("obj_id") String objId,
                                                      @PathVariable("comp_path") String compPath,
@@ -147,7 +147,7 @@ public class APIFEActionController {
         return jsonRangeSet(session, objId, compPath, val);
     }
 
-    @PostMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
+    @PostMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRangeSet_POST(HttpServletRequest request,
                                     @PathVariable("obj_id") String objId,
                                     @PathVariable("comp_path") String compPath,
@@ -156,7 +156,7 @@ public class APIFEActionController {
         return htmlRangeSet(request, objId, compPath, val, originUrl);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SETg)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SETg)
     public ResponseEntity<Boolean> jsonRangeSet(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath,
@@ -179,7 +179,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_SETg, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SETg, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRangeSet(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath,
@@ -189,11 +189,11 @@ public class APIFEActionController {
         //return HTMLFormatter.redirectBackAndReturn(request, success);
         // This is different to other htmlRange/ActionXXX because the value is set via an intermediate GET HTTP page
         if (originUrl == null)
-            originUrl = APIJCPFEStructure.FULL_PATH_STRUCT(objId);
+            originUrl = APIFEStruct.FULL_PATH_STRUCT(objId);
         return HTMLUtils.redirectAndReturn(originUrl, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_INC)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_INC)
     public ResponseEntity<Boolean> jsonRangeInc(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -211,7 +211,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_INC, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_INC, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRangeInc(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -219,7 +219,7 @@ public class APIFEActionController {
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_DEC)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_DEC)
     public ResponseEntity<Boolean> jsonRangeDec(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -237,7 +237,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_DEC, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_DEC, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRangeDec(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -245,7 +245,7 @@ public class APIFEActionController {
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_MAX)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MAX)
     public ResponseEntity<Boolean> jsonRangeMax(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -263,7 +263,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_MAX, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MAX, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRangeMax(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -271,7 +271,7 @@ public class APIFEActionController {
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_MIN)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MIN)
     public ResponseEntity<Boolean> jsonRangeMin(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -289,7 +289,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_MIN, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MIN, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRangeMin(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -297,7 +297,7 @@ public class APIFEActionController {
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_1_2)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_2)
     public ResponseEntity<Boolean> jsonRange1_2(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -316,7 +316,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_1_2, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_2, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRange1_2(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -324,7 +324,7 @@ public class APIFEActionController {
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_1_3)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_3)
     public ResponseEntity<Boolean> jsonRange1_3(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -343,7 +343,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_1_3, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_3, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRange1_3(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -352,7 +352,7 @@ public class APIFEActionController {
     }
 
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_2_3)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_2_3)
     public ResponseEntity<Boolean> jsonRange2_3(HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
@@ -371,7 +371,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIJCPFEAction.FULL_PATH_RANGE_2_3, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_2_3, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRange2_3(HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {

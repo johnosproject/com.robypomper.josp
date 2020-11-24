@@ -3,7 +3,7 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.protocol.HistoryLimits;
@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @SessionScope
-//@Api(tags = {APIJCPFEObjs.SubGroupObjs.NAME})
+//@Api(tags = {APIFEObjs.SubGroupObjs.NAME})
 public class APIFEObjsController {
 
     // Internal var
@@ -45,12 +45,12 @@ public class APIFEObjsController {
         return objHtml;
     }
 
-    @GetMapping(path = APIJCPFEObjs.FULL_PATH_LIST)
+    @GetMapping(path = APIFEObjs.FULL_PATH_LIST)
     public ResponseEntity<List<JOSPObjHtml>> jsonObjectsList(HttpSession session) {
         return ResponseEntity.ok(objectsList(session, jslService));
     }
 
-    @GetMapping(path = APIJCPFEObjs.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEObjs.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectsList(HttpSession session) {
         List<JOSPObjHtml> objHtml = jsonObjectsList(session).getBody();
         if (objHtml == null)
@@ -64,14 +64,14 @@ public class APIFEObjsController {
         }
     }
 
-    @GetMapping(path = APIJCPFEObjs.FULL_PATH_DETAILS)
+    @GetMapping(path = APIFEObjs.FULL_PATH_DETAILS)
     public ResponseEntity<JOSPObjHtml> jsonObjectDetails(HttpSession session,
                                                          @PathVariable("obj_id") String objId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         return ResponseEntity.ok(new JOSPObjHtml(obj));
     }
 
-    @GetMapping(path = APIJCPFEObjs.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEObjs.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectDetails(HttpSession session,
                                     @PathVariable("obj_id") String objId) {
         JOSPObjHtml objHtml = jsonObjectDetails(session, objId).getBody();
@@ -81,7 +81,7 @@ public class APIFEObjsController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(objHtml,
                     String.format("%s Object", jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId)));
+                    String.format("<a href=\"%s\">Object</a>", APIFEObjs.FULL_PATH_DETAILS(objId)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
@@ -91,7 +91,7 @@ public class APIFEObjsController {
 
     // Set owner and name
 
-    @GetMapping(path = APIJCPFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
     public String formObjectOwner(HttpSession session,
                                   CsrfToken token,
                                   @PathVariable("obj_id") String objId) {
@@ -114,7 +114,7 @@ public class APIFEObjsController {
                 "</form>\n";
     }
 
-    @PostMapping(path = APIJCPFEObjs.FULL_PATH_OWNER)
+    @PostMapping(path = APIFEObjs.FULL_PATH_OWNER)
     public ResponseEntity<Boolean> jsonObjectOwner(HttpSession session,
                                                    @PathVariable("obj_id") String objId,
                                                    @RequestParam("new_owner") String newOwner) {
@@ -137,16 +137,16 @@ public class APIFEObjsController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(path = APIJCPFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
+    @PostMapping(path = APIFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectOwner(HttpSession session,
                                   @PathVariable("obj_id") String objId,
                                   @RequestParam("new_owner") String newOwner) {
         Boolean success = jsonObjectOwner(session, objId, newOwner).getBody();
         success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIJCPFEObjs.FULL_PATH_DETAILS(objId), success);
+        return HTMLUtils.redirectAndReturn(APIFEObjs.FULL_PATH_DETAILS(objId), success);
     }
 
-    @GetMapping(path = APIJCPFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
     public String formObjectRename(HttpSession session,
                                    CsrfToken token,
                                    @PathVariable("obj_id") String objId) {
@@ -159,7 +159,7 @@ public class APIFEObjsController {
                 "</script>";
     }
 
-    @PostMapping(path = APIJCPFEObjs.FULL_PATH_NAME)
+    @PostMapping(path = APIFEObjs.FULL_PATH_NAME)
     public ResponseEntity<Boolean> jsonObjectName(HttpSession session,
                                                   @PathVariable("obj_id") String objId,
                                                   @RequestParam("new_name") String newName) {
@@ -178,19 +178,19 @@ public class APIFEObjsController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(path = APIJCPFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
+    @PostMapping(path = APIFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectName(HttpSession session,
                                  @PathVariable("obj_id") String objId,
                                  @RequestParam("new_name") String newName) {
         Boolean success = jsonObjectName(session, objId, newName).getBody();
         success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIJCPFEObjs.FULL_PATH_DETAILS(objId), success);
+        return HTMLUtils.redirectAndReturn(APIFEObjs.FULL_PATH_DETAILS(objId), success);
     }
 
 
     // Events
 
-    @GetMapping(path = APIJCPFEObjs.FULL_PATH_EVENTS)
+    @GetMapping(path = APIFEObjs.FULL_PATH_EVENTS)
     public ResponseEntity<List<JOSPEvent>> jsonObjectEvents(HttpSession session,
                                                             @PathVariable("obj_id") String objId,
                                                             HistoryLimits limits) {

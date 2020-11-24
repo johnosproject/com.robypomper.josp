@@ -3,7 +3,7 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.params.fe.JOSPSrvHtml;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEService;
+import com.robypomper.josp.jcp.paths.fe.APIFESrv;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.JSL;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 
 
 @RestController
-//@Api(tags = {APIJCPFEService.SubGroupService.NAME})
+//@Api(tags = {APIFESrv.SubGroupService.NAME})
 public class APIFESrvController {
 
     // Internal vars
@@ -37,12 +37,12 @@ public class APIFESrvController {
     }
 
 
-    @GetMapping(path = APIJCPFEService.FULL_PATH_DETAILS)
+    @GetMapping(path = APIFESrv.FULL_PATH_DETAILS)
     public ResponseEntity<JOSPSrvHtml> jsonServiceDetails(HttpSession session) {
         return ResponseEntity.ok(serviceDetails(session, jslService));
     }
 
-    @GetMapping(path = APIJCPFEService.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFESrv.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlServiceDetails(HttpSession session) {
         JOSPSrvHtml srvHtml = jsonServiceDetails(session).getBody();
         if (srvHtml == null)

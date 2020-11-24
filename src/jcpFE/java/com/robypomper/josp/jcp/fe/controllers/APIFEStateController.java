@@ -2,9 +2,9 @@ package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEState;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
+import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIFEState;
+import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
@@ -26,7 +26,7 @@ import java.util.List;
 
 
 @RestController
-//@Api(tags = {APIJCPFEState.SubGroupState.NAME})
+//@Api(tags = {APIFEState.SubGroupState.NAME})
 public class APIFEStateController {
 
     // Internal vars
@@ -37,7 +37,7 @@ public class APIFEStateController {
 
     // Boolean
 
-    @GetMapping(path = APIJCPFEState.FULL_PATH_BOOL)
+    @GetMapping(path = APIFEState.FULL_PATH_BOOL)
     public ResponseEntity<Boolean> jsonBool(HttpSession session,
                                             @PathVariable("obj_id") String objId,
                                             @PathVariable("comp_path") String compPath) {
@@ -45,7 +45,7 @@ public class APIFEStateController {
         return ResponseEntity.ok(comp.getState());
     }
 
-    @GetMapping(path = APIJCPFEState.FULL_PATH_BOOL, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEState.FULL_PATH_BOOL, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlBool(HttpSession session,
                            @PathVariable("obj_id") String objId,
                            @PathVariable("comp_path") String compPath) {
@@ -56,7 +56,7 @@ public class APIFEStateController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(value,
                     String.format("%s Object's %s state", jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class).getName(), jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId), APIJCPFEStructure.FULL_PATH_COMP(objId, compPath)));
+                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIFEObjs.FULL_PATH_DETAILS(objId), APIFEStruct.FULL_PATH_STRUCT(objId), APIFEStruct.FULL_PATH_COMP(objId, compPath)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
@@ -66,7 +66,7 @@ public class APIFEStateController {
 
     // Range
 
-    @GetMapping(path = APIJCPFEState.FULL_PATH_RANGE)
+    @GetMapping(path = APIFEState.FULL_PATH_RANGE)
     public ResponseEntity<Double> jsonRange(HttpSession session,
                                             @PathVariable("obj_id") String objId,
                                             @PathVariable("comp_path") String compPath) {
@@ -74,7 +74,7 @@ public class APIFEStateController {
         return ResponseEntity.ok(comp.getState());
     }
 
-    @GetMapping(path = APIJCPFEState.FULL_PATH_RANGE, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEState.FULL_PATH_RANGE, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlRange(HttpSession session,
                             @PathVariable("obj_id") String objId,
                             @PathVariable("comp_path") String compPath) {
@@ -85,7 +85,7 @@ public class APIFEStateController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(value,
                     String.format("%s Object's %s state", jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class).getName(), jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId), APIJCPFEStructure.FULL_PATH_COMP(objId, compPath)));
+                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIFEObjs.FULL_PATH_DETAILS(objId), APIFEStruct.FULL_PATH_STRUCT(objId), APIFEStruct.FULL_PATH_COMP(objId, compPath)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
@@ -95,7 +95,7 @@ public class APIFEStateController {
 
     // History
 
-    @GetMapping(path = APIJCPFEState.FULL_STATUS_HISTORY)
+    @GetMapping(path = APIFEState.FULL_STATUS_HISTORY)
     public ResponseEntity<List<JOSPStatusHistory>> jsonStatusHistory(HttpSession session,
                                                                      @PathVariable("obj_id") String objId,
                                                                      @PathVariable("comp_path") String compPath,

@@ -3,8 +3,8 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.params.fe.*;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
+import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
@@ -31,7 +31,7 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @RestController
-//@Api(tags = {APIJCPFEStructure.SubGroupStructure.NAME})
+//@Api(tags = {APIFEStruct.SubGroupStructure.NAME})
 public class APIFEStructController {
 
     // Internal vars
@@ -42,7 +42,7 @@ public class APIFEStructController {
 
     // Obj's structure
 
-    @GetMapping(path = APIJCPFEStructure.FULL_PATH_STRUCT)
+    @GetMapping(path = APIFEStruct.FULL_PATH_STRUCT)
     public ResponseEntity<JOSPStructHtml> jsonObjectStructure(HttpSession session,
                                                               @PathVariable("obj_id") String objId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
@@ -54,7 +54,7 @@ public class APIFEStructController {
         return ResponseEntity.ok(new JOSPStructHtml(obj.getStruct().getStructure(), true));
     }
 
-    @GetMapping(path = APIJCPFEStructure.FULL_PATH_STRUCT, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEStruct.FULL_PATH_STRUCT, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectStructure(HttpSession session,
                                       @PathVariable("obj_id") String objId) {
         JOSPStructHtml structHtml = jsonObjectStructure(session, objId).getBody();
@@ -64,7 +64,7 @@ public class APIFEStructController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(structHtml,
                     String.format("%s Object's Structure", jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId)));
+                    String.format("<a href=\"%s\">Object</a>", APIFEObjs.FULL_PATH_DETAILS(objId)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's structure on formatting response (%s).", objId, e.getMessage()), e);
@@ -74,7 +74,7 @@ public class APIFEStructController {
 
     // Obj's compos
 
-    @GetMapping(path = APIJCPFEStructure.FULL_PATH_COMP)
+    @GetMapping(path = APIFEStruct.FULL_PATH_COMP)
     public ResponseEntity<JOSPComponentHtml> jsonObjectComponent(HttpSession session,
                                                                  @PathVariable("obj_id") String objId,
                                                                  @PathVariable("comp_path") String compPath) {
@@ -88,7 +88,7 @@ public class APIFEStructController {
         return ResponseEntity.ok(generateJOSPComponentHtml(comp));
     }
 
-    @GetMapping(path = APIJCPFEStructure.FULL_PATH_COMP, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEStruct.FULL_PATH_COMP, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlObjectComponent(HttpSession session,
                                       @PathVariable("obj_id") String objId,
                                       @PathVariable("comp_path") String compPath) {
@@ -99,7 +99,7 @@ public class APIFEStructController {
         try {
             return HTMLUtils.toHTMLFormattedJSON(compHtml,
                     String.format("%s Object's Component %s", jslService.getObj(jslService.getHttp(session), objId).getName(), compPath),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>", APIJCPFEObjs.FULL_PATH_DETAILS(objId), APIJCPFEStructure.FULL_PATH_STRUCT(objId)));
+                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>", APIFEObjs.FULL_PATH_DETAILS(objId), APIFEStruct.FULL_PATH_STRUCT(objId)));
 
         } catch (JsonProcessingException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's structure on formatting response (%s).", objId, e.getMessage()), e);

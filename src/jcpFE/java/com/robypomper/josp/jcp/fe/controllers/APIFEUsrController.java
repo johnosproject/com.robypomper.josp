@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.params.fe.JOSPUserHtml;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEUser;
+import com.robypomper.josp.jcp.paths.fe.APIFEUsr;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
@@ -24,7 +24,7 @@ import java.io.IOException;
 
 
 @RestController
-//@Api(tags = {APIJCPFEUser.SubGroupUser.NAME})
+//@Api(tags = {APIFEUsr.SubGroupUser.NAME})
 public class APIFEUsrController {
 
     // Internal vars
@@ -43,12 +43,12 @@ public class APIFEUsrController {
         return new JOSPUserHtml(jslUserMngr);
     }
 
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_DETAILS)
+    @GetMapping(path = APIFEUsr.FULL_PATH_DETAILS)
     public ResponseEntity<JOSPUserHtml> jsonUserDetails(HttpSession session) {
         return ResponseEntity.ok(userDetails(session, jslService));
     }
 
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEUsr.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlUserDetails(HttpSession session) {
         JOSPUserHtml usrHtml = jsonUserDetails(session).getBody();
         if (usrHtml == null)
@@ -65,7 +65,7 @@ public class APIFEUsrController {
 
     // Login
 
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGIN)
+    @GetMapping(path = APIFEUsr.FULL_PATH_LOGIN)
     public String htmlLoginUser(HttpSession session,
                                 HttpServletResponse response) {
         String redirect = jslService.getLoginUrl(jslService.getHttp(session));
@@ -79,7 +79,7 @@ public class APIFEUsrController {
         return String.format("Redirect failed, please go to <a href=\"%s\">%s</a>", redirect, redirect);
     }
 
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGIN_CALLBACK)
+    @GetMapping(path = APIFEUsr.FULL_PATH_LOGIN_CALLBACK)
     public String authRedirect(HttpSession session,
                                HttpServletResponse response,
                                @RequestParam(name = "session_state") String sessionState,
@@ -110,7 +110,7 @@ public class APIFEUsrController {
 
     // Logout
 
-    @GetMapping(path = APIJCPFEUser.FULL_PATH_LOGOUT, produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(path = APIFEUsr.FULL_PATH_LOGOUT, produces = MediaType.TEXT_HTML_VALUE)
     public String htmlLogoutUser(HttpSession session,
                                  HttpServletRequest request,
                                  HttpServletResponse response) {

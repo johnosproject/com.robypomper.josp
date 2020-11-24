@@ -3,9 +3,9 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPSrvHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPUserHtml;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEService;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEUser;
+import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIFESrv;
+import com.robypomper.josp.jcp.paths.fe.APIFEUsr;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.protocol.JOSPProtocol_Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class SingleJSLInstanceTest {
         for (JOSPObjHtml o : APIFEObjsController.objectsList(session, jslService))
             responseBuilder.append("<li>").append("<a href=\"").append(o.pathSingle).append("\">").append(o.name).append("</a>").append("</li>\n");
         responseBuilder.append("</ul>\n");
-        responseBuilder.append(String.format("Go to the <a href=\"%s\">full Objects list</a> (%d objects)\n", APIJCPFEObjs.FULL_PATH_LIST, APIFEObjsController.objectsList(session, jslService).size()));
+        responseBuilder.append(String.format("Go to the <a href=\"%s\">full Objects list</a> (%d objects)\n", APIFEObjs.FULL_PATH_LIST, APIFEObjsController.objectsList(session, jslService).size()));
         responseBuilder.append("<hr>\n");
 
         // User
@@ -48,11 +48,11 @@ public class SingleJSLInstanceTest {
         JOSPUserHtml user = APIFEUsrController.userDetails(session, jslService);
         responseBuilder.append("<p>");
         responseBuilder.append("User: ").append(user.name).append("(");
-        responseBuilder.append(String.format("<a href=\"%s\">details</a>)<br>\n", APIJCPFEUser.FULL_PATH_DETAILS));
+        responseBuilder.append(String.format("<a href=\"%s\">details</a>)<br>\n", APIFEUsr.FULL_PATH_DETAILS));
         if (!user.isAuthenticated)
-            responseBuilder.append(String.format("<a href=\"%s\">Login</a><br>\n", APIJCPFEUser.FULL_PATH_LOGIN));
+            responseBuilder.append(String.format("<a href=\"%s\">Login</a><br>\n", APIFEUsr.FULL_PATH_LOGIN));
         else
-            responseBuilder.append(String.format("<a href=\"%s\">Logout</a><br>\n", APIJCPFEUser.FULL_PATH_LOGOUT));
+            responseBuilder.append(String.format("<a href=\"%s\">Logout</a><br>\n", APIFEUsr.FULL_PATH_LOGOUT));
         responseBuilder.append("</p>\n");
         responseBuilder.append("<hr>\n");
 
@@ -61,7 +61,7 @@ public class SingleJSLInstanceTest {
         JOSPSrvHtml srv = APIFESrvController.serviceDetails(session, jslService);
         responseBuilder.append("<p>");
         responseBuilder.append("Srv: ").append(srv.name).append("(");
-        responseBuilder.append(String.format("<a href=\"%s\">details</a>)<br>\n", APIJCPFEService.FULL_PATH_DETAILS));
+        responseBuilder.append(String.format("<a href=\"%s\">details</a>)<br>\n", APIFESrv.FULL_PATH_DETAILS));
         responseBuilder.append("ID: ").append(String.format(JOSPProtocol_Service.FULL_SRV_ID_FORMAT, srv.srvId, srv.usrId, srv.instId)).append("<br>\n");
         responseBuilder.append("</p>\n");
 
@@ -72,10 +72,10 @@ public class SingleJSLInstanceTest {
         responseBuilder.append("<div style=\"float: right;\">\n");
         if (!user.isAuthenticated) {
             responseBuilder.append("User <b>Anonymous</b><br>");
-            responseBuilder.append(String.format("<a href=\"%s\">Login</a><br>\n", APIJCPFEUser.FULL_PATH_LOGIN));
+            responseBuilder.append(String.format("<a href=\"%s\">Login</a><br>\n", APIFEUsr.FULL_PATH_LOGIN));
         } else {
             responseBuilder.append(String.format("User <b>%s</b><br>", user.name));
-            responseBuilder.append(String.format("<a href=\"%s\">Logout</a><br>\n", APIJCPFEUser.FULL_PATH_LOGOUT));
+            responseBuilder.append(String.format("<a href=\"%s\">Logout</a><br>\n", APIFEUsr.FULL_PATH_LOGOUT));
         }
 
         responseBuilder.append("</div>\n");

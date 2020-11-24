@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.fe.controllers;
 
-import com.robypomper.josp.jcp.paths.fe.APIJCPFESSEUpdater;
+import com.robypomper.josp.jcp.paths.fe.APIFESSEUpdater;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @RestController
-//@Api(tags = {APIJCPFESSEUpdater.SubGroupState.NAME})
+//@Api(tags = {APIFESSEUpdater.SubGroupState.NAME})
 public class APIFESSEUpdaterController {
 
     // Internal vars
@@ -24,7 +24,7 @@ public class APIFESSEUpdaterController {
     private JSLSpringService jslService;
 
 
-    @GetMapping(APIJCPFESSEUpdater.FULL_PATH_INIT)
+    @GetMapping(APIFESSEUpdater.FULL_PATH_INIT)
     public SseEmitter streamSseMvc(HttpSession session,
                                    HttpServletResponse response,
                                    CsrfToken token) {
