@@ -28,7 +28,7 @@ public class APISrvs {
 
     public static final String API_NAME = "Service";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
-    public static final String API_PATH = JcpAPI.PATH_API_BASE + "/" + API_NAME;
+    public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
 
     // API's SubGroups

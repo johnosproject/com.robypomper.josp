@@ -20,6 +20,8 @@
 package com.robypomper.josp.paths;
 
 
+import com.robypomper.josp.info.JCPAPIsVersions;
+
 /**
  * Auth API Paths class definitions.
  * <p>
@@ -40,7 +42,7 @@ public class APIAuth {
 
     public static final String PATH_BASE = "";
 
-    public static final String FULL_PATH_BASE   = JcpAPI.PATH_AUTH_BASE + PATH_BASE;
+    public static final String FULL_PATH_BASE   = JCPAPIsVersions.PATH_AUTH_BASE + PATH_BASE;
 
 
     // Keycloak APIs

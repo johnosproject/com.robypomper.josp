@@ -21,21 +21,21 @@ package com.robypomper.josp.paths;
 
 import com.robypomper.josp.info.JCPAPIsVersions;
 
-public class APIJOSPGWs {
+public class APIGWs {
 //@formatter:off
 
     // API info
 
     public static final String API_NAME = "Gateways";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
-    public static final String API_PATH = JcpAPI.PATH_API_BASE + "/" + API_NAME;
+    public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
 
     // API's SubGroups
 
     public static class SubGroupGWs {
         public final static String NAME = "All";
-        public final static String DESCR = "\"Object2Service and Service2Object Gateway's APIs";
+        public final static String DESCR = "Object2Service and Service2Object Gateway's APIs";
     }
 
 
