@@ -115,26 +115,6 @@ public class SwaggerConfigurer {
     }
 
     @Bean
-    public Docket mngmApis() {
-        APISubGroup[] sg = new APISubGroup[4];
-        sg[0] = new APISubGroup(APIMngr.SubGroupGWs.NAME, APIMngr.SubGroupGWs.DESCR);
-        sg[1] = new APISubGroup(APIMngr.SubGroupObjs.NAME, APIMngr.SubGroupObjs.DESCR);
-        sg[2] = new APISubGroup(APIMngr.SubGroupSrvs.NAME, APIMngr.SubGroupSrvs.DESCR);
-        sg[3] = new APISubGroup(APIMngr.SubGroupUsrs.NAME, APIMngr.SubGroupUsrs.DESCR);
-        return createAPIsGroup(new APIGroup(APIMngr.API_NAME, APIMngr.API_VER, sg));
-    }
-
-    @Bean
-    public Docket exampleApis() {
-        APISubGroup[] sg = new APISubGroup[4];
-        sg[0] = new APISubGroup(ExampleAPIs.SubGroupMethods.NAME, ExampleAPIs.SubGroupMethods.DESCR);
-        sg[1] = new APISubGroup(ExampleAPIs.SubGroupDB.NAME, ExampleAPIs.SubGroupDB.DESCR);
-        sg[2] = new APISubGroup(ExampleAPIs.SubGroupAuthentication.NAME, ExampleAPIs.SubGroupAuthentication.DESCR);
-        sg[3] = new APISubGroup(ExampleAPIs.SubGroupAuthorization.NAME, ExampleAPIs.SubGroupAuthorization.DESCR);
-        return createAPIsGroup(new APIGroup(ExampleAPIs.API_NAME, ExampleAPIs.API_VER, sg));
-    }
-
-    @Bean
     public Docket usrsApis() {
         APISubGroup[] sg = new APISubGroup[1];
         sg[0] = new APISubGroup(APIUsrs.SubGroupInfo.NAME, APIUsrs.SubGroupInfo.DESCR);
