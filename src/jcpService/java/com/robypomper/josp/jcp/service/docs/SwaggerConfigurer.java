@@ -289,7 +289,7 @@ public class SwaggerConfigurer {
 
 
         public String getPath() {
-            return String.format("%s/%s/%s/**", JcpAPI.PATH_API_BASE, getName(), getVersion());
+            return String.format("%s/%s/%s/**", JCPAPIsVersions.PATH_API_BASE, getName(), getVersion());
         }
 
         public String getTitle() {
