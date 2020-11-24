@@ -20,3 +20,6 @@ jcp.url.auth: localhost:8998
 jsl.srv.id: jcp-fe
 jsl.srv.name: JCP FrontEnd
 jsl.comm.local.discovery: DNSSD
+
+
+spring.data.jpa.repositories.enabled: false
