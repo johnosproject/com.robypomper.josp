@@ -1,15 +1,15 @@
 package com.robypomper.josp.jcp.paths.fe;
 
-import com.robypomper.josp.jcp.info.JCPFEAPIsVersions;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
 
-public class APIJCPFEPermissions {
+public class APIFEPermissions {
 //@formatter:off
 
     // API info
 
     public static final String API_NAME = "permissions";
-    public static final String API_VER = JCPFEAPIsVersions.VER_JCPFE_APIs_1_0;
-    public static final String API_PATH = JcpFEAPI.PATH_API_BASE + "/" + API_NAME;
+    public static final String API_VER = JCPFEVersions.VER_JCPFE_APIs_1_0;
+    public static final String API_PATH = JCPFEVersions.PATH_FE_BASE + "/" + API_NAME;
 
 
     // API's SubGroups

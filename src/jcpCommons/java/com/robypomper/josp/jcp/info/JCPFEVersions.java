@@ -4,7 +4,11 @@ package com.robypomper.josp.jcp.info;
 /**
  * Definitions class dedicated to JCP FrontEnd APIs Groups.
  */
-public class JCPFEAPIsVersions {
+public class JCPFEVersions {
+
+    // Path
+
+    public static final String PATH_FE_BASE = "/apis";
 
 
     // Versions APIs
