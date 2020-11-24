@@ -19,9 +19,6 @@ const PAGE_ADMIN_USER_TITLE = "Admin > Users";
 
 
 // showAdminContent()                           *1
-// showAdminContentSystem()                     *2
-// showAdminContentSystemJSL()                  *3
-// showAdminContentAPIs()                       *4
 // showAdminContentGWs()                        *5
 // showAdminContentObjects()                    *6
 // showAdminContentServices()                   *7
@@ -31,12 +28,6 @@ const PAGE_ADMIN_USER_TITLE = "Admin > Users";
 // -> fetchAdminContentHeader()
 //   -> fillAdminContentHeader()
 // -> fetchAdminContent() ...                   *1
-// -> htmlAdminContentSystem()                  *2
-// -> fetchAdminContentSystem() ...             *2
-// -> htmlAdminContentSystemJSL()               *3
-// -> fetchAdminContentSystemJSL() ...          *3
-// -> htmlAdminContentAPIs()                    *4
-// -> fetchAdminContentAPIs() ...               *4
 // -> htmlAdminContentGWs()                     *5
 // -> fetchAdminContentGWs() ...                *5
 // -> htmlAdminContentObjects()                 *6
@@ -61,10 +52,10 @@ function showAdminContent(updateHistory) {
     fetchAdminContent();
 }
 
-function showAdminContentSystem(updateHistory) {
-    if (updateHistory) setNewPageHistory(PAGE_ADMIN_SYSTEM, PAGE_ADMIN_SYSTEM_TITLE);
+function showAdminContentGWs(updateHistory) {
+    if (updateHistory) setNewPageHistory(PAGE_ADMIN_GWS, PAGE_ADMIN_GWS_TITLE);
 
-    currentPage = PAGE_ADMIN_SYSTEM;
+    currentPage = PAGE_ADMIN_GWS;
     if (!loggedUser_isAdmin) {
         setContent(htmlAdminContentUnauthorized());
         return;
@@ -74,27 +65,9 @@ function showAdminContentSystem(updateHistory) {
         fetchAdminContentHeader();
     }
     if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentSystem();
+        document.getElementById("div_admin_content").innerHTML = htmlAdminContentGWs();
 
-    fetchAdminContentSystem();
-}
-
-function showAdminContentSystemJSL(updateHistory) {
-    if (updateHistory) setNewPageHistory(PAGE_ADMIN_SYSTEM_JSL, PAGE_ADMIN_SYSTEM_JSL_TITLE);
-
-    currentPage = PAGE_ADMIN_SYSTEM_JSL;
-    if (!loggedUser_isAdmin) {
-        setContent(htmlAdminContentUnauthorized());
-        return;
-    }
-    if (document.getElementById("div_admin_content") == null) {
-        setContent(htmlAdminContent());
-        fetchAdminContentHeader();
-    }
-    if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentSystemJSL();
-
-    fetchAdminContentSystemJSL();
+    fetchAdminContentGWs();
 }
 
 function showAdminContentObjects(updateHistory) {
@@ -113,42 +86,6 @@ function showAdminContentObjects(updateHistory) {
         document.getElementById("div_admin_content").innerHTML = htmlAdminContentObjects();
 
     fetchAdminContentObjects();
-}
-
-function showAdminContentAPIs(updateHistory) {
-    if (updateHistory) setNewPageHistory(PAGE_ADMIN_APIS, PAGE_ADMIN_APIS_TITLE);
-
-    currentPage = PAGE_ADMIN_APIS;
-    if (!loggedUser_isAdmin) {
-        setContent(htmlAdminContentUnauthorized());
-        return;
-    }
-    if (document.getElementById("div_admin_content") == null) {
-        setContent(htmlAdminContent());
-        fetchAdminContentHeader();
-    }
-    if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentAPIs();
-
-    fetchAdminContentAPIs();
-}
-
-function showAdminContentGWs(updateHistory) {
-    if (updateHistory) setNewPageHistory(PAGE_ADMIN_GWS, PAGE_ADMIN_GWS_TITLE);
-
-    currentPage = PAGE_ADMIN_GWS;
-    if (!loggedUser_isAdmin) {
-        setContent(htmlAdminContentUnauthorized());
-        return;
-    }
-    if (document.getElementById("div_admin_content") == null) {
-        setContent(htmlAdminContent());
-        fetchAdminContentHeader();
-    }
-    if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentGWs();
-
-    fetchAdminContentGWs();
 }
 
 function showAdminContentServices(updateHistory) {
@@ -221,8 +158,6 @@ function htmlAdminContent() {
     html += "    <div id='div_admin_menu'>";
     html += "        <ul style='list-style-type: none; margin: 20px; padding: 0; display: flex; justify-content: space-around;'>";
     html += "            <li><a href='javascript:showAdminContent(true)'>Home</a></li>";
-    html += "            <li><a href='javascript:showAdminContentSystem(true)'>System</a></li>";
-    html += "            <li><a href='javascript:showAdminContentAPIs(true)'>JCP APIs</a></li>";
     html += "            <li><a href='javascript:showAdminContentGWs(true)'>JOSP GWs</a></li>";
     html += "            <li><a href='javascript:showAdminContentObjects(true)'>Objects</a></li>";
     html += "            <li><a href='javascript:showAdminContentServices(true)'>Services</a></li>";
@@ -251,8 +186,8 @@ function fetchAdminContent() {
 }
 
 function fetchAdminContentHeader() {
-    apiGET("/apis/CloudStatus/1.0/state/jcpfe",fillAdminContentHeaderFE,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis",fillAdminContentHeaderAPIs,onErrorFetch);
+    apiGET("/apis/JCP/2.0/fe/status",fillAdminContentHeaderFE,onErrorFetch);        // OK
+    apiGET("/apis/JCP/2.0/apis/status",fillAdminContentHeaderAPIs,onErrorFetch);    // OK
 }
 
 function fillAdminContent(adminJson) {
@@ -269,7 +204,7 @@ function fillAdminContentHeaderFE(stateJCPFEJson) {
     if (document.getElementById("val_jcpfe_timeRunning") != null)
         document.getElementById("val_jcpfe_timeRunning").innerHTML = stateJCPFE.timeRunning;
     if (document.getElementById("val_jcpfe_cpuUsed") != null)
-        document.getElementById("val_jcpfe_cpuUsed").innerHTML = doubleTruncateDigit(stateJCPFE.cpuUsed,2);
+        document.getElementById("val_jcpfe_cpuUsed").innerHTML = doubleTruncateDigit(stateJCPFE.cpuUsed,1);
     if (document.getElementById("val_jcpfe_memoryUsed") != null)
         document.getElementById("val_jcpfe_memoryUsed").innerHTML = doubleTruncateDigit(stateJCPFE.memoryUsed,2);
     if (document.getElementById("val_jcpfe_sessionsCount") != null)
@@ -285,312 +220,9 @@ function fillAdminContentHeaderAPIs(stateJCPAPIsJson) {
     if (document.getElementById("val_jcpapis_timeRunning") != null)
         document.getElementById("val_jcpapis_timeRunning").innerHTML = stateJCPAPIs.timeRunning;
     if (document.getElementById("val_jcpapis_cpuUsed") != null)
-        document.getElementById("val_jcpapis_cpuUsed").innerHTML = doubleTruncateDigit(stateJCPAPIs.cpuUsed,2);
+        document.getElementById("val_jcpapis_cpuUsed").innerHTML = doubleTruncateDigit(stateJCPAPIs.cpuUsed,1);
     if (document.getElementById("val_jcpapis_memoryUsed") != null)
         document.getElementById("val_jcpapis_memoryUsed").innerHTML = doubleTruncateDigit(stateJCPAPIs.memoryUsed,2);
-//    if (document.getElementById("val_jcpfe_sessionsCount") != null)
-//        document.getElementById("val_jcpfe_sessionsCount").innerHTML = stateJCPFE.sessionsCount;
-//    if (document.getElementById("val_jcpfe_sessionsJslCount") != null)
-//        document.getElementById("val_jcpfe_sessionsJslCount").innerHTML = stateJCPFE.sessionsJslCount;
-}
-
-
-// Admin's System
-
-// htmlAdminContentSystem()
-// fetchAdminContentSystem()
-// -> fillAdminContentSystem_JCPFE()
-// -> fillAdminContentSystem_Java()
-// -> fillAdminContentSystem_Process()
-// -> fillAdminContentSystem_Os()
-// -> fillAdminContentSystem_CPU()
-// -> fillAdminContentSystem_Memory()
-// -> fillAdminContentSystem_Disks()
-// -> fillAdminContentSystem_Network()
-
-function htmlAdminContentSystem() {
-    setTitle("<p><a href='javascript:void(0);' onclick='showAdmin(true)'>Admin</a> > System</p>");
-
-    var html = "";
-    html += "<div>";
-    html += "<a href='javascript:showAdminContentSystem(true)'>Refresh</a> or ";
-    html += "<a href='javascript:showAdminContentSystemJSL(true)'>List all JSL instances</a>";
-    html += "</div>";
-
-    html += "<h2>JCP FrontEnd</h2>";
-    html += "<div id='div_admin_jcpfe' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Java</h2>";
-    html += "<div id='div_admin_java' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Process</h2>";
-    html += "<div id='div_admin_process' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>OS</h2>";
-    html += "<div id='div_admin_os' style='width: 70%; margin: auto;'></div>";
-
-    html += "<hr>";
-
-    html += "<h2>CPU</h2>";
-    html += "<div id='div_admin_cpu' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Memory</h2>";
-    html += "<div id='div_admin_memory' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Disks</h2>";
-    html += "<div id='div_admin_disks' style='width: 70%; margin: auto;'></div>";
-
-    html += "<hr>";
-
-    html += "<h2>Network</h2>";
-    html += "<div id='div_admin_network' style='width: 70%; margin: auto;'></div>";
-
-
-    return html;
-}
-
-function fetchAdminContentSystem(objId) {
-    apiGET("/apis/CloudStatus/1.0/state/jcpfe",fillAdminContentSystem_JCPFE,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/java",fillAdminContentSystem_Java,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/process",fillAdminContentSystem_Process,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/os",fillAdminContentSystem_Os,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/cpu",fillAdminContentSystem_CPU,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/memory",fillAdminContentSystem_Memory,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/disks",fillAdminContentSystem_Disks,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/network",fillAdminContentSystem_Network,onErrorFetch);
-}
-
-function fillAdminContentSystem_JCPFE(infoJson) {
-    if (document.getElementById("div_admin_jcpfe") != null)
-        document.getElementById("div_admin_jcpfe").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentSystem_Java(infoJson) {
-    info = JSON.parse(infoJson);
-    reduce(info,"runtimeSystemProps");
-    reduce(info,"runtimeInputArgs");
-    reduce(info,"runtimePathClass");
-    reduce(info,"runtimePathBootClass");
-    reduce(info,"runtimePathLibrary");
-    reduce(info,"threadsIds");
-    reduce(info,"threads");
-
-    if (document.getElementById("div_admin_java") != null)
-        document.getElementById("div_admin_java").innerHTML = jsonToHTMLTable(JSON.stringify(info));
-}
-
-function fillAdminContentSystem_Process(infoJson) {
-    if (document.getElementById("div_admin_process") != null)
-        document.getElementById("div_admin_process").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentSystem_Os(infoJson) {
-    if (document.getElementById("div_admin_os") != null)
-        document.getElementById("div_admin_os").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentSystem_CPU(infoJson) {
-    if (document.getElementById("div_admin_cpu") != null)
-        document.getElementById("div_admin_cpu").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentSystem_Memory(infoJson) {
-    if (document.getElementById("div_admin_memory") != null)
-        document.getElementById("div_admin_memory").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentSystem_Disks(infoJson) {
-    if (document.getElementById("div_admin_disks") != null)
-        document.getElementById("div_admin_disks").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentSystem_Network(infoJson) {
-    info = JSON.parse(infoJson);
-    reduce(info,"listInterfaces");
-
-    if (document.getElementById("div_admin_network") != null)
-        document.getElementById("div_admin_network").innerHTML = jsonToHTMLTable(JSON.stringify(info));
-}
-
-
-// Admin's System JSL
-
-// htmlAdminContentSystemJSL()
-// fetchAdminContentSystemJSL()
-// -> fillAdminContentSystemJSL()
-
-function htmlAdminContentSystemJSL() {
-    setTitle("<p><a href='javascript:void(0);' onclick='showAdmin(true)'>Admin</a> > <a href='javascript:void(0);' onclick='showAdminContentSystem(true)'>System</a> > JSL Instances</p>");
-
-    var html = "";
-    html += "<div>";
-    html += "<a href='javascript:showAdminContentSystem(true)'>Go back</a> or ";
-    html += "<a href='javascript:showAdminContentSystemJSL(true)'>Refresh</a>";
-    html += "</div>";
-
-    html += "<div id='div_admin_jsl_instances' style='width: 70%; margin: auto;'></div>";
-
-    return html;
-}
-
-function fetchAdminContentSystemJSL(objId) {
-    apiGET("/apis/CloudStatus/1.0/state/jcpfe/instances",fillAdminContentSystemJSL,onErrorFetch);
-}
-
-function fillAdminContentSystemJSL(jslInstancesJson) {
-    jslInstances = JSON.parse(jslInstancesJson);
-
-    var users = [];
-    var usersCount = 0;
-    users['00000-00000-00000'] = { id: "00000-00000-00000", name: "Anonymous", sessions: 0};
-    for (var i=0; i<jslInstances.length; i++) {
-        if (users[jslInstances[i].usrId]==null) {
-            users[jslInstances[i].usrId] = { id: jslInstances[i].usrId, name: jslInstances[i].usrName, sessions: 1};
-            usersCount++;
-        } else
-            users[jslInstances[i].usrId].sessions++;
-    }
-
-    var html = "";
-
-    html += "<p>Currently online authenticated users " + usersCount + "<br>";
-    html += "and anonymous sessions " + users['00000-00000-00000'].sessions;
-
-    html += "<table class='table_details' style='margin-top: 5px; margin-bottom: 5px; width: 60%; min-width: 300px;'>";
-    for (const property in users) {
-        html += "<tr>"
-        html += "<td class='label' style='border: 1px solid black;'>" + users[property].name + "</td>";
-        html += "<td class='value' style='border: 1px solid black;'>" + users[property].id + "</td>";
-        html += "<td class='value' style='border: 1px solid black;'>" + users[property].sessions + "</td>";
-        html += "</tr>"
-    }
-    html += "</table>";
-
-    for (var i=0; i<jslInstances.length; i++) {
-        html += "<h2>" + jslInstances[i].usrName + " / " + jslInstances[i].instId + "</h2>";
-        html += jsonToHTMLTable(jslInstances[i]);
-    }
-
-    if (document.getElementById("div_admin_jsl_instances") != null)
-        document.getElementById("div_admin_jsl_instances").innerHTML = html;
-}
-
-
-// Admin's JCP APIs
-
-// htmlAdminContentAPIs()
-// fetchAdminContentAPIs()
-// -> fillAdminContentAPIs_JCPAPIs()
-// -> fillAdminContentAPIs_Java()
-// -> fillAdminContentAPIs_Process()
-// -> fillAdminContentAPIs_Os()
-// -> fillAdminContentAPIs_CPU()
-// -> fillAdminContentAPIs_Memory()
-// -> fillAdminContentAPIs_Disks()
-// -> fillAdminContentAPIs_Network()
-
-function htmlAdminContentAPIs() {
-    setTitle("<p><a href='javascript:void(0);' onclick='showAdmin(true)'>Admin</a> > JCP APIs</p>");
-
-    var html = "";
-    html += "<div>";
-    html += "<a href='javascript:showAdminContentAPIs(true)'>Refresh</a>";
-    html += "</div>";
-
-    html += "<h2>JCP APIs</h2>";
-    html += "<div id='div_admin_jcpapis' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Java</h2>";
-    html += "<div id='div_admin_java' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Process</h2>";
-    html += "<div id='div_admin_process' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>OS</h2>";
-    html += "<div id='div_admin_os' style='width: 70%; margin: auto;'></div>";
-
-    html += "<hr>";
-
-    html += "<h2>CPU</h2>";
-    html += "<div id='div_admin_cpu' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Memory</h2>";
-    html += "<div id='div_admin_memory' style='width: 70%; margin: auto;'></div>";
-
-    html += "<h2>Disks</h2>";
-    html += "<div id='div_admin_disks' style='width: 70%; margin: auto;'></div>";
-
-    html += "<hr>";
-
-    html += "<h2>Network</h2>";
-    html += "<div id='div_admin_network' style='width: 70%; margin: auto;'></div>";
-
-    return html;
-}
-
-function fetchAdminContentAPIs(objId) {
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/",fillAdminContentAPIs_JCPAPIs,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/java",fillAdminContentAPIs_Java,onErrorFetch);
-    //apiGET("/apis/CloudStatus/1.0/state/jcpapis/java/threads",fillAdminContentAPIs_Java,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/process",fillAdminContentAPIs_Process,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/os",fillAdminContentAPIs_Os,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/cpu",fillAdminContentAPIs_CPU,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/memory",fillAdminContentAPIs_Memory,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/disks",fillAdminContentAPIs_Disks,onErrorFetch);
-    apiGET("/apis/CloudStatus/1.0/state/jcpapis/network",fillAdminContentSystem_Network,onErrorFetch);
-    //apiGET("/apis/CloudStatus/1.0/state/jcpapis/network/intfs",fillAdminContentSystem_Network,onErrorFetch);
-}
-
-function fillAdminContentAPIs_JCPAPIs(infoJson) {
-    if (document.getElementById("div_admin_jcpapis") != null)
-        document.getElementById("div_admin_jcpapis").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentAPIs_Java(infoJson) {
-    info = JSON.parse(infoJson);
-    reduce(info,"runtimeSystemProps");
-    reduce(info,"runtimeInputArgs");
-    reduce(info,"runtimePathClass");
-    reduce(info,"runtimePathBootClass");
-    reduce(info,"runtimePathLibrary");
-    reduce(info,"threadsIds");
-    reduce(info,"threads");
-
-    if (document.getElementById("div_admin_java") != null)
-        document.getElementById("div_admin_java").innerHTML = jsonToHTMLTable(JSON.stringify(info));
-}
-
-function fillAdminContentAPIs_Process(infoJson) {
-    if (document.getElementById("div_admin_process") != null)
-        document.getElementById("div_admin_process").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentAPIs_Os(infoJson) {
-    if (document.getElementById("div_admin_os") != null)
-        document.getElementById("div_admin_os").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentAPIs_CPU(infoJson) {
-    if (document.getElementById("div_admin_cpu") != null)
-        document.getElementById("div_admin_cpu").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentAPIs_Memory(infoJson) {
-    if (document.getElementById("div_admin_memory") != null)
-        document.getElementById("div_admin_memory").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentAPIs_Disks(infoJson) {
-    if (document.getElementById("div_admin_disks") != null)
-        document.getElementById("div_admin_disks").innerHTML = jsonToHTMLTable(infoJson);
-}
-
-function fillAdminContentAPIs_Network(infoJson) {
-    info = JSON.parse(infoJson);
-    reduce(info,"listInterfaces");
-
-    if (document.getElementById("div_admin_network") != null)
-        document.getElementById("div_admin_network").innerHTML = jsonToHTMLTable(JSON.stringify(info));
 }
 
 
@@ -617,7 +249,7 @@ function htmlAdminContentGWs() {
 }
 
 function fetchAdminContentGWs(objId) {
-    apiGET("/apis/CloudStatus/1.0/mngm/gws",fillAdminContentGWs,onErrorFetch);
+    apiGET("/apis/JCP/2.0/apis/status/gws",fillAdminContentGWs,onErrorFetch);
 }
 
 function fillAdminContentGWs(jcpGWsJson) {
@@ -652,6 +284,7 @@ function gwToHTML(gw) {
     return html;
 }
 
+
 // Admin's Objects
 
 // htmlAdminContentObjects()
@@ -683,23 +316,23 @@ function htmlAdminContentObjects() {
 }
 
 function fetchAdminContentObjects(objId) {
-    apiGET("/apis/CloudStatus/1.0/mngm/objects",fillAdminContentObjects,onErrorFetch);
+    apiGET("/apis/JCP/2.0/apis/status/objs",fillAdminContentObjects,onErrorFetch);
 }
 
 function fillAdminContentObjects(jcpObjsJson) {
     jcpObjs = JSON.parse(jcpObjsJson);
     if (document.getElementById("val_adm_objs_count") != null)
-        document.getElementById("val_adm_objs_count").innerHTML = jcpObjs.objectsCount;
+        document.getElementById("val_adm_objs_count").innerHTML = jcpObjs.Count;
     if (document.getElementById("val_adm_objs_online_count") != null)
-        document.getElementById("val_adm_objs_online_count").innerHTML = jcpObjs.objectsOnlineCount;
+        document.getElementById("val_adm_objs_online_count").innerHTML = jcpObjs.onlineCount;
     if (document.getElementById("val_adm_objs_offline_count") != null)
-        document.getElementById("val_adm_objs_offline_count").innerHTML = jcpObjs.objectsOfflineCount;
+        document.getElementById("val_adm_objs_offline_count").innerHTML = jcpObjs.offlineCount;
     if (document.getElementById("val_adm_objs_active_count") != null)
-        document.getElementById("val_adm_objs_active_count").innerHTML = jcpObjs.objectsActiveCount;
+        document.getElementById("val_adm_objs_active_count").innerHTML = jcpObjs.activeCount;
     if (document.getElementById("val_adm_objs_inactive_count") != null)
-        document.getElementById("val_adm_objs_inactive_count").innerHTML = jcpObjs.objectsInactiveCount;
+        document.getElementById("val_adm_objs_inactive_count").innerHTML = jcpObjs.inactiveCount;
     if (document.getElementById("val_adm_objs_owners_count") != null)
-        document.getElementById("val_adm_objs_owners_count").innerHTML = jcpObjs.objectsOwnersCount;
+        document.getElementById("val_adm_objs_owners_count").innerHTML = jcpObjs.ownersCount;
 }
 
 
@@ -734,23 +367,23 @@ function htmlAdminContentServices() {
 }
 
 function fetchAdminContentServices(objId) {
-    apiGET("/apis/CloudStatus/1.0/mngm/services",fillAdminContentServices,onErrorFetch);
+    apiGET("/apis/JCP/2.0/apis/status/srvs",fillAdminContentServices,onErrorFetch);
 }
 
 function fillAdminContentServices(jcpObjsJson) {
     jcpObjs = JSON.parse(jcpObjsJson);
     if (document.getElementById("val_adm_srvs_count") != null)
-        document.getElementById("val_adm_srvs_count").innerHTML = jcpObjs.servicesCount;
+        document.getElementById("val_adm_srvs_count").innerHTML = jcpObjs.count;
     if (document.getElementById("val_adm_srvs_online_count") != null)
-        document.getElementById("val_adm_srvs_online_count").innerHTML = jcpObjs.servicesOnlineCount;
+        document.getElementById("val_adm_srvs_online_count").innerHTML = jcpObjs.onlineCount;
     if (document.getElementById("val_adm_srvs_offline_count") != null)
-        document.getElementById("val_adm_srvs_offline_count").innerHTML = jcpObjs.servicesOfflineCount;
+        document.getElementById("val_adm_srvs_offline_count").innerHTML = jcpObjs.offlineCount;
     if (document.getElementById("val_adm_insts_count") != null)
-        document.getElementById("val_adm_insts_count").innerHTML = jcpObjs.servicesInstancesCount;
+        document.getElementById("val_adm_insts_count").innerHTML = jcpObjs.instancesCount;
     if (document.getElementById("val_adm_insts_online_count") != null)
-        document.getElementById("val_adm_insts_online_count").innerHTML = jcpObjs.servicesInstancesOnlineCount;
+        document.getElementById("val_adm_insts_online_count").innerHTML = jcpObjs.instancesOnlineCount;
     if (document.getElementById("val_adm_insts_offline_count") != null)
-        document.getElementById("val_adm_insts_offline_count").innerHTML = jcpObjs.servicesInstancesOfflineCount;
+        document.getElementById("val_adm_insts_offline_count").innerHTML = jcpObjs.instancesOfflineCount;
 }
 
 
@@ -782,13 +415,13 @@ function htmlAdminContentUsers() {
 }
 
 function fetchAdminContentUsers(objId) {
-    apiGET("/apis/CloudStatus/1.0/mngm/users",fillAdminContentUsers,onErrorFetch);
+    apiGET("/apis/JCP/2.0/apis/status/usrs",fillAdminContentUsers,onErrorFetch);
 }
 
 function fillAdminContentUsers(jcpObjsJson) {
     jcpObjs = JSON.parse(jcpObjsJson);
     if (document.getElementById("val_adm_usrs_count") != null)
-        document.getElementById("val_adm_usrs_count").innerHTML = jcpObjs.usersCount;
+        document.getElementById("val_adm_usrs_count").innerHTML = jcpObjs.count;
 }
 
 

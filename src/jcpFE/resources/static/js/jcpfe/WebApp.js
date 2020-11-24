@@ -93,12 +93,6 @@ function fillRequiredContent(documentUrl) {
 
     } else if (page == PAGE_ADMIN_HOME) {
         showAdminContent(false);
-    } else if (page == PAGE_ADMIN_SYSTEM) {
-        showAdminContentSystem(false);
-    } else if (page == PAGE_ADMIN_SYSTEM_JSL) {
-        showAdminContentSystemJSL(false);
-    } else if (page == PAGE_ADMIN_APIS) {
-        showAdminContentAPIs(false);
     } else if (page == PAGE_ADMIN_GWS) {
         showAdminContentGWs(false);
     } else if (page == PAGE_ADMIN_OBJECTS) {
