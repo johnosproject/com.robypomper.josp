@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.robypomper.josp.jcp.paths.fe.APIJCPFESSEUpdater;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @RestController
 //@Api(tags = {APIJCPFESSEUpdater.SubGroupState.NAME})
-public class SSEUpdaterController {
+public class APIFESSEUpdaterController {
 
     // Internal vars
 

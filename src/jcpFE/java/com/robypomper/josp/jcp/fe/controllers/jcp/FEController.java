@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.fe.controllers.jcp;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @Api(tags = {APIJCP.SubGroupFEStatus.NAME})
-public class APIJCPFEController {
+public class FEController {
 
     @Autowired
     private HttpSession httpSession;

@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
@@ -32,7 +32,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @RestController
 //@Api(tags = {APIJCPFEStructure.SubGroupStructure.NAME})
-public class StructureController {
+public class APIFEStructController {
 
     // Internal vars
 

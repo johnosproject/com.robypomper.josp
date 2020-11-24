@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
@@ -25,7 +25,7 @@ import java.io.IOException;
 
 @RestController
 //@Api(tags = {APIJCPFEUser.SubGroupUser.NAME})
-public class UserController {
+public class APIFEUsrController {
 
     // Internal vars
 

@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
@@ -24,7 +24,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @RestController
 //@Api(tags = {APIJCPFEPermissions.SubGroupPermissions.NAME})
-public class PermissionsController {
+public class APIFEPermissionsController {
 
     // Internal vars
 

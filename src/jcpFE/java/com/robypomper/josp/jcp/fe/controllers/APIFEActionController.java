@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
@@ -22,7 +22,7 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 //@Api(tags = {APIJCPFEAction.SubGroupAction.NAME})
-public class ActionsController {
+public class APIFEActionController {
 
     // Internal vars
 

@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 //@Api(tags = {APIJCPFEService.SubGroupService.NAME})
-public class ServiceController {
+public class APIFESrvController {
 
     // Internal vars
 

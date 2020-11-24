@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
@@ -27,7 +27,7 @@ import java.util.List;
 
 @RestController
 //@Api(tags = {APIJCPFEState.SubGroupState.NAME})
-public class StatesController {
+public class APIFEStateController {
 
     // Internal vars
 

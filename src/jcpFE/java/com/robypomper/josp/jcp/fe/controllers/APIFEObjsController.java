@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.apis;
+package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @SessionScope
 //@Api(tags = {APIJCPFEObjs.SubGroupObjs.NAME})
-public class ObjsMngrController {
+public class APIFEObjsController {
 
     // Internal var
 
