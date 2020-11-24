@@ -156,6 +156,8 @@ dependencies {
     jcpServiceImplementation "io.swagger:swagger-annotations:${project.ext.get("version.swagger")}"                     // Swagger Annotations
     jcpServiceCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                               // Lombok annotations for Swagger docs
     jcpServiceAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
+    jcpServiceImplementation "jakarta.persistence:jakarta.persistence-api:${project.ext.get("version.jakarta")}"        // Swagger Annotations
+    jcpServiceImplementation "org.hibernate:hibernate-core:${project.ext.get("version.hibernate")}"                     // Swagger Annotations
 
     // JCP APIs
     if (!project.ext.get("deps.jcpServiceDisabled"))
@@ -167,7 +169,7 @@ dependencies {
     if (!project.ext.get("deps.jcpServiceDisabled"))
         jcpGWsImplementation "com.robypomper.josp:jcpService:${project.ext.get("version.jcpService")}"
     if (!project.ext.get("deps.jcpDBAPIsDisabled"))
-        jcpAPIsImplementation "com.robypomper.josp:jcpDBAPIs:${project.ext.get("version.jcpDBAPIs")}"
+        jcpGWsImplementation "com.robypomper.josp:jcpDBAPIs:${project.ext.get("version.jcpDBAPIs")}"
 
     // JCP JSL Web Bridge
     if (!project.ext.get("deps.jcpServiceDisabled"))
@@ -177,7 +179,7 @@ dependencies {
     if (!project.ext.get("deps.jcpServiceDisabled"))
         jcpFEImplementation "com.robypomper.josp:jcpService:${project.ext.get("version.jcpService")}"
     if (!project.ext.get("deps.jcpDBFEDisabled"))
-        jcpAPIsImplementation "com.robypomper.josp:jcpDBFE:${project.ext.get("version.jcpDBFE")}"
+        jcpFEImplementation "com.robypomper.josp:jcpDBFE:${project.ext.get("version.jcpDBFE")}"
 
     // JCP All
     if (!project.ext.get("deps.jcpAPIsDisabled"))
