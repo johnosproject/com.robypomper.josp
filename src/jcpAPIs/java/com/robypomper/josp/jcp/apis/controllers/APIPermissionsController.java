@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.apis.jcp;
+package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APIPermissions;
@@ -49,7 +49,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIPermissions.SubGroupObjPerm.NAME})
-public class ObjectPermissionsController {
+public class APIPermissionsController {
 
     // Internal vars
 

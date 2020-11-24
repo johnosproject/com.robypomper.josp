@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.controllers;
+package com.robypomper.josp.jcp.apis.controllers.jcp;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @Api(tags = {APIJCP.SubGroupAPIsStatus.NAME})
-public class APIJCPAPIsController {
+public class APIsController {
 
     @Autowired
     private ObjectDBService objDB;

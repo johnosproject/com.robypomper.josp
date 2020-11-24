@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.apis.jcp;
+package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.java.JavaRandomStrings;
 import com.robypomper.josp.params.objs.GenerateObjId;
@@ -53,7 +53,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIObjs.SubGroupInfo.NAME})
-public class ObjectController {
+public class APIObjsController {
 
     // Internal vars
 

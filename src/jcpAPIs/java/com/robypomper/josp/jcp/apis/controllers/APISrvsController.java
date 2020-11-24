@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.apis.jcp;
+package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.params.srvs.SrvName;
@@ -45,7 +45,7 @@ import java.util.Optional;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {APISrvs.SubGroupInfo.NAME})
-public class ServiceController {
+public class APISrvsController {
 
     // Internal vars
 

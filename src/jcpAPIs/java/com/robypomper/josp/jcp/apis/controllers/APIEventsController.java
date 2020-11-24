@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.apis.jcp;
+package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.java.JavaString;
 import com.robypomper.josp.paths.APIEvents;
@@ -44,7 +44,7 @@ import java.util.List;
  */
 @RestController
 @Api(tags = {APIEvents.SubGroupEvent.NAME})
-public class EventController {
+public class APIEventsController {
 
     // Internal vars
 

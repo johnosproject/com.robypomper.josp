@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.apis.jcp;
+package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.params.usrs.UsrName;
@@ -47,7 +47,7 @@ import java.util.Optional;
  */
 @RestController
 @Api(tags = {APIUsrs.SubGroupInfo.NAME})
-public class UserController {
+public class APIUsrsController {
 
     // Internal vars
 
