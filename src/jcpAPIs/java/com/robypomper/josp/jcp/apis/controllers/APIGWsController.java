@@ -24,7 +24,7 @@ import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessRequest;
 import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.params.jospgws.S2OAccessRequest;
-import com.robypomper.josp.paths.APIJOSPGWs;
+import com.robypomper.josp.paths.APIGWs;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
@@ -54,7 +54,7 @@ import java.security.cert.CertificateEncodingException;
  * manage their JOSP GWs connections.
  */
 @RestController
-@Api(tags = {APIJOSPGWs.SubGroupGWs.NAME})
+@Api(tags = {APIGWs.SubGroupGWs.NAME})
 public class APIGWsController {
 
     // Internal vars
@@ -68,7 +68,7 @@ public class APIGWsController {
 
     // Methods
 
-    @PostMapping(path = APIJOSPGWs.FULL_PATH_O2S_ACCESS)
+    @PostMapping(path = APIGWs.FULL_PATH_O2S_ACCESS)
     @ApiOperation(value = "Set object's certificate and request JOSPGw O2S access info",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -118,7 +118,7 @@ public class APIGWsController {
     }
 
 
-    @PostMapping(path = APIJOSPGWs.FULL_PATH_S2O_ACCESS)
+    @PostMapping(path = APIGWs.FULL_PATH_S2O_ACCESS)
     @ApiOperation(value = "Set service's certificate and request JOSPGw S2O access info",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
