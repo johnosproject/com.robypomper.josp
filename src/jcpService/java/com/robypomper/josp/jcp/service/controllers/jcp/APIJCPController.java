@@ -35,12 +35,12 @@ public class APIJCPController {
     @GetMapping(path = APIJCP.FULL_PATH_STATUS)
     @ApiOperation(value = "Return ONLINE if the service is up")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP Service's local date", response = Date.class),
+            @ApiResponse(code = 200, message = "JCP Service's local date", response = String.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    public ResponseEntity<Date> getStateReq() {
-        return ResponseEntity.ok(JOSPProtocol.getNowDate());
+    public ResponseEntity<String> getStateReq() {
+        return ResponseEntity.ok(JOSPProtocol.getNow());
     }
 
     @GetMapping(path = APIJCP.FULL_PATH_STATUS_PROCESS)
