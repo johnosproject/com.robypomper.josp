@@ -145,8 +145,8 @@ public class SwaggerConfigurer {
     @Bean
     public Docket jospgwsApis() {
         APISubGroup[] sg = new APISubGroup[1];
-        sg[0] = new APISubGroup(APIJOSPGWs.SubGroupGWs.NAME, APIJOSPGWs.SubGroupGWs.DESCR);
-        return createAPIsGroup(new APIGroup(APIJOSPGWs.API_NAME, APIJOSPGWs.API_VER, sg));
+        sg[0] = new APISubGroup(APIGWs.SubGroupGWs.NAME, APIGWs.SubGroupGWs.DESCR);
+        return createAPIsGroup(new APIGroup(APIGWs.API_NAME, APIGWs.API_VER, sg));
     }
 
     @Bean
