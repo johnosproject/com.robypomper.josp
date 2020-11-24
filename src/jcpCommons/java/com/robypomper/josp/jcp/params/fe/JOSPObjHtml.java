@@ -1,9 +1,9 @@
 package com.robypomper.josp.jcp.params.fe;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEPermissions;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
+import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIFEPermissions;
+import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
 //import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 
@@ -33,12 +33,12 @@ public class JOSPObjHtml {
         this.isCloudConnected = obj.getComm().isCloudConnected();
         this.isLocalConnected = obj.getComm().isLocalConnected();
         this.jodVersion = obj.getInfo().getJODVersion();
-        this.pathSingle = APIJCPFEObjs.FULL_PATH_DETAILS.replace("{obj_id}", id);
-        this.pathStruct = APIJCPFEStructure.FULL_PATH_STRUCT.replace("{obj_id}", id);
-        this.pathPerms = APIJCPFEPermissions.FULL_PATH_LIST.replace("{obj_id}", id);
-        this.pathPermsAdd = APIJCPFEPermissions.FULL_PATH_ADD.replace("{obj_id}", id);
-        this.pathSetOwner = APIJCPFEObjs.FULL_PATH_OWNER.replace("{obj_id}", id);
-        this.pathSetName = APIJCPFEObjs.FULL_PATH_NAME.replace("{obj_id}", id);
+        this.pathSingle = APIFEObjs.FULL_PATH_DETAILS.replace("{obj_id}", id);
+        this.pathStruct = APIFEStruct.FULL_PATH_STRUCT.replace("{obj_id}", id);
+        this.pathPerms = APIFEPermissions.FULL_PATH_LIST.replace("{obj_id}", id);
+        this.pathPermsAdd = APIFEPermissions.FULL_PATH_ADD.replace("{obj_id}", id);
+        this.pathSetOwner = APIFEObjs.FULL_PATH_OWNER.replace("{obj_id}", id);
+        this.pathSetName = APIFEObjs.FULL_PATH_NAME.replace("{obj_id}", id);
         this.permission = "N/A"; //JSLSpringService.getObjPerm(obj).toString();
     }
 

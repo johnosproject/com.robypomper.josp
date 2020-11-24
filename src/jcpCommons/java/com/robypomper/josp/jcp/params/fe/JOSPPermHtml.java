@@ -1,7 +1,7 @@
 package com.robypomper.josp.jcp.params.fe;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.robypomper.josp.jcp.paths.fe.APIJCPFEPermissions;
+import com.robypomper.josp.jcp.paths.fe.APIFEPermissions;
 import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.Date;
@@ -28,9 +28,9 @@ public class JOSPPermHtml {
         this.type = perm.getPermType();
         this.connection = perm.getConnType();
         this.lastUpdate = perm.getUpdatedAt();
-        this.pathUpd = APIJCPFEPermissions.FULL_PATH_UPD.replace("{obj_id}", objId).replace("{perm_id}", id);
-        this.pathDel = APIJCPFEPermissions.FULL_PATH_DEL.replace("{obj_id}", objId).replace("{perm_id}", id);
-        this.pathDup = APIJCPFEPermissions.FULL_PATH_DUP.replace("{obj_id}", objId).replace("{perm_id}", id);
+        this.pathUpd = APIFEPermissions.FULL_PATH_UPD.replace("{obj_id}", objId).replace("{perm_id}", id);
+        this.pathDel = APIFEPermissions.FULL_PATH_DEL.replace("{obj_id}", objId).replace("{perm_id}", id);
+        this.pathDup = APIFEPermissions.FULL_PATH_DUP.replace("{obj_id}", objId).replace("{perm_id}", id);
     }
 
 }
