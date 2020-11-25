@@ -21,7 +21,7 @@ package com.robypomper.josp.jod.events;
 
 
 import com.robypomper.java.JavaJSONArrayToFile;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 
@@ -50,7 +50,7 @@ public interface JODEvents {
 
     // Object's systems
 
-    void setJCPClient(JCPClient_Object jcpClient);
+    void setJCPClient(JCPAPIsClientObj jcpClient);
 
 
     // Register new event
@@ -79,7 +79,7 @@ public interface JODEvents {
      * Until it's stopped.
      * <p>
      * If the cloud is not available, then Events system register to the
-     * {@link com.robypomper.josp.core.jcpclient.JCPClient2} connection
+     * {@link com.robypomper.josp.clients.JCPClient2} connection
      * listener. When the connection become available, it uploads all buffered
      * events to the cloud.
      */
