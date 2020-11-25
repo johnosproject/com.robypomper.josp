@@ -20,6 +20,9 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.communication.UtilsJKS;
+import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
+import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessRequest;
 import com.robypomper.josp.params.jospgws.S2OAccessInfo;
@@ -27,13 +30,11 @@ import com.robypomper.josp.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.paths.APIGWs;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
-import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
 import io.swagger.annotations.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import java.net.InetAddress;
@@ -64,6 +66,18 @@ public class APIGWsController {
     private JOSPGWsO2SService gwO2SService;
     @Autowired
     private JOSPGWsS2OService gwS2OService;
+    @Autowired
+    private SwaggerConfigurer swagger;
+
+
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_APIGWs() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIGWs.SubGroupGWs.NAME, APIGWs.SubGroupGWs.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIGWs.API_NAME, APIGWs.API_VER, sg), swagger.getUrlBaseAuth());
+    }
 
 
     // Methods

@@ -11,7 +11,10 @@ import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.paths.APIJCP;
 import com.robypomper.josp.types.josp.gw.GWType;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +27,8 @@ import java.util.List;
 @RestController
 @Api(tags = {APIJCP.SubGroupAPIsStatus.NAME})
 public class APIsController {
+
+    // Internal vars
 
     @Autowired
     private ObjectDBService objDB;
@@ -42,6 +47,8 @@ public class APIsController {
     private final String OAUTH_SCOPE = SwaggerConfigurer.ROLE_MNG_SWAGGER;
     private final String OAUTH_DESCR = SwaggerConfigurer.ROLE_MNG_DESC;
 
+
+    // Methods
 
     @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS)
     @ApiOperation(value = "Return JCP APIs info and stats"/*,

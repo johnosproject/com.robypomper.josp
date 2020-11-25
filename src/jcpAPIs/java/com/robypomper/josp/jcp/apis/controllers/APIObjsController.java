@@ -20,16 +20,18 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.java.JavaRandomStrings;
-import com.robypomper.josp.params.objs.GenerateObjId;
-import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
 import com.robypomper.josp.jcp.db.apis.entities.ObjectId;
 import com.robypomper.josp.jcp.db.apis.entities.ObjectStatusHistory;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import com.robypomper.josp.params.objs.GenerateObjId;
+import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.protocol.JOSPStatusHistory;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +39,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.List;
@@ -61,6 +63,18 @@ public class APIObjsController {
     private ObjectDBService objectDBService;
     @Autowired
     private StatusHistoryDBService statusHistoryDBService;
+    @Autowired
+    private SwaggerConfigurer swagger;
+
+
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_APIObjs() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIObjs.SubGroupInfo.NAME, APIObjs.SubGroupInfo.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIObjs.API_NAME, APIObjs.API_VER, sg), swagger.getUrlBaseAuth());
+    }
 
 
     // Methods
@@ -156,13 +170,13 @@ public class APIObjsController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
     public ResponseEntity<Boolean> postObjectHistory(@RequestHeader(APIObjs.HEADER_OBJID) String objId,
-                                                                 @RequestBody List<JOSPStatusHistory> statusHistories) {
+                                                     @RequestBody List<JOSPStatusHistory> statusHistories) {
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
 
         //eventService.add(Event.newObjEvent(client.getClientId(), JOSPEvent.EventType.ConnectToCloud));
         for (JOSPStatusHistory s : statusHistories)
-            statusHistoryDBService.add(ObjectStatusHistory.fromJOSPStatusHistory(objId,s));
+            statusHistoryDBService.add(ObjectStatusHistory.fromJOSPStatusHistory(objId, s));
 
         return ResponseEntity.ok(true);
     }

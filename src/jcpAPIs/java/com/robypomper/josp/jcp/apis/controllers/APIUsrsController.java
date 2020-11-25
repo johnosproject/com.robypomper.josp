@@ -20,21 +20,23 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.params.usrs.UsrName;
-import com.robypomper.josp.paths.APIUsrs;
 import com.robypomper.josp.jcp.db.apis.UserDBService;
 import com.robypomper.josp.jcp.db.apis.entities.User;
 import com.robypomper.josp.jcp.external.resources.auth.AuthDefault;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.service.spring.SecurityUser;
+import com.robypomper.josp.params.usrs.UsrName;
+import com.robypomper.josp.paths.APIUsrs;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpSession;
@@ -53,12 +55,22 @@ public class APIUsrsController {
 
     @Autowired
     private AuthDefault authDefault;
-
     @Autowired
     private UserDBService userService;
-
     @Autowired
     private HttpSession httpSession;
+    @Autowired
+    private SwaggerConfigurer swagger;
+
+
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_APIUsrs() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIUsrs.SubGroupInfo.NAME, APIUsrs.SubGroupInfo.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIUsrs.API_NAME, APIUsrs.API_VER, sg), swagger.getUrlBaseAuth());
+    }
 
 
     // Methods
