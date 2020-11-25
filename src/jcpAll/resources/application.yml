@@ -25,3 +25,9 @@ jcp.url.auth: localhost:8998
 jsl.srv.id: jcp-fe
 jsl.srv.name: JCP FrontEnd
 jsl.comm.local.discovery: DNSSD
+
+
+# Temporary
+jospgw.enabled: true
+jospgw.s2o.url: localhost:9000
+jospgw.o2s.url: localhost:9000
