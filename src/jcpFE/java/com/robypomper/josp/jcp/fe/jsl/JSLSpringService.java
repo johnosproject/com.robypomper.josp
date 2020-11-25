@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.fe.jsl;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jsl.FactoryJSL;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.JSLSettings_002;

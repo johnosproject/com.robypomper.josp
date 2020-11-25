@@ -1,7 +1,7 @@
 package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
