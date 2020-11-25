@@ -24,9 +24,10 @@ import com.robypomper.discovery.DiscoverListener;
 import com.robypomper.discovery.DiscoveryService;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.srv.APIGWsClient;
 import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
@@ -58,8 +59,8 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
     private final JSLServiceInfo srvInfo;
     private final JSLUserMngr usr;
     private final JSLObjsMngr objs;
-    private final JCPClient_Service jcpClient;
-    private final JCPCommSrv jcpComm;
+    private final JCPAPIsClientSrv jcpClient;
+    private final APIGWsClient apigWsClient;
     private final String instanceId;
     private final Discover localServerDiscovery;
     private final List<JSLLocalClient> localServers = new ArrayList<>();
@@ -77,13 +78,13 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
      * @param objs      the {@link JSLObjsMngr} instance used to update component
      *                  status.
      */
-    public JSLCommunication_002(JSLSettings_002 settings, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JSLUserMngr usr, JSLObjsMngr objs, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
+    public JSLCommunication_002(JSLSettings_002 settings, JSLServiceInfo srvInfo, JCPAPIsClientSrv jcpClient, JSLUserMngr usr, JSLObjsMngr objs, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
         this.locSettings = settings;
         this.srvInfo = srvInfo;
         this.jcpClient = jcpClient;
         jcpClient.addConnectListener(jcpConnectListener);
         jcpClient.addDisconnectListener(jcpDisconnectListener);
-        this.jcpComm = new JCPCommSrv(jcpClient, settings, instanceId);
+        this.apigWsClient = new APIGWsClient(jcpClient, instanceId);
         this.usr = usr;
         this.objs = objs;
         this.instanceId = instanceId;
@@ -108,7 +109,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
         // Init cloud service client
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Creating communication cloud client for Object2Service Gateway");
-            gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, jcpComm);
+            gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, apigWsClient);
             log.debug(Mrk_JOD.JOD_COMM, "Communication cloud client created for Object2Service Gateway");
         } catch (CloudCommunicationException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on creating service's cloud client because %s", e.getMessage()), e);
@@ -277,7 +278,7 @@ public class JSLCommunication_002 implements JSLCommunication, DiscoverListener 
 
         try {
             log.debug(Mrk_JSL.JSL_COMM, "Connecting cloud service's client");
-            gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, jcpComm);
+            gwClient = new JSLGwS2OClient(locSettings, this, srvInfo, jcpClient, apigWsClient);
             gwClient.connect();
             log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connection started");
 
