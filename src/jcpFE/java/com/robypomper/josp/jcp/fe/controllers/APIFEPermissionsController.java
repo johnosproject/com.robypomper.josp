@@ -3,6 +3,7 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPPermHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
@@ -48,7 +49,7 @@ public class APIFEPermissionsController {
     public Docket swaggerConfig_APIFEPermissions() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIFEPermissions.SubGroupPermissions.NAME, APIFEPermissions.SubGroupPermissions.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEPermissions.API_NAME, APIFEPermissions.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEPermissions.API_NAME, APIFEPermissions.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -148,7 +149,7 @@ public class APIFEPermissionsController {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
-        if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
+        if (JSLSpringService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         try {
@@ -233,7 +234,7 @@ public class APIFEPermissionsController {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
-        if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
+        if (JSLSpringService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         JOSPPerm perm = jslService.getPerm(obj, permId);
@@ -289,7 +290,7 @@ public class APIFEPermissionsController {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
-        if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
+        if (JSLSpringService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         JOSPPerm perm = jslService.getPerm(obj, permId);
@@ -334,7 +335,7 @@ public class APIFEPermissionsController {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
-        if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
+        if (JSLSpringService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         JOSPPerm perm = jslService.getPerm(obj, permId);

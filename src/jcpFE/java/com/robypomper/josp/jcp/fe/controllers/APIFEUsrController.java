@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPUserHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEUsr;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIFEUsr.SubGroupUser.NAME})
 public class APIFEUsrController {
@@ -50,7 +52,7 @@ public class APIFEUsrController {
     public Docket swaggerConfig_APIFEUsr() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIFEUsr.SubGroupUser.NAME, APIFEUsr.SubGroupUser.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEUsr.API_NAME, APIFEUsr.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEUsr.API_NAME, APIFEUsr.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -171,7 +173,7 @@ public class APIFEUsrController {
     // Utils
 
     private String getCurrentBaseUrl(HttpServletRequest request) {
-        StringBuffer url = new StringBuffer();
+        StringBuilder url = new StringBuilder();
         String scheme = request.getScheme();
         int port = request.getServerPort();
         if (port < 0)

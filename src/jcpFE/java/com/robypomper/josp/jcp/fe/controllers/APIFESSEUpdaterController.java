@@ -1,6 +1,7 @@
 package com.robypomper.josp.jcp.fe.controllers;
 
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFESSEUpdater;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
@@ -23,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIFESSEUpdater.SubGroupState.NAME})
 public class APIFESSEUpdaterController {
@@ -41,7 +44,7 @@ public class APIFESSEUpdaterController {
     public Docket swaggerConfig_APIFESSEUpdater() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIFESSEUpdater.SubGroupState.NAME, APIFESSEUpdater.SubGroupState.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFESSEUpdater.API_NAME, APIFESSEUpdater.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFESSEUpdater.API_NAME, APIFESSEUpdater.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 

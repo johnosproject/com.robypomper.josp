@@ -3,6 +3,7 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEAction;
 import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIFEAction.SubGroupAction.NAME})
 public class APIFEActionController {
@@ -47,7 +49,7 @@ public class APIFEActionController {
     public Docket swaggerConfig_APIFEAction() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIFEAction.SubGroupAction.NAME, APIFEAction.SubGroupAction.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEAction.API_NAME, APIFEAction.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEAction.API_NAME, APIFEAction.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 

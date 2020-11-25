@@ -3,6 +3,7 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIFEObjs.SubGroupObjs.NAME})
 public class APIFEObjsController {
@@ -47,7 +49,7 @@ public class APIFEObjsController {
     public Docket swaggerConfig_APIFEObjs() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIFEObjs.SubGroupObjs.NAME, APIFEObjs.SubGroupObjs.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEObjs.API_NAME, APIFEObjs.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEObjs.API_NAME, APIFEObjs.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -272,10 +274,8 @@ public class APIFEObjsController {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         try {
             return ResponseEntity.ok(obj.getInfo().getEventsHistory(limits, 20));
-        } catch (JSLRemoteObject.ObjectNotConnected objectNotConnected) {
+        } catch (JSLRemoteObject.ObjectNotConnected | JSLRemoteObject.MissingPermission objectNotConnected) {
             objectNotConnected.printStackTrace();
-        } catch (JSLRemoteObject.MissingPermission missingPermission) {
-            missingPermission.printStackTrace();
         }
         return null;
     }

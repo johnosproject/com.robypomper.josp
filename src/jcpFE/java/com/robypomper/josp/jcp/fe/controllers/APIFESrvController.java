@@ -3,6 +3,7 @@ package com.robypomper.josp.jcp.fe.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPSrvHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFESrv;
@@ -25,6 +26,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import javax.servlet.http.HttpSession;
 
 
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIFESrv.SubGroupService.NAME})
 public class APIFESrvController {
@@ -43,7 +45,7 @@ public class APIFESrvController {
     public Docket swaggerConfig_APIFESrv() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIFESrv.SubGroupService.NAME, APIFESrv.SubGroupService.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFESrv.API_NAME, APIFESrv.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFESrv.API_NAME, APIFESrv.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 

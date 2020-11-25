@@ -22,6 +22,8 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
+
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIJCP.SubGroupFEStatus.NAME})
 public class FEController {
