@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jcp.apis.controllers;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Service;
