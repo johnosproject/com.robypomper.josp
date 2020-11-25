@@ -17,25 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jod.jcpclient;
+package com.robypomper.josp.clients;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.paths.APIObjs;
+public class AbsAPI {
 
+    protected final JCPClient2 jcpClient;
 
-/**
- * Main JCP client interface for Objects.
- */
-public interface JCPClient_Object extends JCPClient2 {
+    public AbsAPI(JCPClient2 jcpClient) {
+        this.jcpClient = jcpClient;
+    }
 
-    // Headers default values setters
+    protected JCPClient2 getClient() {
+        return jcpClient;
+    }
 
-    /**
-     * When set the objId will used as {@value APIObjs#HEADER_OBJID} header
-     * value for each request send to the server.
-     *
-     * @param objId the current object id, or null to reset it.
-     */
-    void setObjectId(String objId);
+    protected boolean isSecure() {
+        return jcpClient.isSecured();
+    }
 
 }
