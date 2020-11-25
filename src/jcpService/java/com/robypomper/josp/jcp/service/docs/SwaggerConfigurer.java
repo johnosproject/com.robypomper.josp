@@ -245,6 +245,8 @@ public class SwaggerConfigurer {
 
         private final String version;
 
+        private final String titleSuffix;
+
         private final APISubGroup[] subGroups;
 
 
@@ -253,7 +255,7 @@ public class SwaggerConfigurer {
         }
 
         public String getTitle() {
-            return String.format("JCP APIs - %s", getName());
+            return String.format("%s%s", titleSuffix.isEmpty() ? "" : titleSuffix + " - ", getName());
         }
 
         public String getDescriptionPath() {

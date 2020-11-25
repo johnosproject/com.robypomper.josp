@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIJCP.SubGroupStatus.NAME})
 public class APIJCPController {
@@ -43,7 +45,7 @@ public class APIJCPController {
         sg[2] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupGWsStatus.NAME, APIJCP.SubGroupGWsStatus.DESCR);
         sg[3] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupJSLWebBridgeStatus.NAME, APIJCP.SubGroupJSLWebBridgeStatus.DESCR);
         sg[4] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupFEStatus.NAME, APIJCP.SubGroupFEStatus.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJCP.API_NAME, APIJCP.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJCP.API_NAME, APIJCP.API_VER, "JCP", sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -120,7 +122,6 @@ public class APIJCPController {
         List<JCPStatus.JavaThread> threads = new ArrayList<>();
         for (long thId : ManagementFactory.getThreadMXBean().getAllThreadIds())
             threads.add(new JCPStatus.JavaThread(thId));
-        ;
 
         return ResponseEntity.ok(threads);
     }
