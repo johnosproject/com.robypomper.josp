@@ -6,6 +6,11 @@ package com.robypomper.josp.jcp.info;
  */
 public class JCPFEVersions {
 
+    // Name
+
+    public static final String API_NAME = "JCP FE";
+
+
     // Path
 
     public static final String PATH_FE_BASE = "/apis";
