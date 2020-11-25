@@ -17,16 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jod.comm;
+package com.robypomper.josp.clients.apis.obj;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.AbsAPIObj;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessRequest;
 import com.robypomper.josp.paths.APIGWs;
-import com.robypomper.josp.jod.JODSettings_002;
-import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.AbsAPI;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -35,7 +35,7 @@ import java.security.cert.CertificateEncodingException;
 /**
  * Support class for API JOSP GWs for object's requests.
  */
-public class JCPCommObj extends AbsJCPAPIs {
+public class APIGWsClient extends AbsAPIObj {
 
     // Internal vars
 
@@ -48,11 +48,10 @@ public class JCPCommObj extends AbsJCPAPIs {
      * Default constructor.
      *
      * @param jcpClient  the JCP client.
-     * @param settings   the JOD settings.
      * @param instanceId the JOD instance id.
      */
-    public JCPCommObj(JCPClient_Object jcpClient, JODSettings_002 settings, String instanceId) {
-        super(jcpClient, settings);
+    public APIGWsClient(JCPAPIsClientObj jcpClient, String instanceId) {
+        super(jcpClient);
         this.instanceId = instanceId;
     }
 

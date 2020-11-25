@@ -16,21 +16,20 @@
  * limitations under the License.
  **************************************************************************** */
 
-package com.robypomper.josp.jsl.user;
+package com.robypomper.josp.clients.apis.srv;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.AbsAPISrv;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.params.usrs.UsrName;
 import com.robypomper.josp.paths.APIUsrs;
-import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.jcpclient.AbsJCPAPIs;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 
 
 /**
  * Support class for API Usr access to the service's user.
  */
-public class JCPUserSrv extends AbsJCPAPIs {
+public class APIUsrsClient extends AbsAPISrv {
 
     // Constructor
 
@@ -39,8 +38,8 @@ public class JCPUserSrv extends AbsJCPAPIs {
      *
      * @param jcpClient the JCP client.
      */
-    public JCPUserSrv(JCPClient_Service jcpClient, JSLSettings_002 settings) {
-        super(jcpClient, settings);
+    public APIUsrsClient(JCPAPIsClientSrv jcpClient) {
+        super(jcpClient);
     }
 
 

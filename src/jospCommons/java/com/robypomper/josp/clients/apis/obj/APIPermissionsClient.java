@@ -17,14 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jod.permissions;
+package com.robypomper.josp.clients.apis.obj;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.AbsAPIObj;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.paths.APIPermissions;
-import com.robypomper.josp.jod.JODSettings_002;
-import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 
@@ -34,7 +33,8 @@ import java.util.List;
 /**
  * Support class for API Perm access to the object's permissions.
  */
-public class JCPPermObj extends AbsJCPAPIs {
+@SuppressWarnings("unused")
+public class APIPermissionsClient extends AbsAPIObj {
 
     // Constructor
 
@@ -42,10 +42,9 @@ public class JCPPermObj extends AbsJCPAPIs {
      * Default constructor.
      *
      * @param jcpClient the JCP client.
-     * @param settings  the JOD settings.
      */
-    public JCPPermObj(JCPClient_Object jcpClient, JODSettings_002 settings) {
-        super(jcpClient, settings);
+    public APIPermissionsClient(JCPAPIsClientObj jcpClient) {
+        super(jcpClient);
     }
 
 
@@ -59,7 +58,7 @@ public class JCPPermObj extends AbsJCPAPIs {
      * @return a valid permission list.
      */
     public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        JOSPPerm.GenerateStrategy strategy = locSettings.getPermissionsGenerationStrategy();
+        JOSPPerm.GenerateStrategy strategy = JOSPPerm.GenerateStrategy.STANDARD;
         String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE + "/" + strategy, String.class, isSecure());
         try {
             return JOSPPerm.listFromString(permsStr);

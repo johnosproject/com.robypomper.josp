@@ -17,21 +17,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jod.objinfo;
+package com.robypomper.josp.clients.apis.obj;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.AbsAPIObj;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.params.objs.GenerateObjId;
 import com.robypomper.josp.paths.APIObjs;
-import com.robypomper.josp.jod.JODSettings_002;
-import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.protocol.JOSPStatusHistory;
+
+import java.util.Collections;
+import java.util.List;
 
 
 /**
  * Support class for API Objs access to the Object Info generators.
  */
-public class JCPObjectInfo extends AbsJCPAPIs {
+@SuppressWarnings("unused")
+public class APIObjsClient extends AbsAPIObj {
 
     // Constructor
 
@@ -40,8 +44,8 @@ public class JCPObjectInfo extends AbsJCPAPIs {
      *
      * @param jcpClient the JCP client.
      */
-    public JCPObjectInfo(JCPClient_Object jcpClient, JODSettings_002 settings) {
-        super(jcpClient, settings);
+    public APIObjsClient(JCPAPIsClientObj jcpClient) {
+        super(jcpClient);
     }
 
 
@@ -61,6 +65,27 @@ public class JCPObjectInfo extends AbsJCPAPIs {
             return jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_GENERATEID, String.class, params, isSecure());
         else
             return jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_REGENERATEID, String.class, params, isSecure());
+    }
+
+    /**
+     * Upload a single status to the cloud.
+     *
+     * @param statusHistory the status to upload.
+     */
+    public void uploadStatusHistory(JOSPStatusHistory statusHistory) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        uploadStatusHistory(Collections.singletonList(statusHistory));
+    }
+
+
+    // History methods
+
+    /**
+     * Upload a list of statuses to the cloud.
+     *
+     * @param statusesHistory the statuses to upload.
+     */
+    public void uploadStatusHistory(List<JOSPStatusHistory> statusesHistory) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_HISTORY, statusesHistory, isSecure());
     }
 
 }
