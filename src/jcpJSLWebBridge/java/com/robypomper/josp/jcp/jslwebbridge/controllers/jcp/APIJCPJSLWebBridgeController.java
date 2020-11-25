@@ -1,7 +1,6 @@
-package com.robypomper.josp.jcp.jslwebbridge.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers.jcp;
 
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
-import com.robypomper.josp.params.jcp.JCPGWsStatus;
 import com.robypomper.josp.params.jcp.JCPJSLWebBridgeStatus;
 import com.robypomper.josp.paths.APIJCP;
 import io.swagger.annotations.*;
@@ -11,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 
+
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIJCP.SubGroupJSLWebBridgeStatus.NAME})
 public class APIJCPJSLWebBridgeController {
