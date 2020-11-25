@@ -6,9 +6,11 @@ import com.robypomper.josp.paths.APIJCP;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpSession;
@@ -17,7 +19,6 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -28,9 +29,25 @@ public class APIJCPController {
 
     @Autowired
     private HttpSession httpSession;
+    @Autowired
+    private SwaggerConfigurer swagger;
 
 
-    // Controller's Methods
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_APIJCP() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[5];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupStatus.NAME, APIJCP.SubGroupStatus.DESCR);
+        sg[1] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupAPIsStatus.NAME, APIJCP.SubGroupAPIsStatus.DESCR);
+        sg[2] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupGWsStatus.NAME, APIJCP.SubGroupGWsStatus.DESCR);
+        sg[3] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupJSLWebBridgeStatus.NAME, APIJCP.SubGroupJSLWebBridgeStatus.DESCR);
+        sg[4] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupFEStatus.NAME, APIJCP.SubGroupFEStatus.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJCP.API_NAME, APIJCP.API_VER, sg), swagger.getUrlBaseAuth());
+    }
+
+
+    // Methods
 
     @GetMapping(path = APIJCP.FULL_PATH_STATUS)
     @ApiOperation(value = "Return ONLINE if the service is up")
