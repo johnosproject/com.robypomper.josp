@@ -1,12 +1,12 @@
 package com.robypomper.josp.jcp.fe.controllers;
 
+import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPSrvHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPUserHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
 import com.robypomper.josp.jcp.paths.fe.APIFESrv;
 import com.robypomper.josp.jcp.paths.fe.APIFEUsr;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.protocol.JOSPProtocol_Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -37,10 +37,10 @@ public class SingleJSLInstanceTest {
         // Objects
         responseBuilder.append("<p><b>Objects:</b></p>\n");
         responseBuilder.append("<ul>\n");
-        for (JOSPObjHtml o : APIFEObjsController.objectsList(session, jslService))
+        for (JOSPObjHtml o : APIFEObjsController.objectsList(jslService.listObjects(jslService.getHttp(session))))
             responseBuilder.append("<li>").append("<a href=\"").append(o.pathSingle).append("\">").append(o.name).append("</a>").append("</li>\n");
         responseBuilder.append("</ul>\n");
-        responseBuilder.append(String.format("Go to the <a href=\"%s\">full Objects list</a> (%d objects)\n", APIFEObjs.FULL_PATH_LIST, APIFEObjsController.objectsList(session, jslService).size()));
+        responseBuilder.append(String.format("Go to the <a href=\"%s\">full Objects list</a> (%d objects)\n", APIFEObjs.FULL_PATH_LIST, APIFEObjsController.objectsList(jslService.listObjects(jslService.getHttp(session))).size()));
         responseBuilder.append("<hr>\n");
 
         // User

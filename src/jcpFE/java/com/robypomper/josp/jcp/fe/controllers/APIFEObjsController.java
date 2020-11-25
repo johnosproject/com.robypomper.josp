@@ -2,56 +2,83 @@ package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
+import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.josp.protocol.JOSPPerm;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.server.ResponseStatusException;
+import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@SessionScope
-//@Api(tags = {APIFEObjs.SubGroupObjs.NAME})
+@Api(tags = {APIFEObjs.SubGroupObjs.NAME})
 public class APIFEObjsController {
 
     // Internal var
 
     @Autowired
     private JSLSpringService jslService;
+    @Autowired
+    private SwaggerConfigurer swagger;
 
 
-    // List and details
+    // Docs configs
 
-    public static List<JOSPObjHtml> objectsList(HttpSession session,
-                                                JSLSpringService jslStaticService) {
+    @Bean
+    public Docket swaggerConfig_APIFEObjs() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEObjs.SubGroupObjs.NAME, APIFEObjs.SubGroupObjs.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEObjs.API_NAME, APIFEObjs.API_VER, sg), swagger.getUrlBaseAuth());
+    }
+
+
+    // Methods - Objs List
+
+    public static List<JOSPObjHtml> objectsList(List<JSLRemoteObject> objs) {
         // Convert object list
         List<JOSPObjHtml> objHtml = new ArrayList<>();
-        for (JSLRemoteObject o : jslStaticService.listObjects(jslStaticService.getHttp(session)))
+        for (JSLRemoteObject o : objs)
             objHtml.add(new JOSPObjHtml(o));
 
         return objHtml;
     }
 
-    @GetMapping(path = APIFEObjs.FULL_PATH_LIST)
-    public ResponseEntity<List<JOSPObjHtml>> jsonObjectsList(HttpSession session) {
-        return ResponseEntity.ok(objectsList(session, jslService));
+    @GetMapping(path = APIFEObjs.FULL_PATH_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Provide the objects list")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<List<JOSPObjHtml>> jsonObjectsList(@ApiIgnore HttpSession session) {
+        return ResponseEntity.ok(objectsList(jslService.listObjects(jslService.getHttp(session))));
     }
 
     @GetMapping(path = APIFEObjs.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectsList(HttpSession session) {
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectsList(@ApiIgnore HttpSession session) {
         List<JOSPObjHtml> objHtml = jsonObjectsList(session).getBody();
         if (objHtml == null)
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on get '%s' objects list.");
@@ -64,15 +91,28 @@ public class APIFEObjsController {
         }
     }
 
-    @GetMapping(path = APIFEObjs.FULL_PATH_DETAILS)
-    public ResponseEntity<JOSPObjHtml> jsonObjectDetails(HttpSession session,
+
+    // Methods - Objs Details
+
+    @GetMapping(path = APIFEObjs.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<JOSPObjHtml> jsonObjectDetails(@ApiIgnore HttpSession session,
                                                          @PathVariable("obj_id") String objId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         return ResponseEntity.ok(new JOSPObjHtml(obj));
     }
 
     @GetMapping(path = APIFEObjs.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectDetails(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectDetails(@ApiIgnore HttpSession session,
                                     @PathVariable("obj_id") String objId) {
         JOSPObjHtml objHtml = jsonObjectDetails(session, objId).getBody();
         if (objHtml == null)
@@ -92,7 +132,12 @@ public class APIFEObjsController {
     // Set owner and name
 
     @GetMapping(path = APIFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
-    public String formObjectOwner(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String formObjectOwner(@ApiIgnore HttpSession session,
                                   CsrfToken token,
                                   @PathVariable("obj_id") String objId) {
         // ONLY HTML
@@ -114,14 +159,19 @@ public class APIFEObjsController {
                 "</form>\n";
     }
 
-    @PostMapping(path = APIFEObjs.FULL_PATH_OWNER)
-    public ResponseEntity<Boolean> jsonObjectOwner(HttpSession session,
+    @PostMapping(path = APIFEObjs.FULL_PATH_OWNER, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonObjectOwner(@ApiIgnore HttpSession session,
                                                    @PathVariable("obj_id") String objId,
                                                    @RequestParam("new_owner") String newOwner) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
         // Check permission (Preventive)
-        if (jslService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
+        if (JSLSpringService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
 
         try {
@@ -138,7 +188,12 @@ public class APIFEObjsController {
     }
 
     @PostMapping(path = APIFEObjs.FULL_PATH_OWNER, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectOwner(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectOwner(@ApiIgnore HttpSession session,
                                   @PathVariable("obj_id") String objId,
                                   @RequestParam("new_owner") String newOwner) {
         Boolean success = jsonObjectOwner(session, objId, newOwner).getBody();
@@ -147,7 +202,12 @@ public class APIFEObjsController {
     }
 
     @GetMapping(path = APIFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
-    public String formObjectRename(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String formObjectRename(@ApiIgnore HttpSession session,
                                    CsrfToken token,
                                    @PathVariable("obj_id") String objId) {
         // ONLY HTML
@@ -159,8 +219,13 @@ public class APIFEObjsController {
                 "</script>";
     }
 
-    @PostMapping(path = APIFEObjs.FULL_PATH_NAME)
-    public ResponseEntity<Boolean> jsonObjectName(HttpSession session,
+    @PostMapping(path = APIFEObjs.FULL_PATH_NAME, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonObjectName(@ApiIgnore HttpSession session,
                                                   @PathVariable("obj_id") String objId,
                                                   @RequestParam("new_name") String newName) {
 
@@ -179,7 +244,12 @@ public class APIFEObjsController {
     }
 
     @PostMapping(path = APIFEObjs.FULL_PATH_NAME, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectName(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectName(@ApiIgnore HttpSession session,
                                  @PathVariable("obj_id") String objId,
                                  @RequestParam("new_name") String newName) {
         Boolean success = jsonObjectName(session, objId, newName).getBody();
@@ -190,8 +260,13 @@ public class APIFEObjsController {
 
     // Events
 
-    @GetMapping(path = APIFEObjs.FULL_PATH_EVENTS)
-    public ResponseEntity<List<JOSPEvent>> jsonObjectEvents(HttpSession session,
+    @GetMapping(path = APIFEObjs.FULL_PATH_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<List<JOSPEvent>> jsonObjectEvents(@ApiIgnore HttpSession session,
                                                             @PathVariable("obj_id") String objId,
                                                             HistoryLimits limits) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);

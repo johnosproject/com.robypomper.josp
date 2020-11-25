@@ -26,10 +26,15 @@ import java.util.List;
 @Api(tags = {APIJCP.SubGroupFEStatus.NAME})
 public class FEController {
 
+    // Internal vars
+
     @Autowired
     private HttpSession httpSession;
     @Autowired
     private JSLSpringService jslService;
+
+
+    // Methods
 
 
     @GetMapping(path = APIJCP.FULL_PATH_FE_STATUS)

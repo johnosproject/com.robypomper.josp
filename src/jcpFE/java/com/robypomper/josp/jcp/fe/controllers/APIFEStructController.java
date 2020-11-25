@@ -2,10 +2,11 @@ package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
+import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.params.fe.*;
 import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
 import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;
@@ -14,7 +15,12 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.JOSPPerm;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +28,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -31,19 +39,36 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @RestController
-//@Api(tags = {APIFEStruct.SubGroupStructure.NAME})
+@Api(tags = {APIFEStruct.SubGroupStructure.NAME})
 public class APIFEStructController {
 
     // Internal vars
 
     @Autowired
     private JSLSpringService jslService;
+    @Autowired
+    private SwaggerConfigurer swagger;
 
 
-    // Obj's structure
+    // Docs configs
 
-    @GetMapping(path = APIFEStruct.FULL_PATH_STRUCT)
-    public ResponseEntity<JOSPStructHtml> jsonObjectStructure(HttpSession session,
+    @Bean
+    public Docket swaggerConfig_APIFEStruct() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEStruct.SubGroupStructure.NAME, APIFEStruct.SubGroupStructure.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEStruct.API_NAME, APIFEStruct.API_VER, sg), swagger.getUrlBaseAuth());
+    }
+
+
+    // Methods - Obj's Structure
+
+    @GetMapping(path = APIFEStruct.FULL_PATH_STRUCT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<JOSPStructHtml> jsonObjectStructure(@ApiIgnore HttpSession session,
                                                               @PathVariable("obj_id") String objId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
@@ -55,7 +80,12 @@ public class APIFEStructController {
     }
 
     @GetMapping(path = APIFEStruct.FULL_PATH_STRUCT, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectStructure(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectStructure(@ApiIgnore HttpSession session,
                                       @PathVariable("obj_id") String objId) {
         JOSPStructHtml structHtml = jsonObjectStructure(session, objId).getBody();
         if (structHtml == null)
@@ -74,8 +104,13 @@ public class APIFEStructController {
 
     // Obj's compos
 
-    @GetMapping(path = APIFEStruct.FULL_PATH_COMP)
-    public ResponseEntity<JOSPComponentHtml> jsonObjectComponent(HttpSession session,
+    @GetMapping(path = APIFEStruct.FULL_PATH_COMP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<JOSPComponentHtml> jsonObjectComponent(@ApiIgnore HttpSession session,
                                                                  @PathVariable("obj_id") String objId,
                                                                  @PathVariable("comp_path") String compPath) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
@@ -89,7 +124,12 @@ public class APIFEStructController {
     }
 
     @GetMapping(path = APIFEStruct.FULL_PATH_COMP, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectComponent(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectComponent(@ApiIgnore HttpSession session,
                                       @PathVariable("obj_id") String objId,
                                       @PathVariable("comp_path") String compPath) {
         JOSPComponentHtml compHtml = jsonObjectComponent(session, objId, compPath).getBody();

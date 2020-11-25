@@ -2,19 +2,27 @@ package com.robypomper.josp.jcp.fe.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
+import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.params.fe.JOSPPermHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
 import com.robypomper.josp.jcp.paths.fe.APIFEPermissions;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.protocol.JOSPPerm;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -23,19 +31,35 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @RestController
-//@Api(tags = {APIFEPermissions.SubGroupPermissions.NAME})
+@Api(tags = {APIFEPermissions.SubGroupPermissions.NAME})
 public class APIFEPermissionsController {
 
     // Internal vars
 
     @Autowired
     private JSLSpringService jslService;
+    @Autowired
+    private SwaggerConfigurer swagger;
 
 
-    // Obj's perms list
+    // Docs configs
 
-    @GetMapping(path = APIFEPermissions.FULL_PATH_LIST)
-    public ResponseEntity<List<JOSPPermHtml>> jsonObjectPermissions(HttpSession session,
+    @Bean
+    public Docket swaggerConfig_APIFEPermissions() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEPermissions.SubGroupPermissions.NAME, APIFEPermissions.SubGroupPermissions.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEPermissions.API_NAME, APIFEPermissions.API_VER, sg), swagger.getUrlBaseAuth());
+    }
+
+
+    // Methods - Obj's Perms List
+
+    @GetMapping(path = APIFEPermissions.FULL_PATH_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<List<JOSPPermHtml>> jsonObjectPermissions(@ApiIgnore HttpSession session,
                                                                     @PathVariable("obj_id") String objId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
 
@@ -52,7 +76,11 @@ public class APIFEPermissionsController {
     }
 
     @GetMapping(path = APIFEPermissions.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissions(HttpSession session,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectPermissions(@ApiIgnore HttpSession session,
                                         @PathVariable("obj_id") String objId) {
         List<JOSPPermHtml> permsHtml = jsonObjectPermissions(session, objId).getBody();
         if (permsHtml == null)
@@ -69,9 +97,13 @@ public class APIFEPermissionsController {
     }
 
 
-    // Obj's perm add
+    // Methods - Obj's perm add
 
     @GetMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
     public String formObjectPermissionAdd(CsrfToken token,
                                           @PathVariable("obj_id") String objId) {
         // ONLY HTML
@@ -102,8 +134,12 @@ public class APIFEPermissionsController {
                 "</script>";
     }
 
-    @PostMapping(path = APIFEPermissions.FULL_PATH_ADD)
-    public ResponseEntity<Boolean> jsonObjectPermissionAdd(HttpSession session,
+    @PostMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonObjectPermissionAdd(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @RequestParam("srv_id") String srvId,
                                                            @RequestParam("usr_id") String usrId,
@@ -129,7 +165,11 @@ public class APIFEPermissionsController {
     }
 
     @PostMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionAdd(HttpSession session,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectPermissionAdd(@ApiIgnore HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @RequestParam("srv_id") String srvId,
                                           @RequestParam("usr_id") String usrId,
@@ -141,10 +181,14 @@ public class APIFEPermissionsController {
     }
 
 
-    // Obj's perm upd
+    // Methods - Obj's perm upd
 
     @GetMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
-    public String formObjectPermissionUpd(HttpSession session,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String formObjectPermissionUpd(@ApiIgnore HttpSession session,
                                           CsrfToken token,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
@@ -174,8 +218,12 @@ public class APIFEPermissionsController {
                 "</script>";
     }
 
-    @PostMapping(path = APIFEPermissions.FULL_PATH_UPD)
-    public ResponseEntity<Boolean> jsonObjectPermissionUpd(HttpSession session,
+    @PostMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonObjectPermissionUpd(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId,
                                                            @RequestParam(value = "srv_id", required = false) String srvId,
@@ -212,7 +260,11 @@ public class APIFEPermissionsController {
     }
 
     @PostMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionUpd(HttpSession session,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectPermissionUpd(@ApiIgnore HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId,
                                           @RequestParam(value = "srv_id", required = false) String srvId,
@@ -224,10 +276,14 @@ public class APIFEPermissionsController {
         return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
 
-    // Obj's perm remove
+    // Methods - Obj's perm remove
 
-    @GetMapping(path = APIFEPermissions.FULL_PATH_DEL)
-    public ResponseEntity<Boolean> jsonObjectPermissionDel(HttpSession session,
+    @GetMapping(path = APIFEPermissions.FULL_PATH_DEL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonObjectPermissionDel(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
@@ -252,7 +308,11 @@ public class APIFEPermissionsController {
     }
 
     @GetMapping(path = APIFEPermissions.FULL_PATH_DEL, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionDel(HttpSession session,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectPermissionDel(@ApiIgnore HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
         Boolean success = jsonObjectPermissionDel(session, objId, permId).getBody();
@@ -261,10 +321,14 @@ public class APIFEPermissionsController {
     }
 
 
-    // Obj's perm duplicate
+    // Methods - Obj's perm duplicate
 
-    @GetMapping(path = APIFEPermissions.FULL_PATH_DUP)
-    public ResponseEntity<Boolean> jsonObjectPermissionDup(HttpSession session,
+    @GetMapping(path = APIFEPermissions.FULL_PATH_DUP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonObjectPermissionDup(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
@@ -289,15 +353,16 @@ public class APIFEPermissionsController {
     }
 
     @GetMapping(path = APIFEPermissions.FULL_PATH_DUP, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlObjectPermissionDup(HttpSession session,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlObjectPermissionDup(@ApiIgnore HttpSession session,
                                           @PathVariable("obj_id") String objId,
                                           @PathVariable("perm_id") String permId) {
         Boolean success = jsonObjectPermissionDup(session, objId, permId).getBody();
         success = success != null && success;
         return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
-
-
-    // Shared structures
 
 }
