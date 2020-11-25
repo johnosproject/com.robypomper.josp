@@ -1,4 +1,4 @@
-Placeholder for API Permissions
+Placeholder for API Front End - ServiceSideEvents
 
 <a href="/swagger-ui.html?urls.primaryName=default">
 Back to All APIs

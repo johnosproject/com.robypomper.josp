@@ -27,6 +27,11 @@ package com.robypomper.josp.info;
  */
 public class JCPAPIsVersions {
 
+    // Name
+
+    public static final String API_NAME = "JCP APIs";
+
+
     // Path
 
     public static final String PATH_API_BASE = "/apis";

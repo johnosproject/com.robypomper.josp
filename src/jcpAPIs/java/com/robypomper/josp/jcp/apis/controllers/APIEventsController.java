@@ -20,20 +20,23 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.java.JavaString;
+import com.robypomper.josp.info.JCPAPIsVersions;
+import com.robypomper.josp.jcp.db.apis.EventDBService;
+import com.robypomper.josp.jcp.db.apis.entities.Event;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.paths.APIEvents;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
-import com.robypomper.josp.jcp.db.apis.EventDBService;
-import com.robypomper.josp.jcp.db.apis.entities.Event;
 import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.List;
@@ -42,6 +45,7 @@ import java.util.List;
 /**
  * Base JCP API Events controller...
  */
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIEvents.SubGroupEvent.NAME})
 public class APIEventsController {
@@ -50,9 +54,21 @@ public class APIEventsController {
 
     @Autowired
     private EventDBService eventService;
+    @Autowired
+    private SwaggerConfigurer swagger;
 
 
-    // Methods Objects
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_APIEvents() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIEvents.SubGroupEvent.NAME, APIEvents.SubGroupEvent.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIEvents.API_NAME, APIEvents.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+    }
+
+
+    // Methods
 
     @GetMapping(path = APIEvents.FULL_PATH_OBJECT)
     @ApiOperation(value = "Return latest events from current object",

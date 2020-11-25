@@ -2,38 +2,66 @@ package com.robypomper.josp.jcp.fe.controllers;
 
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
+import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
 import com.robypomper.josp.jcp.paths.fe.APIFEAction;
 import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
+@SuppressWarnings("unused")
 @RestController
-//@Api(tags = {APIFEAction.SubGroupAction.NAME})
+@Api(tags = {APIFEAction.SubGroupAction.NAME})
 public class APIFEActionController {
 
     // Internal vars
 
     @Autowired
     private JSLSpringService jslService;
+    @Autowired
+    private SwaggerConfigurer swagger;
 
 
-    // Boolean
+    // Docs configs
 
-    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_SWITCH)
-    public ResponseEntity<Boolean> jsonBoolSwitch(HttpSession session,
+    @Bean
+    public Docket swaggerConfig_APIFEAction() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEAction.SubGroupAction.NAME, APIFEAction.SubGroupAction.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEAction.API_NAME, APIFEAction.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+    }
+
+
+    // Methods - Boolean
+
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_SWITCH, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonBoolSwitch(@ApiIgnore HttpSession session,
                                                   @PathVariable("obj_id") String objId,
                                                   @PathVariable("comp_path") String compPath) {
         JSLBooleanAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class);
@@ -51,15 +79,25 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_BOOL_SWITCH, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlBoolSwitch(HttpServletRequest request,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlBoolSwitch(@ApiIgnore HttpServletRequest request,
                                  @PathVariable("obj_id") String objId,
                                  @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonBoolSwitch(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_TRUE)
-    public ResponseEntity<Boolean> jsonBoolTrue(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_TRUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonBoolTrue(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLBooleanAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class);
@@ -78,15 +116,25 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_BOOL_TRUE, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlBoolTrue(HttpServletRequest request,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlBoolTrue(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonBoolTrue(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_FALSE)
-    public ResponseEntity<Boolean> jsonBoolFalse(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_FALSE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonBoolFalse(@ApiIgnore HttpSession session,
                                                  @PathVariable("obj_id") String objId,
                                                  @PathVariable("comp_path") String compPath) {
         JSLBooleanAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class);
@@ -105,7 +153,12 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_BOOL_FALSE, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlBoolFalse(HttpServletRequest request,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlBoolFalse(@ApiIgnore HttpServletRequest request,
                                 @PathVariable("obj_id") String objId,
                                 @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonBoolFalse(request.getSession(), objId, compPath).getBody();
@@ -113,16 +166,27 @@ public class APIFEActionController {
     }
 
 
-    // Range actions
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SET)
-    public String jospRangeSet_Error(HttpSession session,
+    // Methods - Range
+
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String jospRangeSet_Error(@ApiIgnore HttpSession session,
                                      @PathVariable("obj_id") String objId,
                                      @PathVariable("comp_path") String compPath) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'val' parameter in GET request");
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
-    public String formRangeSet(HttpSession session,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String formRangeSet(@ApiIgnore HttpSession session,
                                CsrfToken token,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
@@ -139,8 +203,13 @@ public class APIFEActionController {
                 "</script>";
     }
 
-    @PostMapping(path = APIFEAction.FULL_PATH_RANGE_SET)
-    public ResponseEntity<Boolean> jsonRangeSet_POST(HttpSession session,
+    @PostMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRangeSet_POST(@ApiIgnore HttpSession session,
                                                      @PathVariable("obj_id") String objId,
                                                      @PathVariable("comp_path") String compPath,
                                                      @RequestParam("val") String val) {
@@ -148,7 +217,12 @@ public class APIFEActionController {
     }
 
     @PostMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRangeSet_POST(HttpServletRequest request,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRangeSet_POST(@ApiIgnore HttpServletRequest request,
                                     @PathVariable("obj_id") String objId,
                                     @PathVariable("comp_path") String compPath,
                                     @RequestParam("val") String val,
@@ -156,8 +230,13 @@ public class APIFEActionController {
         return htmlRangeSet(request, objId, compPath, val, originUrl);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SETg)
-    public ResponseEntity<Boolean> jsonRangeSet(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SETg, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRangeSet(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath,
                                                 @PathVariable("val") String val) {
@@ -180,7 +259,12 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SETg, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRangeSet(HttpServletRequest request,
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRangeSet(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath,
                                @PathVariable("val") String val,
@@ -193,8 +277,13 @@ public class APIFEActionController {
         return HTMLUtils.redirectAndReturn(originUrl, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_INC)
-    public ResponseEntity<Boolean> jsonRangeInc(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_INC, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "&&Description&&")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRangeInc(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
@@ -212,15 +301,23 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_INC, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRangeInc(HttpServletRequest request,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRangeInc(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonRangeInc(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_DEC)
-    public ResponseEntity<Boolean> jsonRangeDec(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_DEC, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRangeDec(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
@@ -238,15 +335,23 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_DEC, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRangeDec(HttpServletRequest request,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRangeDec(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonRangeDec(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MAX)
-    public ResponseEntity<Boolean> jsonRangeMax(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MAX, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRangeMax(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
@@ -264,15 +369,23 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MAX, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRangeMax(HttpServletRequest request,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRangeMax(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonRangeMax(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MIN)
-    public ResponseEntity<Boolean> jsonRangeMin(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MIN, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRangeMin(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
@@ -290,15 +403,23 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MIN, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRangeMin(HttpServletRequest request,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRangeMin(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonRangeMin(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_2)
-    public ResponseEntity<Boolean> jsonRange1_2(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_2, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRange1_2(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
@@ -317,15 +438,23 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_2, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRange1_2(HttpServletRequest request,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRange1_2(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonRange1_2(request.getSession(), objId, compPath).getBody();
         return HTMLUtils.redirectBackAndReturn(request, success);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_3)
-    public ResponseEntity<Boolean> jsonRange1_3(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_3, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRange1_3(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
@@ -344,7 +473,11 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_3, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRange1_3(HttpServletRequest request,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRange1_3(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonRange1_3(request.getSession(), objId, compPath).getBody();
@@ -352,8 +485,12 @@ public class APIFEActionController {
     }
 
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_2_3)
-    public ResponseEntity<Boolean> jsonRange2_3(HttpSession session,
+    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_2_3, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<Boolean> jsonRange2_3(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
@@ -372,7 +509,11 @@ public class APIFEActionController {
     }
 
     @GetMapping(path = APIFEAction.FULL_PATH_RANGE_2_3, produces = MediaType.TEXT_HTML_VALUE)
-    public String htmlRange2_3(HttpServletRequest request,
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlRange2_3(@ApiIgnore HttpServletRequest request,
                                @PathVariable("obj_id") String objId,
                                @PathVariable("comp_path") String compPath) {
         @SuppressWarnings("ConstantConditions") boolean success = jsonRange2_3(request.getSession(), objId, compPath).getBody();

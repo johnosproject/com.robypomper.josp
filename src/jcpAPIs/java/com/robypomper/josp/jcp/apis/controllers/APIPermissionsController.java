@@ -19,12 +19,15 @@
 
 package com.robypomper.josp.jcp.apis.controllers;
 
+import com.robypomper.josp.info.JCPAPIsVersions;
+import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APIPermissions;
-import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.ArrayList;
@@ -55,6 +58,18 @@ public class APIPermissionsController {
 
     @Autowired
     private PermissionsDBService permissionsDBService;
+    @Autowired
+    private SwaggerConfigurer swagger;
+
+
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_APIPermissions() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIPermissions.SubGroupObjPerm.NAME, APIPermissions.SubGroupObjPerm.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIPermissions.API_NAME, APIPermissions.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+    }
 
 
     // Methods

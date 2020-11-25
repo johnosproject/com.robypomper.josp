@@ -1,4 +1,4 @@
-Placeholder for JCP Login APIs
+Placeholder for API Front End - Service
 
 <a href="/swagger-ui.html?urls.primaryName=default">
 Back to All APIs
