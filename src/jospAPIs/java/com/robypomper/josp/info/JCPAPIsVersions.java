@@ -27,8 +27,13 @@ package com.robypomper.josp.info;
  */
 public class JCPAPIsVersions {
 
+    // Path
 
-    // Versions APIs
+    public static final String PATH_API_BASE = "/apis";
+    public static final String PATH_AUTH_BASE = "/auth";
+
+
+    // Versions
 
     public static final String VER_TEST_2_0 = "2.0-TEST";
     public static final String VER_JCP_APIs_2_0 = "2.0";

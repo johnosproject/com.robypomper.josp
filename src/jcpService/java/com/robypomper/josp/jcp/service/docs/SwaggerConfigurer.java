@@ -110,28 +110,8 @@ public class SwaggerConfigurer {
     @Bean
     public Docket cloudStatusApis() {
         APISubGroup[] sg = new APISubGroup[1];
-        sg[0] = new APISubGroup(APICloudStatus.SubGroupStatus.NAME, APICloudStatus.SubGroupStatus.DESCR);
-        return createAPIsGroup(new APIGroup(APICloudStatus.API_NAME, APICloudStatus.API_VER, sg));
-    }
-
-    @Bean
-    public Docket mngmApis() {
-        APISubGroup[] sg = new APISubGroup[4];
-        sg[0] = new APISubGroup(APIMngr.SubGroupGWs.NAME, APIMngr.SubGroupGWs.DESCR);
-        sg[1] = new APISubGroup(APIMngr.SubGroupObjs.NAME, APIMngr.SubGroupObjs.DESCR);
-        sg[2] = new APISubGroup(APIMngr.SubGroupSrvs.NAME, APIMngr.SubGroupSrvs.DESCR);
-        sg[3] = new APISubGroup(APIMngr.SubGroupUsrs.NAME, APIMngr.SubGroupUsrs.DESCR);
-        return createAPIsGroup(new APIGroup(APIMngr.API_NAME, APIMngr.API_VER, sg));
-    }
-
-    @Bean
-    public Docket exampleApis() {
-        APISubGroup[] sg = new APISubGroup[4];
-        sg[0] = new APISubGroup(ExampleAPIs.SubGroupMethods.NAME, ExampleAPIs.SubGroupMethods.DESCR);
-        sg[1] = new APISubGroup(ExampleAPIs.SubGroupDB.NAME, ExampleAPIs.SubGroupDB.DESCR);
-        sg[2] = new APISubGroup(ExampleAPIs.SubGroupAuthentication.NAME, ExampleAPIs.SubGroupAuthentication.DESCR);
-        sg[3] = new APISubGroup(ExampleAPIs.SubGroupAuthorization.NAME, ExampleAPIs.SubGroupAuthorization.DESCR);
-        return createAPIsGroup(new APIGroup(ExampleAPIs.API_NAME, ExampleAPIs.API_VER, sg));
+        sg[0] = new APISubGroup(APIJCP.SubGroupStatus.NAME, APIJCP.SubGroupStatus.DESCR);
+        return createAPIsGroup(new APIGroup(APIJCP.API_NAME, APIJCP.API_VER, sg));
     }
 
     @Bean
@@ -165,8 +145,8 @@ public class SwaggerConfigurer {
     @Bean
     public Docket jospgwsApis() {
         APISubGroup[] sg = new APISubGroup[1];
-        sg[0] = new APISubGroup(APIJOSPGWs.SubGroupGWs.NAME, APIJOSPGWs.SubGroupGWs.DESCR);
-        return createAPIsGroup(new APIGroup(APIJOSPGWs.API_NAME, APIJOSPGWs.API_VER, sg));
+        sg[0] = new APISubGroup(APIGWs.SubGroupGWs.NAME, APIGWs.SubGroupGWs.DESCR);
+        return createAPIsGroup(new APIGroup(APIGWs.API_NAME, APIGWs.API_VER, sg));
     }
 
     @Bean
@@ -309,7 +289,7 @@ public class SwaggerConfigurer {
 
 
         public String getPath() {
-            return String.format("%s/%s/%s/**", JcpAPI.PATH_API_BASE, getName(), getVersion());
+            return String.format("%s/%s/%s/**", JCPAPIsVersions.PATH_API_BASE, getName(), getVersion());
         }
 
         public String getTitle() {

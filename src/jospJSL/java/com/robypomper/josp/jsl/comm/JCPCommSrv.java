@@ -22,7 +22,7 @@ import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
 import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.params.jospgws.S2OAccessRequest;
-import com.robypomper.josp.paths.APIJOSPGWs;
+import com.robypomper.josp.paths.APIGWs;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
@@ -67,7 +67,7 @@ public class JCPCommSrv extends AbsJCPAPIs {
      * @return the GW S2O access info.
      */
     public S2OAccessInfo getS2OAccessInfo(Certificate clietnPublicCertificate) throws CertificateEncodingException, JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.POST, APIJOSPGWs.FULL_PATH_S2O_ACCESS, S2OAccessInfo.class, new S2OAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), isSecure());
+        return jcpClient.execReq(Verb.POST, APIGWs.FULL_PATH_S2O_ACCESS, S2OAccessInfo.class, new S2OAccessRequest(instanceId, clietnPublicCertificate.getEncoded()), isSecure());
     }
 
 }

@@ -26,6 +26,7 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.robypomper.java.JavaSSLIgnoreChecks;
+import com.robypomper.josp.paths.APIJCP;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
@@ -215,8 +216,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
     private void checkServerReachability() throws JCPNotReachableException {
-        checkServerReachability(false,"/apis/Status/2.0/");
-        checkServerReachability(true,"/auth/realms/jcp/.well-known/openid-configuration");
+        checkServerReachability(false, APIJCP.FULL_PATH_STATUS);
+        checkServerReachability(true, "/auth/realms/jcp/.well-known/openid-configuration");
     }
 
     private void checkServerReachability(boolean toAuth, String path) throws JCPNotReachableException {
