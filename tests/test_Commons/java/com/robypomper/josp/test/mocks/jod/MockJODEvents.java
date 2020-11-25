@@ -2,7 +2,7 @@ package com.robypomper.josp.test.mocks.jod;
 
 import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.jod.events.JODEvents;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 
@@ -12,7 +12,7 @@ import java.util.List;
 public class MockJODEvents implements JODEvents {
 
     @Override
-    public void setJCPClient(JCPClient_Object jcpClient) {
+    public void setJCPClient(JCPAPIsClientObj jcpClient) {
     }
 
     @Override

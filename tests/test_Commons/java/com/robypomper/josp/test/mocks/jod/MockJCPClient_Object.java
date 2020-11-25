@@ -20,15 +20,17 @@
 package com.robypomper.josp.test.mocks.jod;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
+import com.robypomper.josp.clients.JCPClient2;
 
 import java.util.Map;
 
-public class MockJCPClient_Object implements JCPClient_Object {
+public class MockJCPClient_Object extends JCPAPIsClientObj {
+
     public MockJCPClient_Object() {
+        super(false, null, null, null, null);
     }
 
-    @Override
     public void setObjectId(String objId) {
 
     }

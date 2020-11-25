@@ -20,23 +20,32 @@
 package com.robypomper.josp.test.mocks.jsl;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
 
 import java.util.Map;
 
-public class MockJCPClient_Service implements JCPClient_Service {
-    @Override
+public class MockJCPClient_Service extends JCPAPIsClientSrv {
+
+    public MockJCPClient_Service() {
+        super(false, null, null, null, null);
+    }
+
     public void setServiceId(String srvId) {
 
     }
 
-    @Override
     public void setUserId(String usrId) {
 
     }
 
+    public void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException {
+    }
+
     @Override
-    public void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException {}
+    protected void storeTokens() {
+
+    }
 
     @Override
     public boolean isConnected() {
