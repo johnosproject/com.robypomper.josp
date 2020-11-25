@@ -20,9 +20,9 @@ package com.robypomper.josp.jsl.comm;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
-import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessRequest;
-import com.robypomper.josp.jcp.apis.paths.APIJOSPGWs;
+import com.robypomper.josp.params.jospgws.S2OAccessInfo;
+import com.robypomper.josp.params.jospgws.S2OAccessRequest;
+import com.robypomper.josp.paths.APIJOSPGWs;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;

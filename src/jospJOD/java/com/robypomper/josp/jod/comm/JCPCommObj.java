@@ -21,9 +21,9 @@ package com.robypomper.josp.jod.comm;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
-import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessRequest;
-import com.robypomper.josp.jcp.apis.paths.APIJOSPGWs;
+import com.robypomper.josp.params.jospgws.O2SAccessInfo;
+import com.robypomper.josp.params.jospgws.O2SAccessRequest;
+import com.robypomper.josp.paths.APIJOSPGWs;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
 import com.robypomper.josp.jod.jcpclient.JCPClient_Object;

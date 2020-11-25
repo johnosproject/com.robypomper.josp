@@ -1,11 +1,11 @@
 package com.robypomper.josp.jcp.fe.apis;
 
 import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.cloud.params.CloudStatus;
-import com.robypomper.josp.jcp.fe.apis.params.JOSPCloudStatus;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFECloudStatus;
+import com.robypomper.josp.params.cloud.CloudStatus;
+import com.robypomper.josp.jcp.params.fe.JOSPCloudStatus;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFECloudStatus;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
-import com.robypomper.josp.jcp.fe.security.HttpSessionCollector;
+import com.robypomper.josp.jcp.service.spring.HttpSessionCollector;
 import com.robypomper.josp.jsl.JSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

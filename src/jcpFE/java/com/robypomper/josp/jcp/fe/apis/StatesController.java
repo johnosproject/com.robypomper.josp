@@ -2,9 +2,9 @@ package com.robypomper.josp.jcp.fe.apis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEObjs;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEState;
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFEStructure;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEObjs;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEState;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFEStructure;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;

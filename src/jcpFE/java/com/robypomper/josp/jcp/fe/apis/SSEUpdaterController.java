@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.fe.apis;
 
-import com.robypomper.josp.jcp.fe.apis.paths.APIJCPFESSEUpdater;
+import com.robypomper.josp.jcp.paths.fe.APIJCPFESSEUpdater;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

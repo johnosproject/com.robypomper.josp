@@ -19,10 +19,9 @@
 
 package com.robypomper.josp.jcp.apis.jcp;
 
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
-import com.robypomper.josp.jcp.apis.paths.APIPermissions;
-import com.robypomper.josp.jcp.db.PermissionsDBService;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.paths.APIPermissions;
+import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.ArrayList;

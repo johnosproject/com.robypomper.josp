@@ -20,14 +20,13 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.java.JavaRandomStrings;
-import com.robypomper.josp.jcp.apis.params.objs.GenerateObjId;
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
-import com.robypomper.josp.jcp.db.ObjectDBService;
-import com.robypomper.josp.jcp.db.StatusHistoryDBService;
-import com.robypomper.josp.jcp.db.entities.Object;
-import com.robypomper.josp.jcp.db.entities.ObjectId;
-import com.robypomper.josp.jcp.db.entities.ObjectStatusHistory;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.params.objs.GenerateObjId;
+import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.jcp.db.apis.ObjectDBService;
+import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
+import com.robypomper.josp.jcp.db.apis.entities.Object;
+import com.robypomper.josp.jcp.db.apis.entities.ObjectId;
+import com.robypomper.josp.jcp.db.apis.entities.ObjectStatusHistory;
 import com.robypomper.josp.protocol.JOSPStatusHistory;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.List;

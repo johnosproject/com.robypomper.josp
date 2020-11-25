@@ -19,9 +19,9 @@
 
 package com.robypomper.josp.jcp.apis.examples;
 
-import com.robypomper.josp.jcp.apis.paths.ExampleAPIs;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.security.SecurityUser;
+import com.robypomper.josp.paths.ExampleAPIs;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import com.robypomper.josp.jcp.service.spring.SecurityUser;
 import io.swagger.annotations.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

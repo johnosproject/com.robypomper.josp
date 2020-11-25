@@ -77,12 +77,14 @@ configurations {}
 dependencies {
 
     // JOSP JOD
-    jospJODImplementation "com.robypomper.josp:jcpAPIsPublic:${project.ext.get("version.jcpAPIsPublic")}"
+    if (!project.ext.get("deps.jospCommonsDisabled"))
+        jospJODImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
     jospJODImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
     jospJODImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
 
     // JOSP JSL
-    jospJSLImplementation "com.robypomper.josp:jcpAPIsPublic:${project.ext.get("version.jcpAPIsPublic")}"
+    if (!project.ext.get("deps.jospCommonsDisabled"))
+        jospJSLImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
     jospJSLImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
     jospJSLImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
 

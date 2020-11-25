@@ -1,10 +1,10 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.cloud.params.CloudStatus;
-import com.robypomper.josp.jcp.apis.params.admin.JCPCloudStatus;
-import com.robypomper.josp.jcp.apis.paths.APICloudStatus;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.params.cloud.CloudStatus;
+import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.paths.APICloudStatus;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

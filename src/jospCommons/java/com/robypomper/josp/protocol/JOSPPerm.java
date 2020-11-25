@@ -21,6 +21,7 @@ package com.robypomper.josp.protocol;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.robypomper.java.JavaRandomStrings;
+import com.robypomper.josp.consts.JOSP;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -98,11 +99,11 @@ public class JOSPPerm {
         /**
          * Reference for anonymous user's id
          */
-        USR_ANONYMOUS_ID("00000-00000-00000"),
+        USR_ANONYMOUS_ID(JOSP.ANONYMOUS_ID),
         /**
          * Reference for anonymous user's name
          */
-        USR_ANONYMOUS_NAME("Anonymous"),
+        USR_ANONYMOUS_NAME(JOSP.ANONYMOUS_USERNAME),
         /**
          * Indicate that the permission is applicable to all services.
          */

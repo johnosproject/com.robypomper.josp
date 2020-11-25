@@ -1,17 +1,17 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.cloud.apis.CloudStatusControllerBase;
-import com.robypomper.josp.jcp.apis.params.admin.JCPCloudStatus;
-import com.robypomper.josp.jcp.apis.paths.APIMngr;
-import com.robypomper.josp.jcp.db.ObjectDBService;
-import com.robypomper.josp.jcp.db.ServiceDBService;
-import com.robypomper.josp.jcp.db.UserDBService;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.params.admin.JCPCloudStatus;
+import com.robypomper.josp.paths.APIMngr;
+import com.robypomper.josp.jcp.db.apis.ObjectDBService;
+import com.robypomper.josp.jcp.db.apis.ServiceDBService;
+import com.robypomper.josp.jcp.db.apis.UserDBService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 
 import javax.annotation.security.RolesAllowed;
 

@@ -20,12 +20,11 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.java.JavaString;
-import com.robypomper.josp.jcp.apis.paths.APIEvents;
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
-import com.robypomper.josp.jcp.apis.paths.APISrvs;
-import com.robypomper.josp.jcp.db.EventDBService;
-import com.robypomper.josp.jcp.db.entities.Event;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.paths.APIEvents;
+import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.jcp.db.apis.EventDBService;
+import com.robypomper.josp.jcp.db.apis.entities.Event;
 import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.*;
@@ -34,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.List;

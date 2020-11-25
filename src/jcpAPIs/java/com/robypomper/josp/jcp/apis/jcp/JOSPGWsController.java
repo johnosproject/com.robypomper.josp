@@ -20,14 +20,14 @@
 package com.robypomper.josp.jcp.apis.jcp;
 
 import com.robypomper.communication.UtilsJKS;
-import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessInfo;
-import com.robypomper.josp.jcp.apis.params.jospgws.O2SAccessRequest;
-import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
-import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessRequest;
-import com.robypomper.josp.jcp.apis.paths.APIJOSPGWs;
-import com.robypomper.josp.jcp.apis.paths.APIObjs;
-import com.robypomper.josp.jcp.apis.paths.APISrvs;
-import com.robypomper.josp.jcp.docs.SwaggerConfigurer;
+import com.robypomper.josp.params.jospgws.O2SAccessInfo;
+import com.robypomper.josp.params.jospgws.O2SAccessRequest;
+import com.robypomper.josp.params.jospgws.S2OAccessInfo;
+import com.robypomper.josp.params.jospgws.S2OAccessRequest;
+import com.robypomper.josp.paths.APIJOSPGWs;
+import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
 import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
 import io.swagger.annotations.*;
