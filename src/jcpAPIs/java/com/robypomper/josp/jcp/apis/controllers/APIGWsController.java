@@ -20,6 +20,7 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.communication.UtilsJKS;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
 import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
@@ -55,6 +56,7 @@ import java.security.cert.CertificateEncodingException;
  * This controller expose methods used by the JOD Objects and JSL Services to
  * manage their JOSP GWs connections.
  */
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIGWs.SubGroupGWs.NAME})
 public class APIGWsController {
@@ -76,7 +78,7 @@ public class APIGWsController {
     public Docket swaggerConfig_APIGWs() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIGWs.SubGroupGWs.NAME, APIGWs.SubGroupGWs.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIGWs.API_NAME, APIGWs.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIGWs.API_NAME, APIGWs.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -108,7 +110,7 @@ public class APIGWsController {
         if (objId == null || objId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
 
-        Certificate clientCertificate = null;
+        Certificate clientCertificate;
         try {
             clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.objCertificate);
         } catch (UtilsJKS.LoadingException e) {
@@ -120,7 +122,7 @@ public class APIGWsController {
 
         InetAddress gwAddress = gwO2SService.getPublicAddress(objId);
         int gwPort = gwO2SService.getPort(objId);
-        byte[] gwCert = null;
+        byte[] gwCert;
         try {
             gwCert = gwO2SService.getPublicCertificate(objId).getEncoded();
         } catch (CertificateEncodingException e) {
@@ -158,7 +160,7 @@ public class APIGWsController {
         if (srvId == null || srvId.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APISrvs.HEADER_SRVID));
 
-        Certificate clientCertificate = null;
+        Certificate clientCertificate;
         try {
             clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.srvCertificate);
         } catch (UtilsJKS.LoadingException e) {
@@ -170,7 +172,7 @@ public class APIGWsController {
 
         InetAddress gwAddress = gwS2OService.getPublicAddress(srvId);
         int gwPort = gwS2OService.getPort(srvId);
-        byte[] gwCert = null;
+        byte[] gwCert;
         try {
             gwCert = gwS2OService.getPublicCertificate(srvId).getEncoded();
         } catch (CertificateEncodingException e) {

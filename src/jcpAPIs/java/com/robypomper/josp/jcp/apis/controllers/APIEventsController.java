@@ -20,6 +20,7 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.java.JavaString;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.db.apis.EventDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Event;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
@@ -44,6 +45,7 @@ import java.util.List;
 /**
  * Base JCP API Events controller...
  */
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIEvents.SubGroupEvent.NAME})
 public class APIEventsController {
@@ -62,7 +64,7 @@ public class APIEventsController {
     public Docket swaggerConfig_APIEvents() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIEvents.SubGroupEvent.NAME, APIEvents.SubGroupEvent.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIEvents.API_NAME, APIEvents.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIEvents.API_NAME, APIEvents.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 

@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.jcp.apis.controllers;
 
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.paths.APIObjs;
@@ -67,7 +68,7 @@ public class APIPermissionsController {
     public Docket swaggerConfig_APIPermissions() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIPermissions.SubGroupObjPerm.NAME, APIPermissions.SubGroupObjPerm.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIPermissions.API_NAME, APIPermissions.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIPermissions.API_NAME, APIPermissions.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 

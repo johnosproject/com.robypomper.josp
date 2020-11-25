@@ -20,6 +20,7 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.java.JavaRandomStrings;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
@@ -73,7 +74,7 @@ public class APIObjsController {
     public Docket swaggerConfig_APIObjs() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIObjs.SubGroupInfo.NAME, APIObjs.SubGroupInfo.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIObjs.API_NAME, APIObjs.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIObjs.API_NAME, APIObjs.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 

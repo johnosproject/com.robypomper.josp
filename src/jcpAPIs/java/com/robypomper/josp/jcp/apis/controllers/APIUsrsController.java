@@ -20,6 +20,7 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.db.apis.UserDBService;
 import com.robypomper.josp.jcp.db.apis.entities.User;
 import com.robypomper.josp.jcp.external.resources.auth.AuthDefault;
@@ -47,6 +48,7 @@ import java.util.Optional;
 /**
  * Base JCP API Usrs controller, dedicated to provide current user info.
  */
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIUsrs.SubGroupInfo.NAME})
 public class APIUsrsController {
@@ -69,7 +71,7 @@ public class APIUsrsController {
     public Docket swaggerConfig_APIUsrs() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
         sg[0] = new SwaggerConfigurer.APISubGroup(APIUsrs.SubGroupInfo.NAME, APIUsrs.SubGroupInfo.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIUsrs.API_NAME, APIUsrs.API_VER, sg), swagger.getUrlBaseAuth());
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIUsrs.API_NAME, APIUsrs.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 

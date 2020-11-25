@@ -24,6 +24,8 @@ import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIJCP.SubGroupAPIsStatus.NAME})
 public class APIsController {
