@@ -50,25 +50,26 @@ import org.apache.logging.log4j.Logger;
  * As workaround of development localhost hostname usage, this class disable the
  * SSL checks and the connect to configured the server.
  */
-public class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
+public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    public static final String JCP_NAME = "JCP APIs";
+    public final String apiName;
 
 
     // Constructor
 
-    public JCPAPIsClientJCP(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth) {
+    public JCPAPIsClientJCP(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String apiName) {
         super(client, secret, urlAPIs, useSSL, urlAuth, "openid", "", "jcp", 30);
+        this.apiName = apiName;
         addConnectListener(this);
 
         try {
             connect();
 
         } catch (ConnectionException | AuthenticationException e) {
-            log.warn(String.format("Error on %s connecting because %s", JCP_NAME, e.getMessage()), e);
+            log.warn(String.format("Error on %s connecting because %s", apiName, e.getMessage()), e);
 
         } catch (JCPNotReachableException ignore) {
             startConnectionTimer();
@@ -80,17 +81,17 @@ public class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.Co
 
     @Override
     public void onConnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s connected", JCP_NAME));
+        log.info(String.format("%s connected", apiName));
     }
 
     @Override
     public void onDisconnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s disconnected", JCP_NAME));
+        log.info(String.format("%s disconnected", apiName));
     }
 
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-        log.warn(String.format("Error on %S connection because %s", JCP_NAME, t.getMessage()), t);
+        log.warn(String.format("Error on %S connection because %s", apiName, t.getMessage()), t);
     }
 
 }
