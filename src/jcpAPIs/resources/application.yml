@@ -4,8 +4,8 @@ spring.profiles.active: auth, db-apis, ssl
 
 # JCP Clients
 jcp.client.ssl: true
-jcp.client.id: test-client-api
-jcp.client.secret: 20e3f807-f2f8-427d-a048-2462c63bac7f
+jcp.client.id: jcp-apis
+jcp.client.secret: 6ac0c0d9-50db-407d-946c-3c63cd7b7d34
 jcp.urlAuth: localhost:8998
 jcp.urlAPIs: localhost:9001
 #jcp.urlGWs: localhost:9001         # registered via APIs

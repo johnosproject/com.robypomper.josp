@@ -4,8 +4,8 @@ spring.profiles.active: auth, db-all, ssl
 
 # JCP Clients
 jcp.client.ssl: true
-jcp.client.id: jcp-all
-jcp.client.secret: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+jcp.client.id: jcp-apis
+jcp.client.secret: 6ac0c0d9-50db-407d-946c-3c63cd7b7d34
 jcp.client.callback: https://localhost:${server.port}/apis/user/1.0/login/code/
 jcp.urlAuth: localhost:8998
 jcp.urlAPIs: localhost:9000
