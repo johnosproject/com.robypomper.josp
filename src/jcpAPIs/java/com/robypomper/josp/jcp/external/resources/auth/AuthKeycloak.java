@@ -21,11 +21,12 @@ package com.robypomper.josp.jcp.external.resources.auth;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.paths.APIAuth;
+import com.robypomper.josp.jcp.clients.JCPAPIsClient;
 import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceDetails;
 import com.robypomper.josp.jcp.db.apis.entities.User;
 import com.robypomper.josp.jcp.db.apis.entities.UserProfile;
+import com.robypomper.josp.paths.APIAuth;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,7 @@ public class AuthKeycloak implements AuthResource {
     // Internal vars
 
     @Autowired
-    private JCPClient2 client;
+    private JCPAPIsClient client;
 
 
     // User Q&M
