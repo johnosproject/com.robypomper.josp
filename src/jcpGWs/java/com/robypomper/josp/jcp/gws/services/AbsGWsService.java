@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.gw;
+package com.robypomper.josp.jcp.gws.services;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.UtilsSSL;
@@ -40,7 +40,7 @@ import java.security.cert.Certificate;
 import java.util.*;
 
 
-public abstract class AbsJOSPGWsService {
+public abstract class AbsGWsService {
 
     // Class constants
 
@@ -51,12 +51,13 @@ public abstract class AbsJOSPGWsService {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private static final List<AbsJOSPGWsService> jospGWs = new ArrayList<>();           // static because shared among all JOSPGWs
-    private static final List<Integer> boundedPorts = new ArrayList<>();                // static because shared among all JOSPGWs
+    private static final List<AbsGWsService> jospGWs = new ArrayList<>();               // static because shared among all GWs
+    private static final List<Integer> boundedPorts = new ArrayList<>();                // static because shared among all GWs
     private static final Random rnd = new Random();
     private final InetAddress hostAddr;
-    private final Map<String, Server> servers = new HashMap<>();
-    private final Map<String, Server> clients = new HashMap<>();
+    private final int port;
+    private final Server server;
+    private final List<String> clients = new ArrayList<>();
 
 
     // Constructor
@@ -64,12 +65,14 @@ public abstract class AbsJOSPGWsService {
     /**
      * Initialize JOSPGWsService with only one internal server.
      */
-    public AbsJOSPGWsService(final String hostName) {
+    public AbsGWsService(final String hostName, int port) {
+        this.port = port;
+
         try {
-            servers.put(ONLY_SERVER_ID, initServer(ONLY_SERVER_ID));
+            server = initServer(ONLY_SERVER_ID);
 
         } catch (UtilsJKS.GenerationException | UtilsSSL.GenerationException | com.robypomper.communication.server.Server.ListeningException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on initializing internal JOSP GWs because %s", e.getMessage()), e);
+            throw new RuntimeException(String.format("Error on initializing internal GWs because %s", e.getMessage()), e);
         }
 
         jospGWs.add(this);
@@ -84,24 +87,26 @@ public abstract class AbsJOSPGWsService {
                 tpmHostAddr = InetAddress.getLoopbackAddress();
             }
         }
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Internal JOSP GWs use '%s' as public address", tpmHostAddr));
         this.hostAddr = tpmHostAddr;
 
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Initialized JOSPGWsService instance with %d pre-initialized servers", servers.size()));
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Initialized GWsService instance with %s public address", hostAddr));
     }
 
     @PreDestroy
     public void destroy() {
-        for (Map.Entry<String,Server> e : getJOSPServers().entrySet()) {
-            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halt server %s", e.getKey()));
-            e.getValue().stop();
-        }
-        int count=0;
-        for (Map.Entry<String,Server> e : getJOSPServers().entrySet())
-            if (!e.getValue().isRunning())
-                count++;
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halt server %s", server.getServerId()));
+        server.stop();
 
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halted %s %d servers", this.getClass().getSimpleName(), count));
+        if (server.isRunning())
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignore) {
+            }
+
+        if (server.isRunning())
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Gateway %s not halted, force it.", this.getClass().getSimpleName()));
+        else
+            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halted %s gateway", this.getClass().getSimpleName()));
     }
 
 
@@ -110,7 +115,6 @@ public abstract class AbsJOSPGWsService {
     private Server initServer(String idServer) throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, com.robypomper.communication.server.Server.ListeningException {
         log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Generating and starting internal JOSP GWs '%s' server", idServer));
         String alias = String.format("%s@%s", idServer, CERT_ALIAS);
-        int port = generateRandomPort();
 
         log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' keystore", idServer));
         KeyStore ks = UtilsJKS.generateKeyStore(idServer, null, alias);
@@ -133,36 +137,21 @@ public abstract class AbsJOSPGWsService {
 
     // Client's utils
 
-    private Server associateOrGetServer(String idClient) {
-        if (clients.get(idClient) == null) {
-            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Adding client '%s' internal JOSP GWs '%s' server", idClient, ONLY_SERVER_ID));
-            Server newServer = servers.get(ONLY_SERVER_ID);
-            clients.put(idClient, newServer);
-        }
-
-        return clients.get(idClient);
-    }
-
-    public InetAddress getPublicAddress(String idClient) {
-//        Server server = associateOrGetServer(idClient);
-//        return server.getPublicAddress();
+    public InetAddress getPublicAddress() {
         return hostAddr;
     }
 
-    public int getPort(String idClient) {
-        Server server = associateOrGetServer(idClient);
+    public int getPort() {
         return server.getPort();
     }
 
-    public Certificate getPublicCertificate(String idClient) {
-        Server server = associateOrGetServer(idClient);
+    public Certificate getPublicCertificate() {
         return server.getPublicCertificate();
     }
 
     public boolean addClientCertificate(String idClient, Certificate certClient) {
         log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Adding client '%s' certificate to internal JOSP GWs", idClient));
         try {
-            Server server = associateOrGetServer(idClient);
             server.getTrustManager().addCertificate(idClient, certClient);
             log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Client '%s' certificate added to internal JOSP GWs", idClient));
             return true;
@@ -174,34 +163,14 @@ public abstract class AbsJOSPGWsService {
     }
 
 
-    // Ports generator
-
-    private int generateRandomPort() {
-        int port = rnd.nextInt(getMaxPort() - getMinPort() + 1) + getMinPort();
-        while (boundedPorts.contains(port))
-            port = rnd.nextInt(getMaxPort() - getMinPort() + 1) + getMinPort();
-
-        boundedPorts.add(port);
-        return port;
-    }
-
-
     // Sub-classes getters
 
-    public List<AbsJOSPGWsService> getJOSPGWs() {
+    public List<AbsGWsService> getGateways() {
         return jospGWs;
-    }
-
-    public Map<String, Server> getJOSPServers() {
-        return servers;
     }
 
 
     // Sub-classes methods
-
-    abstract int getMinPort();
-
-    abstract int getMaxPort();
 
     abstract protected ServerLocalEvents getServerEventsListener();
 
@@ -228,7 +197,7 @@ public abstract class AbsJOSPGWsService {
          * @param idServer
          * @param port
          */
-        public Server(AbsJOSPGWsService gwService, SSLContext sslCtx, String idServer, int port, AbsCustomTrustManager trustManager, Certificate publicCertificate) {
+        public Server(AbsGWsService gwService, SSLContext sslCtx, String idServer, int port, AbsCustomTrustManager trustManager, Certificate publicCertificate) {
             super(sslCtx, idServer, port, true, gwService.getServerEventsListener(), gwService.getClientEventsListener(), gwService.getMessagingEventsListener());
             this.port = port;
             this.trustManager = trustManager;
@@ -250,6 +219,12 @@ public abstract class AbsJOSPGWsService {
             return publicCertificate;
         }
 
+    }
+
+
+    protected String generateGWId(String publicHostName, int port) {
+        String addr = String.format("%s-%d", publicHostName, port);
+        return addr.hashCode() + "-" + addr;
     }
 
 }

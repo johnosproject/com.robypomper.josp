@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.gw;
+package com.robypomper.josp.jcp.gws.broker;
 
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.apis.EventDBService;
@@ -27,6 +27,8 @@ import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
 import com.robypomper.josp.jcp.db.apis.entities.Permission;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
+import com.robypomper.josp.jcp.gws.o2s.GWObject;
+import com.robypomper.josp.jcp.gws.s2o.GWService;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -41,7 +43,7 @@ import java.util.Map;
 
 
 @Service
-public class JOSPGWsBroker {
+public class GWsBroker {
 
     // Internal vars
 
@@ -108,7 +110,8 @@ public class JOSPGWsBroker {
 
                 service.sendData(msg);
 
-            } catch (Server.ServerStoppedException | Server.ClientNotConnectedException ignore) {}
+            } catch (Server.ServerStoppedException | Server.ClientNotConnectedException ignore) {
+            }
         }
 
         return true;
@@ -157,7 +160,7 @@ public class JOSPGWsBroker {
     // Sender (obj > srv)
 
     private void sendObjectInfoToService(GWObject object, GWService service) {
-        String msg = JOSPProtocol_ObjectToService.createObjectInfoMsg(object.getObjId(), object.getObj().getName(), object.getObj().getVersion(), object.getObj().getOwner().getOwnerId(), object.getObj().getInfo().getModel(), object.getObj().getInfo().getBrand(), object.getObj().getInfo().getLongDescr(),object.getObj().getStatus().isOnline());
+        String msg = JOSPProtocol_ObjectToService.createObjectInfoMsg(object.getObjId(), object.getObj().getName(), object.getObj().getVersion(), object.getObj().getOwner().getOwnerId(), object.getObj().getInfo().getModel(), object.getObj().getInfo().getBrand(), object.getObj().getInfo().getLongDescr(), object.getObj().getStatus().isOnline());
         sendToSingleCloudService(object, service.getFullId(), msg, JOSPPerm.Type.Status);
     }
 
