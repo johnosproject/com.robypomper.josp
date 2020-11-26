@@ -4,7 +4,7 @@ The **Auth** docker connects to the ```auth_user``` DB. This DB is initialized
 with following preset data.
 
 
-## auth_josp
+## jcp_auth
 
 This DB is used by the [Auth](auth.md) component to store registered users and
 clients. Preset data of this DB includes DB's users, tables and a set of data:

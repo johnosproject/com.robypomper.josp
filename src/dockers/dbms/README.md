@@ -49,7 +49,7 @@ Dataset for testing purposes.
 
 It define only the user ```test_db``` with all permissions on the dataset database.
 
-### auth_josp
+### jcp_auth
 Dataset for the [Auth](../../auth/docs/README.md) micro-service.
 
 It defines only the DB schema and users.

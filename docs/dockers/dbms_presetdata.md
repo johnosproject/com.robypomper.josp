@@ -7,7 +7,7 @@ The DBMS's Dockerfile loads Preset Data on container startup from the
 ```src/dockers/dbms/docker/sql``` dir.
 
 Presetdata contains following DBs:
-* [auth_josp](auth_presetdata.md)
+* [jcp_auth](auth_presetdata.md)
 * ```jcp_apis```
 * ```test_db```
 
