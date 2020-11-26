@@ -18,8 +18,8 @@
 
 package com.robypomper.josp.jsl;
 
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
@@ -61,7 +61,7 @@ public abstract class AbsJSL implements JSL {
     // Private systems references
 
     private final JSL.Settings settings;
-    private final JCPClient_Service jcpClient;
+    private final JCPAPIsClientSrv jcpClient;
     private final JSLServiceInfo srvInfo;
     private final JSLUserMngr user;
     private final JSLObjsMngr objs;
@@ -86,7 +86,7 @@ public abstract class AbsJSL implements JSL {
      * @param objs      {@link JSLObjsMngr} reference.
      * @param comm      {@link JSLCommunication} reference.
      */
-    public AbsJSL(Settings settings, JCPClient_Service jcpClient, JSLServiceInfo srvInfo, JSLUserMngr user, JSLObjsMngr objs, JSLCommunication comm) {
+    public AbsJSL(Settings settings, JCPAPIsClientSrv jcpClient, JSLServiceInfo srvInfo, JSLUserMngr user, JSLObjsMngr objs, JSLCommunication comm) {
         this.settings = settings;
         this.jcpClient = jcpClient;
         this.srvInfo = srvInfo;
@@ -227,7 +227,7 @@ public abstract class AbsJSL implements JSL {
      * {@inheritDoc}
      */
     @Override
-    public JCPClient_Service getJCPClient() {
+    public JCPAPIsClientSrv getJCPClient() {
         return jcpClient;
     }
 

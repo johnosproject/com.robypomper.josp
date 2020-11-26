@@ -18,16 +18,16 @@
 
 package com.robypomper.josp.jsl.comm;
 
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODCommunication_002;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.events.JODEvents;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
@@ -68,12 +68,12 @@ public class JOSPCommunicationIntegration {
     protected static Logger log = LogManager.getLogger();
     protected static int port = 1234;
     JODSettings_002 jodSettings;
-    JCPClient_Object jcpClientObj;
+    JCPAPIsClientObj jcpClientObj;
     JODObjectInfo objInfo;
     JODPermissions jodPermissions;
     JODEvents jodEvents;
     JSLSettings_002 jslSettings;
-    JCPClient_Service jcpClientSrv;
+    JCPAPIsClientSrv jcpClientSrv;
     JSLServiceInfo srvInfo;
     JSLUserMngr jslUserMngr;
     JSLObjsMngr jslObjsMngr;

@@ -20,7 +20,7 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
 
 public class CmdsJCPClient {
 

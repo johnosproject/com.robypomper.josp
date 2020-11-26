@@ -16,21 +16,20 @@
  * limitations under the License.
  **************************************************************************** */
 
-package com.robypomper.josp.jsl.srvinfo;
+package com.robypomper.josp.clients.apis.srv;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.AbsAPISrv;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.params.srvs.SrvName;
 import com.robypomper.josp.paths.APISrvs;
-import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.jcpclient.AbsJCPAPIs;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 
 
 /**
  * Support class for API Srv access to the service's info.
  */
-public class JCPServiceInfo extends AbsJCPAPIs {
+public class APISrvsClient extends AbsAPISrv {
 
     // Constructor
 
@@ -39,8 +38,8 @@ public class JCPServiceInfo extends AbsJCPAPIs {
      *
      * @param jcpClient the JCP client.
      */
-    public JCPServiceInfo(JCPClient_Service jcpClient, JSLSettings_002 settings) {
-        super(jcpClient, settings);
+    public APISrvsClient(JCPAPIsClientSrv jcpClient) {
+        super(jcpClient);
         registerToJCP();
     }
 
@@ -56,7 +55,8 @@ public class JCPServiceInfo extends AbsJCPAPIs {
                 }
 
                 @Override
-                public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {}
+                public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+                }
             });
         }
     }

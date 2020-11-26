@@ -17,15 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.clients;
+package com.robypomper.josp.clients;
 
-import com.robypomper.josp.core.jcpclient.DefaultJCPClient2;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 
 /**
@@ -55,46 +50,26 @@ import org.springframework.stereotype.Component;
  * As workaround of development localhost hostname usage, this class disable the
  * SSL checks and the connect to configured the server.
  */
-@Component
-public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
+public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    public static final String JCP_NAME = "JCP APIs";
+    public final String apiName;
 
 
     // Constructor
 
-    /**
-     * Default constructor, it read params from <code>application.yml</code> file.
-     *
-     * @param client  the client id to use to authenticate.
-     * @param secret  the client secret to use to authenticate.
-     * @param urlAuth the auth server url.
-     */
-    @Autowired
-    public DefaultJCPClient_JCP(@Value("${jcp.client.ssl}") boolean useSSL,
-                                @Value("${jcp.client.id}") String client,
-                                @Value("${jcp.client.secret}") String secret,
-                                @Value("${jcp.urlAPIs}") String urlAPIs,
-                                @Value("${jcp.urlAuth}") String urlAuth) {
-        super(client,
-                secret,
-                urlAPIs,
-                useSSL,
-                urlAuth,
-                "openid",
-                "",
-                "jcp",
-                30);
+    public JCPAPIsClientJCP(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String apiName) {
+        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", "", "jcp", 30);
+        this.apiName = apiName;
         addConnectListener(this);
 
         try {
             connect();
 
         } catch (ConnectionException | AuthenticationException e) {
-            log.warn(String.format("Error on %s connecting because %s", JCP_NAME, e.getMessage()), e);
+            log.warn(String.format("Error on %s connecting because %s", apiName, e.getMessage()), e);
 
         } catch (JCPNotReachableException ignore) {
             startConnectionTimer();
@@ -106,17 +81,17 @@ public class DefaultJCPClient_JCP extends DefaultJCPClient2 implements JCPClient
 
     @Override
     public void onConnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s connected", JCP_NAME));
+        log.info(String.format("%s connected", apiName));
     }
 
     @Override
     public void onDisconnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s disconnected", JCP_NAME));
+        log.info(String.format("%s disconnected", apiName));
     }
 
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-        log.warn(String.format("Error on %S connection because %s", JCP_NAME, t.getMessage()), t);
+        log.warn(String.format("Error on %S connection because %s", apiName, t.getMessage()), t);
     }
 
 }

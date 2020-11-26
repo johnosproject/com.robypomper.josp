@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jcp.external.resources.auth;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceDetails;
 import com.robypomper.josp.jcp.db.apis.entities.User;

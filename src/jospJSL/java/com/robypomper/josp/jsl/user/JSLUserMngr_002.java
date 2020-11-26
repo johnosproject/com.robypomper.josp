@@ -18,11 +18,12 @@
 
 package com.robypomper.josp.jsl.user;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.srv.APIUsrsClient;
 import com.robypomper.josp.params.usrs.UsrName;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -44,18 +45,18 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
 
     private static final Logger log = LogManager.getLogger();
     private final JSLSettings_002 locSettings;
-    private final JCPClient_Service jcpClient;
-    private final JCPUserSrv jcpUser;
+    private final JCPAPIsClientSrv jcpClient;
+    private final APIUsrsClient apiUsrsClient;
     private UsrName user;
     private JSLCommunication comm = null;
 
 
     // Constructor
 
-    public JSLUserMngr_002(JSLSettings_002 settings, JCPClient_Service jcpClient) {
+    public JSLUserMngr_002(JSLSettings_002 settings, JCPAPIsClientSrv jcpClient) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
-        jcpUser = new JCPUserSrv(jcpClient, settings);
+        apiUsrsClient = new APIUsrsClient(jcpClient);
 
         if (jcpClient.isAuthCodeFlowEnabled()) {
             log.trace(Mrk_JSL.JSL_USR, "Perform JSLUserMngr login");
@@ -144,7 +145,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         // Cache user's info
         log.debug(Mrk_JSL.JSL_USR, "Caching user's info from JCP");
         try {
-            this.user = jcpUser.getUser();
+            this.user = apiUsrsClient.getUser();
             locSettings.setUsrId(getUserId());
             locSettings.setUsrName(getUsername());
 

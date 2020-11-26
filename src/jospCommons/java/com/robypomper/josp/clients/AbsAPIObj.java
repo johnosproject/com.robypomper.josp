@@ -17,19 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jod.jcpclient;
+package com.robypomper.josp.clients;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jod.JODSettings_002;
+public class AbsAPIObj extends AbsAPI {
 
-public class AbsJCPAPIs {
+    public AbsAPIObj(JCPAPIsClientObj jcpClient) {
+        super(jcpClient);
+    }
 
-    protected final JCPClient2 jcpClient;
-    protected final JODSettings_002 locSettings;
-
-    public AbsJCPAPIs(JCPClient2 jcpClient, JODSettings_002 settings) {
-        this.jcpClient = jcpClient;
-        this.locSettings = settings;
+    protected JCPAPIsClientObj getClient() {
+        return (JCPAPIsClientObj) jcpClient;
     }
 
     protected boolean isSecure() {

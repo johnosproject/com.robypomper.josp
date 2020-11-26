@@ -25,11 +25,12 @@ import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
 import com.robypomper.java.JavaJSONArrayToFile;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.obj.APIGWsClient;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.events.JODEvents;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.*;
@@ -57,8 +58,8 @@ public class JODCommunication_002 implements JODCommunication {
     private final JODPermissions permissions;
     private final JODEvents events;
     private JODStructure structure;
-    private final JCPClient_Object jcpClient;
-    private final JCPCommObj jcpComm;
+    private final JCPAPIsClientObj jcpClient;
+    private final APIGWsClient apigWsClient;
     private final String instanceId;
     private JODLocalServer localServer = null;
     private final Publisher localServerPublisher;
@@ -78,14 +79,14 @@ public class JODCommunication_002 implements JODCommunication {
      *                    connected services's permissions to receive updates or
      * @param events      the object's events manager.
      */
-    public JODCommunication_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPClient_Object jcpClient, JODPermissions permissions, JODEvents events, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
+    public JODCommunication_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPAPIsClientObj jcpClient, JODPermissions permissions, JODEvents events, String instanceId) throws LocalCommunicationException, CloudCommunicationException {
         this.locSettings = settings;
         this.objInfo = objInfo;
         this.permissions = permissions;
         this.jcpClient = jcpClient;
         jcpClient.addConnectListener(jcpConnectListener);
         jcpClient.addDisconnectListener(jcpDisconnectListener);
-        this.jcpComm = new JCPCommObj(jcpClient, settings, instanceId);
+        this.apigWsClient = new APIGWsClient(jcpClient, instanceId);
         this.instanceId = instanceId;
         this.events = events;
 
@@ -112,7 +113,7 @@ public class JODCommunication_002 implements JODCommunication {
         // Init cloud object client
         try {
             log.debug(Mrk_JOD.JOD_COMM, "Creating communication cloud client for Object2Service Gateway");
-            gwClient = new JODGwO2SClient(locSettings, this, objInfo, jcpClient, jcpComm);
+            gwClient = new JODGwO2SClient(locSettings, this, objInfo, jcpClient, apigWsClient);
             log.debug(Mrk_JOD.JOD_COMM, "Communication cloud client created for Object2Service Gateway");
         } catch (CloudCommunicationException e) {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on creating object's cloud client because %s", e.getMessage()), e);
@@ -617,7 +618,7 @@ public class JODCommunication_002 implements JODCommunication {
             return;
 
         try {
-            gwClient = new JODGwO2SClient(locSettings, this, objInfo, jcpClient, jcpComm);
+            gwClient = new JODGwO2SClient(locSettings, this, objInfo, jcpClient, apigWsClient);
             log.debug(Mrk_JOD.JOD_COMM, "Connecting cloud object's client");
             gwClient.connect();
             log.debug(Mrk_JOD.JOD_COMM, "Cloud object's client connection started");

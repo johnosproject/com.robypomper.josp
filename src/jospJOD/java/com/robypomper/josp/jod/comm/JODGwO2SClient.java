@@ -29,10 +29,11 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.obj.APIGWsClient;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.jod.JODSettings_002;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -67,8 +68,8 @@ public class JODGwO2SClient implements Client {
     private final JODSettings_002 locSettings;
     private final JODCommunication_002 communication;
     private final JODObjectInfo objInfo;
-    private final JCPClient_Object jcpClient;
-    private final JCPCommObj jcpComm;
+    private final JCPAPIsClientObj jcpClient;
+    private final APIGWsClient jcpComm;
     private boolean shuldBeConnected;
     private final Certificate clientCert;
     private final DynAddTrustManager clientTrustManager;
@@ -91,7 +92,7 @@ public class JODGwO2SClient implements Client {
      * @param objInfo       the info of the represented object.
      * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JODGwO2SClient(JODSettings_002 settings, JODCommunication_002 communication, JODObjectInfo objInfo, JCPClient_Object jcpClient, JCPCommObj jcpComm) throws JODCommunication.CloudCommunicationException {
+    public JODGwO2SClient(JODSettings_002 settings, JODCommunication_002 communication, JODObjectInfo objInfo, JCPAPIsClientObj jcpClient, APIGWsClient jcpComm) throws JODCommunication.CloudCommunicationException {
         this.locSettings = settings;
         this.communication = communication;
         this.objInfo = objInfo;

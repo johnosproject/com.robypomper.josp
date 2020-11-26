@@ -18,8 +18,8 @@
 
 package com.robypomper.josp.jsl;
 
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
@@ -113,7 +113,7 @@ public interface JSL {
 
     // JSL Systems
 
-    JCPClient_Service getJCPClient();
+    JCPAPIsClientSrv getJCPClient();
 
     JSLServiceInfo getServiceInfo();
 

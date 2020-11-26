@@ -17,14 +17,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jod.events;
+package com.robypomper.josp.clients.apis.obj;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.AbsAPIObj;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.paths.APIEvents;
-import com.robypomper.josp.jod.JODSettings_002;
-import com.robypomper.josp.jod.jcpclient.AbsJCPAPIs;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.protocol.JOSPEvent;
 
 import java.util.Collections;
@@ -34,7 +33,7 @@ import java.util.List;
 /**
  * Support class for API Events access from the JODEvents synchronization.
  */
-public class JCPEvents extends AbsJCPAPIs {
+public class APIEventsClient extends AbsAPIObj {
 
     // Constructor
 
@@ -43,8 +42,8 @@ public class JCPEvents extends AbsJCPAPIs {
      *
      * @param jcpClient the JCP client.
      */
-    public JCPEvents(JCPClient_Object jcpClient, JODSettings_002 settings) {
-        super(jcpClient, settings);
+    public APIEventsClient(JCPAPIsClientObj jcpClient) {
+        super(jcpClient);
     }
 
 

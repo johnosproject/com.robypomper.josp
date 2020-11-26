@@ -1,7 +1,7 @@
 package com.robypomper.josp.jod.events;
 
 import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jod.comm.JODGwO2SClient;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.comm.JODLocalServer;

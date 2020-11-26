@@ -16,16 +16,15 @@
  * limitations under the License.
  **************************************************************************** */
 
-package com.robypomper.josp.jsl.comm;
+package com.robypomper.josp.clients.apis.srv;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.AbsAPISrv;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.paths.APIGWs;
-import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.jcpclient.AbsJCPAPIs;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -34,7 +33,7 @@ import java.security.cert.CertificateEncodingException;
 /**
  * Support class for API JOSP GWs for service's requests.
  */
-public class JCPCommSrv extends AbsJCPAPIs {
+public class APIGWsClient extends AbsAPISrv {
 
     // Internal vars
 
@@ -47,11 +46,10 @@ public class JCPCommSrv extends AbsJCPAPIs {
      * Default constructor.
      *
      * @param jcpClient  the JCP client.
-     * @param settings   the JOD settings.
      * @param instanceId the JOD instance id.
      */
-    public JCPCommSrv(JCPClient_Service jcpClient, JSLSettings_002 settings, String instanceId) {
-        super(jcpClient, settings);
+    public APIGWsClient(JCPAPIsClientSrv jcpClient, String instanceId) {
+        super(jcpClient);
         this.instanceId = instanceId;
     }
 

@@ -19,12 +19,13 @@
 
 package com.robypomper.josp.jod.objinfo;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.obj.APIObjsClient;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -45,7 +46,7 @@ import java.nio.file.Files;
  * <p>
  * This implementation collect all object's info from local
  * {@link com.robypomper.josp.jod.JOD.Settings} or via JCP Client request at
- * API Objs via the support class {@link JCPObjectInfo}.
+ * API Objs via the support class {@link APIObjsClient}.
  */
 public class JODObjectInfo_002 implements JODObjectInfo {
 
@@ -53,8 +54,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
-    private final JCPClient_Object jcpClient;
-    private final JCPObjectInfo jcpObjInfo;
+    private final JCPAPIsClientObj jcpClient;
+    private final APIObjsClient apiObjsClient;
     private JODStructure structure;
     private JODExecutorMngr executorMngr;
     private JODCommunication comm;
@@ -68,17 +69,17 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     /**
      * Create new object info.
      * <p>
-     * This constructor create an instance of {@link JCPObjectInfo} and request
+     * This constructor create an instance of {@link APIObjsClient} and request
      * common/mandatory info for caching them.
      *
      * @param settings   the JOD settings.
      * @param jcpClient  the JCP client.
      * @param jodVersion the current JOD implementation version.
      */
-    public JODObjectInfo_002(JODSettings_002 settings, JCPClient_Object jcpClient, String jodVersion) {
+    public JODObjectInfo_002(JODSettings_002 settings, JCPAPIsClientObj jcpClient, String jodVersion) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
-        this.jcpObjInfo = new JCPObjectInfo(jcpClient, locSettings);
+        this.apiObjsClient = new APIObjsClient(jcpClient);
         this.jodVersion = jodVersion;
 
         // force value caching
@@ -331,10 +332,10 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     private void regenerateObjId(String oldObjId) {
         try {
             log.debug(Mrk_JOD.JOD_INFO, "Generating new object ID on cloud");
-            String generated = jcpObjInfo.generateObjIdCloud(getObjIdHw(), getOwnerId(), oldObjId);
+            String generated = apiObjsClient.generateObjIdCloud(getObjIdHw(), getOwnerId(), oldObjId);
             log.debug(Mrk_JOD.JOD_INFO, "Object ID generated on cloud");
 
-            Events.registerInfoUpd("objId",oldObjId, generated);
+            Events.registerInfoUpd("objId", oldObjId, generated);
 
             saveObjId(generated);
             if (isGenerating()) {
@@ -346,7 +347,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException e) {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
-            Events.registerInfoUpd("objId",e);
+            Events.registerInfoUpd("objId", e);
             if (!isGenerating()) {
                 jcpClient.addConnectListener(generatingListener);
                 isGenerating = true;

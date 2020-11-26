@@ -76,64 +76,8 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(permsHtml);
     }
 
-    @GetMapping(path = APIFEPermissions.FULL_PATH_LIST, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlObjectPermissions(@ApiIgnore HttpSession session,
-                                        @PathVariable("obj_id") String objId) {
-        List<JOSPPermHtml> permsHtml = jsonObjectPermissions(session, objId).getBody();
-        if (permsHtml == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error on get '%s' object's permissions.", objId));
-
-        try {
-            return HTMLUtils.toHTMLFormattedJSON(permsHtml,
-                    String.format("%s Object's Permissions", jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>", APIFEObjs.FULL_PATH_DETAILS(objId)));
-
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
-        }
-    }
-
 
     // Methods - Obj's perm add
-
-    @GetMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String formObjectPermissionAdd(CsrfToken token,
-                                          @PathVariable("obj_id") String objId) {
-        // ONLY HTML
-
-        return "<form id = \"form_id\" method=\"post\">\n" +
-                "    <input list=\"services\" name=\"srv_id\">\n" +
-                "    <datalist id=\"services\">\n" +
-                "      <option value=\"#All\">\n" +
-                "    </datalist>" +
-                "    <input list=\"users\" name=\"usr_id\">\n" +
-                "    <datalist id=\"users\">\n" +
-                "      <option value=\"#Owner\">\n" +
-                "      <option value=\"#All\">\n" +
-                "    </datalist>" +
-                "    <select name=\"type\" id=\"type\">\n" +
-                String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Type.None.toString(), JOSPPerm.Type.None.toString()) +
-                String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Type.Status.toString(), JOSPPerm.Type.Status.toString()) +
-                String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Type.Actions.toString(), JOSPPerm.Type.Actions.toString()) +
-                String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Type.CoOwner.toString(), JOSPPerm.Type.CoOwner.toString()) +
-                "    </select>" +
-                "    <select name=\"conn\" id=\"conn\">\n" +
-                String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Connection.OnlyLocal.toString(), JOSPPerm.Connection.OnlyLocal.toString()) +
-                String.format("        <option value=\"%s\">%s</option>\n", JOSPPerm.Connection.LocalAndCloud.toString(), JOSPPerm.Connection.LocalAndCloud.toString()) +
-                "    </select>" +
-                "    <input type=\"submit\" value=\"Add\">\n" +
-                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
-                "</form>\n" +
-                "</script>";
-    }
 
     @PostMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
@@ -165,59 +109,8 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(path = APIFEPermissions.FULL_PATH_ADD, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlObjectPermissionAdd(@ApiIgnore HttpSession session,
-                                          @PathVariable("obj_id") String objId,
-                                          @RequestParam("srv_id") String srvId,
-                                          @RequestParam("usr_id") String usrId,
-                                          @RequestParam("type") JOSPPerm.Type type,
-                                          @RequestParam("conn") JOSPPerm.Connection connection) {
-        Boolean success = jsonObjectPermissionAdd(session, objId, srvId, usrId, type, connection).getBody();
-        success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
-    }
-
 
     // Methods - Obj's perm upd
-
-    @GetMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String formObjectPermissionUpd(@ApiIgnore HttpSession session,
-                                          CsrfToken token,
-                                          @PathVariable("obj_id") String objId,
-                                          @PathVariable("perm_id") String permId) {
-        // ONLY HTML
-        JOSPPerm p = jslService.getPerm(jslService.getObj(jslService.getHttp(session), objId), permId);
-
-        return "<form id = \"form_id\" method=\"post\" onsubmit=\"actionUpdater()\">\n" +
-                "    <select name=\"type\" id=\"type\">\n" +
-                String.format("        <option%s value=\"%s\">%s</option>\n", p.getPermType() == JOSPPerm.Type.None ? " selected=\"selected\"" : "", JOSPPerm.Type.None.toString(), JOSPPerm.Type.None.toString()) +
-                String.format("        <option%s value=\"%s\">%s</option>\n", p.getPermType() == JOSPPerm.Type.Status ? " selected=\"selected\"" : "", JOSPPerm.Type.Status.toString(), JOSPPerm.Type.Status.toString()) +
-                String.format("        <option%s value=\"%s\">%s</option>\n", p.getPermType() == JOSPPerm.Type.Actions ? " selected=\"selected\"" : "", JOSPPerm.Type.Actions.toString(), JOSPPerm.Type.Actions.toString()) +
-                String.format("        <option%s value=\"%s\">%s</option>\n", p.getPermType() == JOSPPerm.Type.CoOwner ? " selected=\"selected\"" : "", JOSPPerm.Type.CoOwner.toString(), JOSPPerm.Type.CoOwner.toString()) +
-                "    </select>" +
-                "    <select name=\"conn\" id=\"conn\">\n" +
-                String.format("        <option%s value=\"%s\">%s</option>\n", p.getConnType() == JOSPPerm.Connection.OnlyLocal ? " selected=\"selected\"" : "", JOSPPerm.Connection.OnlyLocal.toString(), JOSPPerm.Connection.OnlyLocal.toString()) +
-                String.format("        <option%s value=\"%s\">%s</option>\n", p.getConnType() == JOSPPerm.Connection.LocalAndCloud ? " selected=\"selected\"" : "", JOSPPerm.Connection.LocalAndCloud.toString(), JOSPPerm.Connection.LocalAndCloud.toString()) +
-                "    </select>" +
-                "    <input type=\"submit\" value=\"Upd\">\n" +
-                "    <input type=\"hidden\" name=\"_csrf\" value=\"" + token.getToken() + "\"/>\n" +
-                "</form>\n" +
-                "<script>\n" +
-                "function actionUpdater(){\n" +
-                "    var action_src = document.getElementsByName(\"new_name\")[0].value;\n" +
-                "    var form = document.getElementById(\"form_id\");\n" +
-                "    form.action = action_src ;\n" +
-                "}\n" +
-                "</script>";
-    }
 
     @PostMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
@@ -260,23 +153,6 @@ public class APIFEPermissionsController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(path = APIFEPermissions.FULL_PATH_UPD, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlObjectPermissionUpd(@ApiIgnore HttpSession session,
-                                          @PathVariable("obj_id") String objId,
-                                          @PathVariable("perm_id") String permId,
-                                          @RequestParam(value = "srv_id", required = false) String srvId,
-                                          @RequestParam(value = "usr_id", required = false) String usrId,
-                                          @RequestParam(value = "type", required = false) JOSPPerm.Type type,
-                                          @RequestParam(value = "conn", required = false) JOSPPerm.Connection connection) {
-        Boolean success = jsonObjectPermissionUpd(session, objId, srvId, usrId, permId, type, connection).getBody();
-        success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
-    }
-
     // Methods - Obj's perm remove
 
     @GetMapping(path = APIFEPermissions.FULL_PATH_DEL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -306,19 +182,6 @@ public class APIFEPermissionsController {
         }
 
         return ResponseEntity.ok(true);
-    }
-
-    @GetMapping(path = APIFEPermissions.FULL_PATH_DEL, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlObjectPermissionDel(@ApiIgnore HttpSession session,
-                                          @PathVariable("obj_id") String objId,
-                                          @PathVariable("perm_id") String permId) {
-        Boolean success = jsonObjectPermissionDel(session, objId, permId).getBody();
-        success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
 
 
@@ -351,19 +214,6 @@ public class APIFEPermissionsController {
         }
 
         return ResponseEntity.ok(true);
-    }
-
-    @GetMapping(path = APIFEPermissions.FULL_PATH_DUP, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlObjectPermissionDup(@ApiIgnore HttpSession session,
-                                          @PathVariable("obj_id") String objId,
-                                          @PathVariable("perm_id") String permId) {
-        Boolean success = jsonObjectPermissionDup(session, objId, permId).getBody();
-        success = success != null && success;
-        return HTMLUtils.redirectAndReturn(APIFEPermissions.FULL_PATH_LIST(objId), success);
     }
 
 }

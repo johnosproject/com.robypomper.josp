@@ -31,14 +31,14 @@ import com.robypomper.josp.jsl.comm.JSLCommunication;
  * permission to the user. This class allow service to require this permissions.
  *
  * <b>NB!</b>: user must be logged in/out via
- * {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service}
+ * {@link com.robypomper.josp.clients.JCPAPIsClientSrv}
  */
 public interface JSLUserMngr {
 
     // User's info
 
     /**
-     * Check to {@link com.robypomper.josp.jsl.jcpclient.JCPClient_Service} if
+     * Check to {@link com.robypomper.josp.clients.JCPAPIsClientSrv} if
      * current service authenticated user or not.
      *
      * @return <code>true</code> if current service authenticated user with

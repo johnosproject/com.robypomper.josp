@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.core.jcpclient;
+package com.robypomper.josp.clients;
 
 import com.github.scribejava.core.model.Verb;
 

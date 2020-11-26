@@ -33,7 +33,7 @@ public interface JODHistory {
      * Until it's stopped.
      * <p>
      * If the cloud is not available, then Events system register to the
-     * {@link com.robypomper.josp.core.jcpclient.JCPClient2} connection
+     * {@link com.robypomper.josp.clients.JCPClient2} connection
      * listener. When the connection become available, it uploads all buffered
      * events to the cloud.
      */

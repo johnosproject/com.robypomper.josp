@@ -1,10 +1,10 @@
 package com.robypomper.josp.jcp.fe.controllers.jcp;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.JSL;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.params.jcp.JCPFEStatus;
 import com.robypomper.josp.paths.APIJCP;
@@ -66,7 +66,7 @@ public class FEController {
 
         try {
             JSL current = jslService.getHttp(httpSession);
-            JCPClient_Service jcpClient = current.getJCPClient();
+            JCPAPIsClientSrv jcpClient = current.getJCPClient();
             JCPAPIsStatus jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS, JCPAPIsStatus.class, jcpClient.isSecured());
             return ResponseEntity.ok(jcpAPIsResponse);
 
@@ -90,7 +90,7 @@ public class FEController {
 
         try {
             JSL current = jslService.getHttp(httpSession);
-            JCPClient_Service jcpClient = current.getJCPClient();
+            JCPAPIsClientSrv jcpClient = current.getJCPClient();
             List<JCPAPIsStatus.GWs> jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS, List.class, jcpClient.isSecured());
             return ResponseEntity.ok(jcpAPIsResponse);
 
@@ -114,7 +114,7 @@ public class FEController {
 
         try {
             JSL current = jslService.getHttp(httpSession);
-            JCPClient_Service jcpClient = current.getJCPClient();
+            JCPAPIsClientSrv jcpClient = current.getJCPClient();
             JCPAPIsStatus.Objects jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_OBJS, JCPAPIsStatus.Objects.class, jcpClient.isSecured());
             return ResponseEntity.ok(jcpAPIsResponse);
 
@@ -138,7 +138,7 @@ public class FEController {
 
         try {
             JSL current = jslService.getHttp(httpSession);
-            JCPClient_Service jcpClient = current.getJCPClient();
+            JCPAPIsClientSrv jcpClient = current.getJCPClient();
             JCPAPIsStatus.Services jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_SRVS, JCPAPIsStatus.Services.class, jcpClient.isSecured());
             return ResponseEntity.ok(jcpAPIsResponse);
 
@@ -162,7 +162,7 @@ public class FEController {
 
         try {
             JSL current = jslService.getHttp(httpSession);
-            JCPClient_Service jcpClient = current.getJCPClient();
+            JCPAPIsClientSrv jcpClient = current.getJCPClient();
             JCPAPIsStatus.Users jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_USRS, JCPAPIsStatus.Users.class, jcpClient.isSecured());
             return ResponseEntity.ok(jcpAPIsResponse);
 
