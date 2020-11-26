@@ -73,29 +73,6 @@ public class APIFEStateController {
         return ResponseEntity.ok(comp.getState());
     }
 
-    @GetMapping(path = APIFEState.FULL_PATH_BOOL, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiOperation(value = "&&Description&&")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlBool(@ApiIgnore HttpSession session,
-                           @PathVariable("obj_id") String objId,
-                           @PathVariable("comp_path") String compPath) {
-        Boolean value = jsonBool(session, objId, compPath).getBody();
-        if (value == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error on get '%s' component's value on '%s' object.", compPath, objId));
-
-        try {
-            return HTMLUtils.toHTMLFormattedJSON(value,
-                    String.format("%s Object's %s state", jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class).getName(), jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIFEObjs.FULL_PATH_DETAILS(objId), APIFEStruct.FULL_PATH_STRUCT(objId), APIFEStruct.FULL_PATH_COMP(objId, compPath)));
-
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
-        }
-    }
-
 
     // Methods - Range
 
@@ -110,29 +87,6 @@ public class APIFEStateController {
                                             @PathVariable("comp_path") String compPath) {
         JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
         return ResponseEntity.ok(comp.getState());
-    }
-
-    @GetMapping(path = APIFEState.FULL_PATH_RANGE, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiOperation(value = "&&Description&&")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlRange(@ApiIgnore HttpSession session,
-                            @PathVariable("obj_id") String objId,
-                            @PathVariable("comp_path") String compPath) {
-        Double value = jsonRange(session, objId, compPath).getBody();
-        if (value == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error on get '%s' component's value on '%s' object.", compPath, objId));
-
-        try {
-            return HTMLUtils.toHTMLFormattedJSON(value,
-                    String.format("%s Object's %s state", jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class).getName(), jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>\n<a href=\"%s\">Component</a>", APIFEObjs.FULL_PATH_DETAILS(objId), APIFEStruct.FULL_PATH_STRUCT(objId), APIFEStruct.FULL_PATH_COMP(objId, compPath)));
-
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's permissions on formatting response (%s).", objId, e.getMessage()), e);
-        }
     }
 
 

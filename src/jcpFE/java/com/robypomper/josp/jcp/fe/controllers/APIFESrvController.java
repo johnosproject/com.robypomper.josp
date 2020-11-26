@@ -68,22 +68,4 @@ public class APIFESrvController {
         return ResponseEntity.ok(serviceDetails(session, jslService));
     }
 
-    @GetMapping(path = APIFESrv.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlServiceDetails(@ApiIgnore HttpSession session) {
-        JOSPSrvHtml srvHtml = jsonServiceDetails(session).getBody();
-        if (srvHtml == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on get service info.");
-
-        try {
-            return HTMLUtils.toHTMLFormattedJSON(srvHtml, String.format("Service %s", srvHtml.name));
-
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get service's info on formatting response (%s).", e.getMessage()), e);
-        }
-    }
-
 }

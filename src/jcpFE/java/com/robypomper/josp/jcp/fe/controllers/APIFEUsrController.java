@@ -74,24 +74,6 @@ public class APIFEUsrController {
         return ResponseEntity.ok(userDetails(session, jslService));
     }
 
-    @GetMapping(path = APIFEUsr.FULL_PATH_DETAILS, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlUserDetails(@ApiIgnore HttpSession session) {
-        JOSPUserHtml usrHtml = jsonUserDetails(session).getBody();
-        if (usrHtml == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error on get service info.");
-
-        try {
-            return HTMLUtils.toHTMLFormattedJSON(usrHtml, String.format("User %s", usrHtml.name));
-
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get service's info on formatting response (%s).", e.getMessage()), e);
-        }
-    }
-
 
     // Methods - Login
 
@@ -143,30 +125,6 @@ public class APIFEUsrController {
         }
 
         return String.format("Login successfully, go to <a href=\"%s\">%s</a>", URL_REDIRECT_HOME, URL_REDIRECT_HOME);
-    }
-
-
-    // Methods - Logout
-
-    @GetMapping(path = APIFEUsr.FULL_PATH_LOGOUT, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlLogoutUser(@ApiIgnore HttpSession session,
-                                 @ApiIgnore HttpServletRequest request,
-                                 @ApiIgnore HttpServletResponse response) {
-        JSL jsl = jslService.getHttp(session);
-        jslService.logout(jsl);
-        String redirect = jslService.getLogoutUrl(jsl, getCurrentBaseUrl(request) + URL_REDIRECT_HOME);
-
-        try {
-            response.sendRedirect(redirect);
-
-        } catch (IOException ignore) {
-        }
-
-        return String.format("Redirect failed, please go to <a href=\"%s\">%s</a>", redirect, redirect);
     }
 
 

@@ -80,28 +80,6 @@ public class APIFEStructController {
         return ResponseEntity.ok(new JOSPStructHtml(obj.getStruct().getStructure(), true));
     }
 
-    @GetMapping(path = APIFEStruct.FULL_PATH_STRUCT, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiOperation(value = "&&Description&&")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlObjectStructure(@ApiIgnore HttpSession session,
-                                      @PathVariable("obj_id") String objId) {
-        JOSPStructHtml structHtml = jsonObjectStructure(session, objId).getBody();
-        if (structHtml == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error on get '%s' object's structure.", objId));
-
-        try {
-            return HTMLUtils.toHTMLFormattedJSON(structHtml,
-                    String.format("%s Object's Structure", jslService.getObj(jslService.getHttp(session), objId).getName()),
-                    String.format("<a href=\"%s\">Object</a>", APIFEObjs.FULL_PATH_DETAILS(objId)));
-
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's structure on formatting response (%s).", objId, e.getMessage()), e);
-        }
-    }
-
 
     // Obj's compos
 
@@ -122,29 +100,6 @@ public class APIFEStructController {
 
         JSLComponent comp = compPath.equals("-") ? obj.getStruct().getStructure() : jslService.getComp(jslService.getHttp(session), objId, compPath, JSLComponent.class);
         return ResponseEntity.ok(generateJOSPComponentHtml(comp));
-    }
-
-    @GetMapping(path = APIFEStruct.FULL_PATH_COMP, produces = MediaType.TEXT_HTML_VALUE)
-    @ApiOperation(value = "&&Description&&")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "User not authenticated")
-    })
-    public String htmlObjectComponent(@ApiIgnore HttpSession session,
-                                      @PathVariable("obj_id") String objId,
-                                      @PathVariable("comp_path") String compPath) {
-        JOSPComponentHtml compHtml = jsonObjectComponent(session, objId, compPath).getBody();
-        if (compHtml == null)
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error on get '%s' object's component '%s'.", objId, compPath));
-
-        try {
-            return HTMLUtils.toHTMLFormattedJSON(compHtml,
-                    String.format("%s Object's Component %s", jslService.getObj(jslService.getHttp(session), objId).getName(), compPath),
-                    String.format("<a href=\"%s\">Object</a>\n<a href=\"%s\">Object's structure</a>", APIFEObjs.FULL_PATH_DETAILS(objId), APIFEStruct.FULL_PATH_STRUCT(objId)));
-
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error get '%s' object's structure on formatting response (%s).", objId, e.getMessage()), e);
-        }
     }
 
 
