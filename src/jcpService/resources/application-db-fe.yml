@@ -1,4 +1,4 @@
-spring.datasource.url: jdbc:mysql://localhost:8999/jcp_fe?useSSL=false
+spring.datasource.url: jdbc:mysql://localhost:8999/jcp_fe?allowPublicKeyRetrieval=true&useSSL=false
 spring.datasource.username: jcp_fe
 spring.datasource.password: fe_jcp
 spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
