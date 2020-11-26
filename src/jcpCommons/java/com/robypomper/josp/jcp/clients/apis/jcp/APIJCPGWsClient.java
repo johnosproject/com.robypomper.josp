@@ -21,8 +21,8 @@ package com.robypomper.josp.jcp.clients.apis.jcp;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPI;
-import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.clients.JCPAPIsClient;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
 import com.robypomper.josp.jcp.paths.jcp.APIJCPGWs;
@@ -40,7 +40,7 @@ public class APIJCPGWsClient extends AbsAPI {
      *
      * @param jcpClient the JCP client.
      */
-    public APIJCPGWsClient(JCPAPIsClientObj jcpClient) {
+    public APIJCPGWsClient(JCPAPIsClient jcpClient) {
         super(jcpClient);
     }
 
