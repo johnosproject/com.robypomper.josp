@@ -1,7 +1,7 @@
 # Dockers - DBMS: Changelog
 
 **v. 2.0.0:**<br>
-  * Setup databases ```auth_josp``` for the [Auth](auth.md) component 
+  * Setup databases ```jcp_auth``` for the [Auth](auth.md) component 
   * Setup databases ```jco_apis``` for the [JCP APIs](../jcpAPIs/README.md) and
     [JOSP GWs](../jospGWs/README.md) components
   * Auto-load on docker init, the preset data from ```src/dockers/dbms/docker/sql```

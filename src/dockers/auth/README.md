@@ -20,13 +20,13 @@ Like others Docker based project, it can be **started and stopped** with followi
 To **manage the auth server resources** (clients/user/roles/scopes) please visit
 the admin console at [https://localhost:8998/auth/admin/master/console/]().
 
-To **reset the auth server's database**, you can drop and recreate the ```auth_josp```
+To **reset the auth server's database**, you can drop and recreate the ```jcp_auth```
 database in to the DBMS service. You can connect to the DBMS with a mysql client
 (like MySQL Workbench) and run following sql command, then restart the Auth server.
 
 ```sql
-DROP DATABASE `auth_josp`;
-CREATE DATABASE `auth_josp` CHARACTER SET utf8 COLLATE utf8_general_ci;
+DROP DATABASE `jcp_auth`;
+CREATE DATABASE `jcp_auth` CHARACTER SET utf8 COLLATE utf8_general_ci;    // Charset not required from version 2.1
 ```
 
 ## Preset configurations

@@ -1,4 +1,4 @@
-spring.datasource.url: jdbc:mysql://localhost:8999/jcp_apis?useSSL=false
+spring.datasource.url: jdbc:mysql://localhost:8999/jcp_apis?allowPublicKeyRetrieval=true&useSSL=false
 spring.datasource.username: jcp_apis
 spring.datasource.password: apis_jcp
 spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
