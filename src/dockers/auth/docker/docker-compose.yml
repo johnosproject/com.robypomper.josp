@@ -16,7 +16,7 @@ services:
       DB_DATABASE: auth_josp
       DB_USER: auth_user
       DB_PASSWORD: user_auth
-      JDBC_PARAMS: 'useSSL=false'
+      JDBC_PARAMS: 'allowPublicKeyRetrieval=true&useSSL=false'
       KEYCLOAK_IMPORT: /import-export/import-jcp.json
       #KEYCLOAK_EXPORT: /import-export/export-all.json
       WAIT_FOR_DB: 'true'
