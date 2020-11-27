@@ -7,7 +7,7 @@ import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.params.jcp.JCPFEStatus;
-import com.robypomper.josp.paths.APIJCP;
+import com.robypomper.josp.paths.jcp.APIJCP;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
