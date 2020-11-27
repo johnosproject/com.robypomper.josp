@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.apis.controllers.jcp;
+package com.robypomper.josp.jcp.apis.controllers.gws;
 
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.db.apis.GWDBService;
@@ -25,9 +25,8 @@ import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.jcp.db.apis.entities.GWStatus;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.jcp.paths.jcp.APIJCPGWs;
+import com.robypomper.josp.jcp.paths.apis.JCPAPIsGWs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
-import com.robypomper.josp.paths.APIEvents;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -50,8 +49,8 @@ import java.util.Optional;
  * status updates.
  */
 @RestController
-@Api(tags = {APIJCPGWs.SubGroupRegistration.NAME})
-public class APIJCPGWsController {
+@Api(tags = {JCPAPIsGWs.SubGroupRegistration.NAME})
+public class JCPAPIsGWsController {
 
     // Internal vars
 
@@ -63,10 +62,10 @@ public class APIJCPGWsController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIJCPGWs() {
+    public Docket swaggerConfig_JCPAPIsGWs() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIJCPGWs.SubGroupRegistration.NAME, APIJCPGWs.SubGroupRegistration.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJCPGWs.API_NAME, APIJCPGWs.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(JCPAPIsGWs.SubGroupRegistration.NAME, JCPAPIsGWs.SubGroupRegistration.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(JCPAPIsGWs.API_NAME, JCPAPIsGWs.API_VER, JCPAPIsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -79,7 +78,7 @@ public class APIJCPGWsController {
      * @param gwService Spring DB Service's for GWs.
      */
     @Autowired
-    public APIJCPGWsController(GWDBService gwService) {
+    public JCPAPIsGWsController(GWDBService gwService) {
         this.gwService = gwService;
         gwService.checkAllGWsAvailability();
     }
@@ -93,7 +92,7 @@ public class APIJCPGWsController {
      *
      * @return true on GW registration success.
      */
-    @PostMapping(path = APIJCPGWs.FULL_PATH_STARTUP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = JCPAPIsGWs.FULL_PATH_STARTUP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Allow JCP GW to register their startup",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -111,7 +110,7 @@ public class APIJCPGWsController {
             @ApiResponse(code = 503, message = "Authorization server not available"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Boolean> registerStartup(@RequestHeader(APIJCPGWs.HEADER_JCPGWID) String jcpGWId,
+    public ResponseEntity<Boolean> registerStartup(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId,
                                                    @RequestBody JCPGWsStartup gwStartup) {
         Optional<GW> optGW = gwService.findById(jcpGWId);
         GW gw;
@@ -142,7 +141,7 @@ public class APIJCPGWsController {
      *
      * @return true on GW status successfully updated.
      */
-    @PostMapping(path = APIJCPGWs.FULL_PATH_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = JCPAPIsGWs.FULL_PATH_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Allow JCP GW to update their status info",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -160,7 +159,7 @@ public class APIJCPGWsController {
             @ApiResponse(code = 503, message = "Authorization server not available"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Boolean> postStatus(@RequestHeader(APIJCPGWs.HEADER_JCPGWID) String jcpGWId,
+    public ResponseEntity<Boolean> postStatus(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId,
                                               @RequestBody JCPGWsStatus gwStatus) {
         Optional<GW> optGW = gwService.findById(jcpGWId);
         GW gw;
@@ -182,7 +181,7 @@ public class APIJCPGWsController {
      *
      * @return true on GW registration success.
      */
-    @PostMapping(path = APIJCPGWs.FULL_PATH_SHUTDOWN, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = JCPAPIsGWs.FULL_PATH_SHUTDOWN, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Allow JCP GW to register their startup",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -200,7 +199,7 @@ public class APIJCPGWsController {
             @ApiResponse(code = 503, message = "Authorization server not available"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Boolean> postShutdown(@RequestHeader(APIJCPGWs.HEADER_JCPGWID) String jcpGWId) {
+    public ResponseEntity<Boolean> postShutdown(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId) {
         Optional<GW> optGW = gwService.findById(jcpGWId);
         GW gw;
         if (!optGW.isPresent()) {
