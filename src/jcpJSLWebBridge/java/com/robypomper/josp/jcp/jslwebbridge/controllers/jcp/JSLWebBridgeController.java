@@ -2,7 +2,7 @@ package com.robypomper.josp.jcp.jslwebbridge.controllers.jcp;
 
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JCPJSLWebBridgeStatus;
-import com.robypomper.josp.paths.APIJCP;
+import com.robypomper.josp.paths.jcp.APIJCP;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import javax.annotation.security.RolesAllowed;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIJCP.SubGroupJSLWebBridgeStatus.NAME})
-public class APIJCPJSLWebBridgeController {
+public class JSLWebBridgeController {
 
     @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS)
     @ApiOperation(value = "Return JCP JSL Web Bridge info and stats",
