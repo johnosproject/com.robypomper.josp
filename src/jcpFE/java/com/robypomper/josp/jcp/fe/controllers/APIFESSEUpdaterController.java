@@ -50,7 +50,7 @@ public class APIFESSEUpdaterController {
 
     // Methods - SSE Updater
 
-    @GetMapping(path = APIFESSEUpdater.FULL_PATH_INIT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIFESSEUpdater.FULL_PATH_INIT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
