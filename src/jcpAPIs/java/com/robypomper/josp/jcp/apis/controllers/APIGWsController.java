@@ -19,10 +19,13 @@
 
 package com.robypomper.josp.jcp.apis.controllers;
 
-import com.robypomper.communication.UtilsJKS;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
-import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
-import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
+import com.robypomper.josp.jcp.clients.ClientParams;
+import com.robypomper.josp.jcp.clients.JCPGWsClient;
+import com.robypomper.josp.jcp.clients.gws.apis.APIGWsGWsClient;
+import com.robypomper.josp.jcp.db.apis.GWDBService;
+import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessRequest;
@@ -31,12 +34,14 @@ import com.robypomper.josp.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.paths.APIGWs;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.types.josp.gw.GWType;
 import io.swagger.annotations.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,9 +51,9 @@ import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
-import java.net.InetAddress;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * API Permission Objs's controller.
@@ -65,11 +70,12 @@ public class APIGWsController {
 
     private static final Logger log = LogManager.getLogger();
     @Autowired
-    private JOSPGWsO2SService gwO2SService;
-    @Autowired
-    private JOSPGWsS2OService gwS2OService;
+    private GWDBService gwService;
     @Autowired
     private SwaggerConfigurer swagger;
+    @Autowired
+    private ClientParams gwsClientsParams;
+    private Map<GW, APIGWsGWsClient> apiGWsGWsClients = new HashMap<>();
 
 
     // Docs configs
@@ -84,7 +90,7 @@ public class APIGWsController {
 
     // Methods
 
-    @PostMapping(path = APIGWs.FULL_PATH_O2S_ACCESS)
+    @PostMapping(path = APIGWs.FULL_PATH_O2S_ACCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Set object's certificate and request JOSPGw O2S access info",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -98,7 +104,8 @@ public class APIGWsController {
             @ApiResponse(code = 200, message = "Method worked successfully", response = O2SAccessInfo.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
-            @ApiResponse(code = 500, message = "Error adding client certificate")
+            @ApiResponse(code = 500, message = "Error adding client certificate"),
+            @ApiResponse(code = 503, message = "Internal error, no gateways available certificate")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
     public ResponseEntity<O2SAccessInfo> postO2SAccess(
@@ -107,34 +114,24 @@ public class APIGWsController {
             @RequestBody
                     O2SAccessRequest accessRequest) {
 
-        if (objId == null || objId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
+        // Get free GW url
 
-        Certificate clientCertificate;
+        Optional<GW> gwOpt = gwService.findAvailableGW(GWType.Obj2Srv);
+        if (!gwOpt.isPresent())
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s GWs available.", GWType.Obj2Srv));
+
+        // Forward request to free GW
         try {
-            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.objCertificate);
-        } catch (UtilsJKS.LoadingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param objCertificate contains invalid value.");
+            APIGWsGWsClient apiGWsGWs = getAPIGWsGWsClient(gwOpt.get());
+            return ResponseEntity.ok(apiGWsGWs.getO2SAccessInfo(objId, accessRequest));
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' O2S_ACCESS.", gwOpt.get().getGwId()));
         }
-
-        if (!gwO2SService.addClientCertificate(objId + accessRequest.instanceId, clientCertificate))
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering object '%s'.", objId));
-
-        InetAddress gwAddress = gwO2SService.getPublicAddress(objId);
-        int gwPort = gwO2SService.getPort(objId);
-        byte[] gwCert;
-        try {
-            gwCert = gwO2SService.getPublicCertificate(objId).getEncoded();
-        } catch (CertificateEncodingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error returning current JOSP Gw certificate.");
-        }
-
-        O2SAccessInfo o2sAccessInfo = new O2SAccessInfo(gwAddress, gwPort, gwCert);
-        return ResponseEntity.ok(o2sAccessInfo);
     }
 
 
-    @PostMapping(path = APIGWs.FULL_PATH_S2O_ACCESS)
+    @PostMapping(path = APIGWs.FULL_PATH_S2O_ACCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Set service's certificate and request JOSPGw S2O access info",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -148,7 +145,8 @@ public class APIGWsController {
             @ApiResponse(code = 200, message = "Method worked successfully", response = S2OAccessInfo.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 400, message = "Missing mandatory header " + APISrvs.HEADER_SRVID),
-            @ApiResponse(code = 500, message = "Error adding client certificate")
+            @ApiResponse(code = 500, message = "Error adding client certificate"),
+            @ApiResponse(code = 503, message = "Internal error, no gateways available certificate")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_SRV)
     public ResponseEntity<S2OAccessInfo> postS2OAccess(
@@ -157,30 +155,28 @@ public class APIGWsController {
             @RequestBody
                     S2OAccessRequest accessRequest) {
 
-        if (srvId == null || srvId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APISrvs.HEADER_SRVID));
+        // Get free GW url
+        Optional<GW> gwOpt = gwService.findAvailableGW(GWType.Srv2Obj);
+        if (!gwOpt.isPresent())
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s GWs available.", GWType.Srv2Obj));
 
-        Certificate clientCertificate;
+        // Forward request to free GW
         try {
-            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.srvCertificate);
-        } catch (UtilsJKS.LoadingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param srvCertificate contains invalid value.");
+            APIGWsGWsClient apiGWsGWs = getAPIGWsGWsClient(gwOpt.get());
+            return ResponseEntity.ok(apiGWsGWs.getS2OAccessInfo(srvId, accessRequest));
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' S2O_ACCESS.", gwOpt.get().getGwId()));
         }
+    }
 
-        if (!gwS2OService.addClientCertificate(srvId + accessRequest.instanceId, clientCertificate))
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering service '%s'.", srvId));
 
-        InetAddress gwAddress = gwS2OService.getPublicAddress(srvId);
-        int gwPort = gwS2OService.getPort(srvId);
-        byte[] gwCert;
-        try {
-            gwCert = gwS2OService.getPublicCertificate(srvId).getEncoded();
-        } catch (CertificateEncodingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error returning current JOSP Gw certificate.");
+    protected APIGWsGWsClient getAPIGWsGWsClient(GW gw) {
+        if (apiGWsGWsClients.get(gw) == null) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            apiGWsGWsClients.put(gw, new APIGWsGWsClient(new JCPGWsClient(gwsClientsParams, url)));
         }
-
-        S2OAccessInfo s2oAccessInfo = new S2OAccessInfo(gwAddress, gwPort, gwCert);
-        return ResponseEntity.ok(s2oAccessInfo);
+        return apiGWsGWsClients.get(gw);
     }
 
 }
