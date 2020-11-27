@@ -69,9 +69,22 @@ public abstract class AbsGWsService {
         this.port = port;
 
         try {
-            server = initServer(ONLY_SERVER_ID);
+            log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Generating and starting internal JOSP GWs '%s' server", ONLY_SERVER_ID));
+            String alias = String.format("%s@%s", ONLY_SERVER_ID, CERT_ALIAS);
 
-        } catch (UtilsJKS.GenerationException | UtilsSSL.GenerationException | com.robypomper.communication.server.Server.ListeningException e) {
+            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' keystore", ONLY_SERVER_ID));
+            KeyStore ks = UtilsJKS.generateKeyStore(ONLY_SERVER_ID, null, alias);
+            Certificate publicCertificate = UtilsJKS.extractCertificate(ks, alias);
+
+            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
+            SSLContext sslCtx;
+            DynAddTrustManager trustmanager = new DynAddTrustManager();
+            sslCtx = UtilsSSL.generateSSLContext(ks, null, trustmanager);
+
+            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Creating and starting internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
+            server = new Server(this, sslCtx, ONLY_SERVER_ID, port, trustmanager, publicCertificate);
+
+        } catch (UtilsJKS.GenerationException | UtilsSSL.GenerationException e) {
             throw new RuntimeException(String.format("Error on initializing internal GWs because %s", e.getMessage()), e);
         }
 
@@ -110,32 +123,11 @@ public abstract class AbsGWsService {
     }
 
 
-    // Internal JOSP GWs initializer
-
-    private Server initServer(String idServer) throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, com.robypomper.communication.server.Server.ListeningException {
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Generating and starting internal JOSP GWs '%s' server", idServer));
-        String alias = String.format("%s@%s", idServer, CERT_ALIAS);
-
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' keystore", idServer));
-        KeyStore ks = UtilsJKS.generateKeyStore(idServer, null, alias);
-        Certificate publicCertificate = UtilsJKS.extractCertificate(ks, alias);
-
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' SSL context", idServer));
-        SSLContext sslCtx;
-        DynAddTrustManager trustmanager = new DynAddTrustManager();
-        sslCtx = UtilsSSL.generateSSLContext(ks, null, trustmanager);
-
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Creating and starting internal JOSP GWs '%s' SSL context", idServer));
-        Server s = new Server(this, sslCtx, idServer, port, trustmanager, publicCertificate);
-        s.start();
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Internal JOSP GWs '%s' server generated and started", idServer));
-
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Internal JOSP GWs '%s' server started on port '%d'", idServer, port));
-        return s;
-    }
-
-
     // Client's utils
+
+    public AbsGWsService.Server getServer() {
+        return server;
+    }
 
     public InetAddress getPublicAddress() {
         return hostAddr;

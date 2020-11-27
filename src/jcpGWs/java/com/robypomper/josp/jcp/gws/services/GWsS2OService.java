@@ -68,10 +68,10 @@ public class GWsS2OService extends AbsGWsService {
      * @param hostName
      */
     @Autowired
-    public GWsS2OService(@Value("${jospgw.s2o.url}") final String hostName,
-                         @Value("${jospgw.s2o.port}") final int port,
+    public GWsS2OService(@Value("${jcp.gws.s2o.url}") final String hostName,
+                         @Value("${jcp.gws.s2o.port}") final int port,
                          @Value("${server.port}") final int apisPort,
-                         @Value("${jospgw.s2o.maxClients}") final int maxClients,
+                         @Value("${jcp.gws.s2o.maxClients}") final int maxClients,
                          JCPAPIsClient apisClient) {
         super(hostName, port);
         this.gwsAPI = new APIJCPGWsClient(apisClient);
@@ -79,6 +79,12 @@ public class GWsS2OService extends AbsGWsService {
         this.apisPort = apisPort;
         this.maxClients = maxClients;
         this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
+
+        try {
+            getServer().start();
+
+        } catch (com.robypomper.communication.server.Server.ListeningException ignore) {
+        }
     }
 
 

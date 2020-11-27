@@ -19,7 +19,10 @@
 
 package com.robypomper.josp.jcp.gws.services;
 
+import com.robypomper.communication.UtilsJKS;
+import com.robypomper.communication.UtilsSSL;
 import com.robypomper.communication.server.ClientInfo;
+import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.events.*;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
@@ -77,10 +80,10 @@ public class GWsO2SService extends AbsGWsService {
      * @param hostName
      */
     @Autowired
-    public GWsO2SService(@Value("${jospgw.o2s.url}") final String hostName,
-                         @Value("${jospgw.o2s.port}") final int port,
+    public GWsO2SService(@Value("${jcp.gws.o2s.url}") final String hostName,
+                         @Value("${jcp.gws.o2s.port}") final int port,
                          @Value("${server.port}") final int apisPort,
-                         @Value("${jospgw.o2s.maxClients}") final int maxClients,
+                         @Value("${jcp.gws.o2s.maxClients}") final int maxClients,
                          JCPAPIsClient apisClient) {
         super(hostName, port);
         this.gwsAPI = new APIJCPGWsClient(apisClient);
@@ -88,6 +91,12 @@ public class GWsO2SService extends AbsGWsService {
         this.apisPort = apisPort;
         this.maxClients = maxClients;
         this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
+
+        try {
+            getServer().start();
+
+        } catch (com.robypomper.communication.server.Server.ListeningException ignore) {
+        }
     }
 
     
