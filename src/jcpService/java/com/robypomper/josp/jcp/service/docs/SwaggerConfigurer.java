@@ -76,6 +76,9 @@ public class SwaggerConfigurer {
     public static final String ROLE_MNG = "mng";
     public static final String ROLE_MNG_SWAGGER = "role_mng";
     public static final String ROLE_MNG_DESC = "JCP Manager scope";
+    public static final String ROLE_JCP = "jcp";
+    public static final String ROLE_JCP_SWAGGER = "role_jcp";
+    public static final String ROLE_JCP_DESC = "JCP Services scope";
 
     public static final String OAUTH_IMPL = "ImplicitCodeFlow";
     public static final String OAUTH_PASS = "AuthCodeFlow";
@@ -89,6 +92,7 @@ public class SwaggerConfigurer {
     public static final String OAUTH_FLOW_DEF_SRV = OAUTH_IMPL;
     public static final String OAUTH_FLOW_DEF_OBJ = OAUTH_IMPL;
     public static final String OAUTH_FLOW_DEF_MNG = OAUTH_IMPL;
+    public static final String OAUTH_FLOW_DEF_JCP = OAUTH_IMPL;
     public static final String OAUTH_FLOW_DEF_TEST = OAUTH_IMPL;
 
     private static final Contact ContactJohn = new Contact(JCPContacts.getJohn().getFullName(), JCPContacts.getJohn().getUrl(), JCPContacts.getJohn().getEmail());

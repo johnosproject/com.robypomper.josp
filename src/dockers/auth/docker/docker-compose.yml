@@ -17,8 +17,8 @@ services:
       DB_USER: jcp_auth
       DB_PASSWORD: auth_jcp
       JDBC_PARAMS: 'allowPublicKeyRetrieval=true&useSSL=false'
-      KEYCLOAK_IMPORT: /import-export/import-jcp.json
-      #KEYCLOAK_EXPORT: /import-export/export-all.json
+      #KEYCLOAK_IMPORT: /import-export/import-jcp.json
+      KEYCLOAK_EXPORT: /import-export/export-all.json
       WAIT_FOR_DB: 'true'
 
     volumes:

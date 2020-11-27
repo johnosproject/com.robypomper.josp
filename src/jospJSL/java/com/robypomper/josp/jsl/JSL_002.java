@@ -67,7 +67,8 @@ public class JSL_002 extends AbsJSL {
                 settings.getJCPId(),
                 settings.getJCPSecret(),
                 settings.getJCPUrlAPIs(),
-                settings.getJCPUrlAuth()) {
+                settings.getJCPUrlAuth(),
+                settings.getJCPCallback()) {
 
             @Override
             protected void storeTokens() {

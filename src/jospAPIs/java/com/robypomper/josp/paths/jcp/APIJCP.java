@@ -1,4 +1,4 @@
-package com.robypomper.josp.paths;
+package com.robypomper.josp.paths.jcp;
 
 import com.robypomper.josp.info.JCPAPIsVersions;
 
@@ -58,8 +58,10 @@ public class APIJCP {
     private static final String MTHD_APIS_STATUS_OBJS   = "apis/status/objs";
     private static final String MTHD_APIS_STATUS_SRVS   = "apis/status/srvs";
     private static final String MTHD_APIS_STATUS_GWS    = "apis/status/gws";
+    private static final String MTHD_APIS_STATUS_GWS_CLI= "apis/status/gws/clients";
     private static final String MTHD_APIS_STATUS_USRS   = "apis/status/usrs";
     private static final String MTHD_GWS_STATUS         = "gws/status";
+    private static final String MTHD_GWS_STATUS_CLI     = "gws/status/clients";
     private static final String MTHD_JSLWB_STATUS       = "jslwb/status";
     private static final String MTHD_FE_STATUS          = "fe/status";
 
@@ -79,8 +81,10 @@ public class APIJCP {
     public static final String FULL_PATH_APIS_STATUS_OBJS   = API_PATH + "/" + API_VER + "/" + MTHD_APIS_STATUS_OBJS;
     public static final String FULL_PATH_APIS_STATUS_SRVS   = API_PATH + "/" + API_VER + "/" + MTHD_APIS_STATUS_SRVS;
     public static final String FULL_PATH_APIS_STATUS_GWS    = API_PATH + "/" + API_VER + "/" + MTHD_APIS_STATUS_GWS;
+    public static final String FULL_PATH_APIS_STATUS_GWS_CLI= API_PATH + "/" + API_VER + "/" + MTHD_APIS_STATUS_GWS_CLI;
     public static final String FULL_PATH_APIS_STATUS_USRS   = API_PATH + "/" + API_VER + "/" + MTHD_APIS_STATUS_USRS;
     public static final String FULL_PATH_GWS_STATUS         = API_PATH + "/" + API_VER + "/" + MTHD_GWS_STATUS;
+    public static final String FULL_PATH_GWS_STATUS_CLI     = API_PATH + "/" + API_VER + "/" + MTHD_GWS_STATUS_CLI;
     public static final String FULL_PATH_JSLWB_STATUS       = API_PATH + "/" + API_VER + "/" + MTHD_JSLWB_STATUS;
     public static final String FULL_PATH_FE_STATUS          = API_PATH + "/" + API_VER + "/" + MTHD_FE_STATUS;
 

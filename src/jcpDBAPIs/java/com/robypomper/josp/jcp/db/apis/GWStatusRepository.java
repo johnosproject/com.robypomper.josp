@@ -17,31 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.clients;
+package com.robypomper.josp.jcp.db.apis;
 
-import com.robypomper.josp.clients.JCPAPIsClientJCP;
-import com.robypomper.josp.clients.JCPClient2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import com.robypomper.josp.jcp.db.apis.entities.GWStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-
-/**
- * Cloud JCP JSL Web Bridge implementation of {@link JCPClient2} interface.
- */
-@Component
-public class JCPJSLWebBridgeClient extends JCPAPIsClientJCP {
-
-    // Internal vars
-
-    public static final String JCP_NAME = "JCP JSL WebBridge";
+import java.util.List;
 
 
-    // Constructor
+public interface GWStatusRepository extends JpaRepository<GWStatus, String> {
 
-    @Autowired
-    public JCPJSLWebBridgeClient(ClientParams params, @Value("${jcp.urlJSLWebBridge}") String urlJSLWebBridge) {
-        super(params.useSSL, params.client, params.secret, urlJSLWebBridge, params.urlAuth, JCP_NAME, params.callBack);
-    }
+    List<GWStatus> findByOnline(boolean online);
 
 }

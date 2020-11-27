@@ -26,7 +26,7 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.robypomper.java.JavaSSLIgnoreChecks;
-import com.robypomper.josp.paths.APIJCP;
+import com.robypomper.josp.paths.jcp.APIJCP;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;

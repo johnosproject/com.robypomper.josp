@@ -17,14 +17,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.gw;
+package com.robypomper.josp.jcp.gws.services;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.events.*;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.clients.JCPAPIsClient;
+import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
 import com.robypomper.josp.jcp.db.apis.EventDBService;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
+import com.robypomper.josp.jcp.gws.broker.GWsBroker;
+import com.robypomper.josp.jcp.gws.o2s.GWObject;
+import com.robypomper.josp.jcp.info.JCPGWsVersions;
+import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
+import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
+import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.types.josp.gw.GWType;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,12 +47,7 @@ import java.util.Map;
 
 
 @Service
-public class JOSPGWsO2SService extends AbsJOSPGWsService {
-
-    // Class constants
-
-    private static final int PORT_MIN = 9101;
-    private static final int PORT_MAX = 9110;
+public class GWsO2SService extends AbsGWsService {
 
 
     // Internal vars
@@ -58,7 +63,12 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     @Autowired
     private StatusHistoryDBService statusesHistoryDBService;
     @Autowired
-    private JOSPGWsBroker gwBroker;
+    private GWsBroker gwBroker;
+    private final JCPAPIGWsClient gwsAPI;
+    private final String hostName;
+    private final int apisPort;
+    private final int maxClients;
+    private final JCPGWsStatus gwStatus;
 
 
     /**
@@ -67,8 +77,23 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
      * @param hostName
      */
     @Autowired
-    public JOSPGWsO2SService(@Value("${jospgw.o2s.url}") final String hostName) {
-        super(hostName);
+    public GWsO2SService(@Value("${jcp.gws.o2s.url}") final String hostName,
+                         @Value("${jcp.gws.o2s.port}") final int port,
+                         @Value("${server.port}") final int apisPort,
+                         @Value("${jcp.gws.o2s.maxClients}") final int maxClients,
+                         JCPAPIsClient apisClient) {
+        super(hostName, port);
+        this.gwsAPI = new JCPAPIGWsClient(apisClient);
+        this.hostName = hostName;
+        this.apisPort = apisPort;
+        this.maxClients = maxClients;
+        this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
+
+        try {
+            getServer().start();
+
+        } catch (com.robypomper.communication.server.Server.ListeningException ignore) {
+        }
     }
 
     
@@ -88,17 +113,41 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             return;
         }
 
+        // Create GWObject (that register to GW Broker) and add to active services
         gwObj = new GWObject(server, client, objectDBService, permissionsDBService, eventsDBService, statusesHistoryDBService, gwBroker);
         objects.put(client.getClientId(), gwObj);
+
+        // Update GW status to JCP APIs
+        String gwId = generateGWId(hostName, server.getPort());
+        gwStatus.clients++;
+        gwStatus.lastClientConnectedAt = JOSPProtocol.getNowDate();
+        try {
+            gwsAPI.postStatus(gwStatus, gwId);
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+        }
     }
 
     private void onClientDisconnection(ClientInfo client) {
+        // Deregister GWService from GW Broker and remove from active services
         try {
             GWObject disconnectedObject = objects.remove(client.getClientId());
             disconnectedObject.setOffline();
             gwBroker.deregisterObject(disconnectedObject);
         } catch (NullPointerException e) {
             log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because object '%s' not known", client.getClientId()));
+        }
+
+        // Update GW status to JCP APIs
+        String gwId = generateGWId(hostName, getPort());
+        gwStatus.clients--;
+        gwStatus.lastClientDisconnectedAt = JOSPProtocol.getNowDate();
+        try {
+            gwsAPI.postStatus(gwStatus, gwId);
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because '%s'.", gwId, e.getMessage()), e);
         }
     }
 
@@ -124,33 +173,39 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
     }
 
 
-    // JOSPGWsService implementations
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    int getMinPort() {
-        return PORT_MIN;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    int getMaxPort() {
-        return PORT_MAX;
-    }
-
-
-    // AbsJOSPGWsService implementations
+    // AbsGWsService implementations
 
     /**
      * {@inheritDoc}
      */
     @Override
     protected ServerLocalEvents getServerEventsListener() {
-        return null;
+        return new DefaultServerLocalEventsListener() {
+
+            @Override
+            public void onStarted() {
+                String gwId = generateGWId(hostName, getServer().getPort());
+                try {
+                    JCPGWsStartup gwStartup = new JCPGWsStartup(GWType.Obj2Srv, hostName, getServer().getPort(), hostName, apisPort, maxClients, JCPGWsVersions.VER_JCPGWs_O2S_2_0);
+                    gwsAPI.postStartup(gwStartup, gwId);
+
+                } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                    log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' startup to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+                }
+            }
+
+            @Override
+            public void onStopped() {
+                String gwId = generateGWId(hostName, getServer().getPort());
+                try {
+                    gwsAPI.postShutdown(gwId);
+
+                } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                    log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' startup to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+                }
+            }
+
+        };
     }
 
     /**
@@ -168,21 +223,21 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             /**
              * {@inheritDoc}
              * <p>
-             * Link to the {@link JOSPGWsO2SService#onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} method.
+             * Link to the {@link GWsO2SService#onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} method.
              */
             @Override
             public void onClientConnection(ClientInfo client) {
-                JOSPGWsO2SService.this.onClientConnection(getServer(), client);
+                GWsO2SService.this.onClientConnection(getServer(), client);
             }
 
             /**
              * {@inheritDoc}
              * <p>
-             * Link to the {@link JOSPGWsO2SService#onClientDisconnection(ClientInfo)} method.
+             * Link to the {@link GWsO2SService#onClientDisconnection(ClientInfo)} method.
              */
             @Override
             public void onClientDisconnection(ClientInfo client) {
-                JOSPGWsO2SService.this.onClientDisconnection(client);
+                GWsO2SService.this.onClientDisconnection(client);
             }
 
         };
@@ -201,11 +256,11 @@ public class JOSPGWsO2SService extends AbsJOSPGWsService {
             /**
              * {@inheritDoc}
              * <p>
-             * Link to the {@link JOSPGWsO2SService#onDataReceived(ClientInfo, String)} method.
+             * Link to the {@link GWsO2SService#onDataReceived(ClientInfo, String)} method.
              */
             @Override
             public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
-                return JOSPGWsO2SService.this.onDataReceived(client, readData);
+                return GWsO2SService.this.onDataReceived(client, readData);
             }
 
         };

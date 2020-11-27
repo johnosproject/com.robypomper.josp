@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.gw;
+package com.robypomper.josp.jcp.gws.o2s;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +27,10 @@ import com.robypomper.josp.jcp.db.apis.EventDBService;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
-import com.robypomper.josp.jcp.db.apis.entities.*;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
+import com.robypomper.josp.jcp.db.apis.entities.*;
+import com.robypomper.josp.jcp.gws.broker.GWsBroker;
+import com.robypomper.josp.jcp.gws.s2o.GWService;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.*;
@@ -54,12 +56,12 @@ public class GWObject {
     private final PermissionsDBService permissionsDBService;
     private final EventDBService eventsDBService;
     private final StatusHistoryDBService statusesHistoryDBService;
-    private final JOSPGWsBroker gwBroker;
+    private final GWsBroker gwBroker;
 
 
     // Constructor
 
-    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, JOSPGWsBroker gwBroker) {
+    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, GWsBroker gwBroker) {
         this.server = server;
         this.client = client;
         this.objId = client.getClientId();
@@ -72,7 +74,7 @@ public class GWObject {
         gwBroker.registerObject(this);
     }
 
-    public GWObject(Object allowedObject, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, JOSPGWsBroker gwBroker) {
+    public GWObject(Object allowedObject, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, GWsBroker gwBroker) {
         this.eventsDBService = eventsDBService;
         this.statusesHistoryDBService = statusesHistoryDBService;
         this.server = null;

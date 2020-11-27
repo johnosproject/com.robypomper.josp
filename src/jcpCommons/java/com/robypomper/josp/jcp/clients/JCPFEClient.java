@@ -41,7 +41,7 @@ public class JCPFEClient extends JCPAPIsClientJCP {
 
     @Autowired
     public JCPFEClient(ClientParams params, @Value("${jcp.urlFE}") String urlFE) {
-        super(params.useSSL, params.client, params.secret, urlFE, params.urlAuth, JCP_NAME);
+        super(params.useSSL, params.client, params.secret, urlFE, params.urlAuth, JCP_NAME, params.callBack);
     }
 
 }

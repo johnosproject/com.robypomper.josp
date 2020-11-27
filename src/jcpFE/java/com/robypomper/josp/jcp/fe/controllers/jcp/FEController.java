@@ -1,13 +1,13 @@
 package com.robypomper.josp.jcp.fe.controllers.jcp;
 
-import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.clients.JCPAPIsClient;
+import com.robypomper.josp.jcp.clients.jcp.jcp.APIsClient;
 import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
-import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.params.jcp.JCPFEStatus;
-import com.robypomper.josp.paths.APIJCP;
+import com.robypomper.josp.params.jcp.JCPGWsStatus;
+import com.robypomper.josp.paths.jcp.APIJCP;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -34,10 +34,18 @@ public class FEController {
     private HttpSession httpSession;
     @Autowired
     private JSLSpringService jslService;
+    private final APIsClient apisAPI;
+
+
+    // Constructor
+
+    @Autowired
+    public FEController(JCPAPIsClient apisClient) {
+        apisAPI = new APIsClient(apisClient);
+    }
 
 
     // Methods
-
 
     @GetMapping(path = APIJCP.FULL_PATH_FE_STATUS)
     @ApiOperation(value = "Return JCP FE info and stats")
@@ -62,13 +70,9 @@ public class FEController {
     public ResponseEntity<JCPAPIsStatus> getJCPAPIsStatusForward() {
         checkAdmin();
 
-        // Forward request to JCP APIs
-
         try {
-            JSL current = jslService.getHttp(httpSession);
-            JCPAPIsClientSrv jcpClient = current.getJCPClient();
-            JCPAPIsStatus jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS, JCPAPIsStatus.class, jcpClient.isSecured());
-            return ResponseEntity.ok(jcpAPIsResponse);
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(apisAPI.getJCPAPIsStatusReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             e.printStackTrace();
@@ -83,16 +87,32 @@ public class FEController {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsForward() {
+    public ResponseEntity<List<JCPGWsStatus>> getJCPAPIsStatusGWsForward() {
         checkAdmin();
 
-        // Forward request to JCP APIs
+        try {
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(apisAPI.getJCPAPIsStatusGWsReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_GWS_CLI)
+    @ApiOperation(value = "Return JCP APIs registered JCP GWs clients")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JCP APIs registered JCP GWs clients", response = List.class),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+    })
+    public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsCliForward() {
+        checkAdmin();
 
         try {
-            JSL current = jslService.getHttp(httpSession);
-            JCPAPIsClientSrv jcpClient = current.getJCPClient();
-            List<JCPAPIsStatus.GWs> jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS, List.class, jcpClient.isSecured());
-            return ResponseEntity.ok(jcpAPIsResponse);
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(apisAPI.getJCPAPIsStatusGWsCliReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             e.printStackTrace();
@@ -110,13 +130,9 @@ public class FEController {
     public ResponseEntity<JCPAPIsStatus.Objects> getJCPAPIsStatusObjsForward() {
         checkAdmin();
 
-        // Forward request to JCP APIs
-
         try {
-            JSL current = jslService.getHttp(httpSession);
-            JCPAPIsClientSrv jcpClient = current.getJCPClient();
-            JCPAPIsStatus.Objects jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_OBJS, JCPAPIsStatus.Objects.class, jcpClient.isSecured());
-            return ResponseEntity.ok(jcpAPIsResponse);
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(apisAPI.getJCPAPIsStatusObjsReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             e.printStackTrace();
@@ -134,13 +150,9 @@ public class FEController {
     public ResponseEntity<JCPAPIsStatus.Services> getJCPAPIsStatusSrvsForward() {
         checkAdmin();
 
-        // Forward request to JCP APIs
-
         try {
-            JSL current = jslService.getHttp(httpSession);
-            JCPAPIsClientSrv jcpClient = current.getJCPClient();
-            JCPAPIsStatus.Services jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_SRVS, JCPAPIsStatus.Services.class, jcpClient.isSecured());
-            return ResponseEntity.ok(jcpAPIsResponse);
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(apisAPI.getJCPAPIsStatusSrvsReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             e.printStackTrace();
@@ -158,13 +170,9 @@ public class FEController {
     public ResponseEntity<JCPAPIsStatus.Users> getJCPAPIsStatusUsrsForward() {
         checkAdmin();
 
-        // Forward request to JCP APIs
-
         try {
-            JSL current = jslService.getHttp(httpSession);
-            JCPAPIsClientSrv jcpClient = current.getJCPClient();
-            JCPAPIsStatus.Users jcpAPIsResponse = jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_USRS, JCPAPIsStatus.Users.class, jcpClient.isSecured());
-            return ResponseEntity.ok(jcpAPIsResponse);
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(apisAPI.getJCPAPIsStatusUsrsReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             e.printStackTrace();
@@ -172,6 +180,8 @@ public class FEController {
         }
     }
 
+
+    // Utils
 
     private void checkAdmin() {
         try {

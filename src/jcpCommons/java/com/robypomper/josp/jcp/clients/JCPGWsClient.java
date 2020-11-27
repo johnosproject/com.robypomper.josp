@@ -37,7 +37,7 @@ public class JCPGWsClient extends JCPAPIsClientJCP {
     // Constructor
 
     public JCPGWsClient(ClientParams params, String urlGWs) {
-        super(params.useSSL, params.client, params.secret, urlGWs, params.urlAuth, JCP_NAME);
+        super(params.useSSL, params.client, params.secret, urlGWs, params.urlAuth, JCP_NAME, params.callBack);
     }
 
 }

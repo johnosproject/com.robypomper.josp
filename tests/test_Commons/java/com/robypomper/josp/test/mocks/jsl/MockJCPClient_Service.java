@@ -28,7 +28,7 @@ import java.util.Map;
 public class MockJCPClient_Service extends JCPAPIsClientSrv {
 
     public MockJCPClient_Service() {
-        super(false, null, null, null, null);
+        super(false, null, null, null, null, null);
     }
 
     public void setServiceId(String srvId) {

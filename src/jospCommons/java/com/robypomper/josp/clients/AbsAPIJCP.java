@@ -19,14 +19,14 @@
 
 package com.robypomper.josp.clients;
 
-public class AbsAPIObj extends AbsAPI {
+public class AbsAPIJCP extends AbsAPI {
 
-    public AbsAPIObj(JCPAPIsClientObj jcpClient) {
+    public AbsAPIJCP(JCPAPIsClientJCP jcpClient) {
         super(jcpClient);
     }
 
-    protected JCPAPIsClientObj getClient() {
-        return (JCPAPIsClientObj) jcpClient;
+    protected JCPAPIsClientJCP getClient() {
+        return (JCPAPIsClientJCP) jcpClient;
     }
 
 }

@@ -13,6 +13,7 @@ public class ClientParams {
     public final String client;
     public final String secret;
     public final String urlAuth;
+    public final String callBack;
 
 
     // Constructor
@@ -21,12 +22,14 @@ public class ClientParams {
     public ClientParams(@Value("${jcp.client.ssl}") boolean useSSL,
                         @Value("${jcp.client.id}") String client,
                         @Value("${jcp.client.secret}") String secret,
-                        @Value("${jcp.urlAuth}") String urlAuth) {
+                        @Value("${jcp.urlAuth}") String urlAuth,
+                        @Value("${jcp.client.callback:''}") String callBack) {
 
         this.useSSL = useSSL;
         this.client = client;
         this.secret = secret;
         this.urlAuth = urlAuth;
+        this.callBack = callBack;
     }
 
 }

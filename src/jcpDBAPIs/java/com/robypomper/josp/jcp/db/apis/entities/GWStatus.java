@@ -17,31 +17,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.clients;
+package com.robypomper.josp.jcp.db.apis.entities;
 
-import com.robypomper.josp.clients.JCPAPIsClientJCP;
-import com.robypomper.josp.clients.JCPClient2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-
-/**
- * Cloud JCP JSL Web Bridge implementation of {@link JCPClient2} interface.
- */
-@Component
-public class JCPJSLWebBridgeClient extends JCPAPIsClientJCP {
-
-    // Internal vars
-
-    public static final String JCP_NAME = "JCP JSL WebBridge";
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.util.Date;
 
 
-    // Constructor
+@Entity
+@Data
+public class GWStatus {
 
-    @Autowired
-    public JCPJSLWebBridgeClient(ClientParams params, @Value("${jcp.urlJSLWebBridge}") String urlJSLWebBridge) {
-        super(params.useSSL, params.client, params.secret, urlJSLWebBridge, params.urlAuth, JCP_NAME, params.callBack);
-    }
+    @Id
+    @Column(nullable = false, unique = true)
+    private String gwId;
+
+    private boolean online = true;
+
+    private int clients = 0;
+
+    private Date lastClientConnectedAt = null;
+
+    private Date lastClientDisconnectedAt = null;
+
+
+    // Extra profile
+
+    @CreationTimestamp
+    private Date createdAt;
+
+    @UpdateTimestamp
+    private Date updatedAt;
 
 }

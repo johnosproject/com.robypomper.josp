@@ -19,6 +19,8 @@
 
 package com.robypomper.josp.clients;
 
+import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.paths.APISrvs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,17 +58,20 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
 
     private static final Logger log = LogManager.getLogger();
     public final String apiName;
+    public static boolean connFailedPrinted = false;
 
 
     // Constructor
 
-    public JCPAPIsClientJCP(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String apiName) {
-        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", "", "jcp", 30);
+    public JCPAPIsClientJCP(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String apiName, String callBack) {
+        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", 30);
         this.apiName = apiName;
         addConnectListener(this);
 
         try {
+            connFailedPrinted = true;
             connect();
+            connFailedPrinted = false;
 
         } catch (ConnectionException | AuthenticationException e) {
             log.warn(String.format("Error on %s connecting because %s", apiName, e.getMessage()), e);
@@ -74,6 +79,30 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
         } catch (JCPNotReachableException ignore) {
             startConnectionTimer();
         }
+    }
+
+
+    // Headers default values setters
+
+    public void setObjectId(String objId) {
+        if (objId != null && !objId.isEmpty())
+            addDefaultHeader(APIObjs.HEADER_OBJID, objId);
+        else
+            removeDefaultHeader(APIObjs.HEADER_OBJID);
+    }
+
+    public void setServiceId(String objId) {
+        if (objId != null && !objId.isEmpty())
+            addDefaultHeader(APISrvs.HEADER_SRVID, objId);
+        else
+            removeDefaultHeader(APISrvs.HEADER_SRVID);
+    }
+
+    public void setUserId(String usrId) {
+        if (usrId != null && !usrId.isEmpty())
+            addDefaultHeader(APISrvs.HEADER_USRID, usrId);
+        else
+            removeDefaultHeader(APISrvs.HEADER_USRID);
     }
 
 
@@ -91,7 +120,12 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
 
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-        log.warn(String.format("Error on %S connection because %s", apiName, t.getMessage()), t);
+        if (connFailedPrinted) {
+            log.debug(String.format("Error on %s connection because %s", apiName, t.getMessage()));
+        } else {
+            log.warn(String.format("Error on %s connection because %s", apiName, t.getMessage()), t);
+            connFailedPrinted = true;
+        }
     }
 
 }

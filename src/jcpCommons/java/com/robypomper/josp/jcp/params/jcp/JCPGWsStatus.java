@@ -17,31 +17,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.clients;
+package com.robypomper.josp.jcp.params.jcp;
 
-import com.robypomper.josp.clients.JCPAPIsClientJCP;
-import com.robypomper.josp.clients.JCPClient2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Date;
 
 
 /**
- * Cloud JCP JSL Web Bridge implementation of {@link JCPClient2} interface.
+ * Messaging class to transmit JOSP GW O2S access info to requiring JOD objects.
  */
-@Component
-public class JCPJSLWebBridgeClient extends JCPAPIsClientJCP {
+public class JCPGWsStatus {
 
-    // Internal vars
+    // Params
 
-    public static final String JCP_NAME = "JCP JSL WebBridge";
+    public int clients;
+
+    public final int clientsMax;
+
+    public Date lastClientConnectedAt;
+
+    public Date lastClientDisconnectedAt;
 
 
     // Constructor
 
-    @Autowired
-    public JCPJSLWebBridgeClient(ClientParams params, @Value("${jcp.urlJSLWebBridge}") String urlJSLWebBridge) {
-        super(params.useSSL, params.client, params.secret, urlJSLWebBridge, params.urlAuth, JCP_NAME, params.callBack);
+    @JsonCreator
+    public JCPGWsStatus(@JsonProperty("clients") int clients,
+                        @JsonProperty("clientsMax") int clientsMax,
+                        @JsonProperty("lastClientConnectedAt") Date lastClientConnectedAt,
+                        @JsonProperty("version") Date lastClientDisconnectedAt) {
+        this.clients = clients;
+        this.clientsMax = clientsMax;
+        this.lastClientConnectedAt = lastClientConnectedAt;
+        this.lastClientDisconnectedAt = lastClientDisconnectedAt;
     }
 
 }

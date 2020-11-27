@@ -17,13 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.gw;
+package com.robypomper.josp.jcp.gws.s2o;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
+import com.robypomper.josp.jcp.gws.broker.GWsBroker;
+import com.robypomper.josp.jcp.gws.o2s.GWObject;
 import com.robypomper.josp.protocol.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,12 +49,12 @@ public class GWService {
     private final Service srvDB;
     private ServiceStatus srvStatusDB;
     //private final ServiceStatus srvStatus;
-    private final JOSPGWsBroker gwBroker;
+    private final GWsBroker gwBroker;
 
 
     // Constructor
 
-    public GWService(Server server, ClientInfo client, ServiceDBService serviceDBService, JOSPGWsBroker gwBroker) throws ServiceNotRegistered {
+    public GWService(Server server, ClientInfo client, ServiceDBService serviceDBService, GWsBroker gwBroker) throws ServiceNotRegistered {
         this.server = server;
         this.client = client;
         this.serviceDBService = serviceDBService;
