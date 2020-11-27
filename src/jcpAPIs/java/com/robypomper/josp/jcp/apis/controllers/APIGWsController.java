@@ -22,7 +22,7 @@ package com.robypomper.josp.jcp.apis.controllers;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.clients.JCPGWsClient;
+import com.robypomper.josp.jcp.clients.JCPGWsClientMngr;
 import com.robypomper.josp.jcp.clients.gws.apis.APIGWsGWsClient;
 import com.robypomper.josp.jcp.db.apis.GWDBService;
 import com.robypomper.josp.jcp.db.apis.entities.GW;
@@ -51,8 +51,6 @@ import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -75,7 +73,8 @@ public class APIGWsController {
     private SwaggerConfigurer swagger;
     @Autowired
     private ClientParams gwsClientsParams;
-    private Map<GW, APIGWsGWsClient> apiGWsGWsClients = new HashMap<>();
+    @Autowired
+    private JCPGWsClientMngr<APIGWsGWsClient> apiGWsGWsClients;
 
 
     // Docs configs
@@ -122,7 +121,8 @@ public class APIGWsController {
 
         // Forward request to free GW
         try {
-            APIGWsGWsClient apiGWsGWs = getAPIGWsGWsClient(gwOpt.get());
+            GW gw = gwOpt.get();
+            APIGWsGWsClient apiGWsGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), APIGWsGWsClient.class);
             return ResponseEntity.ok(apiGWsGWs.getO2SAccessInfo(objId, accessRequest));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
@@ -162,21 +162,13 @@ public class APIGWsController {
 
         // Forward request to free GW
         try {
-            APIGWsGWsClient apiGWsGWs = getAPIGWsGWsClient(gwOpt.get());
+            GW gw = gwOpt.get();
+            APIGWsGWsClient apiGWsGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), APIGWsGWsClient.class);
             return ResponseEntity.ok(apiGWsGWs.getS2OAccessInfo(srvId, accessRequest));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' S2O_ACCESS.", gwOpt.get().getGwId()));
         }
-    }
-
-
-    protected APIGWsGWsClient getAPIGWsGWsClient(GW gw) {
-        if (apiGWsGWsClients.get(gw) == null) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            apiGWsGWsClients.put(gw, new APIGWsGWsClient(new JCPGWsClient(gwsClientsParams, url)));
-        }
-        return apiGWsGWsClients.get(gw);
     }
 
 }
