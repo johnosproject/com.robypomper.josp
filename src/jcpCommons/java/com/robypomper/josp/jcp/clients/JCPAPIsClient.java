@@ -40,7 +40,7 @@ public class JCPAPIsClient extends JCPAPIsClientJCP {
 
     @Autowired
     public JCPAPIsClient(ClientParams params, @Value("${jcp.urlAPIs}") String urlAPIs) {
-        super(params.useSSL, params.client, params.secret, urlAPIs, params.urlAuth, JCP_NAME);
+        super(params.useSSL, params.client, params.secret, urlAPIs, params.urlAuth, JCP_NAME, params.callBack);
     }
 
 

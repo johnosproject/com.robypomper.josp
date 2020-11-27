@@ -45,7 +45,7 @@ public class JCPGWsStatus {
 
     @JsonCreator
     public JCPGWsStatus(@JsonProperty("clients") int clients,
-                        @JsonProperty("clients") int clientsMax,
+                        @JsonProperty("clientsMax") int clientsMax,
                         @JsonProperty("lastClientConnectedAt") Date lastClientConnectedAt,
                         @JsonProperty("version") Date lastClientDisconnectedAt) {
         this.clients = clients;

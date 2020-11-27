@@ -29,8 +29,4 @@ public class AbsAPIObj extends AbsAPI {
         return (JCPAPIsClientObj) jcpClient;
     }
 
-    protected boolean isSecure() {
-        return jcpClient.isSecured();
-    }
-
 }

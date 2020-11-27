@@ -41,7 +41,7 @@ public class JCPJSLWebBridgeClient extends JCPAPIsClientJCP {
 
     @Autowired
     public JCPJSLWebBridgeClient(ClientParams params, @Value("${jcp.urlJSLWebBridge}") String urlJSLWebBridge) {
-        super(params.useSSL, params.client, params.secret, urlJSLWebBridge, params.urlAuth, JCP_NAME);
+        super(params.useSSL, params.client, params.secret, urlJSLWebBridge, params.urlAuth, JCP_NAME, params.callBack);
     }
 
 }

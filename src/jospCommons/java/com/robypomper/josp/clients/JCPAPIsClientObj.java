@@ -30,6 +30,7 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
 
     private static final Logger log = LogManager.getLogger();
     public static final String JCP_NAME = "JCP APIs";
+    public static boolean connFailedPrinted = false;
 
 
     // Constructor
@@ -39,7 +40,9 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
         addConnectListener(this);
 
         try {
+            connFailedPrinted = true;
             connect();
+            connFailedPrinted = false;
 
         } catch (ConnectionException | AuthenticationException e) {
             log.warn(String.format("Error on %s connecting because %s", JCP_NAME, e.getMessage()), e);
@@ -74,7 +77,12 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
 
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-        log.warn(String.format("Error on %S connection because %s", JCP_NAME, t.getMessage()), t);
+        if (connFailedPrinted) {
+            log.debug(String.format("Error on %s connection because %s", JCP_NAME, t.getMessage()));
+        } else {
+            log.warn(String.format("Error on %s connection because %s", JCP_NAME, t.getMessage()), t);
+            connFailedPrinted = true;
+        }
     }
 
 }
