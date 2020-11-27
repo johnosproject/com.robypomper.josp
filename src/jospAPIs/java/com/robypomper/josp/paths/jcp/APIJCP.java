@@ -1,4 +1,4 @@
-package com.robypomper.josp.paths;
+package com.robypomper.josp.paths.jcp;
 
 import com.robypomper.josp.info.JCPAPIsVersions;
 
