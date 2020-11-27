@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.clients.apis.jcp;
+package com.robypomper.josp.jcp.clients.apis.gws;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPI;
@@ -25,13 +25,13 @@ import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.jcp.paths.jcp.APIJCPGWs;
+import com.robypomper.josp.jcp.paths.apis.JCPAPIsGWs;
 
 
 /**
  * Support class for API Events access from the JODEvents synchronization.
  */
-public class APIJCPGWsClient extends AbsAPI {
+public class JCPAPIGWsClient extends AbsAPI {
 
     // Constructor
 
@@ -40,7 +40,7 @@ public class APIJCPGWsClient extends AbsAPI {
      *
      * @param jcpClient the JCP client.
      */
-    public APIJCPGWsClient(JCPAPIsClient jcpClient) {
+    public JCPAPIGWsClient(JCPAPIsClient jcpClient) {
         super(jcpClient);
     }
 
@@ -56,18 +56,18 @@ public class APIJCPGWsClient extends AbsAPI {
      * @return the GW O2S access info.
      */
     public boolean postStartup(JCPGWsStartup gwStartup, String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        jcpClient.addDefaultHeader(APIJCPGWs.HEADER_JCPGWID, gwId);
-        return jcpClient.execReq(Verb.POST, APIJCPGWs.FULL_PATH_STARTUP, Boolean.class, gwStartup, isSecure());
+        jcpClient.addDefaultHeader(JCPAPIsGWs.HEADER_JCPGWID, gwId);
+        return jcpClient.execReq(Verb.POST, JCPAPIsGWs.FULL_PATH_STARTUP, Boolean.class, gwStartup, isSecure());
     }
 
     public boolean postStatus(JCPGWsStatus gwStatus, String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        jcpClient.addDefaultHeader(APIJCPGWs.HEADER_JCPGWID, gwId);
-        return jcpClient.execReq(Verb.POST, APIJCPGWs.FULL_PATH_STATUS, Boolean.class, gwStatus, isSecure());
+        jcpClient.addDefaultHeader(JCPAPIsGWs.HEADER_JCPGWID, gwId);
+        return jcpClient.execReq(Verb.POST, JCPAPIsGWs.FULL_PATH_STATUS, Boolean.class, gwStatus, isSecure());
     }
 
     public boolean postShutdown(String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        jcpClient.addDefaultHeader(APIJCPGWs.HEADER_JCPGWID, gwId);
-        return jcpClient.execReq(Verb.POST, APIJCPGWs.FULL_PATH_SHUTDOWN, Boolean.class, isSecure());
+        jcpClient.addDefaultHeader(JCPAPIsGWs.HEADER_JCPGWID, gwId);
+        return jcpClient.execReq(Verb.POST, JCPAPIsGWs.FULL_PATH_SHUTDOWN, Boolean.class, isSecure());
     }
 
 }

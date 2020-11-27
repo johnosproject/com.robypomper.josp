@@ -1,9 +1,9 @@
-package com.robypomper.josp.jcp.paths.jcp;
+package com.robypomper.josp.jcp.paths.apis;
 
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
 
-public class APIJCPGWs {
+public class JCPAPIsGWs {
 //@formatter:off
 
     // API info
