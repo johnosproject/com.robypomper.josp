@@ -23,11 +23,10 @@ import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.events.*;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
-import com.robypomper.josp.jcp.clients.apis.jcp.APIJCPGWsClient;
+import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.gws.broker.GWsBroker;
 import com.robypomper.josp.jcp.gws.s2o.GWService;
-import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.info.JCPGWsVersions;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
@@ -56,7 +55,7 @@ public class GWsS2OService extends AbsGWsService {
     private ServiceDBService serviceDBService;
     @Autowired
     private GWsBroker gwBroker;
-    private final APIJCPGWsClient gwsAPI;
+    private final JCPAPIGWsClient gwsAPI;
     private final String hostName;
     private final int apisPort;
     private final int maxClients;
@@ -74,7 +73,7 @@ public class GWsS2OService extends AbsGWsService {
                          @Value("${jcp.gws.s2o.maxClients}") final int maxClients,
                          JCPAPIsClient apisClient) {
         super(hostName, port);
-        this.gwsAPI = new APIJCPGWsClient(apisClient);
+        this.gwsAPI = new JCPAPIGWsClient(apisClient);
         this.hostName = hostName;
         this.apisPort = apisPort;
         this.maxClients = maxClients;
