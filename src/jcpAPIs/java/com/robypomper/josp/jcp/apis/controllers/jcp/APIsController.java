@@ -1,25 +1,25 @@
 package com.robypomper.josp.jcp.apis.controllers.jcp;
 
-import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.Server;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.clients.ClientParams;
+import com.robypomper.josp.jcp.clients.JCPGWsClientMngr;
+import com.robypomper.josp.jcp.clients.jcp.jcp.GWsClient;
+import com.robypomper.josp.jcp.db.apis.GWDBService;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.UserDBService;
-import com.robypomper.josp.jcp.gw.JOSPGWsO2SService;
-import com.robypomper.josp.jcp.gw.JOSPGWsS2OService;
+import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
-import com.robypomper.josp.paths.APIJCP;
-import com.robypomper.josp.types.josp.gw.GWType;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import com.robypomper.josp.params.jcp.JCPGWsStatus;
+import com.robypomper.josp.paths.jcp.APIJCP;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +39,13 @@ public class APIsController {
     @Autowired
     private UserDBService usrDB;
     @Autowired
+    private GWDBService gwDB;
+    @Autowired
     private HttpSession httpSession;
     @Autowired
-    private JOSPGWsO2SService gwO2SService;
+    private ClientParams gwsClientsParams;
     @Autowired
-    private JOSPGWsS2OService gwS2OService;
+    private JCPGWsClientMngr<GWsClient> apiGWsGWsClients;
 
     private final String OAUTH_FLOW = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG;
     private final String OAUTH_SCOPE = SwaggerConfigurer.ROLE_MNG_SWAGGER;
@@ -53,29 +55,107 @@ public class APIsController {
     // Methods
 
     @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS)
-    @ApiOperation(value = "Return JCP APIs info and stats"/*,
-            authorizations = @Authorization(value = OAUTH_FLOW,scopes = @AuthorizationScope(scope = OAUTH_DESCR,description = OAUTH_DESCR))*/
+    @ApiOperation(value = "Return JCP APIs info and stats",
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                    )
+            )
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs's info and stats", response = JCPAPIsStatus.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    /*@RolesAllowed(SwaggerConfigurer.ROLE_MNG)*/
+    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPAPIsStatus> getJCPAPIsStatusReq() {
         return ResponseEntity.ok(new JCPAPIsStatus());
     }
 
+    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_GWS)
+    @ApiOperation(value = "Return JOSP GWs clients",
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JOSP GW's clients", response = JCPAPIsStatus.GWs.class, responseContainer = "List"),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+    })
+    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    public ResponseEntity<List<JCPGWsStatus>> getJCPAPIsStatusGWsReq() {
+        List<JCPGWsStatus> gws = new ArrayList<>();
+
+        for (GW gw : gwDB.getAll()) {
+            GWsClient apiGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), GWsClient.class);
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            try {
+                gws.add(apiGWs.getJCPGWsReq());
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return ResponseEntity.ok(gws);
+    }
+
+    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_GWS_CLI)
+    @ApiOperation(value = "Return JOSP GWs info and stats",
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JOSP GW's info and stats", response = JCPAPIsStatus.GWs.class, responseContainer = "List"),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+    })
+    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsGWsReq() {
+        List<JCPAPIsStatus.GWs> gws = new ArrayList<>();
+
+        for (GW gw : gwDB.getAll()) {
+            GWsClient apiGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), GWsClient.class);
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            try {
+                List<JCPAPIsStatus.GWs> gwsTmp = apiGWs.getJCPAPIsStatusGWsCliReq();
+                gws.addAll(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return ResponseEntity.ok(gws);
+    }
+
     @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_OBJS)
-    @ApiOperation(value = "Return JCP APIs's Objects info and stats"/*,
-            authorizations = @Authorization(value = OAUTH_FLOW,scopes = @AuthorizationScope(scope = OAUTH_DESCR,description = OAUTH_DESCR))*/
+    @ApiOperation(value = "Return JCP APIs's Objects info and stats",
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                    )
+            )
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs's Objects info and stats", response = JCPAPIsStatus.Objects.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    /*@RolesAllowed(SwaggerConfigurer.ROLE_MNG)*/
+    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPAPIsStatus.Objects> getJCPAPIsStatusObjsReq() {
         JCPAPIsStatus.Objects jcpStatus = new JCPAPIsStatus.Objects();
 
@@ -90,15 +170,21 @@ public class APIsController {
     }
 
     @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_SRVS)
-    @ApiOperation(value = "Return JCP APIs Services info and stats"/*,
-            authorizations = @Authorization(value = OAUTH_FLOW,scopes = @AuthorizationScope(scope = OAUTH_DESCR,description = OAUTH_DESCR))*/
+    @ApiOperation(value = "Return JCP APIs Services info and stats",
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                    )
+            )
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs's Services info and stats", response = JCPAPIsStatus.Services.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    /*@RolesAllowed(SwaggerConfigurer.ROLE_MNG)*/
+    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPAPIsStatus.Services> getJCPAPIsStatusSrvsReq() {
         JCPAPIsStatus.Services jcpStatus = new JCPAPIsStatus.Services();
 
@@ -112,66 +198,22 @@ public class APIsController {
         return ResponseEntity.ok(jcpStatus);
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_GWS)
-    @ApiOperation(value = "Return JOSP GWs info and stats"/*,
-            authorizations = @Authorization(value = OAUTH_FLOW,scopes = @AuthorizationScope(scope = OAUTH_DESCR,description = OAUTH_DESCR))*/
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JOSP GW's info and stats", response = JCPAPIsStatus.GWs.class, responseContainer = "List"),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
-    })
-    /*@RolesAllowed(SwaggerConfigurer.ROLE_MNG)*/
-    public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWs_GWReq() {
-        List<JCPAPIsStatus.GWs> gws = new ArrayList<>();
-
-        for (Server s : gwO2SService.getJOSPServers().values()) {
-            JCPAPIsStatus.GWs gw = new JCPAPIsStatus.GWs();
-            gw.id = s.getServerId();
-            gw.type = GWType.Obj2Srv;
-            gw.isRunning = s.isRunning();
-            gw.address = s.getAddress().getHostAddress();
-            gw.hostName = s.getAddress().getHostName();
-            gw.hostNameCanonical = s.getAddress().getCanonicalHostName();
-            gw.port = s.getPort();
-            gw.clientsCount = s.getClients().size();
-            gw.clientsList = new ArrayList<>();
-            for (ClientInfo c : s.getClients())
-                gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getClientId(), c.isConnected()));
-
-            gws.add(gw);
-        }
-
-        for (Server s : gwS2OService.getJOSPServers().values()) {
-            JCPAPIsStatus.GWs gw = new JCPAPIsStatus.GWs();
-            gw.id = s.getServerId();
-            gw.type = GWType.Srv2Obj;
-            gw.isRunning = s.isRunning();
-            gw.address = s.getAddress().getHostAddress();
-            gw.hostName = s.getAddress().getHostName();
-            gw.hostNameCanonical = s.getAddress().getCanonicalHostName();
-            gw.port = s.getPort();
-            gw.clientsCount = s.getClients().size();
-            gw.clientsList = new ArrayList<>();
-            for (ClientInfo c : s.getClients())
-                gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getClientId(), c.isConnected()));
-
-            gws.add(gw);
-        }
-
-        return ResponseEntity.ok(gws);
-    }
-
     @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_USRS)
-    @ApiOperation(value = "Return JCP APIs Users info and stats"/*,
-            authorizations = @Authorization(value = OAUTH_FLOW,scopes = @AuthorizationScope(scope = OAUTH_DESCR,description = OAUTH_DESCR))*/
+    @ApiOperation(value = "Return JCP APIs Users info and stats",
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                    )
+            )
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs's Users info and stats", response = JCPAPIsStatus.Users.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    /*@RolesAllowed(SwaggerConfigurer.ROLE_MNG)*/
+    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPAPIsStatus.Users> getJCPAPIsStatusUsrsReq() {
         JCPAPIsStatus.Users jcpStatus = new JCPAPIsStatus.Users();
 
