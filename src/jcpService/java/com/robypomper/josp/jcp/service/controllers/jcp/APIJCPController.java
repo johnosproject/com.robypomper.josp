@@ -2,7 +2,7 @@ package com.robypomper.josp.jcp.service.controllers.jcp;
 
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JCPStatus;
-import com.robypomper.josp.paths.APIJCP;
+import com.robypomper.josp.paths.jcp.APIJCP;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
