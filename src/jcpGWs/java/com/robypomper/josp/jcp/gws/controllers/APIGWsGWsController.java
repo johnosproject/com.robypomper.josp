@@ -53,7 +53,7 @@ import java.security.cert.CertificateEncodingException;
  */
 @RestController
 @Api(tags = {APIGWsGWs.SubGroupGWs.NAME})
-public class JCPAPIsController {
+public class APIGWsGWsController {
 
     // Internal vars
 
@@ -69,10 +69,10 @@ public class JCPAPIsController {
     @PostMapping(path = APIGWsGWs.FULL_PATH_O2S_ACCESS)
     @ApiOperation(value = "Set object's certificate and request JOSPGw O2S access info",
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_OBJ_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -82,7 +82,7 @@ public class JCPAPIsController {
             @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
             @ApiResponse(code = 500, message = "Error adding client certificate")
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<O2SAccessInfo> postO2SAccess_OLD(
             @RequestHeader(APIObjs.HEADER_OBJID)
                     String objId,
@@ -119,10 +119,10 @@ public class JCPAPIsController {
     @PostMapping(path = APIGWsGWs.FULL_PATH_S2O_ACCESS)
     @ApiOperation(value = "Set service's certificate and request JOSPGw S2O access info",
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_SRV_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_SRV_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -132,7 +132,7 @@ public class JCPAPIsController {
             @ApiResponse(code = 400, message = "Missing mandatory header " + APISrvs.HEADER_SRVID),
             @ApiResponse(code = 500, message = "Error adding client certificate")
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_SRV)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<S2OAccessInfo> postS2OAccess(
             @RequestHeader(APISrvs.HEADER_SRVID)
                     String srvId,
