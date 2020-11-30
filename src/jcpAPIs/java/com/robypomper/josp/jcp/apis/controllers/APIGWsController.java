@@ -74,7 +74,7 @@ public class APIGWsController {
     @Autowired
     private ClientParams gwsClientsParams;
     @Autowired
-    private JCPGWsClientMngr<APIGWsGWsClient> apiGWsGWsClients;
+    private JCPGWsClientMngr apiGWsGWsClients;
 
 
     // Docs configs
