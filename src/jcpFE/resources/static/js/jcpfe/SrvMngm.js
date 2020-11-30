@@ -7,7 +7,7 @@ var serviceVersion = "0.0.0";
 
 function fetchSrvMngm() {
     var path = "/apis/service/1.0/";
-    apiGET(path,fillSrvMngm,onErrorFetch);
+    apiGET(backEndUrl,"/apis/service/1.0/",fillSrvMngm,onErrorFetch);
 }
 
 function fillSrvMngm(serviceJson) {

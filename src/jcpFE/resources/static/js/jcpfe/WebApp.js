@@ -1,12 +1,16 @@
 
 var currentPage = false;
+var backEndUrl = "N/A";
+var frontEndUrl = "N/A";
 
 
 // WebApp start
 
-function startWebApp() {
+function startWebApp(entrypointUrl) {
+    backEndUrl = entrypointUrl;
+    frontEndUrl = document.location.origin;
     fillPreUpdaterInitialization();
-    updater = startUpdater("/apis/sse/1.0/init",updateOnMessage,updateOnOpen,updateOnError);
+    updater = startUpdater(backEndUrl + "/apis/sse/1.0/init",updateOnMessage,updateOnOpen,updateOnError);
 }
 
 

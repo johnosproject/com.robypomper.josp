@@ -9,7 +9,7 @@ var objsListFilterAnonymous = false;
 //   -> dropDownObjsListMenuFilter
 
 function fetchObjsListMenu() {
-    apiGET("/apis/objsmngr/1.0/",fillObjsListMenu,onErrorFetch);
+    apiGET(backEndUrl,"/apis/objsmngr/1.0/",fillObjsListMenu,onErrorFetch);
 }
 
 function fillObjsListMenu(objsListJson) {

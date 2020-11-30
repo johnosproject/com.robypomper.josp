@@ -11,7 +11,7 @@ var csrfHeader = null;
 
 // Get calls
 
-function apiGET(path,processResponse,processError) {
+function apiGET(baseUrl,path,processResponse,processError) {
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function() {
@@ -26,7 +26,9 @@ function apiGET(path,processResponse,processError) {
         processError(this);
     };
 
-    xhttp.open("GET", path, true);
+    xhttp.open("GET", baseUrl + path, true);
+    var cookies="";
+    xhttp.withCredentials = true;
     //if (csrfToken!=null)
     //    xhttp.setRequestHeader(csrfHeader, csrfToken)
 
@@ -35,20 +37,20 @@ function apiGET(path,processResponse,processError) {
     } catch {}
 }
 
-function apiGET_retry(path,processResponse,processError,retryTime) {
+function apiGET_retry(baseUrl,path,processResponse,processError,retryTime) {
     if (retryTime==null) retryTime=1000;
 
-    apiGET(path,processResponse,
+    apiGET(baseUrl,path,processResponse,
         async function onError_RetryFetchObjDetails() {
             await new Promise(r => setTimeout(r, retryTime));
-            apiGET(path,processResponse,processError);
+            apiGET(baseUrl,path,processResponse,processError);
         }
     );}
 
 
 // Post calls
 
-function apiPOST(path,processResponse,processError,params) {
+function apiPOST(baseUrl,path,processResponse,processError,params) {
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function() {
@@ -63,7 +65,9 @@ function apiPOST(path,processResponse,processError,params) {
         processError(this);
     };
 
-    xhttp.open("POST", path, true);
+    xhttp.open("POST", baseUrl + path, true);
+    var cookies="";
+    xhttp.withCredentials = true;
 
     if (params!=null) {
         xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');

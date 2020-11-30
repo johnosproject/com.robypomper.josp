@@ -29,8 +29,7 @@ function htmlUserContent() {
 }
 
 function fetchUserContent() {
-    var path = "/apis/user/1.0/";
-    apiGET(path,fillUserContent,onErrorFetch);
+    apiGET(backEndUrl,"/apis/user/1.0/",fillUserContent,onErrorFetch);
 }
 
 function fillUserContent(userJson) {
