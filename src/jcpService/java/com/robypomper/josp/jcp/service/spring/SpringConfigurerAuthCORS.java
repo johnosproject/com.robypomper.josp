@@ -1,22 +1,3 @@
-/* *****************************************************************************
- * The John Cloud Platform set of infrastructure and software required to provide
- * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
-
 package com.robypomper.josp.jcp.service.spring;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -31,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -42,10 +24,14 @@ import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
 import java.util.List;
 
 @EnableWebSecurity
@@ -54,11 +40,12 @@ import java.util.List;
         securedEnabled = true,
         jsr250Enabled = true)
 @KeycloakConfiguration
-@Configuration
-@Profile("auth")
-public class SpringConfigurerAuth extends KeycloakWebSecurityConfigurerAdapter {
+@Profile("auth-cors")
+public class SpringConfigurerAuthCORS extends KeycloakWebSecurityConfigurerAdapter {
 
-    @Value("${oauth2.resource.public-paths}")
+    @Autowired
+    Environment env;
+    @Value("${oauth2.resource.public-paths:/**}")
     private String[] mPublicPaths;
     @Value("${security.require-ssl:false}")
     private String sshEnabled;
@@ -67,11 +54,13 @@ public class SpringConfigurerAuth extends KeycloakWebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         if (Boolean.parseBoolean(sshEnabled))
             http
+                    .cors().and()
                     .requiresChannel()
                     .anyRequest()
                     .requiresSecure();
         else
             http
+                    .cors().and()
                     .requiresChannel()
                     .anyRequest()
                     .requiresInsecure();
@@ -84,12 +73,14 @@ public class SpringConfigurerAuth extends KeycloakWebSecurityConfigurerAdapter {
 
         // Enable Auth check
         http
+                .cors().and()
                 .authorizeRequests()
                 .antMatchers(mPublicPaths).permitAll()
                 .anyRequest().authenticated();
 
         // Setup OAuth2 ResServer
         http
+                .cors().and()
                 .oauth2ResourceServer()
                 .jwt();
     }
@@ -108,6 +99,17 @@ public class SpringConfigurerAuth extends KeycloakWebSecurityConfigurerAdapter {
     @Override
     protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
@@ -148,4 +150,5 @@ public class SpringConfigurerAuth extends KeycloakWebSecurityConfigurerAdapter {
             registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
         }
     }
+
 }
