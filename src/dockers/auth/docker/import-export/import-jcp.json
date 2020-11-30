@@ -457,6 +457,9 @@
         "disableableCredentialTypes": [],
         "requiredActions": [],
         "clientRoles": {
+          "realm-management": [
+            "view-users"
+          ],
           "account": [
             "manage-account",
             "view-profile"
@@ -615,8 +618,8 @@
           {
             "id": "d975d388-e912-439d-b13e-63a4ef92a120",
             "type": "password",
-            "createdDate": 1606374305774,
-            "secretData": "{\"value\":\"bR9cAFnOO2tHS9LbodhWVf1DJxuxWdpblr/nZmb1+NkUiPRjNF/LNIt3hQ8yysqBW6m0pLLtSQ+ITYccKyJURA==\",\"salt\":\"qqRPrkQxCLfNINZ49MpMLw==\"}",
+            "createdDate": 1606672235956,
+            "secretData": "{\"value\":\"xZBddXVasmJQ/OXhoSIp+Joqo9r2vBqyrVgPlW2syDLs3aTDpene6FUx0APrAvEkiKoL3xmqCBovvFwbYCVTGA==\",\"salt\":\"GU+Op5G5n8/0xJ58qZNXgw==\"}",
             "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
           }
         ],
@@ -3687,38 +3690,6 @@
     "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
     "webAuthnPolicyPasswordlessAcceptableAaguids": [],
     "users": [
-      {
-        "id": "629824e1-130c-4b3d-9a86-5cd5e9399d05",
-        "createdTimestamp": 1601397846884,
-        "username": "aaa-admin",
-        "enabled": true,
-        "totp": false,
-        "emailVerified": false,
-        "credentials": [
-          {
-            "id": "e563968e-b8ea-4bd4-aa6d-f05e8369632a",
-            "type": "password",
-            "createdDate": 1601397847221,
-            "secretData": "{\"value\":\"wgcq+DW1jvRdd3pdPxHYvmcf2vcNmI+W7AM2FPe4taNcpAu5ZHUsqXfcxFoqh+Gvdtwn2TXrskZ5LYCdRljwUg==\",\"salt\":\"0LsuSZ1w62NJT0XD+qYAEw==\"}",
-            "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
-          }
-        ],
-        "disableableCredentialTypes": [],
-        "requiredActions": [],
-        "realmRoles": [
-          "admin",
-          "uma_authorization",
-          "offline_access"
-        ],
-        "clientRoles": {
-          "account": [
-            "view-profile",
-            "manage-account"
-          ]
-        },
-        "notBefore": 0,
-        "groups": []
-      },
       {
         "id": "0ebd7757-5c7d-4d71-8a79-dc5ed3300b5f",
         "createdTimestamp": 1601396439083,
