@@ -1,8 +1,8 @@
-package com.robypomper.josp.jcp.paths.fe;
+package com.robypomper.josp.jcp.paths.jslwb;
 
 import com.robypomper.josp.jcp.info.JCPFEVersions;
 
-public class APIFEPermissions {
+public class APIJSLWBPermissions {
 //@formatter:off
 
     // API info

@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.params.fe;
+package com.robypomper.josp.jcp.params.jslwb;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.robypomper.josp.jsl.JSL;

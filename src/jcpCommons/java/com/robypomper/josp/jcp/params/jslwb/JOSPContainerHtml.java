@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.params.fe;
+package com.robypomper.josp.jcp.params.jslwb;
 
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLContainer;

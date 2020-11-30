@@ -1,6 +1,6 @@
-package com.robypomper.josp.jcp.params.fe;
+package com.robypomper.josp.jcp.params.jslwb;
 
-import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBStruct;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.objs.structure.JSLRoot;
 
@@ -22,6 +22,6 @@ public class JOSPComponentHtml {
         this.componentPath = component.getPath().getString();
         this.type = component.getType();
 
-        this.pathSelf = APIFEStruct.FULL_PATH_COMP(objId, component instanceof JSLRoot ? "-" : componentPath);
+        this.pathSelf = APIJSLWBStruct.FULL_PATH_COMP(objId, component instanceof JSLRoot ? "-" : componentPath);
     }
 }
