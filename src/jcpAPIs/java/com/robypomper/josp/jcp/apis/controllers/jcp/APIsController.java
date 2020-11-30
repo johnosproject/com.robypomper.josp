@@ -45,7 +45,7 @@ public class APIsController {
     @Autowired
     private ClientParams gwsClientsParams;
     @Autowired
-    private JCPGWsClientMngr<GWsClient> apiGWsGWsClients;
+    private JCPGWsClientMngr apiGWsGWsClients;
 
     private final String OAUTH_FLOW = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG;
     private final String OAUTH_SCOPE = SwaggerConfigurer.ROLE_MNG_SWAGGER;

@@ -130,7 +130,7 @@ function htmlObjectContent() {
 }
 
 function fetchObjectContent(objId) {
-    apiGET_retry("/apis/objsmngr/1.0/" + objId + "/",fillObjectContent,onErrorFetch);
+    apiGET_retry(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContent,onErrorFetch);
 }
 
 function fillObjectContent(objJson) {
@@ -183,7 +183,7 @@ function htmlObjectContentLinks(obj) {
 //         -> htmlComponentRangeAction
 
 function fetchObjectContentStruct(objId) {
-    apiGET("/apis/structure/1.0/" + objId + "/",fillObjectContentStruct,onErrorFetch);
+    apiGET(backEndUrl,"/apis/structure/1.0/" + objId + "/",fillObjectContentStruct,onErrorFetch);
 }
 
 function fillObjectContentStruct(rootJson) {
@@ -363,8 +363,8 @@ function htmlObjectContentInfo(objId) {
 }
 
 function fetchObjectContentInfo(objId) {
-    apiGET("/apis/objsmngr/1.0/" + objId + "/",fillObjectContentInfo_Obj,onErrorFetch);
-    apiGET("/apis/structure/1.0/" + objId + "/",fillObjectContentInfo_Struct,onErrorFetch);
+    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContentInfo_Obj,onErrorFetch);
+    apiGET(backEndUrl,"/apis/structure/1.0/" + objId + "/",fillObjectContentInfo_Struct,onErrorFetch);
 }
 
 function fillObjectContentInfo_Obj(objJson) {
@@ -457,8 +457,8 @@ function htmlObjectContentAccessControl(objId) {
 }
 
 function fetchObjectContentAccessControl(objId) {
-    apiGET("/apis/objsmngr/1.0/" + objId + "/",fillObjectContentInfo_Obj,onErrorFetch);
-    apiGET("/apis/permissions/1.0/" + objId + "/",fillObjectContentAccessControl_Perms,onErrorFetch);
+    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContentInfo_Obj,onErrorFetch);
+    apiGET(backEndUrl,"/apis/permissions/1.0/" + objId + "/",fillObjectContentAccessControl_Perms,onErrorFetch);
 }
 
 function fillObjectContentAccessControl_Perms(objPermsJson) {
@@ -511,7 +511,7 @@ function htmlObjectContentEvents(objId) {
 }
 
 function fetchObjectContentEvents(objId) {
-    apiGET("/apis/objsmngr/1.0/" + objId + "/events/",fillObjectContentEvents_Table,onErrorFetch);
+    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/events/",fillObjectContentEvents_Table,onErrorFetch);
 }
 
 function fillObjectContentEvents_Table(eventsJson) {
@@ -662,7 +662,7 @@ function setRange(chartId,from,to) {
 }
 
 function fetchObjectContentStatusHistory(objId,compPath) {
-    apiGET("/apis/state/1.0/history/" + objId + "/" + compPath + "/",fillObjectContentStatusHistory_Chart,onErrorFetch);
+    apiGET(backEndUrl,"/apis/state/1.0/history/" + objId + "/" + compPath + "/",fillObjectContentStatusHistory_Chart,onErrorFetch);
 }
 
 function fillObjectContentStatusHistory_Chart(statusHistoryJson) {
@@ -831,7 +831,7 @@ function saveObjectName_Title(containerTag) {
     }
 
     var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/name/";
-    apiPOST(actionUrl,
+    apiPOST(backEndUrl,actionUrl,
         async function(responseText) {
             hideWaitingFeedback(containerTag.id);
             if (responseText == "true") {
@@ -897,7 +897,7 @@ function saveObjectOwner_Field(containerTag) {
     }
 
     var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/owner/";
-    apiPOST(actionUrl,
+    apiPOST(backEndUrl,actionUrl,
     function(responseText) {
         hideWaitingFeedback(containerTag.id);
         if (responseText == "true") {
@@ -928,7 +928,7 @@ function saveObjectOwner_Field(containerTag) {
 function executeAction(element,actionUrl) {
             showWaitingFeedback(element.id);
 
-            apiGET(actionUrl,
+            apiGET(backEndUrl,actionUrl,
             function(responseText) {
                 hideWaitingFeedback(element.id);
                 if (responseText == "true")
@@ -950,7 +950,7 @@ function executeAction(element,actionUrl) {
 
 //emitStateUpd () ->
 function fetchComponent(objId,compPath) {
-    apiGET("/apis/structure/1.0/" + objId + "/" + compPath + "/",fillComponent,onErrorFetch);
+    apiGET(backEndUrl,"/apis/structure/1.0/" + objId + "/" + compPath + "/",fillComponent,onErrorFetch);
 }
 
 function fillComponent(compJson) {

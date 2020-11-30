@@ -142,11 +142,6 @@ function htmlAdminContent() {
     html += "    </div>";
 
     html += "    <div style='display: flex; justify-content: space-around; margin: 10px;'>";
-    html += "    <div id='div_admin_stats_jcpfe' style='margin-bottom: 5px;'>";
-    html += "        <p><b>JCP FE Server</b><br>Started at <b id='val_jcpfe_timeStart'>...</b></p>";
-    html += "        <p>Using <b id='val_jcpfe_cpuUsed'>...</b>% CPU and memory <b id='val_jcpfe_memoryUsed'>...</b>MB</p>";
-    html += "        <p>Working on <b id='val_jcpfe_sessionsJslCount'>...</b> / <b id='val_jcpfe_sessionsCount'>...</b> (jsl/http) sessions</p>";
-    html += "    </div>";
     html += "    <div id='div_admin_stats_jcpapis' style='margin-bottom: 5px;'>";
     html += "        <p><b>JCP APIs Server</b><br>Started at <b id='val_jcpapis_timeStart'>...</b></p>";
     html += "        <p>Using <b id='val_jcpapis_cpuUsed'>...</b>% CPU and memory <b id='val_jcpapis_memoryUsed'>...</b>MB</p>";
@@ -173,21 +168,20 @@ function htmlAdminContent() {
 }
 
 function fetchAdminContent() {
-    //apiGET("/apis/CloudStatus/1.0/",fillAdminContent,onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/process",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/java",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/os",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/cpu",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/memory",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/disks",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/network",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/jcpfe",function(o){},onErrorFetch);
-//    apiGET("/apis/CloudStatus/1.0/state/jcpfe/instances",function(o){},onErrorFetch);
+    //apiGET(backEndUrl,"/apis/CloudStatus/1.0/",fillAdminContent,onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/process",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/java",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/os",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/cpu",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/memory",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/disks",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/network",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/jcpfe",function(o){},onErrorFetch);
+//    apiGET(backEndUrl,"/apis/CloudStatus/1.0/state/jcpfe/instances",function(o){},onErrorFetch);
 }
 
 function fetchAdminContentHeader() {
-    apiGET("/apis/JCP/2.0/fe/status",fillAdminContentHeaderFE,onErrorFetch);        // OK
-    apiGET("/apis/JCP/2.0/apis/status",fillAdminContentHeaderAPIs,onErrorFetch);    // OK
+    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status",fillAdminContentHeaderAPIs,onErrorFetch);    // OK
 }
 
 function fillAdminContent(adminJson) {
@@ -197,26 +191,10 @@ function fillAdminContent(adminJson) {
         document.getElementById("div_admin_title").innerHTML = htmlObjectContentTitle(obj);
 }
 
-function fillAdminContentHeaderFE(stateJCPFEJson) {
-    stateJCPFE = JSON.parse(stateJCPFEJson);
-    if (document.getElementById("val_jcpfe_timeStart") != null)
-        document.getElementById("val_jcpfe_timeStart").innerHTML = dateToString(stringToDate(stateJCPFE.timeStart));
-    if (document.getElementById("val_jcpfe_timeRunning") != null)
-        document.getElementById("val_jcpfe_timeRunning").innerHTML = stateJCPFE.timeRunning;
-    if (document.getElementById("val_jcpfe_cpuUsed") != null)
-        document.getElementById("val_jcpfe_cpuUsed").innerHTML = doubleTruncateDigit(stateJCPFE.cpuUsed,1);
-    if (document.getElementById("val_jcpfe_memoryUsed") != null)
-        document.getElementById("val_jcpfe_memoryUsed").innerHTML = doubleTruncateDigit(stateJCPFE.memoryUsed,2);
-    if (document.getElementById("val_jcpfe_sessionsCount") != null)
-        document.getElementById("val_jcpfe_sessionsCount").innerHTML = stateJCPFE.sessionsCount;
-    if (document.getElementById("val_jcpfe_sessionsJslCount") != null)
-        document.getElementById("val_jcpfe_sessionsJslCount").innerHTML = stateJCPFE.sessionsJslCount;
-}
-
 function fillAdminContentHeaderAPIs(stateJCPAPIsJson) {
     stateJCPAPIs = JSON.parse(stateJCPAPIsJson);
     if (document.getElementById("val_jcpapis_timeStart") != null)
-        document.getElementById("val_jcpapis_timeStart").innerHTML = dateToString(stringToDate(stateJCPAPIs.timeStart));
+        document.getElementById("val_jcpapis_timeStart").innerHTML = dateToString(new Date(stateJCPAPIs.timeStart));
     if (document.getElementById("val_jcpapis_timeRunning") != null)
         document.getElementById("val_jcpapis_timeRunning").innerHTML = stateJCPAPIs.timeRunning;
     if (document.getElementById("val_jcpapis_cpuUsed") != null)
@@ -249,7 +227,7 @@ function htmlAdminContentGWs() {
 }
 
 function fetchAdminContentGWs(objId) {
-    apiGET("/apis/JCP/2.0/apis/status/gws",fillAdminContentGWs,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/gws/clients",fillAdminContentGWs,onErrorFetch);
 }
 
 function fillAdminContentGWs(jcpGWsJson) {
@@ -316,7 +294,7 @@ function htmlAdminContentObjects() {
 }
 
 function fetchAdminContentObjects(objId) {
-    apiGET("/apis/JCP/2.0/apis/status/objs",fillAdminContentObjects,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/objs",fillAdminContentObjects,onErrorFetch);
 }
 
 function fillAdminContentObjects(jcpObjsJson) {
@@ -367,7 +345,7 @@ function htmlAdminContentServices() {
 }
 
 function fetchAdminContentServices(objId) {
-    apiGET("/apis/JCP/2.0/apis/status/srvs",fillAdminContentServices,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/srvs",fillAdminContentServices,onErrorFetch);
 }
 
 function fillAdminContentServices(jcpObjsJson) {
@@ -415,7 +393,7 @@ function htmlAdminContentUsers() {
 }
 
 function fetchAdminContentUsers(objId) {
-    apiGET("/apis/JCP/2.0/apis/status/usrs",fillAdminContentUsers,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/usrs",fillAdminContentUsers,onErrorFetch);
 }
 
 function fillAdminContentUsers(jcpObjsJson) {

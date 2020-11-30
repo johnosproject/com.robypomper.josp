@@ -6,42 +6,47 @@ var updater = null;
 
 function updateOnMessage(event) {
     console.log("SSE " + event.data);
-    if (event.data.startsWith("Connected:")) {
-        console.log(event.data);
+    var data = event.data.replaceAll('"','');
+    if (data.startsWith("Connected:")) {
+        console.log(data);
 
-    } else if (event.data.startsWith("csrf:")) {
-        var token = event.data.substring("csrf:".length,event.data.indexOf(";"));
-        var header = event.data.substring(event.data.lastIndexOf("header:")+"header:".length,event.data.length);
+    } else if (data.startsWith("csrf:")) {
+        var token = data.substring("csrf:".length,data.indexOf(";"));
+        var header = data.substring(data.lastIndexOf("header:")+"header:".length,data.length);
         setCsrf(token,header);
 
-    } else if (event.data.startsWith("ObjAdd:")) {
-        var objId = event.data.substring("ObjAdd:".length,event.data.indexOf(";"));
+    } else if (data.startsWith("cookie:")) {
+        var value = data.substring("cookie:".length,data.indexOf(";"));
+        setCookie(value);
+
+    } else if (data.startsWith("ObjAdd:")) {
+        var objId = data.substring("ObjAdd:".length);
         emitObjAdd(objId);
 
-    } else if (event.data.startsWith("ObjRem:")) {
-        var objId = event.data.substring("ObjRem:".length,event.data.indexOf(";"));
+    } else if (data.startsWith("ObjRem:")) {
+        var objId = data.substring("ObjRem:".length);
         emitObjRem(objId);
 
-    } else if (event.data.startsWith("ObjConnected:")) {
-        var objId = event.data.substring("ObjConnected:".length);
+    } else if (data.startsWith("ObjConnected:")) {
+        var objId = data.substring("ObjConnected:".length);
         emitObjConnected(objId);
 
-    } else if (event.data.startsWith("ObjDisconnected:")) {
-        var objId = event.data.substring("ObjDisconnected:".length);
+    } else if (data.startsWith("ObjDisconnected:")) {
+        var objId = data.substring("ObjDisconnected:".length);
         emitObjDisconnected(objId);
 
-    } else if (event.data.startsWith("ObjUpd:")) {
-        var objId = event.data.substring("ObjUpd:".length,event.data.indexOf(";"));
-        var what = event.data.substring(event.data.lastIndexOf("What:")+"What:".length,event.data.length);
+    } else if (data.startsWith("ObjUpd:")) {
+        var objId = data.substring("ObjUpd:".length,data.indexOf(";"));
+        var what = data.substring(data.lastIndexOf("What:")+"What:".length,data.length);
         emitObjUpd(objId,what);
 
-    } else if (event.data.startsWith("StateUpd:")) {
-        var objId = event.data.substring("StateUpd:".length,event.data.indexOf(";"));
-        var compPath = event.data.substring(event.data.lastIndexOf("Comp:")+"Comp:".length,event.data.length);
+    } else if (data.startsWith("StateUpd:")) {
+        var objId = data.substring("StateUpd:".length,data.indexOf(";"));
+        var compPath = data.substring(data.lastIndexOf("Comp:")+"Comp:".length,data.length);
         emitStateUpd(objId,compPath);
 
     } else
-        alert("Warning unknown message from SSE: " + event.data);
+        alert("Warning unknown message from SSE: " + data);
 }
 
 function updateOnOpen(event) {

@@ -240,7 +240,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     throw new JCPNotReachableException("Error connecting to JCP because SSL handshaking failed");
                 }
             }
-            if (code!=200) {
+            if (code != 200) {
                 String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) returned '%d' code", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", code);
                 throw new JCPNotReachableException(errMsg);
             }
@@ -466,7 +466,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     @Override
     public String getUrlAPIs() {
-        return prepareUrl(false,"/",securedAPIs);
+        return prepareUrl(false, "/", securedAPIs);
     }
 
     @Override
@@ -486,7 +486,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     @Override
     public String getUrlAuth() {
-        return prepareUrl(true,"/",securedAPIs);
+        return prepareUrl(true, "/", securedAPIs);
     }
 
     @Override
@@ -854,4 +854,26 @@ public class DefaultJCPClient2 implements JCPClient2 {
         }
     }
 
+    public static void copyCredentials(DefaultJCPClient2 src, DefaultJCPClient2 dest) {
+        //dest.clientId = src.clientId;         // FINAL
+        //dest.service = src.service;           // FINAL
+        //dest.baseUrlAuth = src.baseUrlAuth;   // FINAL
+        //dest.baseUrlAPIs = src.baseUrlAPIs;   // FINAL
+        //dest.securedAPIs = src.securedAPIs;   // FINAL
+        dest.accessToken = src.accessToken;
+        //dest.authRealm = src.authRealm;       // FINAL
+        dest.cliCred_isConnected = src.cliCred_isConnected;
+        dest.cliCred_refreshToken = src.cliCred_refreshToken;
+        dest.authCode_isConnected = src.authCode_isConnected;
+        dest.authCode_refreshToken = src.authCode_refreshToken;
+        dest.authCode_loginCode = src.authCode_loginCode;
+        //dest.connectListeners = src.connectListeners;         // FINAL and NOT related with credentials
+        //dest.disconnectListeners = src.disconnectListeners;   // FINAL and NOT related with credentials
+        //dest.connectionTimer = src.connectionTimer;           // NOT related with credentials
+        //dest.connectionTimerDelaySeconds = src.connectionTimerDelaySeconds;           // FINAL and NOT related with credentials
+        //dest.connectionCheckTimer = src.connectionCheckTimer; // NOT related with credentials
+        //dest.loginListeners = src.loginListeners;             // FINAL and NOT related with credentials
+        dest.defaultHeaders.putAll(src.defaultHeaders);
+        dest.sessionId = src.sessionId;
+    }
 }
