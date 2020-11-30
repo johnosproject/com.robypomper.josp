@@ -1,12 +1,9 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.params.fe.*;
-import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
-import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
+import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.jslwb.*;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBStruct;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
@@ -40,8 +37,8 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {APIFEStruct.SubGroupStructure.NAME})
-public class APIFEStructController {
+@Api(tags = {APIJSLWBStruct.SubGroupStructure.NAME})
+public class APIJSLWBStructController {
 
     // Internal vars
 
@@ -54,16 +51,16 @@ public class APIFEStructController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIFEStruct() {
+    public Docket swaggerConfig_APIJSLWBStruct() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEStruct.SubGroupStructure.NAME, APIFEStruct.SubGroupStructure.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEStruct.API_NAME, APIFEStruct.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBStruct.SubGroupStructure.NAME, APIJSLWBStruct.SubGroupStructure.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBStruct.API_NAME, APIJSLWBStruct.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
     // Methods - Obj's Structure
 
-    @GetMapping(path = APIFEStruct.FULL_PATH_STRUCT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBStruct.FULL_PATH_STRUCT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -83,7 +80,7 @@ public class APIFEStructController {
 
     // Obj's compos
 
-    @GetMapping(path = APIFEStruct.FULL_PATH_COMP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBStruct.FULL_PATH_COMP, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),

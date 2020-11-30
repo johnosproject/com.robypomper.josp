@@ -1,15 +1,12 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
-import com.robypomper.josp.jcp.params.fe.JOSPUserHtml;
-import com.robypomper.josp.jcp.paths.fe.APIFEUsr;
+import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
+import com.robypomper.josp.jcp.params.jslwb.JOSPUserHtml;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBUsr;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
-import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
@@ -34,8 +31,11 @@ import java.io.IOException;
 
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {APIFEUsr.SubGroupUser.NAME})
-public class APIFEUsrController {
+@Api(tags = {APIJSLWBUsr.SubGroupUser.NAME})
+public class APIJSLWBUsrController {
+
+    public static final String SESS_ATTR_LOGIN_REDIRECT = "redirect_url_login";
+    public static final String SESS_ATTR_LOGOUT_REDIRECT = "redirect_url_logout";
 
     // Internal vars
 
@@ -49,10 +49,10 @@ public class APIFEUsrController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIFEUsr() {
+    public Docket swaggerConfig_APIJSLWBUsr() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEUsr.SubGroupUser.NAME, APIFEUsr.SubGroupUser.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEUsr.API_NAME, APIFEUsr.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBUsr.SubGroupUser.NAME, APIJSLWBUsr.SubGroupUser.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBUsr.API_NAME, APIJSLWBUsr.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -65,7 +65,7 @@ public class APIFEUsrController {
         return new JOSPUserHtml(jslUserMngr);
     }
 
-    @GetMapping(path = APIFEUsr.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBUsr.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -77,13 +77,17 @@ public class APIFEUsrController {
 
     // Methods - Login
 
-    @GetMapping(path = APIFEUsr.FULL_PATH_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBUsr.FULL_PATH_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public String htmlLoginUser(@ApiIgnore HttpSession session,
-                                @ApiIgnore HttpServletResponse response) {
+                                @ApiIgnore HttpServletResponse response,
+                                @RequestParam(name = "redirect_uri", required = false) String redirectUrl) {
+        if (redirectUrl != null)
+            session.setAttribute(SESS_ATTR_LOGIN_REDIRECT, redirectUrl);
+
         String redirect = jslService.getLoginUrl(jslService.getHttp(session));
 
         try {
@@ -95,7 +99,7 @@ public class APIFEUsrController {
         return String.format("Redirect failed, please go to <a href=\"%s\">%s</a>", redirect, redirect);
     }
 
-    @GetMapping(path = APIFEUsr.FULL_PATH_LOGIN_CALLBACK, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBUsr.FULL_PATH_LOGIN_CALLBACK, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -105,6 +109,10 @@ public class APIFEUsrController {
                                @RequestParam(name = "session_state") String sessionState,
                                @RequestParam(name = "code") String code) {
         //https://localhost:8080/login/code/?session_state=087edff3-848c-4b59-9592-e44c7410e6b0&code=8ab0ceb4-e3cf-48e2-99df-b59fe7be129d.087edff3-848c-4b59-9592-e44c7410e6b0.79e472b0-e562-4535-a516-db7d7696a447
+
+        String redirectURL = (String) session.getAttribute(SESS_ATTR_LOGIN_REDIRECT);
+        session.removeAttribute(SESS_ATTR_LOGIN_REDIRECT);
+
         try {
             jslService.login(jslService.getHttp(session), code);
 
@@ -119,12 +127,39 @@ public class APIFEUsrController {
         }
 
         try {
-            response.sendRedirect(URL_REDIRECT_HOME);
+            if (redirectURL != null)
+                response.sendRedirect(redirectURL);
+            else
+                response.sendRedirect(URL_REDIRECT_HOME);
 
         } catch (IOException ignore) {
         }
 
         return String.format("Login successfully, go to <a href=\"%s\">%s</a>", URL_REDIRECT_HOME, URL_REDIRECT_HOME);
+    }
+
+
+    // Methods - Logout
+
+    @GetMapping(path = APIJSLWBUsr.FULL_PATH_LOGOUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public String htmlLogoutUser(@ApiIgnore HttpSession session,
+                                 @ApiIgnore HttpServletResponse response,
+                                 @RequestParam(name = "redirect_uri", required = false) String redirectUrl) {
+
+        String redirect = jslService.getLogoutUrl(jslService.getHttp(session), redirectUrl);
+        jslService.logout(jslService.getHttp(session));
+
+        try {
+            response.sendRedirect(redirect);
+
+        } catch (IOException ignore) {
+        }
+
+        return String.format("Redirect failed, please go to <a href=\"%s\">%s</a>", redirect, redirect);
     }
 
 

@@ -1,13 +1,9 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
-import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
-import com.robypomper.josp.jcp.paths.fe.APIFEState;
-import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
+import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBState;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
@@ -21,13 +17,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.spring.web.plugins.Docket;
 
@@ -37,8 +31,8 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {APIFEState.SubGroupState.NAME})
-public class APIFEStateController {
+@Api(tags = {APIJSLWBState.SubGroupState.NAME})
+public class APIJSLWBStateController {
 
     // Internal vars
 
@@ -51,16 +45,16 @@ public class APIFEStateController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIFEState() {
+    public Docket swaggerConfig_APIJSLWBState() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEState.SubGroupState.NAME, APIFEState.SubGroupState.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEState.API_NAME, APIFEState.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBState.SubGroupState.NAME, APIJSLWBState.SubGroupState.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBState.API_NAME, APIJSLWBState.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
     // Methods - Boolean
 
-    @GetMapping(path = APIFEState.FULL_PATH_BOOL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBState.FULL_PATH_BOOL, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -76,7 +70,7 @@ public class APIFEStateController {
 
     // Methods - Range
 
-    @GetMapping(path = APIFEState.FULL_PATH_RANGE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBState.FULL_PATH_RANGE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -92,7 +86,7 @@ public class APIFEStateController {
 
     // Methods - History
 
-    @GetMapping(path = APIFEState.FULL_STATUS_HISTORY, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBState.FULL_STATUS_HISTORY, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),

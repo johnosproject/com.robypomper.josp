@@ -1,9 +1,9 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
-import com.robypomper.josp.jcp.paths.fe.APIFESSEUpdater;
+import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBSSEUpdater;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
@@ -27,8 +27,8 @@ import java.io.IOException;
 
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {APIFESSEUpdater.SubGroupState.NAME})
-public class APIFESSEUpdaterController {
+@Api(tags = {APIJSLWBSSEUpdater.SubGroupState.NAME})
+public class APIJSLWBSSEUpdaterController {
 
     // Internal vars
 
@@ -41,16 +41,16 @@ public class APIFESSEUpdaterController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIFESSEUpdater() {
+    public Docket swaggerConfig_APIJSLWBSSEUpdater() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIFESSEUpdater.SubGroupState.NAME, APIFESSEUpdater.SubGroupState.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFESSEUpdater.API_NAME, APIFESSEUpdater.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBSSEUpdater.SubGroupState.NAME, APIJSLWBSSEUpdater.SubGroupState.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBSSEUpdater.API_NAME, APIJSLWBSSEUpdater.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
     // Methods - SSE Updater
 
-    @GetMapping(path = APIFESSEUpdater.FULL_PATH_INIT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path = APIJSLWBSSEUpdater.FULL_PATH_INIT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -66,16 +66,20 @@ public class APIFESSEUpdaterController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
 
-        SseEmitter.SseEventBuilder event = SseEmitter.event()
-                .data("csrf:" + token.getToken() + ";" +
-                        "header:" + token.getHeaderName())
+        SseEmitter.SseEventBuilder eventCSRF = SseEmitter.event()
+                .data("csrf:" + token.getToken() + ";" + "header:" + token.getHeaderName())
                 .id(String.valueOf(0));
+        //SseEmitter.SseEventBuilder eventSession = SseEmitter.event()
+        //        .data("cookie:JSESSIONID=" + session.getId())
+        //        .id(String.valueOf(0));
         try {
-            emitter.send(event);
+            emitter.send(eventCSRF);
+            //emitter.send(eventSession);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
 
+        //response.addHeader("Access-Control-Allow-Headers", "Cookie, Set-Cookie");
         response.addHeader("X-Accel-Buffering", "no");
         return emitter;
     }

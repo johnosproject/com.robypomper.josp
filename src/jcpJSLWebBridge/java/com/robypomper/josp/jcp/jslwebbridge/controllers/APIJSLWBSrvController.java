@@ -1,12 +1,10 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
-import com.robypomper.josp.jcp.params.fe.JOSPSrvHtml;
-import com.robypomper.josp.jcp.paths.fe.APIFESrv;
+import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
+import com.robypomper.josp.jcp.params.jslwb.JOSPSrvHtml;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBSrv;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.JSL;
 import io.swagger.annotations.Api;
@@ -14,12 +12,10 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.spring.web.plugins.Docket;
 
@@ -28,8 +24,8 @@ import javax.servlet.http.HttpSession;
 
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {APIFESrv.SubGroupService.NAME})
-public class APIFESrvController {
+@Api(tags = {APIJSLWBSrv.SubGroupService.NAME})
+public class APIJSLWBSrvController {
 
     // Internal vars
 
@@ -42,10 +38,10 @@ public class APIFESrvController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIFESrv() {
+    public Docket swaggerConfig_APIJSLWBSrv() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIFESrv.SubGroupService.NAME, APIFESrv.SubGroupService.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFESrv.API_NAME, APIFESrv.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBSrv.SubGroupService.NAME, APIJSLWBSrv.SubGroupService.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBSrv.API_NAME, APIJSLWBSrv.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -59,7 +55,7 @@ public class APIFESrvController {
     }
 
 
-    @GetMapping(path = APIFESrv.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBSrv.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")

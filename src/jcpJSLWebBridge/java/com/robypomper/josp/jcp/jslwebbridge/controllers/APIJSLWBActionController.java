@@ -1,12 +1,10 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
 import com.robypomper.java.JavaFormatter;
-import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
-import com.robypomper.josp.jcp.paths.fe.APIFEAction;
-import com.robypomper.josp.jcp.paths.fe.APIFEStruct;
+import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBAction;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
@@ -20,20 +18,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.spring.web.plugins.Docket;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {APIFEAction.SubGroupAction.NAME})
-public class APIFEActionController {
+@Api(tags = {APIJSLWBAction.SubGroupAction.NAME})
+public class APIJSLWBActionController {
 
     // Internal vars
 
@@ -46,16 +42,16 @@ public class APIFEActionController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIFEAction() {
+    public Docket swaggerConfig_APIJSLWBAction() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEAction.SubGroupAction.NAME, APIFEAction.SubGroupAction.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEAction.API_NAME, APIFEAction.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBAction.SubGroupAction.NAME, APIJSLWBAction.SubGroupAction.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBAction.API_NAME, APIJSLWBAction.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
     // Methods - Boolean
 
-    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_SWITCH, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_BOOL_SWITCH, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -78,7 +74,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_TRUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_BOOL_TRUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -102,7 +98,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_BOOL_FALSE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_BOOL_FALSE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -129,7 +125,7 @@ public class APIFEActionController {
 
     // Methods - Range
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_SET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -141,7 +137,7 @@ public class APIFEActionController {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'val' parameter in GET request");
     }
 
-    @PostMapping(path = APIFEAction.FULL_PATH_RANGE_SET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = APIJSLWBAction.FULL_PATH_RANGE_SET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -154,7 +150,7 @@ public class APIFEActionController {
         return jsonRangeSet(session, objId, compPath, val);
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_SETg, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_SETg, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -182,7 +178,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_INC, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_INC, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -205,7 +201,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_DEC, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_DEC, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -227,7 +223,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MAX, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_MAX, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -249,7 +245,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_MIN, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_MIN, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -271,7 +267,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_2, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_1_2, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -294,7 +290,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_1_3, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_1_3, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -317,7 +313,7 @@ public class APIFEActionController {
         }
     }
 
-    @GetMapping(path = APIFEAction.FULL_PATH_RANGE_2_3, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBAction.FULL_PATH_RANGE_2_3, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")

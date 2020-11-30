@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.fe.jsl;
+package com.robypomper.josp.jcp.jslwebbridge.jsl;
 
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jsl.FactoryJSL;
@@ -274,22 +274,26 @@ public class JSLSpringService {
         SseEmitter.SseEventBuilder event = SseEmitter.event()
                 .data(data)
                 .id(String.valueOf(sseCount++));
+
+        SseEmitter emitter = emitters.get(jsl);
+        if (emitter == null) {
+            System.out.println("Error on send event " + data + " to emitter because emitter not found");
+            return;
+        }
+
         try {
             try {
-                emitters.get(jsl).send(event);
+                emitter.send(event);
 
             } catch (IllegalStateException e) {
                 Thread.sleep(5000);
-                emitters.get(jsl).send(event);
+                emitter.send(event);
             }
 
         } catch (Exception ioException) {
-            SseEmitter e = emitters.remove(jsl);
-            if (e != null) {
-                System.out.println("Error on send event " + data + " to " + e.toString() + " emitter because " + ioException.getMessage() + ", remove emitter");
-                e.complete();
-            } else
-                System.out.println(String.format("Error on send event emitter null, [%s] %s", ioException.getClass().getSimpleName(), ioException.getMessage()));
+            System.out.println("Error on send event " + data + " to " + emitter.toString() + " emitter because " + ioException.getMessage() + ", remove emitter");
+            emitter.complete();
+            emitters.remove(jsl);
         }
     }
 

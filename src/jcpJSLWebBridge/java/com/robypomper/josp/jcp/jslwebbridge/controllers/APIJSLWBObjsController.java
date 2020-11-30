@@ -1,11 +1,9 @@
-package com.robypomper.josp.jcp.fe.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.robypomper.josp.jcp.fe.HTMLUtils;
-import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.params.fe.JOSPObjHtml;
-import com.robypomper.josp.jcp.paths.fe.APIFEObjs;
+import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
+import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBObjs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.protocol.HistoryLimits;
@@ -20,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.annotations.ApiIgnore;
@@ -32,8 +29,8 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @RestController
-@Api(tags = {APIFEObjs.SubGroupObjs.NAME})
-public class APIFEObjsController {
+@Api(tags = {APIJSLWBObjs.SubGroupObjs.NAME})
+public class APIJSLWBObjsController {
 
     // Internal var
 
@@ -46,10 +43,10 @@ public class APIFEObjsController {
     // Docs configs
 
     @Bean
-    public Docket swaggerConfig_APIFEObjs() {
+    public Docket swaggerConfig_APIJSLWBObjs() {
         SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEObjs.SubGroupObjs.NAME, APIFEObjs.SubGroupObjs.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEObjs.API_NAME, APIFEObjs.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBObjs.SubGroupObjs.NAME, APIJSLWBObjs.SubGroupObjs.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBObjs.API_NAME, APIJSLWBObjs.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
@@ -64,7 +61,7 @@ public class APIFEObjsController {
         return objHtml;
     }
 
-    @GetMapping(path = APIFEObjs.FULL_PATH_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBObjs.FULL_PATH_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Provide the objects list")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -77,7 +74,7 @@ public class APIFEObjsController {
 
     // Methods - Objs Details
 
-    @GetMapping(path = APIFEObjs.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBObjs.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -92,7 +89,7 @@ public class APIFEObjsController {
 
     // Set owner and name
 
-    @PostMapping(path = APIFEObjs.FULL_PATH_OWNER, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = APIJSLWBObjs.FULL_PATH_OWNER, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -120,7 +117,7 @@ public class APIFEObjsController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(path = APIFEObjs.FULL_PATH_NAME, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = APIJSLWBObjs.FULL_PATH_NAME, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
@@ -147,7 +144,7 @@ public class APIFEObjsController {
 
     // Events
 
-    @GetMapping(path = APIFEObjs.FULL_PATH_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = APIJSLWBObjs.FULL_PATH_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
