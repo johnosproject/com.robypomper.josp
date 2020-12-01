@@ -25,7 +25,7 @@ public class AbsAPIObj extends AbsAPI {
         super(jcpClient);
     }
 
-    protected JCPAPIsClientObj getClient() {
+    public JCPAPIsClientObj getClient() {
         return (JCPAPIsClientObj) jcpClient;
     }
 

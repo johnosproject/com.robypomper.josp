@@ -25,7 +25,7 @@ public class AbsAPIJCP extends AbsAPI {
         super(jcpClient);
     }
 
-    protected JCPAPIsClientJCP getClient() {
+    public JCPAPIsClientJCP getClient() {
         return (JCPAPIsClientJCP) jcpClient;
     }
 
