@@ -27,20 +27,26 @@ import com.robypomper.communication.server.events.ServerLocalEvents;
 import com.robypomper.communication.server.events.ServerMessagingEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
+import com.robypomper.josp.jcp.info.JCPGWsVersions;
+import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
+import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
+import com.robypomper.josp.types.josp.gw.GWType;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public abstract class AbsGWsService {
+public abstract class AbsGWsService implements JCPClient2.ConnectListener {
 
     // Class constants
 
@@ -52,12 +58,8 @@ public abstract class AbsGWsService {
 
     private static final Logger log = LogManager.getLogger();
     private static final List<AbsGWsService> jospGWs = new ArrayList<>();               // static because shared among all GWs
-    private static final List<Integer> boundedPorts = new ArrayList<>();                // static because shared among all GWs
-    private static final Random rnd = new Random();
     private final InetAddress hostAddr;
-    private final int port;
     private final Server server;
-    private final List<String> clients = new ArrayList<>();
 
 
     // Constructor
@@ -66,8 +68,6 @@ public abstract class AbsGWsService {
      * Initialize JOSPGWsService with only one internal server.
      */
     public AbsGWsService(final String hostName, int port) {
-        this.port = port;
-
         try {
             log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Generating and starting internal JOSP GWs '%s' server", ONLY_SERVER_ID));
             String alias = String.format("%s@%s", ONLY_SERVER_ID, CERT_ALIAS);
@@ -103,23 +103,6 @@ public abstract class AbsGWsService {
         this.hostAddr = tpmHostAddr;
 
         log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Initialized GWsService instance with %s public address", hostAddr));
-    }
-
-    @PreDestroy
-    public void destroy() {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halt server %s", server.getServerId()));
-        server.stop();
-
-        if (server.isRunning())
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignore) {
-            }
-
-        if (server.isRunning())
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Gateway %s not halted, force it.", this.getClass().getSimpleName()));
-        else
-            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halted %s gateway", this.getClass().getSimpleName()));
     }
 
 
@@ -171,6 +154,60 @@ public abstract class AbsGWsService {
     abstract protected ServerMessagingEvents getMessagingEventsListener();
 
 
+    // JCP APIs GWs registration
+
+    protected void register(JCPAPIGWsClient gwsAPI, String hostName, int apisPort, int maxClients, GWType type) {
+        String gwId = generateGWId(hostName, getServer().getPort());
+        try {
+            JCPGWsStartup gwStartup = new JCPGWsStartup(type, hostName, getServer().getPort(), hostName, apisPort, maxClients, JCPGWsVersions.VER_JCPGWs_S2O_2_0);
+            if (!gwsAPI.getClient().isConnected()) {
+                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' startup to JCP APIs because JCP APIs not available, it will registered on JCP APIs connection.", gwId));
+                return;
+            }
+
+            gwsAPI.postStartup(gwStartup, gwId);
+            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("JCP GW '%s' registered to JCP APIs successfully.", gwId));
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+        }
+    }
+
+    protected void deregister(JCPAPIGWsClient gwsAPI, String hostName) {
+        String gwId = generateGWId(hostName, getServer().getPort());
+        try {
+            if (!gwsAPI.getClient().isConnected()) {
+                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't de-register JCP GW '%s' startup to JCP APIs because JCP APIs not available, it will de-registered on JCP APIs connection.", gwId));
+                return;
+            }
+
+            gwsAPI.postShutdown(gwId);
+            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("JCP GW '%s' de-registered to JCP APIs successfully.", gwId));
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't de-register JCP GW '%s' to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+        }
+    }
+
+    protected void update(JCPAPIGWsClient gwsAPI, String hostName, JCPGWsStatus gwStatus) {
+        String gwId = generateGWId(hostName, getServer().getPort());
+        try {
+            if (!gwsAPI.getClient().isConnected()) {
+                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because JCP APIs not available, it will updated on JCP APIs connection.", gwId));
+                return;
+            }
+
+            gwsAPI.postStatus(gwStatus, gwId);
+            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("JCP GW '%s' updated to JCP APIs successfully.", gwId));
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+        }
+    }
+
+
+    // Structures
+
     protected static class Server extends DefaultSSLServer {
 
         // Internal vars
@@ -213,6 +250,8 @@ public abstract class AbsGWsService {
 
     }
 
+
+    // Utils
 
     protected String generateGWId(String publicHostName, int port) {
         String addr = String.format("%s-%d", publicHostName, port);

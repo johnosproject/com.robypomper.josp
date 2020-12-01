@@ -19,11 +19,10 @@
 
 package com.robypomper.josp.jcp.db.apis;
 
-import com.robypomper.java.JavaNetworks;
 import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.types.josp.gw.GWType;
-import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,58 +53,42 @@ public class GWDBService {
         return gws.findById(id);
     }
 
-    public Optional<GW> findAvailableGW(GWType type) throws DataIntegrityViolationException {
-        // List all gateways
-        List<GW> allGWs = gws.findAll();
-
-        // Find the most free, of right type and online GW
-        int maxFreeCount = 0;
-        GW gwMaxFree = null;
-        for (GW gw : allGWs) {
-            int freeCount = gw.getClientsMax() - gw.getStatus().getClients();
-            if (freeCount > maxFreeCount && gw.getType() == type && gw.getStatus().isOnline()) {
-                maxFreeCount = freeCount;
-                gwMaxFree = gw;
-            }
-        }
-
-        // If no GW available
-        if (gwMaxFree == null)
-            return Optional.empty();
-
-        // Check if GW is NOT reachable
-        if (!JavaNetworks.pingHost(gwMaxFree.getGwAddr(), gwMaxFree.getGwPort(), 5000)
-                || !JavaNetworks.pingHost(gwMaxFree.getGwAPIsAddr(), gwMaxFree.getGwAPIsPort(), 5000)) {
-            // Set offline
-            gwMaxFree.getStatus().setOnline(false);
-            //gws.save(gwMaxFree);
-            gwsStatus.save(gwMaxFree.getStatus());
-
-            // Recursive search
-            return findAvailableGW(type);
-        }
-
-        // Return founded GW
-        return Optional.of(gwMaxFree);
-    }
-
-    public void checkAllGWsAvailability() throws DataIntegrityViolationException {
-        // List all gateways
-        List<GW> allGWs = gws.findAll();
-        for (GW gw : allGWs) {
-            // Check if GW is reachable
-            gw.getStatus().setOnline(JavaNetworks.pingHost(gw.getGwAddr(), gw.getGwPort(), 5000)
-                    || JavaNetworks.pingHost(gw.getGwAPIsAddr(), gw.getGwAPIsPort(), 5000));
-
-            // Save new GW state
-            //gws.save(gwMaxFree);
-            gwsStatus.saveAndFlush(gw.getStatus());
-        }
-    }
-
-    public Iterable<GW> getAll() {
+    public List<GW> getAll() {
         return gws.findAll();
     }
+
+    public List<GW> getAllObj2Srv() {
+        return gws.findByType(GWType.Obj2Srv);
+    }
+
+    public List<GW> getAllSrv2Obj() {
+        return gws.findByType(GWType.Srv2Obj);
+    }
+
+    public List<GW> getAllOnline(boolean online) {
+        List<GW> ret = getAllObj2SrvOnline(online);
+        ret.addAll(getAllSrv2ObjOnline(online));
+        return ret;
+    }
+
+    public List<GW> getAllObj2SrvOnline(boolean online) {
+        List<GW> ret = new ArrayList<>();
+        for (GW gw : gws.findByType(GWType.Obj2Srv))
+            if (gw.getStatus().isOnline() == online)
+                ret.add(gw);
+        return ret;
+    }
+
+    public List<GW> getAllSrv2ObjOnline(boolean online) {
+        List<GW> ret = new ArrayList<>();
+        for (GW gw : gws.findByType(GWType.Srv2Obj))
+            if (gw.getStatus().isOnline() == online)
+                ret.add(gw);
+        return ret;
+    }
+
+
+    // Storage methods
 
     public GW save(GW gw) {
         return gws.save(gw);

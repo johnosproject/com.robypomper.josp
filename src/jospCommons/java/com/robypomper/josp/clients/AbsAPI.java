@@ -27,11 +27,11 @@ public class AbsAPI {
         this.jcpClient = jcpClient;
     }
 
-    protected JCPClient2 getClient() {
+    public JCPClient2 getClient() {
         return jcpClient;
     }
 
-    protected boolean isSecure() {
+    public boolean isSecure() {
         return jcpClient.isSecured();
     }
 

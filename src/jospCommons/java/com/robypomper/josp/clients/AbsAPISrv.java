@@ -25,7 +25,7 @@ public class AbsAPISrv extends AbsAPI {
         super(jcpClient);
     }
 
-    protected JCPAPIsClientSrv getClient() {
+    public JCPAPIsClientSrv getClient() {
         return (JCPAPIsClientSrv) jcpClient;
     }
 

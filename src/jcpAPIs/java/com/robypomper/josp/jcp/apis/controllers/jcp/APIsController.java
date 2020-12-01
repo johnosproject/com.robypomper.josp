@@ -1,10 +1,9 @@
 package com.robypomper.josp.jcp.apis.controllers.jcp;
 
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.apis.mngs.GWsManager;
 import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.clients.JCPGWsClientMngr;
 import com.robypomper.josp.jcp.clients.jcp.jcp.GWsClient;
-import com.robypomper.josp.jcp.db.apis.GWDBService;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.UserDBService;
@@ -39,13 +38,11 @@ public class APIsController {
     @Autowired
     private UserDBService usrDB;
     @Autowired
-    private GWDBService gwDB;
+    private GWsManager gwManager;
     @Autowired
     private HttpSession httpSession;
     @Autowired
     private ClientParams gwsClientsParams;
-    @Autowired
-    private JCPGWsClientMngr apiGWsGWsClients;
 
     private final String OAUTH_FLOW = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG;
     private final String OAUTH_SCOPE = SwaggerConfigurer.ROLE_MNG_SWAGGER;
@@ -93,14 +90,21 @@ public class APIsController {
     public ResponseEntity<List<JCPGWsStatus>> getJCPAPIsStatusGWsReq() {
         List<JCPGWsStatus> gws = new ArrayList<>();
 
-        for (GW gw : gwDB.getAll()) {
-            GWsClient apiGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), GWsClient.class);
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
             String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
             try {
                 gws.add(apiGWs.getJCPGWsReq());
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
                 e.printStackTrace();
+                continue;
             }
+
+            gwAPIsUrlsQueried.add(url);
         }
 
         return ResponseEntity.ok(gws);
@@ -125,16 +129,22 @@ public class APIsController {
     public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsGWsReq() {
         List<JCPAPIsStatus.GWs> gws = new ArrayList<>();
 
-        for (GW gw : gwDB.getAll()) {
-            GWsClient apiGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), GWsClient.class);
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
             String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
             try {
                 List<JCPAPIsStatus.GWs> gwsTmp = apiGWs.getJCPAPIsStatusGWsCliReq();
                 gws.addAll(gwsTmp);
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
                 e.printStackTrace();
+                continue;
             }
 
+            gwAPIsUrlsQueried.add(url);
         }
 
         return ResponseEntity.ok(gws);

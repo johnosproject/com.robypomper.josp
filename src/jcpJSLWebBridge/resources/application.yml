@@ -17,6 +17,6 @@ jcp.urlFE: localhost:9004
 jsl.version: 2.0.0
 jcp.url.apis: localhost:9001
 jcp.url.auth: localhost:8998
-jsl.srv.id: jcp-fe
+jsl.srv.id: ${jcp.client.id}
 jsl.srv.name: JCP FrontEnd
 jsl.comm.local.discovery: DNSSD
