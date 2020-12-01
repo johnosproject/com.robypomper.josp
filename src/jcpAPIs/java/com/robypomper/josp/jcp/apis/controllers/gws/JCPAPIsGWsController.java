@@ -20,9 +20,8 @@
 package com.robypomper.josp.jcp.apis.controllers.gws;
 
 import com.robypomper.josp.info.JCPAPIsVersions;
-import com.robypomper.josp.jcp.db.apis.GWDBService;
+import com.robypomper.josp.jcp.apis.mngs.GWsManager;
 import com.robypomper.josp.jcp.db.apis.entities.GW;
-import com.robypomper.josp.jcp.db.apis.entities.GWStatus;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
 import com.robypomper.josp.jcp.paths.apis.JCPAPIsGWs;
@@ -30,18 +29,15 @@ import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
-import java.util.Optional;
 
 
 /**
@@ -54,7 +50,7 @@ public class JCPAPIsGWsController {
 
     // Internal vars
 
-    private final GWDBService gwService;
+    private final GWsManager gwManager;
     @Autowired
     private SwaggerConfigurer swagger;
 
@@ -74,13 +70,11 @@ public class JCPAPIsGWsController {
     /**
      * This default constructor check, for any GW registered in the DB, if it's
      * online or not. Then, this method, updates the GW status on the DB.
-     *
-     * @param gwService Spring DB Service's for GWs.
      */
     @Autowired
-    public JCPAPIsGWsController(GWDBService gwService) {
-        this.gwService = gwService;
-        gwService.checkAllGWsAvailability();
+    public JCPAPIsGWsController(GWsManager gwManager) {
+        this.gwManager = gwManager;
+        gwManager.checkAllGWsOnline();
     }
 
 
@@ -112,26 +106,11 @@ public class JCPAPIsGWsController {
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Boolean> registerStartup(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId,
                                                    @RequestBody JCPGWsStartup gwStartup) {
-        Optional<GW> optGW = gwService.findById(jcpGWId);
-        GW gw;
-        if (!optGW.isPresent()) {
-            gw = new GW();
-            gw.setGwId(jcpGWId);
-            GWStatus gwStatus = new GWStatus();
-            gwStatus.setGwId(jcpGWId);
-            gw.setStatus(gwStatus);
-
-        } else
-            gw = optGW.get();
-
-        gw.setType(gwStartup.type);
-        gw.setGwAddr(gwStartup.gwAddr);
-        gw.setGwPort(gwStartup.gwPort);
-        gw.setGwAPIsAddr(gwStartup.gwAPIsAddr);
-        gw.setGwAPIsPort(gwStartup.gwAPIsPort);
-        gw.setClientsMax(gwStartup.clientsMax);
-        gw.setVersion(gwStartup.version);
-        gwService.save(gw);
+        GW gw = gwManager.getById(jcpGWId);
+        if (gw == null)
+            gwManager.add(jcpGWId, gwStartup);
+        else
+            gwManager.update(gw, gwStartup);
 
         return ResponseEntity.ok(true);
     }
@@ -161,16 +140,11 @@ public class JCPAPIsGWsController {
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Boolean> postStatus(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId,
                                               @RequestBody JCPGWsStatus gwStatus) {
-        Optional<GW> optGW = gwService.findById(jcpGWId);
-        GW gw;
-        if (!optGW.isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Given JCP GWs id '%s' not found.", jcpGWId));
-
-        gw = optGW.get();
-        gw.getStatus().setClients(gwStatus.clients);
-        gw.getStatus().setLastClientConnectedAt(gwStatus.lastClientConnectedAt);
-        gw.getStatus().setLastClientDisconnectedAt(gwStatus.lastClientDisconnectedAt);
-        gwService.save(gw);
+        GW gw = gwManager.getById(jcpGWId);
+        if (gw == null)
+            return ResponseEntity.ok(false);
+        else
+            gwManager.update(gw, gwStatus);
 
         return ResponseEntity.ok(true);
     }
@@ -200,19 +174,11 @@ public class JCPAPIsGWsController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Boolean> postShutdown(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId) {
-        Optional<GW> optGW = gwService.findById(jcpGWId);
-        GW gw;
-        if (!optGW.isPresent()) {
-            gw = new GW();
-            gw.setGwId(jcpGWId);
-            GWStatus gwStatus = new GWStatus();
-            gwStatus.setGwId(jcpGWId);
-            gw.setStatus(gwStatus);
-
-        } else
-            gw = optGW.get();
-
-        gwService.delete(gw);
+        GW gw = gwManager.getById(jcpGWId);
+        if (gw == null)
+            return ResponseEntity.ok(true);
+        else
+            gwManager.remove(gw);
 
         return ResponseEntity.ok(true);
     }

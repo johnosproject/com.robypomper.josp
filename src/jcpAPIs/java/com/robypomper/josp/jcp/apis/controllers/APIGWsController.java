@@ -21,10 +21,9 @@ package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
+import com.robypomper.josp.jcp.apis.mngs.GWsManager;
 import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.clients.JCPGWsClientMngr;
 import com.robypomper.josp.jcp.clients.gws.apis.APIGWsGWsClient;
-import com.robypomper.josp.jcp.db.apis.GWDBService;
 import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
@@ -51,7 +50,6 @@ import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
-import java.util.Optional;
 
 /**
  * API Permission Objs's controller.
@@ -68,13 +66,11 @@ public class APIGWsController {
 
     private static final Logger log = LogManager.getLogger();
     @Autowired
-    private GWDBService gwService;
+    private GWsManager gwManager;
     @Autowired
     private SwaggerConfigurer swagger;
     @Autowired
     private ClientParams gwsClientsParams;
-    @Autowired
-    private JCPGWsClientMngr apiGWsGWsClients;
 
 
     // Docs configs
@@ -113,20 +109,16 @@ public class APIGWsController {
             @RequestBody
                     O2SAccessRequest accessRequest) {
 
-        // Get free GW url
-
-        Optional<GW> gwOpt = gwService.findAvailableGW(GWType.Obj2Srv);
-        if (!gwOpt.isPresent())
+        GW gw = gwManager.getAvailableObj2Srv();
+        if (gw == null)
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s GWs available.", GWType.Obj2Srv));
 
-        // Forward request to free GW
+        APIGWsGWsClient apiGWsGWs = gwManager.getAPIGWsGWsClient(gw);
         try {
-            GW gw = gwOpt.get();
-            APIGWsGWsClient apiGWsGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), APIGWsGWsClient.class);
             return ResponseEntity.ok(apiGWsGWs.getO2SAccessInfo(objId, accessRequest));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' O2S_ACCESS.", gwOpt.get().getGwId()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' O2S_ACCESS.", gw.getGwId()));
         }
     }
 
@@ -155,19 +147,16 @@ public class APIGWsController {
             @RequestBody
                     S2OAccessRequest accessRequest) {
 
-        // Get free GW url
-        Optional<GW> gwOpt = gwService.findAvailableGW(GWType.Srv2Obj);
-        if (!gwOpt.isPresent())
+        GW gw = gwManager.getAvailableSrv2Obj();
+        if (gw == null)
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s GWs available.", GWType.Srv2Obj));
 
-        // Forward request to free GW
+        APIGWsGWsClient apiGWsGWs = gwManager.getAPIGWsGWsClient(gw);
         try {
-            GW gw = gwOpt.get();
-            APIGWsGWsClient apiGWsGWs = apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), APIGWsGWsClient.class);
             return ResponseEntity.ok(apiGWsGWs.getS2OAccessInfo(srvId, accessRequest));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' S2O_ACCESS.", gwOpt.get().getGwId()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' S2O_ACCESS.", gw.getGwId()));
         }
     }
 
