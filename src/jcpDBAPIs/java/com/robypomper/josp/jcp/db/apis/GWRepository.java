@@ -20,13 +20,17 @@
 package com.robypomper.josp.jcp.db.apis;
 
 import com.robypomper.josp.jcp.db.apis.entities.GW;
+import com.robypomper.josp.types.josp.gw.GWType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 
 public interface GWRepository extends JpaRepository<GW, String> {
 
     Optional<GW> findById(String gwId);
+
+    List<GW> findByType(GWType type);
 
 }
