@@ -91,7 +91,6 @@ public class GWDBService {
     // Storage methods
 
     public GW save(GW gw) {
-        System.out.println(String.format("Save GW %s online %s", gw.getGwId(), gw.getStatus().isOnline()));
         return gws.save(gw);
     }
 
