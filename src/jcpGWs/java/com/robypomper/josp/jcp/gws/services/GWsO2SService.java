@@ -21,6 +21,7 @@ package com.robypomper.josp.jcp.gws.services;
 
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.events.*;
+import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
 import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
@@ -30,8 +31,6 @@ import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.josp.jcp.gws.broker.GWsBroker;
 import com.robypomper.josp.jcp.gws.o2s.GWObject;
-import com.robypomper.josp.jcp.info.JCPGWsVersions;
-import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.types.josp.gw.GWType;
@@ -42,12 +41,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 
 
 @Service
-public class GWsO2SService extends AbsGWsService {
+public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectListener {
 
 
     // Internal vars
@@ -73,8 +73,6 @@ public class GWsO2SService extends AbsGWsService {
 
     /**
      * Initialize JOSPGWsService with only one internal server.
-     *
-     * @param hostName
      */
     @Autowired
     public GWsO2SService(@Value("${jcp.gws.o2s.url}") final String hostName,
@@ -84,6 +82,7 @@ public class GWsO2SService extends AbsGWsService {
                          JCPAPIsClient apisClient) {
         super(hostName, port);
         this.gwsAPI = new JCPAPIGWsClient(apisClient);
+        apisClient.addConnectListener(this);
         this.hostName = hostName;
         this.apisPort = apisPort;
         this.maxClients = maxClients;
@@ -96,7 +95,22 @@ public class GWsO2SService extends AbsGWsService {
         }
     }
 
-    
+    @PreDestroy
+    public void destroy() {
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halt server %s", getServer().getServerId()));
+        getServer().stop();
+
+        if (getServer().isRunning())
+            JavaThreads.softSleep(1000);
+
+        if (getServer().isRunning()) {
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Gateway %s not halted, force it.", this.getClass().getSimpleName()));
+            deregister(gwsAPI, hostName);
+        } else
+            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halted %s gateway", this.getClass().getSimpleName()));
+    }
+
+
     // Object's clients connection
 
     /**
@@ -118,15 +132,9 @@ public class GWsO2SService extends AbsGWsService {
         objects.put(client.getClientId(), gwObj);
 
         // Update GW status to JCP APIs
-        String gwId = generateGWId(hostName, server.getPort());
         gwStatus.clients++;
         gwStatus.lastClientConnectedAt = JOSPProtocol.getNowDate();
-        try {
-            gwsAPI.postStatus(gwStatus, gwId);
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because '%s'.", gwId, e.getMessage()), e);
-        }
+        update(gwsAPI, hostName, gwStatus);
     }
 
     private void onClientDisconnection(ClientInfo client) {
@@ -140,15 +148,9 @@ public class GWsO2SService extends AbsGWsService {
         }
 
         // Update GW status to JCP APIs
-        String gwId = generateGWId(hostName, getPort());
         gwStatus.clients--;
         gwStatus.lastClientDisconnectedAt = JOSPProtocol.getNowDate();
-        try {
-            gwsAPI.postStatus(gwStatus, gwId);
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because '%s'.", gwId, e.getMessage()), e);
-        }
+        update(gwsAPI, hostName, gwStatus);
     }
 
 
@@ -184,25 +186,12 @@ public class GWsO2SService extends AbsGWsService {
 
             @Override
             public void onStarted() {
-                String gwId = generateGWId(hostName, getServer().getPort());
-                try {
-                    JCPGWsStartup gwStartup = new JCPGWsStartup(GWType.Obj2Srv, hostName, getServer().getPort(), hostName, apisPort, maxClients, JCPGWsVersions.VER_JCPGWs_O2S_2_0);
-                    gwsAPI.postStartup(gwStartup, gwId);
-
-                } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                    log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' startup to JCP APIs because '%s'.", gwId, e.getMessage()), e);
-                }
+                register(gwsAPI, hostName, apisPort, maxClients, GWType.Obj2Srv);
             }
 
             @Override
             public void onStopped() {
-                String gwId = generateGWId(hostName, getServer().getPort());
-                try {
-                    gwsAPI.postShutdown(gwId);
-
-                } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                    log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' startup to JCP APIs because '%s'.", gwId, e.getMessage()), e);
-                }
+                deregister(gwsAPI, hostName);
             }
 
         };
@@ -264,6 +253,24 @@ public class GWsO2SService extends AbsGWsService {
             }
 
         };
+    }
+
+
+    // JCP APIs connection listeners
+
+    @Override
+    public void onConnected(JCPClient2 jcpClient) {
+        if (getServer().isRunning()) {
+            register(gwsAPI, hostName, apisPort, maxClients, GWType.Obj2Srv);
+            update(gwsAPI, hostName, gwStatus);
+
+        } else {
+            deregister(gwsAPI, hostName);
+        }
+    }
+
+    @Override
+    public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
     }
 
 }
