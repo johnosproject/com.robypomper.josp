@@ -320,6 +320,7 @@ task jospJOD_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospJODPublicationToMavenLocal
+    tasks.josp_PublishToLocal.dependsOn jospJOD_PublishToLocal
 }
 
 // JOSP JSL
@@ -327,4 +328,5 @@ task jospJSL_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospJSLPublicationToMavenLocal
+    tasks.josp_PublishToLocal.dependsOn jospJSL_PublishToLocal
 }

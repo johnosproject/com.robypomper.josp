@@ -446,11 +446,18 @@ JavaPublicationUtils.generatePublication(project,jcpAllPubDesc)
 // Publication tasks
 // -----------------
 
+task jcp_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    tasks.all_PublishToLocal.dependsOn jcp_PublishToLocal
+}
+
 // JCP Commons
 task jcpCommons_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpCommonsPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpCommons_PublishToLocal
 }
 
 // JCP DB
@@ -458,6 +465,7 @@ task jcpDB_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpDBPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpDB_PublishToLocal
 }
 
 // JCP DB APIs
@@ -465,6 +473,7 @@ task jcpDBAPIs_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpDBAPIsPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpDBAPIs_PublishToLocal
 }
 
 // JCP DB FE
@@ -472,6 +481,7 @@ task jcpDBFE_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpDBFEPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpDBFE_PublishToLocal
 }
 
 // JCP Service
@@ -479,6 +489,7 @@ task jcpService_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpServicePublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpService_PublishToLocal
 }
 
 // JCP APIs
@@ -486,6 +497,7 @@ task jcpAPIs_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpAPIsPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpAPIs_PublishToLocal
 }
 
 // JCP GWs
@@ -493,6 +505,7 @@ task jcpGWs_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpGWsPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpGWs_PublishToLocal
 }
 
 // JCP JSL Web Bridge
@@ -500,6 +513,7 @@ task jcpJSLWebBridge_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpJSLWebBridgePublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpJSLWebBridge_PublishToLocal
 }
 
 // JCP FE
@@ -507,6 +521,7 @@ task jcpFE_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpFEPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpFE_PublishToLocal
 }
 
 // JCP All
@@ -514,4 +529,5 @@ task jcpAll_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJcpAllPublicationToMavenLocal
+    tasks.jcp_PublishToLocal.dependsOn jcpAll_PublishToLocal
 }

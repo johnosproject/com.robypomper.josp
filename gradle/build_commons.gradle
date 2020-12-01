@@ -116,11 +116,23 @@ JavaPublicationUtils.generatePublication(project,jospCommonsPubDesc)
 // Publication tasks
 // -----------------
 
+task all_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+}
+
+task josp_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    tasks.all_PublishToLocal.dependsOn josp_PublishToLocal
+}
+
 // JOSP APIs
 task jospAPIs_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospAPIsPublicationToMavenLocal
+    tasks.josp_PublishToLocal.dependsOn jospAPIs_PublishToLocal
 }
 
 // JOSP Commons
@@ -128,4 +140,5 @@ task jospCommons_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospCommonsPublicationToMavenLocal
+    tasks.josp_PublishToLocal.dependsOn jospCommons_PublishToLocal
 }
