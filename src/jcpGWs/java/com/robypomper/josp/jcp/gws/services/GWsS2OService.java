@@ -109,7 +109,7 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
      */
     private void onClientConnection(com.robypomper.communication.server.Server server, ClientInfo client) {
         // Check if objects already know
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected object '%s' already know", client.getClientId()));
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected service '%s' already know", client.getClientId()));
         GWService gwSrv = services.get(client.getClientId());
         if (gwSrv != null) {
             // multiple connection at same time
@@ -130,11 +130,17 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
 
         // Update GW status to JCP APIs
         gwStatus.clients++;
+        assert gwStatus.clients == services.size();
         gwStatus.lastClientConnectedAt = JOSPProtocol.getNowDate();
         update(gwsAPI, hostName, gwStatus);
     }
 
     private void onClientDisconnection(ClientInfo client) {
+        // Check if client is a registered service
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if disconnected client '%s' was a service's client", client.getClientId()));
+        if (services.get(client.getClientId()) == null)
+            return;
+
         // Deregister GWService from GW Broker and remove from active services
         try {
             GWService disconnectedService = services.remove(client.getClientId());
@@ -147,6 +153,7 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
 
         // Update GW status to JCP APIs
         gwStatus.clients--;
+        assert gwStatus.clients == services.size();
         gwStatus.lastClientDisconnectedAt = JOSPProtocol.getNowDate();
         update(gwsAPI, hostName, gwStatus);
     }
@@ -170,6 +177,7 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
             @Override
             public void onStarted() {
                 register(gwsAPI, hostName, apisPort, maxClients, GWType.Srv2Obj);
+                update(gwsAPI, hostName, gwStatus);
             }
 
             @Override

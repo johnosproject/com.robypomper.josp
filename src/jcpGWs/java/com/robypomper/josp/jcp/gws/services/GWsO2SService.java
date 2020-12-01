@@ -133,11 +133,17 @@ public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectLi
 
         // Update GW status to JCP APIs
         gwStatus.clients++;
+        assert gwStatus.clients == objects.size();
         gwStatus.lastClientConnectedAt = JOSPProtocol.getNowDate();
         update(gwsAPI, hostName, gwStatus);
     }
 
     private void onClientDisconnection(ClientInfo client) {
+        // Check if client is a registered service
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if disconnected client '%s' was a object's client", client.getClientId()));
+        if (objects.get(client.getClientId()) == null)
+            return;
+
         // Deregister GWService from GW Broker and remove from active services
         try {
             GWObject disconnectedObject = objects.remove(client.getClientId());
@@ -149,6 +155,7 @@ public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectLi
 
         // Update GW status to JCP APIs
         gwStatus.clients--;
+        assert gwStatus.clients == objects.size();
         gwStatus.lastClientDisconnectedAt = JOSPProtocol.getNowDate();
         update(gwsAPI, hostName, gwStatus);
     }
@@ -187,6 +194,7 @@ public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectLi
             @Override
             public void onStarted() {
                 register(gwsAPI, hostName, apisPort, maxClients, GWType.Obj2Srv);
+                update(gwsAPI, hostName, gwStatus);
             }
 
             @Override
