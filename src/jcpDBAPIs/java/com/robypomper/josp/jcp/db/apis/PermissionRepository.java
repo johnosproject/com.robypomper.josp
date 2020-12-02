@@ -32,7 +32,7 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
 
     /**
      * <pre>
-     * 	SELECT * FROM jcp_apis.permission
+     * 	SELECT * FROM permission
      * 	WHERE connection='__CONN__'
      * 	  AND (
      * 	    type IN ('__TYPES[0]__', '__TYPES[1]__', '...')
@@ -40,7 +40,7 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
      * 	  AND obj_id='__OBJID__'
      * </pre>
      */
-    @Query(value = "SELECT * FROM jcp_apis.permission\n" +
+    @Query(value = "SELECT * FROM permission\n" +
             "WHERE connection= :conn\n" +
             "  AND (\n" +
             "       type IN :types\n" +
@@ -57,7 +57,7 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
      * 	FROM (
      * 		SELECT *
      * 		FROM (
-     * 			SELECT * FROM jcp_apis.permission
+     * 			SELECT * FROM permission
      * 			WHERE connection='__CONN__'
      * 			  AND (
      * 				   type IN ('__TYPES[0]__', '__TYPES[1]__', '...')
@@ -65,7 +65,7 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
      * 		) as permission_type
      * 		WHERE (srv_id='#All' OR srv_id='__SRVID__')
      * 	) as permission
-     * 	LEFT JOIN jcp_apis.object_owner ON permission.obj_id=object_owner.obj_id
+     * 	LEFT JOIN object_owner ON permission.obj_id=object_owner.obj_id
      * 	WHERE (usr_id='__USRID__')
      * 	   OR (usr_id='#Owner' AND owner_id='__USRID__')
      * 	   OR (usr_id='#Owner' AND owner_id='00000-00000-00000')
@@ -75,7 +75,7 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
             "FROM (\n" +
             "     SELECT *\n" +
             "     FROM (\n" +
-            "         SELECT * FROM jcp_apis.permission\n" +
+            "         SELECT * FROM permission\n" +
             "         WHERE connection= :conn\n" +
             "           AND (\n" +
             "                type IN :types\n" +
@@ -83,7 +83,7 @@ public interface PermissionRepository extends JpaRepository<Permission, String> 
             "     ) as permission_type\n" +
             "     WHERE (srv_id='#All' OR srv_id= :srvId)\n" +
             " ) as permission\n" +
-            " LEFT JOIN jcp_apis.object_owner " +
+            " LEFT JOIN object_owner " +
             "        ON permission.obj_id=object_owner.obj_id\n" +
             " WHERE (usr_id= :usrId)\n" +
             "    OR (usr_id='#Owner' AND owner_id= :usrId)\n" +

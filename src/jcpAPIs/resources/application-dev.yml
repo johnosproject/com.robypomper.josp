@@ -1,6 +1,6 @@
 spring.application.name: jcpApis
 server.port: 9001
-spring.profiles.active: auth, db-apis, ssl
+#spring.profiles.active: auth, db-apis, ssl
 
 # JCP Clients
 jcp.client.ssl: true

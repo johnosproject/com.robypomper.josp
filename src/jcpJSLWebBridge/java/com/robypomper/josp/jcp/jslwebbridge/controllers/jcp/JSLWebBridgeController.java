@@ -68,12 +68,13 @@ public class JSLWebBridgeController {
 
     // APIs forwards
 
-    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS)
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_API)
     @ApiOperation(value = "Return JCP APIs info and stats")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs's info and stats", response = JCPFEStatus.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPAPIsStatus> getJCPAPIsStatusForward(@ApiIgnore HttpSession session) {
         checkAdmin();
@@ -83,57 +84,17 @@ public class JSLWebBridgeController {
             return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
         }
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_GWS)
-    @ApiOperation(value = "Return JCP APIs registered JCP GWs")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP APIs registered JCP GWs", response = List.class),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
-    })
-    public ResponseEntity<List<JCPGWsStatus>> getJCPAPIsStatusGWsForward(@ApiIgnore HttpSession session) {
-        checkAdmin();
-
-        try {
-            // Forward request to JCP APIs
-            return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusGWsReq());
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
-    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_GWS_CLI)
-    @ApiOperation(value = "Return JCP APIs registered JCP GWs clients")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP APIs registered JCP GWs clients", response = List.class),
-            @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
-    })
-    public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsCliForward(@ApiIgnore HttpSession session) {
-        checkAdmin();
-
-        try {
-            // Forward request to JCP APIs
-            return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusGWsCliReq());
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
-    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_OBJS)
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_API_OBJS)
     @ApiOperation(value = "Return JCP APIs registered JOD Objects")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs registered JOD Objects", response = JCPAPIsStatus.Objects.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPAPIsStatus.Objects> getJCPAPIsStatusObjsForward(@ApiIgnore HttpSession session) {
         checkAdmin();
@@ -143,17 +104,17 @@ public class JSLWebBridgeController {
             return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusObjsReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
         }
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_SRVS)
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_API_SRVS)
     @ApiOperation(value = "Return JCP APIs registered JSL Services")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs registered JSL Services", response = JCPAPIsStatus.Services.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPAPIsStatus.Services> getJCPAPIsStatusSrvsForward(@ApiIgnore HttpSession session) {
         checkAdmin();
@@ -163,17 +124,17 @@ public class JSLWebBridgeController {
             return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusSrvsReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
         }
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_APIS_STATUS_USRS)
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_API_USRS)
     @ApiOperation(value = "Return JCP APIs registered Users")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs registered Users", response = JCPAPIsStatus.Users.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPAPIsStatus.Users> getJCPAPIsStatusUsrsForward(@ApiIgnore HttpSession session) {
         checkAdmin();
@@ -183,8 +144,87 @@ public class JSLWebBridgeController {
             return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusUsrsReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
+        }
+    }
+
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_GWS)
+    @ApiOperation(value = "Return JCP APIs registered JCP GWs")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JCP APIs registered JCP GWs", response = List.class),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
+    })
+    public ResponseEntity<List<JCPGWsStatus>> getJCPAPIsStatusGWsForward(@ApiIgnore HttpSession session) {
+        checkAdmin();
+
+        try {
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusGWsReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
+        }
+    }
+
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_GWS_CLI)
+    @ApiOperation(value = "Return JCP APIs registered JCP GWs clients")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JCP APIs registered JCP GWs clients", response = List.class),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
+    })
+    public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsCliForward(@ApiIgnore HttpSession session) {
+        checkAdmin();
+
+        try {
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusGWsCliReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
+        }
+    }
+
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_JSLWB)
+    @ApiOperation(value = "Return JCP JSL Web Bridge status")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JCP JSL Web Bridge status", response = JCPJSLWebBridgeStatus.class),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
+    })
+    public ResponseEntity<JCPJSLWebBridgeStatus> getJCPAPIsStatusJSLWBForward(@ApiIgnore HttpSession session) {
+        checkAdmin();
+
+        try {
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusJSLWBReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
+        }
+    }
+
+    @GetMapping(path = APIJCP.FULL_PATH_JSLWB_STATUS_FE)
+    @ApiOperation(value = "Return JCP FE status")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JCP FE status", response = JCPFEStatus.class),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+            @ApiResponse(code = 503, message = "Error accessing the resource"),
+    })
+    public ResponseEntity<JCPFEStatus> getJCPAPIsStatusFEForward(@ApiIgnore HttpSession session) {
+        checkAdmin();
+
+        try {
+            // Forward request to JCP APIs
+            return ResponseEntity.ok(getAPIsClient(session).getJCPAPIsStatusFEReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE /* 503 */, String.format("Error occurred with resource because %s", e.getMessage()), e);
         }
     }
 
@@ -200,7 +240,7 @@ public class JSLWebBridgeController {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN /* 403 */, "Only Admin user can access to this request");
 
         } catch (JSLSpringService.JSLSpringException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't get JSL instance associated to this session");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Can't get JSL instance associated to this session", e);
         }
     }
 

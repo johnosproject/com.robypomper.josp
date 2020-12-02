@@ -23,9 +23,10 @@ import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIJCP;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
-import com.robypomper.josp.jcp.clients.JCPGWsClient;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
+import com.robypomper.josp.params.jcp.JCPFEStatus;
 import com.robypomper.josp.params.jcp.JCPGWsStatus;
+import com.robypomper.josp.params.jcp.JCPJSLWebBridgeStatus;
 import com.robypomper.josp.paths.jcp.APIJCP;
 
 import java.util.List;
@@ -54,14 +55,6 @@ public class APIsClient extends AbsAPIJCP {
         return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS, JCPAPIsStatus.class, isSecure());
     }
 
-    public List<JCPGWsStatus> getJCPAPIsStatusGWsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS, List.class, isSecure());
-    }
-
-    public List<JCPAPIsStatus.GWs> getJCPAPIsStatusGWsCliReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS_CLI, List.class, isSecure());
-    }
-
     public JCPAPIsStatus.Objects getJCPAPIsStatusObjsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_OBJS, JCPAPIsStatus.Objects.class, isSecure());
     }
@@ -72,6 +65,22 @@ public class APIsClient extends AbsAPIJCP {
 
     public JCPAPIsStatus.Users getJCPAPIsStatusUsrsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_USRS, JCPAPIsStatus.Users.class, isSecure());
+    }
+
+    public List<JCPGWsStatus> getJCPAPIsStatusGWsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS, List.class, isSecure());
+    }
+
+    public List<JCPAPIsStatus.GWs> getJCPAPIsStatusGWsCliReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS_CLI, List.class, isSecure());
+    }
+
+    public JCPJSLWebBridgeStatus getJCPAPIsStatusJSLWBReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_JSLWB, JCPJSLWebBridgeStatus.class, isSecure());
+    }
+
+    public JCPFEStatus getJCPAPIsStatusFEReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_FE, JCPFEStatus.class, isSecure());
     }
 
 }

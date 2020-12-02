@@ -42,18 +42,22 @@ public class SpringConfigurerNoAuth extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        if (Boolean.parseBoolean(sshEnabled))
+            http
+                    .requiresChannel()
+                    .anyRequest()
+                    .requiresSecure();
+        else
+            http
+                    .requiresChannel()
+                    .anyRequest()
+                    .requiresInsecure();
+
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .maximumSessions(2);
 
         http.httpBasic().disable();
-
-        if (Boolean.parseBoolean(sshEnabled))
-            http
-                    // Enable HTTPs
-                    .requiresChannel()
-                    .anyRequest()
-                    .requiresSecure();
     }
 
 }

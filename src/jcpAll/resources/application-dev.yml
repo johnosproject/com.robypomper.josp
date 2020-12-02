@@ -1,11 +1,12 @@
 spring.application.name: jcpAll
 server.port: 9000
 spring.profiles.active: auth, db-all, ssl
+security.require-cors: false
 
 # JCP Clients
 jcp.client.ssl: true
-jcp.client.id: jcp-apis
-jcp.client.secret: 6ac0c0d9-50db-407d-946c-3c63cd7b7d34
+jcp.client.id: jcp-all
+jcp.client.secret: 27e3d70d-5dd0-433e-a85a-40fa4b66d1ad
 jcp.client.callback: https://localhost:${server.port}/apis/user/1.0/login/code/
 jcp.urlAuth: localhost:8998
 jcp.urlAPIs: localhost:9000

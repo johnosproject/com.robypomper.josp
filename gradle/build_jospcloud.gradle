@@ -202,7 +202,7 @@ dependencies {
 task printGradleVersions(type: PrintGradleVersion)
 
 // JCP APIs
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs,project.file('src/jcpApis/resources/log4j2_project.xml'))
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAPIs,project.file('src/jcpApis/resources/log4j2_project.xml'),'    dev,auth, db-apis,ssl ')
 tasks.bootJcpAPIsRun {
     workingDir('envs/runnables/jcpAPIs')
     doFirst {
@@ -224,7 +224,7 @@ clean.dependsOn jcpAPIs_Clean
 bootJcpAPIsRun.dependsOn printGradleVersions
 
 // JCP GWs
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpGWs,project.file('src/jcpApis/resources/log4j2_project.xml'))
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpGWs,project.file('src/jcpApis/resources/log4j2_project.xml'),'dev,auth,db-apis,ssl')
 tasks.bootJcpGWsRun {
     workingDir('envs/runnables/jcpGWs')
     doFirst {
@@ -246,7 +246,7 @@ clean.dependsOn jcpGWs_Clean
 bootJcpGWsRun.dependsOn printGradleVersions
 
 // JCP JSL Web Bridge
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpJSLWebBridge,project.file('src/jcpApis/resources/log4j2_project.xml'))
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpJSLWebBridge,project.file('src/jcpApis/resources/log4j2_project.xml'),'dev,auth,data-none,ssl,cors')
 tasks.bootJcpJSLWebBridgeRun {
     workingDir('envs/runnables/jcpJSLWebBridge')
     doFirst {
@@ -268,7 +268,7 @@ clean.dependsOn jcpJSLWebBridge_Clean
 bootJcpJSLWebBridgeRun.dependsOn printGradleVersions
 
 // JCP FE
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE,project.file('src/jcpFE/resources/log4j2_project.xml'))
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpFE,project.file('src/jcpFE/resources/log4j2_project.xml'),'dev,auth-none,db-fe,ssl')
 tasks.bootJcpFERun  {
     workingDir('envs/runnables/jcpFE')
     doFirst {
@@ -290,7 +290,7 @@ clean.dependsOn jcpFE_Clean
 bootJcpFERun.dependsOn printGradleVersions
 
 // JCP All
-SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAll,project.file('src/jcpAll/resources/log4j2_project.xml'))
+SpringBuildUtils.makeSpringBootFromSourceSet(project,sourceSets.jcpAll,project.file('src/jcpAll/resources/log4j2_project.xml'),'dev,auth,db-all,ssl')
 tasks.bootJcpAllRun  {
     workingDir('envs/runnables/jcpAll')
     doFirst {

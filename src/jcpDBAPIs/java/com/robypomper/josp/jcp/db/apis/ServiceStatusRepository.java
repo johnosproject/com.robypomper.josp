@@ -40,14 +40,14 @@ public interface ServiceStatusRepository extends JpaRepository<ServiceStatus, St
     /**
      * <pre>
      *  SELECT count(*) FROM (
-     *    SELECT srv_id, count(*) FROM jcp_apis.service_status
+     *    SELECT srv_id, count(*) FROM service_status
      *      WHERE online='true'
      *      GROUP BY srv_id
      *  ) as t;
      * </pre>
      */
     @Query(value = "SELECT count(*) FROM (" +
-            "  SELECT srv_id, count(*) FROM jcp_apis.service_status" +
+            "  SELECT srv_id, count(*) FROM service_status" +
             "    WHERE online='true'" +
             "    GROUP BY srv_id" +
             ") as t",

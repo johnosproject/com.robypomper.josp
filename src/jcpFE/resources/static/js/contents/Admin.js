@@ -181,7 +181,7 @@ function fetchAdminContent() {
 }
 
 function fetchAdminContentHeader() {
-    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status",fillAdminContentHeaderAPIs,onErrorFetch);    // OK
+    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status",fillAdminContentHeaderAPIs,onErrorFetch);    // OK
 }
 
 function fillAdminContent(adminJson) {
@@ -227,7 +227,7 @@ function htmlAdminContentGWs() {
 }
 
 function fetchAdminContentGWs(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/gws/clients",fillAdminContentGWs,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/gws/status/clients",fillAdminContentGWs,onErrorFetch);
 }
 
 function fillAdminContentGWs(jcpGWsJson) {
@@ -294,7 +294,7 @@ function htmlAdminContentObjects() {
 }
 
 function fetchAdminContentObjects(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/objs",fillAdminContentObjects,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/objs",fillAdminContentObjects,onErrorFetch);
 }
 
 function fillAdminContentObjects(jcpObjsJson) {
@@ -345,7 +345,7 @@ function htmlAdminContentServices() {
 }
 
 function fetchAdminContentServices(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/srvs",fillAdminContentServices,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/srvs",fillAdminContentServices,onErrorFetch);
 }
 
 function fillAdminContentServices(jcpObjsJson) {
@@ -393,7 +393,7 @@ function htmlAdminContentUsers() {
 }
 
 function fetchAdminContentUsers(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/apis/status/usrs",fillAdminContentUsers,onErrorFetch);
+    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/usrs",fillAdminContentUsers,onErrorFetch);
 }
 
 function fillAdminContentUsers(jcpObjsJson) {
