@@ -3,7 +3,8 @@ server.port: 9002
 spring.profiles.active: auth, db-apis, ssl
 
 # JCP Clients
-jcp.client.ssl: true
+jcp.client.ssl.internal: true
+jcp.client.ssl.public: true
 jcp.client.id: jcp-gws
 jcp.client.secret: 4f5985ac-0e42-4f45-ae74-a859d4fd5184
 jcp.urlAuth: localhost:8998
