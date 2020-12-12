@@ -13,11 +13,3 @@ jcp.urlAPIs: localhost:9001
 #jcp.urlGWs: localhost:9001         # registered via APIs
 jcp.urlJSLWebBridge: localhost:9003
 jcp.urlFE: localhost:9004
-
-# Temporary
-jsl.version: 2.0.0
-jcp.url.apis: localhost:9001
-jcp.url.auth: localhost:8998
-jsl.srv.id: jcp-fe
-jsl.srv.name: JCP FrontEnd
-jsl.comm.local.discovery: DNSSD
