@@ -15,9 +15,11 @@ jcp.urlFE: localhost:9004
 
 # JCP GWs
 jcp.gws.enabled: true
-jcp.gws.o2s.url: localhost
+jcp.gws.o2s.ip.internal: localhost
+jcp.gws.o2s.ip.public: localhost
 jcp.gws.o2s.port: 9101
 jcp.gws.o2s.maxClients: 100
-jcp.gws.s2o.url: localhost
+jcp.gws.s2o.ip.internal: localhost
+jcp.gws.s2o.ip.public: localhost
 jcp.gws.s2o.port: 9102
 jcp.gws.s2o.maxClients: 100
