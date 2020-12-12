@@ -46,14 +46,18 @@ public class SpringBuildUtils {
      * @param ss
      */
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss) {
-        SpringBuildUtils.configureBootJarTask(project, ss);
-        SpringBuildUtils.configureBootRunTask(project, ss);
+        makeSpringBootFromSourceSet(project, ss, null);
     }
 
-    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File logConfigs) {
+    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, String profiles) {
         SpringBuildUtils.configureBootJarTask(project, ss);
-        BootRun br = SpringBuildUtils.configureBootRunTask(project, ss);
-        br.setJvmArgs(Collections.singletonList("-Dlogging.config=" + logConfigs.getAbsolutePath()));
+        SpringBuildUtils.configureBootRunTask(project, ss, profiles);
+    }
+
+    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File logConfigs, String profiles) {
+        SpringBuildUtils.configureBootJarTask(project, ss);
+        BootRun br = SpringBuildUtils.configureBootRunTask(project, ss, profiles);
+        br.setJvmArgs(Collections.singletonList("-Dlog4j.configurationFile=" + logConfigs.getAbsolutePath()));
     }
 
     static private BootJar configureBootJarTask(Project project, SourceSet ss) {
@@ -67,7 +71,7 @@ public class SpringBuildUtils {
         return bootJar;
     }
 
-    static private BootRun configureBootRunTask(Project project, SourceSet ss) {
+    static private BootRun configureBootRunTask(Project project, SourceSet ss, String profiles) {
         String taskName = String.format("boot%sRun", Naming.capitalize(ss.getName()));
         String buildTaskName = String.format("boot%sJar", Naming.capitalize(ss.getName()));
         JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
@@ -75,6 +79,8 @@ public class SpringBuildUtils {
         run.setDescription(String.format("Runs this project %s sources as a Spring Boot application.", ss.getName()));
         run.setGroup(ApplicationPlugin.APPLICATION_GROUP);
         run.classpath(ss.getRuntimeClasspath());
+        if (profiles != null)
+            run.setArgs(Collections.singletonList("--spring.profiles.active=" + profiles));
         run.getConventionMapping().map("jvmArgs", () -> {
             if (project.hasProperty("applicationDefaultJvmArgs")) {
                 return project.property("applicationDefaultJvmArgs");

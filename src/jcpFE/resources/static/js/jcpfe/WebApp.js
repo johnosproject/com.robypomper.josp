@@ -1,12 +1,16 @@
 
 var currentPage = false;
+var backEndUrl = "N/A";
+var frontEndUrl = "N/A";
 
 
 // WebApp start
 
-function startWebApp() {
+function startWebApp(entrypointUrl) {
+    backEndUrl = entrypointUrl;
+    frontEndUrl = document.location.origin;
     fillPreUpdaterInitialization();
-    updater = startUpdater("/apis/sse/1.0/init",updateOnMessage,updateOnOpen,updateOnError);
+    updater = startUpdater(backEndUrl + "/apis/sse/1.0/init",updateOnMessage,updateOnOpen,updateOnError);
 }
 
 
@@ -93,12 +97,6 @@ function fillRequiredContent(documentUrl) {
 
     } else if (page == PAGE_ADMIN_HOME) {
         showAdminContent(false);
-    } else if (page == PAGE_ADMIN_SYSTEM) {
-        showAdminContentSystem(false);
-    } else if (page == PAGE_ADMIN_SYSTEM_JSL) {
-        showAdminContentSystemJSL(false);
-    } else if (page == PAGE_ADMIN_APIS) {
-        showAdminContentAPIs(false);
     } else if (page == PAGE_ADMIN_GWS) {
         showAdminContentGWs(false);
     } else if (page == PAGE_ADMIN_OBJECTS) {

@@ -1,3 +1,5 @@
+import com.robypomper.build.java.JavaPublicationUtils
+
 /* *****************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
@@ -20,56 +22,123 @@
 /**
  * Gradle configurations to manage JOSP Commons as java implementations.
  *
- * Summary:
- * - JOSP Commons configs
- * - Publication include
+ * Components list:
+ * <ul>
+ *     <li>
+ *         JOSP Commons
+ *     </li>
+ * </ul>
  *
- * This file provide the jospCommons sourceSet linked by other JOSP's Project's
- * Gradle files (build_jcpAPIs.gradle,build_josp.gradle and build_tests.gradle).
+ * Summary:
+ * <ul>
+ *     <li>
+ *         Components configs
+ *     </li>
+ *     <li>
+ *         Runners Tasks: no runners
+ *     </li>
+ *     <li>
+ *         Publication configs
+ *     </li>
+ *     <li>
+ *         Publication tasks
+ *     </li>
+ * </ul>
  */
 
 
-// --------------------
-// JOSP Commons configs
-// --------------------
+// ------------------
+// Components configs
+// ------------------
 
 sourceSets {
-    jospCommons {
-        java {
-            srcDirs 'src/jospCommons/java'
-        }
-    }
+
+    // JOSP APIs
+    jospAPIs {}
+
+    // JOSP Commons
+    jospCommons {}
+
 }
+
+configurations {}
 
 dependencies {
-    // Commons - Internal
-    jospCommonsImplementation 'org.apache.logging.log4j:log4j-api:2.13.1'
-    jospCommonsImplementation 'org.apache.logging.log4j:log4j-core:2.13.1'
-    jospCommonsImplementation 'org.yaml:snakeyaml:1.25'
-    jospCommonsImplementation 'com.github.scribejava:scribejava-core:6.9.0'           // HTTP & OAuth2
-    jospCommonsImplementation 'com.github.scribejava:scribejava-apis:6.9.0'
-    jospCommonsCompileOnly 'org.projectlombok:lombok:1.18.12'                         // Lombok annotations
-    jospCommonsAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
-    jospCommonsImplementation 'org.jmdns:jmdns:3.5.5'                                 // mDNS
+
+    // JOSP APIs
+    jospAPIsCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                                 // Lombok annotations
+    jospAPIsAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
+    jospAPIsImplementation "com.fasterxml.jackson.core:jackson-databind:${project.ext.get("version.jackson")}"
+    jospAPIsImplementation "com.fasterxml.jackson.core:jackson-annotations:${project.ext.get("version.jackson")}"
+
+    // JOSP Commons
+    if (!project.ext.get("deps.jospAPIsDisabled"))
+        jospCommonsImplementation "com.robypomper.josp:jospAPIs:${project.ext.get("version.jospAPIs")}"
+    jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
+    jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
+    jospCommonsImplementation "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
+    jospCommonsImplementation "org.yaml:snakeyaml:${project.ext.get("version.snakeyaml")}"                              // YAML
+    jospCommonsImplementation "com.github.scribejava:scribejava-core:${project.ext.get("version.scribejava")}"          // HTTP & OAuth2
+    jospCommonsImplementation "com.github.scribejava:scribejava-apis:${project.ext.get("version.scribejava")}"
+    jospCommonsCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                              // Lombok annotations
+    jospCommonsAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
+    jospCommonsImplementation "org.jmdns:jmdns:${project.ext.get("version.jmdns")}"                                     // JmDNS
+
 }
 
 
 // -------------------
-// Publication include
+// Publication configs
 // -------------------
 
-apply from: 'gradle/build_commons_publish.gradle'
+// JOSP Commons
+String jospAPIsName = 'JOSP APIs Library'
+String jospAPIsArtifact = 'jospAPIs'
+String jospAPIsVersion = project.ext.get("version.jospAPIs_DEV")
+def jospAPIsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospAPIs,jospAPIsName,jospAPIsArtifact,jospAPIsVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setArtifactOpens()
+JavaPublicationUtils.generatePublication(project,jospAPIsPubDesc)
 
+// JOSP Commons
+String jospCommonsName = 'JOSP Commons Library'
+String jospCommonsArtifact = 'jospCommons'
+String jospCommonsVersion = project.ext.get("version.jospCommons_DEV")
+def jospCommonsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospCommons,jospCommonsName,jospCommonsArtifact,jospCommonsVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setArtifactOpens()
+JavaPublicationUtils.generatePublication(project,jospCommonsPubDesc)
+
+
+// -----------------
+// Publication tasks
+// -----------------
+
+task all_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+}
+
+task josp_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    tasks.all_PublishToLocal.dependsOn josp_PublishToLocal
+}
+
+// JOSP APIs
+task jospAPIs_PublishToLocal {
+    description = 'Publish...'
+    group = 'JOSP publishers (locals)'
+    dependsOn publishJospAPIsPublicationToMavenLocal
+    tasks.josp_PublishToLocal.dependsOn jospAPIs_PublishToLocal
+}
 
 // JOSP Commons
 task jospCommons_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospCommonsPublicationToMavenLocal
-}
-
-task jospCommons_PublishToSonatype {
-    description = 'Publish...'
-    group = 'JOSP publishers (sonatype)'
-//    dependsOn publishJospCommonsPublicationToSonatype
+    tasks.josp_PublishToLocal.dependsOn jospCommons_PublishToLocal
 }

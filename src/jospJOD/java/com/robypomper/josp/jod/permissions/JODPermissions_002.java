@@ -19,12 +19,13 @@
 
 package com.robypomper.josp.jod.permissions;
 
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.obj.APIPermissionsClient;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.events.Events;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -55,8 +56,8 @@ public class JODPermissions_002 implements JODPermissions {
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
     private final JODObjectInfo objInfo;
-    private final JCPClient_Object jcpClient;
-    private final JCPPermObj jcpPermissions;
+    private final JCPAPIsClientObj jcpClient;
+    private final APIPermissionsClient apiPermissionsClient;
     private List<JOSPPerm> permissions;
     private JODCommunication comm;
 
@@ -70,18 +71,19 @@ public class JODPermissions_002 implements JODPermissions {
      * @param objInfo   the object's info.
      * @param jcpClient the jcp object client.
      */
-    public JODPermissions_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPClient_Object jcpClient) throws PermissionsFileException {
+    public JODPermissions_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPAPIsClientObj jcpClient) throws PermissionsFileException {
         this.objInfo = objInfo;
         this.locSettings = settings;
         this.jcpClient = jcpClient;
-        this.jcpPermissions = new JCPPermObj(jcpClient, settings);
+        this.apiPermissionsClient = new APIPermissionsClient(jcpClient);
 
         if (!locSettings.getPermissionsPath().exists())
             generatePermissions();
 
         try {
             loadPermissionsFromFile();
-        } catch (FileNotFoundException ignore) {}
+        } catch (FileNotFoundException ignore) {
+        }
 
         logPermissions();
         log.debug(Mrk_JOD.JOD_PERM, "Object's permissions loaded");
@@ -236,7 +238,7 @@ public class JODPermissions_002 implements JODPermissions {
         JOSPPerm newDelPerm = new JOSPPerm(existingPerm.getId(), existingPerm.getObjId(), srvId, usrId, type, connection, JOSPProtocol.getNowDate());
         permissions.remove(existingPerm);
         permissions.add(newDelPerm);
-        Events.registerPermUpdated(existingPerm,newDelPerm);
+        Events.registerPermUpdated(existingPerm, newDelPerm);
 
         comm.syncObject();
         try {
@@ -311,13 +313,15 @@ public class JODPermissions_002 implements JODPermissions {
      * {@inheritDoc}
      */
     @Override
-    public void startAutoRefresh() {}
+    public void startAutoRefresh() {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void stopAutoRefresh() {}
+    public void stopAutoRefresh() {
+    }
 
 
     // Permission mngm
@@ -336,7 +340,7 @@ public class JODPermissions_002 implements JODPermissions {
                 if (p.getObjId().compareTo(objInfo.getObjId()) == 0)
                     validatedPerms.add(p);
             permissions = validatedPerms;
-            Events.registerPermLoaded("Load permissions from file",permissions);
+            Events.registerPermLoaded("Load permissions from file", permissions);
 
         } catch (FileNotFoundException e) {
             Events.registerPermLoaded("Load permissions from file", e);
@@ -355,12 +359,12 @@ public class JODPermissions_002 implements JODPermissions {
     private void savePermissionsToFile() throws PermissionsNotSavedException {
         try {
             Files.write(locSettings.getPermissionsPath().toPath(), Arrays.asList(JOSPPerm.toString(permissions).split("\n")));
-            Events.registerPermLoaded("Save permissions to file",permissions);
+            Events.registerPermLoaded("Save permissions to file", permissions);
 
         } catch (IOException retry) {
             try {
                 Files.write(locSettings.getPermissionsPath().toPath(), Arrays.asList(JOSPPerm.toString(permissions).split("\n")));
-                Events.registerPermLoaded("Save permissions to file",permissions);
+                Events.registerPermLoaded("Save permissions to file", permissions);
 
             } catch (IOException e) {
                 Events.registerPermLoaded("Save permissions to file", e);
@@ -387,7 +391,8 @@ public class JODPermissions_002 implements JODPermissions {
 
         try {
             loadPermissionsFromFile();
-        } catch (FileNotFoundException ignore) {}
+        } catch (FileNotFoundException ignore) {
+        }
 
         syncObjPermissions();
     }
@@ -401,7 +406,7 @@ public class JODPermissions_002 implements JODPermissions {
                 generatePermissionsFromJCP();
                 genCloud = true;
                 log.debug(Mrk_JOD.JOD_PERM, "Object permissions generated from JCP");
-                Events.registerPermLoaded("Gen permissions on cloud",permissions);
+                Events.registerPermLoaded("Gen permissions on cloud", permissions);
 
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
                 log.warn(Mrk_JOD.JOD_PERM, String.format("Error on generating object permission from JCP because %s", e.getMessage()), e);
@@ -413,7 +418,7 @@ public class JODPermissions_002 implements JODPermissions {
             log.debug(Mrk_JOD.JOD_PERM, "Generating object permissions locally");
             generatePermissionsLocally();
             log.debug(Mrk_JOD.JOD_PERM, "Object permissions generated locally");
-            Events.registerPermLoaded("Gen permissions locally",permissions);
+            Events.registerPermLoaded("Gen permissions locally", permissions);
         }
 
         savePermissionsToFile();
@@ -424,7 +429,7 @@ public class JODPermissions_002 implements JODPermissions {
      * {@link #permissions} field.
      */
     private void generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.RequestException, JCPClient2.ResponseException {
-        permissions = jcpPermissions.generatePermissionsFromJCP();
+        permissions = apiPermissionsClient.generatePermissionsFromJCP();
     }
 
     /**

@@ -1,0 +1,14 @@
+spring.application.name: jcpApis
+server.port: 9001
+#spring.profiles.active: auth, db-apis, ssl
+
+# JCP Clients
+jcp.client.ssl.internal: true
+jcp.client.ssl.public: true
+jcp.client.id: jcp-apis
+jcp.client.secret: 6ac0c0d9-50db-407d-946c-3c63cd7b7d34
+jcp.urlAuth: localhost:8998
+jcp.urlAPIs: localhost:9001
+#jcp.urlGWs: localhost:9001         # registered via APIs
+jcp.urlJSLWebBridge: localhost:9003
+jcp.urlFE: localhost:9004

@@ -20,8 +20,8 @@
 package com.robypomper.josp.jod;
 
 import com.robypomper.java.JavaVersionUtils;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.info.JCPAPIsVersions;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODCommunication_002;
 import com.robypomper.josp.jod.events.Events;
@@ -31,8 +31,7 @@ import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.executor.JODExecutorMngr_002;
 import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.history.JODHistory_002;
-import com.robypomper.josp.jod.jcpclient.DefaultJCPClient_Object;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo_002;
 import com.robypomper.josp.jod.permissions.JODPermissions;
@@ -63,7 +62,7 @@ public class JOD_002 extends AbsJOD {
     // Constructor
 
     protected JOD_002(Settings settings,
-                      JCPClient_Object jcpClient,
+                      JCPAPIsClientObj jcpClient,
                       JODObjectInfo objInfo,
                       JODStructure structure,
                       JODCommunication comm,
@@ -86,7 +85,12 @@ public class JOD_002 extends AbsJOD {
         log.info(Mrk_JOD.JOD_MAIN, String.format("Init JOD instance id '%s'", instanceId));
 
         Events.registerJODStart("Start sub-system creation", instanceId);
-        JCPClient_Object jcpClient = new DefaultJCPClient_Object(settings);
+        JCPAPIsClientObj jcpClient = new JCPAPIsClientObj(
+                settings.getJCPUseSSL(),
+                settings.getJCPId(),
+                settings.getJCPSecret(),
+                settings.getJCPUrlAPIs(),
+                settings.getJCPUrlAuth());
         if (settings.getJCPConnect())
             try {
                 jcpClient.connect();

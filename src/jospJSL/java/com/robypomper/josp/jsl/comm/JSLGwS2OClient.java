@@ -27,10 +27,11 @@ import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.params.jospgws.S2OAccessInfo;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.srv.APIGWsClient;
+import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jsl.JSLSettings_002;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
@@ -63,8 +64,8 @@ public class JSLGwS2OClient implements Client {
     private final JSLSettings_002 locSettings;
     private final JSLCommunication_002 communication;
     private final JSLServiceInfo srvInfo;
-    private final JCPClient_Service jcpClient;
-    private final JCPCommSrv jcpComm;
+    private final JCPAPIsClientSrv jcpClient;
+    private final APIGWsClient apigWsClient;
     private boolean shuldBeConnected;
     private final Certificate clientCert;
     private final DynAddTrustManager clientTrustManager;
@@ -85,12 +86,12 @@ public class JSLGwS2OClient implements Client {
      * @param srvInfo       the info of the represented service.
      * @param jcpComm       the APIs JOSP GWs's requests object.
      */
-    public JSLGwS2OClient(JSLSettings_002 settings, JSLCommunication_002 communication, JSLServiceInfo srvInfo, JCPClient_Service jcpClient, JCPCommSrv jcpComm) throws JSLCommunication.CloudCommunicationException {
+    public JSLGwS2OClient(JSLSettings_002 settings, JSLCommunication_002 communication, JSLServiceInfo srvInfo, JCPAPIsClientSrv jcpClient, APIGWsClient jcpComm) throws JSLCommunication.CloudCommunicationException {
         this.locSettings = settings;
         this.communication = communication;
         this.srvInfo = srvInfo;
         this.jcpClient = jcpClient;
-        this.jcpComm = jcpComm;
+        this.apigWsClient = jcpComm;
         this.shuldBeConnected = locSettings.getCloudEnabled();
 
         try {
@@ -121,7 +122,7 @@ public class JSLGwS2OClient implements Client {
         try {
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Getting service GW client access info");
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Getting JOSP Gw S2O access info for service's cloud client");
-            s2oAccess = jcpComm.getS2OAccessInfo(clientCert);
+            s2oAccess = apigWsClient.getS2OAccessInfo(clientCert);
             log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Service GW client access info returned: '%s:%d'", s2oAccess.gwAddress, s2oAccess.gwPort));
 
             if (isInitializing()) {

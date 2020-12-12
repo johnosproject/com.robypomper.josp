@@ -34,4 +34,14 @@ public class Naming {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
+    /**
+     * Minuscule given string.
+     *
+     * @param str string to minuscule
+     * @return minusculed string
+     */
+    static public String minuscule(String str) {
+        return str.substring(0, 1).toLowerCase() + str.substring(1);
+    }
+
 }

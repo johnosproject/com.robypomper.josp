@@ -20,9 +20,10 @@
 package com.robypomper.josp.jod.events;
 
 import com.robypomper.java.JavaJSONArrayToFile;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.obj.APIEventsClient;
 import com.robypomper.josp.jod.JODSettings_002;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.log.Mrk_JOD;
@@ -48,8 +49,8 @@ public class JODEvents_002 implements JODEvents {
 
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
-    private JCPClient_Object jcpClient;
-    private JCPEvents jcpEvents;
+    private JCPAPIsClientObj jcpClient;
+    private APIEventsClient apiEventsClient;
     private final EventsArray events;
     private final CloudStats stats;
     private final File eventsFile;
@@ -74,7 +75,7 @@ public class JODEvents_002 implements JODEvents {
      * @param settings  the JOD settings.
      * @param jcpClient the JCP client.
      */
-    public JODEvents_002(JODSettings_002 settings, JCPClient_Object jcpClient) {
+    public JODEvents_002(JODSettings_002 settings, JCPAPIsClientObj jcpClient) {
         this.locSettings = settings;
         setJCPClient(jcpClient);
         boolean eventFileLoaded = false;
@@ -266,7 +267,7 @@ public class JODEvents_002 implements JODEvents {
                 log.trace(Mrk_JOD.JOD_EVENTS, String.format("- event[%d] %s", e.getId(), e.getPayload()));
 
             try {
-                jcpEvents.uploadEvents(toUpload);
+                apiEventsClient.uploadEvents(toUpload);
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
                 e.printStackTrace();
             }
@@ -317,12 +318,12 @@ public class JODEvents_002 implements JODEvents {
 
 
     @Override
-    public void setJCPClient(JCPClient_Object jcpClient) {
+    public void setJCPClient(JCPAPIsClientObj jcpClient) {
         if (jcpClient == null) return;
 
         this.jcpClient = jcpClient;
         this.jcpClient.addConnectListener(jcpConnectListener);
-        this.jcpEvents = new JCPEvents(jcpClient, locSettings);
+        this.apiEventsClient = new APIEventsClient(jcpClient);
     }
 
     @Override

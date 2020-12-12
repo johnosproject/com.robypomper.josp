@@ -1,0 +1,39 @@
+
+// ---------------
+// Project configs
+// ---------------
+
+group = 'com.robypomper.josp'
+sourceCompatibility = '1.8'
+
+ext {
+    set('projectUrl', 'http://johnosproject.com')
+    set('projectGit', 'bitbucket.org:johnosproject_shared/com.robypomper.josp.git')
+    set('projectGitUrl', 'hhttps://bitbucket.org/johnosproject_shared/com.robypomper.josp')
+}
+
+
+// ----------------------------
+// Project dependencies configs
+// ----------------------------
+
+ext {
+    set('deps.jospAPIsDisabled', false)
+    set('deps.jospCommonsDisabled', false)
+
+    set('deps.jospJODDisabled', false)
+    set('deps.jospJSLDisabled', false)
+
+    set('deps.jcpCommonsDisabled', false)
+    set('deps.jcpDBDisabled', false)
+    set('deps.jcpDBAPIsDisabled', false)
+    set('deps.jcpDBFEDisabled', false)
+
+    set('deps.jcpServiceDisabled', false)
+    set('deps.jcpAPIsDisabled', false)
+    set('deps.jcpGWsDisabled', false)
+    set('deps.jcpJSLWebBridgeDisabled', false)
+    set('deps.jcpFEDisabled', false)
+
+    set('deps.jcpAllDisabled', false)
+}

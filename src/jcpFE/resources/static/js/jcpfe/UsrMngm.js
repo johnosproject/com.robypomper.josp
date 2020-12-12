@@ -13,8 +13,7 @@ var onUserLogoutListeners = [];
 // Fetch&Fill methods
 
 function fetchUsrMngm() {
-    var path = "/apis/user/1.0/";
-    apiGET(path,fillUsrMngm,onErrorFetch);
+    apiGET(backEndUrl,"/apis/user/1.0/",fillUsrMngm,onErrorFetch);
 }
 
 function fillUsrMngm(userJson) {

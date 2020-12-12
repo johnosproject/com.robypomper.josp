@@ -23,7 +23,7 @@ administrator user credentials are ```admin/password```.
 
 ### Runner tasks
 When execute, the Auth component start a docker container running a KeyCloak 9.0.0
-server and connect to ```auth_josp``` DB on [DBMS](dbms.md) component.
+server and connect to ```jcp_auth``` DB on [DBMS](dbms.md) component.
 
 ---
 ```./gradlew auth_Up```

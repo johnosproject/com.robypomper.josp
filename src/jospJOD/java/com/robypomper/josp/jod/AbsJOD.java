@@ -24,7 +24,7 @@ import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.history.JODHistory;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -66,7 +66,7 @@ public abstract class AbsJOD implements JOD {
     // Private systems references
 
     private final JOD.Settings settings;
-    private final JCPClient_Object jcpClient;
+    private final JCPAPIsClientObj jcpClient;
     private final JODObjectInfo objInfo;
     private final JODStructure structure;
     private final JODCommunication comm;
@@ -97,7 +97,7 @@ public abstract class AbsJOD implements JOD {
      * @param events       {@link JODEvents} reference.
      */
     protected AbsJOD(Settings settings,
-                     JCPClient_Object jcpClient,
+                     JCPAPIsClientObj jcpClient,
                      JODObjectInfo objInfo,
                      JODStructure structure,
                      JODCommunication comm,
@@ -316,7 +316,7 @@ public abstract class AbsJOD implements JOD {
     // JOD Systems
 
     @Override
-    public JCPClient_Object getJCPClient() {
+    public JCPAPIsClientObj getJCPClient() {
         return jcpClient;
     }
 

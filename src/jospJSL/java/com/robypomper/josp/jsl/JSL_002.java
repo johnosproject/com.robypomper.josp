@@ -19,12 +19,11 @@
 package com.robypomper.josp.jsl;
 
 import com.robypomper.java.JavaVersionUtils;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.info.JCPAPIsVersions;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLCommunication_002;
-import com.robypomper.josp.jsl.jcpclient.DefaultJCPClient_Service;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
@@ -53,17 +52,34 @@ public class JSL_002 extends AbsJSL {
 
     // Constructor
 
-    public JSL_002(JSLSettings_002 settings, JCPClient_Service jcpClient, JSLServiceInfo srvInfo, JSLUserMngr usr, JSLObjsMngr objs, JSLCommunication comm) {
+    public JSL_002(JSLSettings_002 settings, JCPAPIsClientSrv jcpClient, JSLServiceInfo srvInfo, JSLUserMngr usr, JSLObjsMngr objs, JSLCommunication comm) {
         super(settings, jcpClient, srvInfo, usr, objs, comm);
     }
 
     public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException {
-        log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Service Library",VERSION));
+        log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Service Library", VERSION));
 
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
         log.info(Mrk_JSL.JSL_MAIN, String.format("Init JSL instance id '%s'", instanceId));
 
-        JCPClient_Service jcpClient = new DefaultJCPClient_Service(settings);
+        JCPAPIsClientSrv jcpClient = new JCPAPIsClientSrv(
+                settings.getJCPUseSSL(),
+                settings.getJCPId(),
+                settings.getJCPSecret(),
+                settings.getJCPUrlAPIs(),
+                settings.getJCPUrlAuth(),
+                settings.getJCPCallback()) {
+
+            @Override
+            protected void storeTokens() {
+                // Store refresh tokens
+                if (isClientCredentialFlowEnabled())
+                    settings.setJCPAuthCodeRefreshToken(null);
+                if (isAuthCodeFlowEnabled())
+                    settings.setJCPAuthCodeRefreshToken(getAuthCodeRefreshToken());
+            }
+
+        };
         try {
             try {
                 jcpClient.connect();
@@ -106,7 +122,7 @@ public class JSL_002 extends AbsJSL {
 
     @Override
     public String[] versionsJOSPObject() {
-        return new String[]{"2.0.0","2.0.1"};
+        return new String[]{"2.0.0", "2.0.1"};
     }
 
     @Override

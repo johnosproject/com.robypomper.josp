@@ -19,11 +19,25 @@
 
 package com.robypomper.josp.jcp.external.resources.auth;
 
+import com.robypomper.josp.jcp.clients.ClientParams;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
 
 /**
  * Reference to Keycloak implementation of {@link AuthResource} interface.
  */
 @Component
-public class AuthDefault extends AuthKeycloak {}
+@RequestScope
+public class AuthDefault extends AuthKeycloak {
+
+    // Constructor
+
+    @Autowired
+    public AuthDefault(ClientParams params, @Value("${jcp.urlAPIs}") String urlAPIs) {
+        super(params, urlAPIs);
+    }
+
+}

@@ -41,7 +41,11 @@
 <body>
 <script>
     window.onload = function() {
-        startWebApp();
+        apiGET("","/entrypoint",function(entrypointUrl) {
+            entrypointUrl = entrypointUrl.replaceAll('"','');
+            console.log(entrypointUrl);
+            startWebApp(entrypointUrl);
+        },onErrorFetch);
     };
 
 </script>

@@ -17,49 +17,85 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
+
+import com.robypomper.build.java.JavaPublicationUtils
 import com.robypomper.build.java.JavaRunnableUtils
 
 /**
  * Gradle configurations to manage JOD and JSL as java implementations.
  *
- * Summary:
- * - JOSP Commons configs
- * - Runners Tasks
- * - Runners Configs Tasks
- * - Runners Discovery Tasks
- * - Publication include
+ * Components list:
+ * <ul>
+ *     <li>
+ *         JOSP JOD
+ *     </li>
+ *     <li>
+ *         JOSP JSL
+ *     </li>
+ * </ul>
  *
- * This file configure and provide tasks for JOD and JSL artifacts:
- * - JOD: run (Apple, Fruit), run by Configs, publish as jar
- * - JSL: run (resilient, new), run by Configs, publish as jar
+ * Summary:
+ * <ul>
+ *     <li>
+ *         Components configs
+ *     </li>
+ *     <li>
+ *         Runners Tasks
+ *     </li>
+ *     <li>
+ *         Runners Configs Tasks
+ *     </li>
+ *     <li>
+ *         Runners Discovery Tasks
+ *     </li>
+ *     <li>
+ *         Publication configs
+ *     </li>
+ *     <li>
+ *         Publication tasks
+ *     </li>
+ * </ul>
  */
 
 
-// -------------------
-// JOD and JSL configs
-// -------------------
+// ------------------
+// Components configs
+// ------------------
 
 sourceSets {
+
+    // JOSP JOD
     jospJOD {}
+
+    // JOSP JSL
     jospJSL {}
+
 }
 
 configurations {}
 
 dependencies {
-    // JOD
-    jospJODImplementation 'com.robypomper.josp:jcpAPIsPublic:2.0.+'
-    jospJODImplementation 'commons-cli:commons-cli:1.4'
-    jospJODImplementation 'com.googlecode.clichemaven:cliche:110413'
 
-    // JSL
-    jospJSLImplementation 'com.robypomper.josp:jcpAPIsPublic:2.0.+'
-    jospJSLImplementation 'commons-cli:commons-cli:1.4'
-    jospJSLImplementation 'com.googlecode.clichemaven:cliche:110413'
+    // JOSP JOD
+    if (!project.ext.get("deps.jospCommonsDisabled"))
+        jospJODImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
+    jospJODImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
+    jospJODImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
+
+    // JOSP JSL
+    if (!project.ext.get("deps.jospCommonsDisabled"))
+        jospJSLImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
+    jospJSLImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
+    jospJSLImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
+
 }
 
 
-// Make Java Runnable
+// -------------
+// Runners Tasks
+// -------------
+
+// Utils: Make Java Runnable
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod) {
     makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, null, true)
 }
@@ -146,12 +182,7 @@ def makeJSLJavaRunnable(String runnableName, String config_yml, String group_nam
     }
 }
 
-
-// -------------
-// Runners Tasks
-// -------------
-
-// JOD
+// JOSP JOD
 makeJODJavaRunnable('','jod_default.yml','struct_default.jod','perms_default.jod',false)
 makeJODJavaRunnable('OnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod',false)
 makeJODJavaRunnable('OnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod',false)
@@ -160,19 +191,17 @@ makeJODJavaRunnable('Vanilla','jod_default.yml','struct_default.jod','perms_defa
 makeJODJavaRunnable('VanillaOnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('VanillaOnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod')
 makeJODJavaRunnable('VanillaNoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod')
-
 makeJODJavaDaemon('','jod_default.yml','struct_default.jod','perms_default.jod',false)
 makeJODJavaDaemon('OnlyLocal','jod_only-local.yml','struct_default.jod','perms_default.jod',false)
 makeJODJavaDaemon('OnlyCloud','jod_only-cloud.yml','struct_default.jod','perms_default.jod',false)
 makeJODJavaDaemon('NoComm','jod_no-comm.yml','struct_default.jod','perms_default.jod',false)
-
 task javaJOD_Clean(type: Delete) {
     group 'JOSP cleaners'
     delete "envs/runnables/jod/JOD"
 }
 clean.dependsOn javaJOD_Clean
 
-// JSL
+// JOSP JSL
 makeJSLJavaRunnable('','jsl_default.yml',false)
 makeJSLJavaRunnable('OnlyLocal','jsl_only-local.yml',false)
 makeJSLJavaRunnable('OnlyCloud','jsl_only-cloud.yml',false)
@@ -192,7 +221,7 @@ clean.dependsOn javaJSL_Clean
 // Runners Configs Tasks
 // ---------------------
 
-// JOD
+// JOSP JOD
 /*
  * ObjId    =>  unset   local   cloud
  * Owner    =>  unset   set
@@ -212,8 +241,7 @@ makeJODJavaRunnable('cun','configs/jod_cun.yml','struct_default.jod','perms_defa
 makeJODJavaRunnable('csf','configs/jod_csf.yml','struct_default.jod','perms_default.jod','Configs')
 makeJODJavaRunnable('csn','configs/jod_csn.yml','struct_default.jod','perms_default.jod','Configs')
 
-
-// JSL
+// JOSP JSL
 /**
  * Usr    =>  unset   set   anonymous
  *            when set, check that set token is valid and not expired
@@ -230,7 +258,7 @@ makeJSLJavaRunnable('sn','configs/jsl_sn.yml','Configs')
 // Runners Discovery Tasks
 // -----------------------
 
-// JOD
+// JOSP JOD
 /*
  * ObjId    =>  unset   local   cloud
  * Owner    =>  unset   set
@@ -242,7 +270,7 @@ makeJODJavaRunnable('DNSSD','discovery/jod_dnssd.yml','struct_default.jod','perm
 makeJODJavaRunnable('JmDNS','discovery/jod_jmdns.yml','struct_default.jod','perms_default.jod','Discovery')
 makeJODJavaRunnable('JmmDNS','discovery/jod_jmmdns.yml','struct_default.jod','perms_default.jod','Discovery')
 
-// JSL
+// JOSP JSL
 /**
  * Usr    =>  unset   set   anonymous
  *            when set, check that set token is valid and not expired
@@ -256,31 +284,49 @@ makeJSLJavaRunnable('JmmDNS','discovery/jsl_jmmdns.yml','Discovery')
 
 
 // -------------------
-// Publication include
+// Publication configs
 // -------------------
 
-apply from: 'gradle/build_josp_publish.gradle'
+// JOSP JOD
+String jospJODName = 'JOSP Object Daemon'
+String jospJODArtifact = 'jospJOD'
+String jospJODVersion = project.ext.get("version.jospJOD_DEV")
+def jospJODPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJOD,jospJODName,jospJODArtifact,jospJODVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setExecutable()
+        .setArtifactOpens()
+        .setArtifactDistr()
+JavaPublicationUtils.generatePublication(project,jospJODPubDesc)
 
-// JOD
+// JOSP JSL
+String jospJSLName = 'JOSP Service Library'
+String jospJSLArtifact = 'jospJSL'
+String jospJSLVersion = project.ext.get("version.jospJSL_DEV")
+def jospJSLPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJSL,jospJSLName,jospJSLArtifact,jospJSLVersion)
+        .setUrlsFromProject(project)
+        .setLicenceGPLv3()
+        .setExecutable()
+        .setArtifactOpens()
+        .setArtifactDistr()
+JavaPublicationUtils.generatePublication(project,jospJSLPubDesc)
+
+// -----------------
+// Publication tasks
+// -----------------
+
+// JOSP JOD
 task jospJOD_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
-    dependsOn publishJodPublicationToMavenLocal
-}
-task jospJOD_PublishToSonatype {
-    description = 'Publish...'
-    group = 'JOSP publishers (sonatype)'
-//    dependsOn publishJodPublicationToSonatype
+    dependsOn publishJospJODPublicationToMavenLocal
+    tasks.josp_PublishToLocal.dependsOn jospJOD_PublishToLocal
 }
 
-// JSL
+// JOSP JSL
 task jospJSL_PublishToLocal {
     description = 'Publish...'
     group = 'JOSP publishers (locals)'
-    dependsOn publishJslPublicationToMavenLocal
-}
-task jospJSL_PublishToSonatype {
-    description = 'Publish...'
-    group = 'JOSP publishers (sonatype)'
-//    dependsOn publishJslPublicationToSonatype
+    dependsOn publishJospJSLPublicationToMavenLocal
+    tasks.josp_PublishToLocal.dependsOn jospJSL_PublishToLocal
 }

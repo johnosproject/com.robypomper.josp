@@ -28,7 +28,7 @@ function htmlAccessControlContent() {
 
 function fetchAccessControlContent(objId) {
     // Fetch the object's list and for each object fetch his permission with fetchAccessControlContentObject() method
-    apiGET("/apis/objsmngr/1.0/",function(objsListJson) {
+    apiGET(backEndUrl,"/apis/objsmngr/1.0/",function(objsListJson) {
         var objsList = JSON.parse(objsListJson);
 
         for (i = 0; i < objsList.length; i++)
@@ -37,7 +37,7 @@ function fetchAccessControlContent(objId) {
 }
 
 function fetchAccessControlContentObject(objId,objName,objOwner,objConnected,currentPermissions) {
-    apiGET("/apis/permissions/1.0/" + objId + "/",function(permsListJson) {
+    apiGET(backEndUrl,"/apis/permissions/1.0/" + objId + "/",function(permsListJson) {
         fillAccessControlContentObject_Add(permsListJson,objName,objOwner,objConnected,currentPermissions);
     },onWarningFetch);
 }
@@ -227,7 +227,7 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
 
     var permId_ = permId!=null ? permId : "newPerm";
 
-    apiPOST(updUrl,
+    apiPOST(backEndUrl,updUrl,
         async function(responseText) {
             hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {
@@ -277,7 +277,7 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
 }
 
 function clonePermission_Row(rowTag,dupUrl,objId,permId) {
-    apiGET(dupUrl,
+    apiGET(backEndUrl,dupUrl,
         async function(responseText) {
             hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {
@@ -300,7 +300,7 @@ function clonePermission_Row(rowTag,dupUrl,objId,permId) {
 }
 
 function deletePermission_Row(rowTag,delUrl,objId,permId) {
-    apiGET(delUrl,
+    apiGET(backEndUrl,delUrl,
         async function(responseText) {
             hideWaitingFeedback(rowTag.id);
             if (responseText == "true") {

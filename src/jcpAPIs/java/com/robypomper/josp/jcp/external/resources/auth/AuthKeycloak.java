@@ -20,29 +20,32 @@
 package com.robypomper.josp.jcp.external.resources.auth;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
-import com.robypomper.josp.jcp.apis.paths.APIAuth;
-import com.robypomper.josp.jcp.db.entities.Service;
-import com.robypomper.josp.jcp.db.entities.ServiceDetails;
-import com.robypomper.josp.jcp.db.entities.User;
-import com.robypomper.josp.jcp.db.entities.UserProfile;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.clients.ClientParams;
+import com.robypomper.josp.jcp.clients.JCPAPIsClient;
+import com.robypomper.josp.jcp.db.apis.entities.Service;
+import com.robypomper.josp.jcp.db.apis.entities.ServiceDetails;
+import com.robypomper.josp.jcp.db.apis.entities.User;
+import com.robypomper.josp.jcp.db.apis.entities.UserProfile;
+import com.robypomper.josp.paths.APIAuth;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.RequestScope;
 
 
 /**
  * Keycloak implementation of {@link AuthResource} interface.
  */
-@Component
-@RequestScope
 public class AuthKeycloak implements AuthResource {
 
     // Internal vars
 
-    @Autowired
-    private JCPClient2 client;
+    private final JCPAPIsClient client;
+
+
+    // Constructor
+
+    public AuthKeycloak(ClientParams params, String urlAPIs) {
+        client = new JCPAPIsClient(params, urlAPIs, false);
+    }
 
 
     // User Q&M

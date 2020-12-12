@@ -1,0 +1,23 @@
+spring.application.name: jcpJSLWebBridge
+server.port: 9003
+spring.profiles.active: auth, data-none, ssl, cors
+
+# JCP Clients
+jcp.client.ssl.internal: true
+jcp.client.ssl.public: true
+jcp.client.id: jcp-jsl-web-bridge
+jcp.client.secret: 7e27c5b9-2a6a-4b4e-b4a7-c8118b2b1083
+jcp.client.callback: https://localhost:${server.port}/apis/user/1.0/login/code/
+jcp.urlAuth: localhost:8998
+jcp.urlAPIs: localhost:9001
+#jcp.urlGWs: localhost:9001         # registered via APIs
+jcp.urlJSLWebBridge: localhost:9003
+jcp.urlFE: localhost:9004
+
+# JSL Configs
+jsl.version: 2.0.0
+jcp.url.apis: localhost:9001
+jcp.url.auth: localhost:8998
+jsl.srv.id: ${jcp.client.id}
+jsl.srv.name: JCP JSL Web Bridge
+jsl.comm.local.discovery: DNSSD

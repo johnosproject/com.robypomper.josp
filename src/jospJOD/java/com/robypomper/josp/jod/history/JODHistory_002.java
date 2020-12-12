@@ -1,10 +1,11 @@
 package com.robypomper.josp.jod.history;
 
 import com.robypomper.java.JavaJSONArrayToFile;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.events.CloudStats;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.clients.apis.obj.APIObjsClient;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.protocol.HistoryLimits;
@@ -29,8 +30,8 @@ public class JODHistory_002 implements JODHistory {
 
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
-    private JCPClient_Object jcpClient;
-    private JCPHistory jcpHistory;
+    private JCPAPIsClientObj jcpClient;
+    private APIObjsClient apiObjsClient;
     private final StatusHistoryArray statuses; //statuses;
     private final CloudStats stats;
     private final File statusesFile;    //statusesFile
@@ -48,11 +49,11 @@ public class JODHistory_002 implements JODHistory {
      * @param settings  the JOD settings.
      * @param jcpClient the JCP client.
      */
-    public JODHistory_002(JODSettings_002 settings, JCPClient_Object jcpClient) {
+    public JODHistory_002(JODSettings_002 settings, JCPAPIsClientObj jcpClient) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
         this.jcpClient.addConnectListener(jcpConnectListener);
-        this.jcpHistory = new JCPHistory(jcpClient, locSettings);
+        this.apiObjsClient = new APIObjsClient(jcpClient);
         boolean statusesFileLoaded = false;
         boolean statsFileLoaded = false;
 
@@ -216,7 +217,7 @@ public class JODHistory_002 implements JODHistory {
                 log.trace(Mrk_JOD.JOD_HISTORY, String.format("- event[%d] %s", e.getId(), e.getPayload()));
 
             try {
-                jcpHistory.uploadEvents(toUpload);
+                apiObjsClient.uploadStatusHistory(toUpload);
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
                 e.printStackTrace();
             }
@@ -240,16 +241,16 @@ public class JODHistory_002 implements JODHistory {
         };
 
         if (limits.isLatestCount())
-            return statuses.tryLatest(filter,limits.getLatestCount());
+            return statuses.tryLatest(filter, limits.getLatestCount());
 
         if (limits.isAncientCount())
-            return statuses.tryAncient(filter,limits.getAncientCount());
+            return statuses.tryAncient(filter, limits.getAncientCount());
 
         if (limits.isIDRange())
-            return statuses.tryById(filter,limits.getFromId(),limits.getToId());
+            return statuses.tryById(filter, limits.getFromId(), limits.getToId());
 
         if (limits.isDateRange())
-            return statuses.tryByDate(filter,limits.getFromDate(),limits.getToDate());
+            return statuses.tryByDate(filter, limits.getFromDate(), limits.getToDate());
 
         try {
             return statuses.filterAll(filter);

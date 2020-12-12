@@ -116,7 +116,7 @@ must run them in different terminals.
 JOD objects and JSL services can communicate directly when on the same local network,
 or remotely via the JOSP Cloud Platform. The JCP is composed by 4 micro-services:
 
-* [DBMS](docs/dockers/dbms.md): manage the DBs (auth_josp and jcp_apis) for other micro-services
+* [DBMS](docs/dockers/dbms.md): manage the DBs (jcp_auth and jcp_apis) for other micro-services
 * [AAA](docs/dockers/auth.md): provide the authentication and authorization service
 * [JCP APIs](docs/jcpAPIs/README.md): basic JCP APIs required by JOSP objects and services
 * [JOSP GWs](docs/jospGWs/README.md): the cloud gateways that acts as bridge between JOSP objects and services
