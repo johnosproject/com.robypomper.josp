@@ -158,7 +158,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             } catch (AuthenticationException e) {
                 authCode_refreshToken = null;
                 authCode_loginCode = null;
-                throw e;
+                throw new AuthenticationException(String.format("Client '%s' can't authenticate to JCP APIs", clientId), e);
             }
         }
 
@@ -253,7 +253,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
         }
     }
 
-    private static OAuth2AccessToken getAccessTokenCliCredFlow(OAuth20Service service) throws ConnectionException {
+    private static OAuth2AccessToken getAccessTokenCliCredFlow(OAuth20Service service) throws ConnectionException, AuthenticationException {
         try {
             try {
                 return service.getAccessTokenClientCredentialsGrant();
@@ -274,6 +274,9 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
         } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
             throw new ConnectionException(String.format("Error connecting to JCP because can't ignore LOCALHOST's certificate checks ([%s] %s)", e.getClass().getSimpleName(), e.getMessage()), e);
+
+        } catch (OAuth2AccessTokenErrorResponse e) {
+            throw new AuthenticationException(String.format("Error connecting to JCP because authentication error for client ([%s] %s)", e.getClass().getSimpleName(), e.getMessage()), e);
         }
     }
 

@@ -198,7 +198,7 @@ public interface JCPClient2 {
             super(msg);
         }
 
-        public AuthenticationException(String msg, Exception e) {
+        public AuthenticationException(String msg, Throwable e) {
             super(msg, e);
         }
 
