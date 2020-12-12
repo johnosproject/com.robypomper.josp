@@ -27,7 +27,7 @@ public class EntryPointController {
     // Constructor
 
     @Autowired
-    public EntryPointController(@Value("${jcp.client.ssl}") boolean useSSL,
+    public EntryPointController(@Value("${jcp.client.ssl.public}") boolean useSSL,
                                 @Value("${jcp.urlJSLWebBridge}") String jslWBUrl) {
         this.useSSL = useSSL;
         this.jslWBUrl = jslWBUrl;

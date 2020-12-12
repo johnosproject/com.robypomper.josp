@@ -3,7 +3,8 @@ server.port: 9004
 spring.profiles.active: auth-none, db-fe, ssl
 
 # JCP Clients
-jcp.client.ssl: true
+jcp.client.ssl.internal: true
+jcp.client.ssl.public: true
 jcp.client.id: jcp-fe
 jcp.client.secret: f379a100-46bb-4fc8-a660-947a98a3afab
 jcp.client.callback: https://localhost:${server.port}/apis/user/1.0/login/code/
