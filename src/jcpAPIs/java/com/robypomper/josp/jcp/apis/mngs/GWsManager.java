@@ -1,6 +1,7 @@
 package com.robypomper.josp.jcp.apis.mngs;
 
 import com.robypomper.java.JavaNetworks;
+import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.clients.JCPGWsClientMngr;
@@ -120,6 +121,11 @@ public class GWsManager {
     }
 
     public GW getAvailableObj2Srv() {
+        if (JavaThreads.isInStackOverflow()) {
+            log.warn("GWsManager::getAvailableObj2Srv throw StackOverflow, return null");
+            return null;
+        }
+
         List<GW> gws = getObj2Srv(true);
         if (gws.isEmpty())
             return null;
@@ -133,6 +139,11 @@ public class GWsManager {
     }
 
     public GW getAvailableSrv2Obj() {
+        if (JavaThreads.isInStackOverflow()) {
+            log.warn("GWsManager::getAvailableSrv2Obj throw StackOverflow, return null");
+            return null;
+        }
+
         List<GW> gws = getSrv2Obj(true);
         if (gws.isEmpty())
             return null;
@@ -161,7 +172,7 @@ public class GWsManager {
         }
 
         // Test GW JOSP server
-        if (!JavaNetworks.pingHost(gw.getGwAddr(), gw.getGwPort(), 5000)) {
+        if (!JavaNetworks.pingHost(gw.getGwAddr(), gw.getGwPort(), 4000)) {
             if (autoUpdate)
                 setGWOffline(gw);
             return false;
