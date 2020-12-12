@@ -69,19 +69,19 @@ public abstract class AbsGWsService implements JCPClient2.ConnectListener {
      */
     public AbsGWsService(final String hostnameInternal, final String hostnamePublic, int port) {
         try {
-            log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Generating and starting internal JOSP GWs '%s' server", ONLY_SERVER_ID));
+            log.debug(String.format("Generating and starting internal JOSP GWs '%s' server", ONLY_SERVER_ID));
             String alias = String.format("%s@%s", ONLY_SERVER_ID, CERT_ALIAS);
 
-            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' keystore", ONLY_SERVER_ID));
+            log.trace(String.format("Preparing internal JOSP GWs '%s' keystore", ONLY_SERVER_ID));
             KeyStore ks = UtilsJKS.generateKeyStore(ONLY_SERVER_ID, null, alias);
             Certificate publicCertificate = UtilsJKS.extractCertificate(ks, alias);
 
-            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Preparing internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
+            log.trace(String.format("Preparing internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
             SSLContext sslCtx;
             DynAddTrustManager trustmanager = new DynAddTrustManager();
             sslCtx = UtilsSSL.generateSSLContext(ks, null, trustmanager);
 
-            log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Creating and starting internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
+            log.trace(String.format("Creating and starting internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
             server = new Server(this, sslCtx, ONLY_SERVER_ID, port, trustmanager, publicCertificate);
 
         } catch (UtilsJKS.GenerationException | UtilsSSL.GenerationException e) {
@@ -93,7 +93,7 @@ public abstract class AbsGWsService implements JCPClient2.ConnectListener {
         this.hostAddrInternal = resolveStringHostname(hostnameInternal);
         this.hostAddrPublic = resolveStringHostname(hostnamePublic);
 
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Initialized GWsService instance with %s public address", hostAddr));
+        log.info(String.format("Initialized GWsService instance with '%s' internal and '%s' public address", hostAddrInternal.getHostAddress(), hostAddrPublic.getHostAddress()));
     }
 
     private static InetAddress resolveStringHostname(String hostName) {
@@ -135,14 +135,14 @@ public abstract class AbsGWsService implements JCPClient2.ConnectListener {
     }
 
     public boolean addClientCertificate(String idClient, Certificate certClient) {
-        log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Adding client '%s' certificate to internal JOSP GWs", idClient));
+        log.debug(String.format("Adding client '%s' certificate to internal JOSP GWs", idClient));
         try {
             server.getTrustManager().addCertificate(idClient, certClient);
-            log.debug(Mrk_Commons.COMM_SRV_IMPL, String.format("Client '%s' certificate added to internal JOSP GWs", idClient));
+            log.debug(String.format("Client '%s' certificate added to internal JOSP GWs", idClient));
             return true;
 
         } catch (AbsCustomTrustManager.UpdateException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on adding client certificate to internal JOSP GWs TrustStore because %s", e.getMessage()), e);
+            log.warn(String.format("Error on adding client certificate to internal JOSP GWs TrustStore because %s", e.getMessage()), e);
             return false;
         }
     }
@@ -171,15 +171,15 @@ public abstract class AbsGWsService implements JCPClient2.ConnectListener {
         try {
             JCPGWsStartup gwStartup = new JCPGWsStartup(type, hostNamePublic.getHostAddress(), getServer().getPort(), hostNameInternal.getHostAddress(), apisPort, maxClients, JCPGWsVersions.VER_JCPGWs_S2O_2_0);
             if (!gwsAPI.getClient().isConnected()) {
-                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' startup to JCP APIs because JCP APIs not available, it will registered on JCP APIs connection.", gwId));
+                log.warn(String.format("Can't register JCP GW '%s' startup to JCP APIs because JCP APIs not available, it will registered on JCP APIs connection.", gwId));
                 return;
             }
 
             gwsAPI.postStartup(gwStartup, gwId);
-            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("JCP GW '%s' registered to JCP APIs successfully.", gwId));
+            log.info(String.format("JCP GW '%s' registered to JCP APIs successfully.", gwId));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't register JCP GW '%s' to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+            log.warn(String.format("Can't register JCP GW '%s' to JCP APIs because '%s'.", gwId, e.getMessage()), e);
         }
     }
 
@@ -187,15 +187,15 @@ public abstract class AbsGWsService implements JCPClient2.ConnectListener {
         String gwId = generateGWId(hostNameInternal, getServer().getPort());
         try {
             if (!gwsAPI.getClient().isConnected()) {
-                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't de-register JCP GW '%s' startup to JCP APIs because JCP APIs not available, it will de-registered on JCP APIs connection.", gwId));
+                log.warn(String.format("Can't de-register JCP GW '%s' startup to JCP APIs because JCP APIs not available, it will de-registered on JCP APIs connection.", gwId));
                 return;
             }
 
             gwsAPI.postShutdown(gwId);
-            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("JCP GW '%s' de-registered to JCP APIs successfully.", gwId));
+            log.info(String.format("JCP GW '%s' de-registered to JCP APIs successfully.", gwId));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't de-register JCP GW '%s' to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+            log.warn(String.format("Can't de-register JCP GW '%s' to JCP APIs because '%s'.", gwId, e.getMessage()), e);
         }
     }
 
@@ -203,15 +203,15 @@ public abstract class AbsGWsService implements JCPClient2.ConnectListener {
         String gwId = generateGWId(hostNameInternal, getServer().getPort());
         try {
             if (!gwsAPI.getClient().isConnected()) {
-                log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because JCP APIs not available, it will updated on JCP APIs connection.", gwId));
+                log.warn(String.format("Can't update JCP GW '%s' status to JCP APIs because JCP APIs not available, it will updated on JCP APIs connection.", gwId));
                 return;
             }
 
             gwsAPI.postStatus(gwStatus, gwId);
-            log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("JCP GW '%s' updated to JCP APIs successfully.", gwId));
+            log.info(String.format("JCP GW '%s' updated to JCP APIs successfully.", gwId));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Can't update JCP GW '%s' status to JCP APIs because '%s'.", gwId, e.getMessage()), e);
+            log.warn(String.format("Can't update JCP GW '%s' status to JCP APIs because '%s'.", gwId, e.getMessage()), e);
         }
     }
 
