@@ -58,7 +58,7 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
 
     private static final Logger log = LogManager.getLogger();
     public final String apiName;
-    public static boolean connFailedPrinted = false;
+    public boolean connFailedPrinted = false;
 
 
     // Constructor
@@ -67,18 +67,18 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
         super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", 30);
         this.apiName = apiName;
         addConnectListener(this);
+        addDisconnectListener(this);
 
+        connFailedPrinted = true;
         try {
-            connFailedPrinted = true;
             connect();
-            connFailedPrinted = false;
 
-        } catch (ConnectionException | AuthenticationException e) {
-            log.warn(String.format("Error on %s connecting because %s", apiName, e.getMessage()), e);
-
-        } catch (JCPNotReachableException ignore) {
-            startConnectionTimer();
+        } catch (ConnectionException | AuthenticationException | JCPNotReachableException e) {
+            if (e instanceof JCPNotReachableException) {
+                startConnectionTimer(true);
+            }
         }
+        connFailedPrinted = false;
     }
 
 
@@ -111,6 +111,7 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
     @Override
     public void onConnected(JCPClient2 jcpClient) {
         log.info(String.format("%s connected", apiName));
+        connFailedPrinted = false;
     }
 
     @Override
@@ -121,9 +122,9 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
         if (connFailedPrinted) {
-            log.debug(String.format("Error on %s connection because %s", apiName, t.getMessage()));
+            log.debug(String.format("Error on %s connection attempt because %s", apiName, t.getMessage()));
         } else {
-            log.warn(String.format("Error on %s connection because %s", apiName, t.getMessage()), t);
+            log.warn(String.format("Error on %s connection attempt because %s", apiName, t.getMessage()));
             connFailedPrinted = true;
         }
     }

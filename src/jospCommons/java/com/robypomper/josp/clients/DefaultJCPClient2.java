@@ -190,14 +190,12 @@ public class DefaultJCPClient2 implements JCPClient2 {
             return true;
 
         } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e) {
-            System.out.println(String.format("Exception [%s]: %s", e.getClass().getSimpleName(), e.getMessage()));
 
             try {
                 execReq(Verb.GET, "/apis/Status/2.0/", securedAPIs);
                 return true;
 
             } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e1) {
-                System.out.println(String.format("Excep.2nd [%s]: %s", e1.getClass().getSimpleName(), e1.getMessage()));
 
                 if (stopOnFail) {
                     cliCred_isConnected = false;
@@ -413,9 +411,15 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     @Override
     public void startConnectionTimer() {
+        startConnectionTimer(false);
+    }
+
+    @Override
+    public void startConnectionTimer(boolean delay) {
         if (isConnected() || isConnecting())
             return;
 
+        long delayMs = delay ? connectionTimerDelaySeconds * 1000 : 0;
         connectionTimer = new Timer(true);
         connectionTimer.schedule(new TimerTask() {
             @Override
@@ -437,7 +441,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 }
 
             }
-        }, 0, connectionTimerDelaySeconds * 1000);
+        }, delayMs, connectionTimerDelaySeconds * 1000);
     }
 
     @Override

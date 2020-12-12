@@ -71,6 +71,8 @@ public interface JCPClient2 {
 
     void startConnectionTimer();
 
+    void startConnectionTimer(boolean delay);
+
     void stopConnectionTimer();
 
 

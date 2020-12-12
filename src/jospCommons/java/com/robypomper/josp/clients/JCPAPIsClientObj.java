@@ -30,7 +30,7 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
 
     private static final Logger log = LogManager.getLogger();
     public static final String JCP_NAME = "JCP APIs";
-    public static boolean connFailedPrinted = false;
+    public boolean connFailedPrinted = false;
 
 
     // Constructor
@@ -38,17 +38,19 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
     public JCPAPIsClientObj(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth) {
         super(client, secret, urlAPIs, useSSL, urlAuth, "openid", "", "jcp", 30);
         addConnectListener(this);
+        addDisconnectListener(this);
 
+
+        connFailedPrinted = true;
         try {
-            connFailedPrinted = true;
             connect();
             connFailedPrinted = false;
 
-        } catch (ConnectionException | AuthenticationException e) {
-            log.warn(String.format("Error on %s connecting because %s", JCP_NAME, e.getMessage()), e);
-
-        } catch (JCPNotReachableException ignore) {
-            startConnectionTimer();
+        } catch (ConnectionException | AuthenticationException | JCPNotReachableException e) {
+            connFailedPrinted = false;
+            if (e instanceof JCPNotReachableException) {
+                startConnectionTimer(true);
+            }
         }
     }
 
@@ -68,6 +70,7 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
     @Override
     public void onConnected(JCPClient2 jcpClient) {
         log.info(String.format("%s connected", JCP_NAME));
+        connFailedPrinted = false;
     }
 
     @Override
@@ -78,9 +81,9 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
         if (connFailedPrinted) {
-            log.debug(String.format("Error on %s connection because %s", JCP_NAME, t.getMessage()));
+            log.debug(String.format("Error on %s connection attempt because %s", JCP_NAME, t.getMessage()));
         } else {
-            log.warn(String.format("Error on %s connection because %s", JCP_NAME, t.getMessage()), t);
+            log.warn(String.format("Error on %s connection attempt because %s", JCP_NAME, t.getMessage()));
             connFailedPrinted = true;
         }
     }
