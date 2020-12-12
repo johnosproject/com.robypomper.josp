@@ -4,7 +4,8 @@ spring.profiles.active: auth, db-all, ssl
 security.require-cors: false
 
 # JCP Clients
-jcp.client.ssl: true
+jcp.client.ssl.internal: true
+jcp.client.ssl.public: true
 jcp.client.id: jcp-all
 jcp.client.secret: 27e3d70d-5dd0-433e-a85a-40fa4b66d1ad
 jcp.client.callback: https://localhost:${server.port}/apis/user/1.0/login/code/
