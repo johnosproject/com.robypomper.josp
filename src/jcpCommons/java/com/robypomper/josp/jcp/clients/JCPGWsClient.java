@@ -21,7 +21,6 @@ package com.robypomper.josp.jcp.clients;
 
 import com.robypomper.josp.clients.JCPAPIsClientJCP;
 import com.robypomper.josp.clients.JCPClient2;
-import org.springframework.beans.factory.annotation.Value;
 
 
 /**
@@ -36,8 +35,8 @@ public class JCPGWsClient extends JCPAPIsClientJCP {
 
     // Constructor
 
-    public JCPGWsClient(ClientParams params, String urlGWs) {
-        super(params.useSSL, params.client, params.secret, urlGWs, params.urlAuth, JCP_NAME, params.callBack);
+    public JCPGWsClient(ClientParams params, String urlGWs, boolean internal) {
+        super(internal ? params.useSSLInternal : params.useSSLPublic, params.client, params.secret, urlGWs, params.urlAuth, JCP_NAME, params.callBack);
     }
 
 }

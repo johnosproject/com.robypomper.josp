@@ -246,7 +246,7 @@ public class JSLWebBridgeController {
 
     private APIsClient getAPIsClient(HttpSession session) {
         JCPAPIsClientSrv cl = jslService.getHttp(session).getJCPClient();
-        JCPAPIsClient apiCl = new JCPAPIsClient(params, urlAPIs);
+        JCPAPIsClient apiCl = new JCPAPIsClient(params, urlAPIs, false);
 
         DefaultJCPClient2.copyCredentials(cl, apiCl);
 

@@ -56,7 +56,6 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
     @Autowired
     private GWsBroker gwBroker;
     private final JCPAPIGWsClient gwsAPI;
-    private final String hostName;
     private final int apisPort;
     private final int maxClients;
     private final JCPGWsStatus gwStatus;
@@ -65,15 +64,15 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
      * Initialize JOSPGWsService with only one internal server.
      */
     @Autowired
-    public GWsS2OService(@Value("${jcp.gws.s2o.url}") final String hostName,
+    public GWsS2OService(@Value("${jcp.gws.s2o.ip.internal}") final String hostNameInternal,
+                         @Value("${jcp.gws.s2o.ip.public}") final String hostNamePublic,
                          @Value("${jcp.gws.s2o.port}") final int port,
                          @Value("${server.port}") final int apisPort,
                          @Value("${jcp.gws.s2o.maxClients}") final int maxClients,
                          JCPAPIsClient apisClient) {
-        super(hostName, port);
+        super(hostNameInternal, hostNamePublic, port);
         this.gwsAPI = new JCPAPIGWsClient(apisClient);
         apisClient.addConnectListener(this);
-        this.hostName = hostName;
         this.apisPort = apisPort;
         this.maxClients = maxClients;
         this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
@@ -95,7 +94,7 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
 
         if (getServer().isRunning()) {
             log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Gateway %s not halted, force it.", this.getClass().getSimpleName()));
-            deregister(gwsAPI, hostName);
+            deregister(gwsAPI, getInternalAddress());
         } else
             log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halted %s gateway", this.getClass().getSimpleName()));
     }
@@ -132,7 +131,7 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
         gwStatus.clients++;
         assert gwStatus.clients == services.size();
         gwStatus.lastClientConnectedAt = JOSPProtocol.getNowDate();
-        update(gwsAPI, hostName, gwStatus);
+        update(gwsAPI, getInternalAddress(), gwStatus);
     }
 
     private void onClientDisconnection(ClientInfo client) {
@@ -155,7 +154,7 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
         gwStatus.clients--;
         assert gwStatus.clients == services.size();
         gwStatus.lastClientDisconnectedAt = JOSPProtocol.getNowDate();
-        update(gwsAPI, hostName, gwStatus);
+        update(gwsAPI, getInternalAddress(), gwStatus);
     }
 
     private boolean onDataReceived(ClientInfo client, String readData) {
@@ -176,13 +175,13 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
 
             @Override
             public void onStarted() {
-                register(gwsAPI, hostName, apisPort, maxClients, GWType.Srv2Obj);
-                update(gwsAPI, hostName, gwStatus);
+                register(gwsAPI, getInternalAddress(), getPublicAddress(), apisPort, maxClients, GWType.Srv2Obj);
+                update(gwsAPI, getInternalAddress(), gwStatus);
             }
 
             @Override
             public void onStopped() {
-                deregister(gwsAPI, hostName);
+                deregister(gwsAPI, getInternalAddress());
             }
 
         };
@@ -252,11 +251,11 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
     @Override
     public void onConnected(JCPClient2 jcpClient) {
         if (getServer().isRunning()) {
-            register(gwsAPI, hostName, apisPort, maxClients, GWType.Srv2Obj);
-            update(gwsAPI, hostName, gwStatus);
+            register(gwsAPI, getInternalAddress(), getPublicAddress(), apisPort, maxClients, GWType.Srv2Obj);
+            update(gwsAPI, getInternalAddress(), gwStatus);
 
         } else {
-            deregister(gwsAPI, hostName);
+            deregister(gwsAPI, getInternalAddress());
         }
     }
 

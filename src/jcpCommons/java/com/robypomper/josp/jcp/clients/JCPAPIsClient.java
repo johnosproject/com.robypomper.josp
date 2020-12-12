@@ -23,13 +23,11 @@ import com.robypomper.josp.clients.JCPAPIsClientJCP;
 import com.robypomper.josp.clients.JCPClient2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 
 /**
  * Cloud JCP APIs implementation of {@link JCPClient2} interface.
  */
-@Component
 public class JCPAPIsClient extends JCPAPIsClientJCP {
 
     // Internal vars
@@ -39,8 +37,8 @@ public class JCPAPIsClient extends JCPAPIsClientJCP {
     // Constructor
 
     @Autowired
-    public JCPAPIsClient(ClientParams params, @Value("${jcp.urlAPIs}") String urlAPIs) {
-        super(params.useSSL, params.client, params.secret, urlAPIs, params.urlAuth, JCP_NAME, params.callBack);
+    public JCPAPIsClient(ClientParams params, @Value("${jcp.urlAPIs}") String urlAPIs, boolean internal) {
+        super(internal ? params.useSSLInternal : params.useSSLPublic, params.client, params.secret, urlAPIs, params.urlAuth, JCP_NAME, params.callBack);
     }
 
 

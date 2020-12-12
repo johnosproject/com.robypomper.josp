@@ -22,11 +22,10 @@ package com.robypomper.josp.jcp.clients.jcp.jcp;
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIJCP;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.jcp.clients.JCPJSLWebBridgeClient;
+import com.robypomper.josp.jcp.clients.JCPFEClient;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.params.jcp.JCPFEStatus;
 import com.robypomper.josp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.params.jcp.JCPJSLWebBridgeStatus;
 import com.robypomper.josp.paths.jcp.APIJCP;
 
 import java.util.List;
@@ -44,7 +43,7 @@ public class FEClient extends AbsAPIJCP {
      *
      * @param jcpClient the JCP client.
      */
-    public FEClient(JCPJSLWebBridgeClient jcpClient) {
+    public FEClient(JCPFEClient jcpClient) {
         super(jcpClient);
     }
 
