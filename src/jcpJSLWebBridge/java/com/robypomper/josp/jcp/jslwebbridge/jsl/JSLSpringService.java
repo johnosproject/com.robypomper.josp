@@ -60,13 +60,13 @@ public class JSLSpringService {
                             @Value("${" + JSLSettings_002.JCP_CLIENT_CALLBACK + ":}") String clientCallback,
                             @Value("${" + JSLSettings_002.JSLSRV_ID + ":}") String srvId) {
         if (clientId.isEmpty())
-            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JCP_CLIENT_ID));
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP JSL Web Bridge", JSLSettings_002.JCP_CLIENT_ID));
         if (clientSecret.isEmpty())
-            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JCP_CLIENT_SECRET));
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP JSL Web Bridge", JSLSettings_002.JCP_CLIENT_SECRET));
         if (clientCallback.isEmpty())
-            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JCP_CLIENT_CALLBACK));
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP JSL Web Bridge", JSLSettings_002.JCP_CLIENT_CALLBACK));
         if (srvId.isEmpty())
-            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP FrontEnd", JSLSettings_002.JSLSRV_ID));
+            throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP JSL Web Bridge", JSLSettings_002.JSLSRV_ID));
 
         this.jslVersion = jslVersion;
         this.useSSL = useSSL;
