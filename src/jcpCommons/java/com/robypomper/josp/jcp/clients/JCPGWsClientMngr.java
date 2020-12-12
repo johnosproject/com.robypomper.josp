@@ -33,7 +33,7 @@ public class JCPGWsClientMngr {
         if (apiGWsGWsClients.get(apiClass).get(gwId) == null) {
             try {
                 String url = String.format("%s:%d", gwAddr, gwPort);
-                JCPGWsClient jcpClient = new JCPGWsClient(gwsClientsParams, url);
+                JCPGWsClient jcpClient = new JCPGWsClient(gwsClientsParams, url, true);
                 apiClient = apiClass.getConstructor(JCPGWsClient.class).newInstance(jcpClient);
                 if (!jcpClient.isConnected())
                     try {
