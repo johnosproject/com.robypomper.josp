@@ -25,8 +25,16 @@ import com.github.scribejava.apis.KeycloakApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.robypomper.java.JavaEnum;
 import com.robypomper.java.JavaSSLIgnoreChecks;
+import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.paths.jcp.APIJCP;
+import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.states.JCPClient2State;
+import com.robypomper.josp.states.StateException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
@@ -35,77 +43,88 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 
+@SuppressWarnings({"UnnecessaryReturnStatement", "unused"})
 public class DefaultJCPClient2 implements JCPClient2 {
 
-    public static final String TH_CONNECTION_NAME = "_JCP_CONNECTION_";
-    public static final String TH_CONNECTION_CHECK_NAME = "_JCP_CONNECTION_CHECK_";
+    // Class constants
+
+    public static final String TH_CONNECTION_NAME = "_CONN_%s_";
+    public static final String TH_CONNECTION_CHECK_NAME = "_CONN_%s_CHECK_";
     public static final String HEAD_COOKIE = "Cookie";
     public static final String HEAD_SET_COOKIE = "Set-Cookie";
     public static final String SESSION_KEY = "JSESSIONID";
 
 
-    public final String clientId;
-    private final OAuth20Service service;
-    public final String baseUrlAuth;
-    public final String baseUrlAPIs;
-    public final boolean securedAPIs;
-    private OAuth2AccessToken accessToken = null;
-    public final String authRealm;
+    // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
+    private final JavaEnum.SynchronizableState<JCPClient2State> state = new JavaEnum.SynchronizableState<>(JCPClient2State.DISCONNECTED, log);
+    // Configs
+    private final String clientId;
+    private final String apiName;
+    private final String baseUrlAuth;
+    private final String baseUrlAPIs;
+    private final boolean securedAPIs;
+    private final String authRealm;
+    private final int connectionTimerDelaySeconds;
+    // Listeners
+    private final List<ConnectionListener> connectionListeners = new ArrayList<>();
+    private final List<LoginListener> loginListeners = new ArrayList<>();
+    // Connection timers
+    private Timer connectionTimer = null;
+    private Timer connectionCheckTimer = null;
+    // OAuth
+    private final OAuth20Service service;
+    private OAuth2AccessToken accessToken = null;
     private boolean cliCred_isConnected = false;
     private String cliCred_refreshToken = null;
-
     private boolean authCode_isConnected = false;
     private String authCode_refreshToken = null;
     private String authCode_loginCode = null;
-
-
-    private final List<ConnectListener> connectListeners = new ArrayList<>();
-    private final List<DisconnectListener> disconnectListeners = new ArrayList<>();
-
-    private Timer connectionTimer = null;
-    public final int connectionTimerDelaySeconds;
-
-    private Timer connectionCheckTimer = null;
-
-    private final List<LoginListener> loginListeners = new ArrayList<>();
-
-
+    // Headers and session
     private final Map<String, String> defaultHeaders = new HashMap<>();
     private String sessionId = null;
+    // Other
+    private Date lastConnection;
+    private Date lastDisconnection;
 
 
     // Constructor
 
     public DefaultJCPClient2(String clientId, String clientSecret,
                              String apisBaseUrl, boolean apisSecured,
-                             String authBaseUrl, String authScopes, String authCallBack, String authRealm) {
-        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, null, 30);
+                             String authBaseUrl, String authScopes, String authCallBack, String authRealm,
+                             String apiName) {
+        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, null, 30, apiName);
     }
 
     public DefaultJCPClient2(String clientId, String clientSecret,
                              String apisBaseUrl, boolean apisSecured,
                              String authBaseUrl, String authScopes, String authCallBack, String authRealm,
-                             int connectionRetrySeconds) {
-        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, null, connectionRetrySeconds);
-    }
-
-    public DefaultJCPClient2(String clientId, String clientSecret,
-                             String apisBaseUrl, boolean apisSecured,
-                             String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken) {
-        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, authCodeRefreshToken, 30);
+                             int connectionRetrySeconds,
+                             String apiName) {
+        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, null, connectionRetrySeconds, apiName);
     }
 
     public DefaultJCPClient2(String clientId, String clientSecret,
                              String apisBaseUrl, boolean apisSecured,
                              String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken,
-                             int connectionRetrySeconds) {
+                             String apiName) {
+        this(clientId, clientSecret, apisBaseUrl, apisSecured, authBaseUrl, authScopes, authCallBack, authRealm, authCodeRefreshToken, 30, apiName);
+    }
+
+    public DefaultJCPClient2(String clientId, String clientSecret,
+                             String apisBaseUrl, boolean apisSecured,
+                             String authBaseUrl, String authScopes, String authCallBack, String authRealm, String authCodeRefreshToken,
+                             int connectionRetrySeconds,
+                             String apiName) {
         this.clientId = clientId;
         this.service = new ServiceBuilder(clientId)
                 .apiSecret(clientSecret)
                 .defaultScope(authScopes)
                 .callback(authCallBack)
                 .build(KeycloakApi.instance("https://" + authBaseUrl, authRealm));
+        this.apiName = apiName;
         this.baseUrlAuth = authBaseUrl;
         this.baseUrlAPIs = apisBaseUrl;
         this.securedAPIs = apisSecured;
@@ -113,109 +132,438 @@ public class DefaultJCPClient2 implements JCPClient2 {
             this.authCode_refreshToken = authCodeRefreshToken;
         this.authRealm = authRealm;
         this.connectionTimerDelaySeconds = connectionRetrySeconds;
+        this.state.setLogName(apiName);
+    }
+
+
+    // Getter state
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JCPClient2State getState() {
+        return state.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isConnected() {
+        return cliCred_isConnected || authCode_isConnected;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isConnecting() {
+        return connectionTimer != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isDisconnecting() {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isSessionSet() {
+        return sessionId != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastConnection() {
+        return lastConnection;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastDisconnection() {
+        return lastDisconnection;
+    }
+
+
+    // Getter configs
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getClientId() {
+        return clientId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getApiName() {
+        return apiName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAPIsUrl() {
+        return prepareUrl(false, "/", securedAPIs);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAPIsHostname() {
+        return urlToHostname(getAPIsUrl());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAuthUrl() {
+        return prepareUrl(true, "/", securedAPIs);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAuthHostname() {
+        return urlToHostname(getAuthUrl());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAuthLoginUrl() {
+        return service.getAuthorizationUrl();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAuthLoginUrl(String redirectUrl) {
+        //return service.getAuthorizationUrl() + ...;
+        throw new NotImplementedException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAuthLogoutUrl() {
+        return prepareUrl(true, getLogoutPath(null), true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAuthLogoutUrl(String redirectUrl) {
+        return prepareUrl(true, getLogoutPath(redirectUrl), true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAuthCodeRefreshToken() {
+        return authCode_refreshToken;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isHttps() {
+        return securedAPIs;
+    }
+
+
+    // Getter state authentication
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isUserAuthenticated() {
+        return isAuthCodeFlowEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isUserAnonymous() {
+        return !isAuthCodeFlowEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isClientCredentialFlowEnabled() {
+        return !isAuthCodeFlowEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isAuthCodeFlowEnabled() {
+        return authCode_refreshToken != null || authCode_loginCode != null;
+    }
+
+
+    // Getters utils
+
+    private String urlToHostname(String url) {
+        try {
+            String host = new URL(url).getHost();
+            InetAddress addr = InetAddress.getByName(host);
+            return addr.getHostAddress();
+
+        } catch (UnknownHostException e) {
+            return "Unknown";
+
+        } catch (MalformedURLException ignore) {
+            assert false;
+            return "";
+        }
+    }
+
+    private String getLogoutPath(String redirectUrl) {
+        //https://localhost:8998/auth/realms/jcp/protocol/openid-connect/logout?redirect_uri=https://...
+        String url = "/auth/realms/" + authRealm + "/protocol/openid-connect/logout";
+        if (redirectUrl != null)
+            url += "?redirect_uri=" + redirectUrl;
+        return url;
     }
 
 
     // Connection
 
     @Override
-    public boolean isConnected() {
-        return cliCred_isConnected || authCode_isConnected;
+    public void connect() throws StateException, AuthenticationException {
+        doConnect();
     }
 
     @Override
-    public boolean isSecured() {
-        return securedAPIs;
+    public void disconnect() throws StateException {
+        doDisconnect();
     }
 
-    @Override
-    public void connect() throws JCPNotReachableException, ConnectionException, AuthenticationException {
-        if (isConnected())
-            return;
 
-        checkServerReachability();
+    // JCP Client states manager
 
-        if (isClientCredentialFlowEnabled()) {
-            accessToken = getAccessTokenCliCredFlow(service);
-            cliCred_refreshToken = accessToken.getRefreshToken();
-            cliCred_isConnected = true;
+    private void doConnect() throws StateException, AuthenticationException {
+        if (state.get().isCONNECTED())
+            return; // Already done
 
-            authCode_isConnected = false;
-            authCode_refreshToken = null;
-            authCode_loginCode = null;
+        else if (state.get().isCONNECTING())
+            return; // Already in progress
 
-        } else if (isAuthCodeFlowEnabled()) {
-            try {
-                accessToken = getAccessTokenAuthCodeFlow(service, authCode_refreshToken, authCode_loginCode);
-                authCode_refreshToken = accessToken.getRefreshToken();
-                authCode_isConnected = true;
-                authCode_loginCode = null;
-                emitLoggedIn();
+        else if (state.enumEquals(JCPClient2State.DISCONNECTED))
+            initConnection();
 
-                cliCred_isConnected = false;
-                cliCred_refreshToken = null;
-
-            } catch (AuthenticationException e) {
-                authCode_refreshToken = null;
-                authCode_loginCode = null;
-                throw new AuthenticationException(String.format("Client '%s' can't authenticate to JCP APIs", clientId), e);
-            }
+        else if (state.enumEquals(JCPClient2State.DISCONNECTING)) {
+            if (stopDisconnecting())
+                initConnection();
+            else
+                throw new StateException(String.format("Can't connect %s Client because is disconnecting, try again later", getApiName()));
         }
-
-        emitConnected();
-        startConnectionCheckTimer();
     }
 
-    @Override
-    public void disconnect() {
-        if (!isConnected() && !isConnecting())
-            return;
+    private void doDisconnect() throws StateException {
+        if (state.get().isCONNECTED())
+            closeConnection();
 
-        if (isConnecting()) {
-            stopConnectionTimer();
-            return;
-        }
+        else if (state.get().isCONNECTING()) {
+            if (stopConnecting()) {
+                if (state.get().isCONNECTED())
+                    closeConnection();
+            } else
+                throw new StateException(String.format("Can't disconnect %s Client because is connecting, try again later", getApiName()));
 
-        cliCred_isConnected = false;
-        authCode_isConnected = false;
-        accessToken = null;
+        } else if (state.enumEquals(JCPClient2State.DISCONNECTED))
+            return; // Already done
 
-        stopConnectionCheckTimer();
-        emitDisconnected();
+        else if (state.enumEquals(JCPClient2State.DISCONNECTING))
+            return; // Already in progress
     }
 
-    private boolean checkAPIsReachability(boolean toAuth, String path, boolean stopOnFail) {
-        try {
-            execReq(toAuth, Verb.GET, path, securedAPIs);
-            return true;
+    private void initConnection() throws AuthenticationException {
+        assert state.enumEquals(JCPClient2State.DISCONNECTED)
+                || state.get().isCONNECTING() :
+                "Method initConnection() can be called only from DISCONNECTED or CONNECTING_ state";
 
-        } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e) {
+        synchronized (state) {
+            if (!state.get().isCONNECTING())
+                state.set(JCPClient2State.CONNECTING);
 
             try {
-                execReq(Verb.GET, "/apis/Status/2.0/", securedAPIs);
-                return true;
+                checkServerReachability(false, APIJCP.FULL_PATH_STATUS);
 
-            } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e1) {
-
-                if (stopOnFail) {
-                    cliCred_isConnected = false;
-                    authCode_isConnected = false;
-                    accessToken = null;
-
-                    stopConnectionCheckTimer();
-
-                    emitDisconnected();
-
+            } catch (JCPNotReachableException e) {
+                if (state.enumNotEquals(JCPClient2State.CONNECTING_WAITING_JCP)) {
+                    log.warn("JCP Client can't connect, start JCP Client connection timer");
+                    state.set(JCPClient2State.CONNECTING_WAITING_JCP);
                     startConnectionTimer();
                 }
+                emitConnectionFailed(e);
+                return;
             }
+
+            try {
+                checkServerReachability(true, "/auth/realms/jcp/.well-known/openid-configuration");
+
+            } catch (JCPNotReachableException e) {
+                if (state.enumNotEquals(JCPClient2State.CONNECTING_WAITING_AUTH)) {
+                    log.warn("JCP Client can't connect, start JCP Client connection timer");
+                    state.set(JCPClient2State.CONNECTING_WAITING_AUTH);
+                    startConnectionTimer();
+                }
+                emitConnectionFailed(e);
+                return;
+            }
+
+            if (isClientCredentialFlowEnabled()) {
+                try {
+                    accessToken = getAccessTokenCliCredFlow(service, apiName);
+                } catch (ConnectionException ignore) {
+                }
+                cliCred_refreshToken = accessToken.getRefreshToken();
+                cliCred_isConnected = true;
+
+                authCode_isConnected = false;
+                authCode_refreshToken = null;
+                authCode_loginCode = null;
+                state.set(JCPClient2State.CONNECTED_ANONYMOUS);
+
+            } else if (isAuthCodeFlowEnabled()) {
+                try {
+                    try {
+                        accessToken = getAccessTokenAuthCodeFlow(service, authCode_refreshToken, authCode_loginCode, apiName);
+                    } catch (ConnectionException ignore) {
+                    }
+                    authCode_refreshToken = accessToken.getRefreshToken();
+                    authCode_isConnected = true;
+                    authCode_loginCode = null;
+                    emitLoggedIn();
+
+                    cliCred_isConnected = false;
+                    cliCred_refreshToken = null;
+                    state.set(JCPClient2State.CONNECTED_LOGGED);
+
+                } catch (AuthenticationException e) {
+                    authCode_refreshToken = null;
+                    authCode_loginCode = null;
+                    emitAuthenticationFailed(e);
+                    throw new AuthenticationException(String.format("Client '%s' can't authenticate to %s", clientId, apiName), e);
+                }
+            }
+
+            stopConnectionTimer();
+            startConnectionCheckTimer();
+            lastConnection = JOSPProtocol.getNowDate();
+            emitConnected();
         }
-        return false;
+
     }
 
-    private void checkServerReachability() throws JCPNotReachableException {
-        checkServerReachability(false, APIJCP.FULL_PATH_STATUS);
-        checkServerReachability(true, "/auth/realms/jcp/.well-known/openid-configuration");
+    private boolean stopConnecting() {
+        assert state.get().isCONNECTING() :
+                "Method stopConnecting() can be called only from CONNECTING_ state";
+
+        // If connecting (1st attempt)
+        if (state.enumEquals(JCPClient2State.CONNECTING)) {
+            JavaThreads.softSleep(1000);
+            return !state.get().isCONNECTING();
+        }
+
+        synchronized (state) {
+            // Clean up connection waiting stuff
+            if (state.enumEquals(JCPClient2State.CONNECTING_WAITING_JCP)) {
+                log.warn("JCP Client disconnect, stop JCP Client connection timer");
+                stopConnectionTimer();
+            }
+            if (state.enumEquals(JCPClient2State.CONNECTING_WAITING_AUTH)) {
+                log.warn("JCP Client disconnect, stop JCP Client connection timer");
+                stopConnectionTimer();
+            }
+
+            state.set(JCPClient2State.DISCONNECTED);
+            return true;
+        }
+    }
+
+    private void closeConnection() {
+        assert state.get().isCONNECTED() :
+                "Method closeConnection() can be called only from CONNECTED_ state";
+
+        synchronized (state) {
+            state.set(JCPClient2State.DISCONNECTING);
+
+            cliCred_isConnected = false;
+            authCode_isConnected = false;
+            accessToken = null;
+
+            stopConnectionCheckTimer();
+
+            state.set(JCPClient2State.DISCONNECTED);
+            lastDisconnection = JOSPProtocol.getNowDate();
+            emitDisconnected();
+        }
+    }
+
+    private boolean stopDisconnecting() {
+        assert state.enumEquals(JCPClient2State.DISCONNECTING) :
+                "Method stopDisconnecting() can be called only from DISCONNECTING state";
+
+        // If disconnecting (1st attempt)
+        JavaThreads.softSleep(1000);
+        return state.enumNotEquals(JCPClient2State.DISCONNECTING);
+    }
+
+    private void checkConnection() {
+        assert state.get().isCONNECTED() :
+                "Method checkConnection() can be called only from CONNECTED_ state";
+
+        try {
+            checkServerReachability(false, APIJCP.FULL_PATH_STATUS);
+            checkServerReachability(true, "/auth/realms/jcp/.well-known/openid-configuration");
+            return;
+
+        } catch (JCPNotReachableException ignore) {
+            cliCred_isConnected = false;
+            authCode_isConnected = false;
+            accessToken = null;
+
+            //synchronized (state) {
+            try {
+                doDisconnect();
+                doConnect();
+            } catch (StateException | AuthenticationException e) {
+                log.warn(String.format("Can't reconnect %s because %s", getApiName(), e.getMessage()), e);
+            }
+            lastDisconnection = JOSPProtocol.getNowDate();
+            emitDisconnected();
+        }
     }
 
     private void checkServerReachability(boolean toAuth, String path) throws JCPNotReachableException {
@@ -235,25 +583,25 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     code = con.getResponseCode();
 
                 } catch (SSLHandshakeException e1) {
-                    throw new JCPNotReachableException("Error connecting to JCP because SSL handshaking failed");
+                    throw new JCPNotReachableException(String.format("Error connecting to %s because SSL handshaking failed", apiName));
                 }
             }
             if (code != 200) {
-                String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) returned '%d' code", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", code);
+                String errMsg = String.format("Error connecting to %s because '%s%s' (%s) returned '%d' code", apiName, toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", code);
                 throw new JCPNotReachableException(errMsg);
             }
 
         } catch (IOException e) {
-            String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) not reachable [%s:%s]", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
+            String errMsg = String.format("Error connecting to %s because '%s%s' (%s) not reachable [%s:%s]", apiName, toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
             throw new JCPNotReachableException(errMsg);
 
         } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            String errMsg = String.format("Error connecting to JCP because '%s%s' (%s) can't ignore LOCALHOST's certificate checks [%s:%s]", toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
+            String errMsg = String.format("Error connecting to %s because '%s%s' (%s) can't ignore LOCALHOST's certificate checks [%s:%s]", apiName, toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
             throw new JCPNotReachableException(errMsg);
         }
     }
 
-    private static OAuth2AccessToken getAccessTokenCliCredFlow(OAuth20Service service) throws ConnectionException, AuthenticationException {
+    private static OAuth2AccessToken getAccessTokenCliCredFlow(OAuth20Service service, String apiName) throws ConnectionException, AuthenticationException {
         try {
             try {
                 return service.getAccessTokenClientCredentialsGrant();
@@ -265,24 +613,24 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     return service.getAccessTokenClientCredentialsGrant();
 
                 } catch (SSLHandshakeException e1) {
-                    throw new ConnectionException("Error connecting to JCP because SSL handshaking failed", e1);
+                    throw new ConnectionException(String.format("Error connecting to %s because SSL handshaking failed (%s)", apiName, e.getMessage()), e1);
                 }
             }
 
         } catch (IOException | InterruptedException | ExecutionException e) {
-            throw new ConnectionException(String.format("Error connecting to JCP because can't get the access token for Client Credentials flow ([%s] %s)", e.getClass().getSimpleName(), e.getMessage()), e);
+            throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Client Credentials flow ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
 
         } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            throw new ConnectionException(String.format("Error connecting to JCP because can't ignore LOCALHOST's certificate checks ([%s] %s)", e.getClass().getSimpleName(), e.getMessage()), e);
+            throw new ConnectionException(String.format("Error connecting to %s because can't ignore LOCALHOST's certificate checks ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
 
         } catch (OAuth2AccessTokenErrorResponse e) {
-            throw new AuthenticationException(String.format("Error connecting to JCP because authentication error for client ([%s] %s)", e.getClass().getSimpleName(), e.getMessage()), e);
+            throw new AuthenticationException(String.format("Error connecting to %s because authentication error for client ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
         }
     }
 
-    private static OAuth2AccessToken getAccessTokenAuthCodeFlow(OAuth20Service service, String refreshToken, String loginCode) throws ConnectionException, AuthenticationException {
+    private static OAuth2AccessToken getAccessTokenAuthCodeFlow(OAuth20Service service, String refreshToken, String loginCode, String apiName) throws ConnectionException, AuthenticationException {
         if (loginCode == null && refreshToken == null)
-            throw new AuthenticationException("Error connecting to JCP because Login Code nor Refresh Token were set for Auth Code flow");
+            throw new AuthenticationException(String.format("Error connecting to %s because Login Code nor Refresh Token were set for Auth Code flow", apiName));
 
         try {
             try {
@@ -301,70 +649,53 @@ public class DefaultJCPClient2 implements JCPClient2 {
                         return service.refreshAccessToken(refreshToken);
 
                 } catch (SSLHandshakeException e1) {
-                    throw new ConnectionException("Error connecting to JCP because SSL handshaking failed", e1);
+                    throw new ConnectionException(String.format("Error connecting to %s because SSL handshaking failed (%s)", apiName, e.getMessage()), e1);
                 }
             }
 
         } catch (OAuth2AccessTokenErrorResponse e) {
-            throw new AuthenticationException(String.format("Error connecting to JCP because %s", e.getMessage()), e);
+            throw new AuthenticationException(String.format("Error connecting to %s because %s", apiName, e.getMessage()), e);
 
         } catch (IOException | InterruptedException | ExecutionException e) {
-            throw new ConnectionException("Error connecting to JCP because can't get the access token for Auth Code flow", e);
+            throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Auth Code flow because %s", apiName, e.getMessage()), e);
 
         } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            throw new ConnectionException("Error connecting to JCP because can't ignore LOCALHOST's certificate checks", e);
+            throw new ConnectionException(String.format("Error connecting to %s because can't ignore LOCALHOST's certificate checks because %s", apiName, e.getMessage()), e);
         }
     }
 
-    protected String getAuthCodeRefreshToken() {
-        return authCode_refreshToken;
+
+    // JCP re-connection timer
+
+    private void startConnectionTimer() {
+        assert state.enumEquals(JCPClient2State.CONNECTING_WAITING_JCP)
+                || state.enumEquals(JCPClient2State.CONNECTING_WAITING_JCP) :
+                "Method startConnectionTimer() can be called only from CONNECTING_WAITING_JCP or CONNECTING_WAITING_AUTH state";
+
+        long waitMs = connectionTimerDelaySeconds * 1000;
+        connectionTimer = new Timer(true);
+        connectionTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Thread.currentThread().setName(String.format(TH_CONNECTION_NAME, apiName.toUpperCase()));
+                try {
+                    initConnection();
+                } catch (AuthenticationException ignore) {
+                }
+            }
+        }, waitMs, waitMs);
+    }
+
+    private void stopConnectionTimer() {
+        if (connectionTimer == null) return;
+
+        connectionTimer.cancel();
+        connectionTimer = null;
     }
 
 
-    // Connection listeners
+    // JCP connection check timer
 
-    @Override
-    public void addConnectListener(ConnectListener listener) {
-        connectListeners.add(listener);
-    }
-
-    @Override
-    public void removeConnectListener(ConnectListener listener) {
-        connectListeners.remove(listener);
-    }
-
-    @Override
-    public void addDisconnectListener(DisconnectListener listener) {
-        disconnectListeners.add(listener);
-    }
-
-    @Override
-    public void removeDisconnectListener(DisconnectListener listener) {
-        disconnectListeners.remove(listener);
-    }
-
-    private void emitConnected() {
-        List<ConnectListener> tmpList = new ArrayList<>(connectListeners);
-        for (ConnectListener l : tmpList)
-            l.onConnected(this);
-    }
-
-    private void emitConnectionFailed(Throwable t) {
-        List<ConnectListener> tmpList = new ArrayList<>(connectListeners);
-        for (ConnectListener l : tmpList)
-            l.onConnectionFailed(this, t);
-    }
-
-    private void emitDisconnected() {
-        List<DisconnectListener> tmpList = new ArrayList<>(disconnectListeners);
-        for (DisconnectListener l : tmpList)
-            l.onDisconnected(this);
-    }
-
-
-    // Connection check timer (Connection still UP check - Heartbeat)
-
-    //@Override
     private void startConnectionCheckTimer() {
         if (!isConnected())
             return;
@@ -374,29 +705,11 @@ public class DefaultJCPClient2 implements JCPClient2 {
             @Override
             public void run() {
                 Thread.currentThread().setName(TH_CONNECTION_CHECK_NAME);
-
-                try {
-                    checkServerReachability();
-
-                } catch (JCPNotReachableException e) {
-                    System.out.println(String.format("Exception [%s]: %s", e.getClass().getSimpleName(), e.getMessage()));
-                    cliCred_isConnected = false;
-                    authCode_isConnected = false;
-                    accessToken = null;
-
-                    stopConnectionCheckTimer();
-
-                    emitDisconnected();
-
-                    startConnectionTimer();
-                }
-
-                // Check connection (auth) status
+                checkConnection();
             }
         }, 0, connectionTimerDelaySeconds * 1000);
     }
 
-    //@Override
     private void stopConnectionCheckTimer() {
         if (connectionCheckTimer == null) return;
 
@@ -405,143 +718,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
 
-    // Connection timer (Connection become available check - Connection)
-
-    @Override
-    public boolean isConnecting() {
-        return connectionTimer != null;
-    }
-
-    @Override
-    public void startConnectionTimer() {
-        startConnectionTimer(false);
-    }
-
-    @Override
-    public void startConnectionTimer(boolean delay) {
-        if (isConnected() || isConnecting())
-            return;
-
-        long delayMs = delay ? connectionTimerDelaySeconds * 1000 : 0;
-        connectionTimer = new Timer(true);
-        connectionTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(TH_CONNECTION_NAME);
-
-                try {
-                    if (!isConnected())
-                        DefaultJCPClient2.this.connect();
-                    if (isConnected())
-                        stopConnectionTimer();
-
-                } catch (JCPNotReachableException e) {
-                    emitConnectionFailed(e);
-
-                } catch (ConnectionException | AuthenticationException e) {
-                    stopConnectionTimer();
-                    emitConnectionFailed(e);
-                }
-
-            }
-        }, delayMs, connectionTimerDelaySeconds * 1000);
-    }
-
-    @Override
-    public void stopConnectionTimer() {
-        if (connectionTimer == null) return;
-
-        connectionTimer.cancel();
-        connectionTimer = null;
-    }
-
-
-    // Authentication flows
-
-    @Override
-    public boolean isClientCredentialFlowEnabled() {
-        return !isAuthCodeFlowEnabled();
-    }
-
-    @Override
-    public boolean isAuthCodeFlowEnabled() {
-        return authCode_refreshToken != null || authCode_loginCode != null;
-    }
-
-
-    // APIs urls
-
-    @Override
-    public String getUrlAPIs() {
-        return prepareUrl(false, "/", securedAPIs);
-    }
-
-    @Override
-    public String getIPAPIs() {
-        try {
-            return InetAddress.getByName(new URL(getUrlAPIs()).getHost()).getHostAddress();
-        } catch (UnknownHostException e) {
-            return "Unknown";
-        } catch (MalformedURLException ignore) {
-            assert false;
-            return "";
-        }
-    }
-
-
-    // Auth urls
-
-    @Override
-    public String getUrlAuth() {
-        return prepareUrl(true, "/", securedAPIs);
-    }
-
-    @Override
-    public String getIPAuth() {
-        try {
-            return InetAddress.getByName(new URL(getUrlAuth()).getHost()).getHostAddress();
-        } catch (UnknownHostException e) {
-            return "Unknown";
-        } catch (MalformedURLException ignore) {
-            assert false;
-            return "";
-        }
-    }
-
-    @Override
-    public String getLoginUrl() {
-        return service.getAuthorizationUrl();
-    }
-
-    private String getLogoutPath() {
-        return getLogoutPath(null);
-    }
-
-    private String getLogoutPath(String redirectUrl) {
-        //https://localhost:8998/auth/realms/jcp/protocol/openid-connect/logout?redirect_uri=https://...
-        String url = "/auth/realms/" + authRealm + "/protocol/openid-connect/logout";
-        if (redirectUrl != null)
-            url += "?redirect_uri=" + redirectUrl;
-        return url;
-    }
-
-    @Override
-    public String getLogoutUrl() {
-        return getLogoutUrl(null);
-    }
-
-    @Override
-    public String getLogoutUrl(String redirectUrl) {
-        return prepareUrl(true, getLogoutPath(redirectUrl), true);
-    }
-
-
     // Login
-
-    @Override
-    public boolean isLoggedIn() {
-        return isAuthCodeFlowEnabled() && isConnected();
-    }
 
     @Override
     public void setLoginCode(String loginCode) {
@@ -550,25 +727,64 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     @Override
     public void userLogout() {
-        if (!isLoggedIn())
+        if (!isUserAuthenticated())
             return;
 
         try {
-            execReq(true, Verb.GET, getLogoutPath(), true);
+            execReq(true, Verb.GET, getLogoutPath(null), true);
         } catch (ConnectionException | AuthenticationException | RequestException | ResponseException e) {
             e.printStackTrace();
         }
 
         cleanSession();
 
-        disconnect();
+        try {
+            disconnect();
+        } catch (StateException ignore) {
+        }
         authCode_refreshToken = null;
         emitLoggedOut();
 
         try {
             connect();
-        } catch (JCPNotReachableException | ConnectionException | AuthenticationException ignore) {
+        } catch (StateException ignore) {
+            assert false : "StateException should NOT be throw calling connect() after disconnect()";
+        } catch (AuthenticationException ignore) {
+            assert false : "AuthenticationException should NOT be throw after clean user and session data";
         }
+    }
+
+
+    // Connection listeners
+
+    @Override
+    public void addConnectionListener(ConnectionListener listener) {
+        connectionListeners.add(listener);
+    }
+
+    @Override
+    public void removeConnectionListener(ConnectionListener listener) {
+        connectionListeners.remove(listener);
+    }
+
+    private void emitConnected() {
+        for (ConnectionListener l : connectionListeners)
+            l.onConnected(this);
+    }
+
+    private void emitConnectionFailed(Throwable t) {
+        for (ConnectionListener l : connectionListeners)
+            l.onConnectionFailed(this, t);
+    }
+
+    private void emitAuthenticationFailed(Throwable t) {
+        for (ConnectionListener l : connectionListeners)
+            l.onAuthenticationFailed(this, t);
+    }
+
+    private void emitDisconnected() {
+        for (ConnectionListener l : connectionListeners)
+            l.onDisconnected(this);
     }
 
 
@@ -612,11 +828,6 @@ public class DefaultJCPClient2 implements JCPClient2 {
     private void injectDefaultHeaders(OAuthRequest request) {
         for (Map.Entry<String, String> h : defaultHeaders.entrySet())
             request.addHeader(h.getKey(), h.getValue());
-    }
-
-    @Override
-    public boolean isSessionSet() {
-        return sessionId != null;
     }
 
     private void injectSession(OAuthRequest request) {
@@ -702,16 +913,17 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     @Override
     public <T> T execReq(Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
-        return execReq(false, reqType, path, reqObject, (Object) objParam, secure);
+        return execReq(false, reqType, path, reqObject, objParam, secure);
     }
 
     public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         String fullUrl = prepareUrl(toAuth, path, secure);
         if (!isConnected())
-            throw new ConnectionException(String.format("Error on exec request '[%s] %s' because not connected to JCP", reqType, fullUrl));
+            throw new ConnectionException(String.format("Error on exec request '[%s] %s' because not connected to %s", reqType, fullUrl, apiName));
 
         if (reqType == Verb.GET) {
             if (objParam instanceof Map)
+                //noinspection unchecked
                 path = prepareGetPath(path, (Map<String, String>) objParam);
             else
                 throw new RequestException(String.format("Error on exec request '[%s] %s' because GET request must give a Map<String,String> as parameter (get %s)", reqType, fullUrl, objParam.getClass().getSimpleName()));
@@ -742,17 +954,17 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
                     // Get new access token with new authentication process
                     if (isClientCredentialFlowEnabled())
-                        accessToken = getAccessTokenCliCredFlow(service);
+                        accessToken = getAccessTokenCliCredFlow(service, apiName);
                     if (isAuthCodeFlowEnabled()) {
                         emitLoggedOut();
                         try {
-                            accessToken = getAccessTokenAuthCodeFlow(service, authCode_refreshToken, authCode_loginCode);
+                            accessToken = getAccessTokenAuthCodeFlow(service, authCode_refreshToken, authCode_loginCode, apiName);
                             emitLoggedIn();
 
                         } catch (AuthenticationException e1) {
 
                             // AuthCode logout but ClientCredential connected
-                            accessToken = getAccessTokenCliCredFlow(service);
+                            accessToken = getAccessTokenCliCredFlow(service, apiName);
                         }
                     }
                 }
@@ -773,6 +985,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             return null;
         String body = extractBody(response, fullUrl);
         if (reqObject.equals(String.class))
+            //noinspection unchecked
             return (T) body;
 
         return parseJSON(body, reqObject, fullUrl);
@@ -861,26 +1074,35 @@ public class DefaultJCPClient2 implements JCPClient2 {
         }
     }
 
+
+    // Static copy method
+
     public static void copyCredentials(DefaultJCPClient2 src, DefaultJCPClient2 dest) {
+        // Configs
         //dest.clientId = src.clientId;         // FINAL
-        //dest.service = src.service;           // FINAL
+        //dest.apiName = src.apiName;           // FINAL
         //dest.baseUrlAuth = src.baseUrlAuth;   // FINAL
         //dest.baseUrlAPIs = src.baseUrlAPIs;   // FINAL
         //dest.securedAPIs = src.securedAPIs;   // FINAL
-        dest.accessToken = src.accessToken;
         //dest.authRealm = src.authRealm;       // FINAL
+        //dest.connectionTimerDelaySeconds = src.connectionTimerDelaySeconds;           // FINAL and NOT related with credentials
+        // Listeners
+        //dest.connectionListeners = src.connectionListeners;   // FINAL and NOT related with credentials
+        //dest.loginListeners = src.loginListeners;             // FINAL and NOT related with credentials
+        // Connection timers
+        //dest.connectionTimer = src.connectionTimer;           // NOT related with credentials
+        //dest.connectionCheckTimer = src.connectionCheckTimer; // NOT related with credentials
+        // OAuth
+        //dest.service = src.service;           // FINAL
+        dest.accessToken = src.accessToken;
         dest.cliCred_isConnected = src.cliCred_isConnected;
         dest.cliCred_refreshToken = src.cliCred_refreshToken;
         dest.authCode_isConnected = src.authCode_isConnected;
         dest.authCode_refreshToken = src.authCode_refreshToken;
         dest.authCode_loginCode = src.authCode_loginCode;
-        //dest.connectListeners = src.connectListeners;         // FINAL and NOT related with credentials
-        //dest.disconnectListeners = src.disconnectListeners;   // FINAL and NOT related with credentials
-        //dest.connectionTimer = src.connectionTimer;           // NOT related with credentials
-        //dest.connectionTimerDelaySeconds = src.connectionTimerDelaySeconds;           // FINAL and NOT related with credentials
-        //dest.connectionCheckTimer = src.connectionCheckTimer; // NOT related with credentials
-        //dest.loginListeners = src.loginListeners;             // FINAL and NOT related with credentials
+        // Headers and sessions
         dest.defaultHeaders.putAll(src.defaultHeaders);
         dest.sessionId = src.sessionId;
     }
+
 }

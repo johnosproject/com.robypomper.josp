@@ -20,96 +20,147 @@
 package com.robypomper.josp.clients;
 
 import com.github.scribejava.core.model.Verb;
+import com.robypomper.josp.states.JCPClient2State;
+import com.robypomper.josp.states.StateException;
 
+import java.util.Date;
 import java.util.Map;
 
 
+/**
+ * This interface expose all method for JCP Clients.
+ * <p>
+ * It's used as interface by any JCP client: by JOD and JSL clients to JCP APIs,
+ * but also by JCP services to connect to other JCP services.
+ * <p>
+ * JCPClient2 implementation must implement support for:
+ * <ul>
+ *    <li><b>Connection</b></li>
+ *    <li><b>Login</b></li>
+ *    <li><b>Headers</b></li>
+ *    <li><b>Sessions</b></li>
+ *    <li><b>Request execution</b></li>
+ * </ul>
+ */
+@SuppressWarnings("unused")
 public interface JCPClient2 {
 
-    // Connection
+    // Getter state
 
+    /**
+     * @return the JCP Client's status.
+     */
+    JCPClient2State getState();
+
+    /**
+     * @return true only if the JCP Client is connected to the designed
+     * JCP service.
+     */
     boolean isConnected();
 
-    boolean isSecured();
-
-    void connect() throws JCPNotReachableException, ConnectionException, AuthenticationException;
-
-    void disconnect();
-
-
-    // Connection listeners
-
-    void addConnectListener(ConnectListener listener);
-
-    void removeConnectListener(ConnectListener listener);
-
-    void addDisconnectListener(DisconnectListener listener);
-
-    void removeDisconnectListener(DisconnectListener listener);
-
-
-    // Connection listeners interfaces
-
-    interface ConnectListener {
-
-        void onConnected(JCPClient2 jcpClient);
-
-        void onConnectionFailed(JCPClient2 jcpClient, Throwable t);
-
-    }
-
-    interface DisconnectListener {
-
-        void onDisconnected(JCPClient2 jcpClient);
-
-    }
-
-
-    // Connection timer
-
+    /**
+     * @return true only if the JCP Client is connecting (or waiting for
+     * re-connecting) to the designed JCP service.
+     */
     boolean isConnecting();
 
-    void startConnectionTimer();
+    /**
+     * @return true only if the JCP Client is NOT connected and is not try to
+     * reconnect to the designed JCP service.
+     */
+    boolean isDisconnecting();
 
-    void startConnectionTimer(boolean delay);
+    /**
+     * @return true only if the JCP Client had negotiated a session with
+     * the designed JCP service.
+     */
+    boolean isSessionSet();
 
-    void stopConnectionTimer();
+    /**
+     * @return the Date when last connection to the designed JCP Service was
+     * opened successfully.
+     */
+    Date getLastConnection();
+
+    /**
+     * @return the Date when last connection to the designed JCP Service was
+     * closed.
+     */
+    Date getLastDisconnection();
 
 
-    // Authentication flows
+    // Getter configs
+
+    String getClientId();           /* client id used to authenticate??? */
+
+    String getApiName();            /* Displayable APIs name */
+
+    String getAPIsUrl();            /* Full url 'protocol://domain:port/' */
+
+    String getAPIsHostname();       /* replace getIPAPIs() */
+
+    String getAuthUrl();            /* Full url 'protocol://domain:port/' */
+
+    String getAuthHostname();       /* replace getIPAuth() */
+
+    String getAuthLoginUrl();                       /* replace getLoginUrl() */
+
+    String getAuthLoginUrl(String redirectUrl);
+
+    String getAuthLogoutUrl();                      /* replace getLogoutUrl() */
+
+    String getAuthLogoutUrl(String redirectUrl);    /* replace getLogoutUrl(String) */
+
+    String getAuthCodeRefreshToken();
+
+    boolean isHttps();
+
+
+    // Getter state authentication
+
+    boolean isUserAuthenticated();  /* replace isLoggedIn() */
+
+    boolean isUserAnonymous();
 
     boolean isClientCredentialFlowEnabled();
 
     boolean isAuthCodeFlowEnabled();
 
 
-    // APIs urls
+    // Connection
 
-    String getUrlAPIs();
+    void connect() throws StateException, AuthenticationException;
 
-    String getIPAPIs();
-
-
-    // Auth urls
-
-    String getUrlAuth();
-
-    String getIPAuth();
-
-    String getLoginUrl();
-
-    String getLogoutUrl();
-
-    String getLogoutUrl(String redirectUrl);
+    void disconnect() throws StateException;
 
 
     // Login
 
-    boolean isLoggedIn();
-
     void setLoginCode(String loginCode);
 
     void userLogout();
+
+
+    // Connection listeners
+
+    void addConnectionListener(ConnectionListener listener);
+
+    void removeConnectionListener(ConnectionListener listener);
+
+
+    // Connection listeners interfaces
+
+    interface ConnectionListener {
+
+        void onConnected(JCPClient2 jcpClient);
+
+        void onConnectionFailed(JCPClient2 jcpClient, Throwable t);
+
+        void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t);
+
+        void onDisconnected(JCPClient2 jcpClient);
+
+    }
 
 
     // Login listeners
@@ -135,8 +186,6 @@ public interface JCPClient2 {
     void addDefaultHeader(String headerName, String headerValue);
 
     void removeDefaultHeader(String headerName);
-
-    boolean isSessionSet();
 
 
     // Exec requests
@@ -191,6 +240,9 @@ public interface JCPClient2 {
         }
 
     }
+
+
+    // Authentication exceptions
 
     class AuthenticationException extends Throwable {
 

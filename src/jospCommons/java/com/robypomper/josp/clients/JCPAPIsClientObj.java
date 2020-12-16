@@ -20,38 +20,35 @@
 package com.robypomper.josp.clients;
 
 import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.states.StateException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
+@SuppressWarnings("unused")
+public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.ConnectionListener {
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
     public static final String JCP_NAME = "JCP APIs";
-    public boolean connFailedPrinted = false;
+    public boolean connFailedPrinted;
 
 
     // Constructor
 
     public JCPAPIsClientObj(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth) {
-        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", "", "jcp", 30);
-        addConnectListener(this);
-        addDisconnectListener(this);
-
+        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", "", "jcp", 30, JCP_NAME);
+        addConnectionListener(this);
 
         connFailedPrinted = true;
         try {
             connect();
-            connFailedPrinted = false;
 
-        } catch (ConnectionException | AuthenticationException | JCPNotReachableException e) {
-            connFailedPrinted = false;
-            if (e instanceof JCPNotReachableException) {
-                startConnectionTimer(true);
-            }
+        } catch (StateException | AuthenticationException e) {
+            log.warn(String.format("Error connecting to JCP %s because %s", getApiName(), e.getMessage()), e);
         }
+        connFailedPrinted = false;
     }
 
 
@@ -74,11 +71,6 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
     }
 
     @Override
-    public void onDisconnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s disconnected", JCP_NAME));
-    }
-
-    @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
         if (connFailedPrinted) {
             log.debug(String.format("Error on %s connection attempt because %s", JCP_NAME, t.getMessage()));
@@ -86,6 +78,16 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
             log.warn(String.format("Error on %s connection attempt because %s", JCP_NAME, t.getMessage()));
             connFailedPrinted = true;
         }
+    }
+
+    @Override
+    public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+        log.warn(String.format("Error on %s authentication because %s", JCP_NAME, t.getMessage()));
+    }
+
+    @Override
+    public void onDisconnected(JCPClient2 jcpClient) {
+        log.info(String.format("%s disconnected", JCP_NAME));
     }
 
 }
