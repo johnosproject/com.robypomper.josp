@@ -20,6 +20,7 @@
 package com.robypomper.communication.client;
 
 import java.net.InetAddress;
+import java.util.Date;
 
 
 /**
@@ -76,6 +77,10 @@ public interface Client {
      * @return the client id.
      */
     String getClientId();
+
+    Date getLastConnection();
+
+    Date getLastDisconnection();
 
 
     // Client connection methods

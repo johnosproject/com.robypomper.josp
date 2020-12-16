@@ -35,6 +35,7 @@ import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.net.InetAddress;
 import java.security.KeyStore;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -327,6 +328,22 @@ public class CertSharingSSLClient implements Client {
     @Override
     public String getClientId() {
         return sslClient.getClientId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastConnection() {
+        return sslClient.getLastConnection();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastDisconnection() {
+        return sslClient.getLastDisconnection();
     }
 
 

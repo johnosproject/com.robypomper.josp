@@ -25,6 +25,7 @@ import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.DefaultServer;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +38,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.Date;
 
 
 /**
@@ -69,6 +71,8 @@ public class DefaultClient extends CommunicationBase implements Client {
     private ServerInfo serverInfo;
     private final boolean delimiter = true;
     private final boolean sleep = false;
+    private Date lastConnection;
+    private Date lastDisconnection;
 
 
     // Constructor
@@ -176,6 +180,22 @@ public class DefaultClient extends CommunicationBase implements Client {
         return clientId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastConnection() {
+        return lastConnection;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastDisconnection() {
+        return lastDisconnection;
+    }
+
 
     // Client connection methods
 
@@ -208,6 +228,7 @@ public class DefaultClient extends CommunicationBase implements Client {
 
         serverInfo = generateAndStartServerInfo(clientSocket);
         clientThread = serverInfo.getThread();
+        lastConnection = JOSPProtocol.getNowDate();
 
         log.info(Mrk_Commons.COMM_CL, String.format("Client '%s' connected successfully", getClientId()));
         if (cle != null) cle.onConnected();
@@ -285,6 +306,7 @@ public class DefaultClient extends CommunicationBase implements Client {
         clientThread = null;
         client2ServerStream = null;
         server2ClientStream = null;
+        lastDisconnection = JOSPProtocol.getNowDate();
     }
 
 
