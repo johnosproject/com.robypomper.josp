@@ -29,13 +29,13 @@ import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.clients.apis.obj.APIGWsClient;
-import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.jod.JODSettings_002;
-import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
@@ -44,6 +44,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -152,11 +153,11 @@ public class JODGwO2SClient implements Client {
             clientTrustManager.addCertificate(JCP_CERT_ALIAS, gwCertificate);
 
             // Init SSL client
-            client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), o2sAccess.gwAddress, o2sAccess.gwPort,
+            client = new DefaultSSLClient(sslCtx, objInfo.getObjId(), InetAddress.getByName(o2sAccess.gwAddress), o2sAccess.gwPort,
                     null, new GwO2SClientServerEventsListener(), new GwO2SClientMessagingEventsListener());
             log.debug(Mrk_JOD.JOD_COMM_SUB, "Object GW client initialized");
 
-        } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException e) {
+        } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException | UnknownHostException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing object GW client because %s", e.getMessage()), e);
             throw new ConnectionException("Error on initializing object GW client");
         }
