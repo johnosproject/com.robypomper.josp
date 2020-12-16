@@ -23,6 +23,7 @@ import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.events.*;
 import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
 import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
@@ -69,8 +70,10 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.ConnectLi
                          @Value("${jcp.gws.s2o.port}") final int port,
                          @Value("${server.port}") final int apisPort,
                          @Value("${jcp.gws.s2o.maxClients}") final int maxClients,
-                         JCPAPIsClient apisClient) {
+                         @Value("${jcp.urlAPIs}") String urlAPIs,
+                         ClientParams params) {
         super(hostNameInternal, hostNamePublic, port);
+        JCPAPIsClient apisClient = new JCPAPIsClient(params, urlAPIs, false);
         this.gwsAPI = new JCPAPIGWsClient(apisClient);
         apisClient.addConnectListener(this);
         this.apisPort = apisPort;
