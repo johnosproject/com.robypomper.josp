@@ -35,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.InetAddress;
+import java.util.Date;
 
 
 /**
@@ -200,6 +201,22 @@ public class JSLLocalClient implements Client {
     @Override
     public String getClientId() {
         return client.getClientId();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastConnection() {
+        return client.getLastConnection();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getLastDisconnection() {
+        return client.getLastDisconnection();
     }
 
     /**
