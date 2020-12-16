@@ -228,7 +228,7 @@ public class JODEvents_002 implements JODEvents {
         }
     }
 
-    private final JCPClient2.ConnectListener jcpConnectListener = new JCPClient2.ConnectListener() {
+    private final JCPClient2.ConnectionListener jcpConnectListener = new JCPClient2.ConnectionListener() {
 
         @Override
         public void onConnected(JCPClient2 jcpClient) {
@@ -237,6 +237,14 @@ public class JODEvents_002 implements JODEvents {
 
         @Override
         public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onDisconnected(JCPClient2 jcpClient) {
         }
 
     };
@@ -322,7 +330,7 @@ public class JODEvents_002 implements JODEvents {
         if (jcpClient == null) return;
 
         this.jcpClient = jcpClient;
-        this.jcpClient.addConnectListener(jcpConnectListener);
+        this.jcpClient.addConnectionListener(jcpConnectListener);
         this.apiEventsClient = new APIEventsClient(jcpClient);
     }
 

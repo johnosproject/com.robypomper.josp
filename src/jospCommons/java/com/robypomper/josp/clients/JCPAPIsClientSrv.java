@@ -20,37 +20,35 @@
 package com.robypomper.josp.clients;
 
 import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.states.StateException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-public abstract class JCPAPIsClientSrv extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
+@SuppressWarnings("unused")
+public abstract class JCPAPIsClientSrv extends DefaultJCPClient2 implements JCPClient2.ConnectionListener {
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
     public static final String JCP_NAME = "JCP APIs";
-    public boolean connFailedPrinted = false;
+    public boolean connFailedPrinted;
 
 
     // Constructor
 
-    public JCPAPIsClientSrv(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String callBack) {
-        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", 30);
-        addConnectListener(this);
-        addDisconnectListener(this);
+    public JCPAPIsClientSrv(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String callBack, String authCodeRefreshToken) {
+        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", authCodeRefreshToken, 30, JCP_NAME);
+        addConnectionListener(this);
 
         connFailedPrinted = true;
         try {
             connect();
-            connFailedPrinted = false;
 
-        } catch (ConnectionException | AuthenticationException | JCPNotReachableException e) {
-            connFailedPrinted = false;
-            if (e instanceof JCPNotReachableException) {
-                startConnectionTimer(true);
-            }
+        } catch (StateException | AuthenticationException e) {
+            log.warn(String.format("Error connecting to JCP %s because %s", getApiName(), e.getMessage()), e);
         }
+        connFailedPrinted = false;
     }
 
 
@@ -70,7 +68,7 @@ public abstract class JCPAPIsClientSrv extends DefaultJCPClient2 implements JCPC
             removeDefaultHeader(APISrvs.HEADER_USRID);
     }
 
-    public void setLoginCodeAndReconnect(String loginCode) throws ConnectionException, AuthenticationException, JCPNotReachableException {
+    public void setLoginCodeAndReconnect(String loginCode) throws StateException, AuthenticationException {
         disconnect();
         setLoginCode(loginCode);
         connect();
@@ -81,22 +79,8 @@ public abstract class JCPAPIsClientSrv extends DefaultJCPClient2 implements JCPC
 
     @Override
     public void onConnected(JCPClient2 jcpClient) {
-        storeTokens();
-        // Store refresh tokens
-        //if (jcpClient.isClientCredentialFlowEnabled())
-        //    locSettings.setJCPAuthCodeRefreshToken(null);
-        //if (jcpClient.isAuthCodeFlowEnabled())
-        //    locSettings.setJCPAuthCodeRefreshToken(getAuthCodeRefreshToken());
-
         log.info(String.format("%s connected", JCP_NAME));
-    }
-
-    protected abstract void storeTokens();
-
-    @Override
-    public void onDisconnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s disconnected", JCP_NAME));
-        connFailedPrinted = false;
+        storeTokens();
     }
 
     @Override
@@ -108,5 +92,18 @@ public abstract class JCPAPIsClientSrv extends DefaultJCPClient2 implements JCPC
             connFailedPrinted = true;
         }
     }
+
+    @Override
+    public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+        log.warn(String.format("Error on %s connection authentication because %s", getApiName(), t.getMessage()));
+    }
+
+    @Override
+    public void onDisconnected(JCPClient2 jcpClient) {
+        log.info(String.format("%s disconnected", JCP_NAME));
+        connFailedPrinted = false;
+    }
+
+    protected abstract void storeTokens();
 
 }

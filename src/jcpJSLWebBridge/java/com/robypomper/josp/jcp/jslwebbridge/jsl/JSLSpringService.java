@@ -182,11 +182,11 @@ public class JSLSpringService {
     }
 
     public String getLoginUrl(JSL jsl) {
-        return jsl.getJCPClient().getLoginUrl();
+        return jsl.getJCPClient().getAuthLoginUrl();
     }
 
     public String getLogoutUrl(JSL jsl, String redirectUrl) {
-        return jsl.getJCPClient().getLogoutUrl(redirectUrl);
+        return jsl.getJCPClient().getAuthLogoutUrl(redirectUrl);
     }
 
     public boolean login(JSL jsl, String code) throws JCPClient2.ConnectionException, JCPClient2.JCPNotReachableException, JCPClient2.AuthenticationException {

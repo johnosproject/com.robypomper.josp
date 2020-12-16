@@ -1,6 +1,8 @@
 package com.robypomper.josp.jcp.clients;
 
 import com.robypomper.josp.clients.AbsAPIJCP;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.states.StateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +36,7 @@ public class JCPGWsClientMngr {
             try {
                 String url = String.format("%s:%d", gwAddr, gwPort);
                 JCPGWsClient jcpClient = new JCPGWsClient(gwsClientsParams, url, true);
+                jcpClient.connect();
                 apiClient = apiClass.getConstructor(JCPGWsClient.class).newInstance(jcpClient);
                 if (!jcpClient.isConnected())
                     try {
@@ -42,7 +45,7 @@ public class JCPGWsClientMngr {
                     }
 
                 apiGWsGWsClients.get(apiClass).put(gwId, apiClient);
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignore) {
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | StateException | JCPClient2.AuthenticationException ignore) {
                 return null;
             }
         } else

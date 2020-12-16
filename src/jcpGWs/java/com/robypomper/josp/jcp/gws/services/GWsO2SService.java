@@ -48,7 +48,7 @@ import java.util.Map;
 
 
 @Service
-public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectListener {
+public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectionListener {
 
 
     // Internal vars
@@ -85,7 +85,7 @@ public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectLi
         super(hostnameInternal, hostnamePublic, port);
         JCPAPIsClient apisClient = new JCPAPIsClient(params, urlAPIs, false);
         this.gwsAPI = new JCPAPIGWsClient(apisClient);
-        apisClient.addConnectListener(this);
+        apisClient.addConnectionListener(this);
         this.apisPort = apisPort;
         this.maxClients = maxClients;
         this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
@@ -281,6 +281,14 @@ public class GWsO2SService extends AbsGWsService implements JCPClient2.ConnectLi
 
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+    }
+
+    @Override
+    public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+    }
+
+    @Override
+    public void onDisconnected(JCPClient2 jcpClient) {
     }
 
 }

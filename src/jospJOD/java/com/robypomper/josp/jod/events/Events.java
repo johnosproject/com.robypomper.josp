@@ -93,27 +93,27 @@ public class Events {
     public static void registerJCPConnection(String phase, JCPClient2 jcpClient, String flow, Throwable t) {
         String payload;
         payload = "{";
-        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getUrlAPIs());
-        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getIPAPIs());
-        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getUrlAuth());
-        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getIPAuth());
-        if (flow!=null)
+        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getAPIsUrl());
+        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getAPIsHostname());
+        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getAuthUrl());
+        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getAuthHostname());
+        if (flow != null)
             payload += String.format(", \"flow\": \"%s\"", flow);
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_JCP_CONN,phase,payload,t);
+        register(JOSPEvent.Type.JOD_COMM_JCP_CONN, phase, payload, t);
     }
 
     public static void registerJCPDisconnection(String phase, JCPClient2 jcpClient, String flow) {
         String payload;
         payload = "{";
-        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getUrlAPIs());
-        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getIPAPIs());
-        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getUrlAuth());
-        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getIPAuth());
-        if (flow!=null)
+        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getAPIsUrl());
+        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getAPIsHostname());
+        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getAuthUrl());
+        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getAuthHostname());
+        if (flow != null)
             payload += String.format(", \"flow\": \"%s\"", flow);
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_JCP_DISC,phase,payload);
+        register(JOSPEvent.Type.JOD_COMM_JCP_DISC, phase, payload);
     }
 
 
