@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
-import java.net.InetAddress;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 
@@ -102,7 +101,7 @@ public class APIGWsGWsController {
         if (!gwO2SService.addClientCertificate(objId + accessRequest.instanceId, clientCertificate))
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering object '%s'.", objId));
 
-        InetAddress gwAddress = gwO2SService.getPublicAddress();
+        String gwAddress = gwO2SService.getPublicAddress();
         int gwPort = gwO2SService.getPort();
         byte[] gwCert = null;
         try {
@@ -152,7 +151,7 @@ public class APIGWsGWsController {
         if (!gwS2OService.addClientCertificate(srvId + accessRequest.instanceId, clientCertificate))
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering service '%s'.", srvId));
 
-        InetAddress gwAddress = gwS2OService.getPublicAddress();
+        String gwAddress = gwS2OService.getPublicAddress();
         int gwPort = gwS2OService.getPort();
         byte[] gwCert = null;
         try {
