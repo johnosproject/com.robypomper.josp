@@ -339,7 +339,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
             saveObjId(generated);
             if (isGenerating()) {
-                jcpClient.removeConnectListener(generatingListener);
+                jcpClient.removeConnectionListener(generatingListener);
                 isGenerating = false;
             }
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
@@ -349,7 +349,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
             Events.registerInfoUpd("objId", e);
             if (!isGenerating()) {
-                jcpClient.addConnectListener(generatingListener);
+                jcpClient.addConnectionListener(generatingListener);
                 isGenerating = true;
             }
         }
@@ -449,7 +449,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return isGenerating;
     }
 
-    class GenerateConnectionListener implements JCPClient2.ConnectListener {
+    class GenerateConnectionListener implements JCPClient2.ConnectionListener {
 
         @Override
         public void onConnected(JCPClient2 jcpClient) {
@@ -458,6 +458,14 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         @Override
         public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onDisconnected(JCPClient2 jcpClient) {
         }
     }
 
