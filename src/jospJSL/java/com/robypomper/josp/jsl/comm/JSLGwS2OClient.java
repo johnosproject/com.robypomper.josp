@@ -22,27 +22,37 @@ import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.UtilsSSL;
 import com.robypomper.communication.client.Client;
 import com.robypomper.communication.client.DefaultSSLClient;
-import com.robypomper.communication.client.ServerInfo;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
+import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.java.JavaEnum;
+import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.clients.apis.srv.APIGWsClient;
-import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.jsl.JSLSettings_002;
+import com.robypomper.josp.jsl.JSL_002;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.states.GWClientState;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -150,7 +160,7 @@ public class JSLGwS2OClient implements Client {
                     null, null, new GwS2OClientMessagingEventsListener());
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client initialized");
 
-        } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException e) {
+        } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException | UnknownHostException e) {
             log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on initializing service GW client because %s", e.getMessage()), e);
             throw new ConnectionException("Error on initializing service GW client");
         }
