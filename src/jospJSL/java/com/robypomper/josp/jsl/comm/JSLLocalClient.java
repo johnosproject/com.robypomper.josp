@@ -114,7 +114,7 @@ public class JSLLocalClient implements Client {
      * @return the represented server's object id.
      */
     public String getObjId() {
-        return getServerInfo().getServerId();
+        return getServerId();
     }
 
 

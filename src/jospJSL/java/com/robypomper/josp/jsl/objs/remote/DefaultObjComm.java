@@ -7,10 +7,12 @@ import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,18 +103,23 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getObjId()));
             try {
                 localClient.connect();
-            } catch (Client.ConnectionException ignore) {}
+            } catch (IOException | Client.AAAException | StateException ignore) {
+            }
         }
         if (isLocalConnected() && localClient.isConnected()) {
             log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' already connected", localClient.getObjId()));
             // Force switch thread, to allow starting client's thread
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException ignore) {}
-            localClient.disconnect();
+            } catch (InterruptedException ignore) {
+            }
+            try {
+                localClient.disconnect();
+            } catch (StateException ignore) {
+            }
         }
 
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerInfo().getServerId(), getServiceInfo().getSrvId()));
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerId(), getServiceInfo().getSrvId()));
         JSLLocalClient toUpdate = null;
         for (JSLLocalClient cl : localConnections)
             if (cl.getServerAddr().equals(localClient.getServerAddr())
@@ -126,7 +133,10 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
                     break;
                 }
                 log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
-                localClient.disconnect();
+                try {
+                    localClient.disconnect();
+                } catch (StateException ignore) {
+                }
                 return;
             }
         if (toUpdate == null)

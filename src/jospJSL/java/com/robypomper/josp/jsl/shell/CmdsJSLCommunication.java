@@ -82,7 +82,7 @@ public class CmdsJSLCommunication {
         StringBuilder s = new StringBuilder("LOCAL CONNECTIONS LIST\n");
         for (JSLLocalClient client : comm.getAllLocalServers()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
-            s.append(String.format("- %-30s (obj: %s; status: %s; local: %s)\n", fullAddr, client.getObjId(), client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
+            s.append(String.format("- %-30s (obj: %s; status: %s; local: %s)\n", fullAddr, client.getObjId(), client.isConnected() ? "connected" : "NOT conn.", client.getServerUrl()));
         }
 
         return s.toString();

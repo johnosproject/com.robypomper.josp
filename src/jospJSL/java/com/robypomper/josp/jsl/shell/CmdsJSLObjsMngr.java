@@ -129,7 +129,7 @@ public class CmdsJSLObjsMngr {
         s.append(String.format("- %-30s (status: %s)\n", "JCP", obj.getComm().isCloudConnected() ? "connected" : "NOT conn."));
         for (JSLLocalClient client : ((DefaultObjComm) obj.getComm()).getLocalClients()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
-            s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
+            s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerUrl()));
         }
 
         return s.toString();
