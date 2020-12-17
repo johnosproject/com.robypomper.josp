@@ -20,7 +20,7 @@
 package com.robypomper.communication.server.standard;
 
 import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.client.standard.SSLCertClient;
+import com.robypomper.communication.client.standard.SSLCertSharingClient;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.DefaultServer;
 import com.robypomper.communication.server.events.DefaultServerEvent;
@@ -114,7 +114,7 @@ public class SSLCertServer extends DefaultServer {
      */
     private void sendServerCertificate(ClientInfo client) {
         try {
-            byte[] dataRead = SSLCertClient.readFile(certPubFile);
+            byte[] dataRead = SSLCertSharingClient.readFile(certPubFile);
 
             sendData(client, dataRead);
             log.debug(Mrk_Commons.COMM_SSL_CERTSRV, String.format("Server send local certificate to client '%s'", client.getClientId()));

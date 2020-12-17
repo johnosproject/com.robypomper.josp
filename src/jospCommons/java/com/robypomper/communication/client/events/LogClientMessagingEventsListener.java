@@ -45,7 +45,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
     @Override
     public void onDataSend(byte[] writtenData) {
         String dataTruncated = CommunicationBase.truncateMid(writtenData, 30);
-        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataSend     (>Srv: %s, byte[%d] %s)", getClient().getClientId(), (getServer() != null ? getServer().getServerId() : "UNKNOW"), writtenData.length, dataTruncated));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataSend     (>Srv: %s, byte[%d] %s)", getClient().getClientId(), (getClient().getServerId() != null ? getClient().getServerId() : "UNKNOW"), writtenData.length, dataTruncated));
     }
 
     /**
@@ -64,7 +64,7 @@ public class LogClientMessagingEventsListener extends DefaultClientEvents implem
     @Override
     public boolean onDataReceived(byte[] readData) throws Throwable {
         String dataTruncated = CommunicationBase.truncateMid(readData, 30);
-        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataReceived (<Srv: %s, byte[%d] %s)", getClient().getClientId(), getServer().getServerId(), readData.length, dataTruncated));
+        log.info(Mrk_Commons.COMM_CL_IMPL, String.format("%-10s.onDataReceived (<Srv: %s, byte[%d] %s)", getClient().getClientId(), getClient().getServerId(), readData.length, dataTruncated));
         return true;
     }
 
