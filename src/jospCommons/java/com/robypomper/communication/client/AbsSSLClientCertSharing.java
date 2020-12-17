@@ -24,18 +24,20 @@ import com.robypomper.communication.UtilsSSL;
 import com.robypomper.communication.client.events.ClientLocalEvents;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
-import com.robypomper.communication.client.standard.SSLCertClient;
+import com.robypomper.communication.client.standard.DefaultSSLClient;
+import com.robypomper.communication.client.standard.SSLCertSharingClient;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import java.io.File;
-import java.net.InetAddress;
+import java.io.IOException;
 import java.security.KeyStore;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -43,21 +45,25 @@ import java.util.concurrent.TimeUnit;
 /**
  * SSL Client with certificate sharing implementation of Client interface.
  * <p>
- * This implementation provide a SSL based client and a {@link SSLCertClient}
+ * This implementation provide a SSL based client and a {@link SSLCertSharingClient}
  * instance used to share certificates between client and server.
  */
-public class CertSharingSSLClient implements Client {
+@SuppressWarnings("unused")
+public abstract class AbsSSLClientCertSharing extends AbsClientWrapper {
 
     // Internal vars
 
     protected static final Logger log = LogManager.getLogger();
+
+    // Configs
+    private final String certPubPath;
     private final String keyStorePath;
     private final String keyStorePass;
+    // SSL
     private final DynAddTrustManager trustManager = new DynAddTrustManager();
     private final KeyStore clientKeyStore;
-    private final DefaultSSLClient sslClient;
-    private final SSLCertClient certClient;
     private final CountDownLatch certStoredLatch = new CountDownLatch(1);
+    private final SSLCertSharingClient certSharingClient;
 
 
     // Constructor
@@ -71,10 +77,10 @@ public class CertSharingSSLClient implements Client {
      * @param certAlias                     the client's certificate alias.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String certAlias,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String certAlias,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
         this(clientId, serverAddr, serverPort, null, null, certAlias, null, null, null, clientMessagingEventsListener);
     }
 
@@ -89,12 +95,12 @@ public class CertSharingSSLClient implements Client {
      * @param clientServerEventsListener    the server events listener.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String certAlias,
-                                ClientLocalEvents clientLocalEventsListener,
-                                ClientServerEvents clientServerEventsListener,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String certAlias,
+                                   ClientLocalEvents clientLocalEventsListener,
+                                   ClientServerEvents clientServerEventsListener,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
         this(clientId, serverAddr, serverPort, null, null, certAlias, null, clientLocalEventsListener, clientServerEventsListener, clientMessagingEventsListener);
     }
 
@@ -109,10 +115,10 @@ public class CertSharingSSLClient implements Client {
      * @param certAlias                     the client's certificate alias.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String keyStorePath, String keyStorePass, String certAlias,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String keyStorePath, String keyStorePass, String certAlias,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
         this(clientId, serverAddr, serverPort, keyStorePath, keyStorePass, certAlias, null, null, null, clientMessagingEventsListener);
     }
 
@@ -129,12 +135,12 @@ public class CertSharingSSLClient implements Client {
      * @param clientServerEventsListener    the server events listener.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String keyStorePath, String keyStorePass, String certAlias,
-                                ClientLocalEvents clientLocalEventsListener,
-                                ClientServerEvents clientServerEventsListener,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String keyStorePath, String keyStorePass, String certAlias,
+                                   ClientLocalEvents clientLocalEventsListener,
+                                   ClientServerEvents clientServerEventsListener,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
         this(clientId, serverAddr, serverPort, keyStorePath, keyStorePass, certAlias, null, clientLocalEventsListener, clientServerEventsListener, clientMessagingEventsListener);
     }
 
@@ -148,10 +154,10 @@ public class CertSharingSSLClient implements Client {
      * @param certPubPath                   the client's public certificate export path.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String certAlias, String certPubPath,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String certAlias, String certPubPath,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
         this(clientId, serverAddr, serverPort, null, null, certAlias, certPubPath, null, null, clientMessagingEventsListener);
     }
 
@@ -167,12 +173,12 @@ public class CertSharingSSLClient implements Client {
      * @param clientServerEventsListener    the server events listener.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String certAlias, String certPubPath,
-                                ClientLocalEvents clientLocalEventsListener,
-                                ClientServerEvents clientServerEventsListener,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String certAlias, String certPubPath,
+                                   ClientLocalEvents clientLocalEventsListener,
+                                   ClientServerEvents clientServerEventsListener,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
         this(clientId, serverAddr, serverPort, null, null, certAlias, certPubPath, clientLocalEventsListener, clientServerEventsListener, clientMessagingEventsListener);
     }
 
@@ -188,10 +194,10 @@ public class CertSharingSSLClient implements Client {
      * @param certPubPath                   the client's public certificate export path.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String keyStorePath, String keyStorePass, String certAlias, String certPubPath,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String keyStorePath, String keyStorePass, String certAlias, String certPubPath,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
         this(clientId, serverAddr, serverPort, keyStorePath, keyStorePass, certAlias, certPubPath, null, null, clientMessagingEventsListener);
     }
 
@@ -209,12 +215,13 @@ public class CertSharingSSLClient implements Client {
      * @param clientServerEventsListener    the server events listener.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public CertSharingSSLClient(String clientId, InetAddress serverAddr, int serverPort,
-                                String keyStorePath, String keyStorePass, String certAlias, String certPubPath,
-                                ClientLocalEvents clientLocalEventsListener,
-                                ClientServerEvents clientServerEventsListener,
-                                ClientMessagingEvents clientMessagingEventsListener)
-            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+    public AbsSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
+                                   String keyStorePath, String keyStorePass, String certAlias, String certPubPath,
+                                   ClientLocalEvents clientLocalEventsListener,
+                                   ClientServerEvents clientServerEventsListener,
+                                   ClientMessagingEvents clientMessagingEventsListener)
+            throws UtilsJKS.GenerationException, UtilsSSL.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsJKS.StoreException {
+        super(clientId);
 
         this.keyStorePath = keyStorePath;
         this.keyStorePass = keyStorePass;
@@ -236,32 +243,77 @@ public class CertSharingSSLClient implements Client {
         // Export certPath
         if (certPubPath != null)
             UtilsJKS.exportCertificate(clientKeyStore, certPubPath, certAlias);
+        this.certPubPath = certPubPath;
 
         // Init ssl instances
         SSLContext sslCtx = UtilsSSL.generateSSLContext(clientKeyStore, keyStorePass, trustManager);
 
-        SSLCertClient.SSLCertClientListener certListener = new SSLCertClient.SSLCertClientListener() {
-            @Override
-            public void onCertificateSend() {
-                log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' send certificate to server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
+        Client sslClient = new DefaultSSLClient(sslCtx, clientId, serverAddr, serverPort,
+                clientLocalEventsListener, clientServerEventsListener, clientMessagingEventsListener,
+                getProtocolName(), getServerName()
+        );
+        setWrappedClient(sslClient);
+        this.certSharingClient = new SSLCertSharingClient("_CERT_" + getClientId(), getServerAddr(), getServerPort() + 1, certPubPath, trustManager,
+                new SSLCertSharingClient.SSLCertClientListener() {
+                    @Override
+                    public void onCertificateSend() {
+                        log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' send certificate to server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
+                    }
+
+                    @Override
+                    public void onCertificateStored(AbsCustomTrustManager certTrustManager) {
+                        log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' stored certificate from server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
+                        try {
+                            updateAndStoreKeyStore();
+                        } catch (UtilsJKS.LoadingException | UtilsJKS.StoreException e) {
+                            log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't store keystore on file '%s'", getClientId(), keyStorePath));
+                        }
+                        certStoredLatch.countDown();
+                    }
+                }
+        );
+    }
+
+
+    // Getter configs
+
+    /**
+     * @return client's public certificate path.
+     */
+    public String getCertPubPath() {
+        return certPubPath;
+    }
+
+
+    // Client connection methods
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void connect() throws IOException, AAAException, StateException {
+        try {
+            super.connect();
+
+        } catch (SSLException ignore) {
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't connect, register/retrieve certificates with Cert Sharing server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
+
+            // Get server's cert
+            certSharingClient.connect();
+            boolean stored = false;
+            try {
+                stored = certStoredLatch.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException ignore2) {
             }
 
-            @Override
-            public void onCertificateStored(AbsCustomTrustManager certTrustManager) {
-                log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' stored certificate from server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
-                try {
-                    updateAndStoreKeyStore();
-                } catch (UtilsJKS.LoadingException | UtilsJKS.StoreException e) {
-                    log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't store keystore on file '%s'", getClientId(), keyStorePath));
-                }
-                certStoredLatch.countDown();
-            }
-        };
-        this.sslClient = new DefaultSSLClient(sslCtx, clientId, serverAddr, serverPort,
-                clientLocalEventsListener,
-                clientServerEventsListener,
-                clientMessagingEventsListener);
-        this.certClient = new SSLCertClient("_CERT_" + clientId, serverAddr, serverPort + 1, certPubPath, trustManager, certListener);
+            if (!stored)
+                throw new AAAException(this, "Can't get server's public certificate from Cert Sharing server");
+
+            // 2nd try connect
+            super.disconnect();
+            super.connect();
+        }
+
     }
 
 
@@ -277,145 +329,6 @@ public class CertSharingSSLClient implements Client {
 
         UtilsJKS.copyCertsFromTrustManagerToKeyStore(clientKeyStore, trustManager);
         UtilsJKS.storeKeyStore(clientKeyStore, keyStorePath, keyStorePass);
-    }
-
-
-    // Client getter
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public InetAddress getServerAddr() {
-        return sslClient.getServerAddr();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getServerPort() {
-        return sslClient.getServerPort();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ServerInfo getServerInfo() {
-        return sslClient.getServerInfo();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public InetAddress getClientAddr() {
-        return sslClient.getClientAddr();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getClientPort() {
-        return sslClient.getClientPort();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getClientId() {
-        return sslClient.getClientId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Date getLastConnection() {
-        return sslClient.getLastConnection();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Date getLastDisconnection() {
-        return sslClient.getLastDisconnection();
-    }
-
-
-    // Client connection methods
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isConnected() {
-        return sslClient.isConnected();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void connect() throws ConnectionException {
-        try {
-            sslClient.connect();
-        } catch (ConnectionException ignore) {
-            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't connect, sharing certificate with server '%s:%d'", getClientId(), getServerAddr(), getServerPort()));
-
-            // Get server's cert
-            certClient.connect();
-            boolean stored = false;
-            try {
-                stored = certStoredLatch.await(5, TimeUnit.SECONDS);
-            } catch (InterruptedException ignore2) {
-            }
-            if (!stored)
-                throw new ConnectionException("Can't get server public certificate");
-
-            // 2nd try connect
-            sslClient.connect();
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void disconnect() {
-        sslClient.disconnect();
-    }
-
-
-    // Messages methods
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendData(byte[] data) throws ServerNotConnectedException {
-        sslClient.sendData(data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendData(String data) throws ServerNotConnectedException {
-        sslClient.sendData(data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isSrvByeMsg(byte[] data) {
-        return sslClient.isSrvByeMsg(data);
     }
 
 }

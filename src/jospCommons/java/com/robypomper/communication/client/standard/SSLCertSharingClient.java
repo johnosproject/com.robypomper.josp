@@ -21,13 +21,14 @@ package com.robypomper.communication.client.standard;
 
 import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.client.DefaultClient;
+import com.robypomper.communication.client.AbsClient;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
 import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,13 +36,12 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 
 
 /**
- * SSL sharing Certificate client.
+ * Cert Sharing client.
  * <p>
- * This is a {@link DefaultClient} implementation that allow client to share
+ * This is a {@link AbsClient} implementation that allow client to share
  * SSL certificates with the server. When the client connects to the server, it
  * send his public certificate (only if <code>certPubPath</code> was not null
  * during SSLCertClient initialization. To the other side server send, always,
@@ -52,7 +52,14 @@ import java.net.InetAddress;
  * {@link javax.net.ssl.SSLContext} so a client can connect to a SSL server
  * without previously key sharing.
  */
-public class SSLCertClient extends DefaultClient {
+@SuppressWarnings("unused")
+public class SSLCertSharingClient extends AbsClient {
+
+    // Class constants
+
+    public static final String NAME_PROTO = "http";
+    public static final String NAME_SERVER = "SSL Cert Sharing Server";
+
 
     // Internal vars
 
@@ -75,8 +82,8 @@ public class SSLCertClient extends DefaultClient {
      * @param certTrustManager instance of TrustManager where client's keys will
      *                         be stored.
      */
-    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort,
-                            AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
+    protected SSLCertSharingClient(String clientId, String serverAddr, int serverPort,
+                                   AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
         this(clientId, serverAddr, serverPort, null, certTrustManager, null);
     }
 
@@ -88,13 +95,13 @@ public class SSLCertClient extends DefaultClient {
      * @param serverAddr       the server's address.
      * @param serverPort       the server's port.
      * @param certPubPath      server's public certificate file's path, if
-     *                         <code>null</code> then the {@link SSLCertClient}
+     *                         <code>null</code> then the {@link SSLCertSharingClient}
      *                         don't send his certificate to the server.
      * @param certTrustManager instance of TrustManager where client's keys will
      *                         be stored.
      */
-    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort, String certPubPath,
-                            AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
+    protected SSLCertSharingClient(String clientId, String serverAddr, int serverPort, String certPubPath,
+                                   AbsCustomTrustManager certTrustManager) throws SSLCertClientException {
         this(clientId, serverAddr, serverPort, certPubPath, certTrustManager, null);
     }
 
@@ -109,8 +116,8 @@ public class SSLCertClient extends DefaultClient {
      *                         be stored.
      * @param listener         listener for certificate events (send and stored).
      */
-    protected SSLCertClient(String clientId, InetAddress serverAddr, int serverPort,
-                            AbsCustomTrustManager certTrustManager, SSLCertClientListener listener) throws SSLCertClientException {
+    protected SSLCertSharingClient(String clientId, String serverAddr, int serverPort,
+                                   AbsCustomTrustManager certTrustManager, SSLCertClientListener listener) throws SSLCertClientException {
         this(clientId, serverAddr, serverPort, null, certTrustManager, listener);
     }
 
@@ -121,14 +128,14 @@ public class SSLCertClient extends DefaultClient {
      * @param serverAddr       the server's address.
      * @param serverPort       the server's port.
      * @param certPubPath      server's public certificate file's path, if
-     *                         <code>null</code> then the {@link SSLCertClient}
+     *                         <code>null</code> then the {@link SSLCertSharingClient}
      *                         don't send his certificate to the server.
      * @param certTrustManager instance of TrustManager where client's keys will
      *                         be stored.
      * @param listener         listener for certificate events (send and stored).
      */
-    public SSLCertClient(String clientId, InetAddress serverAddr, int serverPort, String certPubPath,
-                         AbsCustomTrustManager certTrustManager, SSLCertClientListener listener) throws SSLCertClientException {
+    public SSLCertSharingClient(String clientId, String serverAddr, int serverPort, String certPubPath,
+                                AbsCustomTrustManager certTrustManager, SSLCertClientListener listener) throws SSLCertClientException {
         super(clientId, serverAddr, serverPort,
                 new LogClientLocalEventsListener(),
                 new SSLCertClientServerEventsListener(),
@@ -142,6 +149,25 @@ public class SSLCertClient extends DefaultClient {
             this.certPubFile = null;
         this.certTrustManager = certTrustManager;
         this.listener = listener;
+    }
+
+
+    // Getter configs
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProtocolName() {
+        return NAME_PROTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getServerName() {
+        return NAME_SERVER;
     }
 
 
@@ -163,13 +189,13 @@ public class SSLCertClient extends DefaultClient {
             byte[] dataRead = readFile(certPubFile);
 
             sendData(dataRead);
-            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client send local certificate to server '%s'", getServerInfo().getServerId()));
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client send local certificate to server '%s'", getServerId()));
 
             if (listener != null) listener.onCertificateSend();
             Thread.sleep(100);
 
         } catch (ServerNotConnectedException e) {
-            log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client disconnected, can't transmit local certificate to server '%s'", getServerInfo().getServerId()));
+            log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client disconnected, can't transmit local certificate to server '%s'", getServerUrl()));
 
         } catch (IOException e) {
             log.warn(Mrk_Commons.COMM_SSL_CERTCL, String.format("Can't read public certificate '%s' because %s", certPubFile, e.getMessage()));
@@ -213,12 +239,14 @@ public class SSLCertClient extends DefaultClient {
      */
     private boolean bufferServerCertificate(byte[] readData) {
         serverCertBuffer = concatenate(serverCertBuffer, readData);
-        //System.out.println(String.format("Rx %d bytes", readData.length));
-        //System.out.println(String.format("%s -> %s", clientCertPath, new String(readData).substring(0, 10)));
 
         if (tryStoreServerCertificate()) {
-            log.info(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' added certificate from server '%s' to trust store, disconnect", getClientId(), getServerInfo().getServerId()));
-            disconnect();
+            log.info(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' added certificate from server '%s' to trust store, disconnect", getClientId(), getServerUrl()));
+            try {
+                disconnect();
+            } catch (StateException ignore) {
+                assert false : "This is one request server ( request(client's Cert) => response(server's Cert) ), this method is always on CONNECTED state";
+            }
         }
 
         return true;
@@ -232,11 +260,11 @@ public class SSLCertClient extends DefaultClient {
      */
     private boolean tryStoreServerCertificate() {
         if (serverCertBuffer.length == 0) {
-            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' don't received certificate from server '%s'", getClientId(), getServerInfo().getServerId()));
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' don't received certificate from server '%s'", getClientId(), getServerUrl()));
             return false;
         }
 
-        log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' try add certificate from server '%s' to trust store", getClientId(), getServerInfo().getServerId()));
+        log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' try add certificate from server '%s' to trust store", getClientId(), getServerUrl()));
 
         try {
             certTrustManager.addCertificateByte(String.format("SRV@%s:%d", getServerAddr(), getServerPort()), serverCertBuffer);
@@ -244,7 +272,7 @@ public class SSLCertClient extends DefaultClient {
             return true;
 
         } catch (AbsCustomTrustManager.UpdateException | UtilsJKS.LoadingException e) {
-            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't add certificate from server '%s' because %s", getClientId(), getServerInfo().getServerId(), e.getMessage()));
+            log.debug(Mrk_Commons.COMM_SSL_CERTCL, String.format("Client '%s' can't add certificate from server '%s' because %s", getClientId(), getServerUrl(), e.getMessage()));
             return false;
         }
     }
@@ -271,7 +299,7 @@ public class SSLCertClient extends DefaultClient {
 
     /**
      * Link the {@link #onServerConnection()} event to
-     * {@link SSLCertClient#sendClientCertificate()} method.
+     * {@link SSLCertSharingClient#sendClientCertificate()} method.
      */
     private static class SSLCertClientServerEventsListener extends DefaultClientEvents implements ClientServerEvents {
 
@@ -280,18 +308,19 @@ public class SSLCertClient extends DefaultClient {
         /**
          * {@inheritDoc}
          * <p>
-         * Link to the {@link SSLCertClient#sendClientCertificate()} method.
+         * Link to the {@link SSLCertSharingClient#sendClientCertificate()} method.
          */
         @Override
         public void onServerConnection() {
-            ((SSLCertClient) getClient()).sendClientCertificate();
+            ((SSLCertSharingClient) getClient()).sendClientCertificate();
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public void onServerDisconnection() { }
+        public void onServerDisconnection() {
+        }
 
         /**
          * {@inheritDoc}
@@ -329,7 +358,7 @@ public class SSLCertClient extends DefaultClient {
 
     /**
      * Link the {@link #onDataReceived(byte[])} ()} event to
-     * {@link SSLCertClient#bufferServerCertificate(byte[])} method.
+     * {@link SSLCertSharingClient#bufferServerCertificate(byte[])} method.
      */
     private static class SSLCertClientMessagingEventsListener extends DefaultClientEvents implements ClientMessagingEvents {
 
@@ -357,12 +386,12 @@ public class SSLCertClient extends DefaultClient {
         /**
          * {@inheritDoc}
          * <p>
-         * Link to the {@link SSLCertClient#bufferServerCertificate(byte[])}
+         * Link to the {@link SSLCertSharingClient#bufferServerCertificate(byte[])}
          * method.
          */
         @Override
         public boolean onDataReceived(byte[] readData) throws Throwable {
-            return ((SSLCertClient) getClient()).bufferServerCertificate(readData);
+            return ((SSLCertSharingClient) getClient()).bufferServerCertificate(readData);
         }
 
         /**
