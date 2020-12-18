@@ -129,7 +129,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * {@inheritDoc}
      */
     @Override
-    public void addNewConnection(JSLLocalClient serverConnection) {
+    public JSLRemoteObject addNewConnection(JSLLocalClient serverConnection) {
         String locConnObjId = serverConnection.getObjId();
         String serverAddr = String.format("%s:%d", serverConnection.getServerAddr(), serverConnection.getServerPort());
         String clientAddr = String.format("%s:%d", serverConnection.getClientAddr(), serverConnection.getClientPort());
@@ -144,8 +144,10 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
 
         } else {
             log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
-            ((DefaultObjComm)remObj.getComm()).addLocalClient(serverConnection);
+            ((DefaultObjComm) remObj.getComm()).addLocalClient(serverConnection);
         }
+
+        return remObj;
     }
 
     /**
