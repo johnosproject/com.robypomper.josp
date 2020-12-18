@@ -57,7 +57,7 @@ public class SSLCertSharingClient extends AbsClient {
 
     // Class constants
 
-    public static final String NAME_PROTO = "http";
+    public static final String NAME_PROTO = "certSh";
     public static final String NAME_SERVER = "SSL Cert Sharing Server";
 
 
