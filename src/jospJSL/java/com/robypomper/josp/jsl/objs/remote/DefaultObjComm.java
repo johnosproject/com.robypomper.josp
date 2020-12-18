@@ -100,14 +100,14 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
      */
     public void addLocalClient(JSLLocalClient localClient) {
         if (!isLocalConnected() && !localClient.isConnected()) {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getObjId()));
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getServerUrl()));
             try {
                 localClient.connect();
             } catch (IOException | Client.AAAException | StateException ignore) {
             }
         }
         if (isLocalConnected() && localClient.isConnected()) {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' already connected", localClient.getObjId()));
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' already connected", localClient.getServerUrl()));
             // Force switch thread, to allow starting client's thread
             try {
                 Thread.sleep(100);
@@ -119,7 +119,7 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
             }
         }
 
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerId(), getServiceInfo().getSrvId()));
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerUrl(), getServiceInfo().getSrvId()));
         JSLLocalClient toUpdate = null;
         for (JSLLocalClient cl : localConnections)
             if (cl.getServerAddr().equals(localClient.getServerAddr())
@@ -127,12 +127,12 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
                 //&& cl.getClientAddr().equals(locConn.getClientAddr()) // client's address and port vary on socket disconnection
                 //&& cl.getClientPort() == locConn.getClientPort()
             ) {
-                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection already known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection already known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.tryClientAddr(), localClient.tryClientPort()));
                 if (!cl.isConnected()) {
                     toUpdate = cl;
                     break;
                 }
-                log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+                log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.tryClientAddr(), localClient.tryClientPort()));
                 try {
                     localClient.disconnect();
                 } catch (StateException ignore) {
@@ -140,12 +140,12 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
                 return;
             }
         if (toUpdate == null)
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection NOT known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.getClientAddr(), localClient.getClientPort()));
+            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection NOT known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.tryClientAddr(), localClient.tryClientPort()));
 
         if (toUpdate == null) {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding new connection for '%s' object on '%s' service", localClient.getObjId(), getServiceInfo().getSrvId()));
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding new connection for '%s' object on '%s' service", localClient.tryObjId(), getServiceInfo().getSrvId()));
         } else {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Updating existing connection for '%s' object on '%s' service", localClient.getObjId(), getServiceInfo().getSrvId()));
+            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Updating existing connection for '%s' object on '%s' service", localClient.tryObjId(), getServiceInfo().getSrvId()));
             localConnections.remove(toUpdate);
         }
         localConnections.add(localClient);

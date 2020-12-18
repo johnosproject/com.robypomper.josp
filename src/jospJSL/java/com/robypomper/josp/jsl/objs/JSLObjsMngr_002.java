@@ -130,13 +130,14 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      */
     @Override
     public JSLRemoteObject addNewConnection(JSLLocalClient serverConnection) {
-        String locConnObjId = serverConnection.getObjId();
+        assert serverConnection.isConnected() : "Method addLocalClient() can be call only if localClient is connected.";
+
+        String locConnObjId = serverConnection.tryObjId();
         String serverAddr = String.format("%s:%d", serverConnection.getServerAddr(), serverConnection.getServerPort());
-        String clientAddr = String.format("%s:%d", serverConnection.getClientAddr(), serverConnection.getClientPort());
+        String clientAddr = String.format("%s:%d", serverConnection.tryClientAddr(), serverConnection.tryClientPort());
 
         JSLRemoteObject remObj = getById(locConnObjId);
-        boolean toRegObj = remObj == null;
-        if (toRegObj) {
+        if (remObj == null) {
             log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
             remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
             objs.add(remObj);
