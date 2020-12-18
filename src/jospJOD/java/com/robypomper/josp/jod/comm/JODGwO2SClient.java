@@ -71,14 +71,12 @@ public class JODGwO2SClient extends AbsGWsClient<O2SAccessInfo> {
      *                     that initialized this client. It will used to
      *                     process data received from the O2S Gw.
      * @param objInfo      the info of the represented object.
-     * @param apiGWsClient the APIs JOSP GWs's requests object.
      */
-    public JODGwO2SClient(JODCommunication_002 jodComm, JODObjectInfo objInfo, JCPAPIsClientObj jcpClient, APIGWsClient apiGWsClient) throws GWsClientException {
+    public JODGwO2SClient(JODCommunication_002 jodComm, JODObjectInfo objInfo, JCPAPIsClientObj jcpClient, String instanceId) throws GWsClientException {
         super(objInfo.getObjId(), jcpClient);
         this.jodComm = jodComm;
         this.objInfo = objInfo;
-        //this.apiGWsClient = new com.robypomper.josp.clients.apis.obj.APIGWsClient(jcpClient, instanceId);
-        this.apiGWsClient = apiGWsClient;
+        this.apiGWsClient = new APIGWsClient(jcpClient, instanceId);
 
         log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Initialized JSLGwO2SClient %s his instance of DefaultSSLClient for service '%s'", getWrappedClient() != null ? "and" : "but NOT", objInfo.getObjId()));
         if (isConnected()) {
