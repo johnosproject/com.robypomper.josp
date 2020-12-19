@@ -676,12 +676,12 @@ public class CmdsJSLObjsMngr {
         obj.getComm().addListener(new ObjComm.RemoteObjectConnListener() {
             @Override
             public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.tryClientAddr()) + POST);
             }
 
             @Override
             public void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.tryClientAddr()) + POST);
             }
 
             @Override

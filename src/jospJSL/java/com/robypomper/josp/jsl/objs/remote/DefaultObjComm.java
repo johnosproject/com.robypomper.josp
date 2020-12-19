@@ -58,7 +58,7 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
      */
     @Override
     public boolean isCloudConnected() {
-        return communication.isCloudConnected() && isCloudConnected;
+        return communication.getCloudConnection().isConnected() && isCloudConnected;
     }
 
     /**
