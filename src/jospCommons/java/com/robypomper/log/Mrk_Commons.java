@@ -26,6 +26,10 @@ public class Mrk_Commons extends Markers {
 
     //@formatter:off
 
+    // Commons-Various
+
+    public static final Marker STATE         = MarkerManager.getMarker("STATE");
+
     // Commons-Components
 
     protected static final Marker COMM          = MarkerManager.getMarker("COMM");                                                  // all communication component logs

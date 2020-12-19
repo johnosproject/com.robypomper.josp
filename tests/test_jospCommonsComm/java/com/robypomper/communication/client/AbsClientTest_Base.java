@@ -22,7 +22,10 @@ package com.robypomper.communication.client;
 import com.robypomper.communication.client.events.LatchClientLocalEventsListener;
 import com.robypomper.communication.client.events.LatchClientMessagingEventsListener;
 import com.robypomper.communication.client.events.LatchClientServerEventsListener;
+import com.robypomper.communication.client.standard.DefaultClient;
 import com.robypomper.communication.client.standard.LogClient;
+import com.robypomper.communication.server.DefaultServer;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,12 +34,14 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.net.InetAddress;
 
-public class DefaultClientTest_Base {
+public class AbsClientTest_Base {
 
     // Class constants
 
+    public static final String NAME_PROTO = "test";
+    public static final String NAME_SERVER = "Test Server";
     final static String ID_CLIENT = "TestClient";
-    final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
+    final static String LOCALHOST = InetAddress.getLoopbackAddress().getHostAddress();
 
 
     // Internal vars
@@ -63,13 +68,13 @@ public class DefaultClientTest_Base {
         latchCLE = new LatchClientLocalEventsListener();
         latchCSE = new LatchClientServerEventsListener();
         latchCME = new LatchClientMessagingEventsListener();
-        clientLatch = new DefaultClient(ID_CLIENT, LOCALHOST, port, latchCLE, latchCSE, latchCME);
+        clientLatch = new DefaultClient(ID_CLIENT, LOCALHOST, port, latchCLE, latchCSE, latchCME, NAME_PROTO, NAME_SERVER);
 
         log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws StateException {
         log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still running, stop test server
@@ -77,6 +82,11 @@ public class DefaultClientTest_Base {
             clientLog.disconnect();
         if (clientLatch.isConnected())
             clientLatch.disconnect();
+    }
+
+
+    public static String calculateClientId(String clientAddr, int clientPort) {
+        return String.format(DefaultServer.ID_CLI_FORMAT, "/" + clientAddr, clientPort);
     }
 
 }

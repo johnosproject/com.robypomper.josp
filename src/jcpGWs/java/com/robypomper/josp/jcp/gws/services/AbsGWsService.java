@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class AbsGWsService implements JCPClient2.ConnectListener {
+public abstract class AbsGWsService {
 
     // Class constants
 

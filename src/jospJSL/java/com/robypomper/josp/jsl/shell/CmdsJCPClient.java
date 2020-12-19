@@ -21,6 +21,7 @@ package com.robypomper.josp.jsl.shell;
 import asg.cliche.Command;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.states.StateException;
 
 import java.util.Scanner;
 
@@ -70,7 +71,7 @@ public class CmdsJCPClient {
         try {
             jcpClient.connect();
 
-        } catch (JCPClient2.ConnectionException | JCPClient2.JCPNotReachableException | JCPClient2.AuthenticationException e) {
+        } catch (StateException | JCPClient2.AuthenticationException e) {
             return String.format("Error on JCP Client connection: %s.", e.getMessage());
         }
         return "JCP Client connected successfully.";
@@ -92,7 +93,13 @@ public class CmdsJCPClient {
         if (!jcpClient.isConnected())
             return "JCP Client already disconnected.";
 
-        jcpClient.disconnect();
+        try {
+            jcpClient.disconnect();
+
+        } catch (StateException e) {
+            return String.format("Error on JCP Client disconnection: %s.", e.getMessage());
+        }
+
         return "JCP Client disconnected successfully.";
     }
 
@@ -120,7 +127,7 @@ public class CmdsJCPClient {
 
         final Scanner in = new Scanner(System.in);
 
-        String url = jcpClient.getLoginUrl();
+        String url = jcpClient.getAuthLoginUrl();
         System.out.println("Please open following url and login to JCP Cloud");
         System.out.println(url);
         System.out.println("then paste the redirected url 'code' param");
@@ -131,7 +138,7 @@ public class CmdsJCPClient {
         try {
             jcpClient.setLoginCodeAndReconnect(code);
 
-        } catch (JCPClient2.JCPNotReachableException | JCPClient2.ConnectionException | JCPClient2.AuthenticationException e) {
+        } catch (StateException | JCPClient2.AuthenticationException e) {
             return String.format("Can't proceed with user login because %s", e.getMessage());
         }
 

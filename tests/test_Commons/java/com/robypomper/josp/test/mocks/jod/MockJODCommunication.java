@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.test.mocks.jod;
 
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODGwO2SClient;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
@@ -37,22 +38,22 @@ public class MockJODCommunication implements JODCommunication {
     }
 
     @Override
-    public boolean sendToCloud(String msg) throws CloudNotConnected {
+    public boolean sendToCloud(String msg) {
         return false;
     }
 
     @Override
-    public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) throws ServiceNotConnected {
+    public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) {
         return false;
     }
 
     @Override
     public void sendObjectUpdMsg(JODState component, JODStateUpdate update) {
-
     }
 
     @Override
-    public void syncObject() {}
+    public void syncObject() {
+    }
 
     @Override
     public boolean processFromServiceMsg(String msg, JOSPPerm.Connection connType) {
@@ -60,9 +61,15 @@ public class MockJODCommunication implements JODCommunication {
     }
 
     @Override
-    public JODGwO2SClient getGwO2SClient() {
+    public JCPAPIsClientObj getCloudAPIs() {
         return null;
     }
+
+    @Override
+    public JODGwO2SClient getCloudConnection() {
+        return null;
+    }
+
 
     @Override
     public List<JODLocalClientInfo> getAllLocalClientsInfo() {
@@ -81,32 +88,14 @@ public class MockJODCommunication implements JODCommunication {
 
     @Override
     public void startLocal() {
-
     }
 
     @Override
     public void stopLocal() {
-
-    }
-
-    @Override
-    public boolean isCloudConnected() {
-        return false;
-    }
-
-    @Override
-    public void connectCloud() {
-
-    }
-
-    @Override
-    public void disconnectCloud() {
-
     }
 
     @Override
     public void setStructure(JODStructure structure) {
-
     }
 
     @Override

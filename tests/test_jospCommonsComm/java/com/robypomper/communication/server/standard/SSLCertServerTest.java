@@ -21,7 +21,7 @@ package com.robypomper.communication.server.standard;
 
 import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.client.standard.SSLCertClient;
+import com.robypomper.communication.client.standard.SSLCertSharingClient;
 import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.events.LatchSSLCertServerListener;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
@@ -149,7 +149,8 @@ public class SSLCertServerTest {
         Certificate serverPubCert = null;
         try {
             serverPubCert = UtilsJKS.loadCertificateFromBytes(allDataRead);
-        } catch (UtilsJKS.LoadingException ignore) {}
+        } catch (UtilsJKS.LoadingException ignore) {
+        }
         Assertions.assertNotNull(serverPubCert);
 
         // Stop test server
@@ -165,7 +166,7 @@ public class SSLCertServerTest {
         Assertions.assertEquals(0, serverCertTrustManager.getAcceptedIssuers().length);
 
         // Read from file and send to server
-        byte[] fileData = SSLCertClient.readFile(new File(CLI_CERT_PUB_PATH));
+        byte[] fileData = SSLCertSharingClient.readFile(new File(CLI_CERT_PUB_PATH));
         CommunicationBase.transmitData(s.getOutputStream(), fileData);
 
         // Wait that server read all send bytes and close connection

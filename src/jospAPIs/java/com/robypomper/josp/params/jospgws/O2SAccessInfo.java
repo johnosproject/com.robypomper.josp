@@ -24,18 +24,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 /**
- * Messaging class to transmit JOSP GW O2S access info to requiring JOD objects.
+ * Messaging class to respond JOSP GW O2S access info to JOD caller.
  */
-public class O2SAccessInfo {
-
-    // Params
-
-    public final String gwAddress;
-
-    public final int gwPort;
-
-    public final byte[] gwCertificate;
-
+public class O2SAccessInfo extends AccessInfo {
 
     // Constructor
 
@@ -43,9 +34,7 @@ public class O2SAccessInfo {
     public O2SAccessInfo(@JsonProperty("gwAddress") String gwAddress,
                          @JsonProperty("gwPort") int gwPort,
                          @JsonProperty("gwCertificate") byte[] gwCertificate) {
-        this.gwAddress = gwAddress;
-        this.gwPort = gwPort;
-        this.gwCertificate = gwCertificate;
+        super(gwAddress, gwPort, gwCertificate);
     }
 
 }

@@ -20,7 +20,7 @@
 package com.robypomper.communication.server;
 
 import com.robypomper.communication.CommunicationBase;
-import com.robypomper.communication.client.DefaultClient;
+import com.robypomper.communication.client.AbsClient;
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.events.ServerClientEvents;
 import com.robypomper.communication.server.events.ServerLocalEvents;
@@ -285,7 +285,7 @@ public class DefaultServer extends CommunicationBase implements Server {
      */
     @Override
     public boolean isCliByeMsg(byte[] data) {
-        return Arrays.equals(DefaultClient.MSG_BYE_CLI, data);
+        return Arrays.equals(AbsClient.MSG_BYE_CLI, data);
     }
 
 

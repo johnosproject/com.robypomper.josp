@@ -64,72 +64,58 @@ public class MockJODExecutorManager implements JODExecutorMngr {
 
     @Override
     public void activateAll() {
-
     }
 
     @Override
     public void deactivateAll() {
-
     }
 
     @Override
     public void startPuller(JODComponent component) {
-
     }
 
     @Override
     public void stopPuller(JODComponent component) {
-
     }
 
     @Override
     public void startAllPullers() {
-
     }
 
     @Override
     public void stopAllPullers() {
-
     }
 
     @Override
     public void connectListener(JODComponent component) {
-
     }
 
     @Override
     public void disconnectListener(JODComponent component) {
-
     }
 
     @Override
     public void connectAllListeners() {
-
     }
 
     @Override
     public void disconnectAllListeners() {
-
     }
 
     @Override
     public void enableExecutor(JODComponent component) {
-
     }
 
     @Override
     public void disableExecutor(JODComponent component) {
-
     }
 
     @Override
     public void enableAllExecutors() {
-
     }
 
     @Override
     public void disableAllExecutors() {
-
     }
 
 }

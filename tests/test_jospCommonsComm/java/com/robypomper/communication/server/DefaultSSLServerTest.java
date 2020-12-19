@@ -21,6 +21,7 @@ package com.robypomper.communication.server;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.UtilsSSL;
+import com.robypomper.communication.client.AbsClientTest_Base;
 import com.robypomper.communication.server.events.LatchServerClientEventsListener;
 import com.robypomper.communication.server.events.LatchServerLocalEventsListener;
 import com.robypomper.communication.server.events.LatchServerMessagingEventsListener;
@@ -158,7 +159,8 @@ public class DefaultSSLServerTest {
         // Check client status
         ClientInfo client = clients.get(0);
         Assertions.assertTrue(client.isConnected());
-        String calculatedClientId = String.format(DefaultServer.ID_CLI_FORMAT, s.getLocalAddress(), s.getLocalPort());
+        //String calculatedClientId = String.format(DefaultServer.ID_CLI_FORMAT, s.getLocalAddress(), s.getLocalPort());
+        String calculatedClientId = AbsClientTest_Base.calculateClientId(s.getLocalAddress().getHostAddress(), s.getLocalPort());
         Assertions.assertEquals(calculatedClientId, client.getClientId());
 
         // Disconnect client

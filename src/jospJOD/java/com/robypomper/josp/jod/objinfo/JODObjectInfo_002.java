@@ -30,6 +30,7 @@ import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -301,7 +302,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void syncObjInfo() {
-        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr(), comm.isCloudConnected()), JOSPPerm.Type.Status);
+        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr(), comm.getCloudConnection().isConnected()), JOSPPerm.Type.Status);
     }
 
 
@@ -339,7 +340,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
             saveObjId(generated);
             if (isGenerating()) {
-                jcpClient.removeConnectListener(generatingListener);
+                jcpClient.removeConnectionListener(generatingListener);
                 isGenerating = false;
             }
             log.info(Mrk_JOD.JOD_INFO, String.format("Object ID generated on cloud '%s'", getObjId()));
@@ -349,7 +350,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             log.warn(Mrk_JOD.JOD_INFO, String.format("Error on generating on cloud object ID because %s", e.getMessage()));
             Events.registerInfoUpd("objId", e);
             if (!isGenerating()) {
-                jcpClient.addConnectListener(generatingListener);
+                jcpClient.addConnectionListener(generatingListener);
                 isGenerating = true;
             }
         }
@@ -379,9 +380,13 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
         // Stop cloud communication
         boolean wasCloudRunning = false;
-        if (comm != null && comm.isCloudConnected()) {
+        if (comm != null && comm.getCloudConnection().isConnected()) {
             wasCloudRunning = true;
-            comm.disconnectCloud();
+            try {
+                comm.getCloudConnection().disconnect();
+            } catch (StateException e) {
+                assert false : "Exception StateException can't be thrown because disconnect() was called after state check.";
+            }
         }
 
         // Store and dispatch new obj id
@@ -400,10 +405,10 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         // Start cloud communication
         if (wasCloudRunning) {
             try {
-                comm.connectCloud();
+                comm.getCloudConnection().connect();
 
-            } catch (JODCommunication.CloudCommunicationException e) {
-                log.warn(Mrk_JOD.JOD_INFO, "Error on re-connecting to cloud on save object's id");
+            } catch (StateException e) {
+                assert false : "Exception StateException can't be thrown because disconnect() was called after state check.";
             }
         }
 
@@ -449,7 +454,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         return isGenerating;
     }
 
-    class GenerateConnectionListener implements JCPClient2.ConnectListener {
+    class GenerateConnectionListener implements JCPClient2.ConnectionListener {
 
         @Override
         public void onConnected(JCPClient2 jcpClient) {
@@ -458,6 +463,14 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         @Override
         public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onDisconnected(JCPClient2 jcpClient) {
         }
     }
 

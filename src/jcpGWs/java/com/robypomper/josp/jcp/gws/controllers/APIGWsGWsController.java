@@ -93,7 +93,7 @@ public class APIGWsGWsController {
 
         Certificate clientCertificate = null;
         try {
-            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.objCertificate);
+            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.getObjCertificate());
         } catch (UtilsJKS.LoadingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param objCertificate contains invalid value.");
         }
@@ -143,7 +143,7 @@ public class APIGWsGWsController {
 
         Certificate clientCertificate = null;
         try {
-            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.srvCertificate);
+            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.getSrvCertificate());
         } catch (UtilsJKS.LoadingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param srvCertificate contains invalid value.");
         }

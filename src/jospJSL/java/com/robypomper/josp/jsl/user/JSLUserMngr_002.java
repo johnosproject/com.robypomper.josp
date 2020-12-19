@@ -18,13 +18,15 @@
 
 package com.robypomper.josp.jsl.user;
 
+import com.robypomper.discovery.Discover;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.clients.apis.srv.APIUsrsClient;
-import com.robypomper.josp.params.usrs.UsrName;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
+import com.robypomper.josp.params.usrs.UsrName;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -163,19 +165,24 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         if (comm == null)
             return;
 
-        if (comm.isCloudConnected()) {
-            comm.disconnectCloud();
+        if (comm.getCloudConnection().isConnected()) {
             try {
-                comm.connectCloud();
-            } catch (JSLCommunication.CloudCommunicationException e) {
+                comm.getCloudConnection().disconnect();
+            } catch (StateException e) {
+                log.warn(Mrk_JSL.JSL_USR, String.format("Error on shutdown cloud communication on updating user id because %s", e.getMessage()), e);
+            }
+            try {
+                comm.getCloudConnection().connect();
+            } catch (StateException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
             }
         }
-        if (comm.isLocalRunning()) {
+        if (comm.getLocalConnections().isRunning()) {
             try {
-                comm.stopLocal();
-                comm.startLocal();
-            } catch (JSLCommunication.LocalCommunicationException e) {
+                comm.getLocalConnections().stop();
+                comm.getLocalConnections().start();
+
+            } catch (StateException | Discover.DiscoveryException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on restart local communication on updating user id because %s", e.getMessage()), e);
             }
         }
@@ -199,19 +206,24 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         if (comm == null)
             return;
 
-        if (comm.isCloudConnected()) {
-            comm.disconnectCloud();
+        if (comm.getCloudConnection().isConnected()) {
             try {
-                comm.connectCloud();
-            } catch (JSLCommunication.CloudCommunicationException e) {
+                comm.getCloudConnection().disconnect();
+            } catch (StateException e) {
+                log.warn(Mrk_JSL.JSL_USR, String.format("Error on shutdown cloud communication on updating user id because %s", e.getMessage()), e);
+            }
+            try {
+                comm.getCloudConnection().connect();
+            } catch (StateException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
             }
         }
-        if (comm.isLocalRunning()) {
+        if (comm.getLocalConnections().isRunning()) {
             try {
-                comm.stopLocal();
-                comm.startLocal();
-            } catch (JSLCommunication.LocalCommunicationException e) {
+                comm.getLocalConnections().stop();
+                comm.getLocalConnections().start();
+
+            } catch (StateException | Discover.DiscoveryException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on restart local communication on updating user id because %s", e.getMessage()), e);
             }
         }

@@ -39,7 +39,6 @@ public class MockJODObjectInfo implements JODObjectInfo {
 
     @Override
     public void setSystems(JODStructure structure, JODExecutorMngr executor, JODCommunication comm, JODPermissions permissions) {
-
     }
 
     @Override
@@ -58,10 +57,16 @@ public class MockJODObjectInfo implements JODObjectInfo {
     }
 
     @Override
-    public void setObjName(String newName) {}
+    public void setObjName(String newName) {
+    }
 
     @Override
     public String getOwnerId() {
+        return null;
+    }
+
+    @Override
+    public String getFullId() {
         return null;
     }
 
@@ -76,12 +81,12 @@ public class MockJODObjectInfo implements JODObjectInfo {
     }
 
     @Override
-    public String getStructForJSL() throws JODStructure.ParsingException {
+    public String getStructForJSL() {
         return null;
     }
 
     @Override
-    public String getPermsForJSL() throws JODStructure.ParsingException {
+    public String getPermsForJSL() {
         return null;
     }
 
@@ -112,20 +117,18 @@ public class MockJODObjectInfo implements JODObjectInfo {
 
     @Override
     public void startAutoRefresh() {
-
     }
 
     @Override
     public void stopAutoRefresh() {
-
     }
 
     @Override
     public void syncObjInfo() {
-
     }
 
     @Override
-    public void regenerateObjId() {}
+    public void regenerateObjId() {
+    }
 
 }

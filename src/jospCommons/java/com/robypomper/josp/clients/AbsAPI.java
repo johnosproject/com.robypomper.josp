@@ -32,7 +32,7 @@ public class AbsAPI {
     }
 
     public boolean isSecure() {
-        return jcpClient.isSecured();
+        return jcpClient.isHttps();
     }
 
 }

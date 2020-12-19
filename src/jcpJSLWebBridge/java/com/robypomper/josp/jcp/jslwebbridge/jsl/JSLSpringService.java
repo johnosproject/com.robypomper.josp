@@ -18,6 +18,7 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.states.StateException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -98,13 +99,13 @@ public class JSLSpringService {
             try {
                 return registerSessions(session);
 
-            } catch (JSL.FactoryException | JSL.ConnectException e) {
+            } catch (JSL.FactoryException | StateException e) {
                 throw new JSLSpringException(String.format("Error creating JSL instance for sessions '%s'", session.getId()), e);
             }
         }
     }
 
-    private JSL registerSessions(HttpSession session) throws JSL.FactoryException, JSL.ConnectException {
+    private JSL registerSessions(HttpSession session) throws JSL.FactoryException, StateException {
         Map<String, Object> properties = new HashMap<>();
         properties.put(JSLSettings_002.JCP_SSL, useSSL);
         properties.put(JSLSettings_002.JCP_URL_APIS, urlAPIs);
@@ -115,12 +116,12 @@ public class JSLSpringService {
         properties.put(JSLSettings_002.JSLSRV_ID, srvId);
         properties.put(JSLSettings_002.JSLSRV_NAME, srvName);
         properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, locCommEnabled);
-        //properties.put(JSLSettings_002.JSLCOMM_LOCAL_DISCOVERY, "DNSSD");
+        properties.put(JSLSettings_002.JSLCOMM_LOCAL_DISCOVERY, "DNSSD");
         JSL.Settings settings = FactoryJSL.loadSettings(properties, jslVersion);
 
         JSL jsl = FactoryJSL.createJSL(settings, jslVersion);
         registerListenersForSSE(jsl);
-        jsl.connect();
+        jsl.startup();
 
         session.setAttribute("JSL-Instance", jsl);
         return jsl;
@@ -182,14 +183,14 @@ public class JSLSpringService {
     }
 
     public String getLoginUrl(JSL jsl) {
-        return jsl.getJCPClient().getLoginUrl();
+        return jsl.getJCPClient().getAuthLoginUrl();
     }
 
     public String getLogoutUrl(JSL jsl, String redirectUrl) {
-        return jsl.getJCPClient().getLogoutUrl(redirectUrl);
+        return jsl.getJCPClient().getAuthLogoutUrl(redirectUrl);
     }
 
-    public boolean login(JSL jsl, String code) throws JCPClient2.ConnectionException, JCPClient2.JCPNotReachableException, JCPClient2.AuthenticationException {
+    public boolean login(JSL jsl, String code) throws StateException, JCPClient2.AuthenticationException {
         jsl.getJCPClient().setLoginCodeAndReconnect(code);
         return jsl.getJCPClient().isConnected();
     }

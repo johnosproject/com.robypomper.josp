@@ -19,19 +19,55 @@
 
 package com.robypomper.communication.client.standard;
 
-import com.robypomper.communication.client.DefaultSSLClient;
-import com.robypomper.communication.client.events.*;
+import com.robypomper.communication.client.AbsSSLClient;
+import com.robypomper.communication.client.events.LogClientLocalEventsListener;
+import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
+import com.robypomper.communication.client.events.LogClientServerEventsListener;
 
 import javax.net.ssl.SSLContext;
-import java.net.InetAddress;
 
-public class LogSSLClient extends DefaultSSLClient {
 
-    protected LogSSLClient(SSLContext sslCtx, String clientId, InetAddress serverAddr, int serverPort, ClientLocalEvents clientLocalEventsListener, ClientServerEvents clientServerEventsListener, ClientMessagingEvents clientMessagingEventsListener) {
+/**
+ * Log example of {@link AbsSSLClient} implementation.
+ * <p>
+ * It use all client's events listeners {@link LogClientLocalEventsListener},
+ * {@link LogClientServerEventsListener} and {@link LogClientMessagingEventsListener}.
+ */
+@SuppressWarnings("unused")
+public class LogSSLClient extends AbsSSLClient {
+
+    // Class constants
+
+    public static final String NAME_PROTO = "https";
+    public static final String NAME_SERVER = "Log SSL Server";
+
+
+    // Constructor
+
+    protected LogSSLClient(SSLContext sslCtx, String clientId, String serverAddr, int serverPort) {
         super(sslCtx, clientId, serverAddr, serverPort,
                 new LogClientLocalEventsListener(),
                 new LogClientServerEventsListener(),
                 new LogClientMessagingEventsListener());
+    }
+
+
+    // Getter configs
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProtocolName() {
+        return NAME_PROTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getServerName() {
+        return NAME_SERVER;
     }
 
 }

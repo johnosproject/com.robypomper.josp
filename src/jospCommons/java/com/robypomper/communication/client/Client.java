@@ -19,84 +19,227 @@
 
 package com.robypomper.communication.client;
 
-import java.net.InetAddress;
+import com.robypomper.josp.states.StateException;
+
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
  * Network client interface.
  */
+@SuppressWarnings("unused")
 public interface Client {
 
-    // Client getter
+    // Getter state
 
     /**
-     * This method return always the server address, differently to
-     * {@link #getServerInfo()} method that return null until first connection.
+     * @return the Client's state.
+     */
+    State getState();
+
+    /**
+     * @return true only if current Client is connected
+     */
+    boolean isConnected();
+
+    /**
+     * @return true only if current Client is connecting (or waiting for
+     * re-connecting).
+     */
+    boolean isConnecting();
+
+    /**
+     * @return true only if current Client is NOT connected and is not try to
+     * reconnect to the designed JCP service.
+     */
+    boolean isDisconnecting();
+
+    /**
+     * @return the Date when last connection was opened successfully, null
+     * if connection was never opened.
+     */
+    Date getLastConnection();
+
+    /**
+     * @return the Date when last connection was closed, null if connection
+     * was never closed.
+     */
+    Date getLastDisconnection();
+
+
+    // Getter configs
+
+    /**
+     * @return current client ID.
+     */
+    String getClientId();
+
+    /**
+     * Version of {@link #getClientHostname()} that NOT throws exception.
      *
+     * @return {@link #getClientAddr()} + ":" + {@link #getClientPort()}
+     */
+    String tryClientHostname();
+
+    /**
+     * @return {@link #getClientAddr()} + ":" + {@link #getClientPort()}
+     * @throws ServerNotConnectedException if client is not connected to a server.
+     */
+    String getClientHostname() throws ServerNotConnectedException;
+
+    /**
+     * Version of {@link #getClientAddr()} that NOT throws exception.
+     *
+     * @return current client address.
+     */
+    String tryClientAddr();
+
+    /**
+     * @return current client address.
+     * @throws ServerNotConnectedException if client is not connected to a server.
+     */
+    String getClientAddr() throws ServerNotConnectedException;
+
+    /**
+     * Version of {@link #getClientPort()} that NOT throws exception.
+     *
+     * @return current client port.
+     */
+    int tryClientPort();
+
+    /**
+     * @return current client port.
+     * @throws ServerNotConnectedException if client is not connected to a server.
+     */
+    int getClientPort() throws ServerNotConnectedException;
+
+    /**
+     * The protocol name used to communicate with the server (p.e. 'http', 'ftp'...).
+     * <p>
+     * It is used in {@link #getServerUrl()} method.
+     *
+     * @return current client protocol name.
+     */
+    String getProtocolName();
+
+    /**
+     * @return human readable server name (always available).
+     */
+    String getServerName();
+
+    /**
+     * Version of {@link #getServerId()} that NOT throws exception.
+     *
+     * @return current connected server's id.
+     */
+    String tryServerId();
+
+    /**
+     * @return current connected server's id.
+     * @throws ServerNotConnectedException if client is not connected to a server.
+     */
+    String getServerId() throws ServerNotConnectedException;
+
+    /**
+     * @return {@link #getProtocolName()} + "://" + #getServerAddr() + ":" + {@link #getServerPort()}
+     */
+    String getServerUrl();
+
+    /**
+     * @return #getServerAddr() + ":" + {@link #getServerPort()}
+     */
+    String getServerHostname();
+
+    /**
      * @return the server address.
      */
-    InetAddress getServerAddr();
+    String getServerAddr();
 
     /**
-     * This method return always the server port, differently to
-     * {@link #getServerInfo()} method that return null until first connection.
-     *
      * @return the server port.
      */
     int getServerPort();
 
     /**
-     * Return the server's info.
+     * Version of {@link #getServerRealAddr()} that NOT throws exception.
      *
-     * This method return null until the client connects for first time to the
-     * server. Then it return current connected server's info, or, if it's
-     * disconnected, latest connected server's info.
-     *
-     * @return server info, or null if current client was never connected to a
-     * server.
+     * @return the connection's server address.current connected server's id.
      */
-    ServerInfo getServerInfo();
+    String tryServerRealAddr();
 
     /**
-     * This method return the client address or null if it's not connected.
-     *
-     * @return the client address.
+     * @return the connection's server address.
+     * @throws ServerNotConnectedException if client is not connected to a server.
      */
-    InetAddress getClientAddr();
+    String getServerRealAddr() throws ServerNotConnectedException;
 
     /**
-     * This method return always the client port or <code>-1</code> until first
-     * connection.
+     * Version of {@link #getServerRealPort()} that NOT throws exception.
      *
-     * @return the client port.
+     * @return the connection's server port.
      */
-    int getClientPort();
+    int tryServerRealPort();
 
     /**
-     * @return the client id.
+     * @return the connection's server port.
+     * @throws ServerNotConnectedException if client is not connected to a server.
      */
-    String getClientId();
+    int getServerRealPort() throws ServerNotConnectedException;
 
 
     // Client connection methods
 
     /**
-     * Return the status of the client.
-     *
-     * @return <code>true</code> if the client is connected, <code>false</code>
-     * otherwise.
-     */
-    boolean isConnected();
-
-    /**
      * Method to connect current client to the server.
      */
-    void connect() throws ConnectionException;
+    void connect() throws IOException, AAAException, StateException;
 
     /**
      * Method to disconnect current client to the server.
      */
-    void disconnect();
+    void disconnect() throws StateException;
+
+
+    // Connection listeners
+
+    /**
+     * Add given listener to current client events.
+     *
+     * @param listener the listener to add.
+     */
+    void addListener(ClientListener listener);
+
+    /**
+     * Remove given listener from current client events.
+     *
+     * @param listener the listener to remove.
+     */
+    void removeListener(ClientListener listener);
+
+
+    // Connection listeners interfaces
+
+    /**
+     * Client events interface.
+     */
+    interface ClientListener {
+
+        void onConnected(Client client);
+
+        /**
+         * This event is emitted only if exception occurs on connection timer's thread.
+         */
+        void onConnectionIOException(Client client, IOException ioException);
+
+        /**
+         * This event is emitted only if exception occurs on connection timer's thread.
+         */
+        void onConnectionAAAException(Client client, AAAException aaaException);
+
+        void onDisconnected(Client client);
+
+    }
 
 
     // Messages methods
@@ -144,6 +287,87 @@ public interface Client {
         public ServerNotConnectedException(String clientId, Throwable e) {
             super(String.format(MSG_E, clientId, e.getMessage()), e);
         }
+
+
+        private Client c;
+
+        public ServerNotConnectedException(Client c, String field) {
+            super(String.format("Can't get %s field because, client '%s' not connected", field, c.getClientId()));
+        }
+
+        public Client getClient() {
+            return c;
+        }
+
+    }
+
+    /**
+     * Exceptions thrown on client to server connection errors.
+     */
+    class AAAException extends Throwable {
+
+        private Client c;
+
+        public AAAException(Client c, String msg) {
+            super(msg);
+        }
+
+        public Client getClient() {
+            return c;
+        }
+
+    }
+
+
+    // Client State enum
+
+    /**
+     * Client state representations.
+     */
+    enum State {
+
+        /**
+         * Client is connected to the server and it's fully operative.
+         */
+        CONNECTED,
+
+        /**
+         * Client is connecting to the server. This state is reached only on
+         * first connection attempt. Other connection retry have others
+         * CONNECTION_XYZ states depending on what was wrong on first connection
+         * attempt.
+         */
+        CONNECTING,
+
+        /**
+         * Client is trying connect to the server but it's not reachable.
+         * When this state is set, an internal timer is started to check
+         * server's reachability (if implemented).
+         */
+        CONNECTING_WAITING_SERVER,
+
+        /**
+         * Client is disconnected to the server.
+         */
+        DISCONNECTED,
+
+        /**
+         * Client is disconnecting to the server.
+         */
+        DISCONNECTING;
+
+
+        /**
+         * Join all CONNECTING_ states.
+         *
+         * @return true if current state is a CONNECTING_ state.
+         */
+        public boolean isCONNECTING() {
+            return this == CONNECTING
+                    || this == CONNECTING_WAITING_SERVER
+                    ;
+        }
+
     }
 
 }

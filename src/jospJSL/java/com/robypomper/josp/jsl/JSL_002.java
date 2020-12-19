@@ -19,6 +19,7 @@
 package com.robypomper.josp.jsl;
 
 import com.robypomper.java.JavaVersionUtils;
+import com.robypomper.josp.clients.AbsGWsClient;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
@@ -31,11 +32,13 @@ import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo_002;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.jsl.user.JSLUserMngr_002;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Random;
+
 
 public class JSL_002 extends AbsJSL {
 
@@ -56,7 +59,7 @@ public class JSL_002 extends AbsJSL {
         super(settings, jcpClient, srvInfo, usr, objs, comm);
     }
 
-    public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, JSLCommunication.CloudCommunicationException {
+    public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, AbsGWsClient.GWsClientException, JCPClient2.AuthenticationException {
         log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Service Library", VERSION));
 
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));
@@ -68,7 +71,8 @@ public class JSL_002 extends AbsJSL {
                 settings.getJCPSecret(),
                 settings.getJCPUrlAPIs(),
                 settings.getJCPUrlAuth(),
-                settings.getJCPCallback()) {
+                settings.getJCPCallback(),
+                settings.getJCPAuthCodeRefreshToken()) {
 
             @Override
             protected void storeTokens() {
@@ -80,33 +84,30 @@ public class JSL_002 extends AbsJSL {
             }
 
         };
-        try {
-            try {
-                jcpClient.connect();
 
-            } catch (JCPClient2.AuthenticationException e) {
-                log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on user authentication to the JCP %s", e.getMessage()), e);
-                jcpClient.connect();
+        if (settings.getJCPConnect())
+            try {
+                try {
+                    jcpClient.connect();
+
+                } catch (JCPClient2.AuthenticationException e) {
+                    log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on user authentication to the JCP %s, retry", e.getMessage()), e);
+                    jcpClient.connect();
+                }
+
+            } catch (StateException e) {
+                assert false : "Exception StateException can't be thrown because connect() was call after client creation.";
             }
 
-        } catch (JCPClient2.AuthenticationException ignore) {
+        JSLServiceInfo_002 srvInfo = new JSLServiceInfo_002(settings, jcpClient, instanceId);
 
-        } catch (JCPClient2.ConnectionException e) {
-            e.printStackTrace();
+        JSLUserMngr_002 usr = new JSLUserMngr_002(settings, jcpClient);
 
-        } catch (JCPClient2.JCPNotReachableException e) {
-            jcpClient.startConnectionTimer();
-        }
-
-        JSLServiceInfo srvInfo = new JSLServiceInfo_002(settings, jcpClient, instanceId);
-
-        JSLUserMngr usr = new JSLUserMngr_002(settings, jcpClient);
-
-        JSLObjsMngr objs = new JSLObjsMngr_002(settings, srvInfo);
+        JSLObjsMngr_002 objs = new JSLObjsMngr_002(settings, srvInfo);
 
         srvInfo.setSystems(usr, objs);
 
-        JSLCommunication comm = new JSLCommunication_002(settings, srvInfo, jcpClient, usr, objs, instanceId);
+        JSLCommunication comm = new JSLCommunication_002(null, settings, srvInfo, jcpClient, objs, instanceId);
 
         srvInfo.setCommunication(comm);
         usr.setCommunication(comm);

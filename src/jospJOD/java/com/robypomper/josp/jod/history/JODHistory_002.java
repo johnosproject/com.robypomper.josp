@@ -3,9 +3,9 @@ package com.robypomper.josp.jod.history;
 import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.clients.apis.obj.APIObjsClient;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.events.CloudStats;
-import com.robypomper.josp.clients.apis.obj.APIObjsClient;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.protocol.HistoryLimits;
@@ -52,7 +52,7 @@ public class JODHistory_002 implements JODHistory {
     public JODHistory_002(JODSettings_002 settings, JCPAPIsClientObj jcpClient) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
-        this.jcpClient.addConnectListener(jcpConnectListener);
+        this.jcpClient.addConnectionListener(jcpConnectListener);
         this.apiObjsClient = new APIObjsClient(jcpClient);
         boolean statusesFileLoaded = false;
         boolean statsFileLoaded = false;
@@ -301,7 +301,7 @@ public class JODHistory_002 implements JODHistory {
 
     // JCP Client listeners
 
-    private final JCPClient2.ConnectListener jcpConnectListener = new JCPClient2.ConnectListener() {
+    private final JCPClient2.ConnectionListener jcpConnectListener = new JCPClient2.ConnectionListener() {
 
         @Override
         public void onConnected(JCPClient2 jcpClient) {
@@ -310,6 +310,14 @@ public class JODHistory_002 implements JODHistory {
 
         @Override
         public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+        }
+
+        @Override
+        public void onDisconnected(JCPClient2 jcpClient) {
         }
 
     };

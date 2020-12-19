@@ -48,7 +48,7 @@ public class APISrvsClient extends AbsAPISrv {
             jcpClient.execReq(Verb.GET, APISrvs.FULL_PATH_REGISTER, SrvName.class, isSecure());
 
         } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException ignore) {
-            jcpClient.addConnectListener(new JCPClient2.ConnectListener() {
+            jcpClient.addConnectionListener(new JCPClient2.ConnectionListener() {
                 @Override
                 public void onConnected(JCPClient2 jcpClient) {
                     registerToJCP();
@@ -56,6 +56,14 @@ public class APISrvsClient extends AbsAPISrv {
 
                 @Override
                 public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+                }
+
+                @Override
+                public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+                }
+
+                @Override
+                public void onDisconnected(JCPClient2 jcpClient) {
                 }
             });
         }

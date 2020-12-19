@@ -21,6 +21,7 @@ package com.robypomper.josp.clients;
 
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.states.StateException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,31 +53,27 @@ import org.apache.logging.log4j.Logger;
  * As workaround of development localhost hostname usage, this class disable the
  * SSL checks and the connect to configured the server.
  */
-public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.ConnectListener, JCPClient2.DisconnectListener {
+@SuppressWarnings("unused")
+public class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.ConnectionListener {
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    public final String apiName;
-    public boolean connFailedPrinted = false;
+    public boolean connFailedPrinted;
 
 
     // Constructor
 
     public JCPAPIsClientJCP(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String apiName, String callBack) {
-        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", 30);
-        this.apiName = apiName;
-        addConnectListener(this);
-        addDisconnectListener(this);
+        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", 30, apiName);
+        addConnectionListener(this);
 
         connFailedPrinted = true;
         try {
             connect();
 
-        } catch (ConnectionException | AuthenticationException | JCPNotReachableException e) {
-            if (e instanceof JCPNotReachableException) {
-                startConnectionTimer(true);
-            }
+        } catch (StateException | AuthenticationException e) {
+            log.warn(String.format("Error connecting to JCP %s because %s", getApiName(), e.getMessage()), e);
         }
         connFailedPrinted = false;
     }
@@ -110,23 +107,28 @@ public abstract class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPC
 
     @Override
     public void onConnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s connected", apiName));
+        log.info(String.format("%s connected", getApiName()));
         connFailedPrinted = false;
-    }
-
-    @Override
-    public void onDisconnected(JCPClient2 jcpClient) {
-        log.info(String.format("%s disconnected", apiName));
     }
 
     @Override
     public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
         if (connFailedPrinted) {
-            log.debug(String.format("Error on %s connection attempt because %s", apiName, t.getMessage()));
+            log.debug(String.format("Error on %s connection attempt because %s with state %s", getApiName(), t.getMessage(), jcpClient.getState()));
         } else {
-            log.warn(String.format("Error on %s connection attempt because %s", apiName, t.getMessage()));
+            log.warn(String.format("Error on %s connection attempt because %s with state %s", getApiName(), t.getMessage(), jcpClient.getState()));
             connFailedPrinted = true;
         }
+    }
+
+    @Override
+    public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+        log.warn(String.format("Error on %s connection authentication because %s with state %s", getApiName(), t.getMessage(), jcpClient.getState()));
+    }
+
+    @Override
+    public void onDisconnected(JCPClient2 jcpClient) {
+        log.info(String.format("%s disconnected with state %s", getApiName(), jcpClient.getState()));
     }
 
 }

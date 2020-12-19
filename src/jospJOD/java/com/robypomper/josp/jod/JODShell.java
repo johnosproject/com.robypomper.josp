@@ -23,6 +23,8 @@ import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jod.info.JODInfo;
 import com.robypomper.josp.jod.shell.*;
+import com.robypomper.josp.states.JODState;
+import com.robypomper.josp.states.StateException;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
@@ -93,7 +95,7 @@ public class JODShell {
         System.out.println("INF: Start JOD Obj.");
         try {
             shell.startJOD();
-        } catch (JODShell.Exception | JOD.RunException e) {
+        } catch (JODShell.Exception | StateException e) {
             shell.fatal(e, EXIT_ERROR_START);
             return;
         }
@@ -110,11 +112,11 @@ public class JODShell {
 
         // Stop JOD
         System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
-        if (shell.jod.status() != JOD.Status.STOPPED) {
+        if (shell.jod.getState() != JODState.STOP) {
             System.out.println("INF: Stop JOD Obj.");
             try {
                 shell.stopJOD();
-            } catch (JODShell.Exception | JOD.RunException e) {
+            } catch (JODShell.Exception | StateException e) {
                 shell.fatal(e, EXIT_ERROR_STOP);
                 return;
             }
@@ -186,24 +188,24 @@ public class JODShell {
     /**
      * Start internal JOD object and all his sub-systems.
      */
-    public void startJOD() throws JODShell.Exception, JOD.RunException {
+    public void startJOD() throws JODShell.Exception, StateException {
         if (jod == null)
             throw new JODShell.Exception("Can't start JOD object because was not initialized.");
 
-        jod.start();
+        jod.startup();
     }
 
     /**
      * Stop internal JOD object and all his sub-systems.
      */
-    public void stopJOD() throws JODShell.Exception, JOD.RunException {
+    public void stopJOD() throws JODShell.Exception, StateException {
         if (jod == null)
             throw new JODShell.Exception("Can't stop JOD object because was not initialized.");
 
-        if (jod.status() == JOD.Status.STOPPED || jod.status() == JOD.Status.SHUTDOWN)
+        if (jod.getState() == JODState.STOP || jod.getState() == JODState.RESTARTING)
             throw new JODShell.Exception("Can't stop JOD object because was is already stopped or it's shouting down.");
 
-        jod.stop();
+        jod.shutdown();
     }
 
 

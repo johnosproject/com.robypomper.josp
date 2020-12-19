@@ -21,7 +21,6 @@ package com.robypomper.josp.test.mocks.jod;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
-import com.robypomper.josp.clients.JCPClient2;
 
 import java.util.Map;
 
@@ -32,7 +31,6 @@ public class MockJCPClient_Object extends JCPAPIsClientObj {
     }
 
     public void setObjectId(String objId) {
-
     }
 
     @Override
@@ -41,45 +39,24 @@ public class MockJCPClient_Object extends JCPAPIsClientObj {
     }
 
     @Override
-    public boolean isSecured() {
-        return false;
-    }
-
-    @Override
     public void connect() {
-
     }
 
     @Override
     public void disconnect() {
-
     }
 
     @Override
-    public void addConnectListener(ConnectListener listener) {}
+    public void addConnectionListener(ConnectionListener listener) {
+    }
 
     @Override
-    public void removeConnectListener(ConnectListener listener) {}
-
-    @Override
-    public void addDisconnectListener(DisconnectListener listener) {}
-
-    @Override
-    public void removeDisconnectListener(DisconnectListener listener) {}
+    public void removeConnectionListener(ConnectionListener listener) {
+    }
 
     @Override
     public boolean isConnecting() {
         return false;
-    }
-
-    @Override
-    public void startConnectionTimer() {
-
-    }
-
-    @Override
-    public void stopConnectionTimer() {
-
     }
 
     @Override
@@ -93,73 +70,27 @@ public class MockJCPClient_Object extends JCPAPIsClientObj {
     }
 
     @Override
-    public String getUrlAPIs() {
-        return null;
-    }
-
-    @Override
-    public String getIPAPIs() {
-        return null;
-    }
-
-    @Override
-    public String getUrlAuth() {
-        return null;
-    }
-
-    @Override
-    public String getIPAuth() {
-        return null;
-    }
-
-    @Override
-    public boolean isLoggedIn() {
-        return false;
-    }
-
-    @Override
-    public String getLoginUrl() {
-        return null;
-    }
-
-    @Override
-    public String getLogoutUrl() {
-        return null;
-    }
-
-    @Override
-    public String getLogoutUrl(String redirectUrl) {
-        return null;
-    }
-
-    @Override
     public void setLoginCode(String loginCode) {
-
     }
 
     @Override
     public void userLogout() {
-
     }
 
     @Override
     public void addLoginListener(LoginListener listener) {
-
     }
 
     @Override
     public void removeLoginListener(LoginListener listener) {
-
     }
 
     @Override
     public void addDefaultHeader(String headerName, String headerValue) {
-
     }
 
     @Override
     public void removeDefaultHeader(String headerName) {
-
     }
 
     @Override
@@ -169,35 +100,35 @@ public class MockJCPClient_Object extends JCPAPIsClientObj {
 
     @Override
     public void execReq(Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {
-
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {}
+    public void execReq(boolean toAuth, Verb reqType, String path) throws ConnectionException, RequestException, ResponseException {
+    }
 
     @Override
     public void execReq(Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {
-
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+    public void execReq(boolean toAuth, Verb reqType, String path, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    }
 
     @Override
     public void execReq(Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
-
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+    public void execReq(boolean toAuth, Verb reqType, String path, Map<String, String> params, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    }
 
     @Override
     public void execReq(Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
-
     }
 
     @Override
-    public void execReq(boolean toAuth, Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {}
+    public void execReq(boolean toAuth, Verb reqType, String path, Object objParam, boolean secure) throws ConnectionException, RequestException, ResponseException {
+    }
 
     @Override
     public <T> T execReq(Verb reqType, String path, Class<T> reqObject, boolean secure) throws ConnectionException, RequestException, ResponseException {

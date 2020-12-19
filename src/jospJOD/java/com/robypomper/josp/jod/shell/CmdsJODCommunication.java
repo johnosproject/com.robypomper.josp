@@ -22,6 +22,7 @@ package com.robypomper.josp.jod.shell;
 import asg.cliche.Command;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
+import com.robypomper.josp.states.StateException;
 
 public class CmdsJODCommunication {
 
@@ -41,7 +42,7 @@ public class CmdsJODCommunication {
 
     @Command(description = "Print local communication status.")
     public String commLocalStatus() {
-        return String.format("Local communication server is %s", comm.isLocalRunning() ? "running" : "NOT running");
+        return String.format("Local communication discovery system is %s", comm.isLocalRunning());
     }
 
     @Command(description = "Start the local communication server.")
@@ -94,21 +95,21 @@ public class CmdsJODCommunication {
 
     @Command(description = "Print cloud communication status.")
     public String commCloudStatus() {
-        return String.format("Cloud communication client is %s", comm.isCloudConnected() ? "connected" : "NOT connected");
+        return String.format("Cloud communication client system is %s", comm.getCloudConnection().getState());
     }
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudConnect() {
-        if (comm.isCloudConnected())
+        if (comm.getCloudConnection().isConnected())
             return "Cloud communication client is already connected, do noting";
 
         try {
-            comm.connectCloud();
-        } catch (JODCommunication.CloudCommunicationException e) {
-            return String.format("Error on connecting cloud communication client because %s.", e.getMessage());
+            comm.getCloudConnection().connect();
+        } catch (StateException e) {
+            assert false : "Exception StateException can't be thrown because connect() was called after state check.";
         }
 
-        if (comm.isCloudConnected())
+        if (comm.getCloudConnection().isConnected())
             return "Cloud communication client connected successfully.";
 
         return "Error on connecting cloud communication client.";
@@ -116,12 +117,16 @@ public class CmdsJODCommunication {
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudDisconnect() {
-        if (!comm.isCloudConnected())
+        if (!comm.getCloudConnection().isConnected())
             return "Cloud communication client is already disconnected, do noting";
 
-        comm.disconnectCloud();
+        try {
+            comm.getCloudConnection().disconnect();
+        } catch (StateException e) {
+            assert false : "Exception StateException can't be thrown because disconnect() was called after state check.";
+        }
 
-        if (!comm.isCloudConnected())
+        if (!comm.getCloudConnection().isConnected())
             return "Cloud communication client disconnected successfully.";
 
         return "Error on disconnecting cloud communication client.";

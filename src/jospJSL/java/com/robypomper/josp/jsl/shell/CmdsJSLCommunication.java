@@ -19,8 +19,15 @@
 package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
+import com.robypomper.communication.client.Client;
+import com.robypomper.discovery.Discover;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.comm.JSLLocalClientsMngr;
+import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.states.StateException;
+
+import java.io.IOException;
 
 public class CmdsJSLCommunication {
 
@@ -40,21 +47,21 @@ public class CmdsJSLCommunication {
 
     @Command(description = "Print local communication status.")
     public String commLocalStatus() {
-        return String.format("Local communication discovery system is %s", comm.isLocalRunning() ? "running" : "NOT running");
+        return String.format("Local communication discovery system is %s", comm.getLocalConnections().getState());
     }
 
     @Command(description = "Start the local communication discovery system.")
     public String commLocalStart() {
-        if (comm.isLocalRunning())
+        if (comm.getLocalConnections().isRunning())
             return "Local communication discovery system is already started, do noting";
 
         try {
-            comm.startLocal();
-        } catch (JSLCommunication.LocalCommunicationException e) {
+            comm.getLocalConnections().start();
+        } catch (StateException | Discover.DiscoveryException e) {
             return String.format("Error on starting local communication discovery system because %s.", e.getMessage());
         }
 
-        if (comm.isLocalRunning())
+        if (comm.getLocalConnections().isRunning())
             return "Local communication discovery system started successfully.";
 
         return "Error on starting local communication discovery system.";
@@ -62,16 +69,16 @@ public class CmdsJSLCommunication {
 
     @Command(description = "Stop the local communication discovery system.")
     public String commLocalStop() {
-        if (!comm.isLocalRunning())
+        if (!comm.getLocalConnections().isRunning())
             return "Local communication discovery system is already stopped, do noting";
 
         try {
-            comm.stopLocal();
-        } catch (JSLCommunication.LocalCommunicationException e) {
+            comm.getLocalConnections().stop();
+        } catch (StateException | Discover.DiscoveryException e) {
             return String.format("Error on stopping local communication discovery system because %s.", e.getMessage());
         }
 
-        if (!comm.isLocalRunning())
+        if (!comm.getLocalConnections().isRunning())
             return "Local communication discovery system stopped successfully.";
 
         return "Error on stopping local communication discovery system.";
@@ -80,9 +87,9 @@ public class CmdsJSLCommunication {
     @Command(description = "Print all local connections.")
     public String commPrintAllLocalConnections() {
         StringBuilder s = new StringBuilder("LOCAL CONNECTIONS LIST\n");
-        for (JSLLocalClient client : comm.getAllLocalServers()) {
+        for (JSLLocalClient client : comm.getLocalConnections().getLocalClients()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
-            s.append(String.format("- %-30s (obj: %s; status: %s; local: %s)\n", fullAddr, client.getObjId(), client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
+            s.append(String.format("- %-30s (obj: %s; status: %s; local: %s)\n", fullAddr, client.tryObjId(), client.isConnected() ? "connected" : "NOT conn.", client.getServerUrl()));
         }
 
         return s.toString();
@@ -93,35 +100,32 @@ public class CmdsJSLCommunication {
 
     @Command(description = "Print cloud communication status.")
     public String commCloudStatus() {
-        return String.format("Cloud communication client is %s", comm.isCloudConnected() ? "connected" : "NOT connected");
+        return String.format("Cloud communication client system is %s", comm.getCloudConnection().getState());
     }
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudConnect() {
-        if (comm.isCloudConnected())
-            return "Cloud communication client is already connected, do noting";
-
         try {
-            comm.connectCloud();
-        } catch (JSLCommunication.CloudCommunicationException e) {
+            comm.getCloudConnection().connect();
+        } catch (StateException e) {
             return String.format("Error on connecting cloud communication client because %s.", e.getMessage());
         }
 
-        if (comm.isCloudConnected())
+        if (comm.getCloudConnection().isConnected())
             return "Cloud communication client connected successfully.";
-
         return "Error on connecting cloud communication client.";
     }
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudDisconnect() {
-        if (!comm.isCloudConnected())
-            return "Cloud communication client is already disconnected, do noting";
+        try {
+            comm.getCloudConnection().disconnect();
+        } catch (StateException e) {
+            return String.format("Error on discconnecting cloud communication client because %s.", e.getMessage());
+        }
 
-        comm.disconnectCloud();
-        if (!comm.isCloudConnected())
+        if (!comm.getCloudConnection().isConnected())
             return "Cloud communication client disconnected successfully.";
-
         return "Error on disconnecting cloud communication client.";
     }
 
@@ -130,27 +134,61 @@ public class CmdsJSLCommunication {
 
     @Command(description = "Add logger listener to objects manager's events.")
     public String objsCommAddListeners() {
-        comm.addListener(new JSLCommunication.CommunicationListener() {
+        comm.getCloudConnection().addListener(new Client.ClientListener() {
 
             @Override
-            public void onCloudConnected(JSLCommunication comm) {
-                System.out.println(CmdsJSLObjsMngr.PRE + "Communication cloud connected" + CmdsJSLObjsMngr.POST);
+            public void onConnected(Client gwClient) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Cloud CONNECTED " + CmdsJSLObjsMngr.POST);
             }
 
             @Override
-            public void onCloudDisconnected(JSLCommunication comm) {
-                System.out.println(CmdsJSLObjsMngr.PRE + "Communication cloud disconnected" + CmdsJSLObjsMngr.POST);
+            public void onConnectionIOException(Client client, IOException ioException) {
+                System.out.println(CmdsJSLObjsMngr.PRE + String.format(" Cloud IO Exception (%s) ", ioException.getMessage()) + CmdsJSLObjsMngr.POST);
+                ioException.printStackTrace();
             }
 
             @Override
-            public void onLocalStarted(JSLCommunication comm) {
-                System.out.println(CmdsJSLObjsMngr.PRE + "Communication local started" + CmdsJSLObjsMngr.POST);
+            public void onConnectionAAAException(Client client, Client.AAAException aaaException) {
+                System.out.println(CmdsJSLObjsMngr.PRE + String.format(" Cloud IO Exception (%s) ", aaaException.getMessage()) + CmdsJSLObjsMngr.POST);
+                aaaException.printStackTrace();
             }
 
             @Override
-            public void onLocalStopped(JSLCommunication comm) {
-                System.out.println(CmdsJSLObjsMngr.PRE + "Communication local stopped" + CmdsJSLObjsMngr.POST);
+            public void onDisconnected(Client gwClient) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Cloud DISCONNECTED " + CmdsJSLObjsMngr.POST);
             }
+
+        });
+        comm.getLocalConnections().addListener(new JSLLocalClientsMngr.CommLocalStateListener() {
+
+            @Override
+            public void onStarted() {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Local STARTED " + CmdsJSLObjsMngr.POST);
+            }
+
+            @Override
+            public void onStopped() {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Local STOPPED" + CmdsJSLObjsMngr.POST);
+            }
+
+        });
+        comm.getLocalConnections().addListener(new JSLLocalClientsMngr.LocalClientListener() {
+
+            @Override
+            public void onLocalConnected(JSLRemoteObject jslObj, JSLLocalClient jslLocCli) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Local CONNECTED (" + jslObj.getName() + ")" + CmdsJSLObjsMngr.POST);
+            }
+
+            @Override
+            public void onLocalConnectionError(JSLLocalClient jslLocCli, Throwable throwable) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Local CONNECTION ERROR ([" + throwable.getClass().getSimpleName() + "] " + throwable.getMessage() + ")" + CmdsJSLObjsMngr.POST);
+            }
+
+            @Override
+            public void onLocalDisconnected(JSLRemoteObject jslObj, JSLLocalClient jslLocCli) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Local DISCONNECTED (" + jslObj.getName() + ") " + CmdsJSLObjsMngr.POST);
+            }
+
         });
 
         return "ok";

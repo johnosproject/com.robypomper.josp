@@ -23,6 +23,7 @@ import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 
 public class MockJSLUserMngr_002 implements JSLUserMngr {
+
     @Override
     public boolean isUserAuthenticated() {
         return false;
@@ -54,5 +55,7 @@ public class MockJSLUserMngr_002 implements JSLUserMngr {
     }
 
     @Override
-    public void setCommunication(JSLCommunication comm) {}
+    public void setCommunication(JSLCommunication comm) {
+    }
+
 }

@@ -93,27 +93,27 @@ public class Events {
     public static void registerJCPConnection(String phase, JCPClient2 jcpClient, String flow, Throwable t) {
         String payload;
         payload = "{";
-        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getUrlAPIs());
-        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getIPAPIs());
-        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getUrlAuth());
-        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getIPAuth());
-        if (flow!=null)
+        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getAPIsUrl());
+        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getAPIsHostname());
+        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getAuthUrl());
+        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getAuthHostname());
+        if (flow != null)
             payload += String.format(", \"flow\": \"%s\"", flow);
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_JCP_CONN,phase,payload,t);
+        register(JOSPEvent.Type.JOD_COMM_JCP_CONN, phase, payload, t);
     }
 
     public static void registerJCPDisconnection(String phase, JCPClient2 jcpClient, String flow) {
         String payload;
         payload = "{";
-        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getUrlAPIs());
-        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getIPAPIs());
-        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getUrlAuth());
-        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getIPAuth());
-        if (flow!=null)
+        payload += String.format("\"urlAPIs\": \"%s\"", jcpClient.getAPIsUrl());
+        payload += String.format(", \"ipAPIs\": \"%s\"", jcpClient.getAPIsHostname());
+        payload += String.format(", \"urlAuth\": \"%s\"", jcpClient.getAuthUrl());
+        payload += String.format(", \"ipAuth\": \"%s\"", jcpClient.getAuthHostname());
+        if (flow != null)
             payload += String.format(", \"flow\": \"%s\"", flow);
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_JCP_DISC,phase,payload);
+        register(JOSPEvent.Type.JOD_COMM_JCP_DISC, phase, payload);
     }
 
 
@@ -128,42 +128,40 @@ public class Events {
         String payload;
         payload = "{";
         payload += String.format("\"connected\": \"%s\"", gwClient.isConnected());
-        if (gwClient.isConnected() || gwClient.getServerAddr()!=null) {
-            payload += String.format(", \"url\": \"%s\"", gwClient.getServerAddr().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr().getHostAddress());
-        }
+        payload += String.format(", \"url\": \"%s\"", gwClient.getServerUrl());
+        payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr());
         payload += String.format(", \"port\": \"%s\"", gwClient.getServerPort());
-        if (gwClient.isConnected() || gwClient.getClientAddr()!=null) {
-            payload += ", \"client\": {";
+        payload += ", \"client\": {";
+        if (gwClient.isConnected()) {
             payload += String.format("\"id\": \"%s\"", gwClient.getClientId());
-            payload += String.format(", \"url\": \"%s\"", gwClient.getClientAddr().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.getClientAddr().getHostAddress());
-            payload += String.format(", \"port\": \"%s\"", gwClient.getClientPort());
-            payload += "}";
-        }
+            payload += String.format(", \"url\": \"%s\"", gwClient.tryClientHostname());
+            payload += String.format(", \"ip\": \"%s\"", gwClient.tryClientAddr());
+            payload += String.format(", \"port\": \"%s\"", gwClient.tryClientPort());
+        } else
+            payload += ", \"notConnected\": \"true\"";
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_CLOUD_CONN,phase,payload,t);
+        payload += "}";
+        register(JOSPEvent.Type.JOD_COMM_CLOUD_CONN, phase, payload, t);
     }
 
     public static void registerCloudDisconnect(String phase, JODGwO2SClient gwClient) {
         String payload;
         payload = "{";
         payload += String.format("\"connected\": \"%s\"", gwClient.isConnected());
-        if (gwClient.isConnected() || gwClient.getServerAddr()!=null) {
-            payload += String.format(", \"url\": \"%s\"", gwClient.getServerAddr().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr().getHostAddress());
-        }
+        payload += String.format(", \"url\": \"%s\"", gwClient.getServerUrl());
+        payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr());
         payload += String.format(", \"port\": \"%s\"", gwClient.getServerPort());
-        if (gwClient.isConnected() || gwClient.getClientAddr()!=null) {
-            payload += ", \"client\": {";
+        payload += ", \"client\": {";
+        if (gwClient.isConnected()) {
             payload += String.format("\"id\": \"%s\"", gwClient.getClientId());
-            payload += String.format(", \"url\": \"%s\"", gwClient.getClientAddr().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.getClientAddr().getHostAddress());
-            payload += String.format(", \"port\": \"%s\"", gwClient.getClientPort());
-            payload += "}";
-        }
+            payload += String.format(", \"url\": \"%s\"", gwClient.tryClientHostname());
+            payload += String.format(", \"ip\": \"%s\"", gwClient.tryClientAddr());
+            payload += String.format(", \"port\": \"%s\"", gwClient.tryClientPort());
+        } else
+            payload += ", \"notConnected\": \"true\"";
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC,phase,payload);
+        payload += "}";
+        register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC, phase, payload);
     }
 
 
