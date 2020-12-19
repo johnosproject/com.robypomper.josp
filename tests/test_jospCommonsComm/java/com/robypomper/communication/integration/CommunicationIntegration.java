@@ -24,6 +24,7 @@ import com.robypomper.communication.client.standard.LogClient;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.standard.LogServer;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +45,7 @@ public class CommunicationIntegration {
     final static String ID_SERVER = "TestServer";
     final static String ID_CLIENT = "TestClient";
     final static int PORT = 1234;
-    final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
+    final static String LOCALHOST = InetAddress.getLoopbackAddress().getHostAddress();
 
     // Internal vars
 
@@ -67,7 +69,7 @@ public class CommunicationIntegration {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws StateException {
         log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still running, stop test server
@@ -79,7 +81,7 @@ public class CommunicationIntegration {
 
 
     @Test
-    public void testClientDisconnection() throws Server.ListeningException, Client.ConnectionException, InterruptedException {
+    public void testClientDisconnection() throws Server.ListeningException, InterruptedException, StateException, Client.AAAException, IOException {
         int startThread = Thread.getAllStackTraces().keySet().size();
         int startClients = serverLog.getClients().size();
 
@@ -105,7 +107,7 @@ public class CommunicationIntegration {
 
 
     @Test
-    public void testServerStop() throws Server.ListeningException, Client.ConnectionException, InterruptedException {
+    public void testServerStop() throws Server.ListeningException, InterruptedException, StateException, Client.AAAException, IOException {
         int startThread = countThreads();
         int startClients = serverLog.getClients().size();
 

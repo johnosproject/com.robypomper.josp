@@ -20,54 +20,48 @@
 package com.robypomper.communication.client.standard;
 
 import com.robypomper.communication.client.AbsSSLClient;
-import com.robypomper.communication.client.events.LogClientLocalEventsListener;
-import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
-import com.robypomper.communication.client.events.LogClientServerEventsListener;
+import com.robypomper.communication.client.events.ClientLocalEvents;
+import com.robypomper.communication.client.events.ClientMessagingEvents;
+import com.robypomper.communication.client.events.ClientServerEvents;
 
 import javax.net.ssl.SSLContext;
 
 
 /**
- * Log example of {@link AbsSSLClient} implementation.
- * <p>
- * It use all client's events listeners {@link LogClientLocalEventsListener},
- * {@link LogClientServerEventsListener} and {@link LogClientMessagingEventsListener}.
+ * Default implementation of {@link AbsSSLClient}.
  */
 @SuppressWarnings("unused")
-public class LogSSLClient extends AbsSSLClient {
+public class DefaultSSLClient extends AbsSSLClient {
 
-    // Class constants
+    // Internal vars
 
-    public static final String NAME_PROTO = "https";
-    public static final String NAME_SERVER = "Log SSL Server";
+    private final String protoName;
+    private final String serverName;
 
 
     // Constructor
 
-    protected LogSSLClient(SSLContext sslCtx, String clientId, String serverAddr, int serverPort) {
-        super(sslCtx, clientId, serverAddr, serverPort,
-                new LogClientLocalEventsListener(),
-                new LogClientServerEventsListener(),
-                new LogClientMessagingEventsListener());
+    protected DefaultSSLClient(SSLContext sslCtx, String clientId, String serverAddr, int serverPort, ClientMessagingEvents clientMessagingEventsListener, String protoName, String serverName) {
+        this(sslCtx, clientId, serverAddr, serverPort, null, null, clientMessagingEventsListener, protoName, serverName);
+    }
+
+    public DefaultSSLClient(SSLContext sslCtx, String clientId, String serverAddr, int serverPort, ClientLocalEvents clientLocalEventsListener, ClientServerEvents clientServerEventsListener, ClientMessagingEvents clientMessagingEventsListener, String protoName, String serverName) {
+        super(sslCtx, clientId, serverAddr, serverPort, clientLocalEventsListener, clientServerEventsListener, clientMessagingEventsListener);
+        this.protoName = protoName;
+        this.serverName = serverName;
     }
 
 
     // Getter configs
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getProtocolName() {
-        return NAME_PROTO;
+        return protoName;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getServerName() {
-        return NAME_SERVER;
+        return serverName;
     }
 
 }

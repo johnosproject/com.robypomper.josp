@@ -22,7 +22,9 @@ package com.robypomper.communication.client;
 import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
+import com.robypomper.communication.client.standard.DefaultClient;
 import com.robypomper.communication.peer.PeerInfo;
+import com.robypomper.josp.states.StateException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,12 +35,12 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultClientTest_Msg extends DefaultClientTest_Base {
+public class AbsClientTest_Msg extends AbsClientTest_Base {
 
     // Server messaging
 
     @Test
-    public void testReceivedData() throws Client.ConnectionException, IOException, InterruptedException {
+    public void testReceivedData() throws IOException, InterruptedException, Client.AAAException, StateException {
         byte[] originalDataByte = "bytesData".getBytes(PeerInfo.CHARSET);
         String originalDataString = "bytesString";
 
@@ -72,7 +74,7 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
                         return false;
                     }
 
-                });
+                }, NAME_PROTO, NAME_SERVER);
 
 
         // Start server
@@ -99,7 +101,7 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
     }
 
     @Test
-    public void testSendData() throws Client.ConnectionException, IOException, InterruptedException, Client.ServerNotConnectedException {
+    public void testSendData() throws IOException, InterruptedException, Client.ServerNotConnectedException, StateException, Client.AAAException {
         CountDownLatch onDataSendBytes = new CountDownLatch(1);
         CountDownLatch onDataSendString = new CountDownLatch(1);
 
@@ -120,7 +122,7 @@ public class DefaultClientTest_Msg extends DefaultClientTest_Base {
                         onDataSendString.countDown();
                     }
 
-                });
+                }, NAME_PROTO, NAME_SERVER);
 
         // Start server
         ServerSocket server = new ServerSocket(port);

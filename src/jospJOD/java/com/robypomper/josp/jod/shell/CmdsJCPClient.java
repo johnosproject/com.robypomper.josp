@@ -21,6 +21,7 @@ package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.states.StateException;
 
 public class CmdsJCPClient {
 
@@ -44,14 +45,11 @@ public class CmdsJCPClient {
         try {
             jcpClient.connect();
 
-        } catch (JCPClient2.ConnectionException e) {
+        } catch (StateException e) {
             return String.format("Error on JCP Client connection: %s.", e.getMessage());
 
         } catch (JCPClient2.AuthenticationException e) {
             return String.format("Error on JCP Client authentication: %s.", e.getMessage());
-
-        } catch (JCPClient2.JCPNotReachableException e) {
-            return String.format("Error JCP Client not reachable: %s.", e.getMessage());
         }
 
         return "JCP Client connected successfully.";
@@ -62,7 +60,13 @@ public class CmdsJCPClient {
         if (!jcpClient.isConnected())
             return "JCP Client already disconnected.";
 
-        jcpClient.disconnect();
+        try {
+            jcpClient.disconnect();
+
+        } catch (StateException e) {
+            return String.format("Error on JCP Client disconnection: %s.", e.getMessage());
+        }
+
         return "JCP Client disconnected successfully.";
     }
 

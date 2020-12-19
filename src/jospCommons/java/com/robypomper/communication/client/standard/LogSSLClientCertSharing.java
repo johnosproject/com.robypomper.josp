@@ -21,23 +21,56 @@ package com.robypomper.communication.client.standard;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.UtilsSSL;
-import com.robypomper.communication.client.CertSharingSSLClient;
+import com.robypomper.communication.client.AbsSSLClientCertSharing;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
 import com.robypomper.communication.client.events.LogClientServerEventsListener;
 
-import java.net.InetAddress;
 
-public class LogSSLCertSharingClient extends CertSharingSSLClient {
+/**
+ * Log example of {@link AbsSSLClientCertSharing} implementation.
+ * <p>
+ * It use all client's events listeners {@link LogClientLocalEventsListener},
+ * {@link LogClientServerEventsListener} and {@link LogClientMessagingEventsListener}.
+ */
+@SuppressWarnings("unused")
+public class LogSSLClientCertSharing extends AbsSSLClientCertSharing {
 
-    public LogSSLCertSharingClient(String clientId, InetAddress serverAddr, int serverPort,
+    // Class constants
+
+    public static final String NAME_PROTO = "https";
+    public static final String NAME_SERVER = "Log SSL Cert Sharing Server";
+
+
+    // Constructor
+
+    public LogSSLClientCertSharing(String clientId, String serverAddr, int serverPort,
                                    String keyStorePath, String keyStorePass, String certAlias, String certPubPath)
-            throws UtilsJKS.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, UtilsJKS.StoreException {
+            throws UtilsJKS.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, UtilsJKS.StoreException {
         super(clientId, serverAddr, serverPort,
                 keyStorePath, keyStorePass, certAlias, certPubPath,
                 new LogClientLocalEventsListener(),
                 new LogClientServerEventsListener(),
                 new LogClientMessagingEventsListener());
+    }
+
+
+    // Getter configs
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProtocolName() {
+        return NAME_PROTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getServerName() {
+        return NAME_SERVER;
     }
 
 }

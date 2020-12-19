@@ -22,8 +22,10 @@ package com.robypomper.communication.client;
 import com.robypomper.communication.CommunicationBase;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
+import com.robypomper.communication.client.standard.DefaultClient;
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.DefaultServer;
+import com.robypomper.josp.states.StateException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -31,15 +33,16 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 
-public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
+public class AbsClientTest_CommSrv extends AbsClientTest_Base {
 
     // Server
 
     @Test
-    public void testServerConnectionAndDisconnection() throws Client.ConnectionException, InterruptedException, IOException {
+    public void testServerConnectionAndDisconnection() throws InterruptedException, IOException, Client.AAAException, StateException {
         // Check test client isConnected==false
         assert !clientLatch.isConnected();
 
@@ -61,7 +64,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
     }
 
     @Test
-    public void testServerDisconnectionGoodbye() throws Client.ConnectionException, InterruptedException, IOException {
+    public void testServerDisconnectionGoodbye() throws InterruptedException, IOException, Client.AAAException, StateException {
         // Check test client isConnected==false
         assert !clientLatch.isConnected();
 
@@ -87,7 +90,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
     }
 
     @Test
-    public void testServerDisconnectionTerminate() throws Client.ConnectionException, InterruptedException, IOException {
+    public void testServerDisconnectionTerminate() throws InterruptedException, IOException, Client.AAAException, StateException {
         // Check test client isConnected==false
         assert !clientLatch.isConnected();
 
@@ -109,7 +112,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
     }
 
     @Test
-    public void testServerDisconnectionFromClientDisconnectClient() throws Client.ConnectionException, InterruptedException, IOException {
+    public void testServerDisconnectionFromClientDisconnectClient() throws InterruptedException, IOException, Client.AAAException, StateException {
         // Check test client isConnected==false
         assert !clientLatch.isConnected();
 
@@ -125,7 +128,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
 
         // Check isConnected==false
         Assertions.assertTrue(latchCSE.onServerDisconnection.await(1, TimeUnit.SECONDS));
-        Assertions.assertTrue(latchCSE.onServerClientDisconnected.await(2, TimeUnit.SECONDS));
+        Assertions.assertTrue(latchCSE.onServerClientDisconnected.await(5, TimeUnit.SECONDS));
         Assertions.assertFalse(clientLatch.isConnected());
 
         // Stop server without bye msg
@@ -140,19 +143,34 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
     }
 
     @Test
-    public void testServerErrorOnProcessRequest() throws IOException, Client.ConnectionException, InterruptedException {
+    @Disabled   // because missing LogClientMessagingEventsListener.onProcessError(byte[] | String) event
+    public void testServerErrorOnProcessRequest() throws IOException, InterruptedException, Client.AAAException, StateException {
         Client client = new DefaultClient(ID_CLIENT, LOCALHOST, port,
                 new LogClientLocalEventsListener(),
                 latchCSE,
                 new LogClientMessagingEventsListener() {
 
+                    CountDownLatch onProcessError;
+
                     @Override
-                    public boolean onDataReceived(byte[] readData) throws Throwable {
-                        super.onDataReceived(readData);
-                        throw new Exception("(TEST) error on processing data");
+                    public boolean onDataReceived(byte[] dataRead) {
+                        return false;
                     }
 
-                });
+                    @Override
+                    public boolean onDataReceived(String strRead) {
+                        return false;
+                    }
+
+                    //@Override
+                    //public void onProcessError(byte[] dataRead) {
+                    //    onProcessError.countDown();
+                    //}
+
+                    //@Override
+                    //public void onProcessError(String strRead) {}
+
+                }, NAME_PROTO, NAME_SERVER);
 
         // Start server
         ServerSocket server = new ServerSocket(port);
@@ -166,7 +184,7 @@ public class DefaultClientTest_CommSrv extends DefaultClientTest_Base {
         CommunicationBase.transmitData(serverClient.getOutputStream(), ("ExampleData").getBytes(PeerInfo.CHARSET));
 
         // Check client error event
-        Assertions.assertTrue(latchCSE.onServerError.await(1, TimeUnit.SECONDS));
+        //Assertions.assertTrue(onProcessError.await(1, TimeUnit.SECONDS));
 
         // Close client connection and stop server
         client.disconnect();

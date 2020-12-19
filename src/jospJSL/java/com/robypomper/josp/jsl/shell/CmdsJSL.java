@@ -20,6 +20,8 @@ package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.jsl.JSL;
+import com.robypomper.josp.states.JSLState;
+import com.robypomper.josp.states.StateException;
 
 public class CmdsJSL {
 
@@ -35,8 +37,8 @@ public class CmdsJSL {
      * @return the JSL Service status.
      */
     @Command(description = "Print current JSL Object status.")
-    public JSL.Status jslStatus() {
-        return jsl.status();
+    public JSLState jslState() {
+        return jsl.getState();
     }
 
     /**
@@ -44,18 +46,30 @@ public class CmdsJSL {
      *
      * @return success or error message.
      */
-    @Command(description = "Connect current JSL library.")
-    public String jslConnect() {
+    @Command(description = "Print current JSL instance info.")
+    public String jslInstanceInfo() {
+        jsl.printInstanceInfo();
+
+        return "OK";
+    }
+
+    /**
+     * Connect current JSL Service.
+     *
+     * @return success or error message.
+     */
+    @Command(description = "Startup current JSL instance.")
+    public String jslInstanceStartup() {
         try {
-            jsl.connect();
-        } catch (JSL.ConnectException e) {
-            return "Error on connecting JSL service because " + e.getMessage();
+            jsl.startup();
+        } catch (StateException e) {
+            return "Error on startup JSL service because " + e.getMessage();
         }
 
-        if (jsl.status() != JSL.Status.CONNECTED)
-            return "JSL service NOT connected.";
+        if (jsl.getState() != JSLState.RUN)
+            return "JSL service NOT started.";
 
-        return "JSL service connected successfully.";
+        return "JSL service started successfully.";
     }
 
     /**
@@ -63,17 +77,38 @@ public class CmdsJSL {
      *
      * @return success or error message.
      */
-    @Command(description = "Disconnect current JSL library.")
-    public String jslDisconnect() {
+    @Command(description = "Shut down current JSL instance.")
+    public String jslInstanceShutdown() {
         try {
-            jsl.disconnect();
-        } catch (JSL.ConnectException e) {
-            return "Error on disconnecting JSL service because " + e.getMessage();
+            jsl.shutdown();
+        } catch (StateException e) {
+            return "Error on shut down JSL service because " + e.getMessage();
         }
 
-        if (jsl.status() != JSL.Status.DISCONNECTED)
-            return "JSL Service NOT disconnected.";
+        if (jsl.getState() != JSLState.STOP)
+            return "JSL Service NOT shut down.";
 
-        return "JSL Service disconnected successfully.";
+        return "JSL Service shut down successfully.";
     }
+
+    /**
+     * Restart current JSL Service.
+     *
+     * @return success or error message.
+     */
+    @Command(description = "Restart current JSL instance.")
+    public String jslInstanceRestart() {
+        try {
+            jsl.restart();
+
+        } catch (StateException e) {
+            return "Error on restart JSL service because " + e.getMessage();
+        }
+
+        if (jsl.getState() != JSLState.RUN)
+            return "JSL Service NOT restarted.";
+
+        return "JSL Service restarted successfully.";
+    }
+
 }

@@ -23,6 +23,9 @@ import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.states.JSLState;
+import com.robypomper.josp.states.StateException;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.util.Map;
@@ -34,6 +37,7 @@ import java.util.Map;
  * This interface define methods to initialize and manage a JSL library. Moreover,
  * it define also JSL support classes, struct and exceptions.
  */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface JSL {
 
     // New instance method
@@ -48,10 +52,11 @@ public interface JSL {
      * @param settings JSL.Settings containing JSL settings. Sub-classes can
      *                 extend JSL.Settings and used extended class as
      *                 <code>instance</code> param.
-     * @return null pointer.
+     * @return none, it throw a NotImplementedException().
      */
     static JSL instance(Settings settings) {
-        return null;
+        assert false : "Each sub-class must override this method";
+        throw new NotImplementedException();
     }
 
 
@@ -62,18 +67,15 @@ public interface JSL {
      */
     String version();
 
-
     /**
      * @return the list of supported JOSP JOD (direct) versions.
      */
     String[] versionsJOSPObject();
 
-
     /**
      * @return the list of supported JOSP Protocol versions.
      */
     String[] versionsJOSPProtocol();
-
 
     /**
      * @return the list of supported JCP APIs versions.
@@ -84,16 +86,21 @@ public interface JSL {
     // JSL mngm
 
     /**
+     * @return the JSL library's state.
+     */
+    JSLState getState();
+
+    /**
      * Starts JSL library and his systems, then connect current JSL library
      * instance to the Gw S2O and to all available local JOD objects.
      */
-    void connect() throws ConnectException;
+    void startup() throws StateException;
 
     /**
      * Disconnect current JSL library instance from the JCP cloud and from all
      * local JOD objects, then stops JSL and all his systems.
      */
-    void disconnect() throws ConnectException;
+    void shutdown() throws StateException;
 
     /**
      * Disconnect and connect again current JSL library instance from the
@@ -103,12 +110,12 @@ public interface JSL {
      *
      * @return <code>true</code> if the JSL library result connected.
      */
-    boolean reconnect() throws ConnectException;
+    boolean restart() throws StateException;
 
     /**
-     * @return the JSL library's status.
+     * Pretty formatted JSL instance's info on current logger.
      */
-    Status status();
+    void printInstanceInfo();
 
 
     // JSL Systems
@@ -122,56 +129,6 @@ public interface JSL {
     JSLObjsMngr getObjsMngr();
 
     JSLCommunication getCommunication();
-
-
-    // Support struct and classes
-
-    /**
-     * JSL Library statuses.
-     */
-    enum Status {
-
-        /**
-         * JSL library is starting.
-         * <p>
-         * The method {@link #connect()} was called, when finish the status become
-         * {@link #CONNECTED} or {@link #DISCONNECTED} if error occurs.
-         */
-        CONNECTING,
-
-        /**
-         * JSL library is connected and operative.
-         * <p>
-         * The method {@link #connect()} was called and the JSL library was started
-         * successfully.
-         */
-        CONNECTED,
-
-        /**
-         * JSL library is disconnecting.
-         * <p>
-         * The method {@link #disconnect()} was called, when finish the status
-         * become {@link #DISCONNECTED}.
-         */
-        DISCONNECTING,
-
-        /**
-         * JSL library is disconnected.
-         * <p>
-         * The method {@link #disconnect()} was called and the JSL library was
-         * stopped successfully.
-         */
-        DISCONNECTED,
-
-        /**
-         * JSL library is disconnecting and reconnecting.
-         * <p>
-         * The method {@link #reconnect()} was called, when finish the status
-         * become {@link #CONNECTED} or {@link #DISCONNECTED} if error occurs.
-         */
-        RECONNECTING,
-
-    }
 
 
     // Settings class
@@ -220,19 +177,6 @@ public interface JSL {
 
 
     // Exceptions
-
-    /**
-     * Exceptions for JSL object connection and disconnection down errors.
-     */
-    class ConnectException extends Throwable {
-        public ConnectException(String msg) {
-            super(msg);
-        }
-
-        public ConnectException(String msg, Exception e) {
-            super(msg, e);
-        }
-    }
 
     /**
      * Exceptions for {@link JSL} and {@link JSL.Settings} object creation.

@@ -19,13 +19,13 @@
 
 package com.robypomper.communication.client.events;
 
-import com.robypomper.communication.client.standard.SSLCertClient;
+import com.robypomper.communication.client.standard.SSLCertSharingClient;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 
 import java.util.concurrent.CountDownLatch;
 
 
-public class LatchSSLCertClientListener implements SSLCertClient.SSLCertClientListener {
+public class LatchSSLCertClientListener implements SSLCertSharingClient.SSLCertClientListener {
 
     // Internal vars
 

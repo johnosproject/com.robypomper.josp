@@ -19,21 +19,52 @@
 
 package com.robypomper.communication.client.standard;
 
-import com.robypomper.communication.client.DefaultClient;
+import com.robypomper.communication.client.AbsClient;
 import com.robypomper.communication.client.events.LogClientLocalEventsListener;
 import com.robypomper.communication.client.events.LogClientMessagingEventsListener;
 import com.robypomper.communication.client.events.LogClientServerEventsListener;
 
-import java.net.InetAddress;
+
+/**
+ * Log example of {@link AbsClient} implementation.
+ * <p>
+ * It use all client's events listeners {@link LogClientLocalEventsListener},
+ * {@link LogClientServerEventsListener} and {@link LogClientMessagingEventsListener}.
+ */
+public class LogClient extends AbsClient {
+
+    // Class constants
+
+    public static final String NAME_PROTO = "http";
+    public static final String NAME_SERVER = "Log Server";
 
 
-public class LogClient extends DefaultClient {
+    // Constructor
 
-    public LogClient(String clientId, InetAddress serverAddr, int serverPort) {
+    public LogClient(String clientId, String serverAddr, int serverPort) {
         super(clientId, serverAddr, serverPort,
                 new LogClientLocalEventsListener(),
                 new LogClientServerEventsListener(),
                 new LogClientMessagingEventsListener());
+    }
+
+
+    // Getter configs
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getProtocolName() {
+        return NAME_PROTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getServerName() {
+        return NAME_SERVER;
     }
 
 }

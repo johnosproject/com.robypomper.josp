@@ -19,22 +19,26 @@
 
 package com.robypomper.josp.params.jospgws;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-
 /**
- * Messaging class to respond JOSP GW O2S access info to JOD caller.
+ * Messaging class to respond JOSP GW O2S/S2O access info to JOD/JSL caller.
  */
-public class O2SAccessInfo extends AccessInfo {
+public class AccessInfo {
+
+    // Params
+
+    public final String gwAddress;
+    public final int gwPort;
+    public final byte[] gwCertificate;
+
 
     // Constructor
 
-    @JsonCreator
-    public O2SAccessInfo(@JsonProperty("gwAddress") String gwAddress,
-                         @JsonProperty("gwPort") int gwPort,
-                         @JsonProperty("gwCertificate") byte[] gwCertificate) {
-        super(gwAddress, gwPort, gwCertificate);
+    public AccessInfo(String gwAddress,
+                      int gwPort,
+                      byte[] gwCertificate) {
+        this.gwAddress = gwAddress;
+        this.gwPort = gwPort;
+        this.gwCertificate = gwCertificate;
     }
 
 }

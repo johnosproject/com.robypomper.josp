@@ -21,20 +21,21 @@ package com.robypomper.communication.integration;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.UtilsSSL;
-import com.robypomper.communication.client.CertSharingSSLClient;
+import com.robypomper.communication.client.AbsClientTest_Base;
 import com.robypomper.communication.client.Client;
 import com.robypomper.communication.client.events.LatchClientLocalEventsListener;
 import com.robypomper.communication.client.events.LatchClientMessagingEventsListener;
 import com.robypomper.communication.client.events.LatchClientServerEventsListener;
-import com.robypomper.communication.client.standard.SSLCertClient;
+import com.robypomper.communication.client.standard.DefaultSSLClientCertSharing;
+import com.robypomper.communication.client.standard.SSLCertSharingClient;
 import com.robypomper.communication.server.CertSharingSSLServer;
 import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.DefaultServer;
 import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.events.LatchServerClientEventsListener;
 import com.robypomper.communication.server.events.LatchServerLocalEventsListener;
 import com.robypomper.communication.server.events.LatchServerMessagingEventsListener;
 import com.robypomper.communication.server.standard.SSLCertServer;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,6 +45,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -52,11 +54,13 @@ public class CertSharingIntegration {
 
     // Class constants
 
+    public static final String NAME_PROTO = "test";
+    public static final String NAME_SERVER = "Test Server";
     static final String TEST_FILES_PREFIX = "tmp/tests/";
     final static String ID_SERVER = "TestServer";
     final static String ID_CLIENT = "TestClient";
     final static int PORT = 1234;
-    final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
+    final static String LOCALHOST = InetAddress.getLoopbackAddress().getHostAddress();
     final static String SERVER_KS_PATH = TEST_FILES_PREFIX + String.format("server-%s.p12", CertSharingIntegration.class.getSimpleName());
     final static String SERVER_KS_PASS = "ksPass";
     final static String SERVER_CERT_ALIAS = "serverLocalCert";
@@ -91,7 +95,7 @@ public class CertSharingIntegration {
     // Test configurations
 
     @BeforeEach
-    public void setUp() throws UtilsJKS.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, SSLCertServer.SSLCertServerException, UtilsJKS.StoreException {
+    public void setUp() throws UtilsJKS.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, SSLCertServer.SSLCertServerException, UtilsJKS.StoreException {
         log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
         log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
@@ -117,25 +121,29 @@ public class CertSharingIntegration {
         latchCSE = new LatchClientServerEventsListener();
         latchCME = new LatchClientMessagingEventsListener();
 
-        clientLatch = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
+        clientLatch = new DefaultSSLClientCertSharing(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_KS_PATH + 1, CLIENT_KS_PASS, CLIENT_CERT_ALIAS,
-                latchCLE, latchCSE, latchCME);
-        clientLatchAuth = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
+                latchCLE, latchCSE, latchCME,
+                NAME_PROTO, NAME_SERVER);
+        clientLatchAuth = new DefaultSSLClientCertSharing(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_KS_PATH + 2, CLIENT_KS_PASS, CLIENT_CERT_ALIAS, CLIENT_CERT_PATH + 2,
-                latchCLE, latchCSE, latchCME);
-        clientLatchTmp = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
+                latchCLE, latchCSE, latchCME,
+                NAME_PROTO, NAME_SERVER);
+        clientLatchTmp = new DefaultSSLClientCertSharing(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_CERT_ALIAS,
-                latchCLE, latchCSE, latchCME);
-        clientLatchTmpAuth = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
+                latchCLE, latchCSE, latchCME,
+                NAME_PROTO, NAME_SERVER);
+        clientLatchTmpAuth = new DefaultSSLClientCertSharing(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_CERT_ALIAS, CLIENT_CERT_PATH + 4,
-                latchCLE, latchCSE, latchCME);
+                latchCLE, latchCSE, latchCME,
+                NAME_PROTO, NAME_SERVER);
 
 
         log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws StateException {
         log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still connected, disconnect test clients
@@ -185,7 +193,7 @@ public class CertSharingIntegration {
     // Normal, withAuth, Tmp and Tmp withAuth
 
     @Test
-    public void testConnectionDisconnection() throws Server.ListeningException, Client.ConnectionException, InterruptedException, Client.ServerNotConnectedException {
+    public void testConnectionDisconnection() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, StateException, Client.AAAException, IOException {
         Server server = serverLatch;
         Client client = clientLatch;
 
@@ -197,7 +205,8 @@ public class CertSharingIntegration {
         // Check client registered in the server
         Assertions.assertEquals(2, server.getClients().size());
         ClientInfo clientInfo = server.getClients().get(1);
-        Assertions.assertEquals(String.format(DefaultServer.ID_CLI_FORMAT, client.getServerInfo().getLocalAddress(), client.getServerInfo().getLocalPort()), clientInfo.getClientId());
+        String calculatedClientId = AbsClientTest_Base.calculateClientId(client.getClientAddr(), client.getClientPort());
+        Assertions.assertEquals(calculatedClientId, clientInfo.getClientId());
 
         clientSendTestData(client);
 
@@ -205,7 +214,7 @@ public class CertSharingIntegration {
     }
 
     @Test
-    public void testConnectionDisconnectionWithAuth() throws Server.ListeningException, Client.ConnectionException, InterruptedException, Client.ServerNotConnectedException {
+    public void testConnectionDisconnectionWithAuth() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, StateException, Client.AAAException, IOException {
         Server server = serverLatchAuth;
         Client client = clientLatchAuth;
 
@@ -226,7 +235,7 @@ public class CertSharingIntegration {
     }
 
     @Test
-    public void testConnectionDisconnectionTemp() throws Server.ListeningException, Client.ConnectionException, InterruptedException, Client.ServerNotConnectedException {
+    public void testConnectionDisconnectionTemp() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, StateException, Client.AAAException, IOException {
         Server server = serverLatchTmp;
         Client client = clientLatchTmp;
 
@@ -238,7 +247,8 @@ public class CertSharingIntegration {
         // Check client registered in the server
         Assertions.assertEquals(2, server.getClients().size());
         ClientInfo clientInfo = server.getClients().get(1);
-        Assertions.assertEquals(String.format(DefaultServer.ID_CLI_FORMAT, client.getServerInfo().getLocalAddress(), client.getServerInfo().getLocalPort()), clientInfo.getClientId());
+        String calculatedClientId = AbsClientTest_Base.calculateClientId(client.tryClientAddr(), client.tryClientPort());
+        Assertions.assertEquals(calculatedClientId, clientInfo.getClientId());
 
         clientSendTestData(client);
 
@@ -246,7 +256,7 @@ public class CertSharingIntegration {
     }
 
     @Test
-    public void testConnectionDisconnectionTempWithAuth() throws Server.ListeningException, Client.ConnectionException, InterruptedException, Client.ServerNotConnectedException {
+    public void testConnectionDisconnectionTempWithAuth() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, StateException, Client.AAAException, IOException {
         Server server = serverLatchTmpAuth;
         Client client = clientLatchTmpAuth;
 
@@ -270,7 +280,7 @@ public class CertSharingIntegration {
     // Load already populated keystores
 
     @Test
-    public void testClientPopulatedKeyStore() throws Server.ListeningException, Client.ConnectionException, InterruptedException, Client.ServerNotConnectedException, UtilsJKS.StoreException, UtilsJKS.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, SSLCertServer.SSLCertServerException {
+    public void testClientPopulatedKeyStore() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, UtilsJKS.StoreException, UtilsJKS.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, SSLCertServer.SSLCertServerException, StateException, Client.AAAException, IOException {
         Server server = serverLatch;
         Client client = clientLatch;
 
@@ -282,7 +292,8 @@ public class CertSharingIntegration {
         // Check client registered in the server
         Assertions.assertEquals(2, server.getClients().size());
         ClientInfo clientInfo = server.getClients().get(1);
-        Assertions.assertEquals(String.format(DefaultServer.ID_CLI_FORMAT, client.getServerInfo().getLocalAddress(), client.getServerInfo().getLocalPort()), clientInfo.getClientId());
+        String calculatedClientId = AbsClientTest_Base.calculateClientId(client.tryClientAddr(), client.tryClientPort());
+        Assertions.assertEquals(calculatedClientId, clientInfo.getClientId());
 
         clientSendTestData(client);
 
@@ -293,9 +304,10 @@ public class CertSharingIntegration {
         serverLatch = new CertSharingSSLServer(ID_SERVER, PORT,
                 SERVER_KS_PATH + 1, SERVER_KS_PASS, SERVER_CERT_ALIAS, SERVER_CERT_PATH + 1, false,
                 latchSLE, latchSCE, latchSME);
-        clientLatch = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
+        clientLatch = new DefaultSSLClientCertSharing(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_KS_PATH + 1, CLIENT_KS_PASS, CLIENT_CERT_ALIAS, null,
-                latchCLE, latchCSE, latchCME);
+                latchCLE, latchCSE, latchCME,
+                NAME_PROTO, NAME_SERVER);
         server = serverLatch;
         client = clientLatch;
 
@@ -308,7 +320,8 @@ public class CertSharingIntegration {
         // (now client can connect on 1st try, because the server already know client cert)
         Assertions.assertEquals(1, server.getClients().size());
         clientInfo = server.getClients().get(0);
-        Assertions.assertEquals(String.format(DefaultServer.ID_CLI_FORMAT, client.getServerInfo().getLocalAddress(), client.getServerInfo().getLocalPort()), clientInfo.getClientId());
+        calculatedClientId = AbsClientTest_Base.calculateClientId(client.tryClientAddr(), client.tryClientPort());
+        Assertions.assertEquals(calculatedClientId, clientInfo.getClientId());
 
         clientSendTestData(client);
 
@@ -316,7 +329,7 @@ public class CertSharingIntegration {
     }
 
     @Test
-    public void testServerPopulatedKeyStore() throws Server.ListeningException, Client.ConnectionException, InterruptedException, Client.ServerNotConnectedException, UtilsJKS.StoreException, UtilsJKS.GenerationException, SSLCertClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, SSLCertServer.SSLCertServerException {
+    public void testServerPopulatedKeyStore() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, UtilsJKS.StoreException, UtilsJKS.GenerationException, SSLCertSharingClient.SSLCertClientException, UtilsJKS.LoadingException, UtilsSSL.GenerationException, SSLCertServer.SSLCertServerException, StateException, Client.AAAException, IOException {
         Server server = serverLatchAuth;
         Client client = clientLatchAuth;
 
@@ -344,9 +357,10 @@ public class CertSharingIntegration {
         } catch (UtilsJKS.LoadingException e) {
             return;
         }
-        clientLatchAuth = new CertSharingSSLClient(ID_CLIENT, LOCALHOST, PORT,
+        clientLatchAuth = new DefaultSSLClientCertSharing(ID_CLIENT, LOCALHOST, PORT,
                 CLIENT_KS_PATH + 2, CLIENT_KS_PASS, CLIENT_CERT_ALIAS, CLIENT_CERT_PATH + 2,
-                latchCLE, latchCSE, latchCME);
+                latchCLE, latchCSE, latchCME,
+                NAME_PROTO, NAME_SERVER);
         latchSCE.onClientConnection = new CountDownLatch(1);
         server = serverLatchAuth;
         client = clientLatchAuth;
@@ -368,7 +382,7 @@ public class CertSharingIntegration {
     }
 
 
-    private void startAndConnect(Server server, Client client) throws Server.ListeningException, Client.ConnectionException {
+    private void startAndConnect(Server server, Client client) throws Server.ListeningException, StateException, Client.AAAException, IOException {
         System.out.println("\nSERVER START");
         server.start();
         System.out.println("\nCLIENT CONNECTION");
@@ -380,7 +394,7 @@ public class CertSharingIntegration {
         client.sendData("ExampleText");
     }
 
-    private void disconnectAndStop(Server server, Client client) {
+    private void disconnectAndStop(Server server, Client client) throws StateException {
         System.out.println("\nCLIENT DISCONNECTION");
         client.disconnect();
         System.out.println("\nSERVER STOP");

@@ -19,22 +19,29 @@
 
 package com.robypomper.josp.jod;
 
+import com.robypomper.java.JavaEnum;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.history.JODHistory;
-import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.states.JODState;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JOD;
+import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
 
 /**
  * Default {@link JOD} implementation, initialization excluded.
@@ -79,7 +86,7 @@ public abstract class AbsJOD implements JOD {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private Status status = Status.STOPPED;
+    private final JavaEnum.Synchronizable<JODState> state = new JavaEnum.Synchronizable<>(JODState.STOP);
 
 
     // Constructor
@@ -94,7 +101,7 @@ public abstract class AbsJOD implements JOD {
      * @param comm        {@link JODCommunication} reference.
      * @param executor    {@link JODExecutorMngr} reference.
      * @param permissions {@link JODPermissions} reference.
-     * @param events       {@link JODEvents} reference.
+     * @param events      {@link JODEvents} reference.
      */
     protected AbsJOD(Settings settings,
                      JCPAPIsClientObj jcpClient,
@@ -123,6 +130,14 @@ public abstract class AbsJOD implements JOD {
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public JODState getState() {
+        return state.get();
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Activate autoRefresh from {@link JODObjectInfo}, {@link JODPermissions}
      * and {@link JODStructure} systems. Then activate the firmware's
@@ -131,80 +146,31 @@ public abstract class AbsJOD implements JOD {
      * {@link com.robypomper.josp.jod.executor.JODExecutor}. Finally it start
      * local and cloud communication.
      *
-     * @throws RunException throw if current JOD object is already running.
+     * @throws StateException throw if current JOD object is already running.
      */
     @Override
-    public void start() throws RunException {
+    public void startup() throws StateException {
         log.info(Mrk_JOD.JOD_MAIN, String.format("Start JOD instance for '%s' object", objInfo.getObjId()));
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD state is %s", getState()));
 
-        long start = new Date().getTime();
+        if (state.enumEquals(JODState.RUN))
+            return; // Already done
 
-        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD status is %s", status()));
-        if (status() != Status.STOPPED
-                && status() != Status.REBOOTING)
-            throw new RunException(String.format("Can't start JOD object because his state is '%s'.", status()));
+        else if (state.enumEquals(JODState.STARTING))
+            return; // Already in progress
 
-        if (status != Status.REBOOTING) {
-            status = Status.STARTING;
-            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.STARTING));
+        else if (state.enumEquals(JODState.RESTARTING))
+            throw new StateException("Can't startup JOD daemon instance because is restarting, try again later");
+
+        else if (state.enumEquals(JODState.STOP))
+            startupInstance();
+
+        else if (state.enumEquals(JODState.SHOUTING)) {
+            throw new StateException("Can't startup JOD daemon instance because is shuting down, try again later");
         }
 
-        Events.registerJODStart("Startup sub-system");
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD state is %s", getState()));
 
-        log.trace(Mrk_JOD.JOD_MAIN, "JODEvents starting");
-        events.startCloudSync();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODObjectInfo starting");
-        objInfo.startAutoRefresh();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODPermissions starting");
-        permissions.startAutoRefresh();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODHistory starting");
-        history.startCloudSync();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODStructure starting");
-        structure.startAutoRefresh();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODExecutor enable all workers");
-        executor.activateAll();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODCommunication start server and connect to JCP");
-        try {
-            boolean startLocal = ((JODSettings_002) settings).getLocalEnabled();       // ToDo: move getLocalEnabled to JOD.Settings
-            log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication local communication %s", startLocal ? "enabled" : "disabled"));
-            if (startLocal)
-                comm.startLocal();
-        } catch (JODCommunication.LocalCommunicationException e) {
-            log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on starting local communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
-        }
-        try {
-            boolean startCloud = ((JODSettings_002) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JOD.Settings
-            log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
-            if (startCloud)
-                comm.connectCloud();
-        } catch (JODCommunication.CloudCommunicationException e) {
-            log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on connecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
-        }
-
-        if (status != Status.REBOOTING) {
-            status = Status.RUNNING;
-            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.RUNNING));
-        }
-
-        long time = new Date().getTime() - start;
-        Events.registerJODStart("Sub-systems started successfully", time);
-
-        log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' started", objInfo.getObjId()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj status           = %s", status()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP JOD version         = %s", version()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP protocol supported  = %s", Arrays.asList(versionsJOSPProtocol())));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JCP APIs supported       = %s", Arrays.asList(versionsJCPAPIs())));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    Cloud comm.              = %s", comm.isCloudConnected()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    Local comm.              = %s", comm.isLocalRunning()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj id               = %s", objInfo.getObjId()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj name             = %s", objInfo.getObjName()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj owner id         = %s", objInfo.getOwnerId()));
     }
 
     /**
@@ -217,99 +183,253 @@ public abstract class AbsJOD implements JOD {
      * autoRefresh from {@link JODObjectInfo}, {@link JODPermissions}
      * and {@link JODStructure} systems
      *
-     * @throws RunException throw if current JOD object is already stopped.
+     * @throws StateException throw if current JOD object is already stopped.
      */
     @Override
-    public void stop() throws RunException {
-        log.info(Mrk_JOD.JOD_MAIN, String.format("Shutdown JOD instance for '%s' object", objInfo.getObjId()));
+    public void shutdown() throws StateException {
+        log.info(Mrk_JOD.JOD_MAIN, String.format("Shuting down JOD instance for '%s' object", objInfo.getObjId()));
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD state is %s", getState()));
 
-        long start = new Date().getTime();
+        if (state.enumEquals(JODState.RUN))
+            shutdownInstance();
 
-        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD status is %s", status()));
-        if (status() != Status.RUNNING
-                && status() != Status.REBOOTING)
-            throw new RunException(String.format("Can't stop JOD object because his state is '%s'.", status()));
+        else if (state.enumEquals(JODState.STARTING))
+            throw new StateException("Can't shout down JOD daemon instance because is starting, try again later");
 
-        Events.registerJODStop("Stopping sub-system");
+        else if (state.enumEquals(JODState.RESTARTING))
+            throw new StateException("Can't shout down JOD daemon instance because is restarting, try again later");
 
-        if (status != Status.REBOOTING) {
-            status = Status.SHUTDOWN;
-            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.SHUTDOWN));
-        }
+        else if (state.enumEquals(JODState.STOP))
+            return; // Already done
 
-        log.trace(Mrk_JOD.JOD_MAIN, "JODCommunication stop server and disconnect from JCP");
-        try {
-            comm.stopLocal();
+        else if (state.enumEquals(JODState.SHOUTING))
+            return; // Already in progress
 
-        } catch (JODCommunication.LocalCommunicationException e) {
-            log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on hiding local communication object's server '%s' because %s", objInfo.getObjId(), e.getMessage()), e);
-        }
-        comm.disconnectCloud();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODExecutor disable all workers");
-        executor.deactivateAll();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODObjectInfo stopping");
-        objInfo.stopAutoRefresh();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODPermission stopping");
-        permissions.stopAutoRefresh();
-
-        log.trace(Mrk_JOD.JOD_MAIN, "JODStructure stopping");
-        structure.stopAutoRefresh();
-
-        try {
-            history.storeCache();
-        } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_MAIN, "Can't flush status on file");
-        }
-        log.trace(Mrk_JOD.JOD_MAIN, "JODHistory stopping");
-        history.stopCloudSync();
-
-        long time = new Date().getTime() - start;
-        Events.registerJODStop("Sub-system stopped successfully", time);
-        try {
-            Events.storeCache();
-        } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_MAIN, "Can't flush events on file");
-        }
-        log.trace(Mrk_JOD.JOD_MAIN, "JODEvents stopping");
-        events.stopCloudSync();
-
-        if (status != Status.REBOOTING) {
-            status = Status.STOPPED;
-            log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.STOPPED));
-        }
-
-        log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' stopped", objInfo.getObjId()));
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD state is %s", getState()));
     }
 
     /**
      * {@inheritDoc}
      *
-     * @throws RunException thrown if errors occurs on JOD object stop and start.
+     * @throws StateException thrown if errors occurs on JOD object stop and start.
      */
     @Override
-    public void restart() throws RunException {
-        status = Status.REBOOTING;
-        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.REBOOTING));
+    public boolean restart() throws StateException {
+        log.info(Mrk_JOD.JOD_MAIN, String.format("Shuting down JOD instance for '%s' object", objInfo.getObjId()));
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD state is %s", getState()));
 
-        log.trace(Mrk_JOD.JOD_MAIN, "JOD stop for rebooting");
-        stop();
+        if (state.enumEquals(JODState.RUN))
+            restartInstance();
 
-        log.trace(Mrk_JOD.JOD_MAIN, "JOD start for rebooting");
-        start();
+        else if (state.enumEquals(JODState.STARTING))
+            throw new StateException("Can't restart JOD daemon instance because is starting, try again later");
 
-        status = Status.RUNNING;
-        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD set status %s", Status.RUNNING));
+        else if (state.enumEquals(JODState.RESTARTING))
+            return true; // Already in progress
+
+        else if (state.enumEquals(JODState.STOP))
+            restartInstance();
+
+        else if (state.enumEquals(JODState.SHOUTING))
+            throw new StateException("Can't restart JOD daemon instance because is shuting down, try again later");
+
+        log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD state is %s", getState()));
+        return state.enumEquals(JODState.STARTING);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Status status() {
-        return status;
+    public void printInstanceInfo() {
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' started", objInfo.getObjId()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj status           = %s", status()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP JOD version         = %s", version()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP protocol supported  = %s", Arrays.asList(versionsJOSPProtocol())));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    JCP APIs supported       = %s", Arrays.asList(versionsJCPAPIs())));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    Cloud comm.              = %s", comm.isCloudConnected()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    Local comm.              = %s", comm.isLocalRunning()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj id               = %s", objInfo.getObjId()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj name             = %s", objInfo.getObjName()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Obj owner id         = %s", objInfo.getOwnerId()));
+
+        log.info(Mrk_JOD.JOD_MAIN, "JOD Obj");
+        log.info(Mrk_JOD.JOD_MAIN, " -- IDs");
+        log.info(Mrk_JOD.JOD_MAIN, "        JOD Obj");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            ID                = %s", objInfo.getObjId()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            name              = %s", objInfo.getObjName()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            brand             = %s", objInfo.getBrand()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            model             = %s", objInfo.getModel()));
+        log.info(Mrk_JOD.JOD_MAIN, "        Owner");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            ID                = %s", objInfo.getOwnerId()));
+        log.info(Mrk_JOD.JOD_MAIN, " -- Ver.s");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JSL Srv state             = %s", getState()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JSL Srv version           = %s", version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP protocol supported   = %s", Arrays.asList(versionsJOSPProtocol())));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JCP APIs supported        = %s", Arrays.asList(versionsJCPAPIs())));
+        log.info(Mrk_JOD.JOD_MAIN, " -- Comm.s");
+        log.info(Mrk_JOD.JOD_MAIN, "        JCP APIs");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            State             = %s", comm.getCloudAPIs().getState()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            isConnected       = %s", comm.getCloudAPIs().isConnected()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            isAuth            = %s", comm.getCloudAPIs().isUserAuthenticated()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            lastConn          = %s", comm.getCloudAPIs().getLastConnection()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            lastDiscon        = %s", comm.getCloudAPIs().getLastDisconnection()));
+        log.info(Mrk_JOD.JOD_MAIN, "        Cloud Comm.");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            State             = %s", comm.getCloudConnection().getState()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            address           = %s", comm.getCloudConnection().tryServerAddr()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            isConnected       = %s", comm.getCloudConnection().isConnected()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            lastConn          = %s", comm.getCloudConnection().getLastConnection()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            lastDiscon        = %s", comm.getCloudConnection().getLastDisconnection()));
+        log.info(Mrk_JOD.JOD_MAIN, "        Local Comm.");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            Local comm.       = %s", comm.isLocalRunning()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            State             = %s", comm.getLocalConnections().getState()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            isRunning         = %s", comm.getLocalConnections().isRunning()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            Count             = %d", comm.getLocalConnections().getLocalClients().size()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            CountConnected    = %d", comm.getLocalConnections().getConnectedCount()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            CountDisconnected = %d", comm.getLocalConnections().getDisconnectedCount()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastStart         = %s", comm.getLocalConnections().getLastStartup()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastStop          = %s", comm.getLocalConnections().getLastShutdown()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastConn          = %s", comm.getLocalConnections().getLastObjConnection()));
+        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastDiscon        = %s", comm.getLocalConnections().getLastObjDisconnection()));
+        List<JODLocalClientInfo> srvsList = getCommunication().getAllLocalClientsInfo();
+        StringBuilder srvNames = new StringBuilder();
+        for (JODLocalClientInfo ci : srvsList)
+            srvNames.append(ci.getFullSrvId()).append(", ");
+        log.info(Mrk_JOD.JOD_MAIN, " -- Objs Mngr");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("        Count                 = %s", srvsList.size()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("        List                  = %s", srvNames));
+    }
+
+    private void startupInstance() {
+        assert state.enumEquals(JODState.STOP)
+                || state.enumEquals(JODState.RESTARTING) :
+                "Method startupInstance() can be called only from STOP or RESTARTING state";
+
+        synchronized (state) {
+            if (state.enumNotEquals(JODState.RESTARTING))
+                state.set(JODState.STARTING);
+
+            long start = new Date().getTime();
+
+            Events.registerJODStart("Startup sub-systems");
+            events.startCloudSync();
+            objInfo.startAutoRefresh();
+            permissions.startAutoRefresh();
+            history.startCloudSync();
+            structure.startAutoRefresh();
+            executor.activateAll();
+
+            try {
+                boolean startLocal = ((JODSettings_002) settings).getLocalEnabled();
+                log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication local communication %s", startLocal ? "enabled" : "disabled"));
+                if (startLocal) comm.startLocal();
+
+            } catch (JODCommunication.LocalCommunicationException e) {
+                log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on starting local communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
+            }
+
+            try {
+                boolean startCloud = ((JODSettings_002) settings).getCloudEnabled();       // ToDo: move getCloudEnabled to JOD.Settings
+                log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
+                if (startCloud) comm.getCloudConnection().connect();
+
+            } catch (StateException e) {
+                log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on connecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
+            }
+
+            long time = new Date().getTime() - start;
+            Events.registerJODStart("Sub-systems started successfully", time);
+
+            if (state.enumNotEquals(JODState.RESTARTING))
+                state.set(JODState.RUN);
+        }
+
+        log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' started", objInfo.getObjId()));
+
+        printInstanceInfo();
+    }
+
+    private void shutdownInstance() {
+        assert state.enumEquals(JODState.RUN)
+                || state.enumEquals(JODState.RESTARTING) :
+                "Method shutdownInstance() can be called only from RUN or RESTARTING state";
+
+        long start = new Date().getTime();
+
+        synchronized (state) {
+            if (state.enumNotEquals(JODState.RESTARTING))
+                state.set(JODState.SHOUTING);
+
+            Events.registerJODStop("Stopping sub-system");
+
+            log.trace(Mrk_JOD.JOD_MAIN, "JODCommunication stop server and disconnect from JCP");
+            try {
+                comm.stopLocal();
+
+            } catch (JODCommunication.LocalCommunicationException e) {
+                log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on hiding local communication object's server '%s' because %s", objInfo.getObjId(), e.getMessage()), e);
+            }
+
+            try {
+                comm.getCloudConnection().disconnect();
+
+            } catch (StateException e) {
+                log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on disconnecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
+            }
+
+            log.trace(Mrk_JOD.JOD_MAIN, "JODExecutor disable all workers");
+            executor.deactivateAll();
+
+            log.trace(Mrk_JOD.JOD_MAIN, "JODObjectInfo stopping");
+            objInfo.stopAutoRefresh();
+
+            log.trace(Mrk_JOD.JOD_MAIN, "JODPermission stopping");
+            permissions.stopAutoRefresh();
+
+            log.trace(Mrk_JOD.JOD_MAIN, "JODStructure stopping");
+            structure.stopAutoRefresh();
+
+            try {
+                history.storeCache();
+            } catch (IOException e) {
+                log.warn(Mrk_JOD.JOD_MAIN, "Can't flush status on file, continue shutdown JOD");
+            }
+            log.trace(Mrk_JOD.JOD_MAIN, "JODHistory stopping");
+            history.stopCloudSync();
+
+            long time = new Date().getTime() - start;
+            Events.registerJODStop("Sub-system stopped successfully", time);
+            try {
+                Events.storeCache();
+            } catch (IOException e) {
+                log.warn(Mrk_JOD.JOD_MAIN, "Can't flush events on file, continue shutdown JOD");
+            }
+            log.trace(Mrk_JOD.JOD_MAIN, "JODEvents stopping");
+            events.stopCloudSync();
+
+            if (state.enumNotEquals(JODState.RESTARTING))
+                state.set(JODState.STOP);
+        }
+
+        log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' stopped", objInfo.getObjId()));
+    }
+
+    private void restartInstance() {
+        assert state.enumEquals(JODState.RUN)
+                || state.enumEquals(JODState.STOP) :
+                "Method shutdownInstance() can be called only from RUN or STOP state";
+
+        synchronized (state) {
+            state.set(JODState.RESTARTING);
+
+            log.trace(Mrk_JOD.JOD_MAIN, "JOD shout down for restarting");
+            if (state.enumEquals(JODState.RUN))
+                shutdownInstance();
+
+            log.trace(Mrk_JOD.JOD_MAIN, "JOD startup for restarting");
+            startupInstance();
+
+            state.set(JODState.RUN);
+        }
+
+        log.info(Mrk_JOD.JOD_MAIN, String.format("JOD Object '%s' restarted", objInfo.getObjId()));
     }
 
 

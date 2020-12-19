@@ -30,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 
 
@@ -39,7 +38,8 @@ import java.net.Socket;
  * <p>
  * This implementation provide a SSL based client.
  */
-public class DefaultSSLClient extends DefaultClient {
+@SuppressWarnings("unused")
+public abstract class AbsSSLClient extends AbsClient {
 
     // Class constants
 
@@ -49,6 +49,7 @@ public class DefaultSSLClient extends DefaultClient {
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
+    // SSL
     private final SSLContext sslCtx;
 
 
@@ -64,7 +65,7 @@ public class DefaultSSLClient extends DefaultClient {
      * @param serverPort                    the server's port.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    protected DefaultSSLClient(SSLContext sslCtx, String clientId, InetAddress serverAddr, int serverPort, ClientMessagingEvents clientMessagingEventsListener) {
+    protected AbsSSLClient(SSLContext sslCtx, String clientId, String serverAddr, int serverPort, ClientMessagingEvents clientMessagingEventsListener) {
         this(sslCtx, clientId, serverAddr, serverPort,
                 null,
                 null,
@@ -83,10 +84,10 @@ public class DefaultSSLClient extends DefaultClient {
      * @param clientServerEventsListener    the server events listener.
      * @param clientMessagingEventsListener the tx and rx messaging listener.
      */
-    public DefaultSSLClient(SSLContext sslCtx, String clientId, InetAddress serverAddr, int serverPort,
-                            ClientLocalEvents clientLocalEventsListener,
-                            ClientServerEvents clientServerEventsListener,
-                            ClientMessagingEvents clientMessagingEventsListener) {
+    public AbsSSLClient(SSLContext sslCtx, String clientId, String serverAddr, int serverPort,
+                        ClientLocalEvents clientLocalEventsListener,
+                        ClientServerEvents clientServerEventsListener,
+                        ClientMessagingEvents clientMessagingEventsListener) {
         super(clientId, serverAddr, serverPort, clientLocalEventsListener, clientServerEventsListener, clientMessagingEventsListener);
 
         this.sslCtx = sslCtx;
@@ -130,7 +131,8 @@ public class DefaultSSLClient extends DefaultClient {
             log.debug(Mrk_Commons.COMM_SSL_CL, "Close connection to server");
             try {
                 socket.close();
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
             return null;
         }
 

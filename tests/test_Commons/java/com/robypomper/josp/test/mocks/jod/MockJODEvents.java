@@ -1,12 +1,11 @@
 package com.robypomper.josp.test.mocks.jod;
 
 import com.robypomper.java.JavaJSONArrayToFile;
-import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
+import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
 
-import java.io.IOException;
 import java.util.List;
 
 public class MockJODEvents implements JODEvents {
@@ -42,7 +41,7 @@ public class MockJODEvents implements JODEvents {
     }
 
     @Override
-    public void storeCache() throws IOException {
+    public void storeCache() {
     }
 
 }

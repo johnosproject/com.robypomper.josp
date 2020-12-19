@@ -20,49 +20,46 @@ package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.communication.UtilsJKS;
 import com.robypomper.communication.UtilsSSL;
-import com.robypomper.communication.client.CertSharingSSLClient;
-import com.robypomper.communication.client.Client;
-import com.robypomper.communication.client.ServerInfo;
+import com.robypomper.communication.client.AbsClientWrapper;
 import com.robypomper.communication.client.events.ClientMessagingEvents;
-import com.robypomper.communication.client.events.ClientServerEvents;
 import com.robypomper.communication.client.events.DefaultClientEvents;
-import com.robypomper.communication.client.standard.SSLCertClient;
+import com.robypomper.communication.client.standard.DefaultSSLClientCertSharing;
+import com.robypomper.communication.client.standard.SSLCertSharingClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.remote.DefaultObjComm;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.InetAddress;
-import java.util.Date;
-
 
 /**
  * Client implementation for JOD local server.
  * <p>
- * This class provide a {@link CertSharingSSLClient} (a client that allow to share
+ * This class provide a {@link AbsClientWrapper} with {@link DefaultSSLClientCertSharing} (a client that allow to share
  * client and server certificates).
  */
-public class JSLLocalClient implements Client {
+@SuppressWarnings("un1used")
+public class JSLLocalClient extends AbsClientWrapper {
 
     // Class constants
 
+    public static final String NAME_PROTO = "josp-local";
+    public static final String NAME_SERVER = "JOSP JOD Local Server";
     public static final String CERT_ALIAS = "JSL-Cert-Local";
 
 
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
-    private final JSLCommunication communication;
-    private final CertSharingSSLClient client;
+    // JSL
+    private final JSLCommunication_002 communication;
     private JSLRemoteObject remoteObject = null;
 
 
     // Constructor
 
     /**
-     * Default constructor that initialize the internal {@link CertSharingSSLClient}.
+     * Default constructor that initialize the internal {@link DefaultSSLClientCertSharing}.
      *
      * @param communication instance of the {@link JSLCommunication}
      *                      that initialized this client. It will used to
@@ -72,19 +69,20 @@ public class JSLLocalClient implements Client {
      * @param port          the JOD local server port to connect with.
      * @param pubCertFile   the file path of current client's public certificate.
      */
-    public JSLLocalClient(JSLCommunication communication, String srvFullId,
-                          InetAddress address, int port, String pubCertFile) {
+    public JSLLocalClient(JSLCommunication_002 communication, String srvFullId,
+                          String address, int port, String pubCertFile) {
+        super(srvFullId);
         this.communication = communication;
 
         try {
-            client = new CertSharingSSLClient(srvFullId, address, port,
+            DefaultSSLClientCertSharing client = new DefaultSSLClientCertSharing(srvFullId, address, port,
                     CERT_ALIAS, pubCertFile,
-                    null,
-                    new JSLLocalClientServerListener(),
-                    new JSLLocalClientMessagingListener()
+                    new JSLLocalClientMessagingListener(),
+                    NAME_PROTO, NAME_SERVER
             );
+            setWrappedClient(client);
 
-        } catch (SSLCertClient.SSLCertClientException | UtilsJKS.LoadingException | UtilsSSL.GenerationException | UtilsJKS.StoreException | UtilsJKS.GenerationException e) {
+        } catch (SSLCertSharingClient.SSLCertClientException | UtilsJKS.LoadingException | UtilsSSL.GenerationException | UtilsJKS.StoreException | UtilsJKS.GenerationException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
@@ -92,6 +90,9 @@ public class JSLLocalClient implements Client {
         log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Initialized JSLLocalClient instance for '%s'", srvFullId));
         log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("                                    on server '%s:%d'", address, port));
     }
+
+
+    // JSL Local Client methods
 
     /**
      * When created, add corresponding JSLRemoteObject to current local client.
@@ -105,152 +106,57 @@ public class JSLLocalClient implements Client {
         this.remoteObject = remoteObject;
     }
 
-
-    // Object info
+    /**
+     * Version of method {@link #getObjId()} that do NOT throws exceptions.
+     *
+     * @return the represented server's object id.
+     */
+    public String tryObjId() {
+        try {
+            return getServerId();
+        } catch (ServerNotConnectedException e) {
+            return null;
+        }
+    }
 
     /**
      * The object id.
      *
      * @return the represented server's object id.
      */
-    public String getObjId() {
-        return getServerInfo().getServerId();
+    public String getObjId() throws ServerNotConnectedException {
+        return getServerId();
     }
 
 
-    // Connections mngm
-
-    /**
-     * Placeholder method
-     */
-    private void onServerConnection() {
-        // ToDo: implement onServerConnection method
-    }
-
-    /**
-     * Placeholder method
-     */
-    private void onServerDisconnection() {
-        if (remoteObject != null) {
-            log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnected object '%s' server '%s:%d' by '%s' service", remoteObject.getId(), getServerAddr(), getServerPort(), getClientId()));
-            ((DefaultObjComm)remoteObject.getComm()).removeLocalClient(this);
-        }
-        communication.removeServer(this);
-    }
-
-
-    // Process incoming data
-
-    /**
-     * Forward received data to the {@link JSLCommunication}
-     * instance.
-     *
-     * @param readData the message string received from the connected server client.
-     * @return always true.
-     */
-    private boolean onDataReceived(String readData) {
-        return communication.processFromObjectMsg(readData, JOSPPerm.Connection.OnlyLocal);
-    }
-
-
-    // Client's wrapping methods
+    // Getter configs
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetAddress getServerAddr() {
-        return client.getServerAddr();
+    public String getProtocolName() {
+        return NAME_PROTO;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getServerPort() {
-        return client.getServerPort();
+    public String getServerName() {
+        return NAME_SERVER;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ServerInfo getServerInfo() {
-        return client.getServerInfo();
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public InetAddress getClientAddr() {
-        return client.getClientAddr();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getClientPort() {
-        return client.getClientPort();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getClientId() {
-        return client.getClientId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Date getLastConnection() {
-        return client.getLastConnection();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Date getLastDisconnection() {
-        return client.getLastDisconnection();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isConnected() {
-        return client.isConnected();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void connect() throws ConnectionException {
-        client.connect();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void disconnect() {
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnect local communication service '%s''s client from address '%s:%d'", getClientId(), getClientAddr(), getClientPort()));
-        client.disconnect();
-    }
+    // Messages methods - Client's wrapping override methods
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void sendData(byte[] data) throws ServerNotConnectedException {
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to object '%s' from '%s' service", new String(data).substring(0, new String(data).indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
-        client.sendData(data);
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to object '%s' from '%s' service", new String(data).substring(0, new String(data).indexOf("\n")), getServerId(), getClientId()));
+        super.sendData(data);
     }
 
     /**
@@ -258,84 +164,23 @@ public class JSLLocalClient implements Client {
      */
     @Override
     public void sendData(String data) throws ServerNotConnectedException {
-        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to server '%s' from '%s' service", data.substring(0, data.indexOf("\n")), getServerInfo().getServerId(), client.getClientId()));
-        client.sendData(data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isSrvByeMsg(byte[] data) {
-        return client.isSrvByeMsg(data);
+        log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Data '%s...' send to object '%s' from '%s' service", data.substring(0, data.indexOf("\n")), getServerId(), getClientId()));
+        super.sendData(data);
     }
 
 
-    // Client event listeners
+    // Messages methods - Processing data
 
-    /**
-     * Link the {@link #onServerConnection()} event to
-     * {@link JSLLocalClient#onServerConnection()} methods.
-     */
-    private class JSLLocalClientServerListener extends DefaultClientEvents implements ClientServerEvents {
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Link to the {@link JSLLocalClient#onServerConnection()} method.
-         */
-        @Override
-        public void onServerConnection() {
-            JSLLocalClient.this.onServerConnection();
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onServerDisconnection() {
-            JSLLocalClient.this.onServerDisconnection();
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onServerClientDisconnected() {}
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onServerGoodbye() {}
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onServerTerminated() {}
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onServerError(Throwable e) {}
-
+    private boolean processData(String readData, JOSPPerm.Connection connType) {
+        return communication.processFromObjectMsg(readData, connType);
     }
+
+
+    // Messages methods ClientMessagingEvents listener
 
     /**
      * Link the {@link #onDataReceived(String)} event to
-     * {@link JSLLocalClient#onDataReceived(String)} ()} method.
+     * {@link #processData(String, JOSPPerm.Connection)} method.
      */
     private class JSLLocalClientMessagingListener extends DefaultClientEvents implements ClientMessagingEvents {
 
@@ -345,7 +190,8 @@ public class JSLLocalClient implements Client {
          * Does nothing.
          */
         @Override
-        public void onDataSend(byte[] writtenData) {}
+        public void onDataSend(byte[] writtenData) {
+        }
 
         /**
          * {@inheritDoc}
@@ -353,7 +199,8 @@ public class JSLLocalClient implements Client {
          * Does nothing.
          */
         @Override
-        public void onDataSend(String writtenData) {}
+        public void onDataSend(String writtenData) {
+        }
 
         /**
          * {@inheritDoc}
@@ -368,11 +215,11 @@ public class JSLLocalClient implements Client {
         /**
          * {@inheritDoc}
          * <p>
-         * Link to the {@link JSLLocalClient#onDataReceived(String)} method.
+         * Link to the {@link #processData(String, JOSPPerm.Connection)} method.
          */
         @Override
         public boolean onDataReceived(String readData) {
-            return JSLLocalClient.this.onDataReceived(readData);
+            return processData(readData, JOSPPerm.Connection.OnlyLocal);
         }
 
     }

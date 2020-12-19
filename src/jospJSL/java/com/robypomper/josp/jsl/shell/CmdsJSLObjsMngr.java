@@ -129,7 +129,7 @@ public class CmdsJSLObjsMngr {
         s.append(String.format("- %-30s (status: %s)\n", "JCP", obj.getComm().isCloudConnected() ? "connected" : "NOT conn."));
         for (JSLLocalClient client : ((DefaultObjComm) obj.getComm()).getLocalClients()) {
             String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
-            s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerInfo().getLocalFullAddress()));
+            s.append(String.format("- %-30s (status: %s; local: %s)\n", fullAddr, client.isConnected() ? "connected" : "NOT conn.", client.getServerUrl()));
         }
 
         return s.toString();
@@ -676,12 +676,12 @@ public class CmdsJSLObjsMngr {
         obj.getComm().addListener(new ObjComm.RemoteObjectConnListener() {
             @Override
             public void onLocalConnected(JSLRemoteObject obj, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+                System.out.println(PRE + String.format("local object '%s' connected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.tryClientAddr()) + POST);
             }
 
             @Override
             public void onLocalDisconnected(JSLRemoteObject obj, JSLLocalClient localClient) {
-                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.getClientAddr()) + POST);
+                System.out.println(PRE + String.format("local object '%s' disconnected (client id: %s, client addr: %s", obj.getId(), localClient.getClientId(), localClient.tryClientAddr()) + POST);
             }
 
             @Override

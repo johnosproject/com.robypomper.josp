@@ -8,6 +8,7 @@ import com.robypomper.josp.jcp.params.jslwb.JOSPUserHtml;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBUsr;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.states.StateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -116,11 +117,8 @@ public class APIJSLWBUsrController {
         try {
             jslService.login(jslService.getHttp(session), code);
 
-        } catch (JCPClient2.ConnectionException e) {
+        } catch (StateException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't connect JCP APIs service because %s", e.getMessage()), e);
-
-        } catch (JCPClient2.JCPNotReachableException e) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("Can't connect JCP APIs service because unreachable (%s)", e.getMessage()), e);
 
         } catch (JCPClient2.AuthenticationException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Can't access to JCP APIs service because authentication error %s", e.getMessage()), e);

@@ -20,7 +20,6 @@
 package com.robypomper.communication.client.events;
 
 import com.robypomper.communication.client.Client;
-import com.robypomper.communication.client.ServerInfo;
 
 
 /**
@@ -57,18 +56,6 @@ public class DefaultClientEvents implements ClientEvents {
      */
     protected Client getClient() {
         return client;
-    }
-
-    /**
-     * Provide the ServerInfo of the server that current client is connected.
-     * <p>
-     * This method is not included in the interface because it must be accessible
-     * only by ServerEvent's implementations.
-     *
-     * @return the server instance corresponding to current event listener.
-     */
-    protected ServerInfo getServer() {
-        return client.getServerInfo();
     }
 
 }
