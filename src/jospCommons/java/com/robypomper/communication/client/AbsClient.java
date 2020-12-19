@@ -154,13 +154,19 @@ public abstract class AbsClient implements Client {
     /**
      * {@inheritDoc}
      * <p>
-     * This method is based on internal {@link Socket} ({@link Socket#isConnected()}
-     * and !{@link Socket#isClosed()}) checks.
+     * This method is based on internal {@link #getState()}.
      */
     @Override
     public boolean isConnected() {
-        assert (state.enumEquals(State.CONNECTED)) == (clientSocket != null && clientSocket.isConnected() && !clientSocket.isClosed());
-        return clientSocket != null && clientSocket.isConnected() && !clientSocket.isClosed();
+        return state.enumEquals(State.CONNECTED);
+    }
+
+    /**
+     * This method is based on internal {@link Socket} ({@link Socket#isConnected()}
+     * and !{@link Socket#isClosed()}) checks.
+     */
+    public boolean isSocketConnected() {
+        return (clientSocket != null && clientSocket.isConnected() && !clientSocket.isClosed());
     }
 
     /**
@@ -183,6 +189,14 @@ public abstract class AbsClient implements Client {
     public boolean isDisconnecting() {
         //assert (state.enumEquals(State.DISCONNECTING)) == ();
         return state.enumEquals(State.DISCONNECTING);
+    }
+
+    /**
+     * This method is based on internal {@link Socket} ({@link Socket#isConnected()}
+     * and !{@link Socket#isClosed()}) checks.
+     */
+    public boolean isSocketDisconnecting() {
+        return (clientSocket != null && clientSocket.isConnected() && clientSocket.isClosed());
     }
 
     /**
@@ -787,6 +801,8 @@ public abstract class AbsClient implements Client {
                         if (!cme.onDataReceived(new String(dataRead, PeerInfo.CHARSET))) {
                             log.warn(Mrk_Commons.COMM_CL, String.format("Server processor can't process data from '%s' data because unknown data", getServerId()));
                             log.debug(Mrk_Commons.COMM_CL, String.format("(dataRx: %s)", new String(dataRead, PeerInfo.CHARSET)));
+                            //if (cme != null) cme.onProcessError(data);
+                            //if (cme != null) cme.onProcessError(new String(dataRead, PeerInfo.CHARSET));
                         }
 
                 } catch (Throwable e) {
