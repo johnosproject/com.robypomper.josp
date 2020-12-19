@@ -19,14 +19,16 @@
 
 package com.robypomper.josp.jod;
 
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
 import com.robypomper.josp.jod.history.JODHistory;
-import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.states.JODState;
+import com.robypomper.josp.states.StateException;
 
 import java.io.File;
 import java.util.Map;
@@ -38,6 +40,7 @@ import java.util.Map;
  * This interface define methods to initialize and manage a JOD object. Moreover,
  * it define also JOD support classes, struct and exceptions.
  */
+@SuppressWarnings("unused")
 public interface JOD {
 
     // New instance method
@@ -82,36 +85,35 @@ public interface JOD {
     // JOD mngm
 
     /**
+     * @return the JOD daemon's state.
+     */
+    JODState getState();
+
+    /**
      * Start current JOD object and all his systems.
      * <p>
-     * Update the JOD object's status {@link #status()}.
-     *
-     * @throws RunException thrown if errors occurs on JOD object start.
+     * Update the JOD object's status {@link #getState()}.
      */
-    void start() throws RunException;
+    void startup() throws StateException;
 
     /**
      * Stop current JOD object and all his systems.
      * <p>
-     * Update the JOD object's status {@link #status()}.
-     *
-     * @throws RunException thrown if errors occurs on JOD object stop.
+     * Update the JOD object's status {@link #getState()}.
      */
-    void stop() throws RunException;
+    void shutdown() throws StateException;
 
     /**
      * Stop then restart current JOD object and all his systems.
      * <p>
-     * Update the JOD object's status {@link #status()}.
-     *
-     * @throws RunException thrown if errors occurs on JOD object stop and start.
+     * Update the JOD object's status {@link #getState()}.
      */
-    void restart() throws RunException;
+    boolean restart() throws StateException;
 
     /**
-     * @return the JOD object's status.
+     * Pretty formatted JOD instance's info on current logger.
      */
-    Status status();
+    void printInstanceInfo();
 
 
     // JOD Systems
@@ -134,51 +136,6 @@ public interface JOD {
 
 
     // Support struct and classes
-
-    /**
-     * JOD Objects statuses.
-     */
-    enum Status {
-        /**
-         * JOD object is starting.
-         * <p>
-         * The method {@link #start()} was called, when finish the status become
-         * {@link #RUNNING} or {@link #STOPPED} if error occurs.
-         */
-        STARTING,
-
-        /**
-         * JOD object is running.
-         * <p>
-         * The method {@link #start()} was called and the JOD object was started
-         * successfully.
-         */
-        RUNNING,
-
-        /**
-         * JOD object is shouting down.
-         * <p>
-         * The method {@link #stop()} was called, when finish the status become
-         * {@link #STOPPED}.
-         */
-        SHUTDOWN,
-
-        /**
-         * JOD object is stopped.
-         * <p>
-         * The method {@link #stop()} was called and the JOD object was stopped
-         * successfully.
-         */
-        STOPPED,
-
-        /**
-         * JOD object is shouting down and restarted.
-         * <p>
-         * The method {@link #restart()} was called, when finish the status become
-         * {@link #RUNNING} or {@link #STOPPED} if error occurs.
-         */
-        REBOOTING
-    }
 
     /**
      * JOD's settings interface.
@@ -224,19 +181,6 @@ public interface JOD {
 
 
     // Exceptions
-
-    /**
-     * Exceptions for JOD object startup and shout down errors.
-     */
-    class RunException extends Throwable {
-        public RunException(String msg) {
-            super(msg);
-        }
-
-        public RunException(String msg, Exception e) {
-            super(msg, e);
-        }
-    }
 
     /**
      * Exceptions for {@link JOD} and {@link JOD.Settings} object creation.
