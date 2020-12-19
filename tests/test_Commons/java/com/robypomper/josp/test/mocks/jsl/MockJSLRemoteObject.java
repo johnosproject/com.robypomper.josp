@@ -61,8 +61,7 @@ public class MockJSLRemoteObject implements JSLRemoteObject {
     }
 
     @Override
-    public void sendObjectCmdMsg(JSLAction component, JSLActionParams command) throws ObjectNotConnected {
-
+    public void sendObjectCmdMsg(JSLAction component, JSLActionParams command) {
     }
 
     @Override

@@ -21,7 +21,6 @@ package com.robypomper.josp.test.mocks.jod;
 
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.permissions.JODPermissions;
-import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.List;
@@ -29,13 +28,11 @@ import java.util.List;
 public class MockJODPermissions implements JODPermissions {
 
     @Override
-    public void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException {
-
+    public void setCommunication(JODCommunication comm) {
     }
 
     @Override
     public void syncObjPermissions() {
-
     }
 
     @Override
@@ -75,26 +72,22 @@ public class MockJODPermissions implements JODPermissions {
 
     @Override
     public void setOwnerId(String ownerId) {
-
     }
 
     @Override
     public void resetOwnerId() {
-
     }
 
     @Override
     public void startAutoRefresh() {
-
     }
 
     @Override
     public void stopAutoRefresh() {
-
     }
 
     @Override
-    public void regeneratePermissions() throws PermissionsFileException {
-
+    public void regeneratePermissions() {
     }
+
 }

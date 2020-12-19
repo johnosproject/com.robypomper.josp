@@ -25,7 +25,6 @@ import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPStatusHistory;
 
-import java.io.IOException;
 import java.util.List;
 
 public class MockJODHistory implements JODHistory {
@@ -48,7 +47,7 @@ public class MockJODHistory implements JODHistory {
     }
 
     @Override
-    public void storeCache() throws IOException {
+    public void storeCache() {
     }
 
 }

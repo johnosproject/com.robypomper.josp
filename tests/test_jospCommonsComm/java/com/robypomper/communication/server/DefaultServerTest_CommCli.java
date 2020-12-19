@@ -19,7 +19,8 @@
 
 package com.robypomper.communication.server;
 
-import com.robypomper.communication.client.DefaultClient;
+import com.robypomper.communication.client.AbsClient;
+import com.robypomper.communication.client.AbsClientTest_Base;
 import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.events.LogServerLocalEventsListener;
 import com.robypomper.communication.server.events.LogServerMessagingEventsListener;
@@ -57,7 +58,8 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         // Check client status
         ClientInfo client = clients.get(0);
         Assertions.assertTrue(client.isConnected());
-        String calculatedClientId = String.format(DefaultServer.ID_CLI_FORMAT, s.getLocalAddress(), s.getLocalPort());
+        //String calculatedClientId = String.format(DefaultServer.ID_CLI_FORMAT, s.getLocalAddress(), s.getLocalPort());
+        String calculatedClientId = AbsClientTest_Base.calculateClientId(s.getLocalAddress().getHostAddress(), s.getLocalPort());
         Assertions.assertEquals(calculatedClientId, client.getClientId());
 
         // Disconnect client
@@ -85,7 +87,7 @@ public class DefaultServerTest_CommCli extends DefaultServerTest_Base {
         Socket s = connectClient(LOCALHOST, port, latchSCE.onClientConnection);
 
         // Disconnect client (terminate)
-        clientSend(s, DefaultClient.MSG_BYE_CLI);
+        clientSend(s, AbsClient.MSG_BYE_CLI);
         s.close();
         Assertions.assertTrue(latchSCE.onClientDisconnection.await(1, TimeUnit.SECONDS));
         Assertions.assertTrue(latchSCE.onClientGoodbye.await(1, TimeUnit.SECONDS));

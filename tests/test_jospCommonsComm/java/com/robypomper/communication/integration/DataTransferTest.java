@@ -19,10 +19,9 @@
 
 package com.robypomper.communication.integration;
 
+import com.robypomper.communication.client.AbsClient;
 import com.robypomper.communication.client.Client;
-import com.robypomper.communication.client.DefaultClient;
 import com.robypomper.communication.client.standard.LogClient;
-import com.robypomper.communication.peer.PeerInfo;
 import com.robypomper.communication.server.ClientInfo;
 import com.robypomper.communication.server.DefaultServer;
 import com.robypomper.communication.server.Server;
@@ -30,9 +29,11 @@ import com.robypomper.communication.server.events.LogServerClientEventsListener;
 import com.robypomper.communication.server.events.LogServerLocalEventsListener;
 import com.robypomper.communication.server.events.LogServerMessagingEventsListener;
 import com.robypomper.java.JavaRandomStrings;
+import com.robypomper.josp.states.StateException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +47,7 @@ public class DataTransferTest {
     final static String ID_SERVER = "TestServer";
     final static String ID_CLIENT = "TestClient";
     final static int PORT = 8234;
-    final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
+    final static String LOCALHOST = InetAddress.getLoopbackAddress().getHostAddress();
 
 
     // Server messaging
@@ -55,10 +56,7 @@ public class DataTransferTest {
     int readBytes = -1;
 
     @Test
-    public void testSingleMessages() throws Server.ListeningException, InterruptedException, Client.ConnectionException, Client.ServerNotConnectedException {
-        byte[] originalDataByte = "bytesData".getBytes(PeerInfo.CHARSET);
-
-
+    public void testSingleMessages() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, StateException, Client.AAAException, IOException {
         Server server = new DefaultServer(ID_SERVER, PORT,
                 new LogServerLocalEventsListener(),
                 new LogServerClientEventsListener(),
@@ -73,7 +71,7 @@ public class DataTransferTest {
                     }
 
                     @Override
-                    public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
+                    public boolean onDataReceived(ClientInfo client, String readData) {
                         return false;
                     }
 
@@ -82,7 +80,7 @@ public class DataTransferTest {
         // Start server and connect client
         server.start();
 
-        DefaultClient clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
+        AbsClient clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
         clientLog.connect();
 
         // Client send short data
@@ -116,10 +114,7 @@ public class DataTransferTest {
     int readBytes_4 = -1;
 
     @Test
-    public void testMultipleMessages() throws Server.ListeningException, InterruptedException, Client.ConnectionException, Client.ServerNotConnectedException {
-        byte[] originalDataByte = "bytesData".getBytes(PeerInfo.CHARSET);
-
-
+    public void testMultipleMessages() throws Server.ListeningException, InterruptedException, Client.ServerNotConnectedException, StateException, IOException, Client.AAAException {
         Server server = new DefaultServer(ID_SERVER, PORT,
                 new LogServerLocalEventsListener(),
                 new LogServerClientEventsListener(),
@@ -142,7 +137,7 @@ public class DataTransferTest {
                     }
 
                     @Override
-                    public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
+                    public boolean onDataReceived(ClientInfo client, String readData) {
                         return false;
                     }
 
@@ -151,7 +146,7 @@ public class DataTransferTest {
         // Start server and connect client
         server.start();
 
-        DefaultClient clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
+        AbsClient clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
         clientLog.connect();
 
         // Client send short data
@@ -204,10 +199,7 @@ public class DataTransferTest {
     Thread t4;
 
     @Test
-    public void testMultipleThreads() throws Server.ListeningException, InterruptedException, Client.ConnectionException, Client.ServerNotConnectedException {
-        byte[] originalDataByte = "bytesData".getBytes(PeerInfo.CHARSET);
-
-
+    public void testMultipleThreads() throws Server.ListeningException, InterruptedException, StateException, Client.AAAException, IOException {
         Server server = new DefaultServer(ID_SERVER, PORT,
                 new LogServerLocalEventsListener(),
                 new LogServerClientEventsListener(),
@@ -233,7 +225,7 @@ public class DataTransferTest {
                     }
 
                     @Override
-                    public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
+                    public boolean onDataReceived(ClientInfo client, String readData) {
                         return false;
                     }
 
@@ -242,29 +234,47 @@ public class DataTransferTest {
         // Start server and connect client
         server.start();
 
-        DefaultClient clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
+        AbsClient clientLog = new LogClient(ID_CLIENT, LOCALHOST, PORT);
         clientLog.connect();
 
         // Client send short data
-        t1 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(1024, 'A'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t1 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(1024, 'A'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t1.start();
-        t2 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(1024, 'B'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t2 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(1024, 'B'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t2.start();
-        t3 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(1024, 'C'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t3 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(1024, 'C'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t3.start();
         t1.join();
@@ -285,25 +295,43 @@ public class DataTransferTest {
         readBytes_2 = -1;
         readBytes_3 = -1;
         readBytes_4 = -1;
-        t1 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(10240, 'X'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t1 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(10240, 'X'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t1.start();
-        t2 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(10240, 'Y'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t2 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(10240, 'Y'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t2.start();
-        t3 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(10240, 'Z'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t3 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(10240, 'Z'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t3.start();
         t1.join();
@@ -325,32 +353,56 @@ public class DataTransferTest {
         readBytes_2 = -1;
         readBytes_3 = -1;
         readBytes_4 = -1;
-        t1 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(60000, '1'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t1 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(60000, '1'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t1.start();
-        t2 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(60000, '2'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t2 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(60000, '2'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t2.start();
-        t3 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(60000, '3'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t3 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(60000, '3'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t3.start();
-        t4 = new Thread((Runnable) () -> {
-            try {
-                clientLog.sendData(getBytes(60000, '4'));
-            } catch (Client.ServerNotConnectedException ignore) {
+        //noinspection Convert2Lambda
+        t4 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    clientLog.sendData(getBytes(60000, '4'));
+                } catch (Client.ServerNotConnectedException ignore) {
+                }
             }
+
         });
         t4.start();
         t1.join();

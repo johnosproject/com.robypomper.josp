@@ -28,6 +28,7 @@ import com.robypomper.josp.jod.structure.JODStructure;
 import java.util.Date;
 
 public class MockJODStructure implements JODStructure {
+
     @Override
     public JODRoot getRoot() {
         return null;
@@ -50,22 +51,18 @@ public class MockJODStructure implements JODStructure {
 
     @Override
     public void setCommunication(JODCommunication comm) {
-
     }
 
     @Override
     public void startAutoRefresh() {
-
     }
 
     @Override
     public void stopAutoRefresh() {
-
     }
 
     @Override
     public void syncObjStruct() {
-
     }
 
     @Override

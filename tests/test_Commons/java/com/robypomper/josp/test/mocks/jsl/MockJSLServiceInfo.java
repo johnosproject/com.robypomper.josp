@@ -34,12 +34,10 @@ public class MockJSLServiceInfo implements JSLServiceInfo {
 
     @Override
     public void setSystems(JSLUserMngr user, JSLObjsMngr objs) {
-
     }
 
     @Override
     public void setCommunication(JSLCommunication comm) {
-
     }
 
     @Override
@@ -89,11 +87,9 @@ public class MockJSLServiceInfo implements JSLServiceInfo {
 
     @Override
     public void startAutoRefresh() {
-
     }
 
     @Override
     public void stopAutoRefresh() {
-
     }
 }

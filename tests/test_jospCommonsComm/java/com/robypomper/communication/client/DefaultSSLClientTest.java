@@ -24,13 +24,18 @@ import com.robypomper.communication.UtilsSSL;
 import com.robypomper.communication.client.events.LatchClientLocalEventsListener;
 import com.robypomper.communication.client.events.LatchClientMessagingEventsListener;
 import com.robypomper.communication.client.events.LatchClientServerEventsListener;
-import com.robypomper.communication.server.*;
+import com.robypomper.communication.client.standard.DefaultSSLClient;
+import com.robypomper.communication.server.ClientInfo;
+import com.robypomper.communication.server.DefaultSSLServer;
+import com.robypomper.communication.server.DefaultServerTest_Base;
+import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.events.LatchServerClientEventsListener;
 import com.robypomper.communication.server.events.LatchServerLocalEventsListener;
 import com.robypomper.communication.server.events.LatchServerMessagingEventsListener;
 import com.robypomper.communication.server.standard.SSLCertServerTest;
 import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +46,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.security.KeyStore;
 import java.util.List;
@@ -55,7 +61,7 @@ public class DefaultSSLClientTest {
     final static String ID_CLIENT = "TestClient";
     final static String ID_SERVER = "TestServer";
     final static int PORT = 1234;
-    final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
+    final static String LOCALHOST = InetAddress.getLoopbackAddress().getHostAddress();
 
     final static String SRV_ID_CERTIFICATE = "TestSSLCertServer";
     final static String SRV_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("server-%s.crt", SSLCertServerTest.class.getSimpleName());
@@ -119,8 +125,8 @@ public class DefaultSSLClientTest {
         latchCLE = new LatchClientLocalEventsListener();
         latchCSE = new LatchClientServerEventsListener();
         latchCME = new LatchClientMessagingEventsListener();
-        clientLatch = new DefaultSSLClient(clientSSLContext, ID_CLIENT, LOCALHOST, PORT, latchCLE, latchCSE, latchCME);
-        clientLatchWithCliKeyStore = new DefaultSSLClient(clientSSLContextWithCliKeyStore, ID_CLIENT, LOCALHOST, PORT, latchCLE, latchCSE, latchCME);
+        clientLatch = new DefaultSSLClient(clientSSLContext, ID_CLIENT, LOCALHOST, PORT, latchCLE, latchCSE, latchCME, AbsClientTest_Base.NAME_PROTO, AbsClientTest_Base.NAME_SERVER);
+        clientLatchWithCliKeyStore = new DefaultSSLClient(clientSSLContextWithCliKeyStore, ID_CLIENT, LOCALHOST, PORT, latchCLE, latchCSE, latchCME, AbsClientTest_Base.NAME_PROTO, AbsClientTest_Base.NAME_SERVER);
 
         // Init test server
         latchSLE = new LatchServerLocalEventsListener();
@@ -157,7 +163,7 @@ public class DefaultSSLClientTest {
     // Clients
 
     @Test
-    public void testClientConnectionAndDisconnection() throws Server.ListeningException, InterruptedException, Client.ConnectionException {
+    public void testClientConnectionAndDisconnection() throws Server.ListeningException, InterruptedException, StateException, Client.AAAException, IOException {
         // Start test server
         System.out.println("\nSERVER START");
         DefaultServerTest_Base.startServer(serverLatch);
@@ -179,12 +185,12 @@ public class DefaultSSLClientTest {
         // Check client status
         ClientInfo client = clients.get(0);
         Assertions.assertTrue(client.isConnected());
-        String calculatedClientId = String.format(DefaultServer.ID_CLI_FORMAT, clientLatch.getServerInfo().getLocalAddress(), clientLatch.getServerInfo().getLocalPort());
+        String calculatedClientId = AbsClientTest_Base.calculateClientId(clientLatch.tryClientAddr(), clientLatch.tryClientPort());
         Assertions.assertEquals(calculatedClientId, client.getClientId());
 
         // Check server status
-        Assertions.assertTrue(clientLatch.getServerInfo().isConnected());
-        Assertions.assertEquals(SRV_ID_CERTIFICATE, clientLatch.getServerInfo().getServerId());
+        Assertions.assertTrue(clientLatch.isConnected());
+        Assertions.assertEquals(SRV_ID_CERTIFICATE, clientLatch.tryServerId());
 
         // Disconnect client
         System.out.println("\nCLIENT DISCONNECTION");
@@ -206,7 +212,7 @@ public class DefaultSSLClientTest {
     }
 
     @Test
-    public void testClientConnectionAndDisconnectionWithAuth() throws Server.ListeningException, InterruptedException, Client.ConnectionException {
+    public void testClientConnectionAndDisconnectionWithAuth() throws Server.ListeningException, InterruptedException, StateException, Client.AAAException, IOException {
         // Start test server
         DefaultServerTest_Base.startServer(serverLatchWithAuth);
 
@@ -228,8 +234,8 @@ public class DefaultSSLClientTest {
         Assertions.assertEquals(CLI_ID_CERTIFICATE, client.getClientId());
 
         // Check server status
-        Assertions.assertTrue(clientLatchWithCliKeyStore.getServerInfo().isConnected());
-        Assertions.assertEquals(SRV_ID_CERTIFICATE, clientLatchWithCliKeyStore.getServerInfo().getServerId());//SRV-localhost/127.0.0.1:1234
+        Assertions.assertTrue(clientLatchWithCliKeyStore.isConnected());
+        Assertions.assertEquals(SRV_ID_CERTIFICATE, clientLatchWithCliKeyStore.tryServerId());//SRV-localhost/127.0.0.1:1234
 
         // Disconnect client
         clientLatchWithCliKeyStore.disconnect();
@@ -254,7 +260,9 @@ public class DefaultSSLClientTest {
         DefaultServerTest_Base.startServer(serverLatchWithAuth);
 
         // Connect client
-        Assertions.assertThrows(Client.ConnectionException.class, clientLatch::connect);
+        Assertions.assertThrows(IOException.class, clientLatch::connect);
+        // SSLHandshakeException extends SSLException
+        // SSLException extends IOException
 
         // Check connection events on both side
         Assertions.assertFalse(latchSCE.onClientConnection.await(1, TimeUnit.SECONDS));

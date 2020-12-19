@@ -25,28 +25,30 @@ import com.robypomper.communication.client.events.LatchSSLCertClientListener;
 import com.robypomper.communication.server.Server;
 import com.robypomper.communication.server.standard.SSLCertServer;
 import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.security.KeyStore;
 import java.util.concurrent.TimeUnit;
 
 
-public class SSLCertClientTest {
+public class SSLCertSharingClientTest {
 
     // Class constants
 
     final static String TEST_FILES_PREFIX = "tmp/tests/";
     final static String ID_CLIENT = "TestCustomClient";
-    final static InetAddress LOCALHOST = InetAddress.getLoopbackAddress();
+    final static String LOCALHOST = InetAddress.getLoopbackAddress().getHostAddress();
     final static int PORT = 1234;
     final static String ID_SERVER = "TestSSLCertServer";
-    final static String CLI_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("client-%s.crt", SSLCertClientTest.class.getSimpleName());
-    final static String SRV_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("server-%s.crt", SSLCertClientTest.class.getSimpleName());
+    final static String CLI_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("client-%s.crt", SSLCertSharingClientTest.class.getSimpleName());
+    final static String SRV_CERT_PUB_PATH = TEST_FILES_PREFIX + String.format("server-%s.crt", SSLCertSharingClientTest.class.getSimpleName());
 
 
     // Internal vars
@@ -92,15 +94,15 @@ public class SSLCertClientTest {
     }
 
     @BeforeEach
-    public void setUp() throws SSLCertServer.SSLCertServerException, SSLCertClient.SSLCertClientException {
+    public void setUp() throws SSLCertServer.SSLCertServerException, SSLCertSharingClient.SSLCertClientException {
         log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
         log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
         // Init test client
         clientCertTrustManager = new DynAddTrustManager();
         latchSSLCertClient = new LatchSSLCertClientListener();
-        clientSSLCert = new SSLCertClient(ID_CLIENT, LOCALHOST, PORT, clientCertTrustManager, latchSSLCertClient);
-        clientSSLCertSelfSend = new SSLCertClient(ID_CLIENT, LOCALHOST, PORT, CLI_CERT_PUB_PATH, clientCertTrustManager, latchSSLCertClient);
+        clientSSLCert = new SSLCertSharingClient(ID_CLIENT, LOCALHOST, PORT, clientCertTrustManager, latchSSLCertClient);
+        clientSSLCertSelfSend = new SSLCertSharingClient(ID_CLIENT, LOCALHOST, PORT, CLI_CERT_PUB_PATH, clientCertTrustManager, latchSSLCertClient);
 
         // Init test server
         serverCertTrustManager = new DynAddTrustManager();
@@ -110,7 +112,7 @@ public class SSLCertClientTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws StateException {
         log.debug(Mrk_Test.TEST_METHODS, "tearDown");
 
         // If still connected, disconnect test clients
@@ -129,7 +131,7 @@ public class SSLCertClientTest {
     // isRunning, start and stop
 
     @Test
-    public void testSSLCert() throws Server.ListeningException, InterruptedException, Client.ConnectionException {
+    public void testSSLCert() throws Server.ListeningException, InterruptedException, StateException, Client.AAAException, IOException {
         // Start server and connect client
         startServer(serverSSLCert);
 
@@ -149,7 +151,7 @@ public class SSLCertClientTest {
     }
 
     @Test
-    public void testSSLCertClientSendSelf() throws Server.ListeningException, InterruptedException, Client.ConnectionException {
+    public void testSSLCertClientSendSelf() throws Server.ListeningException, InterruptedException, StateException, Client.AAAException, IOException {
         // Start server and connect client
         startServer(serverSSLCert);
 
