@@ -128,10 +128,8 @@ public class Events {
         String payload;
         payload = "{";
         payload += String.format("\"connected\": \"%s\"", gwClient.isConnected());
-        if (gwClient.isConnected() || gwClient.getServerAddr()!=null) {
-            payload += String.format(", \"url\": \"%s\"", gwClient.getServerAddr().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr().getHostAddress());
-        }
+        payload += String.format(", \"url\": \"%s\"", gwClient.getServerUrl());
+        payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr());
         payload += String.format(", \"port\": \"%s\"", gwClient.getServerPort());
         payload += ", \"client\": {";
         if (gwClient.isConnected()) {
@@ -150,10 +148,8 @@ public class Events {
         String payload;
         payload = "{";
         payload += String.format("\"connected\": \"%s\"", gwClient.isConnected());
-        if (gwClient.isConnected() || gwClient.getServerAddr()!=null) {
-            payload += String.format(", \"url\": \"%s\"", gwClient.getServerAddr().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr().getHostAddress());
-        }
+        payload += String.format(", \"url\": \"%s\"", gwClient.getServerUrl());
+        payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr());
         payload += String.format(", \"port\": \"%s\"", gwClient.getServerPort());
         payload += ", \"client\": {";
         if (gwClient.isConnected()) {

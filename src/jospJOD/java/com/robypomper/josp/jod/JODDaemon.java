@@ -23,6 +23,8 @@ import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jod.info.JODInfo;
 import com.robypomper.josp.jod.shell.*;
+import com.robypomper.josp.states.JODState;
+import com.robypomper.josp.states.StateException;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
@@ -96,7 +98,7 @@ public class JODDaemon {
         System.out.println("INF: Start JOD Obj.");
         try {
             daemon.startJOD();
-        } catch (JODDaemon.Exception | JOD.RunException e) {
+        } catch (JODDaemon.Exception | StateException e) {
             daemon.fatal(e, EXIT_ERROR_START);
             return;
         }
@@ -186,24 +188,21 @@ public class JODDaemon {
     /**
      * Start internal JOD object and all his sub-systems.
      */
-    public void startJOD() throws JODDaemon.Exception, JOD.RunException {
+    public void startJOD() throws JODDaemon.Exception, StateException {
         if (jod == null)
             throw new JODDaemon.Exception("Can't start JOD object because was not initialized.");
 
-        jod.start();
+        jod.startup();
     }
 
     /**
      * Stop internal JOD object and all his sub-systems.
      */
-    public void stopJOD() throws JODDaemon.Exception, JOD.RunException {
+    public void stopJOD() throws JODDaemon.Exception, StateException {
         if (jod == null)
-            throw new JODDaemon.Exception("Can't stop JOD object because was not initialized.");
+            throw new JODDaemon.Exception("Can't start JOD object because was not initialized.");
 
-        if (jod.status() == JOD.Status.STOPPED || jod.status() == JOD.Status.SHUTDOWN)
-            throw new JODDaemon.Exception("Can't stop JOD object because was is already stopped or it's shouting down.");
-
-        jod.stop();
+        jod.shutdown();
     }
 
 
@@ -218,12 +217,12 @@ public class JODDaemon {
             public void run() {
                 // Stop JOD
                 System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
-                if (JODDaemon.this.jod.status() != JOD.Status.STOPPED) {
+                if (JODDaemon.this.jod.getState() != JODState.STOP) {
                     System.out.println("INF: Stop JOD Obj. via TERM signal");
 
                     try {
                         JODDaemon.this.stopJOD();
-                    } catch (JODDaemon.Exception | JOD.RunException e) {
+                    } catch (JODDaemon.Exception | StateException e) {
                         JODDaemon.this.fatal(e, EXIT_ERROR_STOP);
                         return;
                     }
@@ -251,7 +250,7 @@ public class JODDaemon {
     public void runLoop() throws InterruptedException {
         stopLoop = false;
         while (!stopLoop) {
-            Thread.sleep(INF_LOOP_SLEEP*1000);
+            Thread.sleep(INF_LOOP_SLEEP * 1000);
         }
     }
 

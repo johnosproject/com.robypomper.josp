@@ -21,6 +21,8 @@ package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.jod.JOD;
+import com.robypomper.josp.states.JODState;
+import com.robypomper.josp.states.StateException;
 
 public class CmdsJOD {
 
@@ -35,9 +37,9 @@ public class CmdsJOD {
      *
      * @return the JOD Object status.
      */
-    @Command(description = "Print current JOD Object status.")
-    public JOD.Status jodStatus() {
-        return jod.status();
+    @Command(description = "Print current JOD daemon state.")
+    public JODState jodState() {
+        return jod.getState();
     }
 
     /**
@@ -48,8 +50,8 @@ public class CmdsJOD {
     @Command(description="Start current JOD Object.")
     public String jodStart() {
         try {
-            jod.start();
-        } catch (com.robypomper.josp.jod.JOD.RunException e) {
+            jod.startup();
+        } catch (StateException e) {
             return String.format("Error on starting JOD Object:\n\t'%s'", e.getMessage());
         }
         return "JOD Object started successfully.";
@@ -63,8 +65,8 @@ public class CmdsJOD {
     @Command(description="Stop current JOD Object.")
     public String jodStop() {
         try {
-            jod.stop();
-        } catch (com.robypomper.josp.jod.JOD.RunException e) {
+            jod.shutdown();
+        } catch (StateException e) {
             return String.format("Error on stopping JOD Object:\n\t'%s'", e.getMessage());
         }
         return "JOD Object stopped successfully.";
