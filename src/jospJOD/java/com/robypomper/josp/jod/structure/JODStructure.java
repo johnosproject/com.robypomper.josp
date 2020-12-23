@@ -129,7 +129,7 @@ public interface JODStructure {
         }
 
         public ParsingException(String msg, JsonProcessingException e) {
-            super(msg + String.format(MSG, e.getLocation().getLineNr(), e.getLocation().getColumnNr()), e);
+            super(msg + String.format(MSG, e.getLocation() != null ? e.getLocation().getLineNr() : -1, e.getLocation() != null ? e.getLocation().getColumnNr() : -1), e);
         }
     }
 

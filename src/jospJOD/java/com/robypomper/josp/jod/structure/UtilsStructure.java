@@ -65,29 +65,17 @@ public class UtilsStructure {
     private static String compToPrettyPrint_RECURSIVE(JODComponent comp, boolean recursively, String indent) {
         String compStr = String.format("%s+ %-20s (%s)", indent, comp.getName(), comp.getClass().getSimpleName());
 
-        String workersStr;
-        if (comp instanceof JODAction) {
-            workersStr = ((JODAction) comp).getWorker();
-            workersStr += ", " + ((JODAction) comp).getExecutor();
-        } else if (comp instanceof JODState) {
-            workersStr = ((JODState) comp).getWorker();
-        } else
-            workersStr = "N/A";
-
         String pathStr = comp.getPath().getString();
 
         //String out = String.format("%-50s | %s", compStr, workersStr);
-        String out = String.format("%-50s | %s", compStr, pathStr);
-
+        StringBuilder out = new StringBuilder(String.format("%-50s | %s", compStr, pathStr));
         if (recursively && comp instanceof JODContainer) {
             JODContainer container = (JODContainer) comp;
             for (JODComponent subComp : container.getComponents()) {
-                out += "\n" + compToPrettyPrint_RECURSIVE(subComp, true, indent + "| ");
+                out.append("\n").append(compToPrettyPrint_RECURSIVE(subComp, true, indent + "| "));
             }
         }
-
-
-        return out;
+        return out.toString();
     }
 
     /**
