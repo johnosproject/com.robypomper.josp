@@ -64,8 +64,8 @@ jod.permissions.owner: '00000-00000-00000'
 
 # JODCOMM_LOCAL_ENABLED_DEF    = "true";
 #jod.comm.local.enabled: 'false'
-# JODCOMM_LOCAL_DISCOVERY_DEF  = "avahi";
-#jod.comm.local.discovery: 'JmDNS'
+# JODCOMM_LOCAL_DISCOVERY_DEF = "Auto";
+#jod.comm.local.discovery: 'Avahi'
 # JODCOMM_LOCAL_PORT_DEF       = "1234";
 #jod.comm.local.port: '1234'
 
