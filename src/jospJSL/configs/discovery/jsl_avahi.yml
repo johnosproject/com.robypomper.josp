@@ -10,9 +10,9 @@ jsl.comm.local.discovery: 'Avahi'
 #jcp.connect: 'false'
 # JCP_REFRESH_TIME_DEF     = "30";
 #jcp.client.refresh: '5'
-# JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
+#jcp.url.apis: api.johnosproject.org:443
 jcp.url.apis: 'localhost:9001'
-# JCP_URL_DEF_AUTH         = "auth.johnosproject.com:443";
+#jcp.url.auth: auth.johnosproject.org:443
 jcp.url.auth: 'localhost:8998'
 # JCP_CLIENT_ID_DEF        = "";
 jcp.client.id: 'test-client-srv'
