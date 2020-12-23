@@ -84,6 +84,10 @@ public class JODRangeState extends AbsJODState {
         return Double.toString(state);
     }
 
+    public double getStateRange() {
+        return state;
+    }
+
     public double getMin() {
         return min;
     }
