@@ -187,7 +187,8 @@ public class JSLLocalClientsMngr {
             emit_LocalStopped();
 
             log.debug(Mrk_JSL.JSL_COMM, "Disconnecting local communication service's clients");
-            for (JSLLocalClient locConn : localClients.keySet())
+            Set<JSLLocalClient> tmpList = new HashSet<>(localClients.keySet());
+            for (JSLLocalClient locConn : tmpList)
                 if (locConn.isConnected())
                     try {
                         locConn.disconnect();
