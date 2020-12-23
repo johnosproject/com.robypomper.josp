@@ -39,8 +39,8 @@ jsl.usr.id: '67de275c-1861-4e86-8e03-2ef643c8a592'
 jsl.comm.local.enabled: 'false'
 #JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF = "false";
 jsl.comm.local.onlyLocalhost: 'true'
-#JSLCOMM_LOCAL_DISCOVERY_DEF      = "avahi";
-#jsl.comm.local.discovery: 'JmDNS'
+# JSLCOMM_LOCAL_DISCOVERY_DEF  = "Auto";
+#jsl.comm.local.discovery: 'avahi'
 
 ## Communication cloud
 

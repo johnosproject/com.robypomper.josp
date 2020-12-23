@@ -47,8 +47,8 @@ jsl.srv.name: Test Client Srv
 
 #JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF = "false";
 jsl.comm.local.onlyLocalhost: 'true'
-#JSLCOMM_LOCAL_DISCOVERY_DEF      = "avahi";
-#jsl.comm.local.discovery: 'JmDNS'
+# JSLCOMM_LOCAL_DISCOVERY_DEF  = "Auto";
+#jsl.comm.local.discovery: 'avahi'
 
 ## Communication cloud
 
