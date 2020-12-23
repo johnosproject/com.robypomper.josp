@@ -61,6 +61,10 @@ public class JavaFormatter {
         return String.format(LOCALE_COMMA_DEC, "%f", d);
     }
 
+    public static String doubleToStr_Truncated(double d) {
+        return Integer.toString((int) Math.round(d));
+    }
+
     public static Double strToDouble(String s) {
         try {
             try {
