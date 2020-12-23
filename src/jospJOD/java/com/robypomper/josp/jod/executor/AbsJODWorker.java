@@ -43,6 +43,7 @@ public abstract class AbsJODWorker implements JODWorker {
     private final String proto;
     private final String name;
     private final JODComponent component;
+    private final Map<String, String> configs;
 
 
     // Constructor
@@ -57,6 +58,7 @@ public abstract class AbsJODWorker implements JODWorker {
         this.proto = proto;
         this.name = name;
         this.component = component;
+        this.configs = new HashMap<>();
     }
 
 
@@ -84,6 +86,24 @@ public abstract class AbsJODWorker implements JODWorker {
     @Override
     public JODComponent getComponent() {
         return component;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, String> getConfigs() {
+        return configs;
+    }
+
+    /**
+     * Values (value and defaultValue) must not contain others placeholders.
+     */
+    protected void setConfigs(String placeHolder, String value, String defaultValue) {
+        if (value == null || value.isEmpty())
+            configs.put(placeHolder, defaultValue);
+        else
+            configs.put(placeHolder, value);
     }
 
 
