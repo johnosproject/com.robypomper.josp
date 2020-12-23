@@ -34,6 +34,10 @@ import java.util.Map;
 @Service
 public class JSLSpringService {
 
+    // Class constants
+
+    public static final boolean LOC_COMM_ENABLED = false;
+
     // Internal vars
 
     private final String jslVersion;
@@ -114,9 +118,8 @@ public class JSLSpringService {
         properties.put(JSLSettings_002.JCP_CLIENT_SECRET, clientSecret);
         properties.put(JSLSettings_002.JCP_CLIENT_CALLBACK, clientCallback);
         properties.put(JSLSettings_002.JSLSRV_ID, srvId);
-        properties.put(JSLSettings_002.JSLSRV_NAME, srvName);
-        properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, locCommEnabled);
-        properties.put(JSLSettings_002.JSLCOMM_LOCAL_DISCOVERY, "DNSSD");
+        properties.put(JSLSettings_002.JSLSRV_NAME, clientId);
+        properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, LOC_COMM_ENABLED);
         JSL.Settings settings = FactoryJSL.loadSettings(properties, jslVersion);
 
         JSL jsl = FactoryJSL.createJSL(settings, jslVersion);
