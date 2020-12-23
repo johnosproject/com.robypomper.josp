@@ -34,6 +34,7 @@ import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -69,7 +70,7 @@ public class JSLGwS2OClient extends AbsGWsClient<S2OAccessInfo> {
      * @param srvInfo the info of the represented service.
      */
     public JSLGwS2OClient(JSLCommunication_002 jslComm, JSLServiceInfo srvInfo, JCPAPIsClientSrv jcpClient, String instanceId) throws GWsClientException {
-        super(srvInfo.getFullId(), jcpClient);
+        super("JSLGWsS2O-Internal", jcpClient);
         this.jslComm = jslComm;
         this.srvInfo = srvInfo;
         this.apiGWsClient = new APIGWsClient(jcpClient, instanceId);
@@ -82,6 +83,14 @@ public class JSLGwS2OClient extends AbsGWsClient<S2OAccessInfo> {
 
 
     // Getter configs
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getClientId() {
+        return srvInfo.getFullId();
+    }
 
     protected String getClientType() {
         return CLIENT_TYPE_S2O;
@@ -114,7 +123,7 @@ public class JSLGwS2OClient extends AbsGWsClient<S2OAccessInfo> {
     }
 
     @Override
-    protected Client initGWClient(S2OAccessInfo accessInfo) {
+    protected Client initGWClient(SSLContext sslCtx, S2OAccessInfo accessInfo) {
         try {
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Initializing service GW client");
             log.trace(Mrk_JSL.JSL_COMM_SUB, "Registering JOSP Gw S2O certificate for service's cloud client");
@@ -122,7 +131,7 @@ public class JSLGwS2OClient extends AbsGWsClient<S2OAccessInfo> {
             getClientTrustManager().addCertificate(JCP_CERT_ALIAS, gwCertificate);
 
             // Init SSL client
-            Client client = new DefaultSSLClient(getSSLContext(), srvInfo.getFullId(), accessInfo.gwAddress, accessInfo.gwPort, null, clientServerEvents, clientMessagingEvents, getProtocolName(), getServerName());
+            Client client = new DefaultSSLClient(sslCtx, getClientId(), accessInfo.gwAddress, accessInfo.gwPort, null, clientServerEvents, clientMessagingEvents, getProtocolName(), getServerName());
             log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client initialized");
             return client;
 
