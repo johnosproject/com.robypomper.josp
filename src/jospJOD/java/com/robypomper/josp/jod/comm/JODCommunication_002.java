@@ -111,6 +111,7 @@ public class JODCommunication_002 implements JODCommunication {
 
         // Init cloud object client
         this.gwClient = new JODGwO2SClient(this, objInfo, jcpClient, instanceId);
+        this.gwClient.addListener(gwClientListener);
 
         log.info(Mrk_JOD.JOD_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') object", objInfo.getObjName(), objInfo.getObjId()));
     }
@@ -658,6 +659,27 @@ public class JODCommunication_002 implements JODCommunication {
         public void onDisconnected(JCPClient2 jcpClient) {
             log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client disconnected with %s flow", getFlowName(jcpClient)));
             Events.registerJCPDisconnection("JCP Disconnected", jcpClient, getFlowName(jcpClient));
+        }
+
+    };
+
+    private final Client.ClientListener gwClientListener = new Client.ClientListener() {
+
+        @Override
+        public void onConnected(Client client) {
+            syncObject();
+        }
+
+        @Override
+        public void onConnectionIOException(Client client, IOException ioException) {
+        }
+
+        @Override
+        public void onConnectionAAAException(Client client, Client.AAAException aaaException) {
+        }
+
+        @Override
+        public void onDisconnected(Client client) {
         }
 
     };
