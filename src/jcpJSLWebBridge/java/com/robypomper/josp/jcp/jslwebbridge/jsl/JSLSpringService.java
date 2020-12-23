@@ -19,6 +19,8 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.states.StateException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,19 +29,20 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class JSLSpringService {
 
     // Class constants
 
+    public static final String HEART_BEAT = "HB";
     public static final boolean LOC_COMM_ENABLED = false;
+
 
     // Internal vars
 
+    private static final Logger log = LogManager.getLogger();
     private final String jslVersion;
     private final boolean useSSL;
     private final String urlAPIs;
@@ -48,10 +51,11 @@ public class JSLSpringService {
     private final String clientSecret;
     private final String clientCallback;
     private final String srvId;
-    private final String srvName = "jcpFrontEnd";
-    private final String locCommEnabled = "false";
-    private final Map<JSL, SseEmitter> emitters = new HashMap<>();
+    private final Map<JSL, List<SseEmitter>> emitters = new HashMap<>();
+    private final Map<JSL, HttpSession> sessions = new HashMap<>();
     private int sseCount = 0;
+    private final int heartbeatTimerDelaySeconds;
+    private Timer heartbeatTimer;
 
 
     // Constructor
@@ -63,7 +67,8 @@ public class JSLSpringService {
                             @Value("${" + JSLSettings_002.JCP_CLIENT_ID + ":}") String clientId,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_SECRET + ":}") String clientSecret,
                             @Value("${" + JSLSettings_002.JCP_CLIENT_CALLBACK + ":}") String clientCallback,
-                            @Value("${" + JSLSettings_002.JSLSRV_ID + ":}") String srvId) {
+                            @Value("${" + JSLSettings_002.JSLSRV_ID + ":}") String srvId,
+                            @Value("${jcp.jsl.heartbeat.delay:60}") int heartbeatTimerDelaySeconds) {
         if (clientId.isEmpty())
             throw new IllegalArgumentException(String.format("Properties '%s' must be set before run the JCP JSL Web Bridge", JSLSettings_002.JCP_CLIENT_ID));
         if (clientSecret.isEmpty())
@@ -81,6 +86,9 @@ public class JSLSpringService {
         this.clientSecret = clientSecret;
         this.clientCallback = clientCallback;
         this.srvId = srvId;
+        this.heartbeatTimerDelaySeconds = heartbeatTimerDelaySeconds;
+
+        startHeartBeatTimer();
     }
 
 
@@ -404,6 +412,40 @@ public class JSLSpringService {
         else if (component instanceof JSLContainer) {
             for (JSLComponent c : ((JSLContainer) component).getComponents())
                 registerListenersForSSE(jsl, c);
+        }
+    }
+
+
+    // Heartbeat timer
+
+    private void startHeartBeatTimer() {
+        heartbeatTimer = new Timer();
+        heartbeatTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                sendHeartBeat();
+            }
+        }, heartbeatTimerDelaySeconds * 1000, heartbeatTimerDelaySeconds * 1000);
+    }
+
+    private void stopHeartBeatTimer() {
+        heartbeatTimer.cancel();
+        heartbeatTimer = null;
+    }
+
+    private void sendHeartBeat() {
+        Set<Map.Entry<JSL, List<SseEmitter>>> tmpList = new HashSet<>(emitters.entrySet());
+        for (Map.Entry<JSL, List<SseEmitter>> entry : tmpList) {
+            List<SseEmitter> tmpList2 = new ArrayList<>(entry.getValue());
+            for (SseEmitter emitter : tmpList2) {
+                try {
+                    emitter.send(HEART_BEAT);
+
+                } catch (IOException e) {
+                    log.warn(String.format("Error on send event '%s' (heartbeat) to '%s' emitter for '%s' JSL instance because %s, remove emitter.", HEART_BEAT, emitter, entry.getKey(), e.getMessage()));
+                    processEmitterError(entry.getKey(), emitter);
+                }
+            }
         }
     }
 
