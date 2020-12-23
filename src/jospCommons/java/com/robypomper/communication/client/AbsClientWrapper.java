@@ -77,8 +77,7 @@ public abstract class AbsClientWrapper implements Client {
     protected void setWrappedClient(Client wrappedClient) {
         // De-register wrapped client
         if (wrappedClient != null) {
-            for (ClientListener l : wrapperListeners)
-                wrappedClient.removeListener(l);
+            wrappedClient.removeListener(internalWrapperListener);
             if (isGreater(wrappedClient.getLastConnection(), lastConnection))
                 lastConnection = wrappedClient.getLastConnection();
             if (isGreater(wrappedClient.getLastDisconnection(), lastDisconnection))
@@ -94,8 +93,7 @@ public abstract class AbsClientWrapper implements Client {
                 lastConnection = wrappedClient.getLastConnection();
             if (isGreater(wrappedClient.getLastDisconnection(), lastDisconnection))
                 lastDisconnection = wrappedClient.getLastDisconnection();
-            for (ClientListener l : wrapperListeners)
-                wrappedClient.addListener(l);
+            wrappedClient.addListener(internalWrapperListener);
         }
     }
 
@@ -453,8 +451,6 @@ public abstract class AbsClientWrapper implements Client {
     @Override
     public void addListener(ClientListener listener) {
         wrapperListeners.add(listener);
-        if (wrappedClient != null)
-            wrappedClient.addListener(listener);
     }
 
     /**
@@ -465,8 +461,6 @@ public abstract class AbsClientWrapper implements Client {
     @Override
     public void removeListener(ClientListener listener) {
         wrapperListeners.remove(listener);
-        if (wrappedClient != null)
-            wrappedClient.removeListener(listener);
     }
 
     /**
@@ -474,11 +468,8 @@ public abstract class AbsClientWrapper implements Client {
      */
     protected void emit_ClientConnected() {
         updateLastConnection();
-        if (wrappedClient != null) {
-            //wrappedClient.emit_ClientConnected();
-        } else
-            for (ClientListener l : wrapperListeners)
-                l.onConnected(this);
+        for (ClientListener l : wrapperListeners)
+            l.onConnected(this);
     }
 
     /**
@@ -502,12 +493,34 @@ public abstract class AbsClientWrapper implements Client {
      */
     protected void emit_ClientDisconnected() {
         updateLastDisconnection();
-        if (wrappedClient != null) {
-            //wrappedClient.emit_ClientDisconnected();
-        } else
-            for (ClientListener l : wrapperListeners)
-                l.onDisconnected(this);
+        for (ClientListener l : wrapperListeners)
+            l.onDisconnected(this);
     }
+
+
+    private final ClientListener internalWrapperListener = new ClientListener() {
+
+        @Override
+        public void onConnected(Client client) {
+            emit_ClientConnected();
+        }
+
+        @Override
+        public void onConnectionIOException(Client client, IOException ioException) {
+            emit_ClientConnectionIOException(ioException);
+        }
+
+        @Override
+        public void onConnectionAAAException(Client client, AAAException aaaException) {
+            emit_ClientConnectionAAAException(aaaException);
+        }
+
+        @Override
+        public void onDisconnected(Client client) {
+            emit_ClientDisconnected();
+        }
+
+    };
 
 
     // Messages methods

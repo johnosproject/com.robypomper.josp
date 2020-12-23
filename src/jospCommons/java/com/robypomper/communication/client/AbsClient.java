@@ -515,20 +515,21 @@ public abstract class AbsClient implements Client {
             try {
                 CommunicationBase.transmitData(clientSocket.getOutputStream(), MSG_BYE_CLI);
 
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 log.warn(Mrk_Commons.COMM_CL, String.format("Client '%s' can't send BYE message, continue disconnecting", getClientId()));
                 if (cle != null) cle.onDisconnectionError(e);
             }
 
             // Terminate server thread
             mustShutdown = true;
-            clientThread.interrupt();
+            if (clientThread != null)
+                clientThread.interrupt();
 
             // Close server socket
             try {
                 clientSocket.close();
 
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 log.warn(Mrk_Commons.COMM_CL, String.format("Socket for client '%s' not closed, continue disconnecting", getClientId()));
                 if (cle != null) cle.onDisconnectionError(e);
             }
@@ -538,15 +539,14 @@ public abstract class AbsClient implements Client {
                 if (Thread.currentThread() != clientThread)
                     clientThread.join(1000);
 
-
-            } catch (InterruptedException e) {
-                if (clientThread.isAlive() && !internalCall) {
+            } catch (InterruptedException | NullPointerException e) {
+                if (clientThread != null && clientThread.isAlive() && !internalCall) {
                     log.warn(Mrk_Commons.COMM_CL, String.format("Thread for client '%s' not terminated, continue disconnecting", getClientId()));
                     if (cle != null) cle.onDisconnectionError(e);
                 }
             }
 
-            if (!clientThread.isAlive() && !internalCall) {
+            if ((clientThread == null || !clientThread.isAlive()) && !internalCall) {
                 log.info(Mrk_Commons.COMM_CL, String.format("Client '%s' disconnected successfully", getClientId()));
                 if (cle != null) cle.onDisconnected();
                 emit_ClientDisconnected();
@@ -831,7 +831,7 @@ public abstract class AbsClient implements Client {
             closeConnection(true);
 
         // Server disconnection events
-        log.info(Mrk_Commons.COMM_CL, String.format("Disconnect server '%s' to '%s' client", serverInfo.getServerId(), getClientId()));
+        log.info(Mrk_Commons.COMM_CL, String.format("Disconnect server '%s' to '%s' client", getServerUrl(), getClientId()));
         if (cse != null) {
             if (serverSendByeMsg)
                 cse.onServerGoodbye();

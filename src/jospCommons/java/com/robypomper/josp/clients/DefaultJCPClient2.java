@@ -768,7 +768,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
     private void emitConnected() {
-        for (ConnectionListener l : connectionListeners)
+        List<JCPClient2.ConnectionListener> tmpList = new ArrayList<>(connectionListeners);
+        for (ConnectionListener l : tmpList)
             l.onConnected(this);
     }
 
@@ -916,6 +917,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
         return execReq(false, reqType, path, reqObject, objParam, secure);
     }
 
+    @Override
     public <T> T execReq(boolean toAuth, Verb reqType, String path, Class<T> reqObject, Object objParam, boolean secure) throws ConnectionException, AuthenticationException, RequestException, ResponseException {
         String fullUrl = prepareUrl(toAuth, path, secure);
         if (!isConnected())
@@ -939,6 +941,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
         injectDefaultHeaders(request);
         injectSession(request);
 
+        String responseBody;
         try {
             response = service.execute(request);
 
@@ -974,8 +977,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
             }
 
             storeSession(response);
-            if (response.getCode() != 200)
-                throwErrorCodes(response, fullUrl);
+            responseBody = response.getBody();
+            int responseCode = response.getCode();
+            if (responseCode != 200)
+                throwErrorCodes(responseCode, responseBody, fullUrl);
 
         } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException(String.format("Error on exec [%s] request @ '%s' because %s", reqType, request.getUrl(), e.getMessage()), e);
@@ -983,7 +988,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
         if (reqObject == null)
             return null;
-        String body = extractBody(response, fullUrl);
+        String body = trimBody(responseBody);
         if (reqObject.equals(String.class))
             //noinspection unchecked
             return (T) body;
@@ -1033,8 +1038,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
         return req;
     }
 
-    private void throwErrorCodes(Response response, String fullUrl) throws ResponseException, IOException {
-        switch (response.getCode()) {
+    private void throwErrorCodes(int code, String body, String fullUrl) throws ResponseException {
+        switch (code) {
             case 200:
                 break;
             case 400:
@@ -1046,22 +1051,16 @@ public class DefaultJCPClient2 implements JCPClient2 {
             case 409:
                 throw new Conflict_409(fullUrl);
             default:
-                throw new Error_Code(fullUrl, response.getCode(), response.getBody());
+                throw new Error_Code(fullUrl, code, body);
         }
     }
 
-    private String extractBody(Response response, String fullUrl) throws ResponseParsingException {
-        try {
-            String body = response.getBody();
-            if (body.startsWith("\""))
-                body = body.substring(1);
-            if (body.endsWith("\""))
-                body = body.substring(0, body.length() - 1);
-            return body;
-
-        } catch (IOException e) {
-            throw new ResponseParsingException(fullUrl, e);
-        }
+    private String trimBody(String body) {
+        if (body.startsWith("\""))
+            body = body.substring(1);
+        if (body.endsWith("\""))
+            body = body.substring(0, body.length() - 1);
+        return body.trim();
     }
 
     private <T> T parseJSON(String body, Class<T> reqObject, String fullUrl) throws ResponseParsingException {
