@@ -135,6 +135,7 @@ public class JSLSpringService {
         jsl.startup();
 
         session.setAttribute("JSL-Instance", jsl);
+        sessions.put(jsl, session);
         return jsl;
     }
 
@@ -266,7 +267,9 @@ public class JSLSpringService {
         jsl = get(session);
 
         SseEmitter e = new SseEmitter(60 * 60 * 1000L);
-        emitters.put(jsl, e);
+        if (emitters.get(jsl) == null)
+            emitters.put(jsl, new ArrayList<>());
+        emitters.get(jsl).add(e);
         emitJCPFEClientConnected(jsl, e);
         return e;
     }
@@ -287,25 +290,49 @@ public class JSLSpringService {
                 .data(data)
                 .id(String.valueOf(sseCount++));
 
-        SseEmitter emitter = emitters.get(jsl);
-        if (emitter == null) {
-            System.out.println("Error on send event " + data + " to emitter because emitter not found");
+        List<SseEmitter> l1 = emitters.get(jsl);
+        if (l1 == null) {
+            log.warn(String.format("Error on send event '%s' (data) to not found emitter for '%s' JSL instance because emitter not found, check if remove JSL instance.", data, jsl));
+            processEmitterError(jsl, null);
             return;
         }
 
-        try {
+        List<SseEmitter> jslEmitters = new ArrayList<>();
+        for (SseEmitter emitter : jslEmitters)
             try {
-                emitter.send(event);
+                try {
+                    emitter.send(event);
 
-            } catch (IllegalStateException e) {
-                Thread.sleep(5000);
-                emitter.send(event);
+                } catch (IllegalStateException e) {
+                    Thread.sleep(5000);
+                    emitter.send(event);
+                }
+
+            } catch (Exception ioException) {
+                log.warn(String.format("Error on send event '%s' (data) to '%s' emitter for '%s' JSL instance because %s, remove emitter.", data, emitter, jsl, ioException.getMessage()));
+                processEmitterError(jsl, emitter);
+            }
+    }
+
+    private void processEmitterError(JSL jsl, SseEmitter emitter) {
+        if (emitter != null) {
+            emitter.complete();
+            emitters.get(jsl).remove(emitter);
+        }
+
+        if (emitters.get(jsl).size() == 0) {
+            try {
+                jsl.shutdown();
+
+            } catch (StateException e) {
+                log.warn(String.format("Error on shutdown '%s' JSL instance because %s, remove emitter.", jsl, e.getMessage()));
             }
 
-        } catch (Exception ioException) {
-            System.out.println("Error on send event " + data + " to " + emitter.toString() + " emitter because " + ioException.getMessage() + ", remove emitter");
-            emitter.complete();
             emitters.remove(jsl);
+
+            HttpSession session = sessions.get(jsl);
+            session.removeAttribute("JSL-Instance");
+            session.invalidate();
         }
     }
 
