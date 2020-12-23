@@ -5,10 +5,13 @@ var updater = null;
 // Updated event listeners
 
 function updateOnMessage(event) {
-    console.log("SSE " + event.data);
     var data = event.data.replaceAll('"','');
-    if (data.startsWith("Connected:")) {
-        console.log(data);
+    logSSE("Received '" + data + "'");
+    if (data.startsWith("HB")) {
+        // N/A
+
+    } else if (data.startsWith("Connected:")) {
+        // N/A
 
     } else if (data.startsWith("csrf:")) {
         var token = data.substring("csrf:".length,data.indexOf(";"));
@@ -45,16 +48,22 @@ function updateOnMessage(event) {
         var compPath = data.substring(data.lastIndexOf("Comp:")+"Comp:".length,data.length);
         emitStateUpd(objId,compPath);
 
-    } else
-        alert("Warning unknown message from SSE: " + data);
+    } else {
+        logSSE("UNKNOW DATA (" + data + ")");
+        //alert("Warning unknown message from SSE: " + data);
+    }
 }
 
 function updateOnOpen(event) {
-    console.log("SSE Connected");
+    logSSE("Connected");
     emitOnConnected();
 }
 
 function updateOnError(event) {
-    console.log("SSE Disconnected");
+    logSSE("Disconnected");
     emitOnDisconnected();
+}
+
+function logSSE(msg) {
+    console.log("[" + dateToString(new Date()) + " @ SSE] " + msg);
 }
