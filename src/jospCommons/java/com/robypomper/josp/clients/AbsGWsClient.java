@@ -46,9 +46,10 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
     private final JavaEnum.SynchronizableState<GWClientState> state = new JavaEnum.SynchronizableState<>(GWClientState.DISCONNECTED, log);
     // Configs
     private final JCPClient2 jcpClient;
-    private final Certificate clientCert;
     private final DynAddTrustManager clientTrustManager;
-    private final SSLContext sslCtx;
+    private String sslCtxClientId = "";
+    private SSLContext sslCtx;
+    private Certificate clientCert;
     // Connection timer
     private Timer connectionTimer = null;
 
@@ -67,18 +68,7 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
     public AbsGWsClient(String clientId, JCPClient2 jcpClient) throws GWsClientException {
         super(clientId);
         this.jcpClient = jcpClient;
-
-        try {
-            log.trace(Mrk_JSL.JSL_COMM_SUB, "Generating ssl context for service's cloud client");
-            KeyStore clientKeyStore = UtilsJKS.generateKeyStore(getClientId(), "", String.format(CERT_ALIAS, getClientType()));
-            clientCert = UtilsJKS.extractCertificate(clientKeyStore, String.format(CERT_ALIAS, getClientType()));
-            clientTrustManager = new DynAddTrustManager();
-            sslCtx = UtilsSSL.generateSSLContext(clientKeyStore, "", clientTrustManager);
-
-        } catch (UtilsSSL.GenerationException | UtilsJKS.GenerationException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on generating ssl context for service's cloud client because %s", e.getMessage()), e);
-            throw new GWsClientException("Error on generating ssl context for service's cloud client", e);
-        }
+        this.clientTrustManager = new DynAddTrustManager();
     }
 
 
@@ -133,8 +123,25 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
         return clientTrustManager;
     }
 
-    protected SSLContext getSSLContext() {
-        return sslCtx;
+    private void renewNewSSLContext() throws GWsClientException {
+        log.trace(Mrk_JSL.JSL_COMM_SUB, "Generating ssl context for service's cloud client");
+
+        SSLContext sslCtxTmp;
+        Certificate clientCertTmp;
+        try {
+            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Generating ssl context for service's cloud client '%s'", getClientId()));
+            KeyStore clientKeyStore = UtilsJKS.generateKeyStore(getClientId(), "", String.format(CERT_ALIAS, getClientId()));
+            clientCertTmp = UtilsJKS.extractCertificate(clientKeyStore, String.format(CERT_ALIAS, getClientId()));
+            sslCtxTmp = UtilsSSL.generateSSLContext(clientKeyStore, "", clientTrustManager);
+
+        } catch (UtilsSSL.GenerationException | UtilsJKS.GenerationException e) {
+            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on generating ssl context for service's cloud client '%s' because %s", getClientId(), e.getMessage()), e);
+            throw new GWsClientException(String.format("Error on generating ssl context for service's cloud client '%s'", getClientId()), e);
+        }
+
+        sslCtxClientId = getClientId();
+        sslCtx = sslCtxTmp;
+        clientCert = clientCertTmp;
     }
 
 
@@ -214,6 +221,27 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
                 return;
             }
 
+            // Update sslCtx, if necessary
+            if (sslCtxClientId.compareTo(getClientId()) != 0) {
+                try {
+                    renewNewSSLContext();
+
+                } catch (GWsClientException e) {
+                    log.warn(String.format("GW Client can't connect, can't renew SSL Context for '%s' client because %s.", getClientId(), e.getMessage()));
+                    if (state.enumEquals(GWClientState.CONNECTING_WAITING_JCP_APIS)) {
+                        log.warn("GW Client connect, remove JCP APIs's connection listener");
+                        jcpClient.removeConnectionListener(jcpConnectionListener);
+                    }
+                    if (state.enumEquals(GWClientState.CONNECTING_WAITING_JCP_GWS)) {
+                        log.warn("GW Client connect, stop JCP GWs's connection timer");
+                        stopConnectionTimer();
+                    }
+                    state.set(GWClientState.DISCONNECTED);
+                    log.warn(String.format("GW Client can't connect, client '%s' disconnected.", getClientId()));
+                    return;
+                }
+            }
+
             // Connect to GWs Server
             AI accessInfo = getAccessInfo();
             if (accessInfo == null) {
@@ -224,7 +252,7 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
                 }
                 return;
             }
-            Client client = initGWClient(accessInfo);
+            Client client = initGWClient(sslCtx, accessInfo);
             if (client == null) {
                 if (state.enumNotEquals(GWClientState.CONNECTING_WAITING_JCP_GWS)) {
                     log.warn("GW Client can't connect, start JCP GWs's connection timer; state = CONNECTING_WAITING_JCP_GWS");
@@ -317,7 +345,7 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
 
     protected abstract AI getAccessInfo();
 
-    protected abstract Client initGWClient(AI accessInfo);
+    protected abstract Client initGWClient(SSLContext sslCtx, AI accessInfo);
 
     protected abstract boolean connectGWClient(Client client, AI accessInfo);
 
@@ -390,7 +418,8 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
 
         @Override
         public void onServerDisconnection() {
-            if (state.enumEquals(GWClientState.DISCONNECTING))
+            if (state.enumEquals(GWClientState.DISCONNECTING)
+                    || state.enumEquals(GWClientState.DISCONNECTED))
                 return;
 
             try {
