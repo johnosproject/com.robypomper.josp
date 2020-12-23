@@ -217,7 +217,11 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public JODPuller initPuller(JODComponentPuller component) throws JODPuller.FactoryException {
-        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's puller with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), FactoryJODPuller.instance().getProtocols().get(component.getProto()).getName()));
+        Class<? extends AbsJODPuller> pullerClass = FactoryJODPuller.instance().getProtocols().get(component.getProto());
+        if (pullerClass == null)
+            throw new JODListener.FactoryException(String.format("Can't init puller because '%s' protocol not registered", component.getProto()));
+
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's puller with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), pullerClass.getName()));
         JODPuller puller = FactoryJODPuller.instance().create(component);
         pullers.put(component.getComponent(), puller);
         return puller;
@@ -228,7 +232,11 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public JODListener initListener(JODComponentListener component) throws JODListener.FactoryException {
-        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's listener with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), FactoryJODListener.instance().getProtocols().get(component.getProto()).getName()));
+        Class<? extends AbsJODListener> listenerClass = FactoryJODListener.instance().getProtocols().get(component.getProto());
+        if (listenerClass == null)
+            throw new JODListener.FactoryException(String.format("Can't init listener because '%s' protocol not registered", component.getProto()));
+
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's listener with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), listenerClass.getName()));
         JODListener listener = FactoryJODListener.instance().create(component);
         listeners.put(component.getComponent(), listener);
         return listener;
@@ -239,7 +247,11 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
      */
     @Override
     public JODExecutor initExecutor(JODComponentExecutor component) throws JODExecutor.FactoryException {
-        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's executor with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), FactoryJODExecutor.instance().getProtocols().get(component.getProto()).getName()));
+        Class<? extends AbsJODExecutor> executorClass = FactoryJODExecutor.instance().getProtocols().get(component.getProto());
+        if (executorClass == null)
+            throw new JODListener.FactoryException(String.format("Can't init executor because '%s' protocol not registered", component.getProto()));
+
+        log.info(Mrk_JOD.JOD_EXEC, String.format("Load '%s' component's executor with protocol and configs '%s://%s' and class '%s'", component.getName(), component.getProto(), component.getConfigsStr(), executorClass.getName()));
         JODExecutor executor = FactoryJODExecutor.instance().create(component);
         executors.put(component.getComponent(), executor);
         return executor;

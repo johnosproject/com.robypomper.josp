@@ -27,6 +27,13 @@ import java.security.cert.X509Certificate;
 public class JavaSSLIgnoreChecks {
 
     public static void disableSSLChecks(HostnameVerifier hostVerifier) throws JavaSSLIgnoreChecksException {
+        SSLContext sc = newInstanceSSLDisableSSLChecks();
+
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        HttpsURLConnection.setDefaultHostnameVerifier(hostVerifier);
+    }
+
+    public static SSLContext newInstanceSSLDisableSSLChecks() throws JavaSSLIgnoreChecksException {
         SSLContext sc = null;
         try {
             sc = SSLContext.getInstance("SSL");
@@ -36,8 +43,7 @@ public class JavaSSLIgnoreChecks {
             throw new JavaSSLIgnoreChecksException(e);
         }
 
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        HttpsURLConnection.setDefaultHostnameVerifier(hostVerifier);
+        return sc;
     }
 
     public static HostnameVerifier LOCALHOST = (hostname, sslSession) -> hostname.equals("localhost");

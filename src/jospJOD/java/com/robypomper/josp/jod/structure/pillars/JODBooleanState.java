@@ -77,6 +77,10 @@ public class JODBooleanState extends AbsJODState {
         return Boolean.toString(state);
     }
 
+    public boolean getStateBoolean() {
+        return state;
+    }
+
 
     // Status's methods
 

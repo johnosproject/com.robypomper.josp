@@ -32,7 +32,7 @@ import java.util.Date;
 public class ExecutorUnixShellTest {
 
     @Test
-    public void executorTest() throws InterruptedException {
+    public void executorTest() throws InterruptedException, JODWorker.MissingPropertyException {
         String name = "executorTest";
         String proto = "shell";
         String echoParam = String.format("'read %s value at %s'", Substitutions.ACTION_VAL, new Date());

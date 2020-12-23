@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class PullerUnixShellTest {
 
     @Test
-    public void pullerTest() throws InterruptedException {
+    public void pullerTest() throws InterruptedException, JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
         String echoParam = "new state value " + new Date();
         String configs = String.format("cmd=echo '%s'", echoParam);
         CountDownLatch latch = new CountDownLatch(1);
@@ -49,7 +49,7 @@ public class PullerUnixShellTest {
     }
 
     @Test
-    public void pullerTestViaFile() throws InterruptedException, IOException {
+    public void pullerTestViaFile() throws InterruptedException, IOException, JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
         String filePath = "pullerUnixShellTest.txt";
         String configs = "cmd=cat " + filePath;
         CountDownLatch latch = new CountDownLatch(1);
@@ -68,7 +68,7 @@ public class PullerUnixShellTest {
     }
 
 
-    public PullerUnixShell execCommand(String configs, CountDownLatch latch) {
+    public PullerUnixShell execCommand(String configs, CountDownLatch latch) throws JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
         String name = "pullerTest";
         String proto = "shell";
 

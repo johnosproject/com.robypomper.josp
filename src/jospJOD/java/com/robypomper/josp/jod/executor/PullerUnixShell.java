@@ -38,8 +38,8 @@ public class PullerUnixShell extends AbsJODPuller {
     // Class constants
 
     private static final String PROP_CMD = "cmd";
-    private static final String PROP_FREQ = "freq";
-    public static final int UNIX_SHELL_POLLING_TIME = 30000;
+    private static final String PROP_FREQ = "freq";                 // in seconds
+    public static final int UNIX_SHELL_POLLING_TIME = 30000;        // in milliseconds
 
 
     // Internal vars
@@ -57,21 +57,13 @@ public class PullerUnixShell extends AbsJODPuller {
      * @param proto      proto of the puller.
      * @param configsStr configs string, can be an empty string.
      */
-    public PullerUnixShell(String name, String proto, String configsStr, JODComponent component) {
+    public PullerUnixShell(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException, ParsingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell for component '%s' init with config string '%s://%s'.", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
-        cmd = genericSubstitution(properties.get(PROP_CMD), getComponent());
-        int freq_msTMP;
-        try {
-            freq_msTMP = parseConfigInt(properties, PROP_FREQ, UNIX_SHELL_POLLING_TIME / 1000) * 1000;
-
-        } catch (MissingPropertyException | ParsingPropertyException e) {
-            log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("Error on parsing %s property on PullerUnixShell for component '%s' init with config string '%s://%s', use default value '%d' seconds", PROP_FREQ, getName(), proto, configsStr, UNIX_SHELL_POLLING_TIME / 1000));
-            freq_msTMP = UNIX_SHELL_POLLING_TIME;
-        }
-        freq_ms = freq_msTMP;
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        cmd = parseConfigString(configs, PROP_CMD);
+        freq_ms = parseConfigInt(configs, PROP_FREQ, Integer.toString(UNIX_SHELL_POLLING_TIME / 1000)) * 1000;
     }
 
     protected long getPollingTime() {

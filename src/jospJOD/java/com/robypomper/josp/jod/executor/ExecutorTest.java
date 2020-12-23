@@ -82,4 +82,5 @@ public class ExecutorTest extends AbsJODExecutor implements JODBooleanAction.JOS
         System.out.printf("\toldState %f%n", cmdAction.oldState);
         return true;
     }
+
 }

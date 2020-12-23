@@ -70,13 +70,13 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
      * @param configsStr configs string, parse {@value #PROP_FREQUENCY}(int) and
      *                   {@value #PROP_SLEEP_TIME}(int)properties.
      */
-    public ListenerTestAdv(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException, ParsingPropertyException {
+    public ListenerTestAdv(String name, String proto, String configsStr, JODComponent component) throws ParsingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
-        frequency = parseConfigInt(properties, PROP_FREQUENCY, frequency);
-        sleepTime = parseConfigInt(properties, PROP_SLEEP_TIME, sleepTime);
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        frequency = parseConfigInt(configs, PROP_FREQUENCY, Integer.toString(frequency));
+        sleepTime = parseConfigInt(configs, PROP_SLEEP_TIME, Integer.toString(sleepTime));
     }
 
 

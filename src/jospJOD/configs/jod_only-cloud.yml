@@ -4,9 +4,9 @@
 #jcp.connect: 'false'
 # JCP_REFRESH_TIME_DEF     = "30";
 #jcp.client.refresh: '5'
-# JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
+#jcp.url.apis: api.johnosproject.org:443
 jcp.url.apis: 'localhost:9001'
-# JCP_URL_DEF_AUTH         = "auth.johnosproject.com:443";
+#jcp.url.auth: auth.johnosproject.org:443
 jcp.url.auth: 'localhost:8998'
 # JCP_CLIENT_ID_DEF        = "";
 jcp.client.id: 'test-client-obj'
@@ -29,7 +29,8 @@ jcp.client.secret: '2d1f9b96-70d3-443b-b21b-08a401ddc16c'
 # JODPULLER_IMPLS_DEF      = "";
 jod.executor_mngr.pullers:
   'tstP://com.robypomper.josp.jod.executor.PullerTest
-   shell://com.robypomper.josp.jod.executor.PullerUnixShell'
+   shell://com.robypomper.josp.jod.executor.PullerUnixShell
+   http://com.robypomper.josp.jod.executor.impls.http.PullerHTTP'
 jod.executor_mngr.listeners:
   'tstL://com.robypomper.josp.jod.executor.ListenerTest
    tstLAdv://com.robypomper.josp.jod.executor.ListenerTestAdv
@@ -37,7 +38,8 @@ jod.executor_mngr.listeners:
 jod.executor_mngr.executors:
   'tstE://com.robypomper.josp.jod.executor.ExecutorTest
    shell://com.robypomper.josp.jod.executor.ExecutorUnixShell
-   file://com.robypomper.josp.jod.executor.ExecutorFiles'
+   file://com.robypomper.josp.jod.executor.ExecutorFiles
+   http://com.robypomper.josp.jod.executor.impls.http.ExecutorHTTP'
 
 
 ## Structure

@@ -62,17 +62,13 @@ public class ListenerFiles extends AbsJODListener {
      * @param proto      proto of the listener.
      * @param configsStr configs string, can be an empty string.
      */
-    public ListenerFiles(String name, String proto, String configsStr, JODComponent component) {
+    public ListenerFiles(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerFiles for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
 
-        filePath = genericSubstitution(properties.get(PROP_FILE_PATH), getComponent());
-        if (filePath == null || filePath.isEmpty()) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerFiles for component '%s' property '%s' not set on component's config string", getName(), PROP_FILE_PATH));
-            return;
-        }
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        filePath = parseConfigString(configs, PROP_FILE_PATH);
 
         try {
             JavaFiles.createParentIfNotExist(filePath);

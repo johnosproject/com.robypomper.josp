@@ -21,6 +21,8 @@ package com.robypomper.josp.jod.executor;
 
 import com.robypomper.josp.jod.structure.JODComponent;
 
+import java.util.Map;
+
 
 /**
  * Basic interface for JOD executor manager worker representations.
@@ -49,6 +51,15 @@ public interface JODWorker {
      * @return the JODWorker's component.
      */
     JODComponent getComponent();
+
+    /**
+     * Current JODWorker's configs map.
+     * <p>
+     * This map contains config's placeholder as keys and config's value as key.
+     *
+     * @return the JODWorker's configs.
+     */
+    Map<String, String> getConfigs();
 
     /**
      * @return <code>true</code> if current worker is enabled, <code>false</code>

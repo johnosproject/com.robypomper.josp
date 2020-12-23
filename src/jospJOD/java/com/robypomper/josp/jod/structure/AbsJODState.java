@@ -22,6 +22,7 @@ package com.robypomper.josp.jod.structure;
 import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.executor.JODPuller;
 import com.robypomper.josp.jod.executor.JODWorker;
 import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.executor.JODComponentListener;
@@ -103,6 +104,19 @@ public abstract class AbsJODState extends AbsJODComponent
 
 
     // Status upd flow (struct)
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Force state's pulling when worker is a {@link JODPuller} instance.
+     */
+    @Override
+    public void forceCheckState() {
+        //if (stateWorker instanceof JODListener)
+        //((JODListener)stateWorker).listen();
+        if (stateWorker instanceof JODPuller)
+            ((JODPuller) stateWorker).pull();
+    }
 
     /**
      * {@inheritDoc}
