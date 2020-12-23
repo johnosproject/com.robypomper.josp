@@ -46,6 +46,11 @@ public interface JODState extends JODComponent {
     // Status upd flow (struct)
 
     /**
+     * Called from action side when an action was executed successfully.
+     */
+    void forceCheckState();
+
+    /**
      * Called by current state's worker (puller or listener), this method forward
      * the <code>statusUpd</code> to the JOD Communication system.
      *
