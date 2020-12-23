@@ -61,13 +61,13 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
      * @param proto      proto of the executor.
      * @param configsStr configs string, can be an empty string.
      */
-    public ExecutorUnixShell(String name, String proto, String configsStr, JODComponent component) {
+    public ExecutorUnixShell(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorUnixShell for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
-        cmd = properties.get(PROP_CMD);
-        redirect = properties.get(PROP_REDIRECT);
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        cmd = parseConfigString(configs, PROP_CMD);
+        redirect = parseConfigString(configs, PROP_REDIRECT);
     }
 
 
@@ -93,8 +93,12 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
         System.out.printf("\toldState %b%n", cmdAction.oldState);
 
 
-        String cmdUpd = actionSubstitution(cmd, getComponent(), commandAction, cmdAction);
-        String redirectUpd = actionSubstitution(redirect, getComponent(), commandAction, cmdAction);
+        String cmdUpd = new Substitutions(cmd)
+                .substituteAction(commandAction)
+                .toString();
+        String redirectUpd = new Substitutions(redirect)
+                .substituteAction(commandAction)
+                .toString();
 
         log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec ExecutorUnixShell cmd '%s'", cmdUpd));
 
@@ -117,8 +121,12 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
         System.out.printf("\toldState %f%n", cmdAction.oldState);
 
 
-        String cmdUpd = actionSubstitution(cmd, getComponent(), commandAction, cmdAction);
-        String redirectUpd = actionSubstitution(redirect, getComponent(), commandAction, cmdAction);
+        String cmdUpd = new Substitutions(cmd)
+                .substituteAction(commandAction)
+                .toString();
+        String redirectUpd = new Substitutions(redirect)
+                .substituteAction(commandAction)
+                .toString();
 
         log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec ExecutorUnixShell cmd '%s'", cmdUpd));
 

@@ -126,19 +126,6 @@ public abstract class AbsJODWorker implements JODWorker {
     }
 
 
-    // Substitution methods
-
-    protected static String genericSubstitution(String str, JODComponent component) {
-        if (component == null
-                || str == null
-                || str.isEmpty()
-        ) return str;
-
-        return str
-                .replaceAll(Substitutions.COMP_NAME, component.getName());
-    }
-
-
     // Full config string mngm
 
     /**
@@ -192,20 +179,102 @@ public abstract class AbsJODWorker implements JODWorker {
         return configMap;
     }
 
-    public int parseConfigInt(Map<String, String> configMap, String key, Integer defValue) throws MissingPropertyException, ParsingPropertyException {
+    public String parseConfigString(Map<String, String> configMap, String key) throws MissingPropertyException {
         String value = configMap.get(key);
-
-        if (value == null && defValue == null)
+        if (value == null)
             throw new MissingPropertyException(key, getProto(), getName(), "Listener");
 
+        return parseConfigString(configMap, key, value);
+    }
+
+    public String parseConfigString(Map<String, String> configMap, String key, String defValue) {
+        String strValue = configMap.get(key);
+        if (strValue == null)
+            strValue = defValue;
+
+        strValue = parseConfigSubstitution(strValue);
+        if ((strValue.startsWith("'") && strValue.endsWith("'"))
+                || (strValue.startsWith("\"") && strValue.endsWith("\""))) {
+            //if ((strValue.charAt(0)=='\'' && strValue.charAt(strValue.length()-1)=='\'')
+            // || (strValue.charAt(0)=='"' && strValue.charAt(strValue.length()-1)=='"')) {
+            strValue = strValue.substring(1, strValue.length() - 1);
+        }
+
+        return strValue;
+    }
+
+    public boolean parseConfigBoolean(Map<String, String> configMap, String key) throws MissingPropertyException, ParsingPropertyException {
+        String value = configMap.get(key);
         if (value == null)
-            return defValue;
+            throw new MissingPropertyException(key, getProto(), getName(), "Listener");
+
+        return parseConfigBoolean(configMap, key, value);
+    }
+
+    public boolean parseConfigBoolean(Map<String, String> configMap, String key, String defValue) throws ParsingPropertyException {
+        String strValue = configMap.get(key);
+        if (strValue == null)
+            strValue = defValue;
+
+        strValue = parseConfigSubstitution(strValue);
 
         try {
-            return Integer.parseInt(value);
+            return Boolean.parseBoolean(strValue);
         } catch (Exception e) {
-            throw new ParsingPropertyException(key, getProto(), getName(), "Listener", value, e);
+            throw new ParsingPropertyException(key, getProto(), getName(), "Listener", strValue, e);
         }
+    }
+
+    public int parseConfigInt(Map<String, String> configMap, String key) throws MissingPropertyException, ParsingPropertyException {
+        String value = configMap.get(key);
+        if (value == null)
+            throw new MissingPropertyException(key, getProto(), getName(), "Listener");
+
+        return parseConfigInt(configMap, key, value);
+    }
+
+    public int parseConfigInt(Map<String, String> configMap, String key, String defValue) throws ParsingPropertyException {
+        String strValue = configMap.get(key);
+        if (strValue == null)
+            strValue = defValue;
+
+        strValue = parseConfigSubstitution(strValue);
+
+        try {
+            return Integer.parseInt(strValue);
+        } catch (Exception e) {
+            throw new ParsingPropertyException(key, getProto(), getName(), "Listener", strValue, e);
+        }
+    }
+
+    public Double parseConfigDouble(Map<String, String> configMap, String key) throws MissingPropertyException, ParsingPropertyException {
+        String value = configMap.get(key);
+        if (value == null)
+            throw new MissingPropertyException(key, getProto(), getName(), "Listener");
+
+        return parseConfigDouble(configMap, key, value);
+    }
+
+    public Double parseConfigDouble(Map<String, String> configMap, String key, String defValue) throws ParsingPropertyException {
+        String strValue = configMap.get(key);
+        if (strValue == null)
+            strValue = defValue;
+
+        strValue = parseConfigSubstitution(strValue);
+
+        try {
+            return Double.parseDouble(strValue);
+        } catch (Exception e) {
+            throw new ParsingPropertyException(key, getProto(), getName(), "Listener", strValue, e);
+        }
+    }
+
+    protected String parseConfigSubstitution(String strValue) {
+        return new Substitutions(strValue)
+                //.substituteObject(jod.getObjectInfo())
+                //.substituteObjectConfigs(jod.getObjectInfo())
+                .substituteComponent(component)
+                .toString();
     }
 
 }
