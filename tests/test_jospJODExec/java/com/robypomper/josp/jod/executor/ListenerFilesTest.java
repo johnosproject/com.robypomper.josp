@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class ListenerFilesTest {
 
     @Test
-    public void listenerTest() throws InterruptedException, IOException {
+    public void listenerTest() throws InterruptedException, IOException, JODWorker.MissingPropertyException {
         String name = "listenerTest";
         String proto = "files";
         String filePath = "listenerFilesTest.txt";

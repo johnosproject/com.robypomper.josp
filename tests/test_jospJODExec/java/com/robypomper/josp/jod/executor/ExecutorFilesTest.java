@@ -37,7 +37,7 @@ public class ExecutorFilesTest {
     private final String ITEMS_SEP = JOSPMsgParams.ITEMS_SEP;
 
     @Test
-    public void executorTest() throws InterruptedException, IOException {
+    public void executorTest() throws InterruptedException, IOException, JODWorker.MissingPropertyException {
         String name = "executorTest";
         String proto = "files";
         String filePath = "listenerFilesTest.txt";
