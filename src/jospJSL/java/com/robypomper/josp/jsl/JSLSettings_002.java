@@ -51,19 +51,19 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JSLSRV_ID                = "jsl.srv.id";
     public static final String JSLSRV_ID_DEF            = "";
 
-    public static final String JSLUSR_NAME = "jsl.usr.name";
-    public static final String JSLUSR_NAME_DEF = "";
-    public static final String JSLUSR_ID = "jsl.usr.id";
-    public static final String JSLUSR_ID_DEF = "";
+    public static final String JSLUSR_NAME              = "jsl.usr.name";
+    public static final String JSLUSR_NAME_DEF          = "";
+    public static final String JSLUSR_ID                = "jsl.usr.id";
+    public static final String JSLUSR_ID_DEF            = "";
 
-    public static final String JSLCOMM_LOCAL_ENABLED = "jsl.comm.local.enabled";
+    public static final String JSLCOMM_LOCAL_ENABLED    = "jsl.comm.local.enabled";
     public static final String JSLCOMM_LOCAL_ENABLED_DEF = "true";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST = "jsl.comm.local.onlyLocalhost";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF = "false";
-    public static final String JSLCOMM_LOCAL_DISCOVERY = "jsl.comm.local.discovery";
-    public static final String JSLCOMM_LOCAL_DISCOVERY_DEF = "JmDNS";
+    public static final String JSLCOMM_LOCAL_DISCOVERY  = "jsl.comm.local.discovery";
+    public static final String JSLCOMM_LOCAL_DISCOVERY_DEF = "Auto";
 
-    public static final String JSLCOMM_CLOUD_ENABLED = "jsl.comm.cloud.enabled";
+    public static final String JSLCOMM_CLOUD_ENABLED    = "jsl.comm.cloud.enabled";
     public static final String JSLCOMM_CLOUD_ENABLED_DEF = "true";
     //@formatter:on
 
