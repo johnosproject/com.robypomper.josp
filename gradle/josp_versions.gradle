@@ -94,5 +94,7 @@ ext {
     set('version.swagger'           , '1.5.21')
     set('version.swaggerSpring'     , '2.9.2')
     set('version.jackson'           , '2.10.2')
+    set('version.htmlcleaner'       , '2.24')
+    set('version.json-path'         , '2.4.0')
 }
 //@formatter:on

@@ -81,6 +81,9 @@ dependencies {
         jospJODImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
     jospJODImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
     jospJODImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
+    jospJODImplementation "net.sourceforge.htmlcleaner:htmlcleaner:${project.ext.get("version.htmlcleaner")}"
+    jospJODImplementation "com.jayway.jsonpath:json-path:${project.ext.get("version.json-path")}"
+
 
     // JOSP JSL
     if (!project.ext.get("deps.jospCommonsDisabled"))
