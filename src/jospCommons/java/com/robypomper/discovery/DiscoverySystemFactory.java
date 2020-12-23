@@ -37,6 +37,11 @@ import com.robypomper.discovery.impl.DiscoveryJmmDNS;
  */
 public class DiscoverySystemFactory {
 
+    // Class constants
+
+    public static final String IMPL_NAME_AUTO = "Auto";
+
+
     /**
      * Create and return a {@link Publisher} instance of class depending on
      * given <code>implementation</code> param.
@@ -63,6 +68,9 @@ public class DiscoverySystemFactory {
      * @return instance of {@link Publisher}.
      */
     public static Publisher createPublisher(String implementation, String srvType, String srvName, int srvPort, String extraText) throws Publisher.PublishException {
+        if (IMPL_NAME_AUTO.equalsIgnoreCase(implementation))
+            implementation = detectAutoImplementation();
+
         if (DiscoveryAvahi.IMPL_NAME.equalsIgnoreCase(implementation))
             return new DiscoveryAvahi.Publisher(srvType, srvName, srvPort, extraText);
         if (DiscoveryJmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
@@ -84,6 +92,9 @@ public class DiscoverySystemFactory {
      * @return instance of {@link Discover}.
      */
     public static Discover createDiscover(String implementation, String srvType) throws Discover.DiscoveryException {
+        if (IMPL_NAME_AUTO.equalsIgnoreCase(implementation))
+            implementation = detectAutoImplementation();
+
         if (DiscoveryAvahi.IMPL_NAME.equalsIgnoreCase(implementation))
             return new DiscoveryAvahi.Discover(srvType);
         if (DiscoveryJmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
@@ -94,6 +105,14 @@ public class DiscoverySystemFactory {
             return new DiscoveryDNSSD.Discover(srvType);
 
         throw new Discover.DiscoveryException(String.format("ERR: can't find '%s' AbsDiscovery implementation", implementation));
+    }
+
+    private static String detectAutoImplementation() {
+        if (DiscoveryAvahi.isAvailable())
+            return DiscoveryAvahi.IMPL_NAME;
+        if (DiscoveryDNSSD.isAvailable())
+            return DiscoveryDNSSD.IMPL_NAME;
+        return DiscoveryJmDNS.IMPL_NAME;
     }
 
 }

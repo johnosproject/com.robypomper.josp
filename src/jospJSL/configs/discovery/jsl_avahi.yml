@@ -1,6 +1,6 @@
 ## Discovery configs
 
-#JSLCOMM_LOCAL_DISCOVERY_DEF      = "avahi";
+# JSLCOMM_LOCAL_DISCOVERY_DEF  = "Auto";
 jsl.comm.local.discovery: 'Avahi'
 
 

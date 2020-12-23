@@ -50,6 +50,25 @@ public class DiscoveryDNSSD {
     private static final Logger log = LogManager.getLogger();
 
 
+    // isAvailable static check
+
+    public static boolean isAvailable() {
+        String[] cmdArray = new String[]{
+                "dns-sd",
+                "-V",
+        };
+        log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec dns-sd publisher cmd '%s'", String.join(" ", cmdArray)));
+        try {
+            Process p = Runtime.getRuntime().exec(cmdArray);
+            p.waitFor();
+            return !p.isAlive();
+
+        } catch (IOException | IllegalThreadStateException | InterruptedException e) {
+            return false;
+        }
+    }
+
+
     // Publisher and discover implementations
 
     /**
