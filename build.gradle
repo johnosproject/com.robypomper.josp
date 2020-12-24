@@ -44,3 +44,8 @@ apply from: 'gradle/build_jospcloud.gradle'
 apply from: 'gradle/build_josp.gradle'
 apply from: 'gradle/build_josp_platform.gradle'
 apply from: 'gradle/build_tests.gradle'
+
+if (tasks.findByName("wrapper")==null)
+    task wrapper(type: Wrapper) {
+        gradleVersion = '6.7.1'
+    }
