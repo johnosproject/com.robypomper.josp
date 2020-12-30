@@ -39,7 +39,7 @@ public class PullerUnixShell extends AbsJODPuller {
 
     private static final String PROP_CMD = "cmd";
     private static final String PROP_FREQ = "freq";                 // in seconds
-    public static final int UNIX_SHELL_POLLING_TIME = 30000;        // in milliseconds
+    public static final int UNIX_SHELL_POLLING_TIME_MS = 30 * 1000; // in milliseconds
 
 
     // Internal vars
@@ -51,7 +51,7 @@ public class PullerUnixShell extends AbsJODPuller {
     // Constructor
 
     /**
-     * Default PullerTest constructor.
+     * Default PullerUnixShell constructor.
      *
      * @param name       name of the puller.
      * @param proto      proto of the puller.
@@ -63,7 +63,7 @@ public class PullerUnixShell extends AbsJODPuller {
 
         Map<String, String> configs = splitConfigsStrings(configsStr);
         cmd = parseConfigString(configs, PROP_CMD);
-        freq_ms = parseConfigInt(configs, PROP_FREQ, Integer.toString(UNIX_SHELL_POLLING_TIME / 1000)) * 1000;
+        freq_ms = parseConfigInt(configs, PROP_FREQ, Integer.toString(UNIX_SHELL_POLLING_TIME_MS / 1000)) * 1000;
     }
 
     protected long getPollingTime() {
@@ -78,17 +78,18 @@ public class PullerUnixShell extends AbsJODPuller {
      */
     @Override
     public void pull() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest '%s' of proto '%s' pulling (cmd='%s')", getName(), getProto(), cmd));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell '%s' of proto '%s' pulling (cmd='%s')", getName(), getProto(), cmd));
 
         // CmdPartitioning
         String state;
         try {
-            state = JavaExecProcess.execCmd(cmd);
+            state = JavaExecProcess.execCmd(cmd, true);
 
-        } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s'", cmd, getName()));
+        } catch (IOException | JavaExecProcess.ExecStillAliveException e) {
+            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell error on executing cmd '%s' for component '%s' because '%s'", cmd, getName(), e.getMessage()), e);
             return;
         }
+        log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell '%s' of proto '%s' read state %s", getName(), getProto(), state));
 
         if (!convertAndSetStatus(state))
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell for component '%s' can't update his component because not supported (%s)", getName(), getComponent().getClass().getSimpleName()));
