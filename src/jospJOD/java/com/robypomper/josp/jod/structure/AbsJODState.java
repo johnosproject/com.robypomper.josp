@@ -129,7 +129,7 @@ public abstract class AbsJODState extends AbsJODComponent
         getHistory().register(this, update);
         getStructure().getCommunication().sendObjectUpdMsg(this, update);
 
-        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state", getName()));
+        log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Component '%s' propagated state '%s'", getName(), update.encode()));
     }
 
 }

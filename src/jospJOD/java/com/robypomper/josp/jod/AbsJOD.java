@@ -272,7 +272,8 @@ public abstract class AbsJOD implements JOD {
         log.info(Mrk_JOD.JOD_MAIN, String.format("            lastConn          = %s", comm.getCloudAPIs().getLastConnection()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("            lastDiscon        = %s", comm.getCloudAPIs().getLastDisconnection()));
         log.info(Mrk_JOD.JOD_MAIN, "        Cloud Comm.");
-        log.info(Mrk_JOD.JOD_MAIN, String.format("            State             = %s", comm.getCloudConnection().getState()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            State (Client)    = %s", comm.getCloudConnection().getState()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            State (GWS2OState)= %s", comm.getCloudConnection().getGWS2OState()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("            address           = %s", comm.getCloudConnection().tryServerAddr()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("            isConnected       = %s", comm.getCloudConnection().isConnected()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("            lastConn          = %s", comm.getCloudConnection().getLastConnection()));

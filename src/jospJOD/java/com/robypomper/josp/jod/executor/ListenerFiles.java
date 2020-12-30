@@ -70,6 +70,7 @@ public class ListenerFiles extends AbsJODListener {
         Map<String, String> configs = splitConfigsStrings(configsStr);
         filePath = parseConfigString(configs, PROP_FILE_PATH);
 
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerFiles for component '%s' listen for changes on file '%s'", getName(), filePath));
         try {
             JavaFiles.createParentIfNotExist(filePath);
 

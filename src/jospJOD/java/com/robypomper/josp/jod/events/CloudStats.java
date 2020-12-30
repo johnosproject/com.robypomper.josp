@@ -44,6 +44,7 @@ public class CloudStats {
             this.lastStored = s.lastStored;
             this.lastUploaded = s.lastUploaded;
             this.lastDelete = s.lastDelete;
+            this.uploaded = s.uploaded;
 
             this.deleted = s.deleted;
             this.unUploaded = s.unUploaded;
@@ -63,7 +64,8 @@ public class CloudStats {
     public void storeIgnoreExceptions() {
         try {
             store();
-        } catch (IOException ignore) {}
+        } catch (IOException ignore) {
+        }
     }
 
 }

@@ -218,8 +218,10 @@ public class JODHistory_002 implements JODHistory {
 
             try {
                 apiObjsClient.uploadStatusHistory(toUpload);
+
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
+                log.warn(Mrk_JOD.JOD_HISTORY, String.format("Can't upload statuses history because JCP not connected (CloudStats values lastUpd: %d; lastStored: %d", stats.lastUploaded, stats.lastStored), e);
+                return;
             }
 
             stats.uploaded += toUpload.size();
