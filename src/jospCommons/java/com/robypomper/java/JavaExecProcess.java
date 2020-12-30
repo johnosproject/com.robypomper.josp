@@ -19,10 +19,7 @@
 
 package com.robypomper.java;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +28,44 @@ import java.util.concurrent.TimeUnit;
 
 public class JavaExecProcess {
 
+    // Class constants
+
+    public static final int DEF_TIMEOUT = 60;
+
     // Exec process
 
-    public static String execCmd(String cmd) throws IOException {
-        ProcessBuilder pBuild = new ProcessBuilder(splitCmd(cmd));
+    public static String execCmd(String cmd) throws IOException, ExecStillAliveException {
+        return execCmd(cmd, false);
+    }
 
-        StringBuilder sb = new StringBuilder();
+    public static String execCmd(String cmd, boolean wait) throws IOException, ExecStillAliveException {
+        return execCmd(cmd, wait, DEF_TIMEOUT);
+    }
+
+    public static String execCmd(String cmd, boolean wait, int timeout) throws IOException, ExecStillAliveException {
+        ProcessBuilder pBuild;
+        if (cmd.contains("|"))
+            pBuild = new ProcessBuilder(getShellBin(), "-c", cmd);
+        else
+            pBuild = new ProcessBuilder(splitCmd(cmd));
+
         Process process = pBuild.start();
         BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+        // Force thread switch with short sleep
+        JavaThreads.softSleep(100);
+
+        if (wait && process.isAlive()) {
+            try {
+                process.waitFor(timeout, TimeUnit.SECONDS);
+            } catch (InterruptedException ignore) {
+            }
+        }
+
+        if (process.isAlive())
+            throw new ExecStillAliveException(cmd, wait, timeout);
+
+        StringBuilder sb = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) sb.append(line);
 
@@ -72,6 +99,21 @@ public class JavaExecProcess {
     }
 
 
+    // Configs
+
+    private static String shellBin = "/bin/bash";
+
+    private static void setShellBin(String bin) throws FileNotFoundException {
+        if (new File(bin).exists())
+            shellBin = bin;
+        else
+            throw new FileNotFoundException(String.format("Shell's binaries doesn't exist. File not found %s", bin));
+    }
+
+    private static String getShellBin() {
+        return shellBin;
+    }
+
     // Conversion methods used by exec process
 
     public static String[] splitCmd(String cmd) {
@@ -101,6 +143,23 @@ public class JavaExecProcess {
             cmdSplitted.add(part);
         }
         return cmdSplitted.toArray(new String[0]);
+    }
+
+
+    // Exceptions
+
+    /**
+     * Exceptions thrown on execution timeout or if cmd was not terminated.
+     */
+    public static class ExecStillAliveException extends Throwable {
+
+        private static final String MSG_WAIT = "Timeout of %d seconds reached on cmd '%s'";
+        private static final String MSG_NO_WAIT = "Cmd not terminated '%s'";
+
+        public ExecStillAliveException(String cmd, boolean wait, int timeout) {
+            super(wait ? String.format(MSG_WAIT, timeout, cmd) : String.format(MSG_NO_WAIT, cmd));
+        }
+
     }
 
 }
