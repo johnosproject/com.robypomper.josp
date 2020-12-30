@@ -564,7 +564,7 @@ function fillObjectContentEvents_Table(eventsJson) {
         html += "    <td><p>" + events[i].type + "</p></td>";
         //html += "    <td><p>" + events[i].srcId + "</p></td>";
         //html += "    <td><p>" + events[i].srcType + "</p></td>";
-        html += "    <td><p>" + dateToString(stringToDate(events[i].emittedAt)) + "</p></td>";
+        html += "    <td><p>" + dateToString(new Date(events[i].emittedAt)) + "</p></td>";
 
         html += "    <td><p>";
         html += "        <div class='tooltip'>" + events[i].phase;
@@ -584,9 +584,8 @@ function fillObjectContentEvents_Table(eventsJson) {
 
     var sumId = "summary_" + objId + "_events";
     if (document.getElementById(sumId) != null)
-        document.getElementById(sumId).innerHTML = "Listed " + events.length + " Object's events<br>from " +
-        dateToString(stringToDate(events[0].emittedAt))  + "<br>to " + dateToString(stringToDate(events[events.length-1].emittedAt)) + "</p>";
-
+        document.getElementById(sumId).innerHTML = "Listed " + events.length + " Object Status Histories<br>from " +
+        dateToString(new Date(events[0].emittedAt))  + "<br>to " + dateToString(new Date(events[events.length-1].emittedAt)) + "</p>";
 }
 
 
@@ -776,7 +775,7 @@ function fillObjectContentStatusHistory_Chart(statusHistoryJson) {
         html += "<tr id='" + elemId + "'>";
         html += "    <td><p>" + statusHistory[i].id + "</p></td>";
         html += "    <td><p>" + status + "</p></td>";
-        html += "    <td><p>" + dateToString(stringToDate(statusHistory[i].updatedAt)) + "</p></td>";
+        html += "    <td><p>" + dateToString(new Date(statusHistory[i].updatedAt)) + "</p></td>";
         html += "</tr>";
     }
 
@@ -788,7 +787,7 @@ function fillObjectContentStatusHistory_Chart(statusHistoryJson) {
     var sumId = "summary_" + objId + "_history";
     if (document.getElementById(sumId) != null)
         document.getElementById(sumId).innerHTML = "Listed " + statusHistory.length + " Object Status Histories<br>from " +
-        dateToString(stringToDate(statusHistory[0].updatedAt))  + "<br>to " + dateToString(stringToDate(statusHistory[statusHistory.length-1].updatedAt)) + "</p>";
+        dateToString(new Date(statusHistory[0].updatedAt))  + "<br>to " + dateToString(new Date(statusHistory[statusHistory.length-1].updatedAt)) + "</p>";
 
 }
 
