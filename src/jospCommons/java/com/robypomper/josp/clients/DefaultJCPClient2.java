@@ -774,17 +774,20 @@ public class DefaultJCPClient2 implements JCPClient2 {
     }
 
     private void emitConnectionFailed(Throwable t) {
-        for (ConnectionListener l : connectionListeners)
+        List<ConnectionListener> tmpList = new ArrayList<>(connectionListeners);
+        for (ConnectionListener l : tmpList)
             l.onConnectionFailed(this, t);
     }
 
     private void emitAuthenticationFailed(Throwable t) {
-        for (ConnectionListener l : connectionListeners)
+        List<ConnectionListener> tmpList = new ArrayList<>(connectionListeners);
+        for (ConnectionListener l : tmpList)
             l.onAuthenticationFailed(this, t);
     }
 
     private void emitDisconnected() {
-        for (ConnectionListener l : connectionListeners)
+        List<ConnectionListener> tmpList = new ArrayList<>(connectionListeners);
+        for (ConnectionListener l : tmpList)
             l.onDisconnected(this);
     }
 

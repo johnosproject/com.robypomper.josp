@@ -379,7 +379,7 @@ public abstract class AbsGWsClient<AI extends AccessInfo> extends AbsClientWrapp
         assert state.enumEquals(GWClientState.CONNECTING_WAITING_JCP_GWS) :
                 "Method startConnectionTimer() can be called only from CONNECTING_WAITING_JCP_GWS state";
 
-        long waitMs = TIMER_DELAY_MS * 1000;
+        long waitMs = TIMER_DELAY_MS;
         connectionTimer = new Timer(true);
         connectionTimer.schedule(new TimerTask() {
             @Override

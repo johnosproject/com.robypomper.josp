@@ -102,6 +102,11 @@ public abstract class JavaJSONArrayToFile<T, K> {
 
         int countAdded = 0;
         synchronized (cacheBuffered) {
+            if (cacheBuffered.size() == 0) {
+                System.out.println("JavaJSONArrayToFile cacheBuffered cleaned before flush cache to file.");
+                return;
+            }
+
             ArrayNode array = getMainNode();
 
             for (T v : cacheBuffered) {

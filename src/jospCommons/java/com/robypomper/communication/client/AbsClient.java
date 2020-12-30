@@ -33,6 +33,7 @@ import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -459,7 +460,7 @@ public abstract class AbsClient implements Client {
                 server2ClientStream = new DataInputStream(clientSocket.getInputStream());
             } catch (IOException e) {
                 if (state.enumNotEquals(State.CONNECTING_WAITING_SERVER)) {
-                    log.warn("GW Client can't connect, add JCP APIs's connection listener; state = CONNECTING_WAITING_JCP_APIS");
+                    log.warn("GW Client can't connect, start Connection timer; state = CONNECTING_WAITING_SERVER");
                     state.set(State.CONNECTING_WAITING_SERVER);
                     startConnectionTimer();
                 }
@@ -476,7 +477,6 @@ public abstract class AbsClient implements Client {
             }
 
             state.set(State.CONNECTED);
-            updateLastConnection();
             if (cle != null) cle.onConnected();
             if (cse != null) cse.onServerConnection();
             emit_ClientConnected();
@@ -559,7 +559,6 @@ public abstract class AbsClient implements Client {
             server2ClientStream = null;
 
             state.set(State.DISCONNECTED);
-            updateLastDisconnection();
             emit_ClientDisconnected();
         }
     }
@@ -813,10 +812,12 @@ public abstract class AbsClient implements Client {
                 }
 
             } catch (IOException e) {
-                if (!isConnected()
+                if (!isSocketConnected()
                         || mustShutdown
+                        // Following checks must be moved to socket's generating sub-class (p.e. AbsSSLClient for SSLSockets)
                         || (e instanceof SocketException && e.getMessage().equals("Connection reset"))
                         || (e instanceof SSLHandshakeException && e.getMessage().equals("Remote host closed connection during handshake"))
+                        || (e instanceof SSLException && e.getMessage().equals("Connection has been shutdown: javax.net.ssl.SSLException: java.net.SocketException: Operation timed out (Read failed)"))
                 )
                     break;
 
