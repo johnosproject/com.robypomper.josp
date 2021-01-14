@@ -67,7 +67,7 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
 
         Map<String, String> configs = splitConfigsStrings(configsStr);
         cmd = parseConfigString(configs, PROP_CMD);
-        redirect = parseConfigString(configs, PROP_REDIRECT);
+        redirect = parseConfigString(configs, PROP_REDIRECT, "");
     }
 
 
@@ -96,9 +96,10 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
         String cmdUpd = new Substitutions(cmd)
                 .substituteAction(commandAction)
                 .toString();
-        String redirectUpd = new Substitutions(redirect)
-                .substituteAction(commandAction)
-                .toString();
+        String redirectUpd = redirect.isEmpty() ? null :
+                new Substitutions(redirect)
+                        .substituteAction(commandAction)
+                        .toString();
 
         log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec ExecutorUnixShell cmd '%s'", cmdUpd));
 
@@ -120,13 +121,13 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
         System.out.printf("\tnewState %f%n", cmdAction.newState);
         System.out.printf("\toldState %f%n", cmdAction.oldState);
 
-
         String cmdUpd = new Substitutions(cmd)
                 .substituteAction(commandAction)
                 .toString();
-        String redirectUpd = new Substitutions(redirect)
-                .substituteAction(commandAction)
-                .toString();
+        String redirectUpd = redirect.isEmpty() ? null :
+                new Substitutions(redirect)
+                        .substituteAction(commandAction)
+                        .toString();
 
         log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec ExecutorUnixShell cmd '%s'", cmdUpd));
 
