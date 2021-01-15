@@ -51,6 +51,10 @@ import java.nio.file.Files;
  */
 public class JODObjectInfo_002 implements JODObjectInfo {
 
+    // Class constants
+
+    String FULL_ID_FORMATTER = "%s/%s";
+
     // Internal vars
 
     private static final Logger log = LogManager.getLogger();
@@ -177,6 +181,19 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     @Override
     public String getOwnerId() {
         return locSettings.getOwnerId();
+    }
+
+
+    // FullId
+
+
+    /**
+     * The full service id is composed by service and user ids.
+     *
+     * @return an id composed by service and user id.
+     */
+    public String getFullId() {
+        return String.format(FULL_ID_FORMATTER, getObjId(), getOwnerId());
     }
 
 

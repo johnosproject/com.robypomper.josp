@@ -28,6 +28,7 @@ import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 import com.robypomper.log.Mrk_JOD;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 
 /**
@@ -35,11 +36,16 @@ import java.net.MalformedURLException;
  */
 public class PullerHTTP extends AbsJODPuller {
 
+    // Class constants
+
+    private static final String PROP_FREQ_SEC = "freq";                 // in seconds
+
     // Internal vars
 
     private final HTTPInternal http;
     private final FormatterInternal formatter;
     private final EvaluatorInternal evaluator;
+    private final int freq_ms;
     private String lastResponse = "";
     private String lastResult = "";
 
@@ -60,6 +66,12 @@ public class PullerHTTP extends AbsJODPuller {
         http = new HTTPInternal(this, name, proto, configsStr, component);
         formatter = new FormatterInternal(this, name, proto, configsStr, component);
         evaluator = new EvaluatorInternal(this, name, proto, configsStr, component);
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        freq_ms = parseConfigInt(configs, PROP_FREQ_SEC, Integer.toString(AbsJODPuller.DEF_POLLING_TIME / 1000)) * 1000;
+    }
+
+    protected long getPollingTime() {
+        return freq_ms;
     }
 
 
@@ -83,9 +95,10 @@ public class PullerHTTP extends AbsJODPuller {
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' error on exec request '%s' because '%s'", getName(), getProto(), requestUrl, e.getMessage()), e);
             return;
         }
-        if (lastResponse.compareTo(response) != 0)
+        if (lastResponse.compareTo(response) != 0) {
+            log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' get same response as last attempt, skip it", getName(), getProto()));
             lastResponse = response;
-        else
+        } else
             return;
 
         String result;
@@ -96,6 +109,8 @@ public class PullerHTTP extends AbsJODPuller {
             log.debug(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' error on parsing response '%s'", getName(), getProto(), response));
             return;
         }
+
+        log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' read state '%s'", getName(), getProto(), result));
 
         if (lastResult.compareTo(result) != 0)
             lastResult = result;

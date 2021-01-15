@@ -168,6 +168,9 @@ public class AbsJODContainer extends AbsJODComponent
      * @return the created component.
      */
     protected JODComponent createComponent(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.ParsingException {
+        if (compType == null || compType.isEmpty())
+            throw new JODStructure.ParsingException(String.format("Missing 'compType' for '%s' component.", compName));
+
         if (StructureDefinitions.TYPE_JOD_CONTAINER.compareToIgnoreCase(compType) == 0)
             return createContainer(parentCompName, compName, compSettings);
 

@@ -93,6 +93,16 @@ public interface JODObjectInfo {
     String getOwnerId();
 
 
+    // Instance and fullId
+
+    /**
+     * The full service id is composed by service and user ids.
+     *
+     * @return an id composed by service and user id.
+     */
+    String getFullId();
+
+
     // Structure's info
 
     /**

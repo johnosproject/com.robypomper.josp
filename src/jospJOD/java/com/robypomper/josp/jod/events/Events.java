@@ -148,9 +148,9 @@ public class Events {
         String payload;
         payload = "{";
         payload += String.format("\"connected\": \"%s\"", gwClient.isConnected());
-        payload += String.format(", \"url\": \"%s\"", gwClient.getServerUrl());
-        payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr());
-        payload += String.format(", \"port\": \"%s\"", gwClient.getServerPort());
+        payload += String.format(", \"url\": \"%s\"", gwClient.tryServerUrl());
+        payload += String.format(", \"ip\": \"%s\"", gwClient.tryServerAddr());
+        payload += String.format(", \"port\": \"%s\"", gwClient.tryServerPort());
         payload += ", \"client\": {";
         if (gwClient.isConnected()) {
             payload += String.format("\"id\": \"%s\"", gwClient.getClientId());
