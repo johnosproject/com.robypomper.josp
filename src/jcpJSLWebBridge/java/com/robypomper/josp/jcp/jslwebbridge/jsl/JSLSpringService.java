@@ -468,7 +468,7 @@ public class JSLSpringService {
                 try {
                     emitter.send(HEART_BEAT);
 
-                } catch (IOException e) {
+                } catch (IOException | IllegalStateException e) {
                     log.warn(String.format("Error on send event '%s' (heartbeat) to '%s' emitter for '%s' JSL instance because %s, remove emitter.", HEART_BEAT, emitter, entry.getKey(), e.getMessage()));
                     processEmitterError(entry.getKey(), emitter);
                 }
