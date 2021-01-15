@@ -805,7 +805,7 @@ public abstract class AbsClient implements Client {
                         }
 
                 } catch (Throwable e) {
-                    log.warn(Mrk_Commons.COMM_CL, String.format("Server processor can't process data from '%s' because %s", getServerUrl(), e.getMessage()));
+                    log.warn(Mrk_Commons.COMM_CL, String.format("Server processor can't process data from '%s' because %s", getServerUrl(), e.getMessage()), e);
                     String dataStr = new String(dataRead, PeerInfo.CHARSET);
                     log.warn(Mrk_Commons.COMM_CL, String.format("(dataRx: '%s')", dataStr.substring(0, Math.min(dataStr.length(), 10))));
                     if (cse != null) cse.onServerError(e);

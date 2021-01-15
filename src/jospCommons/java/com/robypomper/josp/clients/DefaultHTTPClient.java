@@ -200,7 +200,7 @@ public class DefaultHTTPClient implements HTTPClient {
         availabilityTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Thread.currentThread().setName(TH_CONNECTION_CHECK_NAME);
+                Thread.currentThread().setName(String.format(TH_CONNECTION_CHECK_NAME, httpServerName));
                 try {
                     checkServerReachability();
                 } catch (HTTPClientNotReachableException ignore) {

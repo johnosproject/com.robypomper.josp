@@ -78,8 +78,19 @@ public class JavaEnum {
         }
 
         public void set(Logger log, E val) {
-            if (log != null)
-                log.debug(Mrk_Commons.STATE, String.format("%s state = %s", logName, val));
+            if (log != null) {
+                StackTraceElement caller = null;
+                for (StackTraceElement e : Thread.currentThread().getStackTrace())
+                    if (!e.getClassName().equals(Thread.class.getName())
+                            && e.getClassName().equals(Thread.class.getName())) {
+                        caller = e;
+                        break;
+                    }
+                if (caller == null)
+                    log.debug(Mrk_Commons.STATE, String.format("%s state = %s", logName, val));
+                else
+                    log.debug(Mrk_Commons.STATE, String.format("%s state = %s by %s::%s at line %d", logName, val, caller.getClassName(), caller.getMethodName(), caller.getLineNumber()));
+            }
             super.set(val);
         }
 
