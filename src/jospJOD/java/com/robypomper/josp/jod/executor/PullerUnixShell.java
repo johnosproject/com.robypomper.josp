@@ -82,7 +82,7 @@ public class PullerUnixShell extends AbsJODPuller {
         // CmdPartitioning
         String state;
         try {
-            state = JavaExecProcess.execCmd(cmd, true);
+            state = JavaExecProcess.execCmd(cmd);
 
         } catch (IOException | JavaExecProcess.ExecStillAliveException e) {
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell error on executing cmd '%s' for component '%s' because '%s'", cmd, getName(), e.getMessage()), e);

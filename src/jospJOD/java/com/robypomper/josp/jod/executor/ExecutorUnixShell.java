@@ -21,6 +21,7 @@ package com.robypomper.josp.jod.executor;
 
 
 import com.robypomper.java.JavaExecProcess;
+import com.robypomper.java.JavaFiles;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
@@ -29,7 +30,6 @@ import com.robypomper.log.Mrk_Commons;
 import com.robypomper.log.Mrk_JOD;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Map;
 
 
@@ -105,10 +105,16 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
 
         // Split, redirect*redirectUpd!=null, CmdPartitioning
         try {
-            JavaExecProcess.execCmdConcat(cmdUpd, redirectUpd != null ? Paths.get(redirectUpd) : null, 0);
+            String output = JavaExecProcess.execCmdConcat(cmdUpd, 0);
+            if (redirectUpd != null)
+                JavaFiles.writeString(redirectUpd, output);
+
+        } catch (JavaExecProcess.ExecConcatException e) {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            return false;
 
         } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on writing output to '%s' file of partial cmd '%s' for component '%s' because %s", redirectUpd, cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
 
@@ -133,10 +139,16 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
 
         // Split, redirect*redirectUpd!=null, CmdPartitioning
         try {
-            JavaExecProcess.execCmdConcat(cmdUpd, redirectUpd != null ? Paths.get(redirectUpd) : null, 0);
+            String output = JavaExecProcess.execCmdConcat(cmdUpd, 0);
+            if (redirectUpd != null)
+                JavaFiles.writeString(redirectUpd, output);
+
+        } catch (JavaExecProcess.ExecConcatException e) {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            return false;
 
         } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on writing output to '%s' file of partial cmd '%s' for component '%s' because %s", redirectUpd, cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
 
