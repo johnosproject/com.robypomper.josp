@@ -24,48 +24,121 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
+
+/**
+ * Utils class to avoid SSL host verifier checks.
+ */
 public class JavaSSLIgnoreChecks {
 
-    public static void disableSSLChecks(HostnameVerifier hostVerifier) throws JavaSSLIgnoreChecksException {
-        SSLContext sc = newInstanceSSLDisableSSLChecks();
+    // Class constants
+
+    private static final HostnameVerifier LOCALHOST = (hostname, sslSession) -> hostname.equals("localhost");
+    private static final HostnameVerifier ALLHOSTS = (hostname, session) -> true;
+
+
+    // Disable SSL Checks
+
+    /**
+     * Disable SSL checks for given connection.
+     *
+     * @param conn connection to disable the hostname verifier.
+     */
+    public static void disableSSLChecks(HttpsURLConnection conn) {
+        conn.setSSLSocketFactory(JavaSSLIgnoreChecks.newSSLContextInstanceWithDisableSSLChecks().getSocketFactory());
+    }
+
+
+    // Disable SSL Hostname verifier
+
+    /**
+     * Disable hostname verifier on localhost for given connection.
+     *
+     * @param conn connection to disable the hostname verifier.
+     */
+    public static void disableSSLHostVerifierOnLocalHost(HttpsURLConnection conn) {
+        conn.setHostnameVerifier(JavaSSLIgnoreChecks.LOCALHOST);
+    }
+
+    /**
+     * Disable hostname verifier on all hostnames for given connection.
+     *
+     * @param conn connection to disable the hostname verifier.
+     */
+    public static void disableSSLHostVerifierOnAllHost(HttpsURLConnection conn) {
+        conn.setHostnameVerifier(JavaSSLIgnoreChecks.ALLHOSTS);
+    }
+
+
+    // Disable SSL Checks and Hostname verifier
+
+    /**
+     * Disable SSL checks and hostname verifier on localhost for all
+     * {@link HttpsURLConnection} instances.
+     */
+    public static void disableSSLChecksAndHostVerifierOnLocalHost() {
+        disableSSLChecksAndHostVerifier(LOCALHOST);
+    }
+
+    /**
+     * Disable SSL checks and hostname verifier on localhost for given
+     * connection.
+     */
+    public static void disableSSLChecksAndHostVerifierOnLocalHost(HttpsURLConnection conn) {
+        disableSSLChecks(conn);
+        disableSSLHostVerifierOnLocalHost(conn);
+    }
+
+    /**
+     * Disable SSL checks and hostname verifier on all hostnames for all
+     * {@link HttpsURLConnection} instances.
+     */
+    public static void disableSSLChecksAndHostVerifierOnAllHost() {
+        disableSSLChecksAndHostVerifier(ALLHOSTS);
+    }
+
+    /**
+     * Disable SSL checks and hostname verifier on all hostnames for given
+     * connection.
+     */
+    public static void disableSSLChecksAndHostVerifierOnAllHost(HttpsURLConnection conn) {
+        disableSSLChecks(conn);
+        disableSSLHostVerifierOnAllHost(conn);
+    }
+
+
+    // SSL utils
+
+    private static void disableSSLChecksAndHostVerifier(HostnameVerifier hostVerifier) {
+        SSLContext sc = newSSLContextInstanceWithDisableSSLChecks();
 
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         HttpsURLConnection.setDefaultHostnameVerifier(hostVerifier);
     }
 
-    public static SSLContext newInstanceSSLDisableSSLChecks() throws JavaSSLIgnoreChecksException {
-        SSLContext sc = null;
+    private static SSLContext newSSLContextInstanceWithDisableSSLChecks() {
+        SSLContext sc;
         try {
             sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            sc.init(null, new TrustManager[]{
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                    }
+            }, new java.security.SecureRandom());
+
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            e.printStackTrace();
-            throw new JavaSSLIgnoreChecksException(e);
+            return JavaAssertions.makeAssertionFailed(e, "SSLContext initialization with standard params should not throw exceptions", (SSLContext) null);
         }
 
         return sc;
     }
 
-    public static HostnameVerifier LOCALHOST = (hostname, sslSession) -> hostname.equals("localhost");
-
-    public static HostnameVerifier ALLHOSTS = (hostname, session) -> true;
-
-    private static TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-
-                public void checkClientTrusted(X509Certificate[] certs, String authType) { }
-
-                public void checkServerTrusted(X509Certificate[] certs, String authType) { }
-
-            }
-    };
-
-    public static class JavaSSLIgnoreChecksException extends Throwable {
-        public JavaSSLIgnoreChecksException(Exception e) {
-            super("Can't disable SSL checks because error occurred", e);
-        }
-    }
 }

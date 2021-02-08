@@ -22,8 +22,8 @@ package com.robypomper.josp.clients;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.java.JavaEnum;
+import com.robypomper.java.JavaNetworks;
 import com.robypomper.java.JavaSSLIgnoreChecks;
-import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.states.HTTPClientState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +32,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
@@ -85,10 +86,8 @@ public class DefaultHTTPClient implements HTTPClient {
         this.requestTimeOutSeconds = requestTimeOutSeconds;
         this.availabilityTimerDelaySeconds = connectionRetrySeconds;
         this.ignoreSSLHostnames = ignoreSSLHostnames;
-        try {
-            checkServerReachability();
-        } catch (HTTPClientNotReachableException ignore) {
-        }
+
+        checkServerReachability();
     }
 
 
@@ -158,35 +157,23 @@ public class DefaultHTTPClient implements HTTPClient {
 
     // HTTP server availability manager
 
-    private void checkServerReachability() throws HTTPClientNotReachableException {
-        int code;
+    private void checkServerReachability() {
+        boolean reachable = false;
         try {
-            URL url = new URL(httpBaseUrl);
-            HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
-            if (ignoreSSLHostnames && httpUrlConn instanceof HttpsURLConnection)
-                ((HttpsURLConnection) httpUrlConn).setHostnameVerifier(JavaSSLIgnoreChecks.ALLHOSTS);
-            httpUrlConn.setRequestMethod("GET");
-            code = httpUrlConn.getResponseCode();
+            reachable = JavaNetworks.checkURLReachability(httpBaseUrl, ignoreSSLHostnames);
 
-            if (code != 200) {
-                state.set(HTTPClientState.NOT_AVAILABLE);
-                isAvailable = false;
-                HTTPClientNotReachableException e1 = new HTTPClientNotReachableException(new ResponseException(String.format("Received response code '%d' on check server reachability.", code), url.toString()));
-                emitNotAvailable(e1);
-                throw e1;
-            }
+        } catch (MalformedURLException e) { /* ignore because assume that the url is correct */ }
 
-        } catch (IOException e) {
+        if (!reachable) {
             state.set(HTTPClientState.NOT_AVAILABLE);
             isAvailable = false;
-            HTTPClientNotReachableException e1 = new HTTPClientNotReachableException(e);
-            emitNotAvailable(e1);
-            throw e1;
+            emitNotAvailable();
+            return;
         }
 
         state.set(HTTPClientState.AVAILABLE);
         isAvailable = true;
-        lastAvailable = JOSPProtocol.getNowDate();
+        lastAvailable = JavaDate.getNowDate();
         emitAvailable();
     }
 
@@ -201,10 +188,7 @@ public class DefaultHTTPClient implements HTTPClient {
             @Override
             public void run() {
                 Thread.currentThread().setName(String.format(TH_CONNECTION_CHECK_NAME, httpServerName));
-                try {
-                    checkServerReachability();
-                } catch (HTTPClientNotReachableException ignore) {
-                }
+                checkServerReachability();
 
             }
         }, 0, availabilityTimerDelaySeconds * 1000);
@@ -235,9 +219,9 @@ public class DefaultHTTPClient implements HTTPClient {
             l.onAvailable(this);
     }
 
-    private void emitNotAvailable(Throwable t) {
+    private void emitNotAvailable() {
         for (AvailabilityListener l : availabilityListeners)
-            l.onNotAvailable(this, t);
+            l.onNotAvailable(this);
     }
 
 
@@ -331,7 +315,7 @@ public class DefaultHTTPClient implements HTTPClient {
             URL url = new URL(fullUrlRequest);
             HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
             if (ignoreSSLHostnames && httpUrlConn instanceof HttpsURLConnection)
-                ((HttpsURLConnection) httpUrlConn).setHostnameVerifier(JavaSSLIgnoreChecks.ALLHOSTS);
+                JavaSSLIgnoreChecks.disableSSLHostVerifierOnAllHost((HttpsURLConnection) httpUrlConn);
             httpUrlConn.setRequestMethod(reqType.name());
             httpUrlConn.setUseCaches(false);
             httpUrlConn.setDoInput(true);
@@ -344,7 +328,7 @@ public class DefaultHTTPClient implements HTTPClient {
             SSLSocketFactory sslFactory = null;
             if (ignoreSSLHostnames && httpUrlConn instanceof HttpsURLConnection) {
                 sslFactory = ((HttpsURLConnection) httpUrlConn).getSSLSocketFactory();
-                ((HttpsURLConnection) httpUrlConn).setSSLSocketFactory(JavaSSLIgnoreChecks.newInstanceSSLDisableSSLChecks().getSocketFactory());
+                JavaSSLIgnoreChecks.disableSSLChecks((HttpsURLConnection) httpUrlConn);
             }
             httpUrlConn.connect();
 
@@ -363,7 +347,7 @@ public class DefaultHTTPClient implements HTTPClient {
             if (responseCode != 200)
                 throwErrorCodes(responseCode, responseBody, fullUrl);
 
-        } catch (IOException | JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
+        } catch (IOException e) {
             throw new RequestException(String.format("Error on exec [%s] request @ '%s' because %s", reqType, fullUrl, e.getMessage()), e);
         }
 

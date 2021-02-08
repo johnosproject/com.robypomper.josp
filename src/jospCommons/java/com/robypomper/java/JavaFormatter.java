@@ -26,22 +26,49 @@ import java.util.List;
 import java.util.Locale;
 
 
+/**
+ * Convenient class to convert common values from/to string.
+ */
 public class JavaFormatter {
 
     // Independent comparison for Boolean
 
+    /**
+     * List of possible <code>true</code> values for string to boolean
+     * conversion.
+     */
     public static final List<String> TRUE_ALIASES = Arrays.asList("TRUE", "1", "ON", "HIGH", "OPEN", "FULL");
 
 
     // Independent locale formatter for Double
 
+    /**
+     * Default locale that use point as decimal separator.
+     */
     public static final Locale LOCALE_POINT_DEC = Locale.US;
+
+    /**
+     * Default locale that use comma as decimal separator.
+     */
     public static final Locale LOCALE_COMMA_DEC = Locale.ITALY;
+
+    /**
+     * Default locale used by this class ({@link #LOCALE_POINT_DEC}).
+     */
     public static final Locale LOCALE_STANDARD = LOCALE_POINT_DEC;
 
 
     // Boolean convert methods
 
+    /**
+     * Convert given string to boolean.
+     * <p>
+     * This method check if given string is present in the {@link #TRUE_ALIASES}.
+     * list. If it is, then return true.
+     *
+     * @param s the string to convert.
+     * @return true if given string is contained in {@link #TRUE_ALIASES}.
+     */
     public static boolean strToBoolean(String s) {
         return TRUE_ALIASES.contains(s);
     }
@@ -49,22 +76,58 @@ public class JavaFormatter {
 
     // Double convert methods
 
+    /**
+     * Convert given double to string using {@link #LOCALE_STANDARD}.
+     *
+     * @param d the double to convert.
+     * @return a String representing given double (with point decimal separator).
+     */
     public static String doubleToStr(double d) {
         return String.format(LOCALE_STANDARD, "%f", d);
     }
 
+    /**
+     * Convert given double to string using {@link #LOCALE_POINT_DEC}.
+     *
+     * @param d the double to convert.
+     * @return a String representing given double (with point decimal separator).
+     */
     public static String doubleToStr_Point(double d) {
         return String.format(LOCALE_POINT_DEC, "%f", d);
     }
 
+    /**
+     * Convert given double to string using {@link #LOCALE_COMMA_DEC}.
+     *
+     * @param d the double to convert.
+     * @return a String representing given double (with comma decimal separator).
+     */
     public static String doubleToStr_Comma(double d) {
         return String.format(LOCALE_COMMA_DEC, "%f", d);
     }
 
+    /**
+     * Truncate and convert given double to string using {@link #LOCALE_STANDARD}.
+     * <p>
+     * Before conversion, given double is rounded ({@link Math#round(double)} to
+     * integer.
+     *
+     * @param d the double to convert.
+     * @return a String representing given double.
+     */
     public static String doubleToStr_Truncated(double d) {
         return Integer.toString((int) Math.round(d));
     }
 
+    /**
+     * Convert given string to double.
+     * <p>
+     * This method try to manage string as double with point decimal separator,
+     * if can't then it try to manage it with comma decimal separator.
+     *
+     * @param s the string to convert.
+     * @return the parsed double or null if {@link ParseException} was throw.
+     */
     public static Double strToDouble(String s) {
         try {
             try {

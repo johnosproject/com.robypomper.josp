@@ -1,9 +1,9 @@
 package com.robypomper.josp.jcp.service.controllers.jcp;
 
+import com.robypomper.java.JavaDate;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JCPStatus;
 import com.robypomper.josp.paths.jcp.APIJCP;
-import com.robypomper.josp.protocol.JOSPProtocol;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -59,7 +59,7 @@ public class APIJCPController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     public ResponseEntity<String> getStateReq() {
-        return ResponseEntity.ok(JOSPProtocol.getNow());
+        return ResponseEntity.ok(JavaDate.getNow());
     }
 
     @GetMapping(path = APIJCP.FULL_PATH_STATUS_PROCESS)

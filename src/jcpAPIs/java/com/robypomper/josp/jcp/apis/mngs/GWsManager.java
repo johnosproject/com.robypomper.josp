@@ -172,7 +172,7 @@ public class GWsManager {
         }
 
         // Test GW JOSP server
-        if (!JavaNetworks.pingHost(gw.getGwAddr(), gw.getGwPort(), 4000)) {
+        if (!JavaNetworks.checkSocketReachability(gw.getGwAddr(), gw.getGwPort(), 4000)) {
             if (autoUpdate)
                 setGWOffline(gw);
             return false;

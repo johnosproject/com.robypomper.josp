@@ -29,12 +29,10 @@ import com.robypomper.java.JavaEnum;
 import com.robypomper.java.JavaSSLIgnoreChecks;
 import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.paths.jcp.APIJCP;
-import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.states.JCPClient2State;
 import com.robypomper.josp.states.StateException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
@@ -132,7 +130,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             this.authCode_refreshToken = authCodeRefreshToken;
         this.authRealm = authRealm;
         this.connectionTimerDelaySeconds = connectionRetrySeconds;
-        this.state.setLogName(apiName);
+        this.state.setStateName(apiName);
     }
 
 
@@ -167,7 +165,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
      */
     @Override
     public boolean isDisconnecting() {
-        throw new NotImplementedException();
+        throw new JavaNotImplementedException();
     }
 
     /**
@@ -259,7 +257,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     @Override
     public String getAuthLoginUrl(String redirectUrl) {
         //return service.getAuthorizationUrl() + ...;
-        throw new NotImplementedException();
+        throw new JavaNotImplementedException();
     }
 
     /**
@@ -577,7 +575,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 code = con.getResponseCode();
             } catch (SSLHandshakeException ei) {
                 try {
-                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                    JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
                     con = (HttpURLConnection) url.openConnection();
                     con.setRequestMethod("GET");
                     code = con.getResponseCode();
@@ -594,10 +592,6 @@ public class DefaultJCPClient2 implements JCPClient2 {
         } catch (IOException e) {
             String errMsg = String.format("Error connecting to %s because '%s%s' (%s) not reachable [%s:%s]", apiName, toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
             throw new JCPNotReachableException(errMsg);
-
-        } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            String errMsg = String.format("Error connecting to %s because '%s%s' (%s) can't ignore LOCALHOST's certificate checks [%s:%s]", apiName, toAuth ? baseUrlAuth : baseUrlAPIs, path, toAuth ? "Auth's url" : "APIs's url", e.getClass().getSimpleName(), e.getMessage());
-            throw new JCPNotReachableException(errMsg);
         }
     }
 
@@ -609,7 +603,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             } catch (SSLHandshakeException e) {
 
                 try {
-                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                    JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
                     return service.getAccessTokenClientCredentialsGrant();
 
                 } catch (SSLHandshakeException e1) {
@@ -619,9 +613,6 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
         } catch (IOException | InterruptedException | ExecutionException e) {
             throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Client Credentials flow ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
-
-        } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            throw new ConnectionException(String.format("Error connecting to %s because can't ignore LOCALHOST's certificate checks ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
 
         } catch (OAuth2AccessTokenErrorResponse e) {
             throw new AuthenticationException(String.format("Error connecting to %s because authentication error for client ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
@@ -642,7 +633,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             } catch (SSLHandshakeException e) {
 
                 try {
-                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
+                    JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
                     if (loginCode != null)
                         return service.getAccessToken(loginCode);
                     else
@@ -659,8 +650,6 @@ public class DefaultJCPClient2 implements JCPClient2 {
         } catch (IOException | InterruptedException | ExecutionException e) {
             throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Auth Code flow because %s", apiName, e.getMessage()), e);
 
-        } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-            throw new ConnectionException(String.format("Error connecting to %s because can't ignore LOCALHOST's certificate checks because %s", apiName, e.getMessage()), e);
         }
     }
 

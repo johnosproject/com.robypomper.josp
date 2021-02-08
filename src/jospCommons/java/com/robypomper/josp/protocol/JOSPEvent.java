@@ -4,6 +4,7 @@ package com.robypomper.josp.protocol;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.robypomper.java.JavaDate;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -392,7 +393,7 @@ public class JOSPEvent {
 
     @JsonIgnore
     public String getEmittedAtStr() {
-        return JOSPProtocol.getDateFormatter().format(emittedAt);
+        return JavaDate.DEF_DATE_FORMATTER.format(emittedAt);
     }
 
     public String getPhase() {
@@ -411,7 +412,7 @@ public class JOSPEvent {
     // Converters
 
     public static String toString(JOSPEvent event) {
-        return String.format(EVENTS_REQ_FORMAT, event.getId(), event.getType(), event.getSrcId(), event.getSrcType(), JOSPProtocol.getDateFormatter().format(event.getEmittedAt()), event.phase, event.getPayload(), event.getErrorPayload());
+        return String.format(EVENTS_REQ_FORMAT, event.getId(), event.getType(), event.getSrcId(), event.getSrcType(), JavaDate.DEF_DATE_FORMATTER.format(event.getEmittedAt()), event.phase, event.getPayload(), event.getErrorPayload());
     }
 
     public static String toString(List<JOSPEvent> statusesHistory) {
@@ -439,7 +440,7 @@ public class JOSPEvent {
         String errorPayload = eventStrs[7].substring(eventStrs[7].indexOf(":") + 1);
 
         try {
-            return new JOSPEvent(Long.parseLong(id), Type.valueOf(type), srcId, SrcType.valueOf(srcType), JOSPProtocol.getDateFormatter().parse(emittedAt), phase, payload, errorPayload);
+            return new JOSPEvent(Long.parseLong(id), Type.valueOf(type), srcId, SrcType.valueOf(srcType), JavaDate.DEF_DATE_FORMATTER.parse(emittedAt), phase, payload, errorPayload);
 
         } catch (ParseException e) {
             throw new JOSPProtocol.ParsingException(String.format("Error parsing JOSPEvent fields: %s", e.getMessage()));

@@ -61,7 +61,7 @@ public interface HTTPClient {
 
         void onAvailable(HTTPClient httpClient);
 
-        void onNotAvailable(HTTPClient httpClient, Throwable t);
+        void onNotAvailable(HTTPClient httpClient);
 
     }
 
@@ -95,14 +95,6 @@ public interface HTTPClient {
 
 
     // Request exceptions
-
-    class HTTPClientNotReachableException extends Throwable {
-
-        public HTTPClientNotReachableException(Throwable cause) {
-            super(cause);
-        }
-
-    }
 
     class RequestException extends Throwable {
 

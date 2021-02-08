@@ -20,6 +20,8 @@
 package com.robypomper.josp.protocol;
 
 
+import com.robypomper.java.JavaDate;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class JOSPProtocol_ObjectToService {
     private static final String OBJ_DISCONNECT_REQ = OBJ_DISCONNECT_REQ_BASE + " %s\nobjId:%s";
 
     public static String createObjectDisconnectMsg(String objId) {
-        return String.format(OBJ_DISCONNECT_REQ, JOSPProtocol.getNow(), objId);
+        return String.format(OBJ_DISCONNECT_REQ, JavaDate.getNow(), objId);
     }
 
     public static boolean isObjectDisconnectMsg(String msg) {
@@ -56,7 +58,7 @@ public class JOSPProtocol_ObjectToService {
     private static final String OBJ_INF_REQ = OBJ_INF_REQ_BASE + " %s\nobjId:%s\nobjName:%s\njodVersion:%s\nownerId:%s\nmodel:%s\nbrand:%s\ndescr:%s\nisCloudConnected:%s";
 
     public static String createObjectInfoMsg(String objId, String objName, String jodVersion, String ownerId, String model, String brand, String descr, boolean isCloudConnected) {
-        return String.format(OBJ_INF_REQ, JOSPProtocol.getNow(), objId, objName, jodVersion, ownerId, model, brand, descr, isCloudConnected);
+        return String.format(OBJ_INF_REQ, JavaDate.getNow(), objId, objName, jodVersion, ownerId, model, brand, descr, isCloudConnected);
     }
 
     public static boolean isObjectInfoMsg(String msg) {
@@ -99,7 +101,7 @@ public class JOSPProtocol_ObjectToService {
     private static final String OBJ_STRUCT_REQ = OBJ_STRUCT_REQ_BASE + " %s\nobjId:%s\n%s";
 
     public static String createObjectStructMsg(String objId, String struct) {
-        return String.format(OBJ_STRUCT_REQ, JOSPProtocol.getNow(), objId, struct);
+        return String.format(OBJ_STRUCT_REQ, JavaDate.getNow(), objId, struct);
     }
 
     public static boolean isObjectStructMsg(String msg) {
@@ -118,7 +120,7 @@ public class JOSPProtocol_ObjectToService {
     private static final String OBJ_PERMS_REQ = OBJ_PERMS_REQ_BASE + " %s\nobjId:%s\n%s";
 
     public static String createObjectPermsMsg(String objId, String perms) {
-        return String.format(OBJ_PERMS_REQ, JOSPProtocol.getNow(), objId, perms);
+        return String.format(OBJ_PERMS_REQ, JavaDate.getNow(), objId, perms);
     }
 
     public static boolean isObjectPermsMsg(String msg) {
@@ -138,7 +140,7 @@ public class JOSPProtocol_ObjectToService {
     private static final String SRV_PERMS_REQ = SRV_PERMS_REQ_BASE + " %s\nobjId:%s\npermType:%s\nconnType:%s";
 
     public static String createServicePermMsg(String objId, JOSPPerm.Type permType, JOSPPerm.Connection permConn) {
-        return String.format(SRV_PERMS_REQ, JOSPProtocol.getNow(), objId, permType, permConn);
+        return String.format(SRV_PERMS_REQ, JavaDate.getNow(), objId, permType, permConn);
     }
 
     public static boolean isServicePermsMsg(String msg) {
@@ -207,7 +209,7 @@ public class JOSPProtocol_ObjectToService {
         // Casting
 
         static String fromUpdToMsg(StateUpdMsg upd) {
-            return String.format(UPD_MSG, JOSPProtocol.getNow(), upd.getObjectId(),
+            return String.format(UPD_MSG, JavaDate.getNow(), upd.getObjectId(),
                     upd.getComponentPath(), upd.getUpdate().getType(), upd.getUpdate().encode());
         }
 
@@ -222,7 +224,7 @@ public class JOSPProtocol_ObjectToService {
     private static final String HISTORY_EVENTS_REQ = HISTORY_EVENTS_REQ_BASE + " %s\nobjId:%s\nreqId:%s\n%s";
 
     public static String createHistoryEventsMsg(String objId, String reqId, List<JOSPEvent> eventsHistory) {
-        return String.format(HISTORY_EVENTS_REQ, JOSPProtocol.getNow(), objId, reqId, JOSPEvent.toString(eventsHistory));
+        return String.format(HISTORY_EVENTS_REQ, JavaDate.getNow(), objId, reqId, JOSPEvent.toString(eventsHistory));
     }
 
     public static boolean isHistoryEventsMsg(String msg) {
@@ -256,7 +258,7 @@ public class JOSPProtocol_ObjectToService {
     private static final String HISTORY_STATUS_REQ = HISTORY_STATUS_REQ_BASE + " %s\nobjId:%s\ncompPath:%s\nreqId:%s\n%s";
 
     public static String createHistoryCompStatusMsg(String objId, String compPath, String reqId, List<JOSPStatusHistory> statusesHistory) {
-        return String.format(HISTORY_STATUS_REQ, JOSPProtocol.getNow(), objId, compPath, reqId, JOSPStatusHistory.toString(statusesHistory));
+        return String.format(HISTORY_STATUS_REQ, JavaDate.getNow(), objId, compPath, reqId, JOSPStatusHistory.toString(statusesHistory));
     }
 
     public static boolean isHistoryCompStatusMsg(String msg) {

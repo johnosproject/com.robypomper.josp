@@ -2,6 +2,7 @@ package com.robypomper.josp.jod.executor.impls.http;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.robypomper.java.JavaNotImplementedException;
 import com.robypomper.josp.jod.executor.AbsJODWorker;
 import com.robypomper.josp.jod.executor.JODWorker;
 import com.robypomper.josp.jod.structure.JODComponent;
@@ -9,7 +10,6 @@ import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.DomSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -118,14 +118,14 @@ public class FormatterInternal {
             }
 
         } else if (formatPathType.compareToIgnoreCase(PROP_FORMAT_PATH_TYPE_HTML_TAG_NAME) == 0) {
-            throw new NotImplementedException();
+            throw new JavaNotImplementedException();
 
         } else
-            throw new NotImplementedException();
+            throw new JavaNotImplementedException();
     }
 
     private static Object parseXML(String str, String formatPathType) throws ParsingException {
-        throw new NotImplementedException();
+        throw new JavaNotImplementedException();
     }
 
     private static Object parseJSON(String str, String formatPathType) throws ParsingException {
@@ -133,11 +133,11 @@ public class FormatterInternal {
             return JsonPath.parse(str);
 
         } else
-            throw new NotImplementedException();
+            throw new JavaNotImplementedException();
     }
 
     private static Object parseYML(String str, String formatPathType) throws ParsingException {
-        throw new NotImplementedException();
+        throw new JavaNotImplementedException();
     }
 
     private static String extractTXT(Object parsedObj) throws PathNotFoundException {
@@ -163,7 +163,7 @@ public class FormatterInternal {
     }
 
     private static String extractXML(String formatPath, String formatPathType, Object parsedObj) throws PathNotFoundException {
-        throw new NotImplementedException();
+        throw new JavaNotImplementedException();
     }
 
     private static String extractJSON(String formatPath, String formatPathType, Object parsedObj) throws PathNotFoundException {
@@ -175,11 +175,11 @@ public class FormatterInternal {
             }
 
         } else
-            throw new NotImplementedException();
+            throw new JavaNotImplementedException();
     }
 
     private static String extractYML(String formatPath, String formatPathType, Object parsedObj) throws PathNotFoundException {
-        throw new NotImplementedException();
+        throw new JavaNotImplementedException();
     }
 
 

@@ -21,8 +21,18 @@ package com.robypomper.java;
 
 import java.io.File;
 
+/**
+ * Utils class to print current JVM details.
+ */
 public class JavaVersionUtils {
 
+    /**
+     * Return current JVM details in a formatted as a table string.
+     *
+     * @param mainAppName    current application name.
+     * @param mainAppVersion current application version.
+     * @return a string formatted as a table containing current JVM details.
+     */
     public static String buildJavaVersionStr(String mainAppName, String mainAppVersion) {
         return mainAppName + " versions:   " + mainAppVersion + "\n" +
                 "+-----------------\n" +

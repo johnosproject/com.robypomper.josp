@@ -9,6 +9,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Class utils to help store and retrieve JSON arrays from files.
+ * <p>
+ * This class implements also an internal chace to reduce the number of
+ * read/write operations on file.
+ *
+ * @param <T> type of JSON array content.
+ * @param <K> type of id of JSON array content.
+ */
 public abstract class JavaJSONArrayToFile<T, K> {
 
     // Internal constants

@@ -20,6 +20,7 @@
 package com.robypomper.josp.protocol;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaRandomStrings;
 import com.robypomper.josp.consts.JOSP;
 
@@ -145,9 +146,9 @@ public class JOSPPerm {
         this.connType = Connection.valueOf(connType);
         Date updTmp;
         try {
-            updTmp = JOSPProtocol.getDateFormatter().parse(updatedAt);
+            updTmp = JavaDate.DEF_DATE_FORMATTER.parse(updatedAt);
         } catch (ParseException e) {
-            updTmp = JOSPProtocol.getNowDate();
+            updTmp = JavaDate.getNowDate();
         }
         this.updatedAt = updTmp;
     }
@@ -212,7 +213,7 @@ public class JOSPPerm {
 
     @JsonIgnore
     public String getUpdatedAtStr() {
-        return JOSPProtocol.getDateFormatter().format(updatedAt);
+        return JavaDate.DEF_DATE_FORMATTER.format(updatedAt);
     }
 
 
@@ -244,7 +245,7 @@ public class JOSPPerm {
     }
 
     public static String toString(JOSPPerm perm) {
-        return String.format(OBJ_PERMS_REQ_FORMAT, perm.getId(), perm.getObjId(), perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType(), JOSPProtocol.getDateFormatter().format(perm.getUpdatedAt()));
+        return String.format(OBJ_PERMS_REQ_FORMAT, perm.getId(), perm.getObjId(), perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType(), JavaDate.DEF_DATE_FORMATTER.format(perm.getUpdatedAt()));
     }
 
     public static String toString(List<JOSPPerm> perms) {

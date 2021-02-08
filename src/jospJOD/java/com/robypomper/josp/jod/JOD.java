@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.jod;
 
+import com.robypomper.java.JavaAssertions;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.events.JODEvents;
@@ -58,7 +59,7 @@ public interface JOD {
      * @return null pointer.
      */
     static JOD instance(Settings settings) {
-        return null;
+        return JavaAssertions.makeAssertionFailed("Each sub-class must override this method", null);
     }
 
 
