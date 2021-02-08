@@ -20,7 +20,6 @@
 package com.robypomper.josp.jod;
 
 import com.robypomper.java.JavaVersionUtils;
-import com.robypomper.josp.clients.AbsGWsClient;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
@@ -76,7 +75,7 @@ public class JOD_002 extends AbsJOD {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions, events, history);
     }
 
-    public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODPermissions.PermissionsFileException, JCPClient2.AuthenticationException, StateException, AbsGWsClient.GWsClientException {
+    public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODPermissions.PermissionsFileException, JCPClient2.AuthenticationException, StateException {
         log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Object Daemon", VERSION));
 
         long start = new Date().getTime();

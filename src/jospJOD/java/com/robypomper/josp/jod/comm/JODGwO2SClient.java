@@ -19,27 +19,23 @@
 
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.client.Client;
-import com.robypomper.communication.client.standard.DefaultSSLClient;
-import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
+import com.robypomper.comm.client.Client;
+import com.robypomper.comm.client.ClientAbsSSL;
+import com.robypomper.comm.peer.Peer;
+import com.robypomper.comm.peer.PeerConnectionListener;
 import com.robypomper.josp.clients.AbsGWsClient;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
-import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.clients.apis.obj.APIGWsClient;
-import com.robypomper.josp.jod.objinfo.JODObjectInfo;
+import com.robypomper.josp.jod.events.Events;
+import com.robypomper.josp.params.jospgws.AccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.states.StateException;
-import com.robypomper.log.Mrk_JOD;
-import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
-import java.io.IOException;
+import java.net.InetAddress;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 
 
 /**
@@ -47,7 +43,7 @@ import java.security.cert.CertificateEncodingException;
  * <p>
  * This class provide a SSLClient to connect to the O2S Gw.
  */
-public class JODGwO2SClient extends AbsGWsClient<O2SAccessInfo> {
+public class JODGwO2SClient extends AbsGWsClient {
 
     // Internal vars
 
@@ -55,7 +51,6 @@ public class JODGwO2SClient extends AbsGWsClient<O2SAccessInfo> {
     // JOD
     private final JODCommunication_002 jodComm;
     // Configs
-    private final JODObjectInfo objInfo;
     private final APIGWsClient apiGWsClient;
 
 
@@ -68,103 +63,82 @@ public class JODGwO2SClient extends AbsGWsClient<O2SAccessInfo> {
      * It use the object's id as certificate id and load the O2S Gw certificate
      * to the {@link javax.net.ssl.TrustManager} used for the SSL context.
      *
-     * @param jodComm      instance of the {@link JODCommunication}
-     *                     that initialized this client. It will used to
-     *                     process data received from the O2S Gw.
-     * @param objInfo      the info of the represented object.
+     * @param jodComm instance of the {@link JODCommunication}
+     *                that initialized this client. It will used to
+     *                process data received from the O2S Gw.
+     * @param objId   the id of the represented object.
      */
-    public JODGwO2SClient(JODCommunication_002 jodComm, JODObjectInfo objInfo, JCPAPIsClientObj jcpClient, String instanceId) throws GWsClientException {
-        super("JSLGWsO2S-Internal", jcpClient);
+    public JODGwO2SClient(JODCommunication_002 jodComm, String objId, JCPAPIsClientObj jcpClient, String instanceId) {
+        super(objId, "JODGWsO2S-Internal", jcpClient);
         this.jodComm = jodComm;
-        this.objInfo = objInfo;
         this.apiGWsClient = new APIGWsClient(jcpClient, instanceId);
 
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Initialized JSLGwO2SClient %s his instance of DefaultSSLClient for service '%s'", getWrappedClient() != null ? "and" : "but NOT", objInfo.getObjId()));
-        if (isConnected()) {
-            log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("                           connected to GW's '%s:%d'", getServerAddr(), getServerPort()));
-        }
-    }
+        addListener(new PeerConnectionListener() {
 
+            @Override
+            public void onConnecting(Peer peer) {
+            }
 
-    // Getter configs
+            @Override
+            public void onWaiting(Peer peer) {
+            }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getClientId() {
-        return objInfo.getObjId();
-    }
+            @Override
+            public void onConnect(Peer peer) {
+                Events.registerCloudConnect("Comm Cloud Connected", JODGwO2SClient.this);
+                jodComm.syncObject();
+            }
 
-    protected String getClientType() {
-        return CLIENT_TYPE_O2S;
-    }
+            @Override
+            public void onDisconnecting(Peer peer) {
+            }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getServerName() {
-        return NAME_SERVER_O2S;
+            @Override
+            public void onDisconnect(Peer peer) {
+                Events.registerCloudDisconnect("Comm Cloud Disconnected", JODGwO2SClient.this);
+            }
+
+            @Override
+            public void onFail(Peer peer, String failMsg, Throwable exception) {
+                Events.registerCloudConnect("Comm Cloud Fail", JODGwO2SClient.this, exception);
+            }
+
+        });
     }
 
 
     // Client connection methods - O2S/S2O Sub classing
 
     @Override
-    protected O2SAccessInfo getAccessInfo() {
-        try {
-            log.debug(Mrk_JSL.JSL_COMM_SUB, "Getting service GW client access info");
-            log.trace(Mrk_JSL.JSL_COMM_SUB, "Getting JOSP Gw S2O access info for service's cloud client");
-            O2SAccessInfo accessInfo = apiGWsClient.getO2SAccessInfo(getClientCert());
-            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Service GW client access info returned: '%s:%d'", accessInfo.gwAddress, accessInfo.gwPort));
-            return accessInfo;
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | CertificateEncodingException | JCPClient2.ResponseException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on getting service GW info because %s", e.getMessage()));
-            return null;
-        }
+    protected O2SAccessInfo getAccessInfo(Certificate localCertificate) throws Throwable {
+        return apiGWsClient.getO2SAccessInfo(localCertificate);
     }
 
     @Override
-    protected Client initGWClient(SSLContext sslCtx, O2SAccessInfo accessInfo) {
-        try {
-            log.debug(Mrk_JSL.JSL_COMM_SUB, "Initializing service GW client");
-            log.trace(Mrk_JSL.JSL_COMM_SUB, "Registering JOSP Gw S2O certificate for service's cloud client");
-            Certificate gwCertificate = UtilsJKS.loadCertificateFromBytes(accessInfo.gwCertificate);
-            getClientTrustManager().addCertificate(JCP_CERT_ALIAS, gwCertificate);
+    protected Client initGWsClient(AccessInfo accessInfo, SSLContext sslCtx) throws Throwable {
+        assert accessInfo instanceof O2SAccessInfo : String.format("AccessInfo for JODGWsO2SClient must be of type 'O2SAccessInfo', but found '%s'", accessInfo.getClass().getSimpleName());
 
-            // Init SSL client
-            Client client = new DefaultSSLClient(sslCtx, getClientId(), accessInfo.gwAddress, accessInfo.gwPort, null, clientServerEvents, clientMessagingEvents, getProtocolName(), getServerName());
-            log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client initialized");
-            return client;
+        InetAddress gwAddress = InetAddress.getByName(accessInfo.gwAddress);
 
-        } catch (UtilsJKS.LoadingException | AbsCustomTrustManager.UpdateException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on initializing service GW client because %s", e.getMessage()), e);
-            return null;
-        }
-    }
+        return new ClientAbsSSL(getLocalId(), getRemoteId(), gwAddress, accessInfo.gwPort, getConnectionInfo().getProtocolName(),
+                sslCtx,
+                getDataEncodingConfigs().getCharset(), getDataEncodingConfigs().getDelimiter(),
+                getHeartBeatConfigs().getTimeout(), getHeartBeatConfigs().getHBTimeout(), getHeartBeatConfigs().isHBResponseEnabled(),
+                getByeConfigs().isEnable(), getByeConfigs().getByeMsg(),
+                getAutoReConnectConfigs().isEnable(), getAutoReConnectConfigs().getDelay()
+        ) {
 
-    @Override
-    protected boolean connectGWClient(Client client, O2SAccessInfo accessInfo) {
-        try {
-            log.debug(Mrk_JSL.JSL_COMM_SUB, String.format("Connecting service GW client at %s:%d", accessInfo.gwAddress, accessInfo.gwPort));
-            client.connect();
-            log.debug(Mrk_JSL.JSL_COMM_SUB, "Service GW client connected");
-            return true;
+            @Override
+            protected boolean processData(byte[] data) {
+                return false;
+            }
 
-        } catch (IOException | AAAException | StateException e) {
-            log.warn(Mrk_JSL.JSL_COMM_SUB, String.format("Error on connecting service GW client because %s", e.getMessage()), e);
-            return false;
-        }
-    }
+            @Override
+            protected boolean processData(String data) {
+                return jodComm.processFromServiceMsg(data, JOSPPerm.Connection.LocalAndCloud);
+            }
 
-
-    // Messages methods - O2S/S2O Sub classing
-
-    @Override
-    protected boolean processData(String readData, JOSPPerm.Connection connType) {
-        return jodComm.processFromServiceMsg(readData, connType);
+        };
     }
 
 }

@@ -87,6 +87,11 @@ public interface JODCommunication {
     JODGwO2SClient getCloudConnection();
 
     /**
+     * @return the Local server, null if not started.
+     */
+    JODLocalServer getLocalServer();
+
+    /**
      * @return an array containing all local connections.
      */
     List<JODLocalClientInfo> getAllLocalClientsInfo();
