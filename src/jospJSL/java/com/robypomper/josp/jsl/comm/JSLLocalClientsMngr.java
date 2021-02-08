@@ -1,11 +1,13 @@
 package com.robypomper.josp.jsl.comm;
 
-import com.robypomper.communication.client.Client;
+import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.discovery.Discover;
 import com.robypomper.discovery.DiscoverListener;
 import com.robypomper.discovery.DiscoveryService;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.impl.DiscoveryJmDNS;
+import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaEnum;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.JSL_002;
@@ -20,8 +22,6 @@ import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -161,7 +161,7 @@ public class JSLLocalClientsMngr {
             log.debug(Mrk_JSL.JSL_COMM, "Starting local service's discovery");
             discover.start();
             log.debug(Mrk_JSL.JSL_COMM, "Local service's discovery started");
-            lastStart = JOSPProtocol.getNowDate();
+            lastStart = JavaDate.getNowDate();
             emit_LocalStarted();
 
             log.debug("Local Discovery state = RUN");
@@ -183,18 +183,18 @@ public class JSLLocalClientsMngr {
             discover.stop();
             log.debug(Mrk_JSL.JSL_COMM, "Local service's discovery stopped");
             discover.removeListener(discoverListener);
-            lastStop = JOSPProtocol.getNowDate();
+            lastStop = JavaDate.getNowDate();
             emit_LocalStopped();
 
             log.debug(Mrk_JSL.JSL_COMM, "Disconnecting local communication service's clients");
             Set<JSLLocalClient> tmpList = new HashSet<>(localClients.keySet());
             for (JSLLocalClient locConn : tmpList)
-                if (locConn.isConnected())
+                if (locConn.getState().isConnected())
                     try {
                         locConn.disconnect();
 
-                    } catch (StateException e) {
-                        log.warn(Mrk_JSL.JSL_COMM, String.format("Error on disconnecting to '%s' object on server '%s:%d' from '%s' service because %s", locConn.getServerUrl(), locConn.getServerAddr(), locConn.getServerPort(), srvInfo.getSrvId(), e.getMessage()), e);
+                    } catch (PeerDisconnectionException e) {
+                        log.warn(Mrk_JSL.JSL_COMM, String.format("Error on disconnecting to '%s' object on server '%s:%d' from '%s' service because %s", locConn.getRemoteId(), locConn.getConnectionInfo().getLocalInfo().getAddr().getHostAddress(), locConn.getConnectionInfo().getLocalInfo().getPort(), srvInfo.getSrvId(), e.getMessage()), e);
                     }
             log.debug(Mrk_JSL.JSL_COMM, "Local communication service's clients disconnected");
 
@@ -333,7 +333,7 @@ public class JSLLocalClientsMngr {
         @Override
         public void onServiceDiscovered(DiscoveryService discSrv) {
             Thread.currentThread().setName("JSLDiscovery");
-            log.info(Mrk_JSL.JSL_COMM, String.format("Discover object's service '%s' at '%s:%d' by '%s' service", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId()));
+            log.info(Mrk_JSL.JSL_COMM, String.format("Discover object's service '%s' at '%s:%d' on '%s' interface by '%s' service", discSrv.name, discSrv.address, discSrv.port, discSrv.intf, srvInfo.getSrvId()));
             localDiscovered.put(discSrv, true);
 
             // Check if discovered service is at localhost (if check enabled)
@@ -346,10 +346,12 @@ public class JSLLocalClientsMngr {
             JSLLocalClient locConn;
             try {
                 locConn = createAndConnectClient(discSrv);
-                localClients.put(locConn, false);
-            } catch (Client.AAAException | IOException e) {
-                log.warn(Mrk_JSL.JSL_COMM, String.format("Error on connecting to '%s' object on server '%s:%d' from '%s' service because %s", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId(), e.getMessage()), e);
+
+            } catch (PeerConnectionException e) {
+                log.warn(Mrk_JSL.JSL_COMM, String.format("Error connecting on discovered service '%s' at '%s:%d'", discSrv.name, discSrv.address, discSrv.port), e);
+                return;
             }
+            localClients.put(locConn, false);
         }
 
         /**
@@ -362,78 +364,16 @@ public class JSLLocalClientsMngr {
 
     };
 
-    private JSLLocalClient createAndConnectClient(DiscoveryService discSrv) throws Client.AAAException, IOException {
+    private JSLLocalClient createAndConnectClient(DiscoveryService discSrv) throws PeerConnectionException {
         log.debug(Mrk_JSL.JSL_COMM, String.format("Connecting to '%s' object on server '%s:%d' from '%s' service", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId()));
-        String clientPubCertFile = File.createTempFile(String.format("jslCert-%s-%d", discSrv.address, discSrv.port), ".crt").getAbsolutePath();
 
-        log.trace(Mrk_JSL.JSL_COMM, String.format("Local service's client use public certificate file '%s'", clientPubCertFile));
-        JSLLocalClient locConn = new JSLLocalClient(jslComm, srvInfo.getFullId(), discSrv.address.getHostAddress(), discSrv.port, clientPubCertFile);
-        locConn.addListener(locConnListener);
-        try {
-            locConn.connect();
-        } catch (StateException ignore) {
-            assert false : "Exception StateException can't be throw because connect() is called immediately after client creation.";
-        }
+        JSLLocalClient locConn = JSLLocalClient.instantiate(jslComm, this, srvInfo.getFullId(), discSrv.address, discSrv.port, discSrv.name);      // ToDo: Give also discSrv.interface, so client can bind right interface
+        locConn.connect();
 
         log.debug(Mrk_JSL.JSL_COMM, String.format("Service connecting to '%s' object on server '%s:%d' from '%s' service", discSrv.name, discSrv.address, discSrv.port, srvInfo.getSrvId()));
 
         return locConn;
     }
-
-
-    // Local object communication listener
-
-    private final Client.ClientListener locConnListener = new Client.ClientListener() {
-
-        @Override
-        public void onConnected(Client client) {
-            assert client instanceof JSLLocalClient : String.format("This event must be emitted from a JSLLocalClient, but %s found.", client.getClass().getSimpleName());
-            JSLLocalClient locClient = (JSLLocalClient) client;
-            localClients.put(locClient, true);
-
-            JSLRemoteObject rObj = jslObjsMngr.addNewConnection(locClient);
-            if (rObj != null)
-                emit_LocalConnected(rObj, locClient);
-            else
-                emit_LocalConnectionError(locClient, String.format("Can't create client object for server %s", client.getServerUrl()));
-        }
-
-        @Override
-        public void onConnectionIOException(Client client, IOException ioException) {
-            assert client instanceof JSLLocalClient : String.format("This event must be emitted from a JSLLocalClient, but %s found.", client.getClass().getSimpleName());
-            JSLLocalClient locClient = (JSLLocalClient) client;
-
-            localClients.remove(locClient);
-
-            emit_LocalConnectionError((JSLLocalClient) client, ioException);
-        }
-
-        @Override
-        public void onConnectionAAAException(Client client, Client.AAAException aaaException) {
-            assert client instanceof JSLLocalClient : String.format("This event must be emitted from a JSLLocalClient, but %s found.", client.getClass().getSimpleName());
-            JSLLocalClient locClient = (JSLLocalClient) client;
-
-            localClients.remove(locClient);
-
-            emit_LocalConnectionError((JSLLocalClient) client, aaaException);
-        }
-
-        @Override
-        public void onDisconnected(Client client) {
-            assert client instanceof JSLLocalClient : String.format("This event must be emitted from a JSLLocalClient, but %s found.", client.getClass().getSimpleName());
-            JSLLocalClient locClient = (JSLLocalClient) client;
-
-            JSLRemoteObject rObj = jslObjsMngr.getByConnection(locClient);
-            if (rObj != null) {
-                log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnected object '%s' server '%s:%d' by '%s' service", rObj.getId(), locClient.getServerAddr(), locClient.getServerPort(), locClient.getClientId()));
-                ((DefaultObjComm) rObj.getComm()).removeLocalClient(locClient);
-            }
-            localClients.remove(locClient);
-
-            emit_LocalDisconnected(rObj, (JSLLocalClient) client);
-        }
-
-    };
 
 
     // Listeners manager
@@ -514,7 +454,7 @@ public class JSLLocalClientsMngr {
     }
 
     private void emit_LocalConnected(JSLRemoteObject jslObj, JSLLocalClient jslLocCli) {
-        lastConnection = JOSPProtocol.getNowDate();
+        lastConnection = JavaDate.getNowDate();
         countConnected++;
         for (LocalClientListener l : connectionsListeners)
             l.onLocalConnected(jslObj, jslLocCli);
@@ -531,7 +471,7 @@ public class JSLLocalClientsMngr {
     }
 
     private void emit_LocalDisconnected(JSLRemoteObject jslObj, JSLLocalClient jslLocCli) {
-        lastDisconnection = JOSPProtocol.getNowDate();
+        lastDisconnection = JavaDate.getNowDate();
         countDisconnected++;
 
         for (LocalClientListener l : connectionsListeners)
@@ -552,6 +492,37 @@ public class JSLLocalClientsMngr {
 
         void onLocalDisconnected(JSLRemoteObject jslObj, JSLLocalClient jslLocCli);
 
+    }
+
+
+    // Messages methods ClientLocalEvents listener
+
+    public void onClientConnected(JSLLocalClient client) {
+        localClients.put(client, true);
+
+        JSLRemoteObject rObj = jslObjsMngr.addNewConnection(client);
+        if (rObj != null)
+            emit_LocalConnected(rObj, client);
+        else
+            emit_LocalConnectionError(client, String.format("Can't create client object for server %s", client.getRemoteId()));
+    }
+
+    public void onClientConnectionError(JSLLocalClient client, Throwable e) {
+        localClients.remove(client);
+
+        emit_LocalConnectionError(client, e);
+    }
+
+    public void onClientDisconnected(JSLLocalClient client) {
+        JSLRemoteObject rObj = jslObjsMngr.getByConnection(client);
+        if (rObj != null) {
+            log.info(Mrk_JSL.JSL_COMM_SUB, String.format("Disconnected object '%s' server '%s:%d' by '%s' service", rObj.getId(), client.getConnectionInfo().getRemoteInfo().getAddr().getHostName(), client.getConnectionInfo().getRemoteInfo().getPort(), client.getLocalId()));
+            //if (client.getState().isCONNECTING())
+            ((DefaultObjComm) rObj.getComm()).removeLocalClient(client);
+        }
+        localClients.remove(client);
+
+        emit_LocalDisconnected(rObj, client);
     }
 
 }

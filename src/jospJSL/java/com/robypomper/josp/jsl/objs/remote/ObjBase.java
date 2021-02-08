@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.objs.remote;
 
-import com.robypomper.communication.client.Client;
+import com.robypomper.comm.exception.PeerNotConnectedException;
+import com.robypomper.comm.exception.PeerStreamException;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -72,7 +73,7 @@ public class ObjBase {
                 ((DefaultObjComm) getRemote().getComm()).getConnectedLocalClient().sendData(msg);
                 return;
 
-            } catch (Client.ServerNotConnectedException e) {
+            } catch (PeerNotConnectedException | PeerStreamException e) {
                 log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
             }
         }
@@ -86,7 +87,7 @@ public class ObjBase {
             try {
                 ((DefaultObjComm) getRemote().getComm()).getCloudConnection().sendData(msg);
 
-            } catch (Client.ServerNotConnectedException e) {
+            } catch (PeerNotConnectedException | PeerStreamException e) {
                 log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via cloud) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
             }
         }

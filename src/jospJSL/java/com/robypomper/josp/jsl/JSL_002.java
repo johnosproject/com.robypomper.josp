@@ -19,7 +19,6 @@
 package com.robypomper.josp.jsl;
 
 import com.robypomper.java.JavaVersionUtils;
-import com.robypomper.josp.clients.AbsGWsClient;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
@@ -59,7 +58,7 @@ public class JSL_002 extends AbsJSL {
         super(settings, jcpClient, srvInfo, usr, objs, comm);
     }
 
-    public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, AbsGWsClient.GWsClientException, JCPClient2.AuthenticationException {
+    public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, JCPClient2.AuthenticationException {
         log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Service Library", VERSION));
 
         String instanceId = Integer.toString(new Random().nextInt(MAX_INSTANCE_ID));

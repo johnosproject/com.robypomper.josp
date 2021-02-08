@@ -19,15 +19,16 @@
 package com.robypomper.josp.jsl.shell;
 
 import asg.cliche.Command;
-import com.robypomper.communication.client.Client;
+import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.exception.PeerDisconnectionException;
+import com.robypomper.comm.peer.Peer;
+import com.robypomper.comm.peer.PeerConnectionListener;
 import com.robypomper.discovery.Discover;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClientsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.states.StateException;
-
-import java.io.IOException;
 
 public class CmdsJSLCommunication {
 
@@ -88,8 +89,8 @@ public class CmdsJSLCommunication {
     public String commPrintAllLocalConnections() {
         StringBuilder s = new StringBuilder("LOCAL CONNECTIONS LIST\n");
         for (JSLLocalClient client : comm.getLocalConnections().getLocalClients()) {
-            String fullAddr = String.format("%s:%d", client.getServerAddr(), client.getServerPort());
-            s.append(String.format("- %-30s (obj: %s; status: %s; local: %s)\n", fullAddr, client.tryObjId(), client.isConnected() ? "connected" : "NOT conn.", client.getServerUrl()));
+            String fullAddr = String.format("%s:%d", client.getConnectionInfo().getRemoteInfo().getAddr().getHostAddress(), client.getConnectionInfo().getRemoteInfo().getPort());
+            s.append(String.format("- %-30s (obj: %s; status: %s; local: %s)\n", fullAddr, client.getRemoteId(), client.getState().isConnected() ? "connected" : "NOT conn.", client.getConnectionInfo().getRemoteInfo().getAddr().getHostAddress()));
         }
 
         return s.toString();
@@ -107,11 +108,11 @@ public class CmdsJSLCommunication {
     public String commCloudConnect() {
         try {
             comm.getCloudConnection().connect();
-        } catch (StateException e) {
+        } catch (PeerConnectionException e) {
             return String.format("Error on connecting cloud communication client because %s.", e.getMessage());
         }
 
-        if (comm.getCloudConnection().isConnected())
+        if (comm.getCloudConnection().getState().isConnected())
             return "Cloud communication client connected successfully.";
         return "Error on connecting cloud communication client.";
     }
@@ -120,11 +121,11 @@ public class CmdsJSLCommunication {
     public String commCloudDisconnect() {
         try {
             comm.getCloudConnection().disconnect();
-        } catch (StateException e) {
+        } catch (PeerDisconnectionException e) {
             return String.format("Error on discconnecting cloud communication client because %s.", e.getMessage());
         }
 
-        if (!comm.getCloudConnection().isConnected())
+        if (!comm.getCloudConnection().getState().isConnected())
             return "Cloud communication client disconnected successfully.";
         return "Error on disconnecting cloud communication client.";
     }
@@ -134,30 +135,36 @@ public class CmdsJSLCommunication {
 
     @Command(description = "Add logger listener to objects manager's events.")
     public String objsCommAddListeners() {
-        comm.getCloudConnection().addListener(new Client.ClientListener() {
+        comm.getCloudConnection().addListener(new PeerConnectionListener() {
+            @Override
+            public void onConnecting(Peer peer) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Cloud CONNECTING " + CmdsJSLObjsMngr.POST);
+            }
 
             @Override
-            public void onConnected(Client gwClient) {
+            public void onWaiting(Peer peer) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Cloud WAITING " + CmdsJSLObjsMngr.POST);
+            }
+
+            @Override
+            public void onConnect(Peer peer) {
                 System.out.println(CmdsJSLObjsMngr.PRE + " Cloud CONNECTED " + CmdsJSLObjsMngr.POST);
             }
 
             @Override
-            public void onConnectionIOException(Client client, IOException ioException) {
-                System.out.println(CmdsJSLObjsMngr.PRE + String.format(" Cloud IO Exception (%s) ", ioException.getMessage()) + CmdsJSLObjsMngr.POST);
-                ioException.printStackTrace();
+            public void onDisconnecting(Peer peer) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Cloud DISCONNECTEDING " + CmdsJSLObjsMngr.POST);
             }
 
             @Override
-            public void onConnectionAAAException(Client client, Client.AAAException aaaException) {
-                System.out.println(CmdsJSLObjsMngr.PRE + String.format(" Cloud IO Exception (%s) ", aaaException.getMessage()) + CmdsJSLObjsMngr.POST);
-                aaaException.printStackTrace();
-            }
-
-            @Override
-            public void onDisconnected(Client gwClient) {
+            public void onDisconnect(Peer peer) {
                 System.out.println(CmdsJSLObjsMngr.PRE + " Cloud DISCONNECTED " + CmdsJSLObjsMngr.POST);
             }
 
+            @Override
+            public void onFail(Peer peer, String failMsg, Throwable exception) {
+                System.out.println(CmdsJSLObjsMngr.PRE + " Cloud ERROR (" + failMsg + " [" + exception.getClass().getSimpleName() + "] " + exception.getMessage() + ") " + CmdsJSLObjsMngr.POST);
+            }
         });
         comm.getLocalConnections().addListener(new JSLLocalClientsMngr.CommLocalStateListener() {
 

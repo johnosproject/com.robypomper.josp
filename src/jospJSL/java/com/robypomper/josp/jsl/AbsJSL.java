@@ -18,6 +18,8 @@
 
 package com.robypomper.josp.jsl;
 
+import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.discovery.Discover;
 import com.robypomper.java.JavaEnum;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
@@ -28,10 +30,12 @@ import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.states.JSLState;
 import com.robypomper.josp.states.StateException;
+import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 
@@ -211,27 +215,34 @@ public abstract class AbsJSL implements JSL {
         log.info(Mrk_JSL.JSL_MAIN, String.format("    JCP APIs supported        = %s", Arrays.asList(versionsJCPAPIs())));
         log.info(Mrk_JSL.JSL_MAIN, " -- Comm.s");
         log.info(Mrk_JSL.JSL_MAIN, "        JCP APIs");
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            State             = %s", comm.getCloudAPIs().getState()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            isConnected       = %s", comm.getCloudAPIs().isConnected()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            isAuth            = %s", comm.getCloudAPIs().isUserAuthenticated()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastConn          = %s", comm.getCloudAPIs().getLastConnection()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastDiscon        = %s", comm.getCloudAPIs().getLastDisconnection()));
-        log.info(Mrk_JSL.JSL_MAIN, "        Cloud Comm.");
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            State             = %s", comm.getCloudConnection().getState()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            address           = %s", comm.getCloudConnection().tryServerAddr()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            isConnected       = %s", comm.getCloudConnection().isConnected()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastConn          = %s", comm.getCloudConnection().getLastConnection()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastDiscon        = %s", comm.getCloudConnection().getLastDisconnection()));
-        log.info(Mrk_JSL.JSL_MAIN, "        Local Comm.");
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            State             = %s", comm.getLocalConnections().getState()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            isRunning         = %s", comm.getLocalConnections().isRunning()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            Count             = %d", comm.getLocalConnections().getLocalClients().size()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            CountConnected    = %d", comm.getLocalConnections().getConnectedCount()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            CountDisconnected = %d", comm.getLocalConnections().getDisconnectedCount()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastStart         = %s", comm.getLocalConnections().getLastStartup()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastStop          = %s", comm.getLocalConnections().getLastShutdown()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastConn          = %s", comm.getLocalConnections().getLastObjConnection()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            lastDiscon        = %s", comm.getLocalConnections().getLastObjDisconnection()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            State             = %s", comm.getCloudAPIs().getState()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            Url               = %s", comm.getCloudAPIs().getAPIsUrl()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            HostName          = %s", comm.getCloudAPIs().getAPIsHostname()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            IsConnected       = %s", comm.getCloudAPIs().isConnected()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            IsAuth            = %s", comm.getCloudAPIs().isUserAuthenticated()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            LastConn          = %s", comm.getCloudAPIs().getLastConnection()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            LastDiscon        = %s", comm.getCloudAPIs().getLastDisconnection()));
+        log.info(Mrk_JOD.JOD_MAIN, "        Cloud Comm.");
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            State (Client)    = %s", comm.getCloudConnection().getState()));
+        InetAddress cloudAddr = comm.getCloudConnection().getConnectionInfo().getRemoteInfo().getAddr();
+        Integer cloudPort = comm.getCloudConnection().getConnectionInfo().getRemoteInfo().getPort();
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            HostName          = %s", (cloudAddr != null ? cloudAddr.getHostName() : "N/A")));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            IPAddr            = %s", (cloudAddr != null ? cloudAddr.getHostAddress() : "N/A")));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            Port            = %s", (cloudPort != null ? cloudPort : "N/A")));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            IsConnected       = %s", comm.getCloudConnection().getState().isConnected()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            LastConn          = %s", comm.getCloudConnection().getConnectionInfo().getStats().getLastConnection()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            LastDiscon        = %s", comm.getCloudConnection().getConnectionInfo().getStats().getLastDisconnection()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            LastDisconReason  = %s", comm.getCloudConnection().getDisconnectionReason()));
+        log.info(Mrk_JOD.JOD_MAIN, "        Local Comm.");
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            State (ClientMngr)= %s", comm.getLocalConnections().getState()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            IsRunning         = %s", comm.getLocalConnections().isRunning()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            ClientsCount      = %d", comm.getLocalConnections().getLocalClients().size()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            ClientsConn       = %d", comm.getLocalConnections().getConnectedCount()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            ClientsDisconn    = %d", comm.getLocalConnections().getDisconnectedCount()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            LastStart         = %s", comm.getLocalConnections().getLastStartup()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            LastStop          = %s", comm.getLocalConnections().getLastShutdown()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            LastConn          = %s", comm.getLocalConnections().getLastObjConnection()));
+        log.info(Mrk_JSL.JSL_MAIN, String.format("            LastDisconn       = %s", comm.getLocalConnections().getLastObjDisconnection()));
         List<JSLRemoteObject> objsList = objs.getAllObjects();
         StringBuilder objNames = new StringBuilder();
         for (JSLRemoteObject ro : objsList)
@@ -264,7 +275,7 @@ public abstract class AbsJSL implements JSL {
                 log.info(Mrk_JSL.JSL_MAIN, String.format("JSLCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
                 if (startCloud) comm.getCloudConnection().connect();
 
-            } catch (StateException e) {
+            } catch (PeerConnectionException e) {
                 log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on connecting cloud communication of '%s' service because %s", srvInfo.getSrvId(), e.getMessage()), e);
             }
 
@@ -297,7 +308,7 @@ public abstract class AbsJSL implements JSL {
             try {
                 comm.getCloudConnection().disconnect();
 
-            } catch (StateException e) {
+            } catch (PeerDisconnectionException e) {
                 log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on disconnecting cloud communication of '%s' service because %s", srvInfo.getSrvId(), e.getMessage()), e);
             }
 

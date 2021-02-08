@@ -1,18 +1,17 @@
 package com.robypomper.josp.jsl.objs.remote;
 
-import com.robypomper.communication.client.Client;
+import com.robypomper.comm.exception.PeerDisconnectionException;
+import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLGwS2OClient;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
      */
     @Override
     public boolean isCloudConnected() {
-        return communication.getCloudConnection().isConnected() && isCloudConnected;
+        return communication.getCloudConnection().getState().isConnected() && isCloudConnected;
     }
 
     /**
@@ -96,62 +95,65 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
      * one. Ther must be at least one connected client, others are used as
      * backups.
      *
-     * @param localClient the client connected with corresponding JOD object.
+     * @param newClient the client connected with corresponding JOD object.
      */
-    public void addLocalClient(JSLLocalClient localClient) {
-        if (!isLocalConnected() && !localClient.isConnected()) {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' not connected, connect local connection", localClient.getServerUrl()));
-            try {
-                localClient.connect();
-            } catch (IOException | Client.AAAException | StateException ignore) {
-            }
-        }
-        if (isLocalConnected() && localClient.isConnected()) {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Object '%s' already connected", localClient.getServerUrl()));
-            // Force switch thread, to allow starting client's thread
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ignore) {
-            }
-            try {
-                localClient.disconnect();
-            } catch (StateException ignore) {
-            }
-        }
+    public void addLocalClient(JSLLocalClient newClient) {
+        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Add new client '%s' to object '%s'", newClient.getRemoteId(), getRemote().getName()));
 
-        log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Checking object '%s' connection from '%s' service already known", localClient.getServerUrl(), getServiceInfo().getSrvId()));
-        JSLLocalClient toUpdate = null;
-        for (JSLLocalClient cl : localConnections)
-            if (cl.getServerAddr().equals(localClient.getServerAddr())
-                    && cl.getServerPort() == localClient.getServerPort()
-                //&& cl.getClientAddr().equals(locConn.getClientAddr()) // client's address and port vary on socket disconnection
-                //&& cl.getClientPort() == locConn.getClientPort()
+        boolean wasConnected = isLocalConnected();
+        JSLLocalClient oldClient = null;
+        for (JSLLocalClient cl : localConnections) {
+            if (
+                // Check remote address and port
+                    cl.getConnectionInfo().getRemoteInfo().getAddr() == newClient.getConnectionInfo().getRemoteInfo().getAddr()
+                            && cl.getConnectionInfo().getRemoteInfo().getPort().intValue() == newClient.getConnectionInfo().getRemoteInfo().getPort().intValue()
+                            // Check local address
+                            && cl.getConnectionInfo().getLocalInfo().getAddr() == newClient.getConnectionInfo().getLocalInfo().getAddr()
             ) {
-                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection already known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.tryClientAddr(), localClient.tryClientPort()));
-                if (!cl.isConnected()) {
-                    toUpdate = cl;
-                    break;
-                }
-                log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Disconnect new connection to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.tryClientAddr(), localClient.tryClientPort()));
-                try {
-                    localClient.disconnect();
-                } catch (StateException ignore) {
-                }
-                return;
+                oldClient = cl;
+                break;
             }
-        if (toUpdate == null)
-            log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("Connection NOT known to '%s' object on server '%s:%d' from '%s' service's '%s:%d' client", getRemote().getInfo().getName(), localClient.getServerAddr(), localClient.getServerPort(), getServiceInfo().getSrvId(), localClient.tryClientAddr(), localClient.tryClientPort()));
-
-        if (toUpdate == null) {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Adding new connection for '%s' object on '%s' service", localClient.tryObjId(), getServiceInfo().getSrvId()));
-        } else {
-            log.trace(Mrk_JSL.JSL_OBJS_SUB, String.format("Updating existing connection for '%s' object on '%s' service", localClient.tryObjId(), getServiceInfo().getSrvId()));
-            localConnections.remove(toUpdate);
         }
-        localConnections.add(localClient);
-        localClient.setRemoteObject(getRemote());
-        if (localClient.isConnected())
-            emitConn_LocalConnected(localClient);
+
+        try {
+            newClient.setRemoteObject(getRemote());
+        } catch (IllegalArgumentException ignore) {
+        }
+
+        // If object already connected
+        //   Disconnect new client
+        //   If client NOT already know
+        //     Add new client to object's clients
+        if (wasConnected) {
+            JavaThreads.softSleep(100);         // Force switch thread, to allow starting client's thread
+            try {
+                newClient.disconnect();
+            } catch (PeerDisconnectionException ignore) {
+            }
+
+            if (oldClient == null) {
+                localConnections.add(newClient);
+                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("New client '%s' added to object '%s' as backup client", newClient, getRemote().getName()));
+            } else
+                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("New client '%s' NOT added to object '%s' because client already know (%s)", newClient, getRemote().getName(), oldClient));
+
+        }
+
+        // If object NOT connected
+        //   Add new client to object's clients
+        //   If client already know
+        //     Remove old Client from object's clients
+        if (!wasConnected) {
+            localConnections.add(newClient);
+            if (oldClient != null) {
+                localConnections.remove(oldClient);
+                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("New client '%s' added to object '%s' and replace old client (%s)", newClient, getRemote().getName(), oldClient));
+            } else
+                log.debug(Mrk_JSL.JSL_OBJS_SUB, String.format("New client '%s' added to object '%s'", newClient, getRemote().getName()));
+        }
+
+        if (!wasConnected && isLocalConnected())
+            emitConn_LocalConnected(newClient);
     }
 
     /**
@@ -176,7 +178,7 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
      */
     public JSLLocalClient getConnectedLocalClient() {
         for (JSLLocalClient client : localConnections) {
-            if (client.isConnected())
+            if (client.getState().isConnected())
                 return client;
         }
         return null;

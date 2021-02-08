@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.objs.history;
 
-import com.robypomper.communication.client.Client;
+import com.robypomper.comm.exception.PeerNotConnectedException;
+import com.robypomper.comm.exception.PeerStreamException;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.remote.DefaultObjComm;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
@@ -53,13 +54,13 @@ public abstract class HistoryBase {
                 ((DefaultObjComm) getRemote().getComm()).getConnectedLocalClient().sendData(msg);
                 return;
 
-            } catch (Client.ServerNotConnectedException e) {
+            } catch (PeerNotConnectedException | PeerStreamException e) {
                 log.warn(Mrk_JSL.JSL_OBJS, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
             }
         }
     }
 
-    protected void sendToObjectCloudly(JOSPPerm.Type minReqPerm, String msg) throws JSLRemoteObject.MissingPermission, Client.ServerNotConnectedException {
+    protected void sendToObjectCloudly(JOSPPerm.Type minReqPerm, String msg) throws JSLRemoteObject.MissingPermission, PeerNotConnectedException, PeerStreamException {
         // Send via cloud communication
         JOSPPerm.Type permType = getRemote().getPerms().getPermTypes().get(JOSPPerm.Connection.LocalAndCloud);
         if (permType.compareTo(minReqPerm) < 0)

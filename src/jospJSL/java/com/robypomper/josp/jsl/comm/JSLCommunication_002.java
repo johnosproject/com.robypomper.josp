@@ -18,7 +18,7 @@
 
 package com.robypomper.josp.jsl.comm;
 
-import com.robypomper.josp.clients.AbsGWsClient;
+import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.JSL_002;
@@ -27,6 +27,7 @@ import com.robypomper.josp.jsl.objs.JSLObjsMngr_002;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -59,13 +60,13 @@ public class JSLCommunication_002 implements JSLCommunication {
      * @param jslObjsMngr the {@link JSLObjsMngr} instance used to update component
      *                    status.
      */
-    public JSLCommunication_002(JSL_002 jsl, JSLSettings_002 settings, JSLServiceInfo srvInfo, JCPAPIsClientSrv jcpClient, JSLObjsMngr_002 jslObjsMngr, String instanceId) throws LocalCommunicationException, AbsGWsClient.GWsClientException {
+    public JSLCommunication_002(JSL_002 jsl, JSLSettings_002 settings, JSLServiceInfo srvInfo, JCPAPIsClientSrv jcpClient, JSLObjsMngr_002 jslObjsMngr, String instanceId) throws LocalCommunicationException {
         this.locSettings = settings;
         this.jslObjsMngr = jslObjsMngr;
         this.jcpClient = jcpClient;
 
         this.localClients = new JSLLocalClientsMngr(jsl, this, jslObjsMngr, locSettings, srvInfo);
-        this.gwClient = new JSLGwS2OClient(this, srvInfo, jcpClient, instanceId);
+        this.gwClient = new JSLGwS2OClient(this, srvInfo.getFullId(), jcpClient, instanceId);
 
         log.info(Mrk_JSL.JSL_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') service", srvInfo.getSrvName(), srvInfo.getSrvId()));
     }
@@ -83,16 +84,22 @@ public class JSLCommunication_002 implements JSLCommunication {
      */
     @Override
     public boolean processFromObjectMsg(String msg, JOSPPerm.Connection connType) {
-        log.info(Mrk_JSL.JSL_COMM, String.format("Received '%s' message from %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPerm.Connection.OnlyLocal ? "local object" : "cloud"));
+        String objId;
+        try {
+            objId = JOSPProtocol_ObjectToService.getObjId(msg);
+            log.info(Mrk_JSL.JSL_COMM, String.format("Received '%s' message from %s (%s)", msg.substring(0, msg.indexOf('\n')), objId, connType == JOSPPerm.Connection.OnlyLocal ? "local connection" : "cloud connection"));
+
+        } catch (JOSPProtocol.ParsingException e) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on parsing '%s' message because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+            return false;
+        }
 
         try {
-            String objId = JOSPProtocol_ObjectToService.getObjId(msg);
-
             JSLRemoteObject obj = jslObjsMngr.getById(objId);
             int count = 0;
             while (obj == null && count < 5) {
                 count++;
-                Thread.sleep(100);
+                JavaThreads.softSleep(100);
                 obj = jslObjsMngr.getById(objId);
             }
 
@@ -111,7 +118,7 @@ public class JSLCommunication_002 implements JSLCommunication {
             return true;
 
         } catch (Throwable t) {
-            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing '%s' message from %s because %s", msg.substring(0, msg.indexOf('\n')), connType == JOSPPerm.Connection.OnlyLocal ? "local object" : "cloud", t.getMessage()), t);
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on processing '%s' message from %s because %s", msg.substring(0, msg.indexOf('\n')), objId, t.getMessage()), t);
             return false;
         }
     }
