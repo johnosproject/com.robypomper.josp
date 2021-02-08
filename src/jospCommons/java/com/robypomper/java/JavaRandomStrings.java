@@ -21,15 +21,42 @@ package com.robypomper.java;
 
 import java.util.Random;
 
+
+/**
+ * Utils class to generate random strings.
+ */
 public class JavaRandomStrings {
 
+    // Repeated strings
+
+    /**
+     * Generate a String containing <code>c</code> char <code>length</code> times.
+     *
+     * <b>NB:</b> this method act as String.reapeat() (that available only
+     * from Java 11).
+     *
+     * @param length length of returned string.
+     * @param c      char to fill the returned string.
+     * @return a String containing <code>length</code> times <code>c</code>
+     * char.
+     */
     public static String repeatedString(int length, char c) {
         StringBuilder buffer = new StringBuilder(length);
+        //noinspection StringRepeatCanBeUsed
         for (int i = 0; i < length; i++)
             buffer.append(c);
         return buffer.toString();
     }
 
+
+    // Random strings
+
+    /**
+     * Generate a string containing <code>length</code> random uppercase chars.
+     *
+     * @param length length of returned string.
+     * @return a string with random chars.
+     */
     public static String randomAlfaString(int length) {
         int leftLimit = 'A'; // letter 'a'
         int rightLimit = 'Z'; // letter 'z'
@@ -43,19 +70,41 @@ public class JavaRandomStrings {
         return buffer.toString();
     }
 
+    /**
+     * Return a random element of given string's list.
+     *
+     * @param list a list of strings.
+     * @return a random string from given list.
+     */
     public static String randomListString(String[] list) {
         int index = new Random().nextInt(list.length);
         return list[index];
     }
 
+    /**
+     * Return a random element of {@link #FRUITS} list.
+     *
+     * @return a random string from {@link #FRUITS} list.
+     */
     public static String randomFruitsString() {
         return randomListString(FRUITS);
     }
 
+    /**
+     * Return a random element of {@link #ANIMALS} list.
+     *
+     * @return a random string from {@link #ANIMALS} list.
+     */
     public static String randomAnimalsString() {
         return randomListString(ANIMALS);
     }
 
+
+    // String lists
+
+    /**
+     * Strings list containing animal names.
+     */
     public static final String[] ANIMALS = new String[]{
             "Crow",
             "Peacock",
@@ -184,6 +233,9 @@ public class JavaRandomStrings {
             "Louse"
     };
 
+    /**
+     * Strings list containing fruits names.
+     */
     public static final String[] FRUITS = new String[]{
             "Açaí",
             "Akee",
