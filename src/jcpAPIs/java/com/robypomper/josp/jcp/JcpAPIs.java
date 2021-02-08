@@ -41,18 +41,12 @@ public class JcpAPIs {
             DISABLE_SSL_CHECKS = "LOCALHOST";
 
         if (DISABLE_SSL_CHECKS.compareToIgnoreCase("NONE") != 0)
-            try {
-                if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST") == 0) {
-                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.LOCALHOST);
-                    System.out.println("\t\tLOCALHOST");
-                } else if (DISABLE_SSL_CHECKS.compareToIgnoreCase("ALL") == 0) {
-                    JavaSSLIgnoreChecks.disableSSLChecks(JavaSSLIgnoreChecks.ALLHOSTS);
-                    System.out.println("\t\tALL");
-                }
-
-            } catch (JavaSSLIgnoreChecks.JavaSSLIgnoreChecksException e) {
-                System.out.println("Can't disable SSL checks for localhost communications, exit.");
-                System.exit(-1);
+            if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST") == 0) {
+                JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
+                System.out.println("\t\tLOCALHOST");
+            } else if (DISABLE_SSL_CHECKS.compareToIgnoreCase("ALL") == 0) {
+                JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnAllHost();
+                System.out.println("\t\tALL");
             }
 
         SpringApplication.run(JcpAPIs.class, args);
