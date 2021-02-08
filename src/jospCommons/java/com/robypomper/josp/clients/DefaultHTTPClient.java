@@ -21,6 +21,7 @@ package com.robypomper.josp.clients;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.Verb;
+import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaEnum;
 import com.robypomper.java.JavaNetworks;
 import com.robypomper.java.JavaSSLIgnoreChecks;

@@ -25,9 +25,7 @@ import com.github.scribejava.apis.KeycloakApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.robypomper.java.JavaEnum;
-import com.robypomper.java.JavaSSLIgnoreChecks;
-import com.robypomper.java.JavaThreads;
+import com.robypomper.java.*;
 import com.robypomper.josp.paths.jcp.APIJCP;
 import com.robypomper.josp.states.JCPClient2State;
 import com.robypomper.josp.states.StateException;
@@ -478,7 +476,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
             stopConnectionTimer();
             startConnectionCheckTimer();
-            lastConnection = JOSPProtocol.getNowDate();
+            lastConnection = JavaDate.getNowDate();
             emitConnected();
         }
 
@@ -524,7 +522,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             stopConnectionCheckTimer();
 
             state.set(JCPClient2State.DISCONNECTED);
-            lastDisconnection = JOSPProtocol.getNowDate();
+            lastDisconnection = JavaDate.getNowDate();
             emitDisconnected();
         }
     }
@@ -559,7 +557,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             } catch (StateException | AuthenticationException e) {
                 log.warn(String.format("Can't reconnect %s because %s", getApiName(), e.getMessage()), e);
             }
-            lastDisconnection = JOSPProtocol.getNowDate();
+            lastDisconnection = JavaDate.getNowDate();
             emitDisconnected();
         }
     }
@@ -969,10 +967,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
             }
 
             storeSession(response);
+            if (response.getCode() != 200)
+                throwErrorCodes(request, response);
+
             responseBody = response.getBody();
-            int responseCode = response.getCode();
-            if (responseCode != 200)
-                throwErrorCodes(responseCode, responseBody, fullUrl);
 
         } catch (InterruptedException | ExecutionException | IOException e) {
             throw new RequestException(String.format("Error on exec [%s] request @ '%s' because %s", reqType, request.getUrl(), e.getMessage()), e);
