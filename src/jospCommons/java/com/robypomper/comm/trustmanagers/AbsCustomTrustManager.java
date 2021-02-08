@@ -1,26 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+package com.robypomper.comm.trustmanagers;
 
-package com.robypomper.communication.trustmanagers;
-
-import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.UtilsSSL;
+import com.robypomper.java.JavaJKS;
+import com.robypomper.java.JavaSSL;
 
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -35,7 +16,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -52,7 +36,6 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
     // Internal vars
 
     private X509TrustManager trustManager;
-    private final List<Certificate> certList = new ArrayList<>();
     private final Map<String, Certificate> certsMap = new HashMap<>();
 
 
@@ -64,7 +47,8 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
     public AbsCustomTrustManager() {
         try {
             reloadTrustManager();
-        } catch (UpdateException ignore) {}
+        } catch (UpdateException ignore) {
+        }
     }
 
 
@@ -78,7 +62,7 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
     public void addCertificate(String alias, File certFile) throws UpdateException {
         CertificateFactory certFactory;
         try {
-            certFactory = CertificateFactory.getInstance(UtilsJKS.CERT_TYPE);
+            certFactory = CertificateFactory.getInstance(JavaJKS.CERT_TYPE);
             Collection<? extends Certificate> certs = certFactory.generateCertificates(new FileInputStream(certFile));
             addCertificate(alias, certs);
         } catch (CertificateException | FileNotFoundException e) {
@@ -92,8 +76,8 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      * @param byteCert the byte array containing the certificate to add in to the
      *                 TrustManager.
      */
-    public void addCertificateByte(String alias, byte[] byteCert) throws UpdateException, UtilsJKS.LoadingException {
-        addCertificate(alias, UtilsJKS.loadCertificateFromBytes(byteCert));
+    public void addCertificateByte(String alias, byte[] byteCert) throws UpdateException, JavaJKS.LoadingException {
+        addCertificate(alias, JavaJKS.loadCertificateFromBytes(byteCert));
     }
 
     /**
@@ -103,7 +87,6 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      */
     public void addCertificate(String alias, Certificate cert) throws UpdateException {
         synchronized (certsMap) {
-            certList.add(cert);
             certsMap.put(alias, cert);
             reloadTrustManager();
         }
@@ -116,7 +99,6 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
      */
     public void addCertificate(String alias, Collection<? extends Certificate> certs) throws UpdateException {
         synchronized (certsMap) {
-            certList.addAll(certs);
             int count = 0;
             for (Certificate cert : certs)
                 certsMap.put(String.format("%s#%d", alias, ++count), cert);
@@ -124,6 +106,9 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
         }
     }
 
+    /**
+     * @return a map containing all current TrustManager's alias-cert pairs.
+     */
     public Map<String, Certificate> getCertificates() {
         return certsMap;
     }
@@ -144,7 +129,7 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
         // load keystore from specified cert store (or default)
         KeyStore ks;
         try {
-            ks = KeyStore.getInstance(UtilsJKS.KEYSTORE_TYPE);
+            ks = KeyStore.getInstance(JavaJKS.KEYSTORE_TYPE);
             ks.load(null);
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
             throw new UpdateException("keystore load", e);
@@ -163,7 +148,7 @@ public abstract class AbsCustomTrustManager implements X509TrustManager {
         // initialize a new TMF with the ks we just loaded
         TrustManagerFactory tmf;      //TrustManagerFactory.getDefaultAlgorithm()
         try {
-            tmf = TrustManagerFactory.getInstance(UtilsSSL.TRUSTMNGR_ALG);
+            tmf = TrustManagerFactory.getInstance(JavaSSL.TRUSTMNGR_ALG);
             tmf.init(ks);
         } catch (NoSuchAlgorithmException | KeyStoreException e) {
             throw new UpdateException("TrustManagerFactory creation", e);
