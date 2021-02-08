@@ -20,6 +20,8 @@
 package com.robypomper.josp.protocol;
 
 
+import com.robypomper.java.JavaDate;
+
 public class JOSPProtocol_ServiceToObject {
 
     // Common utils
@@ -54,7 +56,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_SETNAME_REQ = OBJ_SETNAME_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nobjName:%s";
 
     public static String createObjectSetNameMsg(String fullSrvId, String objId, String newName) {
-        return String.format(OBJ_SETNAME_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newName);
+        return String.format(OBJ_SETNAME_REQ, JavaDate.getNow(), fullSrvId, objId, newName);
     }
 
     public static boolean isObjectSetNameMsg(String msg) {
@@ -73,7 +75,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_SETOWNERID_REQ = OBJ_SETOWNERID_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nownerId:%s";
 
     public static String createObjectSetOwnerIdMsg(String fullSrvId, String objId, String newOwnerId) {
-        return String.format(OBJ_SETOWNERID_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newOwnerId);
+        return String.format(OBJ_SETOWNERID_REQ, JavaDate.getNow(), fullSrvId, objId, newOwnerId);
     }
 
     public static boolean isObjectSetOwnerIdMsg(String msg) {
@@ -92,7 +94,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_ADDPERM_REQ = OBJ_ADDPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nsrvId:%s\nusrId:%s\npermType:%s\nconnType:%s";
 
     public static String createObjectAddPermMsg(String fullSrvId, String objId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) {
-        return String.format(OBJ_ADDPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, srvId, usrId, permType, connType);
+        return String.format(OBJ_ADDPERM_REQ, JavaDate.getNow(), fullSrvId, objId, srvId, usrId, permType, connType);
     }
 
     public static boolean isObjectAddPermMsg(String msg) {
@@ -123,7 +125,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_UPDPERM_REQ = OBJ_UPDPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\npermId:%s\nsrvId:%s\nusrId:%s\npermType:%s\nconnType:%s";
 
     public static String createObjectUpdPermMsg(String fullSrvId, String objId, String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) {
-        return String.format(OBJ_UPDPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, permId, srvId, usrId, permType, connType);
+        return String.format(OBJ_UPDPERM_REQ, JavaDate.getNow(), fullSrvId, objId, permId, srvId, usrId, permType, connType);
     }
 
     public static boolean isObjectUpdPermMsg(String msg) {
@@ -158,7 +160,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_REMPERM_REQ = OBJ_REMPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\npermId:%s";
 
     public static String createObjectRemPermMsg(String fullSrvId, String objId, String permId) {
-        return String.format(OBJ_REMPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, permId);
+        return String.format(OBJ_REMPERM_REQ, JavaDate.getNow(), fullSrvId, objId, permId);
     }
 
     public static boolean isObjectRemPermMsg(String msg) {
@@ -243,7 +245,7 @@ public class JOSPProtocol_ServiceToObject {
         // Casting
 
         static String fromCmdToMsg(ActionCmdMsg cmd) {
-            return String.format(CMD_MSG, JOSPProtocol.getNow(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
+            return String.format(CMD_MSG, JavaDate.getNow(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
                     cmd.getComponentPath(), cmd.getCommand().getType(), cmd.getCommand().encode());
         }
 
@@ -262,7 +264,7 @@ public class JOSPProtocol_ServiceToObject {
     }
 
     public static String createHistoryEventsMsg(String fullSrvId, String objId, String reqId, HistoryLimits limits, String filterEventType) {
-        return String.format(HISTORY_EVENTS_REQ, JOSPProtocol.getNow(), fullSrvId, objId, reqId, HistoryLimits.toString(limits), filterEventType);
+        return String.format(HISTORY_EVENTS_REQ, JavaDate.getNow(), fullSrvId, objId, reqId, HistoryLimits.toString(limits), filterEventType);
     }
 
     public static boolean isHistoryEventsMsg(String msg) {
@@ -299,7 +301,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String HISTORY_STATUS_REQ = HISTORY_STATUS_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\ncompPath:%s\nreqId:%s\nlimits:%s";
 
     public static String createHistoryCompStatusMsg(String fullSrvId, String objId, String compPath, String reqId, HistoryLimits limits) {
-        return String.format(HISTORY_STATUS_REQ, JOSPProtocol.getNow(), fullSrvId, objId, compPath, reqId, HistoryLimits.toString(limits));
+        return String.format(HISTORY_STATUS_REQ, JavaDate.getNow(), fullSrvId, objId, compPath, reqId, HistoryLimits.toString(limits));
     }
 
     public static boolean isHistoryCompStatusMsg(String msg) {

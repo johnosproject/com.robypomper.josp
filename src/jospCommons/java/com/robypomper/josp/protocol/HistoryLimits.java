@@ -32,7 +32,7 @@ public class HistoryLimits {
         LATEST_10.latestCount = 10;
         ANCIENT_10.ancientCount = 10;
         LAST_HOUR.fromDate = JavaDate.getDateExact(Calendar.HOUR_OF_DAY);
-        LAST_HOUR.fromDate = JavaDate.getDateAltered(JOSPProtocol.getNowDate(), Calendar.HOUR_OF_DAY, -1);
+        LAST_HOUR.fromDate = JavaDate.getDateAltered(JavaDate.getNowDate(), Calendar.HOUR_OF_DAY, -1);
         PAST_HOUR.fromDate = JavaDate.getDateExactAltered(Calendar.HOUR_OF_DAY, Calendar.HOUR_OF_DAY, -1);
         PAST_HOUR.toDate = JavaDate.getDateExact(Calendar.HOUR_OF_DAY);
     }
@@ -188,9 +188,9 @@ public class HistoryLimits {
         }
 
         if (isDateRange()) {
-            String s = "fromDate: " + JOSPProtocol.getDateFormatter().format(fromDate) + "";
+            String s = "fromDate: " + JavaDate.DEF_DATE_FORMATTER.format(fromDate) + "";
             if (toDate != null)
-                s += "; toDate: " + JOSPProtocol.getDateFormatter().format(toDate) + "";
+                s += "; toDate: " + JavaDate.DEF_DATE_FORMATTER.format(toDate) + "";
             return s;
         }
 
