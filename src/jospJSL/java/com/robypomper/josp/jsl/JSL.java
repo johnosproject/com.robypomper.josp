@@ -18,6 +18,7 @@
 
 package com.robypomper.josp.jsl;
 
+import com.robypomper.java.JavaAssertions;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
@@ -25,7 +26,6 @@ import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.states.JSLState;
 import com.robypomper.josp.states.StateException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.File;
 import java.util.Map;
@@ -52,11 +52,10 @@ public interface JSL {
      * @param settings JSL.Settings containing JSL settings. Sub-classes can
      *                 extend JSL.Settings and used extended class as
      *                 <code>instance</code> param.
-     * @return none, it throw a NotImplementedException().
+     * @return none, it throw a JavaNotImplementedException().
      */
     static JSL instance(Settings settings) {
-        assert false : "Each sub-class must override this method";
-        throw new NotImplementedException();
+        return JavaAssertions.makeAssertionFailed("Each sub-class must override this method", null);
     }
 
 
