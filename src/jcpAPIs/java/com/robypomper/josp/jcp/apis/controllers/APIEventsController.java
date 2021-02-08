@@ -427,14 +427,14 @@ public class APIEventsController {
     private boolean isObjectId(String srcId) {
         // IUWUH-EHCEF-JZZCF
         return srcId.length() == JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString().length()
-                && JavaString.occurenceCount(srcId, "-") == 2;
+                && JavaString.occurrenceCount(srcId, "-") == 2;
     }
 
     private boolean isServiceId(String srcId) {
         // jcp-fe/00000-00000-00000/5464 = length29
         // jcp-fe/67de275c-1861-4e86-8e03-2ef643c8a592/9606 = length48
         return (srcId.length() == 29 || srcId.length() == 48)
-                && JavaString.occurenceCount(srcId, "/") == 2;
+                && JavaString.occurrenceCount(srcId, "/") == 2;
     }
 
 
