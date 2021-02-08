@@ -19,8 +19,11 @@
 
 package com.robypomper.josp.jcp.gws.s2o;
 
-import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.Server;
+import com.robypomper.comm.exception.PeerNotConnectedException;
+import com.robypomper.comm.exception.PeerStreamException;
+import com.robypomper.comm.server.Server;
+import com.robypomper.comm.server.ServerClient;
+import com.robypomper.java.JavaDate;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
@@ -40,7 +43,7 @@ public class GWService {
 
     private static final Logger log = LogManager.getLogger();
     private final Server server;
-    private final ClientInfo client;
+    private final ServerClient client;
     private final ServiceDBService serviceDBService;
     private final String fullSrvId;
     private final String srvId;
@@ -54,12 +57,12 @@ public class GWService {
 
     // Constructor
 
-    public GWService(Server server, ClientInfo client, ServiceDBService serviceDBService, GWsBroker gwBroker) throws ServiceNotRegistered {
+    public GWService(Server server, ServerClient client, ServiceDBService serviceDBService, GWsBroker gwBroker) throws ServiceNotRegistered {
         this.server = server;
         this.client = client;
         this.serviceDBService = serviceDBService;
         this.gwBroker = gwBroker;
-        this.fullSrvId = client.getClientId();
+        this.fullSrvId = client.getRemoteId();
         this.srvId = JOSPProtocol_Service.fullSrvIdToSrvId(this.fullSrvId);
         this.usrId = JOSPProtocol_Service.fullSrvIdToUsrId(this.fullSrvId);
         this.instId = JOSPProtocol_Service.fullSrvIdToInstId(this.fullSrvId);
@@ -82,7 +85,7 @@ public class GWService {
         }
 
         srvStatusDB.setOnline(true);
-        srvStatusDB.setLastConnectionAt(JOSPProtocol.getNowDate());
+        srvStatusDB.setLastConnectionAt(JavaDate.getNowDate());
         updateStatusToDB();
         gwBroker.registerService(this);
     }
@@ -99,7 +102,7 @@ public class GWService {
 
     public void setOffline() {
         srvStatusDB.setOnline(false);
-        srvStatusDB.setLastDisconnectionAt(JOSPProtocol.getNowDate());
+        srvStatusDB.setLastDisconnectionAt(JavaDate.getNowDate());
         updateStatusToDB();
     }
 
@@ -186,18 +189,18 @@ public class GWService {
 
     // Communication
 
-    public void sendData(String msg) throws Server.ServerStoppedException, Server.ClientNotConnectedException {
-        server.sendData(client, msg);
+    public void sendData(String msg) throws PeerStreamException, PeerNotConnectedException {
+        client.sendData(msg);
     }
 
     // Updates
 
     public boolean sendUpdate(String msg) {
         try {
-            server.sendData(client, msg);
+            client.sendData(msg);
             return true;
 
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+        } catch (PeerStreamException | PeerNotConnectedException e) {
             return false;
         }
     }

@@ -19,8 +19,11 @@
 
 package com.robypomper.josp.jcp.gws.services;
 
-import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.events.*;
+import com.robypomper.comm.exception.PeerDisconnectionException;
+import com.robypomper.comm.exception.ServerException;
+import com.robypomper.comm.exception.ServerStartupException;
+import com.robypomper.comm.server.ServerClient;
+import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.ClientParams;
@@ -30,7 +33,6 @@ import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.gws.broker.GWsBroker;
 import com.robypomper.josp.jcp.gws.s2o.GWService;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.types.josp.gw.GWType;
 import com.robypomper.log.Mrk_Commons;
 import org.apache.logging.log4j.LogManager;
@@ -81,21 +83,27 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.Connectio
         this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
 
         try {
-            getServer().start();
+            getServer().startup();
 
-        } catch (com.robypomper.communication.server.Server.ListeningException ignore) {
+        } catch (ServerStartupException e) {
+            e.printStackTrace();
         }
     }
 
     @PreDestroy
     public void destroy() {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halt server %s", getServer().getServerId()));
-        getServer().stop();
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Halt server %s", getServer().getLocalId()));
+        try {
+            getServer().shutdown();
 
-        if (getServer().isRunning())
+        } catch (ServerException e) {
+            e.printStackTrace();
+        }
+
+        if (getServer().getState().isRunning())
             JavaThreads.softSleep(1000);
 
-        if (getServer().isRunning()) {
+        if (getServer().getState().isRunning()) {
             log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Gateway %s not halted, force it.", this.getClass().getSimpleName()));
             deregister(gwsAPI, getInternalAddress());
         } else
@@ -103,149 +111,85 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.Connectio
     }
 
 
-    // Clients connection
+    // AbsGWsService implementations
+
+    @Override
+    protected void onServerStarted() {
+        register(gwsAPI, getInternalAddress(), getPublicAddress(), apisPort, maxClients, GWType.Srv2Obj);
+        update(gwsAPI, getInternalAddress(), gwStatus);
+    }
+
+    @Override
+    protected void onServerStopped() {
+        deregister(gwsAPI, getInternalAddress());
+    }
 
     /**
      * Create {@link GWService} instance and send ObjectStructure of all
      * available (and allowed) objects to connected service.
      */
-    private void onClientConnection(com.robypomper.communication.server.Server server, ClientInfo client) {
+    @Override
+    protected void onClientConnection(ServerClient client) {
         // Check if objects already know
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected service '%s' already know", client.getClientId()));
-        GWService gwSrv = services.get(client.getClientId());
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if connected service '%s' already know", client.getRemoteId()));
+        GWService gwSrv = services.get(client.getRemoteId());
         if (gwSrv != null) {
             // multiple connection at same time
-            client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Service '%s' already connected to JOSP GW, disconnecting", client.getClientId()));
+            try {
+                client.disconnect();
+            } catch (PeerDisconnectionException ignore) {
+            }
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Service '%s' already connected to JOSP GW, disconnecting", client.getRemoteId()));
             return;
         }
 
         // Create GWService (that register to GW Broker) and add to active services
         try {
-            gwSrv = new GWService(server, client, serviceDBService, gwBroker);
+            gwSrv = new GWService(getServer(), client, serviceDBService, gwBroker);
         } catch (GWService.ServiceNotRegistered serviceNotRegistered) {
-            client.closeConnection();
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Service '%s' not registered to JOSP GW, disconnecting", client.getClientId()));
+            try {
+                client.disconnect();
+            } catch (PeerDisconnectionException ignore) {
+            }
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Service '%s' not registered to JOSP GW, disconnecting", client.getRemoteId()));
             return;
         }
-        services.put(client.getClientId(), gwSrv);
+        services.put(client.getRemoteId(), gwSrv);
 
         // Update GW status to JCP APIs
         gwStatus.clients++;
         assert gwStatus.clients == services.size();
-        gwStatus.lastClientConnectedAt = JOSPProtocol.getNowDate();
+        gwStatus.lastClientConnectedAt = JavaDate.getNowDate();
         update(gwsAPI, getInternalAddress(), gwStatus);
     }
 
-    private void onClientDisconnection(ClientInfo client) {
+    protected void onClientDisconnection(ServerClient client) {
         // Check if client is a registered service
-        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if disconnected client '%s' was a service's client", client.getClientId()));
-        if (services.get(client.getClientId()) == null)
+        log.trace(Mrk_Commons.COMM_SRV_IMPL, String.format("Checks if disconnected client '%s' was a service's client", client.getRemoteId()));
+        if (services.get(client.getRemoteId()) == null)
             return;
 
         // Deregister GWService from GW Broker and remove from active services
         try {
-            GWService disconnectedService = services.remove(client.getClientId());
+            GWService disconnectedService = services.remove(client.getRemoteId());
             disconnectedService.setOffline();
             gwBroker.deregisterService(disconnectedService);
 
         } catch (NullPointerException e) {
-            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because service '%s' not known", client.getClientId()));
+            log.warn(Mrk_Commons.COMM_SRV_IMPL, String.format("Error on client disconnection because service '%s' not known", client.getRemoteId()));
         }
 
         // Update GW status to JCP APIs
         gwStatus.clients--;
         assert gwStatus.clients == services.size();
-        gwStatus.lastClientDisconnectedAt = JOSPProtocol.getNowDate();
+        gwStatus.lastClientDisconnectedAt = JavaDate.getNowDate();
         update(gwsAPI, getInternalAddress(), gwStatus);
     }
 
-    private boolean onDataReceived(ClientInfo client, String readData) {
-        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Data '%s...' received from '%s' service", readData.substring(0, readData.indexOf("\n")), client.getClientId()));
-        GWService srv = services.get(client.getClientId());
-        return srv.processFromServiceMsg(readData);
-    }
-
-
-    // AbsGWsService implementations
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected ServerLocalEvents getServerEventsListener() {
-        return new DefaultServerLocalEventsListener() {
-
-            @Override
-            public void onStarted() {
-                register(gwsAPI, getInternalAddress(), getPublicAddress(), apisPort, maxClients, GWType.Srv2Obj);
-                update(gwsAPI, getInternalAddress(), gwStatus);
-            }
-
-            @Override
-            public void onStopped() {
-                deregister(gwsAPI, getInternalAddress());
-            }
-
-        };
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Link the {@link ServerClientEvents#onClientConnection(ClientInfo)} and
-     * {@link ServerClientEvents#onClientDisconnection(ClientInfo)} events to
-     * {@link #onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} and
-     * {@link #onClientDisconnection(ClientInfo)} methods.
-     */
-    @Override
-    protected ServerClientEvents getClientEventsListener() {
-        return new DefaultServerClientEventsListener() {
-
-            /**
-             * {@inheritDoc}
-             * <p>
-             * Link to the {@link GWsS2OService#onClientConnection(com.robypomper.communication.server.Server, ClientInfo)} method.
-             */
-            @Override
-            public void onClientConnection(ClientInfo client) {
-                GWsS2OService.this.onClientConnection(getServer(), client);
-            }
-
-            /**
-             * {@inheritDoc}
-             * <p>
-             * Link to the {@link GWsS2OService#onClientDisconnection(ClientInfo)} method.
-             */
-            @Override
-            public void onClientDisconnection(ClientInfo client) {
-                GWsS2OService.this.onClientDisconnection(client);
-            }
-
-        };
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Link the {@link ServerMessagingEvents#onDataReceived(ClientInfo, String)}
-     * event to {@link #onDataReceived(ClientInfo, String)} method.
-     */
-    @Override
-    protected ServerMessagingEvents getMessagingEventsListener() {
-        return new DefaultServerMessagingEventsListener() {
-
-            /**
-             * {@inheritDoc}
-             * <p>
-             * Link to the {@link GWsS2OService#onDataReceived(ClientInfo, String)} method.
-             */
-            @Override
-            public boolean onDataReceived(ClientInfo client, String readData) throws Throwable {
-                return GWsS2OService.this.onDataReceived(client, readData);
-            }
-
-        };
+    protected boolean onDataReceived(ServerClient client, String data) {
+        log.info(Mrk_Commons.COMM_SRV_IMPL, String.format("Data '%s...' received from '%s' service", data.substring(0, data.indexOf("\n")), client.getRemoteId()));
+        GWService srv = services.get(client.getRemoteId());
+        return srv.processFromServiceMsg(data);
     }
 
 
@@ -253,7 +197,7 @@ public class GWsS2OService extends AbsGWsService implements JCPClient2.Connectio
 
     @Override
     public void onConnected(JCPClient2 jcpClient) {
-        if (getServer().isRunning()) {
+        if (getServer().getState().isRunning()) {
             register(gwsAPI, getInternalAddress(), getPublicAddress(), apisPort, maxClients, GWType.Srv2Obj);
             update(gwsAPI, getInternalAddress(), gwStatus);
 

@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jcp.gws.controllers;
 
-import com.robypomper.communication.UtilsJKS;
+import com.robypomper.java.JavaJKS;
 import com.robypomper.josp.jcp.gws.services.GWsO2SService;
 import com.robypomper.josp.jcp.gws.services.GWsS2OService;
 import com.robypomper.josp.jcp.paths.gws.APIGWsGWs;
@@ -93,8 +93,8 @@ public class APIGWsGWsController {
 
         Certificate clientCertificate = null;
         try {
-            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.getObjCertificate());
-        } catch (UtilsJKS.LoadingException e) {
+            clientCertificate = JavaJKS.loadCertificateFromBytes(accessRequest.getObjCertificate());
+        } catch (JavaJKS.LoadingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param objCertificate contains invalid value.");
         }
 
@@ -143,8 +143,8 @@ public class APIGWsGWsController {
 
         Certificate clientCertificate = null;
         try {
-            clientCertificate = UtilsJKS.loadCertificateFromBytes(accessRequest.getSrvCertificate());
-        } catch (UtilsJKS.LoadingException e) {
+            clientCertificate = JavaJKS.loadCertificateFromBytes(accessRequest.getSrvCertificate());
+        } catch (JavaJKS.LoadingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param srvCertificate contains invalid value.");
         }
 

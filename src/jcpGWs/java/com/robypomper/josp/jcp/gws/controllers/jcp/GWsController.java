@@ -1,7 +1,7 @@
 package com.robypomper.josp.jcp.gws.controllers.jcp;
 
-import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.Server;
+import com.robypomper.comm.server.Server;
+import com.robypomper.comm.server.ServerClient;
 import com.robypomper.josp.jcp.gws.services.GWsO2SService;
 import com.robypomper.josp.jcp.gws.services.GWsS2OService;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
@@ -77,32 +77,32 @@ public class GWsController {
 
         Server s = gwO2SService.getServer();
         JCPAPIsStatus.GWs gw = new JCPAPIsStatus.GWs();
-        gw.id = s.getServerId();
+        gw.id = s.getLocalId();
         gw.type = GWType.Obj2Srv;
-        gw.isRunning = s.isRunning();
-        gw.address = s.getAddress().getHostAddress();
-        gw.hostName = s.getAddress().getHostName();
-        gw.hostNameCanonical = s.getAddress().getCanonicalHostName();
-        gw.port = s.getPort();
+        gw.isRunning = s.getState().isRunning();
+        gw.address = s.getServerPeerInfo().getAddr().getHostAddress();
+        gw.hostName = s.getServerPeerInfo().getAddr().getHostName();
+        gw.hostNameCanonical = s.getServerPeerInfo().getAddr().getCanonicalHostName();
+        gw.port = s.getServerPeerInfo().getPort();
         gw.clientsCount = s.getClients().size();
         gw.clientsList = new ArrayList<>();
-        for (ClientInfo c : s.getClients())
-            gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getClientId(), c.isConnected()));
+        for (ServerClient c : s.getClients())
+            gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getRemoteId(), c.getState().isConnected()));
         gws.add(gw);
 
         s = gwS2OService.getServer();
         gw = new JCPAPIsStatus.GWs();
-        gw.id = s.getServerId();
+        gw.id = s.getLocalId();
         gw.type = GWType.Srv2Obj;
-        gw.isRunning = s.isRunning();
-        gw.address = s.getAddress().getHostAddress();
-        gw.hostName = s.getAddress().getHostName();
-        gw.hostNameCanonical = s.getAddress().getCanonicalHostName();
-        gw.port = s.getPort();
+        gw.isRunning = s.getState().isRunning();
+        gw.address = s.getServerPeerInfo().getAddr().getHostAddress();
+        gw.hostName = s.getServerPeerInfo().getAddr().getHostName();
+        gw.hostNameCanonical = s.getServerPeerInfo().getAddr().getCanonicalHostName();
+        gw.port = s.getServerPeerInfo().getPort();
         gw.clientsCount = s.getClients().size();
         gw.clientsList = new ArrayList<>();
-        for (ClientInfo c : s.getClients())
-            gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getClientId(), c.isConnected()));
+        for (ServerClient c : s.getClients())
+            gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getRemoteId(), c.getState().isConnected()));
         gws.add(gw);
 
         return ResponseEntity.ok(gws);

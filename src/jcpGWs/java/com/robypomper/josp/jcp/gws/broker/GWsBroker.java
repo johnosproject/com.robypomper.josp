@@ -19,7 +19,9 @@
 
 package com.robypomper.josp.jcp.gws.broker;
 
-import com.robypomper.communication.server.Server;
+import com.robypomper.comm.exception.PeerNotConnectedException;
+import com.robypomper.comm.exception.PeerStreamException;
+import com.robypomper.java.JavaDate;
 import com.robypomper.josp.jcp.db.apis.EventDBService;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
@@ -30,7 +32,6 @@ import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
 import com.robypomper.josp.jcp.gws.o2s.GWObject;
 import com.robypomper.josp.jcp.gws.s2o.GWService;
 import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,14 +104,15 @@ public class GWsBroker {
 
             try {
                 if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg)) {
-                    service.getSrvStatus().setLastStatusUpdAt(JOSPProtocol.getNowDate());
+                    service.getSrvStatus().setLastStatusUpdAt(JavaDate.getNowDate());
                     service.getSrvStatus().setLastStatusUpdSender(object.getObjId());
                     service.updateStatusToDB();
                 }
 
                 service.sendData(msg);
 
-            } catch (Server.ServerStoppedException | Server.ClientNotConnectedException ignore) {
+            } catch (PeerStreamException | PeerNotConnectedException e) {
+                e.printStackTrace();
             }
         }
 
@@ -125,7 +127,8 @@ public class GWsBroker {
         try {
             service.sendData(msg);
 
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+        } catch (PeerStreamException | PeerNotConnectedException e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -139,17 +142,18 @@ public class GWsBroker {
 
         try {
             if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(msg)) {
-                object.getObj().getStatus().setLastActionCmdAt(JOSPProtocol.getNowDate());
+                object.getObj().getStatus().setLastActionCmdAt(JavaDate.getNowDate());
                 object.getObj().getStatus().setLastActionCmdSender(service.getFullId());
                 object.updateStatusToDB();
-                service.getSrvStatus().setLastActionCmdAt(JOSPProtocol.getNowDate());
+                service.getSrvStatus().setLastActionCmdAt(JavaDate.getNowDate());
                 service.getSrvStatus().setLastActionCmdReceiver(object.getObjId());
                 service.updateStatusToDB();
             }
 
             object.sendData(msg);
 
-        } catch (Server.ServerStoppedException | Server.ClientNotConnectedException e) {
+        } catch (PeerStreamException | PeerNotConnectedException e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -215,13 +219,17 @@ public class GWsBroker {
     public List<GWService> getAllowedServices(GWObject obj, JOSPPerm.Type minReqPerm) {
         List<GWService> allowedSrvs = new ArrayList<>();
 
-        List<ServiceStatus> allowedServices = permissionsDBService.getServicesAllowed(obj.getObjId(), obj.getObj().getOwner().getOwnerId(), minReqPerm);
-        for (ServiceStatus allowedService : allowedServices) {
-            GWService srv = services.get(allowedService.getFullId());
-            if (srv != null)
-                allowedSrvs.add(srv);
+        try {
+            List<ServiceStatus> allowedServices = permissionsDBService.getServicesAllowed(obj.getObjId(), obj.getObj().getOwner().getOwnerId(), minReqPerm);
+            for (ServiceStatus allowedService : allowedServices) {
+                GWService srv = services.get(allowedService.getFullId());
+                if (srv != null)
+                    allowedSrvs.add(srv);
+            }
+        } catch (Throwable t) {
+            System.out.println(String.format("Exception on get Allowed Services for object '%s'", obj));
+            t.printStackTrace();
         }
-
         return allowedSrvs;
     }
 

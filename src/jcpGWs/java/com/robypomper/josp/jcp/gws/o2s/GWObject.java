@@ -21,8 +21,11 @@ package com.robypomper.josp.jcp.gws.o2s;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.Server;
+import com.robypomper.comm.exception.PeerNotConnectedException;
+import com.robypomper.comm.exception.PeerStreamException;
+import com.robypomper.comm.server.Server;
+import com.robypomper.comm.server.ServerClient;
+import com.robypomper.java.JavaDate;
 import com.robypomper.josp.jcp.db.apis.EventDBService;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
@@ -49,7 +52,7 @@ public class GWObject {
 
     private static final Logger log = LogManager.getLogger();
     private final Server server;
-    private final ClientInfo client;
+    private final ServerClient client;
     private final String objId;
     private Object objDB;
     private final ObjectDBService objectDBService;
@@ -61,10 +64,10 @@ public class GWObject {
 
     // Constructor
 
-    public GWObject(Server server, ClientInfo client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, GWsBroker gwBroker) {
+    public GWObject(Server server, ServerClient client, ObjectDBService objectDBService, PermissionsDBService permissionsDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService, GWsBroker gwBroker) {
         this.server = server;
         this.client = client;
-        this.objId = client.getClientId();
+        this.objId = client.getRemoteId();
         this.objectDBService = objectDBService;
         this.permissionsDBService = permissionsDBService;
         this.eventsDBService = eventsDBService;
@@ -102,7 +105,7 @@ public class GWObject {
 
     public void setOffline() {
         objDB.getStatus().setOnline(false);
-        objDB.getStatus().setLastDisconnectionAt(JOSPProtocol.getNowDate());
+        objDB.getStatus().setLastDisconnectionAt(JavaDate.getNowDate());
         updateStatusToDB();
     }
 
@@ -110,16 +113,22 @@ public class GWObject {
     // Processors
 
     public boolean processFromObjectMsg(String msg) {
-        if (JOSPProtocol_ObjectToService.isObjectInfoMsg(msg))
-            return processObjectInfoMsg(msg);
-        else if (JOSPProtocol_ObjectToService.isObjectStructMsg(msg))
-            return processObjectStructMsg(msg);
-        else if (JOSPProtocol_ObjectToService.isObjectPermsMsg(msg))
-            return processObjectPermsMsg(msg);
-        else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg))
-            return processUpdateMsg(msg);
-        else
-            return false;
+        try {
+            if (JOSPProtocol_ObjectToService.isObjectInfoMsg(msg))
+                return processObjectInfoMsg(msg);
+            else if (JOSPProtocol_ObjectToService.isObjectStructMsg(msg))
+                return processObjectStructMsg(msg);
+            else if (JOSPProtocol_ObjectToService.isObjectPermsMsg(msg))
+                return processObjectPermsMsg(msg);
+            else if (JOSPProtocol_ObjectToService.isObjectStateUpdMsg(msg))
+                return processUpdateMsg(msg);
+            else
+                return false;
+        } catch (Throwable t) {
+            System.out.println(String.format("Exception on processing data from object '%s'", msg.replace('\n', '\\')));
+            t.printStackTrace();
+            return true;
+        }
     }
 
     private boolean processObjectInfoMsg(String msg) {
@@ -232,7 +241,7 @@ public class GWObject {
 
         objDB.getStatus().setObjId(objId);
         objDB.getStatus().setOnline(true);
-        objDB.getStatus().setLastConnectionAt(JOSPProtocol.getNowDate());
+        objDB.getStatus().setLastConnectionAt(JavaDate.getNowDate());
 
         objDB = objectDBService.save(objDB);
     }
@@ -248,7 +257,7 @@ public class GWObject {
             if (objDB.getStatus().getStructure() == null
                     || !objDB.getStatus().getStructure().equals(struct)) {
                 objDB.getStatus().setStructure(struct);
-                objDB.getStatus().setLastStructUpdateAt(JOSPProtocol.getNowDate());
+                objDB.getStatus().setLastStructUpdateAt(JavaDate.getNowDate());
                 updateStatusToDB();
             }
 
@@ -307,7 +316,7 @@ public class GWObject {
                 return;
             }
             objDB.getStatus().setStructure(structStr);
-            objDB.getStatus().setLastStatusUpdAt(JOSPProtocol.getNowDate());
+            objDB.getStatus().setLastStatusUpdAt(JavaDate.getNowDate());
             updateStatusToDB();
         }
     }
@@ -367,8 +376,8 @@ public class GWObject {
 
     // Communication
 
-    public void sendData(String msg) throws Server.ServerStoppedException, Server.ClientNotConnectedException {
-        server.sendData(client, msg);
+    public void sendData(String msg) throws PeerStreamException, PeerNotConnectedException {
+        client.sendData(msg);
     }
 
 
