@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.communication.server.ClientInfo;
+import com.robypomper.comm.server.ServerClient;
 
 import java.net.InetAddress;
 
@@ -67,7 +67,7 @@ public interface JODLocalClientInfo {
 
     // Connection info
 
-    ClientInfo getClient();
+    ServerClient getClient();
 
     /**
      * The client id is generated and managed by the communication level below.

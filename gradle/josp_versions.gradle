@@ -82,6 +82,7 @@ ext {
     set('version.SpringCloud'       , 'Hoxton.SR3')
     set('version.tomcat'            , '9.0.30')
     set('version.Keycloak'          , '11.0.2')
+    set('version.slf4j'             , '1.7.30')
     set('version.apache.log4j'      , '2.13.1')
     set('version.snakeyaml'         , '1.25')
     set('version.scribejava'        , '6.9.0')

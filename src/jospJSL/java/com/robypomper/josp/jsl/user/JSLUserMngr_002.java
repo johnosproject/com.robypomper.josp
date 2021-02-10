@@ -18,6 +18,8 @@
 
 package com.robypomper.josp.jsl.user;
 
+import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.discovery.Discover;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
@@ -165,15 +167,15 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         if (comm == null)
             return;
 
-        if (comm.getCloudConnection().isConnected()) {
+        if (comm.getCloudConnection().getState().isConnected()) {
             try {
                 comm.getCloudConnection().disconnect();
-            } catch (StateException e) {
+            } catch (PeerDisconnectionException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on shutdown cloud communication on updating user id because %s", e.getMessage()), e);
             }
             try {
                 comm.getCloudConnection().connect();
-            } catch (StateException e) {
+            } catch (PeerConnectionException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
             }
         }
@@ -206,15 +208,15 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         if (comm == null)
             return;
 
-        if (comm.getCloudConnection().isConnected()) {
+        if (comm.getCloudConnection().getState().isConnected()) {
             try {
                 comm.getCloudConnection().disconnect();
-            } catch (StateException e) {
+            } catch (PeerDisconnectionException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on shutdown cloud communication on updating user id because %s", e.getMessage()), e);
             }
             try {
                 comm.getCloudConnection().connect();
-            } catch (StateException e) {
+            } catch (PeerConnectionException e) {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on starting cloud communication on updating user id because %s", e.getMessage()), e);
             }
         }

@@ -1,6 +1,7 @@
 package com.robypomper.josp.jsl.objs.history;
 
-import com.robypomper.communication.client.Client;
+import com.robypomper.comm.exception.PeerNotConnectedException;
+import com.robypomper.comm.exception.PeerStreamException;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
@@ -88,7 +89,7 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
         try {
             sendToObjectCloudly(JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryCompStatusMsg(getServiceInfo().getFullId(), getRemote().getId(), getComponent().getPath().getString(), Integer.toString(reqId), limits));
 
-        } catch (Client.ServerNotConnectedException ignore) {
+        } catch (PeerNotConnectedException | PeerStreamException ignore) {
             sendToObjectLocally(JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryCompStatusMsg(getServiceInfo().getFullId(), getRemote().getId(), getComponent().getPath().getString(), Integer.toString(reqId), limits));
         }
     }

@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.jod.permissions;
 
+import com.robypomper.java.JavaDate;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.clients.apis.obj.APIPermissionsClient;
@@ -235,7 +236,7 @@ public class JODPermissions_002 implements JODPermissions {
             return false;
 
         // replace existing with (toDELETE) permission
-        JOSPPerm newDelPerm = new JOSPPerm(existingPerm.getId(), existingPerm.getObjId(), srvId, usrId, type, connection, JOSPProtocol.getNowDate());
+        JOSPPerm newDelPerm = new JOSPPerm(existingPerm.getId(), existingPerm.getObjId(), srvId, usrId, type, connection, JavaDate.getNowDate());
         permissions.remove(existingPerm);
         permissions.add(newDelPerm);
         Events.registerPermUpdated(existingPerm, newDelPerm);
@@ -438,8 +439,8 @@ public class JODPermissions_002 implements JODPermissions {
      */
     private void generatePermissionsLocally() {
         permissions = new ArrayList<>();
-        permissions.add(new JOSPPerm(objInfo.getObjId(), JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_OWNER.toString(), JOSPPerm.Type.CoOwner, JOSPPerm.Connection.LocalAndCloud, JOSPProtocol.getNowDate()));
-        permissions.add(new JOSPPerm(objInfo.getObjId(), JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_ALL.toString(), JOSPPerm.Type.CoOwner, JOSPPerm.Connection.OnlyLocal, JOSPProtocol.getNowDate()));
+        permissions.add(new JOSPPerm(objInfo.getObjId(), JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_OWNER.toString(), JOSPPerm.Type.CoOwner, JOSPPerm.Connection.LocalAndCloud, JavaDate.getNowDate()));
+        permissions.add(new JOSPPerm(objInfo.getObjId(), JOSPPerm.WildCards.SRV_ALL.toString(), JOSPPerm.WildCards.USR_ALL.toString(), JOSPPerm.Type.CoOwner, JOSPPerm.Connection.OnlyLocal, JavaDate.getNowDate()));
     }
 
     private JOSPPerm search(String permId) {

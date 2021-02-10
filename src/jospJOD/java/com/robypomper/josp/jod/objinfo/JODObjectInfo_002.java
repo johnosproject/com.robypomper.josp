@@ -19,6 +19,8 @@
 
 package com.robypomper.josp.jod.objinfo;
 
+import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.clients.apis.obj.APIObjsClient;
@@ -30,7 +32,6 @@ import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -319,7 +320,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     @Override
     public void syncObjInfo() {
-        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr(), comm.getCloudConnection().isConnected()), JOSPPerm.Type.Status);
+        comm.sendToServices(JOSPProtocol_ObjectToService.createObjectInfoMsg(getObjId(), getObjName(), getJODVersion(), getOwnerId(), getModel(), getBrand(), getLongDescr(), comm.getCloudConnection().getState().isConnected()), JOSPPerm.Type.Status);
     }
 
 
@@ -397,12 +398,12 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
         // Stop cloud communication
         boolean wasCloudRunning = false;
-        if (comm != null && comm.getCloudConnection().isConnected()) {
+        if (comm != null && comm.getCloudConnection().getState().isConnected()) {
             wasCloudRunning = true;
             try {
                 comm.getCloudConnection().disconnect();
-            } catch (StateException e) {
-                assert false : "Exception StateException can't be thrown because disconnect() was called after state check.";
+            } catch (PeerDisconnectionException e) {
+                assert false : "Exception PeerDisconnectionException can't be thrown because disconnect() was called after state check.";
             }
         }
 
@@ -424,8 +425,8 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             try {
                 comm.getCloudConnection().connect();
 
-            } catch (StateException e) {
-                assert false : "Exception StateException can't be thrown because disconnect() was called after state check.";
+            } catch (PeerConnectionException e) {
+                assert false : "Exception PeerConnectionException can't be thrown because disconnect() was called after state check.";
             }
         }
 

@@ -20,9 +20,11 @@
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
+import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.comm.JODGwO2SClient;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
-import com.robypomper.josp.states.StateException;
 
 public class CmdsJODCommunication {
 
@@ -95,38 +97,48 @@ public class CmdsJODCommunication {
 
     @Command(description = "Print cloud communication status.")
     public String commCloudStatus() {
-        return String.format("Cloud communication client system is %s", comm.getCloudConnection().getState());
+        JODGwO2SClient cloud = comm.getCloudConnection();
+
+        return String.format("Cloud communication client system is %s ([%d] %s)", cloud.getState(), cloud.hashCode(), cloud);
     }
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudConnect() {
-        if (comm.getCloudConnection().isConnected())
+        JODGwO2SClient cloud = comm.getCloudConnection();
+
+        if (cloud.getState().isConnected())
             return "Cloud communication client is already connected, do noting";
 
+        if (cloud.getState().isConnecting())
+            return "Cloud communication client is already connecting, do noting";
+
         try {
-            comm.getCloudConnection().connect();
-        } catch (StateException e) {
-            assert false : "Exception StateException can't be thrown because connect() was called after state check.";
+            cloud.connect();
+
+        } catch (PeerConnectionException e) {
+            return String.format("ERROR on Cloud communication client disconnection because [%s] %s\nCloud communication state %s (%s)", e.getClass().getSimpleName(), e.getMessage(), cloud.getState(), cloud);
         }
 
-        if (comm.getCloudConnection().isConnected())
+        if (cloud.getState().isConnected())
             return "Cloud communication client connected successfully.";
 
-        return "Error on connecting cloud communication client.";
+        return String.format("Error on connecting cloud communication client, %s (%s).", cloud.getState(), cloud);
     }
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudDisconnect() {
-        if (!comm.getCloudConnection().isConnected())
+        JODGwO2SClient cloud = comm.getCloudConnection();
+
+        if (!cloud.getState().isConnected())
             return "Cloud communication client is already disconnected, do noting";
 
         try {
-            comm.getCloudConnection().disconnect();
-        } catch (StateException e) {
-            assert false : "Exception StateException can't be thrown because disconnect() was called after state check.";
+            cloud.disconnect();
+        } catch (PeerDisconnectionException e) {
+            return String.format("ERROR on Cloud communication client disconnection because [%s] %s\nCloud communication state %s (%s)", e.getClass().getSimpleName(), e.getMessage(), cloud.getState(), cloud);
         }
 
-        if (!comm.getCloudConnection().isConnected())
+        if (!cloud.getState().isConnected())
             return "Cloud communication client disconnected successfully.";
 
         return "Error on disconnecting cloud communication client.";

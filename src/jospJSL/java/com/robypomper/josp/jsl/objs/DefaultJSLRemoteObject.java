@@ -83,9 +83,9 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         if (localClient!=null) {
             objComm.addLocalClient(localClient);
-            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: %s:%d) on '%s' service (from: '%s:%d')", objId, localClient.getServerAddr(), localClient.getServerPort(), srvInfo.getSrvId(), localClient.tryClientAddr(), localClient.tryClientPort()));
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' on '%s' service (via direct connection: '%s')", objId, srvInfo.getSrvId(), localClient.getConnectionInfo()));
         } else
-            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' (to: cloud) on '%s' service", objId, srvInfo.getSrvId()));
+            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' on '%s' service (via cloud connection)", objId, srvInfo.getSrvId()));
     }
 
 
@@ -166,7 +166,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
         else if (JOSPProtocol_ObjectToService.isObjectDisconnectMsg(msg))
             return ((DefaultObjComm) getComm()).processObjectDisconnectMsg(msg, connType);
 
-        throw new Throwable(String.format("Error on processing '%s' message because unknown message type", msg.substring(0, msg.indexOf('\n'))));
+        throw new Throwable("Unknown message type");
     }
 
 

@@ -1,6 +1,6 @@
 package com.robypomper.josp.jod.events;
 
-import com.robypomper.communication.server.ClientInfo;
+import com.robypomper.comm.server.ServerClient;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jod.comm.JODGwO2SClient;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
@@ -12,6 +12,7 @@ import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.List;
 
 public class Events {
@@ -19,27 +20,27 @@ public class Events {
     private static JODEvents instance;
 
     public static void setInstance(JODEvents events) {
-        if (instance!=null)
+        if (instance != null)
             throw new RuntimeException("Events's instance already set, cant' be set twice.");
-        if (events==null)
+        if (events == null)
             throw new IllegalArgumentException("Events's instance can't be null.");
 
         instance = events;
     }
 
     public static void storeCache() throws IOException {
-        if (instance!=null)
+        if (instance != null)
             instance.storeCache();
     }
 
     public static void register(JOSPEvent.Type type, String phase, String payload) {
-        if (instance!=null)
-            instance.register(type,phase,payload);
+        if (instance != null)
+            instance.register(type, phase, payload);
     }
 
     public static void register(JOSPEvent.Type type, String phase, String payload, Throwable t) {
-        if (instance!=null)
-            instance.register(type,phase,payload,t);
+        if (instance != null)
+            instance.register(type, phase, payload, t);
     }
 
 
@@ -48,27 +49,27 @@ public class Events {
 
     public static void registerJODStart(String phase) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_START,phase,payload);
+        register(JOSPEvent.Type.JOD_START, phase, payload);
     }
 
     public static void registerJODStart(String phase, long time) {
         String payload = String.format("{\"time\": \"%d\"}", time);
-        register(JOSPEvent.Type.JOD_START,phase,payload);
+        register(JOSPEvent.Type.JOD_START, phase, payload);
     }
 
     public static void registerJODStart(String phase, String instanceId) {
         String payload = String.format("{\"instanceId\": \"%s\"}", instanceId);
-        register(JOSPEvent.Type.JOD_START,phase,payload);
+        register(JOSPEvent.Type.JOD_START, phase, payload);
     }
 
     public static void registerJODStop(String phase) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_STOP,phase,payload);
+        register(JOSPEvent.Type.JOD_STOP, phase, payload);
     }
 
     public static void registerJODStop(String phase, long time) {
         String payload = String.format("{\"time\": \"%d\"}", time);
-        register(JOSPEvent.Type.JOD_STOP,phase,payload);
+        register(JOSPEvent.Type.JOD_STOP, phase, payload);
     }
 
 
@@ -79,15 +80,15 @@ public class Events {
      */
 
     public static void registerJCPConnection(String phase, JCPClient2 jcpClient) {
-        registerJCPConnection(phase,jcpClient, null, null);
+        registerJCPConnection(phase, jcpClient, null, null);
     }
 
     public static void registerJCPConnection(String phase, JCPClient2 jcpClient, Throwable t) {
-        registerJCPConnection(phase,jcpClient, null, t);
+        registerJCPConnection(phase, jcpClient, null, t);
     }
 
     public static void registerJCPConnection(String phase, JCPClient2 jcpClient, String flow) {
-        registerJCPConnection(phase,jcpClient,flow, null);
+        registerJCPConnection(phase, jcpClient, flow, null);
     }
 
     public static void registerJCPConnection(String phase, JCPClient2 jcpClient, String flow, Throwable t) {
@@ -121,47 +122,67 @@ public class Events {
     // JOD_COMM_CLOUD_DISC,
 
     public static void registerCloudConnect(String phase, JODGwO2SClient gwClient) {
-        registerCloudConnect(phase,gwClient, null);
+        registerCloudConnect(phase, gwClient, null);
     }
 
     public static void registerCloudConnect(String phase, JODGwO2SClient gwClient, Throwable t) {
         String payload;
         payload = "{";
-        payload += String.format("\"connected\": \"%s\"", gwClient.isConnected());
-        payload += String.format(", \"url\": \"%s\"", gwClient.getServerUrl());
-        payload += String.format(", \"ip\": \"%s\"", gwClient.getServerAddr());
-        payload += String.format(", \"port\": \"%s\"", gwClient.getServerPort());
+        payload += String.format("\"connected\": \"%s\"", gwClient.getState().isConnected());
+
+        InetAddress remoteAddr = gwClient.getConnectionInfo().getRemoteInfo().getAddr();
+        Integer remotePort = gwClient.getConnectionInfo().getRemoteInfo().getPort();
+        payload += String.format(", \"url\": \"%s\"", (remoteAddr != null ? remoteAddr.getHostName() : "N/A"));    // ToDO fix NullPointerException (occurs when JOD starts, connect to APIs but can't connect to GWs
+        payload += String.format(", \"ip\": \"%s\"", (remoteAddr != null ? remoteAddr.getHostAddress() : "N/A"));
+        payload += String.format(", \"port\": \"%s\"", (remotePort != null ? remotePort : "N/A"));
+
         payload += ", \"client\": {";
-        if (gwClient.isConnected()) {
-            payload += String.format("\"id\": \"%s\"", gwClient.getClientId());
-            payload += String.format(", \"url\": \"%s\"", gwClient.tryClientHostname());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.tryClientAddr());
-            payload += String.format(", \"port\": \"%s\"", gwClient.tryClientPort());
-        } else
-            payload += ", \"notConnected\": \"true\"";
+        if (!gwClient.getState().isConnected()) {
+            payload += "\"notConnected\": \"true\"";
+        } else {
+            payload += String.format("\"id\": \"%s\"", gwClient.getLocalId());
+
+            InetAddress localAddr = gwClient.getConnectionInfo().getLocalInfo().getAddr();
+            Integer localPort = gwClient.getConnectionInfo().getLocalInfo().getPort();
+            payload += String.format(", \"url\": \"%s\"", (localAddr != null ? localAddr.getHostName() : "N/A"));    // ToDO fix NullPointerException (occurs when JOD starts, connect to APIs but can't connect to GWs
+            payload += String.format(", \"ip\": \"%s\"", (localAddr != null ? localAddr.getHostAddress() : "N/A"));
+            payload += String.format(", \"port\": \"%s\"", (localPort != null ? localPort : "N/A"));
+        }
         payload += "}";
         payload += "}";
         register(JOSPEvent.Type.JOD_COMM_CLOUD_CONN, phase, payload, t);
     }
 
     public static void registerCloudDisconnect(String phase, JODGwO2SClient gwClient) {
+        registerCloudDisconnect(phase, gwClient, null);
+    }
+
+    public static void registerCloudDisconnect(String phase, JODGwO2SClient gwClient, Throwable t) {
         String payload;
         payload = "{";
-        payload += String.format("\"connected\": \"%s\"", gwClient.isConnected());
-        payload += String.format(", \"url\": \"%s\"", gwClient.tryServerUrl());
-        payload += String.format(", \"ip\": \"%s\"", gwClient.tryServerAddr());
-        payload += String.format(", \"port\": \"%s\"", gwClient.tryServerPort());
+        payload += String.format("\"connected\": \"%s\"", gwClient.getState().isConnected());
+
+        InetAddress remoteAddr = gwClient.getConnectionInfo().getRemoteInfo().getAddr();
+        Integer remotePort = gwClient.getConnectionInfo().getRemoteInfo().getPort();
+        payload += String.format(", \"url\": \"%s\"", (remoteAddr != null ? remoteAddr.getHostName() : "N/A"));    // ToDO fix NullPointerException (occurs when JOD starts, connect to APIs but can't connect to GWs
+        payload += String.format(", \"ip\": \"%s\"", (remoteAddr != null ? remoteAddr.getHostAddress() : "N/A"));
+        payload += String.format(", \"port\": \"%s\"", (remotePort != null ? remotePort : "N/A"));
+
         payload += ", \"client\": {";
-        if (gwClient.isConnected()) {
-            payload += String.format("\"id\": \"%s\"", gwClient.getClientId());
-            payload += String.format(", \"url\": \"%s\"", gwClient.tryClientHostname());
-            payload += String.format(", \"ip\": \"%s\"", gwClient.tryClientAddr());
-            payload += String.format(", \"port\": \"%s\"", gwClient.tryClientPort());
-        } else
-            payload += ", \"notConnected\": \"true\"";
+        if (!gwClient.getState().isConnected()) {
+            payload += "\"notConnected\": \"true\"";
+        } else {
+            payload += String.format("\"id\": \"%s\"", gwClient.getLocalId());
+
+            InetAddress localAddr = gwClient.getConnectionInfo().getLocalInfo().getAddr();
+            Integer localPort = gwClient.getConnectionInfo().getLocalInfo().getPort();
+            payload += String.format(", \"url\": \"%s\"", (localAddr != null ? localAddr.getHostName() : "N/A"));    // ToDO fix NullPointerException (occurs when JOD starts, connect to APIs but can't connect to GWs
+            payload += String.format(", \"ip\": \"%s\"", (localAddr != null ? localAddr.getHostAddress() : "N/A"));
+            payload += String.format(", \"port\": \"%s\"", (localPort != null ? localPort : "N/A"));
+        }
         payload += "}";
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC, phase, payload);
+        register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC, phase, payload, t);
     }
 
 
@@ -171,42 +192,42 @@ public class Events {
     // JOD_COMM_LOC_DISC,
 
     public static void registerLocalStart(String phase, JODLocalServer localServer) {
-        registerLocalStart(phase,localServer, null);
+        registerLocalStart(phase, localServer, null);
     }
 
     public static void registerLocalStart(String phase, JODLocalServer localServer, Throwable t) {
         String payload;
         payload = "{";
-        payload += String.format("\"running\": \"%s\"", localServer.isRunning());
-        if (localServer.isRunning() || localServer.getAddress()!=null) {
-            payload += String.format(", \"url\": \"%s\"", localServer.getAddress().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", localServer.getAddress().getHostAddress());
+        payload += String.format("\"running\": \"%s\"", localServer.getState().isRunning());
+        if (localServer.getState().isRunning() || localServer.getServerPeerInfo().getAddr() != null) {
+            payload += String.format(", \"url\": \"%s\"", localServer.getServerPeerInfo().getAddr().getHostName());
+            payload += String.format(", \"ip\": \"%s\"", localServer.getServerPeerInfo().getAddr().getHostAddress());
         }
-        payload += String.format(", \"port\": \"%s\"", localServer.getPort());
+        payload += String.format(", \"port\": \"%s\"", localServer.getServerPeerInfo().getPort());
         payload += String.format(", \"clientsCount\": \"%s\"", localServer.getClients().size());
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_START,phase,payload,t);
+        register(JOSPEvent.Type.JOD_COMM_LOC_START, phase, payload, t);
     }
 
     public static void registerLocalStop(String phase, JODLocalServer localServer) {
-        registerLocalStop(phase,localServer, null);
+        registerLocalStop(phase, localServer, null);
     }
 
     public static void registerLocalStop(String phase, JODLocalServer localServer, Throwable t) {
         String payload;
         payload = "{";
-        payload += String.format("\"running\": \"%s\"", localServer.isRunning());
-        if (localServer.isRunning() || localServer.getAddress()!=null) {
-            payload += String.format(", \"url\": \"%s\"", localServer.getAddress().getHostName());
-            payload += String.format(", \"ip\": \"%s\"", localServer.getAddress().getHostAddress());
+        payload += String.format("\"running\": \"%s\"", localServer.getState().isRunning());
+        if (localServer.getState().isRunning() || localServer.getServerPeerInfo().getAddr() != null) {
+            payload += String.format(", \"url\": \"%s\"", localServer.getServerPeerInfo().getAddr().getHostName());
+            payload += String.format(", \"ip\": \"%s\"", localServer.getServerPeerInfo().getAddr().getHostAddress());
         }
-        payload += String.format(", \"port\": \"%s\"", localServer.getPort());
+        payload += String.format(", \"port\": \"%s\"", localServer.getServerPeerInfo().getPort());
         payload += String.format(", \"clientsCount\": \"%s\"", localServer.getClients().size());
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_STOP,phase,payload,t);
+        register(JOSPEvent.Type.JOD_COMM_LOC_STOP, phase, payload, t);
     }
 
-    public static void registerLocalConn(String phase, JODLocalClientInfo clientInfo, ClientInfo client) {
+    public static void registerLocalConn(String phase, JODLocalClientInfo clientInfo, ServerClient client) {
         String payload;
         payload = "{";
         payload += String.format("\"connected\": \"%s\"", clientInfo.isConnected());
@@ -216,13 +237,13 @@ public class Events {
         payload += String.format(", \"clientId\": \"%s\"", clientInfo.getClientId());
 
         payload += ", \"connectingCli\": {";
-        payload += String.format("\"id\": \"%s\"", client.getClientId());
-        payload += String.format(", \"url\": \"%s\"", client.getPeerAddress().getHostName());
-        payload += String.format(", \"ip\": \"%s\"", client.getPeerAddress().getHostAddress());
-        payload += String.format(", \"port\": \"%s\"", client.getPeerPort());
+        payload += String.format("\"id\": \"%s\"", client.getRemoteId());
+        payload += String.format(", \"url\": \"%s\"", client.getConnectionInfo().getRemoteInfo().getAddr().getHostName());
+        payload += String.format(", \"ip\": \"%s\"", client.getConnectionInfo().getRemoteInfo().getAddr().getHostAddress());
+        payload += String.format(", \"port\": \"%s\"", client.getConnectionInfo().getRemoteInfo().getPort());
         payload += "}";
 
-        if (clientInfo.isConnected() || clientInfo.getClientAddress()!=null) {
+        if (clientInfo.isConnected() || clientInfo.getClientAddress() != null) {
             payload += ", \"serviceCli\": {";
             payload += String.format("\"id\": \"%s\"", clientInfo.getClientId());
             payload += String.format(", \"url\": \"%s\"", clientInfo.getClientAddress().getHostName());
@@ -232,10 +253,10 @@ public class Events {
         }
 
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_CONN,phase,payload);
+        register(JOSPEvent.Type.JOD_COMM_LOC_CONN, phase, payload);
     }
 
-    public static void registerLocalDisc(String phase, JODLocalClientInfo clientInfo, ClientInfo client) {
+    public static void registerLocalDisc(String phase, JODLocalClientInfo clientInfo, ServerClient client) {
         String payload;
         payload = "{";
         payload += String.format("\"connected\": \"%s\"", clientInfo.isConnected());
@@ -245,13 +266,13 @@ public class Events {
         payload += String.format(", \"clientId\": \"%s\"", clientInfo.getClientId());
 
         payload += ", \"disconnectingCli\": {";
-        payload += String.format("\"id\": \"%s\"", client.getClientId());
-        payload += String.format(", \"url\": \"%s\"", client.getPeerAddress().getHostName());
-        payload += String.format(", \"ip\": \"%s\"", client.getPeerAddress().getHostAddress());
-        payload += String.format(", \"port\": \"%s\"", client.getPeerPort());
+        payload += String.format("\"id\": \"%s\"", client.getRemoteId());
+        payload += String.format(", \"url\": \"%s\"", client.getConnectionInfo().getRemoteInfo().getAddr().getHostName());
+        payload += String.format(", \"ip\": \"%s\"", client.getConnectionInfo().getRemoteInfo().getAddr().getHostAddress());
+        payload += String.format(", \"port\": \"%s\"", client.getConnectionInfo().getRemoteInfo().getPort());
         payload += "}";
 
-        if (clientInfo.isConnected() || clientInfo.getClientAddress()!=null) {
+        if (clientInfo.isConnected() || clientInfo.getClientAddress() != null) {
             payload += ", \"serviceCli\": {";
             payload += String.format("\"id\": \"%s\"", clientInfo.getClientId());
             payload += String.format(", \"url\": \"%s\"", clientInfo.getClientAddress().getHostName());
@@ -261,7 +282,7 @@ public class Events {
         }
 
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_DISC,phase,payload);
+        register(JOSPEvent.Type.JOD_COMM_LOC_DISC, phase, payload);
     }
 
 
@@ -275,15 +296,15 @@ public class Events {
         String payload;
         payload = "{";
         payload += String.format("\"count\": \"%s\"", permissions.size());
-        if (permissions.size()>0)
+        if (permissions.size() > 0)
             payload += String.format(", \"objId\": \"%s\"", permissions.get(0).getObjId());
         payload += "}";
-        register(JOSPEvent.Type.JOD_PERMS_LOAD,phase,payload);
+        register(JOSPEvent.Type.JOD_PERMS_LOAD, phase, payload);
     }
 
     public static void registerPermLoaded(String phase, Throwable t) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_PERMS_LOAD,phase,payload,t);
+        register(JOSPEvent.Type.JOD_PERMS_LOAD, phase, payload, t);
     }
 
     public static void registerPermAdded(JOSPPerm newPerm) {
@@ -298,7 +319,7 @@ public class Events {
         payload += "}";
         payload += "}";
 
-        register(JOSPEvent.Type.JOD_PERMS_ADD,"Permission added", payload);
+        register(JOSPEvent.Type.JOD_PERMS_ADD, "Permission added", payload);
     }
 
     public static void registerPermUpdated(JOSPPerm oldPerm, JOSPPerm newPerm) {
@@ -320,7 +341,7 @@ public class Events {
         payload += "}";
         payload += "}";
 
-        register(JOSPEvent.Type.JOD_PERMS_UPD,"Permission updated", payload);
+        register(JOSPEvent.Type.JOD_PERMS_UPD, "Permission updated", payload);
     }
 
     public static void registerPermRemoved(JOSPPerm oldPerm) {
@@ -335,7 +356,7 @@ public class Events {
         payload += "}";
         payload += "}";
 
-        register(JOSPEvent.Type.JOD_PERMS_REM,"Permission removed", payload);
+        register(JOSPEvent.Type.JOD_PERMS_REM, "Permission removed", payload);
     }
 
 
@@ -351,12 +372,12 @@ public class Events {
         payload += String.format(", \"version\": \"%s\"", version);
         payload += String.format(", \"compsCount\": \"%s\"", compsCount);
         payload += "}";
-        register(JOSPEvent.Type.JOD_STRUCT_LOAD,"Structure loaded", payload);
+        register(JOSPEvent.Type.JOD_STRUCT_LOAD, "Structure loaded", payload);
     }
 
     public static void registerStructLoad(Throwable t) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_STRUCT_LOAD,"Structure loaded", payload,t);
+        register(JOSPEvent.Type.JOD_STRUCT_LOAD, "Structure loaded", payload, t);
     }
 
 
@@ -365,18 +386,18 @@ public class Events {
 
     public static void registerStatusUpd(AbsJODState comp, JODStateUpdate update) {
         String payload = String.format("{\"comp\": \"%s\", \"name\": \"%s\", \"update\": \"%s\"}", comp.getPath().getString(), comp.getName(), update.encode());
-        register(JOSPEvent.Type.JOD_STATUS_UPD,"Status updated", payload);
+        register(JOSPEvent.Type.JOD_STATUS_UPD, "Status updated", payload);
     }
 
     public static void registerInfoUpd(String infoName, String newValue) {
-        registerInfoUpd(infoName,null,newValue);
+        registerInfoUpd(infoName, null, newValue);
     }
 
     public static void registerInfoUpd(String infoName, String oldValue, String newValue) {
         String payload;
         payload = "{";
         payload += String.format("\"info\": \"%s\"", infoName);
-        if (oldValue!=null)
+        if (oldValue != null)
             payload += String.format(", oldValue\": \"%s\"", oldValue);
         payload += String.format(", newValue\": \"%s\"", newValue);
         payload += "}";
@@ -403,7 +424,7 @@ public class Events {
         payload += String.format(", \"component\": \"%s\"", cmd.getComponentPath());
         payload += String.format(", \"command\": \"%s\"", cmd.getCommand().getClass().getSimpleName());
         payload += "}";
-        register(JOSPEvent.Type.JOD_ACTION_REQ,"Action requested", payload);
+        register(JOSPEvent.Type.JOD_ACTION_REQ, "Action requested", payload);
     }
 
     public static void registerActionExec(String srvId, String usrId, JOSPPerm.Connection connType, JOSPProtocol.ActionCmd cmd) {
@@ -415,7 +436,7 @@ public class Events {
         payload += String.format(", \"component\": \"%s\"", cmd.getComponentPath());
         payload += String.format(", \"command\": \"%s\"", cmd.getCommand().getClass().getSimpleName());
         payload += "}";
-        register(JOSPEvent.Type.JOD_ACTION_EXEC,"Action requested", payload);
+        register(JOSPEvent.Type.JOD_ACTION_EXEC, "Action requested", payload);
     }
 
     public static void registerActionExecFail(String error, String srvId, String usrId, JOSPPerm.Connection connType, JOSPProtocol.ActionCmd cmd) {
@@ -428,7 +449,7 @@ public class Events {
         payload += String.format(", \"command\": \"%s\"", cmd.getCommand().getClass().getSimpleName());
         payload += String.format(", \"error\": \"%s\"", error);
         payload += "}";
-        register(JOSPEvent.Type.JOD_ACTION_EXEC,"Action executed", payload, new Exception(error));
+        register(JOSPEvent.Type.JOD_ACTION_EXEC, "Action executed", payload, new Exception(error));
     }
 
 }

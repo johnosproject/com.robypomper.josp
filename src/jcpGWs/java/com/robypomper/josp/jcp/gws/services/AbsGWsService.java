@@ -19,19 +19,17 @@
 
 package com.robypomper.josp.jcp.gws.services;
 
-import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.UtilsSSL;
-import com.robypomper.communication.server.DefaultSSLServer;
-import com.robypomper.communication.server.events.ServerClientEvents;
-import com.robypomper.communication.server.events.ServerLocalEvents;
-import com.robypomper.communication.server.events.ServerMessagingEvents;
-import com.robypomper.communication.trustmanagers.AbsCustomTrustManager;
-import com.robypomper.communication.trustmanagers.DynAddTrustManager;
+import com.robypomper.comm.server.*;
+import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
+import com.robypomper.comm.trustmanagers.DynAddTrustManager;
+import com.robypomper.java.JavaJKS;
+import com.robypomper.java.JavaSSL;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
 import com.robypomper.josp.jcp.info.JCPGWsVersions;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.types.josp.gw.GWType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,6 +49,7 @@ public abstract class AbsGWsService {
 
     private static final String CERT_ALIAS = "O2SGW-Cert-Cloud";
     private static final String ONLY_SERVER_ID = "mainServer";
+    private static final String KS_PASS = "123456";
 
 
     // Internal vars
@@ -59,7 +58,7 @@ public abstract class AbsGWsService {
     private static final List<AbsGWsService> jospGWs = new ArrayList<>();               // static because shared among all GWs
     private final String hostAddrInternal;
     private final String hostAddrPublic;
-    private final Server server;
+    private final GWServer gwServer;
 
 
     // Constructor
@@ -73,18 +72,18 @@ public abstract class AbsGWsService {
             String alias = String.format("%s@%s", ONLY_SERVER_ID, CERT_ALIAS);
 
             log.trace(String.format("Preparing internal JOSP GWs '%s' keystore", ONLY_SERVER_ID));
-            KeyStore ks = UtilsJKS.generateKeyStore(ONLY_SERVER_ID, null, alias);
-            Certificate publicCertificate = UtilsJKS.extractCertificate(ks, alias);
+            KeyStore ks = JavaJKS.generateKeyStore(ONLY_SERVER_ID, KS_PASS, alias);
+            Certificate publicCertificate = JavaJKS.extractCertificate(ks, alias);
 
             log.trace(String.format("Preparing internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
             SSLContext sslCtx;
             DynAddTrustManager trustmanager = new DynAddTrustManager();
-            sslCtx = UtilsSSL.generateSSLContext(ks, null, trustmanager);
+            sslCtx = JavaSSL.generateSSLContext(ks, KS_PASS, trustmanager);
 
             log.trace(String.format("Creating and starting internal JOSP GWs '%s' SSL context", ONLY_SERVER_ID));
-            server = new Server(this, sslCtx, ONLY_SERVER_ID, port, trustmanager, publicCertificate);
+            gwServer = new GWServer(this, sslCtx, ONLY_SERVER_ID, port, trustmanager, publicCertificate);
 
-        } catch (UtilsJKS.GenerationException | UtilsSSL.GenerationException e) {
+        } catch (JavaJKS.GenerationException | JavaSSL.GenerationException e) {
             throw new RuntimeException(String.format("Error on initializing internal GWs because %s", e.getMessage()), e);
         }
 
@@ -120,8 +119,8 @@ public abstract class AbsGWsService {
 
     // Client's utils
 
-    public AbsGWsService.Server getServer() {
-        return server;
+    public GWServer getServer() {
+        return gwServer;
     }
 
     public String getInternalAddress() {
@@ -133,17 +132,17 @@ public abstract class AbsGWsService {
     }
 
     public int getPort() {
-        return server.getPort();
+        return gwServer.getPort();
     }
 
     public Certificate getPublicCertificate() {
-        return server.getPublicCertificate();
+        return gwServer.getPublicCertificate();
     }
 
     public boolean addClientCertificate(String idClient, Certificate certClient) {
         log.debug(String.format("Adding client '%s' certificate to internal JOSP GWs", idClient));
         try {
-            server.getTrustManager().addCertificate(idClient, certClient);
+            gwServer.getTrustManager().addCertificate(idClient, certClient);
             log.debug(String.format("Client '%s' certificate added to internal JOSP GWs", idClient));
             return true;
 
@@ -163,11 +162,15 @@ public abstract class AbsGWsService {
 
     // Sub-classes methods
 
-    abstract protected ServerLocalEvents getServerEventsListener();
+    abstract protected void onServerStarted();
 
-    abstract protected ServerClientEvents getClientEventsListener();
+    abstract protected void onServerStopped();
 
-    abstract protected ServerMessagingEvents getMessagingEventsListener();
+    abstract protected void onClientConnection(ServerClient client);
+
+    abstract protected void onClientDisconnection(ServerClient client);
+
+    abstract protected boolean onDataReceived(ServerClient client, String data);
 
 
     // JCP APIs GWs registration
@@ -224,7 +227,7 @@ public abstract class AbsGWsService {
 
     // Structures
 
-    protected static class Server extends DefaultSSLServer {
+    protected class GWServer extends ServerAbsSSL {
 
         // Internal vars
 
@@ -242,8 +245,40 @@ public abstract class AbsGWsService {
          * @param idServer
          * @param port
          */
-        public Server(AbsGWsService gwService, SSLContext sslCtx, String idServer, int port, AbsCustomTrustManager trustManager, Certificate publicCertificate) {
-            super(sslCtx, idServer, port, true, gwService.getServerEventsListener(), gwService.getClientEventsListener(), gwService.getMessagingEventsListener());
+        public GWServer(AbsGWsService gwService, SSLContext sslCtx, String idServer, int port, AbsCustomTrustManager trustManager, Certificate publicCertificate) {
+            super(idServer, port, JOSPProtocol.JOSP_PROTO_NAME, sslCtx, trustManager, publicCertificate, true, true);
+            addListener(new ServerStateListener() {
+                @Override
+                public void onStart(Server server) {
+                    onServerStarted();
+                }
+
+                @Override
+                public void onStop(Server server) {
+
+                }
+
+                @Override
+                public void onFail(Server server, String failMsg, Throwable exception) {
+
+                }
+            });
+            addListener(new ServerClientsListener() {
+                @Override
+                public void onConnect(Server server, ServerClient client) {
+                    onClientConnection(client);
+                }
+
+                @Override
+                public void onDisconnect(Server server, ServerClient client) {
+                    onClientDisconnection(client);
+                }
+
+                @Override
+                public void onFail(Server server, ServerClient client) {
+
+                }
+            });
             this.port = port;
             this.trustManager = trustManager;
             this.publicCertificate = publicCertificate;
@@ -264,6 +299,15 @@ public abstract class AbsGWsService {
             return publicCertificate;
         }
 
+        @Override
+        public boolean processData(ServerClient client, byte[] data) {
+            return false;
+        }
+
+        @Override
+        public boolean processData(ServerClient client, String data) {
+            return onDataReceived(client, data);
+        }
     }
 
 

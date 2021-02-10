@@ -19,42 +19,44 @@
 
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.communication.UtilsJKS;
-import com.robypomper.communication.UtilsSSL;
-import com.robypomper.communication.server.CertSharingSSLServer;
-import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.Server;
-import com.robypomper.communication.server.events.DefaultServerEvent;
-import com.robypomper.communication.server.events.ServerClientEvents;
-import com.robypomper.communication.server.events.ServerMessagingEvents;
-import com.robypomper.communication.server.standard.SSLCertServer;
+import com.robypomper.comm.server.Server;
+import com.robypomper.comm.server.ServerAbsSSL;
+import com.robypomper.comm.server.ServerClient;
+import com.robypomper.comm.server.ServerClientsListener;
+import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
+import com.robypomper.comm.trustmanagers.DynAddTrustManager;
+import com.robypomper.java.JavaJKS;
+import com.robypomper.java.JavaSSL;
+import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
+import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.net.InetAddress;
+import javax.net.ssl.SSLContext;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
 /**
  * Server that listen and process local client (JSL) connections.
  * <p>
- * This class provide a {@link CertSharingSSLServer} (a server that allow to share
+ * This class provide a Cert Sharing Server (a server that allow to share
  * client and server certificates).
  */
-public class JODLocalServer implements Server {
+public class JODLocalServer extends ServerAbsSSL {
 
     // Class constants
 
-    public static final String CERT_ALIAS = "JOD-Cert-Local";
+    public static final String KS_PASS = "123456";
 
 
     // Internal vars
@@ -63,45 +65,71 @@ public class JODLocalServer implements Server {
     private final JODObjectInfo objInfo;
     private final JODCommunication communication;
     private final JODPermissions permissions;
-    private final CertSharingSSLServer server;
     private final List<JODLocalClientInfo> localClients = new ArrayList<>();
 
 
     // Constructor
 
-    /**
-     * Default constructor that initialize the internal {@link CertSharingSSLServer}.
-     *
-     * @param communication instance of the {@link JODCommunication}
-     *                      that initialized this client. It will used to
-     *                      process data received from the O2S Gw.
-     * @param objInfo       the represented object's id.
-     * @param permissions
-     * @param port          the port used by the server to listen for new
-     *                      connections.
-     * @param pubCertFile   the file path of current server's public certificate.
-     */
-    public JODLocalServer(JODCommunication communication, JODObjectInfo objInfo,
-                          JODPermissions permissions, int port, String pubCertFile) {
+    public static JODLocalServer instantiate(JODCommunication communication, JODObjectInfo objInfo,
+                                             JODPermissions permissions, int port) {
+
+        String localId = objInfo.getObjId();
+
+        AbsCustomTrustManager trustManager = new DynAddTrustManager();
+        Certificate localCertificate = null;
+        SSLContext sslCtx = null;
+        try {
+            KeyStore clientKeyStore = JavaJKS.generateKeyStore(localId, KS_PASS, localId + "-LocalCert");
+            localCertificate = JavaJKS.extractCertificate(clientKeyStore, localId + "-LocalCert");
+            sslCtx = JavaSSL.generateSSLContext(clientKeyStore, KS_PASS, trustManager);
+
+        } catch (JavaJKS.GenerationException | JavaSSL.GenerationException e) {
+            assert false : String.format("JKS and SSL generation are standard and should not throw exception [%s] %s", e.getClass().getSimpleName(), e.getMessage());
+        }
+
+        return new JODLocalServer(communication, objInfo, permissions, port, sslCtx, trustManager, localCertificate);
+    }
+
+    private JODLocalServer(JODCommunication communication, JODObjectInfo objInfo,
+                           JODPermissions permissions, int port,
+                           SSLContext sslCtx, AbsCustomTrustManager trustManager, Certificate localPublicCertificate) {
+        super(objInfo.getObjId(), port, JOSPProtocol.JOSP_PROTO_NAME, sslCtx, trustManager, localPublicCertificate, JOSPProtocol.CLIENT_AUTH_REQUIRED, JOSPProtocol.CERT_SHARING_ENABLE);
+
         this.objInfo = objInfo;
         this.communication = communication;
         this.permissions = permissions;
 
-        try {
-            server = new CertSharingSSLServer(objInfo.getObjId(), port,
-                    CERT_ALIAS, pubCertFile, true,
-                    null,
-                    new JODLocalServerClientListener(),
-                    new JODLocalServerMessagingListener()
-            );
+        addListener(new ServerClientsListener() {
 
-        } catch (SSLCertServer.SSLCertServerException | UtilsJKS.LoadingException | UtilsSSL.GenerationException | UtilsJKS.StoreException | UtilsJKS.GenerationException e) {
-            log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Error on initializing JODLocalServer for '%s' object", objInfo.getObjId()));
-            throw new RuntimeException(e);
-        }
+            @Override
+            public void onConnect(Server server, ServerClient client) {
+                onClientConnection(client);
+            }
 
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Initialized JODLocalServer instance for '%s' object on port '%s'", objInfo.getObjId(), port));
-        log.debug(Mrk_JOD.JOD_COMM_SUB, String.format("                                          with %s as server implementation", server.getClass().getSimpleName()));
+            @Override
+            public void onDisconnect(Server server, ServerClient client) {
+                onClientDisconnection(client);
+            }
+
+            @Override
+            public void onFail(Server server, ServerClient client, String failMsg, Throwable exception) {
+                System.out.printf("Error on JODLocalServer's client '%s' connection (%s)%n", client, failMsg);
+            }
+
+        });
+    }
+
+
+    // Message methods
+
+    @Override
+    public boolean processData(ServerClient client, byte[] data) {
+        return false;
+    }
+
+    @Override
+    public boolean processData(ServerClient client, String data) {
+        return communication.processFromServiceMsg(data, JOSPPerm.Connection.OnlyLocal);
     }
 
 
@@ -113,7 +141,7 @@ public class JODLocalServer implements Server {
      * @return an unmodifiable array containing client's info.
      */
     public List<JODLocalClientInfo> getLocalClientsInfo() {
-        return Collections.unmodifiableList(localClients);
+        return new ArrayList<>(localClients);
     }
 
     /**
@@ -123,7 +151,7 @@ public class JODLocalServer implements Server {
      * @return the {@link JODLocalClientInfo} or <code>null</code> if given id
      * not found.
      */
-    private JODLocalClientInfo getLocalConnectionByServiceId(String serviceId) {
+    public JODLocalClientInfo getLocalConnectionByServiceId(String serviceId) {
         for (JODLocalClientInfo conn : localClients)
             if (conn.getClientId().equals(serviceId))
                 return conn;
@@ -132,75 +160,59 @@ public class JODLocalServer implements Server {
     }
 
     /**
-     * Return the {@link JODLocalClientInfo} of the given <code>clientId</code>.
-     *
-     * @param clientFullAddress the required client's id.
-     * @return the {@link JODLocalClientInfo} or <code>null</code> if given id
-     * not found.
-     */
-    private JODLocalClientInfo getLocalConnectionByClientFullAddress(String clientFullAddress) {
-        for (JODLocalClientInfo conn : localClients)
-            if (conn.getLocalFullAddress().equals(clientFullAddress))
-                return conn;
-
-        return null;
-    }
-
-    /**
      * Process the new cient connection.
      * <p>
-     * Generate a new {@link JODLocalClientInfo} from the given {@link ClientInfo}
+     * Generate a new {@link JODLocalClientInfo} from the given {@link ServerClient}
      * and check if another client from the same instance is already known. If it
      * is then check if the already known client is still connected, then discard
      * the new client; else it relplace the old client with the new one.
      *
      * @param client the new client's info.
      */
-    private void onClientConnection(ClientInfo client) {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Connected client '%s' to '%s' object", client.getPeerFullAddress(), objInfo.getObjId()));
+    private void onClientConnection(ServerClient client) {
+        if (!client.getState().isConnecting())
+            JavaThreads.softSleep(100);
 
-        JODLocalClientInfo locConn = new DefaultJODLocalClientInfo(client);
+        if (!client.getState().isConnected())
+            return;
 
-        log.debug(Mrk_JOD.JOD_COMM, String.format("Registering service '%s' of '%s' client to '%s' object", locConn.getClientId(), client.getPeerFullAddress(), objInfo.getObjId()));
+        JODLocalClientInfo newConn = new DefaultJODLocalClientInfo(client);
+
+        JODLocalClientInfo oldConn;
         synchronized (localClients) {
-            for (JODLocalClientInfo c : localClients)
-                if (c.getClientId().equals(locConn.getClientId())) {
-                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' already registered to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-
-                    log.debug(Mrk_JOD.JOD_COMM, String.format("Checking service '%s' connection to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-                    boolean wasConnected = c.isConnected();
-                    if (!wasConnected) {
-                        localClients.remove(c);
-                        localClients.add(locConn);
-                        sendObjectPresentation(locConn);
-                        log.trace(Mrk_JOD.JOD_COMM, String.format("Updated connection because service '%s' was NOT connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-                        Events.registerLocalConn("Local JSL updated connection", locConn,client);
-
-                    } else {
-                        try {
-                            locConn.disconnectLocal();
-                        } catch (JODCommunication.LocalCommunicationException e) {
-                            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on disconnect new client '%s' because %s", client.getPeerFullAddress(), e.getMessage()), e);
-                        }
-                        log.trace(Mrk_JOD.JOD_COMM, String.format("New client discarded because service '%s' was already connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-                        Events.registerLocalConn("Local JSL refused connection because already connected service", locConn,client);
-                    }
-
-                    log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' connection to '%s' object checked and%s updated", locConn.getClientId(), objInfo.getObjId(), wasConnected ? " NOT" : ""));
-                    return;
-                }
-
-            localClients.add(locConn);
+            oldConn = getLocalConnectionByServiceId(newConn.getClientId());
+            if (oldConn == null)
+                localClients.add(newConn);
+            else if (!oldConn.isConnected()) {
+                localClients.remove(oldConn);
+                localClients.add(newConn);
+            }
         }
-        sendObjectPresentation(locConn);
-        log.debug(Mrk_JOD.JOD_COMM, String.format("Service '%s' with client '%s' registered to '%s' object", locConn.getClientId(), locConn.getClientFullAddress(), objInfo.getObjId()));
-        log.info(Mrk_JOD.JOD_COMM, String.format("Registered service '%s' to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-        Events.registerLocalConn("Local JSL connected",locConn,client);
+
+        if (oldConn == null) {                          // new JSL service
+            sendObjectPresentation(newConn);
+            Events.registerLocalConn("Local JSL connected", newConn, client);
+            log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server added JSL '%s' service with connection '%s'", newConn.getClientId(), newConn.getClientFullAddress()));
+
+        } else if (!oldConn.isConnected()) {            // Update JSL service
+            sendObjectPresentation(newConn);
+            Events.registerLocalConn("Local JSL updated connection", newConn, client);
+            log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server updated JSL '%s' connection from '%s' to '%s'", newConn.getClientId(), newConn.getClientFullAddress(), oldConn.getClientFullAddress()));
+
+        } else {                                        //Discharge connection
+            try {
+                newConn.disconnectLocal();
+
+            } catch (JODCommunication.LocalCommunicationException ignore) { /* client discharged, ignoring disconnection error */ }
+
+            Events.registerLocalConn("Local JSL discharged connection because JSL service already connected", newConn, client);
+            log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server discharged JSL '%s' connection '%s' because already connected on '%s'", newConn.getClientId(), newConn.getClientFullAddress(), oldConn.getClientFullAddress()));
+        }
     }
 
     private void sendObjectPresentation(JODLocalClientInfo locConn) {
         try {
-            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr(), communication.getCloudConnection().isConnected()), JOSPPerm.Type.Status);
+            communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectInfoMsg(objInfo.getObjId(), objInfo.getObjName(), objInfo.getJODVersion(), objInfo.getOwnerId(), objInfo.getModel(), objInfo.getBrand(), objInfo.getLongDescr(), communication.getCloudConnection().getState().isConnected()), JOSPPerm.Type.Status);
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectStructMsg(objInfo.getObjId(), objInfo.getStructForJSL()), JOSPPerm.Type.Status);
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createObjectPermsMsg(objInfo.getObjId(), objInfo.getPermsForJSL()), JOSPPerm.Type.CoOwner);
 
@@ -208,9 +220,9 @@ public class JODLocalServer implements Server {
             communication.sendToSingleLocalService(locConn, JOSPProtocol_ObjectToService.createServicePermMsg(objInfo.getObjId(), permType, JOSPPerm.Connection.OnlyLocal), permType);
 
         } catch (JODStructure.ParsingException e) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on serialize object's structure to local service because %s", e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on serialize object's structure to local service because %s", e.getMessage()), e);
         } catch (JODCommunication.ServiceNotConnected e) {
-            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("Error on sending object's presentation to local service because %s", e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on sending object's presentation to local service because %s", e.getMessage()), e);
         }
     }
 
@@ -219,279 +231,17 @@ public class JODLocalServer implements Server {
      *
      * @param client the disconnected client's info.
      */
-    private void onClientDisconnection(ClientInfo client) {
-        log.info(Mrk_JOD.JOD_COMM, String.format("Disconnected client '%s' for service '%s' from '%s' object", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
-
+    private void onClientDisconnection(ServerClient client) {
         JODLocalClientInfo locConn;
         synchronized (localClients) {
-            locConn = getLocalConnectionByServiceId(client.getClientId());
-        }
-        if (locConn == null) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Disconnected client '%s' for service '%s' was not present in '%s' object registered clients list", client.getPeerFullAddress(), client.getClientId(), objInfo.getObjId()));
-            return;
-        }
-
-        if (locConn.isConnected()) {
-            log.info(Mrk_JOD.JOD_COMM, String.format("Service '%s' still connected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-            //Events.registerLocalDisc("Local JSL discharged", locConn, client);
-        }
-        else {
-            log.info(Mrk_JOD.JOD_COMM, String.format("Service '%s' disconnected to '%s' object", locConn.getClientId(), objInfo.getObjId()));
-            Events.registerLocalDisc("Local JSL disconnected", locConn, client);
-        }
-    }
-
-
-    // Process incoming messages
-
-    /**
-     * Forward received data to the {@link JODCommunication} instance.
-     * <p>
-     * All data received by this method are send from local JSL services and
-     * include action commands and service requests (like objectStruct or
-     * objectInfo requests).
-     *
-     * @param client   the sender client's info.
-     * @param readData the message string received from <code>client</code> client.
-     * @return always true.
-     */
-    private boolean onDataReceived(ClientInfo client, String readData) {
-        return communication.processFromServiceMsg(readData, JOSPPerm.Connection.OnlyLocal);
-    }
-
-
-    // Server's wrapping methods
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public InetAddress getAddress() {
-        return server.getAddress();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPort() {
-        return server.getPort();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getServerId() {
-        return server.getServerId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isRunning() {
-        return server.isRunning();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void start() throws ListeningException {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Start local server for '%s' object", objInfo.getObjId()));
-        server.start();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void stop() {
-        log.info(Mrk_JOD.JOD_COMM_SUB, String.format("Stop local object's server '%s' on port '%d'", objInfo.getObjId(), getPort()));
-        server.stop();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendData(String clientId, byte[] data) throws ServerStoppedException, ClientNotFoundException, ClientNotConnectedException {
-        server.sendData(clientId, data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendData(ClientInfo client, byte[] data) throws ServerStoppedException, ClientNotConnectedException {
-        server.sendData(client, data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendData(String clientId, String data) throws ServerStoppedException, ClientNotFoundException, ClientNotConnectedException {
-        server.sendData(clientId, data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendData(ClientInfo client, String data) throws ServerStoppedException, ClientNotConnectedException {
-        server.sendData(client, data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isCliByeMsg(byte[] data) {
-        return server.isCliByeMsg(data);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<ClientInfo> getClients() {
-        return server.getClients();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ClientInfo findClientById(String clientId) {
-        return server.findClientById(clientId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ClientInfo getClientById(String clientId) throws ClientNotFoundException {
-        return server.getClientById(clientId);
-    }
-
-
-    // Server event listeners
-
-    /**
-     * Link the {@link #onClientConnection(ClientInfo)} and {@link #onClientDisconnection(ClientInfo)}
-     * events to {@link JODLocalServer#onClientConnection(ClientInfo)} and
-     * {@link JODLocalServer#onClientDisconnection(ClientInfo)} methods.
-     */
-    private class JODLocalServerClientListener extends DefaultServerEvent implements ServerClientEvents {
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Link to the {@link JODLocalServer#onClientConnection(ClientInfo)} method.
-         */
-        @Override
-        public void onClientConnection(ClientInfo client) {
-            JODLocalServer.this.onClientConnection(client);
+            locConn = getLocalConnectionByServiceId(client.getLocalId());
+            if (locConn == null)
+                return;
+            localClients.remove(locConn);
         }
 
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Link to the {@link JODLocalServer#onClientDisconnection(ClientInfo)} method.
-         */
-        @Override
-        public void onClientDisconnection(ClientInfo client) {
-            JODLocalServer.this.onClientDisconnection(client);
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onClientServerDisconnected(ClientInfo client) {
-
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onClientGoodbye(ClientInfo client) {
-
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onClientTerminated(ClientInfo client) {
-
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onClientError(ClientInfo client, Throwable e) {
-
-        }
-    }
-
-    /**
-     * Link the {@link #onDataReceived(ClientInfo, String)} event to
-     * {@link JODLocalServer#onDataReceived(ClientInfo, String)} ()} method.
-     */
-    private class JODLocalServerMessagingListener extends DefaultServerEvent implements ServerMessagingEvents {
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onDataSend(ClientInfo client, byte[] writtenData) {
-
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public void onDataSend(ClientInfo client, String writtenData) {
-
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Does nothing.
-         */
-        @Override
-        public boolean onDataReceived(ClientInfo client, byte[] readData) {
-            return false;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * Link to the {@link JODLocalServer#onDataReceived(ClientInfo, String)} method.
-         */
-        @Override
-        public boolean onDataReceived(ClientInfo client, String readData) {
-            return JODLocalServer.this.onDataReceived(client, readData);
-        }
+        Events.registerLocalDisc("Local JSL disconnected", locConn, client);
+        log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server remove JSL '%s' connection '%s' because disconnected", locConn.getClientId(), locConn.getClientFullAddress()));
     }
 
 }
