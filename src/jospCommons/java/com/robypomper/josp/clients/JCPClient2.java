@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.clients;
 
+import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.states.JCPClient2State;
 import com.robypomper.josp.states.StateException;
@@ -300,6 +301,17 @@ public interface JCPClient2 {
 
         public BadRequest_400(String fullUrl) {
             super(String.format(MSG, fullUrl), fullUrl);
+        }
+
+    }
+
+    class Unauthorized_401 extends ResponseException {
+
+        private static final String MSG = "Server received Unauthorized for '%s' resource, error: '%s'.";
+        private static final String HEADER = "WWW-Authenticate";
+
+        public Unauthorized_401(String fullUrl, Response response) {
+            super(String.format(MSG, fullUrl, (response.getHeader(HEADER)!=null ? response.getHeader(HEADER) : "N/A")), fullUrl);
         }
 
     }

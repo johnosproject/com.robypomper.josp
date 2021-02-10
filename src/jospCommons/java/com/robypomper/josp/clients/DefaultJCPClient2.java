@@ -1028,12 +1028,17 @@ public class DefaultJCPClient2 implements JCPClient2 {
         return req;
     }
 
-    private void throwErrorCodes(int code, String body, String fullUrl) throws ResponseException {
+    private void throwErrorCodes(OAuthRequest request, Response response) throws ResponseException {
+        int code = response.getCode();
+        String fullUrl = request.getUrl();
+
         switch (code) {
             case 200:
                 break;
             case 400:
                 throw new BadRequest_400(fullUrl);
+            case 401:
+                throw new Unauthorized_401(fullUrl, response);
             case 403:
                 throw new NotAuthorized_403(fullUrl);
             case 404:
@@ -1041,7 +1046,11 @@ public class DefaultJCPClient2 implements JCPClient2 {
             case 409:
                 throw new Conflict_409(fullUrl);
             default:
-                throw new Error_Code(fullUrl, code, body);
+                try {
+                    throw new Error_Code(fullUrl, code, response.getBody());
+                } catch (IOException e) {
+                    throw new Error_Code(fullUrl, code, "");
+                }
         }
     }
 
