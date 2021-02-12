@@ -107,7 +107,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     @Override
     public JSLRemoteObject getByConnection(JSLLocalClient client) {
         for (JSLRemoteObject obj : objs)
-            if (((DefaultObjComm)obj.getComm()).getLocalClients().contains(client))
+            if (((DefaultObjComm) obj.getComm()).getLocalClients().contains(client))
                 return obj;
 
         return null;
@@ -133,19 +133,20 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
         assert serverConnection.getState().isConnected() : "Method addLocalClient() can be call only if localClient is connected.";
 
         String locConnObjId = serverConnection.getRemoteId();
-        String serverAddr = String.format("%s:%d", serverConnection.getConnectionInfo().getRemoteInfo().getAddr().getHostAddress(), serverConnection.getConnectionInfo().getRemoteInfo().getPort());
-        String clientAddr = String.format("%s:%d", serverConnection.getConnectionInfo().getLocalInfo().getAddr().getHostAddress(), serverConnection.getConnectionInfo().getLocalInfo().getPort());
 
-        JSLRemoteObject remObj = getById(locConnObjId);
-        if (remObj == null) {
-            log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection (%s) to '%s' service", locConnObjId, serverConnection, srvInfo.getSrvId()));
-            remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
-            objs.add(remObj);
-            emit_ObjAdded(remObj);
+        JSLRemoteObject remObj;
+        synchronized (objs) {
+            remObj = getById(locConnObjId);
+            if (remObj == null) {
+                log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection (%s) to '%s' service", locConnObjId, serverConnection, srvInfo.getSrvId()));
+                remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
+                objs.add(remObj);
+                emit_ObjAdded(remObj);
 
-        } else {
-            log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection (%s) to '%s' service", locConnObjId, serverConnection, srvInfo.getSrvId()));
-            ((DefaultObjComm) remObj.getComm()).addLocalClient(serverConnection);
+            } else {
+                log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection (%s) to '%s' service", locConnObjId, serverConnection, srvInfo.getSrvId()));
+                ((DefaultObjComm) remObj.getComm()).addLocalClient(serverConnection);
+            }
         }
 
         return remObj;

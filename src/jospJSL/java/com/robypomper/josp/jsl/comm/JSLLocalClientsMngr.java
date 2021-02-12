@@ -3,10 +3,9 @@ package com.robypomper.josp.jsl.comm;
 import com.robypomper.comm.exception.PeerConnectionException;
 import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.discovery.Discover;
-import com.robypomper.discovery.DiscoverListener;
 import com.robypomper.discovery.DiscoveryService;
+import com.robypomper.discovery.DiscoveryServicesListener;
 import com.robypomper.discovery.DiscoverySystemFactory;
-import com.robypomper.discovery.impl.DiscoveryJmDNS;
 import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaEnum;
 import com.robypomper.josp.jsl.JSLSettings_002;
@@ -73,13 +72,6 @@ public class JSLLocalClientsMngr {
         String discoveryImpl = locSettings.getJSLDiscovery();
         try {
             log.debug(Mrk_JSL.JSL_COMM, String.format("Creating discovery '%s' service for local object's servers", discoveryImpl));
-
-            // If required JmDNS implementation, start his sub-system
-            if (DiscoveryJmDNS.IMPL_NAME.equalsIgnoreCase(discoveryImpl)) {
-                log.trace(Mrk_JSL.JSL_COMM, "Communication initializing discovery subsystem on JmDNS");
-                DiscoveryJmDNS.startJmDNSSubSystem();
-            }
-
             discover = DiscoverySystemFactory.createDiscover(discoveryImpl, JOSPProtocol.DISCOVERY_TYPE);
             log.debug(Mrk_JSL.JSL_COMM, String.format("Discovery '%s' service created for local object's servers", discoveryImpl));
 
@@ -103,7 +95,7 @@ public class JSLLocalClientsMngr {
      * @return true if current JSLLocalClientMngr is running.
      */
     public boolean isRunning() {
-        return discover.isRunning();
+        return discover.getState().isRunning();
     }
 
     /**
@@ -325,7 +317,7 @@ public class JSLLocalClientsMngr {
 
     // Local communication discovery listener
 
-    private final DiscoverListener discoverListener = new DiscoverListener() {
+    private final DiscoveryServicesListener discoverListener = new DiscoveryServicesListener() {
 
         /**
          * {@inheritDoc}

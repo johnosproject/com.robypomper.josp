@@ -25,10 +25,48 @@ import java.util.List;
 /**
  * Interface for Publisher implementations.
  * <p>
- * Each AbsPublisher instance represent a single service that can be published or
+ * Each PublisherAbs instance represent a single service that can be published or
  * hide.
  */
 public interface Publisher {
+
+    // Getters
+
+    /**
+     * @return current Publisher service state.
+     */
+    DiscoveryState getState();
+
+    /**
+     * @return the service name to publish.
+     */
+    String getServiceName();
+
+    /**
+     * @return the service type to publish.
+     */
+    String getServiceType();
+
+    /**
+     * @return the service port to publish.
+     */
+    int getServicePort();
+
+    /**
+     * @return the extra text related with service.
+     */
+    String getServiceExtraText();
+
+    /**
+     * @return the internal discover to check if current service is published or not.
+     */
+    Discover getInternalDiscover();
+
+    /**
+     * Return all available interfaces.
+     */
+    List<String> getInterfaces();
+
 
     // Publication mngm
 
@@ -54,40 +92,42 @@ public interface Publisher {
      *
      * @param waitForDepublished stop current thread until the service is de-published.
      */
-    void hide(boolean waitForDepublished) throws PublishException;
+    void hide(boolean waitForDepublished);
 
 
-    // Getters
-
-    /**
-     * @return the service name to publish.
-     */
-    String getServiceName();
+    // Listener mngm
 
     /**
-     * @return the service type to publish.
+     * Add given listener to publisher state listener list.
+     *
+     * @param listener the listener to add.
      */
-    String getServiceType();
+    void addListener(PublisherStateListener listener);
 
     /**
-     * @return the service port to publish.
+     * Remove given listener to publisher state listener list.
+     *
+     * @param listener the listener to remove.
      */
-    int getServicePort();
+    void removeListener(PublisherStateListener listener);
 
     /**
-     * @return the extra text related with service.
+     * Add given listener to discovery system listener list.
+     * <p>
+     * This listeners observe only for current publisher (de)publications.
+     *
+     * @param listener the listener to add.
      */
-    String getServiceExtraText();
+    void addListener(DiscoveryServicesListener listener);
 
     /**
-     * @return the internal discover to check if current service is published or not.
+     * Remove given listener to discovery system listener list.
+     * <p>
+     * This listeners observe only for current publisher (de)publications.
+     *
+     * @param listener the listener to remove.
      */
-    Discover getInternalDiscovered();
-
-    /**
-     * Return all available interfaces.
-     */
-    List<String> getInterfaces();
+    void removeListener(DiscoveryServicesListener listener);
 
 
     // Exceptions

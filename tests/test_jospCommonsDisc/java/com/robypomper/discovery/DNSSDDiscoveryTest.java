@@ -19,54 +19,36 @@
 
 package com.robypomper.discovery;
 
-import com.robypomper.discovery.impl.DiscoveryDNSSD;
-import org.junit.jupiter.api.*;
+import com.robypomper.discovery.impl.DNSSD;
+import org.junit.jupiter.api.Test;
 
 public class DNSSDDiscoveryTest extends DiscoveryTestGeneric {
 
-    // Test configurations
-
-    @BeforeAll
-    static void setUp() {
-
-    }
-
-    @AfterAll
-    static void tearDown() {
-
-    }
-
-    @BeforeEach
-    public void setUpEach() {
-        super.setUpEach();
-    }
-
-    @AfterEach
-    public void tearDownEach() {
-        super.tearDownEach();
+    public DNSSDDiscoveryTest() {
+        super(DNSSD.IMPL_NAME, 2 * 1000);
     }
 
 
-    // Discovery system tests
+    // Tests
 
     @Test
-    public void DNSSD_StartAndStopTest() throws Discover.DiscoveryException, Publisher.PublishException {
-        test_startAndStop(DiscoveryDNSSD.IMPL_NAME);
+    public void METHOD_Discover_startAndStop() throws Discover.DiscoveryException, InterruptedException {
+        super.METHOD_Discover_startAndStop();
     }
 
     @Test
-    public void DNSSD_PublishAndDiscoverTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        test_PublishAndDiscover(DiscoveryDNSSD.IMPL_NAME);
+    public void METHOD_Publisher_startAndStop() throws Publisher.PublishException, InterruptedException {
+        super.METHOD_Publisher_startAndStop();
     }
 
     @Test
-    public void DNSSD_DiscoverAndPublishTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        test_DiscoverAndPublish(DiscoveryDNSSD.IMPL_NAME);
+    public void INTEGRATION_PublishAndDiscover() throws Publisher.PublishException, Discover.DiscoveryException, InterruptedException {
+        super.INTEGRATION_PublishAndDiscover();
     }
 
     @Test
-    public void DNSSD_PublishDiscoverAndPublishTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        test_PublishDiscoverAndPublish(DiscoveryDNSSD.IMPL_NAME);
+    public void INTEGRATION_DiscoverAndPublish() throws Publisher.PublishException, Discover.DiscoveryException, InterruptedException {
+        super.INTEGRATION_DiscoverAndPublish();
     }
 
 }

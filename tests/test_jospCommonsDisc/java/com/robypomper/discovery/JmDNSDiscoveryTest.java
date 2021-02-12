@@ -19,72 +19,36 @@
 
 package com.robypomper.discovery;
 
-import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import org.junit.jupiter.api.*;
+import com.robypomper.discovery.impl.JmDNS;
+import org.junit.jupiter.api.Test;
 
 public class JmDNSDiscoveryTest extends DiscoveryTestGeneric {
 
-    // Class constants
-
-    final static int AFTER_JMDNS_START_WAIT_TIME = 1;
-
-
-    // Test configurations
-
-    @BeforeAll
-    static void setUp() {
-
-    }
-
-    @AfterAll
-    static void tearDown() {
-
-    }
-
-    @BeforeEach
-    public void setUpEach() {
-        super.setUpEach();
-    }
-
-    @AfterEach
-    public void tearDownEach() {
-        super.tearDownEach();
+    public JmDNSDiscoveryTest() {
+        super(JmDNS.IMPL_NAME, 10 * 1000);
     }
 
 
-    // Discovery system tests
+    // Tests
 
     @Test
-    public void JmDNS_StartAndStopTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        if (checkDiscoverySystemSupportOnCurrentOs(DiscoveryJmDNS.IMPL_NAME) && !DiscoveryJmDNS.isStarted())
-            startSubDiscovery();
-        test_startAndStop(DiscoveryJmDNS.IMPL_NAME);
+    public void METHOD_Discover_startAndStop() throws Discover.DiscoveryException, InterruptedException {
+        super.METHOD_Discover_startAndStop();
     }
 
     @Test
-    public void JmDNS_PublishAndDiscoverTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        if (checkDiscoverySystemSupportOnCurrentOs(DiscoveryJmDNS.IMPL_NAME) && !DiscoveryJmDNS.isStarted())
-            startSubDiscovery();
-        test_PublishAndDiscover(DiscoveryJmDNS.IMPL_NAME);
+    public void METHOD_Publisher_startAndStop() throws Publisher.PublishException, InterruptedException {
+        super.METHOD_Publisher_startAndStop();
     }
 
     @Test
-    public void JmDNS_DiscoverAndPublishTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        if (checkDiscoverySystemSupportOnCurrentOs(DiscoveryJmDNS.IMPL_NAME) && !DiscoveryJmDNS.isStarted())
-            startSubDiscovery();
-        test_DiscoverAndPublish(DiscoveryJmDNS.IMPL_NAME);
+    public void INTEGRATION_PublishAndDiscover() throws Publisher.PublishException, Discover.DiscoveryException, InterruptedException {
+        super.INTEGRATION_PublishAndDiscover();
     }
 
     @Test
-    public void JmDNS_PublishDiscoverAndPublishTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        if (checkDiscoverySystemSupportOnCurrentOs(DiscoveryJmDNS.IMPL_NAME) && !DiscoveryJmDNS.isStarted())
-            startSubDiscovery();
-        test_PublishDiscoverAndPublish(DiscoveryJmDNS.IMPL_NAME);
-    }
-
-    private void startSubDiscovery() throws InterruptedException {
-        DiscoveryJmDNS.startJmDNSSubSystem();
-        Thread.sleep(AFTER_JMDNS_START_WAIT_TIME * 1000);
+    public void INTEGRATION_DiscoverAndPublish() throws Publisher.PublishException, Discover.DiscoveryException, InterruptedException {
+        super.INTEGRATION_DiscoverAndPublish();
     }
 
 }
