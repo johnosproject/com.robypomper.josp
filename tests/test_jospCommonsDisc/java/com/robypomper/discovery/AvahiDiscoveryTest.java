@@ -19,54 +19,36 @@
 
 package com.robypomper.discovery;
 
-import com.robypomper.discovery.impl.DiscoveryAvahi;
-import org.junit.jupiter.api.*;
+import com.robypomper.discovery.impl.Avahi;
+import org.junit.jupiter.api.Test;
 
 public class AvahiDiscoveryTest extends DiscoveryTestGeneric {
 
-    // Test configurations
-
-    @BeforeAll
-    static void setUp() {
-
-    }
-
-    @AfterAll
-    static void tearDown() {
-
-    }
-
-    @BeforeEach
-    public void setUpEach() {
-        super.setUpEach();
-    }
-
-    @AfterEach
-    public void tearDownEach() {
-        super.tearDownEach();
+    public AvahiDiscoveryTest() {
+        super(Avahi.IMPL_NAME);
     }
 
 
-    // Discovery system tests
+    // Tests
 
     @Test
-    public void Avahi_StartAndStopTest() throws Discover.DiscoveryException, Publisher.PublishException {
-        test_startAndStop(DiscoveryAvahi.IMPL_NAME);
+    public void METHOD_Discover_startAndStop() throws Discover.DiscoveryException, InterruptedException {
+        super.METHOD_Discover_startAndStop();
     }
 
     @Test
-    public void Avahi_PublishAndDiscoverTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        test_PublishAndDiscover(DiscoveryAvahi.IMPL_NAME);
+    public void METHOD_Publisher_startAndStop() throws Publisher.PublishException, InterruptedException {
+        super.METHOD_Publisher_startAndStop();
     }
 
     @Test
-    public void Avahi_DiscoverAndPublishTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        test_DiscoverAndPublish(DiscoveryAvahi.IMPL_NAME);
+    public void INTEGRATION_PublishAndDiscover() throws Publisher.PublishException, Discover.DiscoveryException, InterruptedException {
+        super.INTEGRATION_PublishAndDiscover();
     }
 
     @Test
-    public void Avahi_PublishDiscoverAndPublishTest() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        test_PublishDiscoverAndPublish(DiscoveryAvahi.IMPL_NAME);
+    public void INTEGRATION_DiscoverAndPublish() throws Publisher.PublishException, Discover.DiscoveryException, InterruptedException {
+        super.INTEGRATION_DiscoverAndPublish();
     }
 
 }
