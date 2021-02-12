@@ -22,7 +22,6 @@ package com.robypomper.josp.jod.comm;
 import com.robypomper.comm.exception.*;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
-import com.robypomper.discovery.impl.DiscoveryJmDNS;
 import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
@@ -89,11 +88,6 @@ public class JODCommunication_002 implements JODCommunication {
         String publisherSrvName = objInfo.getObjName() + "-" + instanceId;
         try {
             log.debug(Mrk_JOD.JOD_COMM, String.format("Creating publisher '%s' service for local object's server", publisherImpl));
-            // If required JmDNS implementation, start his sub-system
-            if (DiscoveryJmDNS.IMPL_NAME.equalsIgnoreCase(publisherImpl)) {
-                log.trace(Mrk_JOD.JOD_COMM, "Communication initializing discovery subsystem on JmDNS");
-                DiscoveryJmDNS.startJmDNSSubSystem();
-            }
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server publisher use '%s' service name", publisherSrvName));
             int localPort = locSettings.getLocalServerPort();
             localServerPublisher = DiscoverySystemFactory.createPublisher(publisherImpl, JOSPProtocol.DISCOVERY_TYPE, publisherSrvName, localPort, instanceId);
@@ -598,10 +592,6 @@ public class JODCommunication_002 implements JODCommunication {
             Events.registerLocalStart("Comm Local Stopped", localServer, e);
             throw new LocalCommunicationException(String.format("Error on shutdown local communication object's server '%s'", objInfo.getObjId()), e);
 
-        } catch (Publisher.PublishException e) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on hiding local communication object's server '%s' because %s", objInfo.getObjId(), e.getMessage()), e);
-            Events.registerLocalStop("Comm Local Hided", localServer, e);
-            throw new LocalCommunicationException(String.format("Error on hiding local communication object's server '%s'", objInfo.getObjId()), e);
         }
     }
 
