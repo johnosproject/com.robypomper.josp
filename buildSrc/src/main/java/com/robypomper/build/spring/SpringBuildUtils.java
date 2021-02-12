@@ -29,6 +29,8 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar;
 import org.springframework.boot.gradle.tasks.run.BootRun;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collections;
 
 
@@ -89,6 +91,11 @@ public class SpringBuildUtils {
         });
         //run.conventionMapping(ss.getName(), new MainClassConvention2(project, run::getClasspath));
         run.conventionMapping("main", new MainClassConvention2(project, run::getClasspath));
+
+        try {
+            run.environment("HOSTNAME", InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException ignore) {
+        }
         return run;
     }
 

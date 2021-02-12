@@ -1,6 +1,6 @@
 oauth2.resource.public-paths: /**
 
-oauth2.url: https://localhost:8998/auth
+oauth2.url: https://${HOST:${HOSTNAME:localhost}}:8998/auth
 oauth2.realm: jcp
 oauth2.resource: jcpAPIs
 

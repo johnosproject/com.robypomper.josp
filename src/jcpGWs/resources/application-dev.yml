@@ -7,19 +7,19 @@ jcp.client.ssl.internal: true
 jcp.client.ssl.public: true
 jcp.client.id: jcp-gws
 jcp.client.secret: 4f5985ac-0e42-4f45-ae74-a859d4fd5184
-jcp.urlAuth: localhost:8998
-jcp.urlAPIs: localhost:9001
+jcp.urlAuth: ${HOST:${HOSTNAME:localhost}}:8998
+jcp.urlAPIs: ${HOST:${HOSTNAME:localhost}}:9001
 #jcp.urlGWs: localhost:9001         # registered via APIs
-jcp.urlJSLWebBridge: localhost:9003
-jcp.urlFE: localhost:9004
+jcp.urlJSLWebBridge: ${HOST:${HOSTNAME:localhost}}:9003
+jcp.urlFE: ${HOST:${HOSTNAME:localhost}}:9004
 
 # JCP GWs
 jcp.gws.enabled: true
-jcp.gws.o2s.ip.internal: localhost
-jcp.gws.o2s.ip.public: localhost
+jcp.gws.o2s.ip.internal: ${HOST:${HOSTNAME:localhost}}
+jcp.gws.o2s.ip.public: ${HOST:${HOSTNAME:localhost}}
 jcp.gws.o2s.port: 9101
 jcp.gws.o2s.maxClients: 100
-jcp.gws.s2o.ip.internal: localhost
-jcp.gws.s2o.ip.public: localhost
-jcp.gws.s2o.port: 9102
+jcp.gws.s2o.ip.internal: ${HOST:${HOSTNAME:localhost}}
+jcp.gws.s2o.ip.public: ${HOST:${HOSTNAME:localhost}}
+jcp.gws.s2o.port: 9103
 jcp.gws.s2o.maxClients: 100
