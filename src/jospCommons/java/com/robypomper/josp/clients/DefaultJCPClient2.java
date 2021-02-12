@@ -580,6 +580,14 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
                 } catch (SSLHandshakeException e1) {
                     throw new JCPNotReachableException(String.format("Error connecting to %s because SSL handshaking failed", apiName));
+                } catch (IOException e1) {
+                    if (e1.getMessage().startsWith("HTTPS hostname wrong:  should be ")) {
+                        JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnAllHost();
+                        con = (HttpURLConnection) url.openConnection();
+                        con.setRequestMethod("GET");
+                        code = con.getResponseCode();
+                    } else
+                        throw e1;
                 }
             }
             if (code != 200) {

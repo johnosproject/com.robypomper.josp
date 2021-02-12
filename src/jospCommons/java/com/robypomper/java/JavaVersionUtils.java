@@ -20,6 +20,7 @@
 package com.robypomper.java;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * Utils class to print current JVM details.
@@ -34,6 +35,11 @@ public class JavaVersionUtils {
      * @return a string formatted as a table containing current JVM details.
      */
     public static String buildJavaVersionStr(String mainAppName, String mainAppVersion) {
+        StringBuilder envVarsList = new StringBuilder();
+        Map<String, String> enviorntmentVars = System.getenv();
+        for (Map.Entry<String, String> var : enviorntmentVars.entrySet())
+            envVarsList.append(var.getKey()).append(": ").append(var.getValue()).append("\n");
+
         return mainAppName + " versions:   " + mainAppVersion + "\n" +
                 "+-----------------\n" +
                 "| Current dir:     " + new File("").getAbsolutePath() + "\n" +
@@ -53,6 +59,7 @@ public class JavaVersionUtils {
                 "| Dflt language:   " + System.getProperty("user.language") + "\n" +
                 "| Dflt encoding:   " + System.getProperty("sun.jnu.encoding") + "\n" +
                 "| File encoding:   " + System.getProperty("file.encoding") + "\n" +
+                "| Env Vars:        " + envVarsList.toString() + "\n" +
                 "+-----------------\n" +
                 "| Working dir:     " + System.getProperty("user.dir") + "\n" +
                 "+-----------------\n";
