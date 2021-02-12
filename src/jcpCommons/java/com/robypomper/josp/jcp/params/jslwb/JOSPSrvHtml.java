@@ -1,6 +1,7 @@
 package com.robypomper.josp.jcp.params.jslwb;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.robypomper.comm.connection.ConnectionState;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.states.JCPClient2State;
 import com.robypomper.josp.states.JSLLocalState;
@@ -15,8 +16,8 @@ public class JOSPSrvHtml {
     public final JSLState state;
     public final JCPClient2State stateJCP;
     public final boolean isJCPConnected;
-    //public final GWClientState stateCloud;
-    //public final boolean isCloudConnected;
+    public final ConnectionState stateCloud;
+    public final boolean isCloudConnected;
     public final JSLLocalState stateLocal;
     public final boolean isLocalRunning;
     public final String srvId;
@@ -33,8 +34,8 @@ public class JOSPSrvHtml {
         this.state = jsl.getState();
         this.stateJCP = jsl.getJCPClient().getState();
         this.isJCPConnected = jsl.getJCPClient().isConnected();
-        //this.stateCloud         = jsl.getCommunication().getCloudConnection().getState();
-        //this.isCloudConnected   = jsl.getCommunication().getCloudConnection().isConnected();
+        this.stateCloud = jsl.getCommunication().getCloudConnection().getState();
+        this.isCloudConnected = jsl.getCommunication().getCloudConnection().getState().isConnected();
         this.stateLocal = jsl.getCommunication().getLocalConnections().getState();
         this.isLocalRunning = jsl.getCommunication().getLocalConnections().isRunning();
         this.srvId = jsl.getServiceInfo().getSrvId();

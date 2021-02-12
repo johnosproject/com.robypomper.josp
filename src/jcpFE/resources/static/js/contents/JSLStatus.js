@@ -22,7 +22,7 @@ function htmlJSLStatusContent() {
 
     html += "<tr><td class='label'>Name</td><td id='val_service_name' class='value'>...</td></tr>";
     html += "<tr><td class='label'>ID</td><td class='value'><span id='val_service_srvId'>...</span>/<span id='val_service_usrId'>...</span>/<span id='val_service_instId'>...</span></td></tr>";
-    html += "<tr><td class='label'>Status</td><td class='value'><span id='val_service_status'>...</span></td></tr>";
+    html += "<tr><td class='label'>Status</td><td class='value'><span id='val_service_state'>...</span></td></tr>";
     html += "<tr><td class='label'>JCP Connected</td><td class='value'><span id='val_service_isJCPConnected'>...</span></td></tr>";
     html += "<tr><td class='label'>JOSP GW Connected</td><td class='value'><span id='val_service_isCloudConnected'>...</span></td></tr>";
     html += "<tr><td class='label'>local_running</td><td class='value'><span id='val_service_isLocalRunning'>...</span></td></tr>";
@@ -45,8 +45,8 @@ function fillJSLStatusContent(serviceJson) {
     service = JSON.parse(serviceJson);
     if (document.getElementById("val_service_name") != null)
         document.getElementById("val_service_name").innerHTML = service.name;
-    if (document.getElementById("val_service_status") != null)
-        document.getElementById("val_service_status").innerHTML = service.status;
+    if (document.getElementById("val_service_state") != null)
+        document.getElementById("val_service_state").innerHTML = service.state;
     if (document.getElementById("val_service_isJCPConnected") != null)
         document.getElementById("val_service_isJCPConnected").innerHTML = service.isJCPConnected;
     if (document.getElementById("val_service_isCloudConnected") != null)
