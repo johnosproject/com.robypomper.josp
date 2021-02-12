@@ -192,7 +192,6 @@ public abstract class PeerAbs implements Peer {
     @Override
     public void disconnect() throws PeerDisconnectionException {
         if (getState().isDisconnected())
-            //throw new PeerDisconnectionException(this);
             return;
 
         if (getState().isDisconnecting())
@@ -578,7 +577,7 @@ public abstract class PeerAbs implements Peer {
     }
 
     protected void emitOnDataRx(byte[] data) {
-        log.debug(String.format("Peer '%s' rx data '%s'", getLocalId(), new String(data, getDataEncodingConfigs().getCharset())));
+        log.debug(String.format("Peer '%s' rx data '%s'", getLocalId(), new String(data, getDataEncodingConfigs().getCharset()).replace("\n", "\\n")));
 
         JavaListeners.emitter(this, listenersData, "onDataRx", new JavaListeners.ListenerMapper<PeerDataListener>() {
             @Override
@@ -589,7 +588,7 @@ public abstract class PeerAbs implements Peer {
     }
 
     protected void emitOnDataTx(byte[] data) {
-        log.debug(String.format("Peer '%s' tx data '%s'", getLocalId(), new String(data, getDataEncodingConfigs().getCharset())));
+        log.debug(String.format("Peer '%s' tx data '%s'", getLocalId(), new String(data, getDataEncodingConfigs().getCharset()).replace("\n", "\\n")));
 
         JavaListeners.emitter(this, listenersData, "onDataTx", new JavaListeners.ListenerMapper<PeerDataListener>() {
             @Override

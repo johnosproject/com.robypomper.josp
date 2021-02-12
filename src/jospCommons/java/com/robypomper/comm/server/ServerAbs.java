@@ -156,11 +156,10 @@ public abstract class ServerAbs implements Server {
 
     @Override
     public void startup() throws ServerStartupException {
-        if (getState() == ServerState.STARTED)
-            //throw new ServerRunningException(this);
+        if (getState().isRunning())
             return;
 
-        if (getState() == ServerState.STARTUP)
+        if (getState().isStartup())
             return;
 
         doStartup();
@@ -247,11 +246,10 @@ public abstract class ServerAbs implements Server {
 
     @Override
     public void shutdown() throws ServerShutdownException {
-        if (state == ServerState.STOPPED)
-            //throw new ServerNotRunningException(this);
+        if (getState().isStopped())
             return;
 
-        if (getState() == ServerState.SHUTDOWN)
+        if (getState().isShutdown())
             return;
 
         state = ServerState.SHUTDOWN;

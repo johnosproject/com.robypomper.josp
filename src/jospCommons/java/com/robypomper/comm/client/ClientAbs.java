@@ -135,7 +135,6 @@ public abstract class ClientAbs extends PeerAbs implements Client {
     @Override
     public void connect() throws PeerConnectionException {
         if (getState().isConnected())
-            //throw new PeerConnectedException(this);
             return;
 
         if (getState().isConnecting())

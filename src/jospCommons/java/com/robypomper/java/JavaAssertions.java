@@ -183,7 +183,10 @@ public class JavaAssertions {
         s += String.format("- Thread:   %s\n", Thread.currentThread().getName());
         if (extraThrowable != null) {
             s += "- ExtraEx: ";
-            s += JavaThreads.stackTraceToString(extraThrowable).replace("\n", "\n            ").trim() + "\n";
+            s += JavaThreads.stackTraceToString(extraThrowable)
+                    .replace("\n", "\n            ")
+                    .replace("Caused by:", "Origin at:")
+                    .trim() + "\n";
         }
         s += "ASSERTION ERROR (end)";
         System.err.println(s);

@@ -72,7 +72,6 @@ public abstract class AbsGWsClient extends ClientWrapper {
     @Override
     public void connect() throws PeerConnectionException {
         if (getState().isConnected())
-            //throw new PeerConnectedException(this);
             return;
 
         if (getState().isConnecting())

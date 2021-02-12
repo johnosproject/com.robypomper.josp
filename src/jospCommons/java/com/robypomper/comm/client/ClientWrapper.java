@@ -245,7 +245,6 @@ public class ClientWrapper implements Client {
             throw new PeerConnectionException(this, String.format("Error on Peer '%s' connection because wrapped client not set", this));
 
         if (getState().isConnected())
-            //throw new PeerConnectedException(this);
             return;
 
         if (getState().isConnecting())
@@ -281,7 +280,6 @@ public class ClientWrapper implements Client {
             throw new PeerDisconnectionException(this, String.format("Error on Peer '%s' disconnection because wrapped client not set", this));
 
         if (getState().isDisconnected())
-            //throw new PeerDisconnectionException(this);
             return;
 
         if (getState().isDisconnecting())
