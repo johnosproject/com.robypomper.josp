@@ -25,36 +25,17 @@ import java.util.List;
 /**
  * Interface for Discover implementations.
  * <p>
- * Each AbsDiscover instance is looking for a specific type of services. The
+ * Each DiscoverAbs instance is looking for a specific type of services. The
  * Discover's type can be queried with the method {@link #getServiceType()}
  */
 public interface Discover {
 
-    // Discovery mngm
-
-    /**
-     * @return <code>true</code> if the discovery system is running.
-     */
-    boolean isRunning();
-
-    /**
-     * Start the discovery system.
-     * <p>
-     * After calling this method, the discovery system start to emit
-     * {@link DiscoverListener} events on service discovered/lost.
-     */
-    void start() throws DiscoveryException;
-
-    /**
-     * Start the discovery system.
-     * <p>
-     * After calling this method, the discovery system start to emit
-     * {@link DiscoverListener} events on service discovered/lost.
-     */
-    void stop() throws DiscoveryException;
-
-
     // Getters
+
+    /**
+     * @return current Discover service state.
+     */
+    DiscoveryState getState();
 
     /**
      * Return the service type looked from current discover object.
@@ -72,21 +53,58 @@ public interface Discover {
     List<String> getInterfaces();
 
 
+    // Discovery mngm
+
+    /**
+     * Start the discovery system.
+     * <p>
+     * After calling this method, the discovery system start to emit
+     * {@link DiscoveryServicesListener} events on service discovered/lost.
+     */
+    void start() throws DiscoveryException;
+
+    /**
+     * Start the discovery system.
+     * <p>
+     * After calling this method, the discovery system start to emit
+     * {@link DiscoveryServicesListener} events on service discovered/lost.
+     */
+    void stop();
+
+
     // Listener mngm
 
     /**
-     * Add given listener to discovery system listener list.
+     * Add given listener to discover state listener list.
      *
      * @param listener the listener to add.
      */
-    void addListener(DiscoverListener listener);
+    void addListener(DiscoverStateListener listener);
 
     /**
-     * Remove given listener to discovery system listener list.
+     * Remove given listener to discover state listener list.
      *
      * @param listener the listener to remove.
      */
-    void removeListener(DiscoverListener listener);
+    void removeListener(DiscoverStateListener listener);
+
+    /**
+     * Add given listener to discovery system listener list.
+     * <p>
+     * This listeners observe all services (de)publications.
+     *
+     * @param listener the listener to add.
+     */
+    void addListener(DiscoveryServicesListener listener);
+
+    /**
+     * Remove given listener to discovery system listener list.
+     * <p>
+     * This listeners observe all services (de)publications.
+     *
+     * @param listener the listener to remove.
+     */
+    void removeListener(DiscoveryServicesListener listener);
 
 
     // Exceptions

@@ -23,7 +23,7 @@ package com.robypomper.discovery;
 /**
  * Interface to listen for events emitted from {@link Discover} classes.
  */
-public interface DiscoverListener {
+public interface DiscoveryServicesListener {
 
     /**
      * Event triggered on service discovered.
