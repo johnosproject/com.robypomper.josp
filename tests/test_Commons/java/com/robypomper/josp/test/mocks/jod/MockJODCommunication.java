@@ -23,6 +23,7 @@ import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODGwO2SClient;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
+import com.robypomper.josp.jod.comm.JODLocalServer;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -67,6 +68,11 @@ public class MockJODCommunication implements JODCommunication {
 
     @Override
     public JODGwO2SClient getCloudConnection() {
+        return null;
+    }
+
+    @Override
+    public JODLocalServer getLocalServer() {
         return null;
     }
 
