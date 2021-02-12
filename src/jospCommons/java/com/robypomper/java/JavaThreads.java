@@ -114,6 +114,34 @@ public class JavaThreads {
     }
 
 
+    // Stop Thread
+
+    /**
+     * Send interrupt signal to given thread.
+     *
+     * @param thread the thread to stop.
+     */
+    public static void stop(Thread thread) {
+        thread.interrupt();
+    }
+
+    /**
+     * Stop given thread and wait for his join to current thread.
+     *
+     * @param thread    the thread to stop.
+     * @param timeoutMs thread's join timeout in ms.
+     * @return true if given thread joined successfully, false otherwise.
+     */
+    public static boolean stopAndJoin(Thread thread, long timeoutMs) {
+        stop(thread);
+        try {
+            thread.join(timeoutMs);
+        } catch (InterruptedException ignore) {
+        }
+
+        return !thread.isAlive();
+    }
+
     // Sleep
 
     /**

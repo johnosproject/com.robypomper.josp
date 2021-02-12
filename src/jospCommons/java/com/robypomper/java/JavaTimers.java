@@ -434,4 +434,18 @@ public class JavaTimers {
         return timer;
     }
 
+
+    // Stop timer
+
+    /**
+     * Cancel next execution of given timer.
+     * <p>
+     * This methods doesn't terminate timer's running execution if any.
+     *
+     * @param timer the timer to stop.
+     */
+    public static void stopTimer(Timer timer) {
+        timer.cancel();
+    }
+
 }
