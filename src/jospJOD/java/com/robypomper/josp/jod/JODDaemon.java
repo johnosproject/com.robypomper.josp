@@ -254,26 +254,6 @@ public class JODDaemon {
         }
     }
 
-    // Shell mngm
-
-    /**
-     * Start interactive shell.
-     */
-    public void startShell(String objName) throws IOException {
-        shell = ShellFactory.createConsoleShell(JODInfo.APP_NAME + "-" + objName, JODInfo.APP_NAME_FULL,
-                this,
-                new CmdsShell(shell),
-                new CmdsJOD(jod),
-                new CmdsJCPClient(jod.getJCPClient()),
-                new CmdsJODObjectInfo(jod.getObjectInfo()),
-                new CmdsJODExecutorMngr(jod.getObjectStructure(), jod.getExecutor(), jod.getHistory()),
-                new CmdsJODStructure(jod.getObjectStructure()),
-                new CmdsJODPermissions(jod.getPermission()),
-                new CmdsJODCommunication(jod.getCommunication())
-        );
-        shell.commandLoop();
-    }
-
 
     // CmdLine args parser
 
