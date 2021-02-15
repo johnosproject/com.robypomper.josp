@@ -90,6 +90,8 @@ public class JavaThreads {
         return thread;
     }
 
+    static private int threadsCount = 0;
+
     /**
      * Generate a thread's name.
      * <p>
@@ -109,8 +111,9 @@ public class JavaThreads {
         assert name != null && !name.isEmpty() : "Thread name must be set.";
 
         String currentThreadName = Thread.currentThread().getName();
+        currentThreadName = currentThreadName.substring(currentThreadName.indexOf('.')+1);
         String newThreadName = name + (instance != null && !instance.isEmpty() ? "(" + instance + ")" : "");
-        return String.format("%s/%s", currentThreadName, newThreadName);
+        return String.format("%d.%s/%s", threadsCount++, currentThreadName, newThreadName);
     }
 
 
