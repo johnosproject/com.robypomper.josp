@@ -93,7 +93,7 @@ public class SpringBuildUtils {
         run.conventionMapping("main", new MainClassConvention2(project, run::getClasspath));
 
         try {
-            run.environment("HOSTNAME", InetAddress.getLocalHost().getHostName());
+            run.environment("HOSTNAME", InetAddress.getLocalHost().getHostName().toLowerCase());
         } catch (UnknownHostException ignore) {
         }
         return run;
