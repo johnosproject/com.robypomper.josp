@@ -18,8 +18,10 @@
 
 package com.robypomper.josp.jsl.comm;
 
+import com.robypomper.comm.exception.PeerConnectionException;
 import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.JSL_002;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
@@ -64,6 +66,7 @@ public class JSLCommunication_002 implements JSLCommunication {
         this.locSettings = settings;
         this.jslObjsMngr = jslObjsMngr;
         this.jcpClient = jcpClient;
+        jcpClient.addConnectionListener(jcpConnectionListener);
 
         this.localClients = new JSLLocalClientsMngr(jsl, this, jslObjsMngr, locSettings, srvInfo);
         this.gwClient = new JSLGwS2OClient(this, srvInfo.getFullId(), jcpClient, instanceId);
@@ -149,5 +152,50 @@ public class JSLCommunication_002 implements JSLCommunication {
     public JSLLocalClientsMngr getLocalConnections() {
         return localClients;
     }
+
+
+    // JCP Client listeners
+
+    private final JCPClient2.ConnectionListener jcpConnectionListener = new JCPClient2.ConnectionListener() {
+
+        private boolean connFailedPrinted = false;
+
+        @Override
+        public void onConnected(JCPClient2 jcpClient) {
+            log.info(Mrk_JSL.JSL_COMM, "JCP Client connected");
+
+            if (gwClient != null && !gwClient.getState().isConnected() /*&& gwClient.shouldBeConnected()*/) {
+                try {
+                    gwClient.connect();
+
+                } catch (PeerConnectionException e) {
+                    log.warn(Mrk_JSL.JSL_COMM, String.format("Error on reconnect JOSP Gw client because %s", e.getMessage()), e);
+                }
+            }
+
+            connFailedPrinted = false;
+        }
+
+        @Override
+        public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
+            if (connFailedPrinted) {
+                log.debug("Error on JCP APIs connection attempt");
+            } else {
+                log.warn("Error on JCP APIs connection attempt", t);
+                connFailedPrinted = true;
+            }
+        }
+
+        @Override
+        public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
+            log.warn(Mrk_JSL.JSL_COMM, String.format("Error on authenticating to JCP APIs because %s", t.getMessage()), t);
+        }
+
+        @Override
+        public void onDisconnected(JCPClient2 jcpClient) {
+            log.info(Mrk_JSL.JSL_COMM, "JCP Client disconnected");
+        }
+
+    };
 
 }
