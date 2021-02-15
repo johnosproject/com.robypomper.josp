@@ -623,6 +623,8 @@ public class JODCommunication_002 implements JODCommunication {
 
     private final JCPClient2.ConnectionListener jcpConnectionListener = new JCPClient2.ConnectionListener() {
 
+        private boolean connFailedPrinted = false;
+
         @Override
         public void onConnected(JCPClient2 jcpClient) {
             log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client connected with %s flow", getFlowName(jcpClient)));
@@ -636,11 +638,18 @@ public class JODCommunication_002 implements JODCommunication {
                     log.warn(Mrk_JOD.JOD_COMM, String.format("Error on reconnect JOSP Gw client because %s", e.getMessage()), e);
                 }
             }
+
+            connFailedPrinted = false;
         }
 
         @Override
         public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on connecting to JCP APIs because %s", t.getMessage()), t);
+            if (connFailedPrinted) {
+                log.debug("Error on JCP APIs connection attempt");
+            } else {
+                log.warn("Error on JCP APIs connection attempt", t);
+                connFailedPrinted = true;
+            }
             Events.registerJCPConnection("JCP Connection failed", jcpClient, getFlowName(jcpClient), t);
         }
 
