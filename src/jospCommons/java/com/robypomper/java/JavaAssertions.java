@@ -20,19 +20,16 @@ public class JavaAssertions {
 
     // Internal vars
 
-    private static final boolean isAssertionDisabled;
+    private static final boolean isAssertionDisabled = checkAssertionDisabled();
 
-    static {
-        boolean tmp;
+    private static boolean checkAssertionDisabled() {
         try {
             assert false;
-            tmp = true;
+            return true;
 
         } catch (AssertionError ignore) {
-            tmp = false;
+            return false;
         }
-
-        isAssertionDisabled = tmp;
     }
 
 
@@ -56,18 +53,9 @@ public class JavaAssertions {
      * @param <T>       return type of current method.
      * @return the value given as <code>returnVal</code> param.
      */
-    public static <T> T makeAssertionFailed(Throwable e, T returnVal) {
-        makeAssertionFailed(e);
+    public static <T> T makeAssertion_Failed(Throwable e, T returnVal) {
+        makeAssertion_Failed(e);
         return returnVal;
-    }
-
-    /**
-     * Make and print assertion error.
-     *
-     * @param e the exception related with the assertion error.
-     */
-    public static void makeAssertionFailed(Throwable e) {
-        makeAssertionFailed(e, null);
     }
 
     /**
@@ -78,18 +66,9 @@ public class JavaAssertions {
      * @param <T>       return type of current method.
      * @return the value given as <code>returnVal</code> param.
      */
-    public static <T> T makeAssertionFailed(String msg, T returnVal) {
-        makeAssertionFailed(msg);
+    public static <T> T makeAssertion_Failed(String msg, T returnVal) {
+        makeAssertion_Failed(msg);
         return returnVal;
-    }
-
-    /**
-     * Make and print assertion error.
-     *
-     * @param msg a message to describe the assertion error.
-     */
-    public static void makeAssertionFailed(String msg) {
-        makeAssertionFailed((Throwable) null, msg);
     }
 
     /**
@@ -101,9 +80,27 @@ public class JavaAssertions {
      * @param <T>       return type of current method.
      * @return the value given as <code>returnVal</code> param.
      */
-    public static <T> T makeAssertionFailed(Throwable e, String msg, T returnVal) {
-        makeAssertionFailed(e, msg);
+    public static <T> T makeAssertion_Failed(Throwable e, String msg, T returnVal) {
+        makeAssertion_Failed(e, msg);
         return returnVal;
+    }
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param e the exception related with the assertion error.
+     */
+    public static void makeAssertion_Failed(Throwable e) {
+        makeAssertion_Failed(e, null);
+    }
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param msg a message to describe the assertion error.
+     */
+    public static void makeAssertion_Failed(String msg) {
+        makeAssertion_Failed((Throwable) null, msg);
     }
 
     /**
@@ -112,12 +109,26 @@ public class JavaAssertions {
      * @param e   the exception related with the assertion error.
      * @param msg a message to describe the assertion error.
      */
-    public static void makeAssertionFailed(Throwable e, String msg) {
+    public static void makeAssertion_Failed(Throwable e, String msg) {
         makeAssertion(false, e, msg);
     }
 
 
     // Assertion makers
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param e         the exception related with the assertion error.
+     * @param returnVal value returned by current method.
+     * @param <T>       return type of current method.
+     * @return the value given as <code>returnVal</code> param.
+     */
+    public static <T> T makeAssertion(boolean condition, Throwable e, T returnVal) {
+        makeAssertion(condition, e);
+        return returnVal;
+    }
 
     /**
      * Make, check and print assertion error.
@@ -131,16 +142,6 @@ public class JavaAssertions {
     public static <T> T makeAssertion(boolean condition, String msg, T returnVal) {
         makeAssertion(condition, msg);
         return returnVal;
-    }
-
-    /**
-     * Make, check and print assertion error.
-     *
-     * @param condition the assertion error is printed only if condition is false.
-     * @param msg       a message to describe the assertion error.
-     */
-    public static void makeAssertion(boolean condition, String msg) {
-        makeAssertion(condition, (Throwable) null, msg);
     }
 
     /**
@@ -163,20 +164,192 @@ public class JavaAssertions {
      *
      * @param condition the assertion error is printed only if condition is false.
      * @param e         the exception related with the assertion error.
+     */
+    public static void makeAssertion(boolean condition, Throwable e) {
+        makeAssertion(condition, e, null);
+    }
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param msg       a message to describe the assertion error.
+     */
+    public static void makeAssertion(boolean condition, String msg) {
+        makeAssertion(condition, (Throwable) null, msg);
+    }
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param e         the exception related with the assertion error.
      * @param msg       a message to describe the assertion error.
      */
     public static void makeAssertion(boolean condition, Throwable e, String msg) {
         if (condition || isAssertionDisabled()) return;
 
-        print(e, msg);
+        print(e, msg, true);
+    }
+
+
+    // Failed Warning assertions
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param e         the exception related with the assertion error.
+     * @param returnVal value returned by current method.
+     * @param <T>       return type of current method.
+     * @return the value given as <code>returnVal</code> param.
+     */
+    public static <T> T makeWarning_Failed(Throwable e, T returnVal) {
+        makeWarning_Failed(e);
+        return returnVal;
+    }
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param msg       a message to describe the assertion error.
+     * @param returnVal value returned by current method.
+     * @param <T>       return type of current method.
+     * @return the value given as <code>returnVal</code> param.
+     */
+    public static <T> T makeWarning_Failed(String msg, T returnVal) {
+        makeWarning_Failed(msg);
+        return returnVal;
+    }
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param e         the exception related with the assertion error.
+     * @param msg       a message to describe the assertion error.
+     * @param returnVal value returned by current method.
+     * @param <T>       return type of current method.
+     * @return the value given as <code>returnVal</code> param.
+     */
+    public static <T> T makeWarning_Failed(Throwable e, String msg, T returnVal) {
+        makeWarning_Failed(e, msg);
+        return returnVal;
+    }
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param e the exception related with the assertion error.
+     */
+    public static void makeWarning_Failed(Throwable e) {
+        makeWarning_Failed(e, null);
+    }
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param msg a message to describe the assertion error.
+     */
+    public static void makeWarning_Failed(String msg) {
+        makeWarning_Failed((Throwable) null, msg);
+    }
+
+    /**
+     * Make and print assertion error.
+     *
+     * @param e   the exception related with the assertion error.
+     * @param msg a message to describe the assertion error.
+     */
+    public static void makeWarning_Failed(Throwable e, String msg) {
+        makeWarning(false, e, msg);
+    }
+
+
+    // Assertion Warning makers
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param e         the exception related with the assertion error.
+     * @param returnVal value returned by current method.
+     * @param <T>       return type of current method.
+     * @return the value given as <code>returnVal</code> param.
+     */
+    public static <T> T makeWarning(boolean condition, Throwable e, T returnVal) {
+        makeWarning(condition, e);
+        return returnVal;
+    }
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param msg       a message to describe the assertion error.
+     * @param returnVal value returned by current method.
+     * @param <T>       return type of current method.
+     * @return the value given as <code>returnVal</code> param.
+     */
+    public static <T> T makeWarning(boolean condition, String msg, T returnVal) {
+        makeWarning(condition, msg);
+        return returnVal;
+    }
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param e         the exception related with the assertion error.
+     * @param msg       a message to describe the assertion error.
+     * @param returnVal value returned by current method.
+     * @param <T>       return type of current method.
+     * @return the value given as <code>returnVal</code> param.
+     */
+    public static <T> T makeWarning(boolean condition, Throwable e, String msg, T returnVal) {
+        makeWarning(condition, e, msg);
+        return returnVal;
+    }
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param e         the exception related with the assertion error.
+     */
+    public static void makeWarning(boolean condition, Throwable e) {
+        makeWarning(condition, e, null);
+    }
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param msg       a message to describe the assertion error.
+     */
+    public static void makeWarning(boolean condition, String msg) {
+        makeWarning(condition, (Throwable) null, msg);
+    }
+
+    /**
+     * Make, check and print assertion error.
+     *
+     * @param condition the assertion error is printed only if condition is false.
+     * @param e         the exception related with the assertion error.
+     * @param msg       a message to describe the assertion error.
+     */
+    public static void makeWarning(boolean condition, Throwable e, String msg) {
+        if (condition || isAssertionDisabled()) return;
+
+        print(e, msg + " Skipp error!", false);
     }
 
 
     // Printers
 
-    private static void print(Throwable extraThrowable, String msg) {
+    private static void print(Throwable extraThrowable, String msg, boolean blocking) {
+        String level = blocking ? "ERROR" : "WARNING";
+
         String s = "";
-        s += "ASSERTION ERROR (start)\n";
+        s += String.format("ASSERTION %s (start)\n", level);
         if (msg != null)
             s += String.format("- Message:  %s\n", msg);
         s += String.format("- Date:     %s\n", new Date());
@@ -188,9 +361,24 @@ public class JavaAssertions {
                     .replace("Caused by:", "Origin at:")
                     .trim() + "\n";
         }
-        s += "ASSERTION ERROR (end)";
+        s += String.format("ASSERTION %s (end)", level);
         System.err.println(s);
         System.err.flush();
+
+        if (blocking)
+            throw new AssertionError(msg, extraThrowable);
+    }
+
+    public static void main(String[] s) {
+        System.out.println("Start...");
+        System.out.println("Assertion disabled = " + isAssertionDisabled());
+
+        //assert false : "Assertion normale";
+
+        print(null,"message",true);
+
+        print(new IllegalArgumentException("xxx"),"message",false);
+        System.out.println("End");
     }
 
 }
