@@ -33,7 +33,6 @@ public class ConnectionInfoDefault implements ConnectionInfo {
 
         this.protoName = protoName;
 
-        //peer.addListener(connectionListener);
         peer.addListener(dataListener);
         peer.getHeartBeatConfigs().addListener(hbListener);
     }
@@ -147,49 +146,6 @@ public class ConnectionInfoDefault implements ConnectionInfo {
 
 
     // Updates listeners
-
-    /*
-     * The 'connectionListener' listener is the best way to keep current
-     * ConnectionInfoDefault updated. But it miss onConnecting,
-     * onConnecting_Waiting and onDisconnecting events, required to update
-     * all states of current ConnectionInfoDefault.
-     *
-     * Because of that, the 'connectionListener' instance is not actually used.
-     * Instead, as workaround, the ConnectionInfoDefault updateOnXXX() methods
-     * are called by PeerAbs class and his emitOnXXX() methods.
-     */
-    private PeerConnectionListener connectionListener = new PeerConnectionListener() {
-
-        @Override
-        public void onConnecting(Peer peer) {
-            updateOnConnecting();
-        }
-
-        @Override
-        public void onWaiting(Peer peer) {
-            updateOnConnecting_Waiting();
-        }
-
-        @Override
-        public void onConnect(Peer peer) {
-            updateOnConnected();
-        }
-
-        @Override
-        public void onDisconnecting(Peer peer) {
-            updateOnDisconnecting();
-        }
-
-        @Override
-        public void onDisconnect(Peer peer) {
-            updateOnDisconnected();
-        }
-
-        @Override
-        public void onFail(Peer peer, String failMsg, Throwable exception) {
-        }
-
-    };
 
     private PeerDataListener dataListener = new PeerDataListener() {
 

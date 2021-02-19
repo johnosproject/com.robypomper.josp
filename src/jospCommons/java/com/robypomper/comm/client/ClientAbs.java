@@ -8,7 +8,6 @@ import com.robypomper.comm.configs.DataEncodingConfigs;
 import com.robypomper.comm.connection.ConnectionState;
 import com.robypomper.comm.exception.PeerConnectionException;
 import com.robypomper.comm.exception.PeerDisconnectionException;
-import com.robypomper.comm.exception.PeerException;
 import com.robypomper.comm.exception.PeerUnknownHostException;
 import com.robypomper.comm.peer.DisconnectionReason;
 import com.robypomper.comm.peer.Peer;
@@ -230,8 +229,11 @@ public abstract class ClientAbs extends PeerAbs implements Client {
                 log.trace(String.format("Peer '%s' re-connecting for scheduled attempt", getLocalId()));
                 doConnect(true);
 
-            } catch (PeerException e) {
-                emitOnFail("Error re-connecting for scheduled attempt", e);
+            } catch (PeerConnectionException e) {
+                Throwable cause = e;
+                while (cause.getCause()!=null)
+                    cause = cause.getCause();
+                emitOnFail("Error re-connecting Client for scheduled attempt: %s", e);
             }
         }
 
@@ -267,8 +269,11 @@ public abstract class ClientAbs extends PeerAbs implements Client {
                 log.trace(String.format("Peer '%s' re-connecting after NOT required disconnection (reason: %s)", getLocalId(), getDisconnectionReason()));
                 doConnect(true);
 
-            } catch (PeerException e) {
-                emitOnFail("Error re-connecting after NOT required disconnection, schedule", e);
+            } catch (PeerConnectionException e) {
+                Throwable cause = e;
+                while (cause.getCause()!=null)
+                    cause = cause.getCause();
+                emitOnFail("Error re-connecting Client after NOT required disconnection, schedule re-connection: %s", e);
                 scheduleReConnecting();
             }
         }

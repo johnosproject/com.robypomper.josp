@@ -55,6 +55,11 @@ public class PeerInfoDefault implements PeerInfo {
     }
 
     @Override
+    public String getProto() {
+        return protoName;
+    }
+
+    @Override
     public String getHostname() {
         return hostname;
     }

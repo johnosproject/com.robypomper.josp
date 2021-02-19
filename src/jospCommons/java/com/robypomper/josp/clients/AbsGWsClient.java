@@ -39,7 +39,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
     private final JCPClient2 jcpClient;
     private JCPClient2.ConnectionListener jcpConnectionListener = null;
     // Client SSL stuff
-    private DynAddTrustManager trustManager;
+    private final DynAddTrustManager trustManager;
     private Certificate localCertificate;
     private SSLContext sslCtx;
     // behaviors
@@ -50,6 +50,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
 
     protected AbsGWsClient(String clientId, String serverId, JCPClient2 jcpClient) {
         super(clientId, serverId, JOSPProtocol.JOSP_PROTO_NAME);
+        getAutoReConnectConfigs().enable(true);
         this.jcpClient = jcpClient;
 
         trustManager = new DynAddTrustManager();
@@ -86,17 +87,25 @@ public abstract class AbsGWsClient extends ClientWrapper {
             return;
         }
 
-        if (!getState().isConnecting())
-            emitOnConnecting();
+        //if (!getState().isConnecting()) {
+        //    // event already emitted by ClientWrapper::doConnect()
+        //    emitOnConnecting();
+        //}
 
         resetWrapper();
 
         if (!jcpClient.isConnected()) {
-            if (!preventReConnecting && getAutoReConnectConfigs().isEnable())
-                tryAddJCPConnectionListener();
-            else
-                emitOnDisconnect();
+            if (!preventReConnecting) {
+                if (getAutoReConnectConfigs().isEnable())
+                    tryAddJCPConnectionListener();
+                else
+                    emitOnDisconnect();
+            }
             throw new PeerConnectionException(this, String.format("Error on AbsGWsClient '%s' because JCP APIs not connected", this));
+        }
+        if (isWaitingJCPConnection()) {
+            tryRemoveJCPConnectionListener();
+            preventReConnecting = false;
         }
 
         AccessInfo accessInfo;
@@ -133,7 +142,9 @@ public abstract class AbsGWsClient extends ClientWrapper {
             Client client = initGWsClient(accessInfo, sslCtx);
             client.getAutoReConnectConfigs().enable(false);
             setWrapper(client, false);
+
         } catch (Throwable e) {
+            resetWrapper();
             if (!preventReConnecting) {
                 if (getAutoReConnectConfigs().isEnable())
                     //&& e instanceof PeerConnectionException && ((PeerConnectionException) e).isRemotePeerNotAvailable())
@@ -144,7 +155,23 @@ public abstract class AbsGWsClient extends ClientWrapper {
             throw new PeerConnectionException(this, e, String.format("Error on AbsGWsClient '%s' because %s", this, e.getMessage()));
         }
 
-        super.doConnect();
+        try {
+            super.doConnect();
+
+        } catch (Throwable e) {
+            resetWrapper();
+            if (!preventReConnecting) {
+                if (getAutoReConnectConfigs().isEnable())
+                    //&& e instanceof PeerConnectionException && ((PeerConnectionException) e).isRemotePeerNotAvailable())
+                    scheduleReConnecting();
+                else
+                    emitOnDisconnect();
+            } else
+                if (getAutoReConnectConfigs().isEnable())
+                    emitOnConnecting_Waiting();
+
+            throw e;
+        }
         stopReConnecting();
     }
 
@@ -177,6 +204,10 @@ public abstract class AbsGWsClient extends ClientWrapper {
 
 
     // JCP APIs listener
+
+    private boolean isWaitingJCPConnection() {
+        return jcpConnectionListener != null;
+    }
 
     private void tryAddJCPConnectionListener() {
         if (jcpConnectionListener == null) {
@@ -227,7 +258,6 @@ public abstract class AbsGWsClient extends ClientWrapper {
     }
 
     protected void scheduleReConnecting() {
-        //System.out.println("$$$$ AbsGWsClient::scheduleReConnecting");
         reConnectTimer = JavaTimers.initAndStart(new ClientReConnect(), true, TH_RE_CONNECT_NAME, getLocalId(), getAutoReConnectConfigs().getDelay(), getAutoReConnectConfigs().getDelay());
         emitOnConnecting_Waiting();
     }
@@ -246,8 +276,8 @@ public abstract class AbsGWsClient extends ClientWrapper {
             try {
                 doConnect(true);
 
-            } catch (PeerException e) {
-                emitOnFail("Error re-connecting", e);
+            } catch (PeerConnectionException e) {
+                emitOnFail("Error re-connecting GW Client for scheduled attempt", e);
             }
         }
 
@@ -278,14 +308,21 @@ public abstract class AbsGWsClient extends ClientWrapper {
             if (!getAutoReConnectConfigs().isEnable())
                 return;
 
-            if (getWrapper().getDisconnectionReason() == DisconnectionReason.LOCAL_REQUEST)     // Check on wrapper because wrapper connectionInfo not yet updated because PeerConnectionListeners order
+            if (getWrapper().getDisconnectionReason() == DisconnectionReason.LOCAL_REQUEST)         // Check on wrapper because wrapper connectionInfo not yet updated because PeerConnectionListeners order
+                return;
+
+            if (getWrapper().getDisconnectionReason() == DisconnectionReason.NOT_DISCONNECTED)      // error on doConnect()
                 return;
 
             try {
                 doConnect(false);
 
-            } catch (PeerException e) {
-                emitOnFail("Error re-connecting", e);
+            } catch (PeerConnectionException e) {
+                Throwable cause = e;
+                while (cause.getCause()!=null)
+                    cause = cause.getCause();
+                emitOnFail("Error re-connecting GW Client after NOT required disconnection, schedule re-connection", e);
+                //scheduleReConnecting();
             }
         }
 

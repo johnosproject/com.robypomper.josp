@@ -10,6 +10,8 @@ public interface PeerInfo {
 
     String getId();
 
+    String getProto();
+
     String getHostname();
 
     InetAddress getAddr();

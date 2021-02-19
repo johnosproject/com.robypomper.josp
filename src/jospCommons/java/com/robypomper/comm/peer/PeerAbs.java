@@ -99,7 +99,6 @@ public abstract class PeerAbs implements Peer {
         heartBeat.addListener(heartBeatListener);
         if (byeMsg != null) this.byeMsg = new ByeMsgDefault(this, dataEncoding, enableByeMsg, byeMsg);
         else this.byeMsg = new ByeMsgDefault(this, dataEncoding, enableByeMsg, ByeMsgConfigs.BYE_MSG);
-        this.byeMsg.addListener(byeMsgListener);
 
         connectionInfo = new ConnectionInfoDefault(this, localId, remoteId, protoName);
         disconnectionReason = DisconnectionReason.NOT_DISCONNECTED;
@@ -135,7 +134,6 @@ public abstract class PeerAbs implements Peer {
         heartBeat = new HeartBeatDefault(this, hbTimeoutMs, hbTimeoutHBMs, enableHBRes);
         heartBeat.addListener(heartBeatListener);
         this.byeMsg = new ByeMsgDefault(this, dataEncoding, enableByeMsg, byeMsg);
-        this.byeMsg.addListener(byeMsgListener);
 
         disconnectionReason = DisconnectionReason.NOT_DISCONNECTED;
         connectionInfo = new ConnectionInfoDefault(this, localId, remoteId, protoName);
@@ -539,9 +537,13 @@ public abstract class PeerAbs implements Peer {
     }
 
     protected void emitOnDisconnect() {
+        connectionInfo.updateOnDisconnected();
+
+        if (getDisconnectionReason() == DisconnectionReason.NOT_DISCONNECTED)
+            return;
+
         log.info(String.format("Peer '%s' disconnected (reason: %s)", getLocalId(), getDisconnectionReason()));
 
-        connectionInfo.updateOnDisconnected();
         JavaListeners.emitter(this, listenersConnection, "onDisconnect", new JavaListeners.ListenerMapper<PeerConnectionListener>() {
             @Override
             public void map(PeerConnectionListener l) {
@@ -616,17 +618,6 @@ public abstract class PeerAbs implements Peer {
             try {
                 emitOnFail("HB reached timeout");
                 doDisconnect(false, false);
-            } catch (PeerException ignore) { /* ignored because focus on local disconnection */ }
-        }
-
-    };
-
-    ByeMsgListener byeMsgListener = new ByeMsgListener() {
-
-        @Override
-        public void onBye(Peer peer, ByeMsgImpl byeMsg) {
-            try {
-                doDisconnect(false, true);
             } catch (PeerException ignore) { /* ignored because focus on local disconnection */ }
         }
 

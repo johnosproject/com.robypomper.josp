@@ -6,10 +6,7 @@ import com.robypomper.comm.behaviours.HeartBeatConfigs;
 import com.robypomper.comm.behaviours.HeartBeatConfigsServer;
 import com.robypomper.comm.configs.DataEncodingConfigs;
 import com.robypomper.comm.configs.DataEncodingConfigsServer;
-import com.robypomper.comm.exception.PeerDisconnectionException;
-import com.robypomper.comm.exception.PeerInfoSocketNotConnectedException;
-import com.robypomper.comm.exception.ServerShutdownException;
-import com.robypomper.comm.exception.ServerStartupException;
+import com.robypomper.comm.exception.*;
 import com.robypomper.comm.peer.*;
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaListeners;
@@ -211,23 +208,10 @@ public abstract class ServerAbs implements Server {
 
                 ServerClient client;
                 try {
-                    String remoteId = "tmpClientId";//extractServerClientId(socket);
-                    String localId = String.format("%s:%d@%s", socket.getInetAddress().getHostAddress(), socket.getPort(), getLocalId());
-                    client = new ServerClient(ServerAbs.this, localId, remoteId, getProtocolName(), socket,
-                            getDataEncodingConfigs().getCharset(), getDataEncodingConfigs().getDelimiter(),
-                            getHeartBeatConfigs().getTimeout(), getHeartBeatConfigs().getHBTimeout(), getHeartBeatConfigs().isHBResponseEnabled(),
-                            getByeConfigs().isEnable(), getByeConfigs().getByeMsg());
+                    client = generateClient(socket);
 
-                } catch (Throwable e) {
-                    log.warn(String.format("Server '%s'  discharged client %s", getLocalId(), socket), e);
-                    String remoteId = "UnauthenticatedClient";
-                    String localId = String.format("%s:%d@%s", socket.getInetAddress().getHostAddress(), socket.getPort(), getLocalId());
-                    client = new ServerClient(ServerAbs.this, localId, remoteId, getProtocolName(), socket,
-                            getDataEncodingConfigs().getCharset(), getDataEncodingConfigs().getDelimiter(),
-                            getHeartBeatConfigs().getTimeout(), getHeartBeatConfigs().getHBTimeout(), getHeartBeatConfigs().isHBResponseEnabled(),
-                            getByeConfigs().isEnable(), getByeConfigs().getByeMsg());
-                    emitOnConnect(client);
-                    emitOnDisconnect(client);
+                } catch (PeerConnectionException e) {
+                    emitOnFail("Error generating server's client", e);
                     continue;
                 }
 
@@ -242,6 +226,15 @@ public abstract class ServerAbs implements Server {
             emitOnStop();
         }
 
+    }
+
+    protected ServerClient generateClient(Socket socket) throws PeerConnectionException {
+        String remoteId =  String.format("%s://%s:%d", protoName, socket.getInetAddress().getHostAddress(), socket.getPort());
+        String localId = String.format("%s:%d@%s", socket.getInetAddress().getHostAddress(), socket.getPort(), getLocalId());
+        return new ServerClient(ServerAbs.this, localId, remoteId, getProtocolName(), socket,
+                getDataEncodingConfigs().getCharset(), getDataEncodingConfigs().getDelimiter(),
+                getHeartBeatConfigs().getTimeout(), getHeartBeatConfigs().getHBTimeout(), getHeartBeatConfigs().isHBResponseEnabled(),
+                getByeConfigs().isEnable(), getByeConfigs().getByeMsg());
     }
 
     @Override
@@ -260,7 +253,10 @@ public abstract class ServerAbs implements Server {
         } catch (IOException e) {
             throw new ServerShutdownException(this, e, "Error on closing server socket");
         }
-        infLoopTh.interrupt();
+
+        JavaAssertions.makeWarning(infLoopTh != null, String.format("Instance 'ServerAbs'(%s) var 'infLoopTh''s of his infinite loop thread can NOT be null on server shutdown.", this));
+        if (infLoopTh!=null)
+            infLoopTh.interrupt();
 
         for (ServerClient c : getClients())
             try {

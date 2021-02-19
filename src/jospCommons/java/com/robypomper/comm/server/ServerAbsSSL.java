@@ -3,15 +3,16 @@ package com.robypomper.comm.server;
 import com.robypomper.comm.behaviours.ByeMsgConfigs;
 import com.robypomper.comm.behaviours.HeartBeatConfigs;
 import com.robypomper.comm.configs.DataEncodingConfigs;
+import com.robypomper.comm.exception.PeerConnectionException;
 import com.robypomper.comm.exception.ServerShutdownException;
 import com.robypomper.comm.exception.ServerStartupException;
 import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.security.cert.Certificate;
 
@@ -141,6 +142,25 @@ public abstract class ServerAbsSSL extends ServerAbs {
         super.startup();
         if (serverCertSharing != null)
             serverCertSharing.startup();
+    }
+
+    protected ServerClient generateClient(Socket socket) throws PeerConnectionException {
+        if (!isAuthRequired())
+            try {
+                ((SSLSocket) socket).startHandshake();
+
+            } catch (IOException e) {
+                throw new PeerConnectionException(null, socket, e, "ServerClient discharged because error on requested handshake.");
+            }
+
+        if (isAuthRequired())
+            try {
+                ((SSLSocket) socket).getSession().getPeerPrincipal();
+            } catch (SSLPeerUnverifiedException e) {
+                throw new PeerConnectionException(null, socket, e, "ServerClient discharged because client not authenticated.");
+            }
+
+        return super.generateClient(socket);
     }
 
     public void shutdown() throws ServerShutdownException {
