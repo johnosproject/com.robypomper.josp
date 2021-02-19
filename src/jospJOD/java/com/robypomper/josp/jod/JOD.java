@@ -59,7 +59,7 @@ public interface JOD {
      * @return null pointer.
      */
     static JOD instance(Settings settings) {
-        return JavaAssertions.makeAssertionFailed("Each sub-class must override this method", null);
+        return JavaAssertions.makeAssertion_Failed("Each sub-class must override this method", null);
     }
 
 
