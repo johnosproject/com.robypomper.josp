@@ -341,8 +341,9 @@ public abstract class AbsJOD implements JOD {
 
             try {
                 boolean startCloud = ((JODSettings_002) settings).getCloudEnabled();
-                log.info(Mrk_JOD.JOD_MAIN, String.format("JODCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
-                if (startCloud) comm.getCloudConnection().connect();
+                log.info(Mrk_JOD.JOD_MAIN, String.format("JCP GWs client %s", startCloud ? "enabled" : "disabled"));
+                if (startCloud)
+                    comm.getCloudConnection().connect();
 
             } catch (PeerConnectionException e) {
                 log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on connecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);

@@ -113,7 +113,7 @@ public class JODLocalServer extends ServerAbsSSL {
 
             @Override
             public void onFail(Server server, ServerClient client, String failMsg, Throwable exception) {
-                System.out.printf("Error on JODLocalServer's client '%s' connection (%s)%n", client, failMsg);
+                log.warn(String.format("Error on JODLocalServer's client '%s' connection (%s)%n", client, failMsg));
             }
 
         });
@@ -170,56 +170,73 @@ public class JODLocalServer extends ServerAbsSSL {
      * @param client the new client's info.
      */
     private void onClientConnection(ServerClient client) {
-        if (!client.getState().isConnecting())
-            JavaThreads.softSleep(100);
+        JavaThreads.initAndStart(new OnClientConnectionRunnable(client), "LOCAL_JSL_CONNECTED", client.toString());
+    }
 
-        if (!client.getState().isConnected())
-            return;
+    private class OnClientConnectionRunnable implements Runnable {
 
-        JODLocalClientInfo newConn = new DefaultJODLocalClientInfo(client);
+        private final ServerClient client;
 
-        JODLocalClientInfo oldConn;
-        synchronized (localClients) {
-            oldConn = getLocalConnectionByServiceId(newConn.getClientId());
-            if (oldConn == null)
-                localClients.add(newConn);
-            else if (!oldConn.isConnected()) {
-                localClients.remove(oldConn);
-                localClients.add(newConn);
-            }
+        private OnClientConnectionRunnable(ServerClient client) {
+            this.client = client;
+        }
 
-            if (oldConn == null) {                          // new JSL service
-                try {
-                    sendObjectPresentation(newConn);
-                } catch (JODCommunication.ServiceNotConnected e) {
-                    log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on sending object's presentation to new service's client '%s', discharge client", client)); //, e);
-                    localClients.remove(newConn);
-                    return;
+        @Override
+        public void run() {
+            if (!client.getState().isConnecting())
+                JavaThreads.softSleep(100);
+
+            JavaThreads.softSleep(1000);
+
+            if (!client.getState().isConnected())
+                return;
+
+            JODLocalClientInfo newConn = new DefaultJODLocalClientInfo(client);
+
+            JODLocalClientInfo oldConn;
+            synchronized (localClients) {
+                oldConn = getLocalConnectionByServiceId(newConn.getClientId());
+                if (oldConn == null)
+                    localClients.add(newConn);
+                else if (!oldConn.isConnected()) {
+                    localClients.remove(oldConn);
+                    localClients.add(newConn);
                 }
-                Events.registerLocalConn("Local JSL connected", newConn, client);
-                log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server added JSL '%s' service with connection '%s'", newConn.getClientId(), newConn.getClientFullAddress()));
 
-            } else if (!oldConn.isConnected()) {            // Update JSL service
-                try {
-                    sendObjectPresentation(newConn);
-                } catch (JODCommunication.ServiceNotConnected e) {
-                    log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on sending object's presentation to new service's client '%s', discharge client", client)); //, e);
-                    localClients.remove(newConn);
-                    return;
+                if (oldConn == null) {                          // new JSL service
+                    try {
+                        sendObjectPresentation(newConn);
+                    } catch (JODCommunication.ServiceNotConnected e) {
+                        log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on sending object's presentation to new service's client '%s', discharge client", client), e);
+                        localClients.remove(newConn);
+                        return;
+                    }
+                    Events.registerLocalConn("Local JSL connected", newConn, client);
+                    log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server added JSL '%s' service with connection '%s'", newConn.getClientId(), newConn.getClientFullAddress()));
+
+                } else if (!oldConn.isConnected()) {            // Update JSL service
+                    try {
+                        sendObjectPresentation(newConn);
+                    } catch (JODCommunication.ServiceNotConnected e) {
+                        log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on sending object's presentation to new service's client '%s', discharge client", client), e);
+                        localClients.remove(newConn);
+                        return;
+                    }
+                    Events.registerLocalConn("Local JSL updated connection", newConn, client);
+                    log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server updated JSL '%s' connection from '%s' to '%s'", newConn.getClientId(), newConn.getClientFullAddress(), oldConn.getClientFullAddress()));
+
+                } else {                                        //Discharge connection
+                    try {
+                        newConn.disconnectLocal();
+
+                    } catch (JODCommunication.LocalCommunicationException ignore) { /* client discharged, ignoring disconnection error */ }
+
+                    Events.registerLocalConn("Local JSL discharged connection because JSL service already connected", newConn, client);
+                    log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server discharged JSL '%s' connection '%s' because already connected on '%s'", newConn.getClientId(), newConn.getClientFullAddress(), oldConn.getClientFullAddress()));
                 }
-                Events.registerLocalConn("Local JSL updated connection", newConn, client);
-                log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server updated JSL '%s' connection from '%s' to '%s'", newConn.getClientId(), newConn.getClientFullAddress(), oldConn.getClientFullAddress()));
-
-            } else {                                        //Discharge connection
-                try {
-                    newConn.disconnectLocal();
-
-                } catch (JODCommunication.LocalCommunicationException ignore) { /* client discharged, ignoring disconnection error */ }
-
-                Events.registerLocalConn("Local JSL discharged connection because JSL service already connected", newConn, client);
-                log.info(Mrk_JOD.JOD_COMM, String.format("JOD Local Server discharged JSL '%s' connection '%s' because already connected on '%s'", newConn.getClientId(), newConn.getClientFullAddress(), oldConn.getClientFullAddress()));
             }
         }
+
     }
 
     private void sendObjectPresentation(JODLocalClientInfo locConn) throws JODCommunication.ServiceNotConnected {
@@ -233,8 +250,6 @@ public class JODLocalServer extends ServerAbsSSL {
 
         } catch (JODStructure.ParsingException e) {
             log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on serialize object's structure to local service because %s", e.getMessage()), e);
-            //} catch (JODCommunication.ServiceNotConnected e) {
-            //    log.warn(Mrk_JOD.JOD_COMM_SUB, String.format("JOD Local Server error on sending object's presentation to local service because %s", e.getMessage()), e);
         }
     }
 

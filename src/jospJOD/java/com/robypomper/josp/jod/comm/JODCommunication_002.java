@@ -20,6 +20,8 @@
 package com.robypomper.josp.jod.comm;
 
 import com.robypomper.comm.exception.*;
+import com.robypomper.comm.peer.Peer;
+import com.robypomper.comm.peer.PeerConnectionListener;
 import com.robypomper.discovery.DiscoverySystemFactory;
 import com.robypomper.discovery.Publisher;
 import com.robypomper.java.JavaJSONArrayToFile;
@@ -100,6 +102,7 @@ public class JODCommunication_002 implements JODCommunication {
 
         // Init cloud object client
         this.gwClient = new JODGwO2SClient(this, objInfo.getObjId(), jcpClient, instanceId);
+        this.gwClient.addListener(gwClientListener);
 
         log.info(Mrk_JOD.JOD_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') object", objInfo.getObjName(), objInfo.getObjId()));
     }
@@ -283,11 +286,11 @@ public class JODCommunication_002 implements JODCommunication {
 
         // exec component's action
         if (!actionComp.execAction(cmd)) {
-            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing command on '%s' component", compPath.toString()));
+            log.warn(Mrk_JOD.JOD_COMM, String.format("Error on processing command on '%s' component", compPath.getString()));
             Events.registerActionExecFail("Unknown error on executing action command", srvId, usrId, connType, cmd);
             return false;
         }
-        log.info(Mrk_JOD.JOD_COMM, String.format("Command status of '%s' component", compPath.toString()));
+        log.info(Mrk_JOD.JOD_COMM, String.format("Command status of '%s' component", compPath.getString()));
 
         log.debug(Mrk_JOD.JOD_COMM, String.format("Command '%s...' processed", msg.substring(0, Math.min(10, msg.length()))));
         Events.registerActionExec(srvId, usrId, connType, cmd);
@@ -627,18 +630,8 @@ public class JODCommunication_002 implements JODCommunication {
 
         @Override
         public void onConnected(JCPClient2 jcpClient) {
-            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client connected with %s flow", getFlowName(jcpClient)));
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP APIs Client connected with %s flow", getFlowName(jcpClient)));
             Events.registerJCPConnection("JCP Connected", jcpClient, getFlowName(jcpClient));
-
-            if (gwClient != null && !gwClient.getState().isConnected() /*&& gwClient.shouldBeConnected()*/) {
-                try {
-                    gwClient.connect();
-
-                } catch (PeerConnectionException e) {
-                    log.warn(Mrk_JOD.JOD_COMM, String.format("Error on reconnect JOSP Gw client because %s", e.getMessage()), e);
-                }
-            }
-
             connFailedPrinted = false;
         }
 
@@ -661,8 +654,45 @@ public class JODCommunication_002 implements JODCommunication {
 
         @Override
         public void onDisconnected(JCPClient2 jcpClient) {
-            log.info(Mrk_JOD.JOD_COMM, String.format("JCP Client disconnected with %s flow", getFlowName(jcpClient)));
+            log.info(Mrk_JOD.JOD_COMM, String.format("JCP APIs Client disconnected with %s flow", getFlowName(jcpClient)));
             Events.registerJCPDisconnection("JCP Disconnected", jcpClient, getFlowName(jcpClient));
+        }
+
+    };
+
+    private final PeerConnectionListener gwClientListener = new PeerConnectionListener() {
+
+        @Override
+        public void onConnecting(Peer peer) {
+        }
+
+        @Override
+        public void onWaiting(Peer peer) {
+        }
+
+        @Override
+        public void onConnect(Peer peer) {
+            log.info(Mrk_JOD.JOD_COMM, "JCP GWs client connected");
+        }
+
+        @Override
+        public void onDisconnecting(Peer peer) {
+        }
+
+        @Override
+        public void onDisconnect(Peer peer) {
+            log.info(Mrk_JOD.JOD_COMM, "JCP GWs Client disconnected");
+        }
+
+        @Override
+        public void onFail(Peer peer, String failMsg, Throwable t) {
+            // Connection problem
+            if (t instanceof PeerConnectionException) {
+                log.debug("Error on JCP GWs connection attempt: " + failMsg);
+                return;
+            }
+
+            log.warn("Error on JCP GWs client", t);
         }
 
     };
