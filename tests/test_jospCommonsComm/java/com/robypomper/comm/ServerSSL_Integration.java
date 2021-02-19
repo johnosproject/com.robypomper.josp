@@ -60,8 +60,8 @@ public class ServerSSL_Integration extends SSL_IntegrationBase {
         } catch (PeerConnectionException ignore) {
         }
 
-        Assertions.assertTrue(listenerServerClient.onConnect.await(100, TimeUnit.MILLISECONDS));
-        Assertions.assertTrue(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onConnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
         Assertions.assertEquals(ConnectionState.DISCONNECTED, client.getState());
 
         Assertions.assertEquals(0, server.getClients().size());
@@ -99,8 +99,8 @@ public class ServerSSL_Integration extends SSL_IntegrationBase {
         } catch (PeerConnectionException ignore) {
         }
 
-        Assertions.assertTrue(listenerServerClient.onConnect.await(150, TimeUnit.MILLISECONDS));
-        Assertions.assertTrue(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onConnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
         Assertions.assertEquals(ConnectionState.DISCONNECTED, client.getState());
 
         Assertions.assertEquals(0, server.getClients().size());
@@ -119,8 +119,8 @@ public class ServerSSL_Integration extends SSL_IntegrationBase {
         } catch (PeerConnectionException ignore) {
         }
 
-        Assertions.assertTrue(listenerServerClient.onConnect.await(100, TimeUnit.MILLISECONDS));
-        Assertions.assertTrue(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onConnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
         Assertions.assertEquals(ConnectionState.DISCONNECTED, client.getState());
 
         Assertions.assertEquals(0, server.getClients().size());
@@ -139,8 +139,8 @@ public class ServerSSL_Integration extends SSL_IntegrationBase {
         } catch (PeerConnectionException ignore) {
         }
 
-        Assertions.assertTrue(listenerServerClient.onConnect.await(200, TimeUnit.MILLISECONDS));
-        Assertions.assertTrue(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onConnect.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertFalse(listenerServerClient.onDisconnect.await(100, TimeUnit.MILLISECONDS));
         Assertions.assertEquals(ConnectionState.DISCONNECTED, client.getState());
 
         Assertions.assertEquals(0, server.getClients().size());
