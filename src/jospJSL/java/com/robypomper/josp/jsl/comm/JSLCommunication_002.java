@@ -19,6 +19,8 @@
 package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.peer.Peer;
+import com.robypomper.comm.peer.PeerConnectionListener;
 import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
@@ -66,10 +68,11 @@ public class JSLCommunication_002 implements JSLCommunication {
         this.locSettings = settings;
         this.jslObjsMngr = jslObjsMngr;
         this.jcpClient = jcpClient;
-        jcpClient.addConnectionListener(jcpConnectionListener);
+        this.jcpClient.addConnectionListener(jcpConnectionListener);
 
         this.localClients = new JSLLocalClientsMngr(jsl, this, jslObjsMngr, locSettings, srvInfo);
         this.gwClient = new JSLGwS2OClient(this, srvInfo.getFullId(), jcpClient, instanceId);
+        this.gwClient.addListener(gwClientListener);
 
         log.info(Mrk_JSL.JSL_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') service", srvInfo.getSrvName(), srvInfo.getSrvId()));
     }
@@ -154,7 +157,7 @@ public class JSLCommunication_002 implements JSLCommunication {
     }
 
 
-    // JCP Client listeners
+    // Clients and server listeners
 
     private final JCPClient2.ConnectionListener jcpConnectionListener = new JCPClient2.ConnectionListener() {
 
@@ -162,17 +165,7 @@ public class JSLCommunication_002 implements JSLCommunication {
 
         @Override
         public void onConnected(JCPClient2 jcpClient) {
-            log.info(Mrk_JSL.JSL_COMM, "JCP Client connected");
-
-            if (gwClient != null && !gwClient.getState().isConnected() /*&& gwClient.shouldBeConnected()*/) {
-                try {
-                    gwClient.connect();
-
-                } catch (PeerConnectionException e) {
-                    log.warn(Mrk_JSL.JSL_COMM, String.format("Error on reconnect JOSP Gw client because %s", e.getMessage()), e);
-                }
-            }
-
+            log.info(Mrk_JSL.JSL_COMM, "JCP APIs client connected");
             connFailedPrinted = false;
         }
 
@@ -193,7 +186,44 @@ public class JSLCommunication_002 implements JSLCommunication {
 
         @Override
         public void onDisconnected(JCPClient2 jcpClient) {
-            log.info(Mrk_JSL.JSL_COMM, "JCP Client disconnected");
+            log.info(Mrk_JSL.JSL_COMM, "JCP APIs Client disconnected");
+        }
+
+    };
+
+    private final PeerConnectionListener gwClientListener = new PeerConnectionListener() {
+
+        @Override
+        public void onConnecting(Peer peer) {
+        }
+
+        @Override
+        public void onWaiting(Peer peer) {
+        }
+
+        @Override
+        public void onConnect(Peer peer) {
+            log.info(Mrk_JSL.JSL_COMM, "JCP GWs client connected");
+        }
+
+        @Override
+        public void onDisconnecting(Peer peer) {
+        }
+
+        @Override
+        public void onDisconnect(Peer peer) {
+            log.info(Mrk_JSL.JSL_COMM, "JCP GWs Client disconnected");
+        }
+
+        @Override
+        public void onFail(Peer peer, String failMsg, Throwable t) {
+            // Connection problem
+            if (t instanceof PeerConnectionException) {
+                log.debug("Error on JCP GWs connection attempt: " + failMsg);
+                return;
+            }
+
+            log.warn("Error on JCP GWs client", t);
         }
 
     };

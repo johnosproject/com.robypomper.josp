@@ -64,7 +64,7 @@ import java.util.List;
  * by <code>FactoryJOD#getJODSettingsClass</code>. Both method are called using
  * same String param corresponding to JSL version.
  */
-@SuppressWarnings({"JavadocReference", "UnnecessaryReturnStatement"})
+@SuppressWarnings({"JavadocReference"})
 public abstract class AbsJSL implements JSL {
 
     // Private systems references
@@ -272,11 +272,12 @@ public abstract class AbsJSL implements JSL {
 
             try {
                 boolean startCloud = ((JSLSettings_002) settings).getCloudEnabled();
-                log.info(Mrk_JSL.JSL_MAIN, String.format("JSLCommunication cloud communication %s", startCloud ? "enabled" : "disabled"));
-                if (startCloud) comm.getCloudConnection().connect();
+                log.info(Mrk_JSL.JSL_MAIN, String.format("JCP GWs client %s", startCloud ? "enabled" : "disabled"));
+                if (startCloud)
+                    comm.getCloudConnection().connect();
 
             } catch (PeerConnectionException e) {
-                log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on connecting cloud communication of '%s' service because %s", srvInfo.getSrvId(), e.getMessage()), e);
+                log.warn(Mrk_JSL.JSL_MAIN, "JCP GWs client not connected, retry later", e);
             }
 
             if (state.enumNotEquals(JSLState.RESTARTING))
