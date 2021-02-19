@@ -102,7 +102,7 @@ public class ConnectionInfoDefault implements ConnectionInfo {
             remote.updateOnConnected(peer.getSocket());
 
         } catch (PeerInfoSocketNotConnectedException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method ConnectionInfoDefault.updateOnConnected() called when internal socket is NOT connected. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, String.format("Method ConnectionInfoDefault.updateOnConnected() called when internal socket is NOT connected. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
         }
         state = ConnectionState.CONNECTED;
         stats.updateOnConnected();

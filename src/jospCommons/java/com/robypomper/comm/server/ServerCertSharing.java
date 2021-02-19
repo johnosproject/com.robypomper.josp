@@ -92,9 +92,9 @@ public class ServerCertSharing extends ServerAbsTCP {
             client.sendData(localPublicCertificate.getEncoded());
 
         } catch (PeerException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method sendClientCertificate() is called by onConnect() event, so it don't throw any exception. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method sendClientCertificate() is called from onConnect() event, so it don't throw any PeerException");
         } catch (CertificateEncodingException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method Certificate.getEncoded() i used to convert a valid certificate to byte[], that should not throw exception. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method Certificate.getEncoded() is used to convert a valid certificate to byte[], that should not throw CertificateEncodingException");
         }
     }
 

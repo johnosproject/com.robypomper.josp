@@ -91,7 +91,7 @@ public class DiscoverAvahi extends DiscoverAbs {
                 browseProcess.waitFor(PROCESS_WAITING_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
             } catch (InterruptedException e) {
-                JavaAssertions.makeAssertionFailed(e, "Can't stop Avahi Discover, error on destroy browser thread");
+                JavaAssertions.makeAssertion_Failed(e, "Exception on AvahiDiscover '%s' browser thread termination interrupted");
             }
         browseProcess = null;
 
@@ -99,7 +99,7 @@ public class DiscoverAvahi extends DiscoverAbs {
         JavaAssertions.makeAssertion(browseThread != null, "Can't call DiscoverAvahi::stop() with browseThread==null.");
         if (browseThread != null)
             if (!JavaThreads.stopAndJoin(browseThread, 1000))
-                JavaAssertions.makeAssertionFailed("Can't stop Avahi Discover, join thread's timeout reached");
+                JavaAssertions.makeAssertion_Failed("Error on AvahiDiscover '%s' browser thread termination reached timeout");
         browseThread = null;
 
         deregisterAllServices();

@@ -82,7 +82,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
 
     public void doConnect(boolean preventReConnecting) throws PeerConnectionException {
         if (getState().isConnected()) {
-            JavaAssertions.makeAssertionFailed("Can't call AbsGWsClient::doConnect() when already connected");
+            JavaAssertions.makeAssertion_Failed("Can't call AbsGWsClient::doConnect() when already connected");
             return;
         }
 
@@ -151,7 +151,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
     @Override
     protected void doDisconnect() throws PeerDisconnectionException {
         if (getState().isDisconnected()) {
-            JavaAssertions.makeAssertionFailed("Can't call AbsGWsClient::doDisconnect() when already disconnected");
+            JavaAssertions.makeAssertion_Failed("Can't call AbsGWsClient::doDisconnect() when already disconnected");
             return;
         }
 

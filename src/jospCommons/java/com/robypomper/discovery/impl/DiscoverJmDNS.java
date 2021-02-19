@@ -76,7 +76,7 @@ public class DiscoverJmDNS extends DiscoverAbs implements ServiceListener {
             JmDNS.removeDiscoveryListener(getServiceType() + ".local.", this);
 
         } catch (JmDNS.JmDNSException e) {
-            JavaAssertions.makeAssertionFailed(e, "");
+            JavaAssertions.makeAssertion_Failed(String.format("Error on JmDNSDiscover '%s''s JmDNS can't remove discovery listener", this));
         }
         JmDNS.stopJmDNSSubSystem(this);
 

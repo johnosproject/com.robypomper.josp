@@ -44,7 +44,7 @@ public class JavaListeners {
 
             } catch (Throwable e) {
                 String listenerType = l != null ? l.getClass().getSimpleName() : "N/A";
-                JavaAssertions.makeAssertionFailed(e, String.format("Catch exception executing event %s.%s() of '%s' instance for '%s' listener.", listenerType, eventName, instance, l));
+                JavaAssertions.makeAssertion_Failed(e, String.format("Catch exception executing event %s.%s() of '%s' instance for '%s' listener.", listenerType, eventName, instance, l));
             }
     }
 

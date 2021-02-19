@@ -54,7 +54,7 @@ public class PublisherDNSSD extends PublisherAbs {
             startAutoDiscovery(DNSSD.IMPL_NAME);
 
         } catch (Discover.DiscoveryException e) {
-            JavaAssertions.makeAssertionFailed(e, "Can't start internal discover for DNSSD Publisher, continue publishing service");
+            JavaAssertions.makeAssertion_Failed(e, "Can't start internal discover for DNSSD Publisher, continue publishing service");
         }
 
         JavaAssertions.makeAssertion(publishProcess == null, "Can't call PublisherDNSSD::publish() with publishProcess!=null.");
@@ -92,7 +92,7 @@ public class PublisherDNSSD extends PublisherAbs {
                 publishProcess.waitFor(PROCESS_WAITING_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
             } catch (InterruptedException e) {
-                JavaAssertions.makeAssertionFailed(e, "Can't stop DNSSD Publisher, error on destroy browser thread");
+                JavaAssertions.makeAssertion_Failed(e, "Can't stop DNSSD Publisher, error on destroy browser thread");
             }
         publishProcess = null;
 

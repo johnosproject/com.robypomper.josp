@@ -168,7 +168,7 @@ public abstract class ServerAbs implements Server {
             localInfo.updateOnConnected(serverSocket);
 
         } catch (PeerInfoSocketNotConnectedException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method PeerInfoLocalDefault.updateOnConnected() get server socket just started, that means it can't throw socket not connected exception [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method PeerInfoDefault.updateOnConnected(ServerSocket) is called from ServerAbs.startup() method, so it should NOT throw any PeerInfoSocketNotConnectedException");
         }
     }
 
@@ -204,8 +204,8 @@ public abstract class ServerAbs implements Server {
                     if (e instanceof SocketException && (e.getMessage().equals("Socket closed") || e.getMessage().equals("Socket is closed")))
                         break;
 
-                    JavaAssertions.makeAssertionFailed(e, String.format("Exception on Server '%s''s listener thread not managed", ServerAbs.this));
-                    emitOnFail("Error waiting for client, server shutdown", e);
+                    JavaAssertions.makeWarning_Failed(e, String.format("Exception on Server '%s''s listener thread not managed.", ServerAbs.this));
+                    emitOnFail("Error waiting on server's client connection, server shutdown", e);
                     break;
                 }
 
@@ -459,7 +459,7 @@ public abstract class ServerAbs implements Server {
         @Override
         public void onDisconnect(Peer peer) {
             if (!(peer instanceof ServerClient)) {
-                JavaAssertions.makeAssertionFailed(String.format("Can't call ServerAbs::onDisconnect with peer class '%s', it must be 'ServerClient", peer.getClass().getSimpleName()));
+                JavaAssertions.makeAssertion_Failed(String.format("Can't call ServerAbs::onDisconnect() with peer param's class '%s', param's class must be 'ServerClient", peer.getClass().getSimpleName()));
                 return;
             }
             serverClients.remove(peer);
@@ -482,7 +482,7 @@ public abstract class ServerAbs implements Server {
         @Override
         public void onDataRx(Peer peer, byte[] data) {
             if (!(peer instanceof ServerClient)) {
-                JavaAssertions.makeAssertionFailed(String.format("Can't call ServerAbs::onDataRx with peer class '%s', it must be 'ServerClient", peer.getClass().getSimpleName()));
+                JavaAssertions.makeAssertion_Failed(String.format("Can't call ServerAbs::onDataRx() with peer param's class '%s', param's class must be 'ServerClient", peer.getClass().getSimpleName()));
                 return;
             }
             emitOnDataRx((ServerClient) peer, data);
@@ -491,7 +491,7 @@ public abstract class ServerAbs implements Server {
         @Override
         public void onDataTx(Peer peer, byte[] data) {
             if (!(peer instanceof ServerClient)) {
-                JavaAssertions.makeAssertionFailed(String.format("Can't call ServerAbs::onDataTx with peer class '%s', it must be 'ServerClient", peer.getClass().getSimpleName()));
+                JavaAssertions.makeAssertion_Failed(String.format("Can't call ServerAbs::onDataTx() with peer param's class '%s', param's class must be 'ServerClient", peer.getClass().getSimpleName()));
                 return;
             }
             emitOnDataTx((ServerClient) peer, data);

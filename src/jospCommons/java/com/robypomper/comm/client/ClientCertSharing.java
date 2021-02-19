@@ -117,7 +117,7 @@ public class ClientCertSharing extends ClientAbsTCP {
                 disconnect();
 
         } catch (PeerDisconnectionException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method disconnect() is called by a procedure triggered on data received, that means the client state must be connected. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, String.format("Method disconnect() is called by a procedure triggered on data received, that means the client state must be connected. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
         }
     }
 
@@ -131,9 +131,9 @@ public class ClientCertSharing extends ClientAbsTCP {
             certificateTx.countDown();
 
         } catch (PeerException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method sendClientCertificate() is called by onConnect() event, so it don't throw any exception. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method sendClientCertificate() is called only by onConnect() event, so it should NOT throw any PeerException");
         } catch (CertificateEncodingException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method Certificate.getEncoded() i used to convert a valid certificate to byte[], that should not throw exception. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method Certificate.getEncoded() is used to convert a valid certificate to byte[], that should not throw exception");
         }
 
         try {
@@ -141,7 +141,7 @@ public class ClientCertSharing extends ClientAbsTCP {
                 disconnect();
 
         } catch (PeerDisconnectionException e) {
-            JavaAssertions.makeAssertionFailed(e, String.format("Method disconnect() is called by a procedure triggered on data received, that means the client state must be connceted. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method disconnect() is called only by onConnect() event, so it should NOT throw any PeerException");
         }
     }
 

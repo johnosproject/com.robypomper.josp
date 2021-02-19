@@ -52,7 +52,7 @@ public class PublisherJmDNS extends PublisherAbs {
             startAutoDiscovery(JmDNS.IMPL_NAME);
 
         } catch (Discover.DiscoveryException e) {
-            JavaAssertions.makeAssertionFailed(e, "Can't start internal discover for JmDNS Publisher, continue publishing service");
+            JavaAssertions.makeAssertion_Failed(e, "Can't start internal discover for JmDNS Publisher, continue publishing service");
         }
 
         JmDNS.startJmDNSSubSystem(this);
@@ -86,7 +86,7 @@ public class PublisherJmDNS extends PublisherAbs {
             JmDNS.removePubService(internalService);
 
         } catch (JmDNS.JmDNSException e) {
-            JavaAssertions.makeAssertionFailed(e, "");
+            JavaAssertions.makeAssertion_Failed(e, "");
         }
         JmDNS.stopJmDNSSubSystem(this);
 

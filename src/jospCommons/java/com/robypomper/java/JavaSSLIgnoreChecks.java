@@ -135,7 +135,7 @@ public class JavaSSLIgnoreChecks {
             }, new java.security.SecureRandom());
 
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            return JavaAssertions.makeAssertionFailed(e, "SSLContext initialization with standard params should not throw exceptions", (SSLContext) null);
+            return JavaAssertions.makeAssertion_Failed(e, "SSLContext initialization with standard params should not throw exceptions", null);
         }
 
         return sc;

@@ -202,7 +202,7 @@ public abstract class PeerAbs implements Peer {
 
     protected void doDisconnect(boolean localRequest, boolean remoteRequest) throws PeerDisconnectionException {
         if (getState().isDisconnected()) {
-            JavaAssertions.makeAssertionFailed("Can't call PeerAbs::doDisconnect() with null wrapper");
+            JavaAssertions.makeAssertion_Failed("Can't call PeerAbs::doDisconnect() with null wrapper");
             return;
         }
 
@@ -213,7 +213,7 @@ public abstract class PeerAbs implements Peer {
             try {
                 byeMsg.sendByeMsg();
             } catch (PeerException e) {
-                JavaAssertions.makeAssertionFailed(e, String.format("Error disconnecting '%s' peer because can't send bye msg, continue disconnecting", this));
+                JavaAssertions.makeWarning_Failed(e, String.format("Error disconnecting '%s' peer because can't send bye msg.", this));
             }
         }
 
@@ -221,7 +221,7 @@ public abstract class PeerAbs implements Peer {
             closeSocket();
         }
 
-        JavaAssertions.makeAssertion(processingThread != null, String.format("Peer '%s''s processing thread can NOT be null on peer disconnection, ignore error", this));
+        JavaAssertions.makeWarning(processingThread != null, String.format("Instance 'Peer'(%s) var 'processingThread''s of his processing thread can NOT be null on peer disconnection.", this));
         if (processingThread != null)
             processingThread.interrupt();
     }
@@ -310,7 +310,7 @@ public abstract class PeerAbs implements Peer {
                         break;
                     }
 
-                    JavaAssertions.makeAssertionFailed(e, String.format("Exception on Peer '%s''s processing data thread not managed", this));
+                    JavaAssertions.makeWarning_Failed(e, String.format("Exception on Peer '%s''s processing data thread not managed.", this));
                     errorOnDataRead = true;
                     emitOnFail("Error reading data", e);
                     break;

@@ -55,7 +55,7 @@ public class HeartBeatDefault extends HeartBeatConfigsDefault implements HeartBe
     @Override
     public void sendHeartBeatReq() throws PeerException {
         if (hbResponseLatch != null) {
-            JavaAssertions.makeAssertionFailed("Can't send HB message when already waiting for HB response");
+            JavaAssertions.makeWarning_Failed("Can't send HB message when already waiting for HB response.");
             return;
         }
 
@@ -151,7 +151,7 @@ public class HeartBeatDefault extends HeartBeatConfigsDefault implements HeartBe
                 peer.getSocket().setSoTimeout(getTimeout());
 
             } catch (SocketException e) {
-                JavaAssertions.makeAssertionFailed(e, String.format("Method Socket.setSoTimeout() should not throw SocketException [%s] %s, ignore error", e.getClass().getSimpleName(), e.getMessage()));
+                JavaAssertions.makeWarning_Failed(e, "Method Socket.setSoTimeout() should not throw SocketException.");
             }
         }
 

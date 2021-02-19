@@ -145,7 +145,7 @@ public abstract class ClientAbs extends PeerAbs implements Client {
 
     private void doConnect(boolean preventReConnecting) throws PeerConnectionException {
         if (getState().isConnected()) {
-            JavaAssertions.makeAssertionFailed("Can't call ClientAbs::doConnect() when already connected");
+            JavaAssertions.makeAssertion_Failed("Can't call ClientAbs::doConnect() when already connected");
             return;
         }
 
@@ -176,7 +176,7 @@ public abstract class ClientAbs extends PeerAbs implements Client {
     @Override
     protected void doDisconnect(boolean localRequest, boolean remoteRequest) throws PeerDisconnectionException {
         if (getState().isDisconnected()) {
-            JavaAssertions.makeAssertionFailed("Can't call ClientAbs::doDisconnect() when already disconnected");
+            JavaAssertions.makeAssertion_Failed("Can't call ClientAbs::doDisconnect() when already disconnected");
             return;
         }
 

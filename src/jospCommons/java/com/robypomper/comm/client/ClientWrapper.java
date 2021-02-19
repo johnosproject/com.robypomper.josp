@@ -259,12 +259,12 @@ public class ClientWrapper implements Client {
     //   emitOnDisconnect
     protected void doConnect() throws PeerConnectionException {
         if (wrapper == null) {
-            JavaAssertions.makeAssertionFailed("Can't call clientWrapper::doConnect() with null wrapper");
+            JavaAssertions.makeAssertion_Failed("Can't call clientWrapper::doConnect() with null wrapper");
             return;
         }
 
         if (getState().isConnected()) {
-            JavaAssertions.makeAssertionFailed("Can't call clientWrapper::doConnect() when already connected");
+            JavaAssertions.makeAssertion_Failed("Can't call clientWrapper::doConnect() when already connected");
             return;
         }
 
@@ -292,12 +292,12 @@ public class ClientWrapper implements Client {
     // emitOnDisconnect   via wrapper.disconnect() -> closeSocket ...> PeerInfLoop ..> wrapper's listeners
     protected void doDisconnect() throws PeerDisconnectionException {
         if (wrapper == null) {
-            JavaAssertions.makeAssertionFailed("Can't call clientWrapper::doDisconnect() with null wrapper");
+            JavaAssertions.makeAssertion_Failed("Can't call clientWrapper::doDisconnect() with null wrapper");
             return;
         }
 
         if (getState().isDisconnected()) {
-            JavaAssertions.makeAssertionFailed("Can't call clientWrapper::doDisconnect() with null wrapper");
+            JavaAssertions.makeAssertion_Failed("Can't call clientWrapper::doConnect() when already disconnected");
             return;
         }
 

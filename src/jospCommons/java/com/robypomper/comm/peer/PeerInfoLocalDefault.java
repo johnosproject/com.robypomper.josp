@@ -37,7 +37,7 @@ public class PeerInfoLocalDefault extends PeerInfoDefault implements PeerInfoLoc
         try {
             localIntf = NetworkInterface.getByInetAddress(getAddr());
         } catch (SocketException e) {
-            JavaAssertions.makeAssertionFailed(String.format("Method 'NetworkInterface.getByInetAddress(InetAddress)' can't throw SocketException because given address is the socket's address. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method NetworkInterface.getByInetAddress(InetAddress) is called from PeerInfoDefault.updateOnConnected(Socket) method, so it should NOT throw any SocketException");
         }
     }
 
@@ -46,7 +46,7 @@ public class PeerInfoLocalDefault extends PeerInfoDefault implements PeerInfoLoc
         try {
             localIntf = NetworkInterface.getByInetAddress(getAddr());
         } catch (SocketException e) {
-            JavaAssertions.makeAssertionFailed(String.format("Method 'NetworkInterface.getByInetAddress(InetAddress)' can't throw SocketException because given address is the socket's address. [%s] %s", e.getClass().getSimpleName(), e.getMessage()));
+            JavaAssertions.makeAssertion_Failed(e, "Method NetworkInterface.getByInetAddress(InetAddress) is called from PeerInfoDefault.updateOnConnected(ServerSocket) method, so it should NOT throw any SocketException");
         }
     }
 

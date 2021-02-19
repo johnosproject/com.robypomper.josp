@@ -54,7 +54,7 @@ public class PublisherAvahi extends PublisherAbs {
             startAutoDiscovery(Avahi.IMPL_NAME);
 
         } catch (Discover.DiscoveryException e) {
-            JavaAssertions.makeAssertionFailed(e, "Can't start internal discover for Avahi Publisher, continue publishing service");
+            JavaAssertions.makeAssertion_Failed(e, "Can't start internal discover for Avahi Publisher, continue publishing service");
         }
 
         JavaAssertions.makeAssertion(publishProcess == null, "Can't call PublisherAvahi::publish() with publishProcess!=null.");
@@ -97,7 +97,7 @@ public class PublisherAvahi extends PublisherAbs {
                 publishProcess.waitFor(PROCESS_WAITING_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
             } catch (InterruptedException e) {
-                JavaAssertions.makeAssertionFailed(e, "Can't stop Avahi Publisher, error on destroy browser thread");
+                JavaAssertions.makeAssertion_Failed(e, "Can't stop Avahi Publisher, error on destroy browser thread");
             }
         publishProcess = null;
 

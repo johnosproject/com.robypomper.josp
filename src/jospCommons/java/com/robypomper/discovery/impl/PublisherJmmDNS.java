@@ -58,7 +58,7 @@ public class PublisherJmmDNS extends PublisherAbs {
             startAutoDiscovery(JmmDNS.IMPL_NAME);
 
         } catch (Discover.DiscoveryException e) {
-            JavaAssertions.makeAssertionFailed(e, "Can't start internal discover for JmmDNS Publisher, continue publishing service");
+            JavaAssertions.makeAssertion_Failed(e, "Can't start internal discover for JmmDNS Publisher, continue publishing service");
         }
 
         try {
