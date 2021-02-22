@@ -101,7 +101,7 @@ public class JODCommunication_002 implements JODCommunication {
         }
 
         // Init cloud object client
-        this.gwClient = new JODGwO2SClient(this, objInfo.getObjId(), jcpClient, instanceId);
+        this.gwClient = new JODGwO2SClient(this, objInfo, jcpClient, instanceId);
         this.gwClient.addListener(gwClientListener);
 
         log.info(Mrk_JOD.JOD_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') object", objInfo.getObjName(), objInfo.getObjId()));

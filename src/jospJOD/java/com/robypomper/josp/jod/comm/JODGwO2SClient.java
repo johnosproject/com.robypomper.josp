@@ -27,6 +27,7 @@ import com.robypomper.josp.clients.AbsGWsClient;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.apis.obj.APIGWsClient;
 import com.robypomper.josp.jod.events.Events;
+import com.robypomper.josp.jod.objinfo.JODObjectInfo_002;
 import com.robypomper.josp.params.jospgws.AccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -50,6 +51,7 @@ public class JODGwO2SClient extends AbsGWsClient {
     private static final Logger log = LogManager.getLogger();
     // JOD
     private final JODCommunication_002 jodComm;
+    private final JODObjectInfo_002 objInfo;
     // Configs
     private final APIGWsClient apiGWsClient;
 
@@ -66,11 +68,12 @@ public class JODGwO2SClient extends AbsGWsClient {
      * @param jodComm instance of the {@link JODCommunication}
      *                that initialized this client. It will used to
      *                process data received from the O2S Gw.
-     * @param objId   the id of the represented object.
+     * @param objInfo the objInfo representing the service.
      */
-    public JODGwO2SClient(JODCommunication_002 jodComm, String objId, JCPAPIsClientObj jcpClient, String instanceId) {
-        super(objId, "JODGWsO2S-Internal", jcpClient);
+    public JODGwO2SClient(JODCommunication_002 jodComm, JODObjectInfo_002 objInfo, JCPAPIsClientObj jcpClient, String instanceId) {
+        super(objInfo.getObjId(), "JODGWsO2S-Internal", jcpClient);
         this.jodComm = jodComm;
+        this.objInfo = objInfo;
         this.apiGWsClient = new APIGWsClient(jcpClient, instanceId);
 
         addListener(new PeerConnectionListener() {
@@ -104,6 +107,14 @@ public class JODGwO2SClient extends AbsGWsClient {
             }
 
         });
+    }
+
+
+    // Getters
+
+    @Override
+    public String getLocalId() {
+        return getWrapper() != null ? getWrapper().getLocalId() : objInfo.getObjId();
     }
 
 
