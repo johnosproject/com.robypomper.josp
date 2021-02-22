@@ -42,11 +42,26 @@ public class JOSPPerm {
         /**
          * Allow only when connection is local.
          */
-        OnlyLocal,
+        OnlyLocal(0),
         /**
          * Allow for both local and cloud connections.
          */
-        LocalAndCloud
+        LocalAndCloud(1);
+
+        private final int level;
+
+        Connection(int level) {
+            this.level = level;
+        }
+
+        public boolean greaterThan(Connection other) {
+            return this.level > other.level;
+        }
+
+        public boolean lowerThan(Connection other) {
+            return this.level < other.level;
+        }
+
     }
 
     /**
@@ -56,19 +71,34 @@ public class JOSPPerm {
         /**
          * Allow only access to object's basic info.
          */
-        None,
+        None(0),
         /**
          * Allow access to object's info and status updates.
          */
-        Status,
+        Status(1),
         /**
          * Like {@link #Status}, plus allow action execution.
          */
-        Actions,
+        Actions(2),
         /**
          * Like {@link #Actions}, plus allow object's configuration.
          */
-        CoOwner
+        CoOwner(3);
+
+        private final int level;
+
+        Type(int level) {
+            this.level = level;
+        }
+
+        public boolean greaterThan(Type other) {
+            return this.level > other.level;
+        }
+
+        public boolean lowerThan(Type other) {
+            return this.level < other.level;
+        }
+
     }
 
     /**

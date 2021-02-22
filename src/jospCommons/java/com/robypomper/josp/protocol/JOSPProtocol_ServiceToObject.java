@@ -174,6 +174,7 @@ public class JOSPProtocol_ServiceToObject {
 
     // Action Cmd Msg class
 
+    public static final String CMD_MSG_NAME = "ActionReqest";
     private static final String CMD_MSG_BASE = JOSPProtocol.JOSP_PROTO + " CMD_MSG";
     private static final String CMD_MSG = CMD_MSG_BASE + " %s\nfullSrvId:%s/%s/%s\nobjId:%s\ncompPath:%s\ncmdType:%s\n%s";
 
