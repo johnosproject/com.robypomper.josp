@@ -26,7 +26,10 @@ import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
 import com.robypomper.josp.jcp.paths.apis.JCPAPIsGWs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import com.robypomper.josp.jcp.utils.ParamChecks;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
@@ -50,7 +53,9 @@ public class JCPAPIsGWsController {
 
     // Internal vars
 
-    private final GWsManager gwManager;
+    private static final Logger log = LoggerFactory.getLogger(JCPAPIsGWsController.class);
+    @Autowired
+    private GWsManager gwManager;
     @Autowired
     private SwaggerConfigurer swagger;
 
@@ -65,17 +70,16 @@ public class JCPAPIsGWsController {
     }
 
 
-    // Constructor
-
-    /**
-     * This default constructor check, for any GW registered in the DB, if it's
-     * online or not. Then, this method, updates the GW status on the DB.
-     */
-    @Autowired
-    public JCPAPIsGWsController(GWsManager gwManager) {
-        this.gwManager = gwManager;
-        gwManager.checkAllGWsOnline();
-    }
+//    // Constructor
+//
+//    /**
+//     * This default constructor check, for any GW registered in the DB, if it's
+//     * online or not. Then, this method, updates the GW status on the DB.
+//     */
+//    @Autowired
+//    public JCPAPIsGWsController(GWsManager gwManager) {
+//        this.gwManager = gwManager;
+//    }
 
 
     // Methods
@@ -104,13 +108,20 @@ public class JCPAPIsGWsController {
             @ApiResponse(code = 503, message = "Authorization server not available"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Boolean> registerStartup(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId,
+    public ResponseEntity<Boolean> registerStartup(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String gwId,
                                                    @RequestBody JCPGWsStartup gwStartup) {
-        GW gw = gwManager.getById(jcpGWId);
-        if (gw == null)
-            gwManager.add(jcpGWId, gwStartup);
-        else
-            gwManager.update(gw, gwStartup);
+        ParamChecks.checkGwId(log, gwId);
+
+        GW gw = gwManager.getById(gwId);
+
+        if (gw == null) {
+            gwManager.add(gwId, gwStartup);
+            log.info(String.format("Registered JCP GWs '%s' startup of type %s with '%s:%d' address", gwId, gwStartup.type, gwStartup.gwAddr, gwStartup.gwPort));
+
+        } else {
+            gwManager.addExisting(gw, gwStartup);
+            log.info(String.format("Registered (existing) JCP GWs '%s' startup of type %s with '%s:%d' address", gwId, gwStartup.type, gwStartup.gwAddr, gwStartup.gwPort));
+        }
 
         return ResponseEntity.ok(true);
     }
@@ -138,13 +149,19 @@ public class JCPAPIsGWsController {
             @ApiResponse(code = 503, message = "Authorization server not available"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Boolean> postStatus(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId,
+    public ResponseEntity<Boolean> postStatus(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String gwId,
                                               @RequestBody JCPGWsStatus gwStatus) {
-        GW gw = gwManager.getById(jcpGWId);
-        if (gw == null)
+        ParamChecks.checkGwId(log, gwId);
+
+        GW gw = gwManager.getById(gwId);
+
+        if (gw == null) {
+            log.warn(String.format("Error updating JCP GWs '%s' because not registered.", gwId));
             return ResponseEntity.ok(false);
-        else
-            gwManager.update(gw, gwStatus);
+        }
+
+        gwManager.update(gw, gwStatus);
+        log.trace(String.format("Updated JCP GWs '%s' status of type %s with '%s:%d' address", gwId, gw.getType(), gw.getGwAddr(), gw.getGwPort()));
 
         return ResponseEntity.ok(true);
     }
@@ -156,7 +173,7 @@ public class JCPAPIsGWsController {
      * @return true on GW registration success.
      */
     @PostMapping(path = JCPAPIsGWs.FULL_PATH_SHUTDOWN, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Allow JCP GW to register their startup",
+    @ApiOperation(value = "Allow JCP GW to register their shutdown",
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
@@ -173,12 +190,18 @@ public class JCPAPIsGWsController {
             @ApiResponse(code = 503, message = "Authorization server not available"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Boolean> postShutdown(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String jcpGWId) {
-        GW gw = gwManager.getById(jcpGWId);
-        if (gw == null)
+    public ResponseEntity<Boolean> registerShutdown(@RequestHeader(JCPAPIsGWs.HEADER_JCPGWID) String gwId) {
+        ParamChecks.checkGwId(log, gwId);
+
+        GW gw = gwManager.getById(gwId);
+
+        if (gw == null) {
+            log.warn(String.format("Error registering JCP GWs '%s' shutdown because not registered. Skipp error!", gwId));
             return ResponseEntity.ok(true);
-        else
-            gwManager.remove(gw);
+        }
+
+        gwManager.remove(gw);
+        log.info(String.format("Registered JCP GWs '%s' shutdown of type %s with '%s:%d' address", gwId, gw.getType(), gw.getGwAddr(), gw.getGwPort()));
 
         return ResponseEntity.ok(true);
     }
