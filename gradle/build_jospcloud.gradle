@@ -120,6 +120,7 @@ dependencies {
     jcpCommonsImplementation "org.apache.tomcat.embed:tomcat-embed-core:${project.ext.get("version.tomcat")}"
     jcpCommonsImplementation "org.springframework:spring-context"                                                       // Spring Boot Context (required by JCP's clients)
     jcpCommonsImplementation "org.springframework:spring-beans"                                                         // Spring Boot Beans (required by JCP's clients)
+    jcpCommonsImplementation "org.springframework:spring-web"
 
     // JCP DB
     if (!project.ext.get("deps.jcpCommonsDisabled"))
@@ -128,7 +129,6 @@ dependencies {
     jcpDBImplementation 'mysql:mysql-connector-java'                                                                    // MySQL
     jcpDBCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"                                    // Lombok annotations
     jcpDBAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
-    jcpDBImplementation "org.springframework:spring-web"                                                                // Spring Boot Data (required for SessionScope)
 
     // JCP DB APIs
     if (!project.ext.get("deps.jcpDBDisabled"))
