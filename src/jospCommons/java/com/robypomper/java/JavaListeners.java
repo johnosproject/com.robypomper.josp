@@ -43,6 +43,9 @@ public class JavaListeners {
                 mapper.map(l);
 
             } catch (Throwable e) {
+                if (e instanceof AssertionError)
+                    return;
+
                 String listenerType = l != null ? l.getClass().getSimpleName() : "N/A";
                 JavaAssertions.makeAssertion_Failed(e, String.format("Catch exception executing event %s.%s() of '%s' instance for '%s' listener.", listenerType, eventName, instance, l));
             }
