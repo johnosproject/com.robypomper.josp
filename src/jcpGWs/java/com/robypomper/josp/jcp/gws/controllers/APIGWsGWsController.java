@@ -19,18 +19,20 @@
 
 package com.robypomper.josp.jcp.gws.controllers;
 
+import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.java.JavaJKS;
-import com.robypomper.josp.jcp.gws.services.GWsO2SService;
-import com.robypomper.josp.jcp.gws.services.GWsS2OService;
+import com.robypomper.josp.jcp.gws.services.GWServiceAbs;
+import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
+import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
 import com.robypomper.josp.jcp.paths.gws.APIGWsGWs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
-import com.robypomper.josp.params.jospgws.O2SAccessInfo;
-import com.robypomper.josp.params.jospgws.O2SAccessRequest;
-import com.robypomper.josp.params.jospgws.S2OAccessInfo;
-import com.robypomper.josp.params.jospgws.S2OAccessRequest;
+import com.robypomper.josp.jcp.utils.ParamChecks;
+import com.robypomper.josp.params.jospgws.*;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,11 +58,11 @@ public class APIGWsGWsController {
 
     // Internal vars
 
+    private static final Logger log = LoggerFactory.getLogger(APIGWsGWsController.class);
     @Autowired
-    private GWsO2SService gwO2SService;
-
+    private GWServiceO2S gwO2SService;
     @Autowired
-    private GWsS2OService gwS2OService;
+    private GWServiceS2O gwS2OService;
 
 
     // Methods
@@ -82,36 +84,20 @@ public class APIGWsGWsController {
             @ApiResponse(code = 500, message = "Error adding client certificate")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<O2SAccessInfo> postO2SAccess_OLD(
+    public ResponseEntity<O2SAccessInfo> postO2SAccess(
             @RequestHeader(APIObjs.HEADER_OBJID)
                     String objId,
             @RequestBody
                     O2SAccessRequest accessRequest) {
 
-        if (objId == null || objId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
+        ParamChecks.checkObjId(log, objId);
 
-        Certificate clientCertificate = null;
-        try {
-            clientCertificate = JavaJKS.loadCertificateFromBytes(accessRequest.getObjCertificate());
-        } catch (JavaJKS.LoadingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param objCertificate contains invalid value.");
-        }
+        Certificate clientCertificate = generateCertificate(objId, accessRequest.getObjCertificate(), "objCertificate");
+        String certId = String.format("%s/%s", objId, accessRequest.instanceId);
+        registerCertificate(gwO2SService, objId, certId, clientCertificate);
+        log.trace(String.format("Registered certificate for Object '%s'", objId));
 
-        if (!gwO2SService.addClientCertificate(objId + accessRequest.instanceId, clientCertificate))
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering object '%s'.", objId));
-
-        String gwAddress = gwO2SService.getPublicAddress();
-        int gwPort = gwO2SService.getPort();
-        byte[] gwCert = null;
-        try {
-            gwCert = gwO2SService.getPublicCertificate().getEncoded();
-        } catch (CertificateEncodingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error returning current JOSP Gw certificate.");
-        }
-
-        O2SAccessInfo o2sAccessInfo = new O2SAccessInfo(gwAddress, gwPort, gwCert);
-        return ResponseEntity.ok(o2sAccessInfo);
+        return ResponseEntity.ok((O2SAccessInfo) getAccessInfo(gwO2SService));
     }
 
 
@@ -138,30 +124,47 @@ public class APIGWsGWsController {
             @RequestBody
                     S2OAccessRequest accessRequest) {
 
-        if (srvId == null || srvId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APISrvs.HEADER_SRVID));
+        ParamChecks.checkSrvId(log, srvId);
 
-        Certificate clientCertificate = null;
+        Certificate clientCertificate = generateCertificate(srvId, accessRequest.getSrvCertificate(), "srvCertificate");
+        String certId = String.format("%s/%s", srvId, accessRequest.instanceId);
+        registerCertificate(gwS2OService, srvId, certId, clientCertificate);
+        log.trace(String.format("Registered certificate for Service '%s'", srvId));
+
+        return ResponseEntity.ok((S2OAccessInfo) getAccessInfo(gwS2OService));
+    }
+
+
+    // Utils
+
+    private static Certificate generateCertificate(String clientId, byte[] certificateBytes, String paramName) {
         try {
-            clientCertificate = JavaJKS.loadCertificateFromBytes(accessRequest.getSrvCertificate());
+            return JavaJKS.loadCertificateFromBytes(certificateBytes);
+
         } catch (JavaJKS.LoadingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Body param srvCertificate contains invalid value.");
+            log.trace(String.format("Error parsing client '%s' certificate", clientId));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Body param %s contains invalid value.", paramName));
         }
+    }
 
-        if (!gwS2OService.addClientCertificate(srvId + accessRequest.instanceId, clientCertificate))
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering service '%s'.", srvId));
-
-        String gwAddress = gwS2OService.getPublicAddress();
-        int gwPort = gwS2OService.getPort();
-        byte[] gwCert = null;
+    private static void registerCertificate(GWServiceAbs gwService, String clientId, String certId, Certificate certificate) {
         try {
-            gwCert = gwS2OService.getPublicCertificate().getEncoded();
-        } catch (CertificateEncodingException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error returning current JOSP Gw certificate.");
-        }
+            gwService.addClientCertificate(certId, certificate);
 
-        S2OAccessInfo s2oAccessInfo = new S2OAccessInfo(gwAddress, gwPort, gwCert);
-        return ResponseEntity.ok(s2oAccessInfo);
+        } catch (AbsCustomTrustManager.UpdateException e) {
+            log.trace(String.format("Error registering client '%s' certificate '%s' on GW server '%s'", clientId, certId, gwService.getId()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering client certificate '%s' on GW server '%s'.", certId, gwService.getId()));
+        }
+    }
+
+    private static AccessInfo getAccessInfo(GWServiceAbs gwService) {
+        try {
+            return gwService.getAccessInfo();
+
+        } catch (CertificateEncodingException e) {
+            log.trace(String.format("Error retrieve gw server '%s' certificate", gwService.getId()));
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error getting GW server '%s' certificate.", gwService.getId()));
+        }
     }
 
 }

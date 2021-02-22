@@ -1,15 +1,15 @@
 package com.robypomper.josp.jcp.gws.controllers.jcp;
 
-import com.robypomper.comm.server.Server;
-import com.robypomper.comm.server.ServerClient;
-import com.robypomper.josp.jcp.gws.services.GWsO2SService;
-import com.robypomper.josp.jcp.gws.services.GWsS2OService;
+import com.robypomper.josp.jcp.gws.controllers.APIGWsGWsController;
+import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
+import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JCPAPIsStatus;
 import com.robypomper.josp.params.jcp.JCPGWsStatus;
 import com.robypomper.josp.paths.jcp.APIJCP;
-import com.robypomper.josp.types.josp.gw.GWType;
 import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,14 +27,14 @@ public class GWsController {
 
     // Internal vars
 
+    private static final Logger log = LoggerFactory.getLogger(APIGWsGWsController.class);
     @Autowired
-    private GWsO2SService gwO2SService;
+    private GWServiceO2S gwO2SService;
     @Autowired
-    private GWsS2OService gwS2OService;
+    private GWServiceS2O gwS2OService;
 
 
     // Methods
-
 
     @GetMapping(path = APIJCP.FULL_PATH_GWS_STATUS)
     @ApiOperation(value = "Return JCP GWs info and stats",
@@ -75,35 +75,8 @@ public class GWsController {
     public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsCliReq() {
         List<JCPAPIsStatus.GWs> gws = new ArrayList<>();
 
-        Server s = gwO2SService.getServer();
-        JCPAPIsStatus.GWs gw = new JCPAPIsStatus.GWs();
-        gw.id = s.getLocalId();
-        gw.type = GWType.Obj2Srv;
-        gw.isRunning = s.getState().isRunning();
-        gw.address = s.getServerPeerInfo().getAddr().getHostAddress();
-        gw.hostName = s.getServerPeerInfo().getAddr().getHostName();
-        gw.hostNameCanonical = s.getServerPeerInfo().getAddr().getCanonicalHostName();
-        gw.port = s.getServerPeerInfo().getPort();
-        gw.clientsCount = s.getClients().size();
-        gw.clientsList = new ArrayList<>();
-        for (ServerClient c : s.getClients())
-            gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getRemoteId(), c.getState().isConnected()));
-        gws.add(gw);
-
-        s = gwS2OService.getServer();
-        gw = new JCPAPIsStatus.GWs();
-        gw.id = s.getLocalId();
-        gw.type = GWType.Srv2Obj;
-        gw.isRunning = s.getState().isRunning();
-        gw.address = s.getServerPeerInfo().getAddr().getHostAddress();
-        gw.hostName = s.getServerPeerInfo().getAddr().getHostName();
-        gw.hostNameCanonical = s.getServerPeerInfo().getAddr().getCanonicalHostName();
-        gw.port = s.getServerPeerInfo().getPort();
-        gw.clientsCount = s.getClients().size();
-        gw.clientsList = new ArrayList<>();
-        for (ServerClient c : s.getClients())
-            gw.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getRemoteId(), c.getState().isConnected()));
-        gws.add(gw);
+        gws.add(gwO2SService.getJCPAPIsStatus());
+        gws.add(gwS2OService.getJCPAPIsStatus());
 
         return ResponseEntity.ok(gws);
     }
