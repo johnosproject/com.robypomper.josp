@@ -23,6 +23,7 @@ import com.robypomper.comm.client.ClientAbsSSL;
 import com.robypomper.josp.clients.AbsGWsClient;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.apis.srv.APIGWsClient;
+import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.params.jospgws.AccessInfo;
 import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
@@ -46,6 +47,7 @@ public class JSLGwS2OClient extends AbsGWsClient {
     private static final Logger log = LogManager.getLogger();
     // JSL
     private final JSLCommunication_002 jslComm;
+    private final JSLServiceInfo srvInfo;
     // Configs
     private final APIGWsClient apiGWsClient;
 
@@ -60,12 +62,21 @@ public class JSLGwS2OClient extends AbsGWsClient {
      * @param jslComm instance of the {@link JSLCommunication}
      *                that initialized this client. It will used to
      *                process data received from the O2S Gw.
-     * @param srvId   the id of the represented service.
+     * @param srvInfo the srvInfo representing the service.
      */
-    public JSLGwS2OClient(JSLCommunication_002 jslComm, String srvId, JCPAPIsClientSrv jcpClient, String instanceId) {
-        super(srvId, "JSLGWsS2O-Internal", jcpClient);
+    public JSLGwS2OClient(JSLCommunication_002 jslComm, JSLServiceInfo srvInfo, JCPAPIsClientSrv jcpClient, String instanceId) {
+        super(srvInfo.getFullId(), "JSLGWsS2O-Internal", jcpClient);
         this.jslComm = jslComm;
+        this.srvInfo = srvInfo;
         this.apiGWsClient = new APIGWsClient(jcpClient, instanceId);
+    }
+
+
+    // Getters
+
+    @Override
+    public String getLocalId() {
+        return getWrapper() != null ? getWrapper().getLocalId() : srvInfo.getFullId();
     }
 
 
