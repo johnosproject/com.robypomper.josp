@@ -688,11 +688,11 @@ public class JODCommunication_002 implements JODCommunication {
         public void onFail(Peer peer, String failMsg, Throwable t) {
             // Connection problem
             if (t instanceof PeerConnectionException) {
-                log.debug("Error on JCP GWs connection attempt: " + failMsg);
+                log.warn(String.format("Error on JCP GWs client connection: %s (%s)", failMsg, t), t);
                 return;
             }
 
-            log.warn("Error on JCP GWs client", t);
+            log.warn(String.format("Error on JCP GWs client: %s (%s)", failMsg, t), t);
         }
 
     };

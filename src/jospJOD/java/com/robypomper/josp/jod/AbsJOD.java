@@ -288,20 +288,23 @@ public abstract class AbsJOD implements JOD {
         log.info(Mrk_JOD.JOD_MAIN, String.format("            LastDiscon        = %s", comm.getCloudConnection().getConnectionInfo().getStats().getLastDisconnection()));
         log.info(Mrk_JSL.JSL_MAIN, String.format("            LastDisconReason  = %s", comm.getCloudConnection().getDisconnectionReason()));
         log.info(Mrk_JOD.JOD_MAIN, "        Local Comm.");
-        log.info(Mrk_JOD.JOD_MAIN, String.format("            State (Server)    = %s", comm.getLocalServer().getState()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("            ClientsCount      = %s", comm.getAllLocalClientsInfo().size()));
-        //log.info(Mrk_JOD.JOD_MAIN, String.format("            ClientsConn       = %d", comm.getLocalConnections().getConnectedCount()));
-        //log.info(Mrk_JOD.JOD_MAIN, String.format("            ClientsDisconn    = %d", comm.getLocalConnections().getDisconnectedCount()));
-        InetAddress localAddr = comm.getCloudConnection().getConnectionInfo().getRemoteInfo().getAddr();
-        Integer localPort = comm.getCloudConnection().getConnectionInfo().getRemoteInfo().getPort();
-        log.info(Mrk_JOD.JOD_MAIN, String.format("            HostName          = %s", (localAddr != null ? localAddr.getHostName() : "N/A")));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("            IPAddr            = %s", (localAddr != null ? localAddr.getHostAddress() : "N/A")));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("            Port              = %s", (localPort != null ? localPort : "N/A")));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("            IsRunning         = %s", comm.getLocalServer().getState().isRunning()));
-        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastStart         = %s", comm.getLocalConnections().getLastStartup()));
-        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastStop          = %s", comm.getLocalConnections().getLastShutdown()));
-        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastConn          = %s", comm.getLocalConnections().getLastObjConnection()));
-        //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastDiscon        = %s", comm.getLocalConnections().getLastObjDisconnection()));
+        if (comm.getLocalServer() != null) {
+            log.info(Mrk_JOD.JOD_MAIN, String.format("            State (Server)    = %s", comm.getLocalServer().getState()));
+            log.info(Mrk_JOD.JOD_MAIN, String.format("            ClientsCount      = %s", comm.getAllLocalClientsInfo().size()));
+            //log.info(Mrk_JOD.JOD_MAIN, String.format("            ClientsConn       = %d", comm.getLocalConnections().getConnectedCount()));
+            //log.info(Mrk_JOD.JOD_MAIN, String.format("            ClientsDisconn    = %d", comm.getLocalConnections().getDisconnectedCount()));
+            InetAddress localAddr = comm.getLocalServer().getServerPeerInfo().getAddr();
+            Integer localPort = comm.getLocalServer().getServerPeerInfo().getPort();
+            log.info(Mrk_JOD.JOD_MAIN, String.format("            HostName          = %s", (localAddr != null ? localAddr.getHostName() : "N/A")));
+            log.info(Mrk_JOD.JOD_MAIN, String.format("            IPAddr            = %s", (localAddr != null ? localAddr.getHostAddress() : "N/A")));
+            log.info(Mrk_JOD.JOD_MAIN, String.format("            Port              = %s", (localPort != null ? localPort : "N/A")));
+            log.info(Mrk_JOD.JOD_MAIN, String.format("            IsRunning         = %s", comm.getLocalServer().getState().isRunning()));
+            //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastStart         = %s", comm.getLocalConnections().getLastStartup()));
+            //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastStop          = %s", comm.getLocalConnections().getLastShutdown()));
+            //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastConn          = %s", comm.getLocalConnections().getLastObjConnection()));
+            //log.info(Mrk_JOD.JOD_MAIN, String.format("            lastDiscon        = %s", comm.getLocalConnections().getLastObjDisconnection()));
+        } else
+            log.info(Mrk_JOD.JOD_MAIN, "            State (Server)    = N/A");
         List<JODLocalClientInfo> srvsList = getCommunication().getAllLocalClientsInfo();
         StringBuilder srvNames = new StringBuilder();
         for (JODLocalClientInfo ci : srvsList)
@@ -346,7 +349,7 @@ public abstract class AbsJOD implements JOD {
                     comm.getCloudConnection().connect();
 
             } catch (PeerConnectionException e) {
-                log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on connecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
+                log.warn(Mrk_JOD.JOD_MAIN, "JCP GWs client not connected, retry later", e);
             }
 
             long time = new Date().getTime() - start;
