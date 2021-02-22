@@ -417,7 +417,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
             } catch (JCPNotReachableException e) {
                 if (state.enumNotEquals(JCPClient2State.CONNECTING_WAITING_JCP)) {
-                    log.warn("JCP Client can't connect, start JCP Client connection timer");
+                    log.warn(String.format("JCP Client '%s' can't connect, start JCP Client connection timer", getApiName()));
                     state.set(JCPClient2State.CONNECTING_WAITING_JCP);
                     startConnectionTimer();
                 }
@@ -430,7 +430,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
             } catch (JCPNotReachableException e) {
                 if (state.enumNotEquals(JCPClient2State.CONNECTING_WAITING_AUTH)) {
-                    log.warn("JCP Client can't connect, start JCP Client connection timer");
+                    log.warn(String.format("JCP Client '%s' can't connect, start JCP Client connection timer", getApiName()));
                     state.set(JCPClient2State.CONNECTING_WAITING_AUTH);
                     startConnectionTimer();
                 }
@@ -495,11 +495,11 @@ public class DefaultJCPClient2 implements JCPClient2 {
         synchronized (state) {
             // Clean up connection waiting stuff
             if (state.enumEquals(JCPClient2State.CONNECTING_WAITING_JCP)) {
-                log.warn("JCP Client disconnect, stop JCP Client connection timer");
+                log.warn(String.format("JCP Client '%s' disconnect, stop JCP Client connection timer", getApiName()));
                 stopConnectionTimer();
             }
             if (state.enumEquals(JCPClient2State.CONNECTING_WAITING_AUTH)) {
-                log.warn("JCP Client disconnect, stop JCP Client connection timer");
+                log.warn(String.format("JCP Client '%s' disconnect, stop JCP Client connection timer", getApiName()));
                 stopConnectionTimer();
             }
 
@@ -555,7 +555,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 doDisconnect();
                 doConnect();
             } catch (StateException | AuthenticationException e) {
-                log.warn(String.format("Can't reconnect %s because %s", getApiName(), e.getMessage()), e);
+                log.warn(String.format("JCP Client '%s' can't reconnect because %s", getApiName(), e.getMessage()), e);
             }
             lastDisconnection = JavaDate.getNowDate();
             emitDisconnected();

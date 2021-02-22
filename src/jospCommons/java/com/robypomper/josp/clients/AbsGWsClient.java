@@ -120,7 +120,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
                 else
                     emitOnDisconnect();
             }
-            throw new PeerConnectionException(this, e, String.format("Error on AbsGWsClient '%s' because error on get JCP GWs's access info from JCP APIs", this));
+            throw new PeerConnectionException(this, e, "Error on get JCP GWs's access info from JCP APIs");
         }
 
         try {
@@ -193,6 +193,8 @@ public abstract class AbsGWsClient extends ClientWrapper {
         }
 
         super.doDisconnect();
+
+        resetWrapper();
     }
 
 
