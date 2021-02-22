@@ -98,4 +98,8 @@ public class GWDBService {
         gws.delete(gw);
     }
 
+    public void deleteAll() {
+        gws.deleteAll();
+    }
+
 }
