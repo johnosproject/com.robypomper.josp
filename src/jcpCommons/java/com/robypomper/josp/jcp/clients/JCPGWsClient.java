@@ -30,13 +30,13 @@ public class JCPGWsClient extends JCPAPIsClientJCP {
 
     // Internal vars
 
-    public static final String JCP_NAME = "JCP GWs";
+    public static final String JCP_NAME = "JCP GWs (%s)";
 
 
     // Constructor
 
-    public JCPGWsClient(ClientParams params, String urlGWs, boolean internal) {
-        super(internal ? params.useSSLInternal : params.useSSLPublic, params.client, params.secret, urlGWs, params.urlAuth, JCP_NAME, params.callBack);
+    public JCPGWsClient(ClientParams params, String urlGWs, boolean internal, String instanceName) {
+        super(internal ? params.useSSLInternal : params.useSSLPublic, params.client, params.secret, urlGWs, params.urlAuth, String.format(JCP_NAME, instanceName), params.callBack);
     }
 
 }
