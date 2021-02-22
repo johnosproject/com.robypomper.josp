@@ -39,7 +39,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
     private final JCPClient2 jcpClient;
     private JCPClient2.ConnectionListener jcpConnectionListener = null;
     // Client SSL stuff
-    private final DynAddTrustManager trustManager;
+    private DynAddTrustManager trustManager;
     private Certificate localCertificate;
     private SSLContext sslCtx;
     // behaviors
@@ -52,16 +52,6 @@ public abstract class AbsGWsClient extends ClientWrapper {
         super(clientId, serverId, JOSPProtocol.JOSP_PROTO_NAME);
         getAutoReConnectConfigs().enable(true);
         this.jcpClient = jcpClient;
-
-        trustManager = new DynAddTrustManager();
-        try {
-            KeyStore clientKeyStore = JavaJKS.generateKeyStore(getLocalId(), KS_PASS, getLocalId() + "-CloudCert");
-            localCertificate = JavaJKS.extractCertificate(clientKeyStore, getLocalId() + "-CloudCert");
-            sslCtx = JavaSSL.generateSSLContext(clientKeyStore, KS_PASS, trustManager);
-
-        } catch (JavaJKS.GenerationException | JavaSSL.GenerationException e) {
-            assert false : String.format("JKS and SSL generation are standard and should not throw exception [%s] %s", e.getClass().getSimpleName(), e.getMessage());
-        }
 
         //addListener(new PeerAbs.PeerConnectionLogger("AbsGWsClient"));
         addListener(autoReConnectListener);
@@ -77,6 +67,8 @@ public abstract class AbsGWsClient extends ClientWrapper {
 
         if (getState().isConnecting())
             return;
+
+        regenerateCertificate();
 
         doConnect(false);
     }
@@ -195,6 +187,18 @@ public abstract class AbsGWsClient extends ClientWrapper {
         super.doDisconnect();
 
         resetWrapper();
+    }
+
+    private void regenerateCertificate() {
+        trustManager = new DynAddTrustManager();
+        try {
+            KeyStore clientKeyStore = JavaJKS.generateKeyStore(getLocalId(), KS_PASS, getLocalId() + "-CloudCert");
+            localCertificate = JavaJKS.extractCertificate(clientKeyStore, getLocalId() + "-CloudCert");
+            sslCtx = JavaSSL.generateSSLContext(clientKeyStore, KS_PASS, trustManager);
+
+        } catch (JavaJKS.GenerationException | JavaSSL.GenerationException e) {
+            assert false : String.format("JKS and SSL generation are standard and should not throw exception [%s] %s", e.getClass().getSimpleName(), e.getMessage());
+        }
     }
 
 
