@@ -415,7 +415,7 @@ public class JODCommunication_002 implements JODCommunication {
             return false;
         }
 
-        permissions.setOwnerId(newOwnerId);
+        objInfo.setOwnerId(newOwnerId);
         return true;
     }
 

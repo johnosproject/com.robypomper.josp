@@ -43,6 +43,12 @@ import java.util.List;
  */
 public interface JODPermissions {
 
+    // Class constants
+
+    String ANONYMOUS_ID = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
+    String ANONYMOUS_USERNAME = JOSPPerm.WildCards.USR_ANONYMOUS_NAME.toString();
+
+
     /**
      * Set the {@link JODCommunication} reference to the JODStructure object.
      * <p>
@@ -53,6 +59,7 @@ public interface JODPermissions {
     void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException;
 
     void syncObjPermissions();
+
 
     // Access methods
 
@@ -66,6 +73,13 @@ public interface JODPermissions {
     boolean checkPermission(String srvId, String usrId, JOSPPerm.Type minReqPerm, JOSPPerm.Connection connType);
 
     JOSPPerm.Type getServicePermission(String srvId, String usrId, JOSPPerm.Connection connType);
+
+    /**
+     * Object's permissions string for JSL.
+     *
+     * @return the object's permissions.
+     */
+    String getPermsForJSL() throws JODStructure.ParsingException;
 
     /**
      * Add given permission to object's permissions.
@@ -91,25 +105,6 @@ public interface JODPermissions {
      */
     boolean remPermissions(String permId);
 
-    /**
-     * The object owner id.
-     *
-     * @return object owner id.
-     */
-    String getOwnerId();
-
-    /**
-     * Set object's owner.
-     *
-     * @param ownerId the user's id.
-     */
-    void setOwnerId(String ownerId);
-
-    /**
-     * Set object's owner to unset.
-     */
-    void resetOwnerId();
-
 
     // Mngm methods
 
@@ -124,45 +119,22 @@ public interface JODPermissions {
      */
     void stopAutoRefresh();
 
-    /**
-     * Delete current object's permission and genereate new one.
-     * <p>
-     * This method is called when obj's id or owner change (object's owner
-     * update cause object's id re-generation).
-     */
-    void regeneratePermissions() throws PermissionsFileException;
+    void updateObjIdAndSave();
 
     // Exceptions
 
     /**
-     * Base class for exception thrown on operations on permission's file (read/write).
+     * Exception thrown when loaded permissions don't correspond to current
+     * object id.
      */
-    class PermissionsFileException extends Throwable {
-        protected PermissionsFileException(String msg, Throwable t) {
-            super(msg, t);
+    class PermissionInvalidObjIdException extends Throwable {
+
+        private static final String MSG = "Loaded permission with wrong obj'id '%s', current obj's id '%s'";
+
+        protected PermissionInvalidObjIdException(String objId, JOSPPerm p) {
+            super(String.format(MSG, p.getObjId(), objId));
         }
-    }
 
-    /**
-     * Exceptions for permissions file reading errors.
-     */
-    class PermissionsNotLoadedException extends PermissionsFileException {
-        private static final String MSG = "Error reading permissions from file '%s'";
-
-        public PermissionsNotLoadedException(String path, Throwable e) {
-            super(String.format(MSG, path), e);
-        }
-    }
-
-    /**
-     * Exceptions for permissions file writing errors.
-     */
-    class PermissionsNotSavedException extends PermissionsFileException {
-        private static final String MSG = "Error writing permissions from file '%s'";
-
-        public PermissionsNotSavedException(String path, Exception e) {
-            super(String.format(MSG, path), e);
-        }
     }
 
 }

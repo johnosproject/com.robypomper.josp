@@ -223,7 +223,7 @@ public class JODShell {
                 new CmdsJODObjectInfo(jod.getObjectInfo()),
                 new CmdsJODExecutorMngr(jod.getObjectStructure(), jod.getExecutor(), jod.getHistory()),
                 new CmdsJODStructure(jod.getObjectStructure()),
-                new CmdsJODPermissions(jod.getPermission()),
+                new CmdsJODPermissions(jod.getObjectInfo(), jod.getPermission()),
                 new CmdsJODCommunication(jod.getCommunication())
         );
         shell.commandLoop();

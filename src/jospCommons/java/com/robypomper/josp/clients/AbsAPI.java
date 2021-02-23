@@ -31,6 +31,10 @@ public class AbsAPI {
         return jcpClient;
     }
 
+    public boolean isConnected() {
+        return jcpClient.isConnected();
+    }
+
     public boolean isSecure() {
         return jcpClient.isHttps();
     }

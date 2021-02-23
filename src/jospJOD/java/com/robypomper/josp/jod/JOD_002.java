@@ -75,7 +75,7 @@ public class JOD_002 extends AbsJOD {
         super(settings, jcpClient, objInfo, structure, comm, executor, permissions, events, history);
     }
 
-    public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JODPermissions.PermissionsFileException, JCPClient2.AuthenticationException, StateException {
+    public static JOD instance(JODSettings_002 settings) throws JODStructure.ParsingException, JODCommunication.LocalCommunicationException, JCPClient2.AuthenticationException, StateException, JODPermissions.PermissionInvalidObjIdException {
         log.info("\n\n" + JavaVersionUtils.buildJavaVersionStr("John Object Daemon", VERSION));
 
         long start = new Date().getTime();

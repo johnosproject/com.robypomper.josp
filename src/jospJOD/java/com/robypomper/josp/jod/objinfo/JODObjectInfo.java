@@ -53,6 +53,13 @@ public interface JODObjectInfo {
     // Obj's info
 
     /**
+     * The full service id is composed by service and user ids.
+     *
+     * @return an id composed by service and user id.
+     */
+    String getFullId();
+
+    /**
      * The JOD version represent the object's agent version and define witch
      * JOSP protocol version can be used to communicate with this JOD instance.
      *
@@ -92,15 +99,17 @@ public interface JODObjectInfo {
      */
     String getOwnerId();
 
-
-    // Instance and fullId
+    /**
+     * Set object's owner.
+     *
+     * @param ownerId the user's id.
+     */
+    void setOwnerId(String ownerId);
 
     /**
-     * The full service id is composed by service and user ids.
-     *
-     * @return an id composed by service and user id.
+     * Set object's owner to unset.
      */
-    String getFullId();
+    void resetOwnerId();
 
 
     // Structure's info
@@ -127,13 +136,6 @@ public interface JODObjectInfo {
     String getStructForJSL() throws JODStructure.ParsingException;
 
     /**
-     * Object's permissions string for JSL.
-     *
-     * @return the object's permissions.
-     */
-    String getPermsForJSL() throws JODStructure.ParsingException;
-
-    /**
      * The object's brand.
      *
      * @return object's brand.
@@ -155,23 +157,6 @@ public interface JODObjectInfo {
     String getLongDescr();
 
 
-    // Permissions's info
-
-    /**
-     * The object's permissions local file.
-     *
-     * @return object's permissions file's path.
-     */
-    String getPermissionsPath();
-
-    /**
-     * The object's permissions stored on local file.
-     *
-     * @return object's locally stored permissions.
-     */
-    String readPermissionsStr();
-
-
     // Mngm methods
 
     /**
@@ -187,15 +172,5 @@ public interface JODObjectInfo {
     void stopAutoRefresh();
 
     void syncObjInfo();
-
-    // Obj's id
-
-    /**
-     * Delete current object's id and generate a new one.
-     * <p>
-     * This operations is called when the object's owner is changed, so it
-     * regenerate all permissions will be invalidated (and regenerated).
-     */
-    void regenerateObjId();
 
 }
