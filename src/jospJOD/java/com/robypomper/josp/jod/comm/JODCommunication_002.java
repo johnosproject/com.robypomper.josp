@@ -624,6 +624,7 @@ public class JODCommunication_002 implements JODCommunication {
 
     // JCP Client listeners
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final JCPClient2.ConnectionListener jcpConnectionListener = new JCPClient2.ConnectionListener() {
 
         private boolean connFailedPrinted = false;
@@ -660,6 +661,7 @@ public class JODCommunication_002 implements JODCommunication {
 
     };
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final PeerConnectionListener gwClientListener = new PeerConnectionListener() {
 
         @Override

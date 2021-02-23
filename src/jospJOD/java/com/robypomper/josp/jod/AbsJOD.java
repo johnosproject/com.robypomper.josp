@@ -35,7 +35,6 @@ import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.states.JODState;
 import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JOD;
-import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -263,8 +262,8 @@ public abstract class AbsJOD implements JOD {
         log.info(Mrk_JOD.JOD_MAIN, "        Owner");
         log.info(Mrk_JOD.JOD_MAIN, String.format("            ID                = %s", objInfo.getOwnerId()));
         log.info(Mrk_JOD.JOD_MAIN, " -- Ver.s");
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JSL Srv state             = %s", getState()));
-        log.info(Mrk_JOD.JOD_MAIN, String.format("    JSL Srv version           = %s", version()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Srv state             = %s", getState()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("    JOD Srv version           = %s", version()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JOSP protocol supported   = %s", Arrays.asList(versionsJOSPProtocol())));
         log.info(Mrk_JOD.JOD_MAIN, String.format("    JCP APIs supported        = %s", Arrays.asList(versionsJCPAPIs())));
         log.info(Mrk_JOD.JOD_MAIN, " -- Comm.s");
@@ -286,7 +285,7 @@ public abstract class AbsJOD implements JOD {
         log.info(Mrk_JOD.JOD_MAIN, String.format("            IsConnected       = %s", comm.getCloudConnection().getState().isConnected()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("            LastConn          = %s", comm.getCloudConnection().getConnectionInfo().getStats().getLastConnection()));
         log.info(Mrk_JOD.JOD_MAIN, String.format("            LastDiscon        = %s", comm.getCloudConnection().getConnectionInfo().getStats().getLastDisconnection()));
-        log.info(Mrk_JSL.JSL_MAIN, String.format("            LastDisconReason  = %s", comm.getCloudConnection().getDisconnectionReason()));
+        log.info(Mrk_JOD.JOD_MAIN, String.format("            LastDisconReason  = %s", comm.getCloudConnection().getDisconnectionReason()));
         log.info(Mrk_JOD.JOD_MAIN, "        Local Comm.");
         if (comm.getLocalServer() != null) {
             log.info(Mrk_JOD.JOD_MAIN, String.format("            State (Server)    = %s", comm.getLocalServer().getState()));
@@ -389,7 +388,7 @@ public abstract class AbsJOD implements JOD {
                 comm.getCloudConnection().disconnect();
 
             } catch (PeerDisconnectionException e) {
-                log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on disconnecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
+                log.warn(Mrk_JOD.JOD_MAIN, String.format("Error on disconnecting cloud communication of '%s' object because %s", objInfo.getObjId(), e.getMessage()), e);
             }
 
             log.trace(Mrk_JOD.JOD_MAIN, "JODExecutor disable all workers");

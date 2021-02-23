@@ -44,6 +44,7 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
 
     private static final String PROP_CMD = "cmd";
     private static final String PROP_REDIRECT = "redirect";
+    private static final int CMD_EXECUTION_TIMEOUT_MS = 5000;
 
 
     // Internal vars
@@ -105,7 +106,7 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
 
         // Split, redirect*redirectUpd!=null, CmdPartitioning
         try {
-            String output = JavaExecProcess.execCmdConcat(cmdUpd, 0);
+            String output = JavaExecProcess.execCmdConcat(cmdUpd, CMD_EXECUTION_TIMEOUT_MS);
             if (redirectUpd != null)
                 JavaFiles.writeString(redirectUpd, output);
 
@@ -139,7 +140,7 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
 
         // Split, redirect*redirectUpd!=null, CmdPartitioning
         try {
-            String output = JavaExecProcess.execCmdConcat(cmdUpd, 0);
+            String output = JavaExecProcess.execCmdConcat(cmdUpd, CMD_EXECUTION_TIMEOUT_MS);
             if (redirectUpd != null)
                 JavaFiles.writeString(redirectUpd, output);
 

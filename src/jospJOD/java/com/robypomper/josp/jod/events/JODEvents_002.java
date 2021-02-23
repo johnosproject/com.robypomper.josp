@@ -278,7 +278,7 @@ public class JODEvents_002 implements JODEvents {
                 apiEventsClient.uploadEvents(toUpload);
 
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                log.warn(Mrk_JOD.JOD_HISTORY, String.format("Can't upload statuses history because JCP not connected (CloudStats values lastUpd: %d; lastStored: %d", stats.lastUploaded, stats.lastStored), e);
+                log.warn(Mrk_JOD.JOD_HISTORY, String.format("Can't upload events (CloudStats values lastUpd: %d; lastStored: %d) (%s)", stats.lastUploaded, stats.lastStored, e));
                 return;
             }
 
