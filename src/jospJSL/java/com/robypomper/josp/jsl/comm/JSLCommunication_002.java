@@ -159,6 +159,7 @@ public class JSLCommunication_002 implements JSLCommunication {
 
     // Clients and server listeners
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final JCPClient2.ConnectionListener jcpConnectionListener = new JCPClient2.ConnectionListener() {
 
         private boolean connFailedPrinted = false;
@@ -191,6 +192,7 @@ public class JSLCommunication_002 implements JSLCommunication {
 
     };
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final PeerConnectionListener gwClientListener = new PeerConnectionListener() {
 
         @Override

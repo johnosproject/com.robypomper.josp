@@ -89,7 +89,7 @@ public class JSLGwS2OClient extends AbsGWsClient {
 
     @Override
     protected Client initGWsClient(AccessInfo accessInfo, SSLContext sslCtx) throws Throwable {
-        assert accessInfo instanceof S2OAccessInfo : String.format("AccessInfo for JODGWsO2SClient must be of type 'O2SAccessInfo', but found '%s'", accessInfo.getClass().getSimpleName());
+        assert accessInfo instanceof S2OAccessInfo : String.format("AccessInfo for JODGWsO2SClient must be of type 'S2OAccessInfo', but found '%s'", accessInfo.getClass().getSimpleName());
 
         InetAddress gwAddress = InetAddress.getByName(accessInfo.gwAddress);
 

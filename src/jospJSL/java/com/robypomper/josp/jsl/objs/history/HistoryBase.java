@@ -47,7 +47,7 @@ public abstract class HistoryBase {
         // Send via local communication
         if (getRemote().getComm().isLocalConnected()) {
             JOSPPerm.Type permType = getRemote().getPerms().getPermTypes().get(JOSPPerm.Connection.OnlyLocal);
-            if (permType.compareTo(minReqPerm) < 0)
+            if (permType.compareTo(minReqPerm) < 0 && !getRemote().getInfo().getOwnerId().equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
                 throw new JSLRemoteObject.MissingPermission(getRemote(), JOSPPerm.Connection.OnlyLocal, permType, minReqPerm, msg);
 
             try {
@@ -63,7 +63,7 @@ public abstract class HistoryBase {
     protected void sendToObjectCloudly(JOSPPerm.Type minReqPerm, String msg) throws JSLRemoteObject.MissingPermission, PeerNotConnectedException, PeerStreamException {
         // Send via cloud communication
         JOSPPerm.Type permType = getRemote().getPerms().getPermTypes().get(JOSPPerm.Connection.LocalAndCloud);
-        if (permType.compareTo(minReqPerm) < 0)
+        if (permType.compareTo(minReqPerm) < 0 && !getRemote().getInfo().getOwnerId().equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
             throw new JSLRemoteObject.MissingPermission(getRemote(), JOSPPerm.Connection.LocalAndCloud, permType, minReqPerm, msg);
 
         ((DefaultObjComm) getRemote().getComm()).getCloudConnection().sendData(msg);
