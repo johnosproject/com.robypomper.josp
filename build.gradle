@@ -47,5 +47,6 @@ apply from: 'gradle/build_tests.gradle'
 
 if (tasks.findByName("wrapper")==null)
     task wrapper(type: Wrapper) {
-        gradleVersion = '6.7.1'
+        gradleVersion = '6.8.2'
+        distributionType = Wrapper.DistributionType.ALL
     }
