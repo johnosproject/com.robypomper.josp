@@ -66,6 +66,16 @@ public class MockJODObjectInfo implements JODObjectInfo {
     }
 
     @Override
+    public void setOwnerId(String ownerId) {
+
+    }
+
+    @Override
+    public void resetOwnerId() {
+
+    }
+
+    @Override
     public String getFullId() {
         return null;
     }
@@ -86,11 +96,6 @@ public class MockJODObjectInfo implements JODObjectInfo {
     }
 
     @Override
-    public String getPermsForJSL() {
-        return null;
-    }
-
-    @Override
     public String getBrand() {
         return null;
     }
@@ -106,16 +111,6 @@ public class MockJODObjectInfo implements JODObjectInfo {
     }
 
     @Override
-    public String getPermissionsPath() {
-        return null;
-    }
-
-    @Override
-    public String readPermissionsStr() {
-        return null;
-    }
-
-    @Override
     public void startAutoRefresh() {
     }
 
@@ -125,10 +120,6 @@ public class MockJODObjectInfo implements JODObjectInfo {
 
     @Override
     public void syncObjInfo() {
-    }
-
-    @Override
-    public void regenerateObjId() {
     }
 
 }

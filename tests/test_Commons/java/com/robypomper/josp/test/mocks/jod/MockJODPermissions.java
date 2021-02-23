@@ -51,6 +51,11 @@ public class MockJODPermissions implements JODPermissions {
     }
 
     @Override
+    public String getPermsForJSL() {
+        return null;
+    }
+
+    @Override
     public boolean addPermissions(String srvId, String usrId, JOSPPerm.Type type, JOSPPerm.Connection connection) {
         return false;
     }
@@ -66,19 +71,6 @@ public class MockJODPermissions implements JODPermissions {
     }
 
     @Override
-    public String getOwnerId() {
-        return null;
-    }
-
-    @Override
-    public void setOwnerId(String ownerId) {
-    }
-
-    @Override
-    public void resetOwnerId() {
-    }
-
-    @Override
     public void startAutoRefresh() {
     }
 
@@ -87,7 +79,8 @@ public class MockJODPermissions implements JODPermissions {
     }
 
     @Override
-    public void regeneratePermissions() {
+    public void updateObjIdAndSave() {
+
     }
 
 }
