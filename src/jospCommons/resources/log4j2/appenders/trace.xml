@@ -20,10 +20,6 @@
 
 <Console name="trace" target="SYSTEM_OUT">
     <Filters>
-        <!--<MarkerFilter marker="MAIN_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
-        <MarkerFilter marker="EXT_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <MarkerFilter marker="SUB_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <!--<MarkerFilter marker="IMPL_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
         <ThresholdFilter level="TRACE" onMatch="ACCEPT" onMismatch="DENY"/>
     </Filters>
     <PatternLayout alwaysWriteExceptions="false"

@@ -18,14 +18,10 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<RollingFile name="debug-file" fileName="logs/${filename_base}_debug.log"
-             filePattern="logs/${filename_base}-%d{yyyyMMdd_HHmmss}-%i.log_debug.gz"
+<RollingFile name="debug-file" fileName="logs/${filename_base}.log"
+             filePattern="logs/${filename_base}-%d{yyyyMMdd_HHmmss}-%i.log.gz"
              append="true">
     <Filters>
-        <!--<MarkerFilter marker="MAIN_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
-        <MarkerFilter marker="EXT_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <MarkerFilter marker="SUB_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>
-        <!--<MarkerFilter marker="IMPL_COMP" onMatch="DENY" onMismatch="NEUTRAL"/>-->
         <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
     </Filters>
     <PatternLayout alwaysWriteExceptions="true"

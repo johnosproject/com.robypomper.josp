@@ -24,45 +24,43 @@
     </Properties>
 
     <Appenders>
+
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/error.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/error-dark.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/error-file.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/error-libs.xml"/>
+
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/info.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/info-dark.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/info-file.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/info-libs.xml"/>
+
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/debug.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/debug-dark.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/debug-file.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/debug-libs.xml"/>
+
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/trace.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/trace-dark.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/trace-file.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.1.0.jar!/log4j2/appenders/trace-libs.xml"/>
+
     </Appenders>
 
     <Loggers>
 
         <Logger name="com.robypomper" additivity="false">
-            <AppenderRef ref="info-dark"/>
-            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="warning-libs"/>
             <AppenderRef ref="info-file"/>
-        </Logger>
-
-        <Logger name="com.robypomper.josp" additivity="false">
-            <AppenderRef ref="info-dark"/>
-            <AppenderRef ref="error-file"/>
-            <AppenderRef ref="info-file"/>
-            <AppenderRef ref="debug-file"/>
         </Logger>
 
         <Logger name="com.robypomper.josp.jcp" additivity="false">
             <AppenderRef ref="info"/>
-            <AppenderRef ref="error-file"/>
             <AppenderRef ref="info-file"/>
-            <AppenderRef ref="debug-file"/>
         </Logger>
 
         <Root additivity="false" level="ALL">
-            <AppenderRef ref="info-dark"/>
-            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="warning-libs"/>
             <AppenderRef ref="info-file"/>
         </Root>
 

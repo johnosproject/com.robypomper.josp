@@ -41,28 +41,22 @@
     <Loggers>
 
         <Logger name="com.robypomper" additivity="false">
-            <AppenderRef ref="info-dark"/>
-            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="warning-libs"/>
             <AppenderRef ref="info-file"/>
-        </Logger>
-
-        <Logger name="com.robypomper.josp" additivity="false">
-            <AppenderRef ref="info-dark"/>
-            <AppenderRef ref="error-file"/>
-            <AppenderRef ref="info-file"/>
-            <AppenderRef ref="debug-file"/>
         </Logger>
 
         <Logger name="com.robypomper.josp.jcp" additivity="false">
             <AppenderRef ref="info"/>
-            <AppenderRef ref="error-file"/>
             <AppenderRef ref="info-file"/>
-            <AppenderRef ref="debug-file"/>
+        </Logger>
+
+        <Logger name="com.robypomper.josp.jsl" additivity="false">
+            <AppenderRef ref="info-libs"/>
+            <AppenderRef ref="info-file"/>
         </Logger>
 
         <Root additivity="false" level="ALL">
-            <AppenderRef ref="info-dark"/>
-            <AppenderRef ref="error-file"/>
+            <AppenderRef ref="warning-libs"/>
             <AppenderRef ref="info-file"/>
         </Root>
 
