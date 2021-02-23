@@ -19,8 +19,9 @@
 
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.communication.server.ClientInfo;
-import com.robypomper.communication.server.Server;
+import com.robypomper.comm.exception.ServerShutdownException;
+import com.robypomper.comm.exception.ServerStartupException;
+import com.robypomper.comm.server.ServerClient;
 import com.robypomper.josp.test.mocks.jod.MockJODCommunication;
 import com.robypomper.josp.test.mocks.jod.MockJODObjectInfo;
 import com.robypomper.josp.test.mocks.jod.MockJODPermissions;
@@ -84,48 +85,48 @@ public class JODLocalServerTest {
     // Start and stop
 
     @Test
-    public void testLocalStartAndStop() throws Server.ListeningException {
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-        Assertions.assertFalse(jodServer.isRunning());
+    public void testLocalStartAndStop() throws ServerStartupException, ServerShutdownException {
+        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+        Assertions.assertFalse(jodServer.getState().isRunning());
 
         System.out.println("\nJOD LOCAL SERVER START");
-        jodServer.start();
-        Assertions.assertTrue(jodServer.isRunning());
+        jodServer.startup();
+        Assertions.assertTrue(jodServer.getState().isRunning());
 
         System.out.println("\nJOD LOCAL SERVER STOP");
-        jodServer.stop();
-        Assertions.assertFalse(jodServer.isRunning());
+        jodServer.shutdown();
+        Assertions.assertFalse(jodServer.getState().isRunning());
     }
 
     @Test
-    public void testLocalDoubleStart_FAIL() throws Server.ListeningException {
-        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-        Assertions.assertFalse(jodServer.isRunning());
+    public void testLocalDoubleStart_FAIL() throws ServerStartupException, ServerShutdownException {
+        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+        Assertions.assertFalse(jodServer.getState().isRunning());
 
         System.out.println("\nJOD LOCAL SERVER START");
-        jodServer.start();
-        Assertions.assertTrue(jodServer.isRunning());
+        jodServer.startup();
+        Assertions.assertTrue(jodServer.getState().isRunning());
 
-        JODLocalServer jodServer2 = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-        Assertions.assertFalse(jodServer2.isRunning());
+        JODLocalServer jodServer2 = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+        Assertions.assertFalse(jodServer2.getState().isRunning());
 
         System.out.println("\nJOD LOCAL SERVER 2nd START");
-        Assertions.assertThrows(Server.ListeningException.class, jodServer2::start);
-        Assertions.assertFalse(jodServer2.isRunning());
+        Assertions.assertThrows(ServerStartupException.class, jodServer2::startup);
+        Assertions.assertFalse(jodServer2.getState().isRunning());
 
         System.out.println("\nJOD LOCAL SERVER STOP");
-        jodServer.stop();
-        Assertions.assertFalse(jodServer.isRunning());
+        jodServer.shutdown();
+        Assertions.assertFalse(jodServer.getState().isRunning());
     }
 
 
     // Client and connections status
 
 //    @Test
-//    public void testLocalConnectionAndDisconnection() throws Server.ListeningException, StateException, Client.AAAException, IOException {
+//    public void testLocalConnectionAndDisconnection() throws ServerStartupException, ServerShutdownException, StateException, Client.AAAException, IOException {
 //        System.out.println("\nJOD LOCAL SERVER START");
-//        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-//        jodServer.start();
+//        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+//        jodServer.startup();
 //
 //        System.out.println("\nJSL LOCAL CLIENT CONNECT");
 //        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
@@ -148,15 +149,15 @@ public class JODLocalServerTest {
 //        Assertions.assertEquals(0, getLocConnConnectedCount(jodServer));
 //
 //        System.out.println("\nJOD LOCAL SERVER STOP");
-//        jodServer.stop();
-//        Assertions.assertFalse(jodServer.isRunning());
+//        jodServer.shutdown();
+//        Assertions.assertFalse(jodServer.getState().isRunning());
 //    }
 //
 //    @Test
-//    public void testLocalConnectionAndDisconnectionTwoClients() throws Server.ListeningException, StateException, Client.AAAException, IOException {
+//    public void testLocalConnectionAndDisconnectionTwoClients() throws ServerStartupException, ServerShutdownException, StateException, Client.AAAException, IOException {
 //        System.out.println("\nJOD LOCAL SERVER START");
-//        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-//        jodServer.start();
+//        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+//        jodServer.startup();
 //
 //        System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
 //        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
@@ -192,15 +193,15 @@ public class JODLocalServerTest {
 //        Assertions.assertEquals(0, getLocConnConnectedCount(jodServer));
 //
 //        System.out.println("\nJOD LOCAL SERVER STOP");
-//        jodServer.stop();
-//        Assertions.assertFalse(jodServer.isRunning());
+//        jodServer.shutdown();
+//        Assertions.assertFalse(jodServer.getState().isRunning());
 //    }
 //
 //    @Test
-//    public void testLocalConnectionAndDisconnectionTwoClientsSameIds() throws Server.ListeningException, StateException, Client.AAAException, IOException {
+//    public void testLocalConnectionAndDisconnectionTwoClientsSameIds() throws ServerStartupException, ServerShutdownException, StateException, Client.AAAException, IOException {
 //        System.out.println("\nJOD LOCAL SERVER START");
-//        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-//        jodServer.start();
+//        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+//        jodServer.startup();
 //
 //        System.out.println("\nJSL LOCAL CLIENT CONNECT");
 //        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
@@ -228,15 +229,15 @@ public class JODLocalServerTest {
 //        Assertions.assertEquals(1, getLocConnConnectedCount(jodServer));
 //
 //        System.out.println("\nJOD LOCAL SERVER STOP");
-//        jodServer.stop();
-//        Assertions.assertFalse(jodServer.isRunning());
+//        jodServer.shutdown();
+//        Assertions.assertFalse(jodServer.getState().isRunning());
 //    }
 //
 //    @Test
-//    public void testLocalConnectionAndDisconnectionTwoClientsSameIdsDiffInstances() throws Server.ListeningException, StateException, Client.AAAException, IOException {
+//    public void testLocalConnectionAndDisconnectionTwoClientsSameIdsDiffInstances() throws ServerStartupException, ServerShutdownException, StateException, Client.AAAException, IOException {
 //        System.out.println("\nJOD LOCAL SERVER START");
-//        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-//        jodServer.start();
+//        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+//        jodServer.startup();
 //
 //        System.out.println("\nJSL LOCAL CLIENT CONNECT");
 //        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId_A", LOCALHOST, port,
@@ -264,15 +265,15 @@ public class JODLocalServerTest {
 //        Assertions.assertEquals(1, getLocConnConnectedCount(jodServer));
 //
 //        System.out.println("\nJOD LOCAL SERVER STOP");
-//        jodServer.stop();
-//        Assertions.assertFalse(jodServer.isRunning());
+//        jodServer.shutdown();
+//        Assertions.assertFalse(jodServer.getState().isRunning());
 //    }
 //
 //    @Test
-//    public void testLocalConnectionAndServerStop() throws Server.ListeningException, StateException, Client.AAAException, IOException {
+//    public void testLocalConnectionAndServerStop() throws ServerStartupException, ServerShutdownException, StateException, Client.AAAException, IOException {
 //        System.out.println("\nJOD LOCAL SERVER START");
-//        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-//        jodServer.start();
+//        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+//        jodServer.startup();
 //
 //        System.out.println("\nJSL LOCAL CLIENT CONNECT");
 //        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
@@ -286,8 +287,8 @@ public class JODLocalServerTest {
 //        Assertions.assertEquals(1, getLocConnConnectedCount(jodServer));
 //
 //        System.out.println("\nJOD LOCAL SERVER STOP");
-//        jodServer.stop();
-//        Assertions.assertFalse(jodServer.isRunning());
+//        jodServer.shutdown();
+//        Assertions.assertFalse(jodServer.getState().isRunning());
 //
 //        switchThread();
 //        Assertions.assertEquals(0, getClientsCount(jodServer));
@@ -297,10 +298,10 @@ public class JODLocalServerTest {
 //    }
 //
 //    @Test
-//    public void testLocalConnectionAndServerStopTwoClients() throws Server.ListeningException, StateException, Client.AAAException, IOException {
+//    public void testLocalConnectionAndServerStopTwoClients() throws ServerStartupException, ServerShutdownException, StateException, Client.AAAException, IOException {
 //        System.out.println("\nJOD LOCAL SERVER START");
-//        JODLocalServer jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port, JOD_PUB_CERT_PATH);
-//        jodServer.start();
+//        JODLocalServer jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+//        jodServer.startup();
 //
 //        System.out.println("\nJSL LOCAL CLIENT CONNECT (x2)");
 //        JSLLocalClient client = new JSLLocalClient(new MockJSLCommunication(), "srvId/usrId/instId", LOCALHOST, port,
@@ -317,8 +318,8 @@ public class JODLocalServerTest {
 //        Assertions.assertEquals(2, getLocConnConnectedCount(jodServer));
 //
 //        System.out.println("\nJOD LOCAL SERVER STOP");
-//        jodServer.stop();
-//        Assertions.assertFalse(jodServer.isRunning());
+//        jodServer.shutdown();
+//        Assertions.assertFalse(jodServer.getState().isRunning());
 //
 //        switchThread();
 //        Assertions.assertEquals(0, getClientsCount(jodServer));
@@ -336,8 +337,8 @@ public class JODLocalServerTest {
 
     private int getClientsConnectedCount(JODLocalServer server) {
         int count = 0;
-        for (ClientInfo cli : server.getClients())
-            if (cli.isConnected())
+        for (ServerClient cli : server.getClients())
+            if (cli.getState().isConnected())
                 count++;
         return count;
     }
