@@ -269,7 +269,7 @@ public abstract class PeerAbs implements Peer {
                     // Local causes
                     if (e instanceof SocketException && (e.getMessage().equals("Socket closed")         // Socket
                             || e.getMessage().equals("Socket is closed")))                              // SSLSocket
-                        break;                          // Local disconnection via disconnect() method (this case is executed also when called socket.close().... ToDo add mustShtudown internal var...)
+                        break;                          // Local disconnection via disconnect() method (this case is executed also when called socket.close()....
                     if (e.getMessage().equals("Stream closed.")) {
                         log.trace("(WARNING: local disconnection request WRONG WAY, use Peer.disconnect() method instead direct call to internalSocket.close())");
                         break;                          // Local disconnection via socket.close() method (NB!: wrong way)

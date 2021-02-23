@@ -134,6 +134,7 @@ public class HeartBeatDefault extends HeartBeatConfigsDefault implements HeartBe
 
     // Peer listener
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final PeerConnectionListener peerConnectionListener = new PeerConnectionListener() {
 
         @Override

@@ -239,7 +239,8 @@ public abstract class ClientAbs extends PeerAbs implements Client {
 
     }
 
-    private PeerConnectionListener autoReConnectListener = new PeerConnectionListener() {
+    @SuppressWarnings("FieldCanBeLocal")
+    private final PeerConnectionListener autoReConnectListener = new PeerConnectionListener() {
 
         @Override
         public void onConnecting(Peer peer) {

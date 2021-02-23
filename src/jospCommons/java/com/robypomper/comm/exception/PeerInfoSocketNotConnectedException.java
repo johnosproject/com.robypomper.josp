@@ -10,7 +10,7 @@ public class PeerInfoSocketNotConnectedException extends PeerInfoException {
     // Class constants
 
     private static final String MSG = "Error set connected state to PeerInfo '%s' because socket not connected";
-    private static final String MSG_SERVER = "Error set connected state to PeerInfo '%s' because server socket not binded";
+    private static final String MSG_SERVER = "Error set connected state to PeerInfo '%s' because server socket not bound";
 
 
     // Internal vars

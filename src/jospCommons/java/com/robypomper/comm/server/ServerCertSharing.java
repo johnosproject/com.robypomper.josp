@@ -19,7 +19,6 @@ public class ServerCertSharing extends ServerAbsTCP {
     // Internal vars
 
     private static final Logger log = LoggerFactory.getLogger(ServerCertSharing.class);
-    private final Server server;
     private final Certificate localPublicCertificate;
     private final AbsCustomTrustManager certTrustManager;
     private final Map<ServerClient, byte[]> serverCertBuffer = new HashMap<>();
@@ -35,7 +34,7 @@ public class ServerCertSharing extends ServerAbsTCP {
                              Server server, AbsCustomTrustManager certTrustManager, Certificate localPublicCertFile) {
         super(localId, bindAddr, bindPort, PROTO_NAME);
         addListener(listenerClient);
-        this.server = server;
+        // this.server = server; ToDo: remove server param
         this.certTrustManager = certTrustManager;
         this.localPublicCertificate = localPublicCertFile;
     }
@@ -59,6 +58,7 @@ public class ServerCertSharing extends ServerAbsTCP {
     }
 
     private void bufferClientCertificate(ServerClient client, byte[] readData) {
+        //noinspection Java8MapApi
         if (serverCertBuffer.get(client) == null)
             serverCertBuffer.put(client, new byte[0]);
 

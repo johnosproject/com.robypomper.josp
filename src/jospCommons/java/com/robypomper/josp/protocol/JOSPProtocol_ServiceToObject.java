@@ -255,7 +255,7 @@ public class JOSPProtocol_ServiceToObject {
 
     // Events History Msg class (Request)
 
-    public static final JOSPPerm.Type HISTORY_EVENTS_REQ_MIN_PERM = JOSPPerm.Type.None;
+    public static final JOSPPerm.Type HISTORY_EVENTS_REQ_MIN_PERM = JOSPPerm.Type.None;         // ToDo Should be CoOwner???
     public static final String HISTORY_EVENTS_REQ_NAME = "HistoryEventsReq";
     private static final String HISTORY_EVENTS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_EVENTS_MSG";
     private static final String HISTORY_EVENTS_REQ = HISTORY_EVENTS_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nreqId:%s\nlimits:%s\nevType:%s";

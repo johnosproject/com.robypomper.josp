@@ -155,7 +155,7 @@ public class ClientWrapper implements Client {
         return wrapper;
     }
 
-    protected void setWrapper(Client newWrapper, boolean inheritFromWrapper) {
+    protected void setWrapper(Client newWrapper, @SuppressWarnings("SameParameterValue") boolean inheritFromWrapper) {
         if (wrapper != null) {
             if (wrapper.getState().isConnected()
                     || wrapper.getState().isDisconnecting()) {

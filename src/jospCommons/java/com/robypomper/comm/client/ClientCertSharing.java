@@ -63,6 +63,7 @@ public class ClientCertSharing extends ClientAbsTCP {
     public boolean waitForDone(int ms) {
         if (localPublicCertificate == null) {
             try {
+                //noinspection ResultOfMethodCallIgnored
                 certificateRx.await(ms, TimeUnit.MILLISECONDS);
 
             } catch (InterruptedException ignore) {
@@ -71,7 +72,9 @@ public class ClientCertSharing extends ClientAbsTCP {
         }
 
         try {
+            //noinspection ResultOfMethodCallIgnored
             certificateRx.await(ms, TimeUnit.MILLISECONDS);
+            //noinspection ResultOfMethodCallIgnored
             certificateTx.await(ms, TimeUnit.MILLISECONDS);
 
         } catch (InterruptedException ignore) {

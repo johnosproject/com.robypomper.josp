@@ -158,9 +158,8 @@ public abstract class AbsGWsClient extends ClientWrapper {
                     scheduleReConnecting();
                 else
                     emitOnDisconnect();
-            } else
-                if (getAutoReConnectConfigs().isEnable())
-                    emitOnConnecting_Waiting();
+            } else if (getAutoReConnectConfigs().isEnable())
+                emitOnConnecting_Waiting();
 
             throw e;
         }
@@ -289,7 +288,8 @@ public abstract class AbsGWsClient extends ClientWrapper {
 
     }
 
-    private PeerConnectionListener autoReConnectListener = new PeerConnectionListener() {
+    @SuppressWarnings("FieldCanBeLocal")
+    private final PeerConnectionListener autoReConnectListener = new PeerConnectionListener() {
 
         @Override
         public void onConnecting(Peer peer) {
@@ -325,7 +325,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
 
             } catch (PeerConnectionException e) {
                 Throwable cause = e;
-                while (cause.getCause()!=null)
+                while (cause.getCause() != null)
                     cause = cause.getCause();
                 emitOnFail("Error re-connecting GW Client after NOT required disconnection, schedule re-connection", e);
                 //scheduleReConnecting();

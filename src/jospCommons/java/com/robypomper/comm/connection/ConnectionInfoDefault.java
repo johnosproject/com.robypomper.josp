@@ -161,7 +161,8 @@ public class ConnectionInfoDefault implements ConnectionInfo {
 
     };
 
-    private HeartBeatListener hbListener = new HeartBeatListener() {
+    @SuppressWarnings("FieldCanBeLocal")
+    private final HeartBeatListener hbListener = new HeartBeatListener() {
 
         @Override
         public void onSend(Peer peer, HeartBeatConfigs hb) {

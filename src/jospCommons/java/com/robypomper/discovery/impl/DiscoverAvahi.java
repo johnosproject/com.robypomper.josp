@@ -132,7 +132,7 @@ public class DiscoverAvahi extends DiscoverAbs {
 
                     if (founded)
                         if (!disableLogs)
-                            log.trace(String.format("Found service '%s'", line));       // ToDO change line to name
+                            log.trace(String.format("Found service '%s'", line));
 
                     if (resolved)
                         onResolved(line);
