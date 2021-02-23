@@ -31,7 +31,7 @@ repositories {
 
 ext {
     set('dockerGradlePluginVersion', "0.10.9")
-    set('springGradlePluginVersion', "2.2.4.RELEASE")
+    set('springGradlePluginVersion', "2.2.12.RELEASE")
 }
 
 dependencies {

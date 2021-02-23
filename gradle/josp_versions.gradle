@@ -79,7 +79,7 @@ ext {
 
 //@formatter:off
 ext {
-    set('version.SpringCloud'       , 'Hoxton.SR3')
+    set('version.SpringCloud'       , 'Hoxton.SR9')
     set('version.tomcat'            , '9.0.30')
     set('version.Keycloak'          , '11.0.2')
     set('version.slf4j'             , '1.7.30')
