@@ -53,8 +53,13 @@ public class CmdsJSLObjsMngr {
     @Command(description = "Print all known objects.")
     public String objsPrintAll() {
         StringBuilder s = new StringBuilder("KNOWN OBJECTS LIST\n");
-        for (JSLRemoteObject obj : objs.getAllObjects())
-            s.append(String.format("- %-30s (%s)\n", obj.getName(), obj.getId()));
+        s.append("  (ID) Obj's Name                          Local Conn.     Cloud Conn.    \n");
+        for (JSLRemoteObject obj : objs.getAllObjects()) {
+            String localObjState = getLocalObjState(obj);
+            JSLGwS2OClient cloudClient = ((DefaultObjComm) obj.getComm()).getCloudConnection();
+            String cloudObjState = getCloudObjState(cloudClient, obj);
+            s.append(String.format("- %-40s %-15s %-15s \n", "(" + obj.getId() + ") " + obj.getName(), localObjState, cloudObjState));
+        }
 
         return s.toString();
     }
@@ -90,7 +95,7 @@ public class CmdsJSLObjsMngr {
         return s;
     }
 
-    @Command(description = "Print object's info.")
+    @Command(description = "Print object's structure.")
     public String objPrintObjectStruct(String objId) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)
@@ -127,8 +132,9 @@ public class CmdsJSLObjsMngr {
             return String.format("No object found with id '%s'", objId);
 
         StringBuilder s = new StringBuilder("CONNECTION LIST\n");
+
         JSLGwS2OClient cloudClient = ((DefaultObjComm) obj.getComm()).getCloudConnection();
-        s.append(String.format("- Cloud %-12s %s\n", cloudClient.getState(), cloudClient));
+        s.append(String.format("- Cloud %-12s %s\n", getCloudObjState(cloudClient, obj), cloudClient));
         for (JSLLocalClient client : ((DefaultObjComm) obj.getComm()).getLocalClients()) {
             s.append(String.format("- Local %-12s %s\n", client.getState(), client));
         }
@@ -738,6 +744,23 @@ public class CmdsJSLObjsMngr {
         }
 
         return "OK";
+    }
+
+
+
+    private String getCloudObjState(JSLGwS2OClient cloudClient, JSLRemoteObject obj) {
+        if (cloudClient.getState().isConnected()) {
+            if (obj.getComm().isCloudConnected())
+                return "ONLINE";
+            else
+                return "OFFLINE";
+        } else
+            return cloudClient.getState().toString();
+    }
+
+    private String getLocalObjState(JSLRemoteObject obj) {
+        int allClients = ((DefaultObjComm) obj.getComm()).getLocalClients().size();
+        return obj.getComm().isLocalConnected() ? String.format("CONNECTED (%d)", allClients) : "DISCONNECTED";
     }
 
 }

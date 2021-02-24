@@ -21,7 +21,7 @@ public class DefaultObjComm extends ObjBase implements ObjComm {
 
     private static final Logger log = LogManager.getLogger();
     private final JSLCommunication communication;
-    private boolean isCloudConnected = false;
+    private boolean isCloudConnected = true;
     private final List<JSLLocalClient> localConnections = new ArrayList<>();
     private final List<RemoteObjectConnListener> listenersConn = new ArrayList<>();
 
