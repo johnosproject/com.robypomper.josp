@@ -1,8 +1,8 @@
-package com.robypomper.josp.jcp.gws.clients;
+package com.robypomper.josp.jcp.gws.gw;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.comm.server.ServerClient;
 import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaStructures.Pair;
@@ -10,7 +10,9 @@ import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
 import com.robypomper.josp.jcp.db.apis.entities.*;
-import com.robypomper.josp.jcp.gws.broker.GWBroker;
+import com.robypomper.josp.jcp.gws.broker.BrokerClientJOD;
+import com.robypomper.josp.jcp.gws.broker.BrokerJOD;
+import com.robypomper.josp.jcp.gws.db.ObjDB;
 import com.robypomper.josp.jcp.gws.exceptions.JODObjectIdNotEqualException;
 import com.robypomper.josp.jcp.gws.exceptions.JODObjectNotInDBException;
 import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
@@ -21,27 +23,25 @@ import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-public class GWClientJOD extends GWClientAbs {
+public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(GWClientJOD.class);
+    private static final Logger log = LoggerFactory.getLogger(GWClientO2S.class);
+    private final BrokerJOD broker;
     private final ObjectDBService objectDBService;
     private final PermissionsDBService permissionsDBService;
     private boolean isRegistered = false;
-    private String msgOBJ_INFO;
-    private String msgOBJ_PERM;
+    private ObjDB objDB;
 
 
     // Constructors
 
-    public GWClientJOD(ServerClient client, GWBroker gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
-        super(client, gwBroker);
+    public GWClientO2S(ServerClient client, BrokerJOD gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
+        super(client);
+        this.broker = gwBroker;
         this.objectDBService = objectDBService;
         this.permissionsDBService = permissionsDBService;
     }
@@ -49,34 +49,31 @@ public class GWClientJOD extends GWClientAbs {
 
     // Getters
 
-    public String getOwner() throws JODObjectNotInDBException {
-        Object objDB = getObjDB(getId());
-        return objDB.getOwner().getOwnerId();
+    protected BrokerJOD getBroker() {
+        return broker;
+    }
+
+    public String getOwner() {
+        return objDB.getOwner();
+    }
+
+    public ObjDB getObjDB() {
+        return objDB;
     }
 
 
     // Connection mngm
 
-    private void onRegisteredToBroker() {
+    private void registerToBroker() {
         synchronized (this) {
-            Object objDB;
-            try {
-                objDB = getObjDB(getId());
-            } catch (JODObjectNotInDBException e) {
-                log.warn(String.format("Error set object '%s' online because object not stored in DB", getId()));
-                try {
-                    forceDisconnection();
-                } catch (PeerDisconnectionException peerDisconnectionException) {
-                    log.warn(String.format("Error on Object '%s' forced disconnection", getId()));
-                }
-                return;
-            }
-
             objDB.getStatus().setOnline(true);
             objDB.getStatus().setLastConnectionAt(JavaDate.getNowDate());
 
             saveObjDBStatus(objDB);
         }
+
+        getBroker().registerObject(this);
+        isRegistered = true;
     }
 
     @Override
@@ -85,14 +82,6 @@ public class GWClientJOD extends GWClientAbs {
         isRegistered = false;
 
         synchronized (this) {
-            Object objDB;
-            try {
-                objDB = getObjDB(getId());
-            } catch (JODObjectNotInDBException e) {
-                log.warn(String.format("Error set object '%s' offline because object not stored in DB", getId()));
-                return;
-            }
-
             objDB.getStatus().setOnline(false);
             objDB.getStatus().setLastDisconnectionAt(JavaDate.getNowDate());
 
@@ -139,8 +128,6 @@ public class GWClientJOD extends GWClientAbs {
     }
 
     private void processObjectInfoMsg(String data) throws JOSPProtocol.ParsingException, JODObjectIdNotEqualException {
-        msgOBJ_INFO = data;
-
         String objId = JOSPProtocol_ObjectToService.getObjId(data);
         if (!objId.equals(getId()))
             throw new JODObjectIdNotEqualException(objId, getId());
@@ -153,11 +140,8 @@ public class GWClientJOD extends GWClientAbs {
 
         updateInfo(objId, name, ownerId, jodVers, model, brand, longDescr);
 
-        if (!isRegistered) {
-            getBroker().registerObject(this);
-            onRegisteredToBroker();
-            isRegistered = true;
-        }
+        if (!isRegistered)
+            registerToBroker();
 
         getBroker().send(this, data, JOSPPerm.Type.Status);
     }
@@ -168,14 +152,12 @@ public class GWClientJOD extends GWClientAbs {
             throw new JODObjectIdNotEqualException(objId, getId());
         String struct = JOSPProtocol_ObjectToService.getObjectStructMsg_Struct(data);
 
-        updateStructure(objId, struct);
+        updateStructure(struct);
 
         getBroker().send(this, data, JOSPPerm.Type.Status);
     }
 
     private void processObjectPermsMsg(String data) throws JOSPProtocol.ParsingException, JODObjectIdNotEqualException {
-        msgOBJ_PERM = data;
-
         String objId = JOSPProtocol_ObjectToService.getObjId(data);
         if (!objId.equals(getId()))
             throw new JODObjectIdNotEqualException(objId, getId());
@@ -190,13 +172,8 @@ public class GWClientJOD extends GWClientAbs {
         // added (send presentations)
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : newAllowedServices.entrySet())
             if (!oldAllowedServices.containsKey(newService.getKey())) {
-                try {
-                    getBroker().send(this, newService.getKey(), getMsgOBJ_INFO(), JOSPPerm.Type.Status);
-                    getBroker().send(this, newService.getKey(), getMsgOBJ_STRUCT(), JOSPPerm.Type.Status);
-
-                } catch (JODObjectNotInDBException e) {
-                    log.warn(String.format("Error sending Object '%s' presentation messages to Service '%s' because object not store in DB", getId(), newService.getKey()));
-                }
+                getBroker().send(this, newService.getKey(), getMsgOBJ_INFO(), JOSPPerm.Type.Status);
+                getBroker().send(this, newService.getKey(), getMsgOBJ_STRUCT(), JOSPPerm.Type.Status);
             }
 
         getBroker().send(this, data, JOSPPerm.Type.CoOwner);
@@ -262,10 +239,8 @@ public class GWClientJOD extends GWClientAbs {
         }
     }
 
-    private void updateStructure(String objId, String struct) throws JODObjectNotInDBException {
+    private void updateStructure(String struct) {
         synchronized (this) {
-            Object objDB = getObjDB(objId);
-
             if (objDB.getStatus().getStructure() != null
                     && objDB.getStatus().getStructure().equals(struct))
                 return;
@@ -279,7 +254,7 @@ public class GWClientJOD extends GWClientAbs {
 
     private void updatePerms(String objId, List<JOSPPerm> perms) {
         List<Permission> oldPermissions = permissionsDBService.findByObj(objId);
-        List<Permission> newPermissions = updatePerms_jospPermsToDBPerms(perms);
+        List<Permission> newPermissions = PermissionsDBService.jospPermsToDBPerms(perms);
 
         synchronized (permissionsDBService) {       // this should be sync on all access to permissionSBServices also from GWBroker class
             permissionsDBService.removeAll(oldPermissions);
@@ -287,29 +262,11 @@ public class GWClientJOD extends GWClientAbs {
         }
     }
 
-    private List<Permission> updatePerms_jospPermsToDBPerms(List<JOSPPerm> permsJOSP) {
-        List<Permission> permsDB = new ArrayList<>();
-        for (JOSPPerm p : permsJOSP) {
-            Permission perm = new Permission();
-            perm.setId(p.getId());
-            perm.setObjId(p.getObjId());
-            perm.setSrvId(p.getSrvId());
-            perm.setUsrId(p.getUsrId());
-            perm.setType(p.getPermType());
-            perm.setConnection(p.getConnType());
-            perm.setPermissionUpdatedAt(p.getUpdatedAt());
-            permsDB.add(perm);
-        }
-        return permsDB;
-    }
-
-    private void updateStructureStatus(String objId, JOSPProtocol.StatusUpd state) throws JODObjectNotInDBException {
+    private void updateStructureStatus(String objId, JOSPProtocol.StatusUpd state) {
         String errUpdatingMsg = String.format("Error updating object '%s' status on DB because ", objId);
         ObjectMapper mapper = new ObjectMapper();
 
         synchronized (this) {
-            Object objDB = getObjDB(objId);
-
             String stateStr = updateStructureStatus_extractStateValue(state);
             if (stateStr == null) {
                 log.warn(errUpdatingMsg + "unknown state type.");
@@ -324,18 +281,21 @@ public class GWClientJOD extends GWClientAbs {
 
             Map<String, java.lang.Object> structMap;
             try {
-                structMap = mapper.readValue(struct, Map.class);
+                TypeReference<HashMap<String, java.lang.Object>> typeRef = new TypeReference<HashMap<String, java.lang.Object>>() {};
+                structMap = mapper.readValue(struct, typeRef);
+
             } catch (JsonProcessingException e) {
                 log.warn(errUpdatingMsg + "can't parse structure stored on DB.", e);
                 return;
             }
 
             ArrayList<Map<String, java.lang.Object>> allComps;
-            if (!(structMap.get("components") instanceof ArrayList)) {
+            java.lang.Object components = structMap.get("components");
+            if (!(components instanceof ArrayList)) {
                 log.warn(errUpdatingMsg + "can't parse structure stored on DB ('components' field not found or is not ArrayList).");
                 return;
             }
-            allComps = (ArrayList<Map<String, java.lang.Object>>) structMap.get("components");
+            allComps = (ArrayList<Map<String, java.lang.Object>>) components;
 
             Map<String, java.lang.Object> updatableComp = updateStructureStatus_extractComponent(state, allComps);
             if (updatableComp == null) {
@@ -399,19 +359,15 @@ public class GWClientJOD extends GWClientAbs {
         return objDB;
     }
 
-    private Object getObjDB(String objId) throws JODObjectNotInDBException {
-        Optional<Object> optObj = objectDBService.find(objId);
-        if (optObj.isPresent())
-            return optObj.get();
-
-        throw new JODObjectNotInDBException(objId);
-    }
-
     private void saveObjDB(Object objDB) {
-        objectDBService.save(objDB);
+        Object obj = objectDBService.save(objDB);
+        if (this.objDB==null)
+            this.objDB = new ObjDB(obj, permissionsDBService);
+        else
+            this.objDB.setObjDB(obj);
     }
 
-    private void saveObjDBStatus(Object objDB) {
+    private void saveObjDBStatus(ObjDB objDB) {
         objectDBService.save(objDB.getStatus());
     }
 
@@ -419,15 +375,18 @@ public class GWClientJOD extends GWClientAbs {
     // Object presentation messages
 
     public String getMsgOBJ_INFO() {
-        return msgOBJ_INFO;
+        return objDB.getMsgOBJ_INFO();
     }
 
-    public String getMsgOBJ_STRUCT() throws JODObjectNotInDBException {
-        Object objDB = getObjDB(getId());
-        return JOSPProtocol_ObjectToService.createObjectStructMsg(getId(), objDB.getStatus().getStructure());
+    public String getMsgOBJ_STRUCT() {
+        return objDB.getMsgOBJ_STRUCT();
     }
 
     public String getMsgOBJ_PERM() {
-        return msgOBJ_PERM;
+        return objDB.getMsgOBJ_PERM();
+    }
+
+    public String getMsgOBJ_DISCONNECTED() {
+        return objDB.getMsgOBJ_DISCONNECTED();
     }
 }

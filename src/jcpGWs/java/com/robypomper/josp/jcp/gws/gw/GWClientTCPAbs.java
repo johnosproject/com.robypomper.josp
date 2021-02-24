@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.gws.clients;
+package com.robypomper.josp.jcp.gws.gw;
 
 import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.comm.exception.PeerNotConnectedException;
@@ -6,21 +6,18 @@ import com.robypomper.comm.exception.PeerStreamException;
 import com.robypomper.comm.peer.Peer;
 import com.robypomper.comm.peer.PeerConnectionListener;
 import com.robypomper.comm.server.ServerClient;
-import com.robypomper.josp.jcp.gws.broker.GWBroker;
 
-public abstract class GWClientAbs {
+public abstract class GWClientTCPAbs {
 
     // Internal vars
 
     private final ServerClient client;
-    private final GWBroker gwBroker;
 
 
     // Constructors
 
-    protected GWClientAbs(ServerClient client, GWBroker gwBroker) {
+    protected GWClientTCPAbs(ServerClient client) {
         this.client = client;
-        this.gwBroker = gwBroker;
         client.addListener(connectionListener);
     }
 
@@ -29,10 +26,6 @@ public abstract class GWClientAbs {
 
     public String getId() {
         return client.getRemoteId();
-    }
-
-    protected GWBroker getBroker() {
-        return gwBroker;
     }
 
 
@@ -54,26 +47,23 @@ public abstract class GWClientAbs {
 
     protected abstract void onDisconnected();
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final PeerConnectionListener connectionListener = new PeerConnectionListener() {
 
         @Override
         public void onConnecting(Peer peer) {
-
         }
 
         @Override
         public void onWaiting(Peer peer) {
-
         }
 
         @Override
         public void onConnect(Peer peer) {
-
         }
 
         @Override
         public void onDisconnecting(Peer peer) {
-
         }
 
         @Override

@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.gws.services;
+package com.robypomper.josp.jcp.gws.gw;
 
 import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.comm.exception.ServerException;
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import javax.annotation.PostConstruct;
 import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public abstract class GWServiceAbs implements ApplicationListener<ContextRefreshedEvent> {
+public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent> {
 
     // Class constants
 
@@ -61,9 +60,9 @@ public abstract class GWServiceAbs implements ApplicationListener<ContextRefresh
 
     // Constructor
 
-    protected GWServiceAbs(GWType gwType, String idServer, String addrInternal, String addrPublic, int gwPort, int apiPort, int maxClients,
-                           String jcpAPIsUrl, ClientParams jcpAPIsParams,
-                           Logger log) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
+    protected GWAbs(GWType gwType, String idServer, String addrInternal, String addrPublic, int gwPort, int apiPort, int maxClients,
+                    String jcpAPIsUrl, ClientParams jcpAPIsParams,
+                    Logger log) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
         this.log = log;
         this.gwType = gwType;
         this.addrInternal = addrInternal;
@@ -224,6 +223,7 @@ public abstract class GWServiceAbs implements ApplicationListener<ContextRefresh
         }
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final ServerStateListener serverStateListener_GWRegister = new ServerStateListener() {
 
         @Override
@@ -245,6 +245,7 @@ public abstract class GWServiceAbs implements ApplicationListener<ContextRefresh
 
     };
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final JCPClient2.ConnectionListener jcpAPIsListener_GWRegister = new JCPClient2.ConnectionListener() {
 
         @Override
@@ -267,12 +268,6 @@ public abstract class GWServiceAbs implements ApplicationListener<ContextRefresh
         }
 
     };
-
-    @PostConstruct
-    public void onSpringStarted() {
-        //springStarted = true;
-        //tryRegisterAndUpdate();
-    }
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {

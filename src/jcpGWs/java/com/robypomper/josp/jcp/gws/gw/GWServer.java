@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.gws.services;
+package com.robypomper.josp.jcp.gws.gw;
 
 import com.robypomper.comm.server.Server;
 import com.robypomper.comm.server.ServerAbsSSL;
@@ -14,14 +14,14 @@ public class GWServer extends ServerAbsSSL {
 
     // Internal vars
 
-    private final GWServiceAbs gwService;
+    private final GWAbs gwService;
     private final AbsCustomTrustManager trustManager;
     private final Certificate publicCertificate;
 
 
     // Constructors
 
-    public GWServer(GWServiceAbs gwService, SSLContext sslCtx, String idServer, int port, AbsCustomTrustManager trustManager, Certificate publicCertificate) {
+    public GWServer(GWAbs gwService, SSLContext sslCtx, String idServer, int port, AbsCustomTrustManager trustManager, Certificate publicCertificate) {
         super(idServer, port, JOSPProtocol.JOSP_PROTO_NAME, sslCtx, trustManager, publicCertificate, true, false);
         this.gwService = gwService;
         this.trustManager = trustManager;
@@ -41,8 +41,9 @@ public class GWServer extends ServerAbsSSL {
     }
 
 
-    //
+    // Clients listener
 
+    @SuppressWarnings("FieldCanBeLocal")
     private final ServerClientsListener serverClientListener = new ServerClientsListener() {
 
         @Override

@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.gws.clients;
+package com.robypomper.josp.jcp.gws.gw;
 
 import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.comm.exception.PeerNotConnectedException;
@@ -11,9 +11,9 @@ import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Event;
 import com.robypomper.josp.jcp.db.apis.entities.ObjectStatusHistory;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
+import com.robypomper.josp.jcp.gws.broker.BrokerClientJSL;
+import com.robypomper.josp.jcp.gws.broker.BrokerJSL;
 import com.robypomper.josp.jcp.gws.exceptions.JSLServiceNotRegisteredException;
-import com.robypomper.josp.jcp.gws.broker.GWBroker;
-import com.robypomper.josp.jcp.gws.exceptions.JODObjectNotInDBException;
 import com.robypomper.josp.jcp.gws.exceptions.JSLServiceMissingPermissionException;
 import com.robypomper.josp.jcp.gws.exceptions.JSLServiceNotInDBException;
 import com.robypomper.josp.protocol.*;
@@ -24,11 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class GWClientJSL extends GWClientAbs {
+public class GWClientS2O extends GWClientTCPAbs implements BrokerClientJSL {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(GWClientJSL.class);
+    private static final Logger log = LoggerFactory.getLogger(GWClientS2O.class);
+    private final BrokerJSL broker;
     private final ServiceDBService serviceDBService;
     private final EventDBService eventsDBService;
     private final StatusHistoryDBService statusesHistoryDBService;
@@ -38,9 +39,10 @@ public class GWClientJSL extends GWClientAbs {
 
     // Constructors
 
-    public GWClientJSL(ServerClient client, GWBroker gwBroker, ServiceDBService serviceDBService,
+    public GWClientS2O(ServerClient client, BrokerJSL gwBroker, ServiceDBService serviceDBService,
                        EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService) throws JSLServiceNotRegisteredException {
-        super(client, gwBroker);
+        super(client);
+        this.broker = gwBroker;
         this.serviceDBService = serviceDBService;
         this.eventsDBService = eventsDBService;
         this.statusesHistoryDBService = statusesHistoryDBService;
@@ -70,6 +72,10 @@ public class GWClientJSL extends GWClientAbs {
 
 
     // Getters
+
+    protected BrokerJSL getBroker() {
+        return broker;
+    }
 
     public String getSrvId() {
         return srvId;
@@ -141,45 +147,48 @@ public class GWClientJSL extends GWClientAbs {
             if (JOSPProtocol_ServiceToObject.isObjectSetNameMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.OBJ_SETNAME_REQ_NAME;
                 processObjectSetNameMsg(objId, data);
+
             } else if (JOSPProtocol_ServiceToObject.isObjectSetOwnerIdMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.OBJ_SETOWNERID_REQ_NAME;
                 processObjectSetOwnerMsg(objId, data);
+
             } else if (JOSPProtocol_ServiceToObject.isObjectAddPermMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.OBJ_ADDPERM_REQ_NAME;
                 processObjectAddPermMsg(objId, data);
+
             } else if (JOSPProtocol_ServiceToObject.isObjectUpdPermMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.OBJ_UPDPERM_REQ_NAME;
                 processObjectUpdPermMsg(objId, data);
+
             } else if (JOSPProtocol_ServiceToObject.isObjectRemPermMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.OBJ_REMPERM_REQ_NAME;
                 processObjectRemPermMsg(objId, data);
+
             } else if (JOSPProtocol_ServiceToObject.isObjectActionCmdMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.CMD_MSG_NAME;
                 processObjectActionMsg(objId, data);
+
             } else if (JOSPProtocol_ServiceToObject.isHistoryEventsMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_NAME;
                 processHistoryEventsMsg(objId, data);
+
             } else if (JOSPProtocol_ServiceToObject.isHistoryCompStatusMsg(data)) {
                 msgType = JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_NAME;
                 processHistoryCompMsg(objId, data);
+
             } else {
                 log.warn(String.format("Error unrecognized data from service '%s'", getId()));
             }
 
-        } catch (JOSPProtocol.ParsingException e) {
-            log.warn(String.format("Error on parsing data '%s' from service '%s' to '%s' object", msgType, getId(), objId), e);
-
         } catch (JSLServiceMissingPermissionException e) {
             log.warn(String.format("Error on forward data '%s' from service '%s' to '%s' object because missing permission (req: %s; actual: %s)", msgType, getId(), objId, e.getMinPermReq(), e.getCurrentPerm()), e);
-
-        } catch (JODObjectNotInDBException e) {
-            log.warn(String.format("Error on sending data '%s' from service '%s' to '%s' object because object not registered on broker", msgType, getId(), objId), e);
 
         } catch (PeerStreamException | PeerNotConnectedException e) {
             log.warn(String.format("Error on sending data '%s' from service '%s' to '%s' object because object not connected or stream error", msgType, getId(), objId), e);
 
         } catch (Throwable e) {
             log.warn(String.format("Error on processing data '%s' from service '%s' to '%s' object", msgType, getId(), objId), e);
+
         }
 
         return true;
@@ -188,27 +197,27 @@ public class GWClientJSL extends GWClientAbs {
 
     // To JOD messages
 
-    private void processObjectSetNameMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException, JODObjectNotInDBException {
+    private void processObjectSetNameMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException {
         getBroker().send(this, objId, data, JOSPPerm.Type.CoOwner);
     }
 
-    private void processObjectSetOwnerMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException, JODObjectNotInDBException {
+    private void processObjectSetOwnerMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException {
         getBroker().send(this, objId, data, JOSPPerm.Type.CoOwner);
     }
 
-    private void processObjectAddPermMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException, JODObjectNotInDBException {
+    private void processObjectAddPermMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException {
         getBroker().send(this, objId, data, JOSPPerm.Type.CoOwner);
     }
 
-    private void processObjectUpdPermMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException, JODObjectNotInDBException {
+    private void processObjectUpdPermMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException {
         getBroker().send(this, objId, data, JOSPPerm.Type.CoOwner);
     }
 
-    private void processObjectRemPermMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException, JODObjectNotInDBException {
+    private void processObjectRemPermMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException {
         getBroker().send(this, objId, data, JOSPPerm.Type.CoOwner);
     }
 
-    private void processObjectActionMsg(String objId, String data) throws JOSPProtocol.ParsingException, JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException, JODObjectNotInDBException {
+    private void processObjectActionMsg(String objId, String data) throws JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException {
         getBroker().send(this, objId, data, JOSPPerm.Type.Actions);
     }
 
