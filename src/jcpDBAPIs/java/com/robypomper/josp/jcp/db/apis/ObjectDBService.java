@@ -25,6 +25,7 @@ import com.robypomper.josp.jcp.db.apis.entities.ObjectStatus;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -53,6 +54,10 @@ public class ObjectDBService {
 
 
     // Access methods
+
+    public List<Object> findAll() {
+        return objects.findAll();
+    }
 
     public Optional<Object> find(String objId) throws DataIntegrityViolationException {
         return objects.findById(objId);

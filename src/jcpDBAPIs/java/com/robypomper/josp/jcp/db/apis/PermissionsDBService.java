@@ -138,4 +138,34 @@ public class PermissionsDBService {
         return new String[]{};
     }
 
+    public static JOSPPerm dbPermToJOSPPerm(Permission permDB) {
+        return new JOSPPerm(permDB.getId(), permDB.getObjId(), permDB.getSrvId(), permDB.getUsrId(), permDB.getType(), permDB.getConnection(), permDB.getUpdatedAt());
+    }
+
+    public static List<JOSPPerm> dbPermsToJOSPPerms(List<Permission> permDB) {
+        List<JOSPPerm> permsDB = new ArrayList<>();
+        for (Permission p : permDB)
+            permsDB.add(dbPermToJOSPPerm(p));
+        return permsDB;
+    }
+
+    public static Permission jospPermToDBPerm(JOSPPerm permJOSP) {
+        Permission permDB = new Permission();
+        permDB.setId(permJOSP.getId());
+        permDB.setObjId(permJOSP.getObjId());
+        permDB.setSrvId(permJOSP.getSrvId());
+        permDB.setUsrId(permJOSP.getUsrId());
+        permDB.setType(permJOSP.getPermType());
+        permDB.setConnection(permJOSP.getConnType());
+        permDB.setPermissionUpdatedAt(permJOSP.getUpdatedAt());
+        return permDB;
+    }
+
+    public static List<Permission> jospPermsToDBPerms(List<JOSPPerm> permsJOSP) {
+        List<Permission> permsDB = new ArrayList<>();
+        for (JOSPPerm p : permsJOSP)
+            permsDB.add(jospPermToDBPerm(p));
+        return permsDB;
+    }
+
 }
