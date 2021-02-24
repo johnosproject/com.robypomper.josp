@@ -1,6 +1,5 @@
 package com.robypomper.josp.jcp.gws.controllers.jcp;
 
-import com.robypomper.josp.jcp.gws.controllers.APIGWsGWsController;
 import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
 import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
@@ -27,11 +26,18 @@ public class GWsController {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(APIGWsGWsController.class);
+    private static final Logger log = LoggerFactory.getLogger(GWsController.class);
+    private final GWServiceO2S gwO2SService;
+    private final GWServiceS2O gwS2OService;
+
+
+    // Constructor
+
     @Autowired
-    private GWServiceO2S gwO2SService;
-    @Autowired
-    private GWServiceS2O gwS2OService;
+    protected GWsController(GWServiceO2S gwO2SService, GWServiceS2O gwS2OService) {
+        this.gwO2SService = gwO2SService;
+        this.gwS2OService = gwS2OService;
+    }
 
 
     // Methods
@@ -75,8 +81,8 @@ public class GWsController {
     public ResponseEntity<List<JCPAPIsStatus.GWs>> getJCPAPIsStatusGWsCliReq() {
         List<JCPAPIsStatus.GWs> gws = new ArrayList<>();
 
-        gws.add(gwO2SService.getJCPAPIsStatus());
-        gws.add(gwS2OService.getJCPAPIsStatus());
+        gws.add(gwO2SService.get().getJCPAPIsStatus());
+        gws.add(gwS2OService.get().getJCPAPIsStatus());
 
         return ResponseEntity.ok(gws);
     }

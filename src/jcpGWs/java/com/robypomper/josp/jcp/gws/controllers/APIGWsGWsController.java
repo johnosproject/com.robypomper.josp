@@ -21,7 +21,7 @@ package com.robypomper.josp.jcp.gws.controllers;
 
 import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.java.JavaJKS;
-import com.robypomper.josp.jcp.gws.services.GWServiceAbs;
+import com.robypomper.josp.jcp.gws.gw.GWAbs;
 import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
 import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
 import com.robypomper.josp.jcp.paths.gws.APIGWsGWs;
@@ -59,10 +59,17 @@ public class APIGWsGWsController {
     // Internal vars
 
     private static final Logger log = LoggerFactory.getLogger(APIGWsGWsController.class);
+    private final GWServiceO2S gwO2SService;
+    private final GWServiceS2O gwS2OService;
+
+
+    // Constructor
+
     @Autowired
-    private GWServiceO2S gwO2SService;
-    @Autowired
-    private GWServiceS2O gwS2OService;
+    protected APIGWsGWsController(GWServiceO2S gwO2SService, GWServiceS2O gwS2OService) {
+        this.gwO2SService = gwO2SService;
+        this.gwS2OService = gwS2OService;
+    }
 
 
     // Methods
@@ -94,10 +101,10 @@ public class APIGWsGWsController {
 
         Certificate clientCertificate = generateCertificate(objId, accessRequest.getObjCertificate(), "objCertificate");
         String certId = String.format("%s/%s", objId, accessRequest.instanceId);
-        registerCertificate(gwO2SService, objId, certId, clientCertificate);
+        registerCertificate(gwO2SService.get(), objId, certId, clientCertificate);
         log.trace(String.format("Registered certificate for Object '%s'", objId));
 
-        return ResponseEntity.ok((O2SAccessInfo) getAccessInfo(gwO2SService));
+        return ResponseEntity.ok((O2SAccessInfo) getAccessInfo(gwO2SService.get()));
     }
 
 
@@ -128,10 +135,10 @@ public class APIGWsGWsController {
 
         Certificate clientCertificate = generateCertificate(srvId, accessRequest.getSrvCertificate(), "srvCertificate");
         String certId = String.format("%s/%s", srvId, accessRequest.instanceId);
-        registerCertificate(gwS2OService, srvId, certId, clientCertificate);
+        registerCertificate(gwS2OService.get(), srvId, certId, clientCertificate);
         log.trace(String.format("Registered certificate for Service '%s'", srvId));
 
-        return ResponseEntity.ok((S2OAccessInfo) getAccessInfo(gwS2OService));
+        return ResponseEntity.ok((S2OAccessInfo) getAccessInfo(gwS2OService.get()));
     }
 
 
@@ -147,7 +154,7 @@ public class APIGWsGWsController {
         }
     }
 
-    private static void registerCertificate(GWServiceAbs gwService, String clientId, String certId, Certificate certificate) {
+    private static void registerCertificate(GWAbs gwService, String clientId, String certId, Certificate certificate) {
         try {
             gwService.addClientCertificate(certId, certificate);
 
@@ -157,7 +164,7 @@ public class APIGWsGWsController {
         }
     }
 
-    private static AccessInfo getAccessInfo(GWServiceAbs gwService) {
+    private static AccessInfo getAccessInfo(GWAbs gwService) {
         try {
             return gwService.getAccessInfo();
 
