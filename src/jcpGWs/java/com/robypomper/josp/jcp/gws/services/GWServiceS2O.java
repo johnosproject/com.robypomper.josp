@@ -1,47 +1,31 @@
 package com.robypomper.josp.jcp.gws.services;
 
 import com.robypomper.comm.exception.ServerStartupException;
-import com.robypomper.comm.server.ServerClient;
 import com.robypomper.java.JavaJKS;
 import com.robypomper.java.JavaSSL;
 import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.db.apis.EventDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
-import com.robypomper.josp.jcp.gws.broker.GWBroker;
-import com.robypomper.josp.jcp.gws.clients.GWClientJSL;
-import com.robypomper.josp.jcp.gws.exceptions.JSLServiceNotRegisteredException;
-import com.robypomper.josp.types.josp.gw.GWType;
+import com.robypomper.josp.jcp.gws.gw.GWO2S;
+import com.robypomper.josp.jcp.gws.gw.GWS2O;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
-public class GWServiceS2O extends GWServiceAbs {
-
-    // Class constants
-
-    private static final String ID = "S2O-%s";
-
+public class GWServiceS2O implements ApplicationListener<ContextRefreshedEvent> {
 
     // Internal vars
 
     private static final Logger log = LoggerFactory.getLogger(GWServiceS2O.class);
-    private final Map<String, GWClientJSL> jslGWClients = new HashMap<>();
-    @Autowired
-    private GWBroker gwBroker;
-    @Autowired
-    private ServiceDBService serviceDBService;
-    @Autowired
-    private EventDBService eventsDBService;
-    @Autowired
-    private StatusHistoryDBService statusesHistoryDBService;
+    private final GWS2O gw;
 
 
     // Constructors
@@ -54,59 +38,29 @@ public class GWServiceS2O extends GWServiceAbs {
                            @Value("${server.port}") final int apiPort,
                            @Value("${jcp.gws.s2o.maxClients}") final int maxClients,
                            @Value("${jcp.urlAPIs}") String jcpAPIsUrl,
-                           ClientParams jcpAPIsParams) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
-        super(GWType.Srv2Obj, String.format(ID, region), addrInternal, addrPublic, gwPort, apiPort, maxClients, jcpAPIsUrl, jcpAPIsParams, log);
+                           ClientParams jcpAPIsParams,
+                           BrokerService gwBroker, ServiceDBService serviceDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
+        gw = new GWS2O(region, addrInternal, addrPublic, gwPort, apiPort, maxClients, jcpAPIsUrl, jcpAPIsParams, gwBroker.getBrokerJSL(), serviceDBService, eventsDBService, statusesHistoryDBService);
     }
 
     @PreDestroy
     public void destroy() {
-        super.destroy();
+        gw.destroy();
+        log.trace("JCP GW S2O service destroyed");
     }
 
 
-    // GWServer's Client events
+    // Getters
 
-    @Override
-    protected void onClientConnection(ServerClient client) {
-        log.info(String.format("JSL Service '%s' connected to JCP GW '%s'", client.getRemoteId(), getId()));
-
-        if (jslGWClients.get(client.getRemoteId()) != null) {
-            disconnectBecauseError(client, "already connected");
-            return;
-        }
-
-        GWClientJSL gwService;
-        try {
-            gwService = new GWClientJSL(client, gwBroker, serviceDBService, eventsDBService, statusesHistoryDBService);
-
-        } catch (JSLServiceNotRegisteredException serviceNotRegistered) {
-            disconnectBecauseError(client, "not registered");
-            return;
-        }
-        jslGWClients.put(client.getRemoteId(), gwService);
-
-        increaseClient();
-    }
-
-    @Override
-    protected void onClientDisconnection(ServerClient client) {
-        log.info(String.format("JSL Service '%s' disconnected from JCP GW '%s'", client.getRemoteId(), getId()));
-
-        if (jslGWClients.get(client.getRemoteId()) == null)
-            return;
-
-        GWClientJSL disconnectedService = jslGWClients.remove(client.getRemoteId());
-
-        decreaseClient();
+    public GWS2O get() {
+        return gw;
     }
 
 
-    // GWServer's Messages methods
+    // Spring events listener
 
-    @Override
-    protected boolean processData(ServerClient client, String data) {
-        GWClientJSL gwService = jslGWClients.get(client.getRemoteId());
-        return gwService.processFromServiceMsg(data);
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+        gw.onApplicationEvent(event);
     }
 
 }

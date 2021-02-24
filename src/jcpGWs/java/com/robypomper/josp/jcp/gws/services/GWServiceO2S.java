@@ -1,43 +1,28 @@
 package com.robypomper.josp.jcp.gws.services;
 
 import com.robypomper.comm.exception.ServerStartupException;
-import com.robypomper.comm.server.ServerClient;
 import com.robypomper.java.JavaJKS;
 import com.robypomper.java.JavaSSL;
 import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.db.apis.ObjectDBService;
-import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
-import com.robypomper.josp.jcp.gws.broker.GWBroker;
-import com.robypomper.josp.jcp.gws.clients.GWClientJOD;
-import com.robypomper.josp.types.josp.gw.GWType;
+import com.robypomper.josp.jcp.db.apis.*;
+import com.robypomper.josp.jcp.gws.gw.GWO2S;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
-public class GWServiceO2S extends GWServiceAbs {
-
-    // Class constants
-
-    private static final String ID = "O2S-%s";
-
+public class GWServiceO2S implements ApplicationListener<ContextRefreshedEvent> {
 
     // Internal vars
 
     private static final Logger log = LoggerFactory.getLogger(GWServiceO2S.class);
-    private final Map<String, GWClientJOD> jodGWClients = new HashMap<>();
-    @Autowired
-    private GWBroker gwBroker;
-    @Autowired
-    private ObjectDBService objectDBService;
-    @Autowired
-    private PermissionsDBService permissionsDBService;
+    private final GWO2S gw;
 
 
     // Constructors
@@ -50,52 +35,30 @@ public class GWServiceO2S extends GWServiceAbs {
                            @Value("${server.port}") final int apiPort,
                            @Value("${jcp.gws.o2s.maxClients}") final int maxClients,
                            @Value("${jcp.urlAPIs}") String jcpAPIsUrl,
-                           ClientParams jcpAPIsParams) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
-        super(GWType.Obj2Srv, String.format(ID, region), addrInternal, addrPublic, gwPort, apiPort, maxClients, jcpAPIsUrl, jcpAPIsParams, log);
+                           ClientParams jcpAPIsParams,
+                           BrokerService gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
+        gw = new GWO2S(region, addrInternal, addrPublic, gwPort, apiPort, maxClients, jcpAPIsUrl, jcpAPIsParams, gwBroker.getBrokerJOD(), objectDBService, permissionsDBService);
     }
 
     @PreDestroy
     public void destroy() {
-        super.destroy();
+        gw.destroy();
+        log.trace("JCP GW O2S service destroyed");
     }
 
 
-    // GWServer's Client events
+    // Getters
 
-    @Override
-    protected void onClientConnection(ServerClient client) {
-        log.info(String.format("JOD Object '%s' connected to JCP GW '%s'", client.getRemoteId(), getId()));
-
-        if (jodGWClients.get(client.getRemoteId()) != null) {
-            disconnectBecauseError(client, "already connected");
-            return;
-        }
-
-        GWClientJOD gwObject = new GWClientJOD(client, gwBroker, objectDBService, permissionsDBService);
-        jodGWClients.put(client.getRemoteId(), gwObject);
-
-        increaseClient();
-    }
-
-    @Override
-    protected void onClientDisconnection(ServerClient client) {
-        log.info(String.format("JOD Object '%s' disconnected from JCP GW '%s'", client.getRemoteId(), getId()));
-
-        if (jodGWClients.get(client.getRemoteId()) == null)
-            return;
-
-        jodGWClients.remove(client.getRemoteId());
-
-        decreaseClient();
+    public GWO2S get() {
+        return gw;
     }
 
 
-    // GWServer's Messages methods
+    // Spring events listener
 
     @Override
-    protected boolean processData(ServerClient client, String data) {
-        GWClientJOD gwObject = jodGWClients.get(client.getRemoteId());
-        return gwObject.processFromObjectMsg(data);
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+        gw.onApplicationEvent(event);
     }
 
 }
