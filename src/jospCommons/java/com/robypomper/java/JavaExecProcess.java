@@ -32,10 +32,12 @@ public class JavaExecProcess {
 
     // Class constants
 
+    private static final String SHELL_BIN_SH = "/bin/sh";
+    private static final String SHELL_BIN_BASH = "/bin/bash";
     /**
      * Default shell's bin path.
      */
-    private static final String DEF_SHELL_BIN = "/bin/bash";
+    private static final String DEF_SHELL_BIN = SHELL_BIN_SH;
 
     /**
      * Default timeout in ms for cmd execution.
