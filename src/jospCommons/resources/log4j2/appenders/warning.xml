@@ -20,7 +20,7 @@
 
 <Console name="warning" target="SYSTEM_OUT">
     <Filters>
-        <ThresholdFilter level="WARNING" onMatch="ACCEPT" onMismatch="DENY"/>
+        <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
     </Filters>
     <PatternLayout alwaysWriteExceptions="false"
                    pattern="%d{DEFAULT} # %highlight{[ %-5level | %-15.15markerSimpleName | %-15.-15threadName | %-30.30logger{1.} ]} %msg%n%notEmpty{%ex{full}}"/>

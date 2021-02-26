@@ -30,6 +30,11 @@
         <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/error-file.xml"/>
         <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/error-libs.xml"/>
 
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/warning.xml"/>
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/warning-dark.xml"/>
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/warning-file.xml"/>
+        <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/warning-libs.xml"/>
+
         <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/info.xml"/>
         <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/info-dark.xml"/>
         <xi:include href="file:../../../src/jospCommons/resources/log4j2/appenders/info-file.xml"/>
