@@ -53,12 +53,14 @@ public class CmdsJSLObjsMngr {
     @Command(description = "Print all known objects.")
     public String objsPrintAll() {
         StringBuilder s = new StringBuilder("KNOWN OBJECTS LIST\n");
-        s.append("  (ID) Obj's Name                          Local Conn.     Cloud Conn.    \n");
+        s.append("  (ID) Obj's Name                          Local Conn.     (Perm)  Cloud Conn.     (Perm)  \n");
         for (JSLRemoteObject obj : objs.getAllObjects()) {
             String localObjState = getLocalObjState(obj);
             JSLGwS2OClient cloudClient = ((DefaultObjComm) obj.getComm()).getCloudConnection();
             String cloudObjState = getCloudObjState(cloudClient, obj);
-            s.append(String.format("- %-40s %-15s %-15s \n", "(" + obj.getId() + ") " + obj.getName(), localObjState, cloudObjState));
+            JOSPPerm.Type localPerm = obj.getPerms().getServicePerm(JOSPPerm.Connection.OnlyLocal);
+            JOSPPerm.Type cloudPerm = obj.getPerms().getServicePerm(JOSPPerm.Connection.LocalAndCloud);
+            s.append(String.format("- %-40s %-15s %-7s %-15s %-7s\n", "(" + obj.getId() + ") " + obj.getName(), localObjState, localPerm, cloudObjState, cloudPerm));
         }
 
         return s.toString();
@@ -148,7 +150,8 @@ public class CmdsJSLObjsMngr {
         if (obj == null)
             return String.format("No object found with id '%s'", objId);
 
-        String s = "OBJECT'S PERMISSIONS LIST\n";
+        String s = String.format("Current service has '%s/%s' (Local/Cloud) permission on object '%s'\n", obj.getPerms().getServicePerm(JOSPPerm.Connection.OnlyLocal), obj.getPerms().getServicePerm(JOSPPerm.Connection.LocalAndCloud), objId);
+        s += "OBJECT'S PERMISSIONS LIST\n";
         s += JOSPPerm.logPermissions(obj.getPerms().getPerms());
         return s;
     }

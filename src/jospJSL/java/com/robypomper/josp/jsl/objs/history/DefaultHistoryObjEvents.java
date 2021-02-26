@@ -83,10 +83,10 @@ public class DefaultHistoryObjEvents extends HistoryBase implements HistoryObjEv
 
     private void send(int reqId, HistoryLimits limits) throws JSLRemoteObject.ObjectNotConnected, JSLRemoteObject.MissingPermission {
         try {
-            sendToObjectCloudly(JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
+            sendToObjectCloudly(JOSPPerm.Type.CoOwner, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
 
         } catch (PeerNotConnectedException | PeerStreamException ignore) {
-            sendToObjectLocally(JOSPProtocol_ServiceToObject.HISTORY_EVENTS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
+            sendToObjectLocally(JOSPPerm.Type.CoOwner, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
         }
     }
 

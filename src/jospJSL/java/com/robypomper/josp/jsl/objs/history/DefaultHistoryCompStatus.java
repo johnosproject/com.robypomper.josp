@@ -66,8 +66,6 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
             countdown.await(timeout, TimeUnit.SECONDS);
         } catch (InterruptedException ignore) {
         }
-        if (countdown.getCount() != 0)
-            return null;
 
         return result;
     }
