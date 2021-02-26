@@ -5,6 +5,7 @@ import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBObjs;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBPermissions;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBStruct;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
+import com.robypomper.josp.protocol.JOSPPerm;
 
 //import com.robypomper.josp.jcp.fe.jsl.JSLSpringService;
 
@@ -13,6 +14,7 @@ public class JOSPObjHtml {
 
     public final String id;
     public final String name;
+    public final String model;
     public final String owner;
     public final boolean isConnected;
     public final boolean isCloudConnected;
@@ -29,6 +31,7 @@ public class JOSPObjHtml {
     public JOSPObjHtml(JSLRemoteObject obj) {
         this.id = obj.getId();
         this.name = obj.getName();
+        this.model = obj.getInfo().getModel();
         this.owner = obj.getInfo().getOwnerId();
         this.isConnected = obj.getComm().isConnected();
         this.isCloudConnected = obj.getComm().isCloudConnected();
@@ -40,7 +43,7 @@ public class JOSPObjHtml {
         this.pathPermsAdd = APIJSLWBPermissions.FULL_PATH_ADD.replace("{obj_id}", id);
         this.pathSetOwner = APIJSLWBObjs.FULL_PATH_OWNER.replace("{obj_id}", id);
         this.pathSetName = APIJSLWBObjs.FULL_PATH_NAME.replace("{obj_id}", id);
-        this.permission = "N/A"; //JSLSpringService.getObjPerm(obj).toString();
+        this.permission = obj.getPerms().getServicePerm(JOSPPerm.Connection.LocalAndCloud).toString();
     }
 
 }
