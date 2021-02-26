@@ -316,7 +316,7 @@ public class JOSPCommunicationIntegration {
     private int getJSLLocConnConnectedCount(JSLCommunication jslComm) {
         int count = 0;
         for (JSLLocalClient conn : jslComm.getLocalConnections().getLocalClients())
-            if (conn.isConnected())
+            if (conn.getState().isConnected())
                 count++;
         return count;
     }

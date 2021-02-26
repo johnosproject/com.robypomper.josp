@@ -18,7 +18,8 @@
 
 package com.robypomper.josp.jsl.comm;
 
-import com.robypomper.communication.server.Server;
+import com.robypomper.comm.exception.ServerShutdownException;
+import com.robypomper.comm.exception.ServerStartupException;
 import com.robypomper.josp.jod.comm.JODLocalServer;
 import com.robypomper.josp.test.mocks.jod.MockJODCommunication;
 import com.robypomper.josp.test.mocks.jod.MockJODObjectInfo;
@@ -54,7 +55,7 @@ public class JSLLocalClientTest {
     // Test config
 
     @BeforeEach
-    public void setUp() throws Server.ListeningException {
+    public void setUp() throws ServerStartupException {
         log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
         log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
@@ -66,18 +67,17 @@ public class JSLLocalClientTest {
         port++;
 
         // Start server
-        jodServer = new JODLocalServer(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port,
-                TEST_FILES_PREFIX + "jodSr-" + PUB_CERT_PATH);
-        jodServer.start();
+        jodServer = JODLocalServer.instantiate(new MockJODCommunication(), new MockJODObjectInfo(), new MockJODPermissions(), port);
+        jodServer.startup();
 
         log.debug(Mrk_Test.TEST_METHODS, "test");
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown() throws ServerShutdownException {
         // Stop JOD servers
-        if (jodServer.isRunning())
-            jodServer.stop();
+        if (jodServer.getState().isRunning())
+            jodServer.shutdown();
 
         // Empty test dir
         File testDirFiles = new File(TEST_FILES_PREFIX);
