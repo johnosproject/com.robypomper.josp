@@ -21,6 +21,6 @@ public interface BrokerJSL {
 
     // Permissions
 
-    boolean checkServicePermissionOnObject(String srvId, String objId, JOSPPerm.Type minPerm);
+    boolean checkServiceCloudPermissionOnObject(String srvId, String objId, JOSPPerm.Type minPerm);
 
 }

@@ -163,11 +163,11 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
             throw new JODObjectIdNotEqualException(objId, getId());
         List<JOSPPerm> perms = JOSPProtocol_ObjectToService.getObjectPermsMsg_Perms(data);
 
-        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> oldAllowedServices = getBroker().getAllowedServices(this);
+        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> oldAllowedServices = getBroker().getObjectCloudAllowedServices(getId());
 
         updatePerms(objId, perms);
 
-        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newAllowedServices = getBroker().getAllowedServices(this);
+        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newAllowedServices = getBroker().getObjectCloudAllowedServices(getId());
 
         // added (send presentations)
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : newAllowedServices.entrySet())
@@ -180,25 +180,19 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
 
         // added
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : newAllowedServices.entrySet())
-            if (!oldAllowedServices.containsKey(newService.getKey())) {
-                String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(objId, newService.getValue().getFirst(), newService.getValue().getSecond());
-                getBroker().send(this, newService.getKey(), srvPermMsg, JOSPPerm.Type.Status);
-            }
+            if (!oldAllowedServices.containsKey(newService.getKey()))
+                getBroker().send(this, newService.getKey(), getMsgSERVICE_PERM(newService.getValue().getFirst(), newService.getValue().getSecond()), JOSPPerm.Type.None);
 
         // to update
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : newAllowedServices.entrySet())
             if (oldAllowedServices.containsKey(newService.getKey())
-                    && !oldAllowedServices.get(newService.getKey()).equals(newService.getValue())) {
-                String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(objId, newService.getValue().getFirst(), newService.getValue().getSecond());
-                getBroker().send(this, newService.getKey(), srvPermMsg, JOSPPerm.Type.Status);
-            }
+                    && !oldAllowedServices.get(newService.getKey()).equals(newService.getValue()))
+                getBroker().send(this, newService.getKey(), getMsgSERVICE_PERM(newService.getValue().getFirst(), newService.getValue().getSecond()), JOSPPerm.Type.None);
 
         // to remove
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> oldService : oldAllowedServices.entrySet())
-            if (!newAllowedServices.containsKey(oldService.getKey())) {
-                String srvPermMsg = JOSPProtocol_ObjectToService.createServicePermMsg(objId, JOSPPerm.Type.None, oldService.getValue().getSecond());
-                getBroker().send(this, oldService.getKey(), srvPermMsg, JOSPPerm.Type.None);
-            }
+            if (!newAllowedServices.containsKey(oldService.getKey()))
+                getBroker().send(this, oldService.getKey(), getMsgSERVICE_PERM(JOSPPerm.Type.None, oldService.getValue().getSecond()), JOSPPerm.Type.None);
     }
 
     private void processUpdateMsg(String data) throws JOSPProtocol.ParsingException, JODObjectIdNotEqualException, JODObjectNotInDBException {
@@ -281,7 +275,8 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
 
             Map<String, java.lang.Object> structMap;
             try {
-                TypeReference<HashMap<String, java.lang.Object>> typeRef = new TypeReference<HashMap<String, java.lang.Object>>() {};
+                TypeReference<HashMap<String, java.lang.Object>> typeRef = new TypeReference<HashMap<String, java.lang.Object>>() {
+                };
                 structMap = mapper.readValue(struct, typeRef);
 
             } catch (JsonProcessingException e) {
@@ -361,7 +356,7 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
 
     private void saveObjDB(Object objDB) {
         Object obj = objectDBService.save(objDB);
-        if (this.objDB==null)
+        if (this.objDB == null)
             this.objDB = new ObjDB(obj, permissionsDBService);
         else
             this.objDB.setObjDB(obj);
@@ -384,6 +379,10 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
 
     public String getMsgOBJ_PERM() {
         return objDB.getMsgOBJ_PERM();
+    }
+
+    public String getMsgSERVICE_PERM(JOSPPerm.Type type, JOSPPerm.Connection conn) {
+        return objDB.getMsgSERVICE_PERM(type, conn);
     }
 
     public String getMsgOBJ_DISCONNECTED() {

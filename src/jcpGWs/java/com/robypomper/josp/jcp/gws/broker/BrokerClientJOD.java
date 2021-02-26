@@ -1,5 +1,7 @@
 package com.robypomper.josp.jcp.gws.broker;
 
+import com.robypomper.josp.protocol.JOSPPerm;
+
 public interface BrokerClientJOD extends BrokerClient {
 
     // Getters object
@@ -16,6 +18,8 @@ public interface BrokerClientJOD extends BrokerClient {
     String getMsgOBJ_STRUCT();
 
     String getMsgOBJ_PERM();
+
+    String getMsgSERVICE_PERM(JOSPPerm.Type type, JOSPPerm.Connection conn);
 
     String getMsgOBJ_DISCONNECTED();
 

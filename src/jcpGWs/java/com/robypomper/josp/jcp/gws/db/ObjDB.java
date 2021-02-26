@@ -81,6 +81,11 @@ public class ObjDB implements BrokerClientObjDB {
     }
 
     @Override
+    public String getMsgSERVICE_PERM(JOSPPerm.Type type, JOSPPerm.Connection conn) {
+        return JOSPProtocol_ObjectToService.createServicePermMsg(getId(), type, conn);
+    }
+
+    @Override
     public String getMsgOBJ_DISCONNECTED() {
         return JOSPProtocol_ObjectToService.createObjectDisconnectMsg(getId());
     }

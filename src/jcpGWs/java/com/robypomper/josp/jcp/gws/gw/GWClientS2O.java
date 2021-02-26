@@ -225,7 +225,7 @@ public class GWClientS2O extends GWClientTCPAbs implements BrokerClientJSL {
     // To JCP messages
 
     private void processHistoryEventsMsg(String objId, String data) throws JOSPProtocol.ParsingException {
-        if (!getBroker().checkServicePermissionOnObject(getId(), objId, JOSPPerm.Type.CoOwner)) {
+        if (!getBroker().checkServiceCloudPermissionOnObject(getId(), objId, JOSPPerm.Type.CoOwner)) {
             log.warn(String.format("Error Service '%s' have NOT enough permission to request events on Object '%s'", getId(), objId));
             return;
         }
@@ -249,7 +249,7 @@ public class GWClientS2O extends GWClientTCPAbs implements BrokerClientJSL {
     }
 
     private void processHistoryCompMsg(String objId, String data) throws JOSPProtocol.ParsingException {
-        if (!getBroker().checkServicePermissionOnObject(getId(), objId, JOSPPerm.Type.Status)) {
+        if (!getBroker().checkServiceCloudPermissionOnObject(getId(), objId, JOSPPerm.Type.Status)) {
             log.warn(String.format("Error Service '%s' have NOT enough permission to request component history on Object '%s'", getId(), objId));
             return;
         }

@@ -16,13 +16,13 @@ public interface BrokerJOD {
 
     // Communication
 
-    void send(BrokerClientJOD gwClientJOD, String data, JOSPPerm.Type minPerm);
+    void send(BrokerClient gwClientJOD, String data, JOSPPerm.Type minPerm);
 
-    void send(BrokerClientJOD gwClientJOD, String srvId, String data, JOSPPerm.Type minPerm);
+    void send(BrokerClient gwClientJOD, String srvId, String data, JOSPPerm.Type minPerm);
 
 
     // Permission
 
-    Map<String, JavaStructures.Pair<JOSPPerm.Type, JOSPPerm.Connection>> getAllowedServices(BrokerClientJOD gwClientJOD);
+    Map<String, JavaStructures.Pair<JOSPPerm.Type, JOSPPerm.Connection>> getObjectCloudAllowedServices(String objId);
 
 }
