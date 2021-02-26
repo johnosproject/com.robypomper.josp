@@ -9,52 +9,85 @@ var feedOldStyles = {};
 
 // Feedback methods
 
-function showUpdateFeedback(tagId) {
+function showUpdateFeedbackByIdTag(tagId) {
     var element = document.getElementById(tagId);
+    if (element==null) {
+        log.error("Can't showUpdateFeedbackByIdTag because element " + tagId + " not found.");
+        return;
+    }
+    showUpdateFeedback(element);
+}
 
+function showUpdateFeedback(element) {
     var oldStyle = element.style.textShadow;
     element.style.textShadow='0 0 15px ' + feedUpdColor;
 
     window.setTimeout(function() {
-        var element = document.getElementById(tagId);
         element.style.textShadow = oldStyle;
     },feedTimeMs);
 }
 
-async function showWaitingFeedback(tagId) {
+async function showWaitingFeedbackByIdTag(tagId) {
     var element = document.getElementById(tagId);
+    if (element==null) {
+        log.error("Can't showWaitingFeedbackByIdTag because element " + tagId + " not found.");
+        return;
+    }
+    showWaitingFeedback(element);
+}
 
-    feedOldStyles[tagId] = element.style.backgroundColor;
+async function showWaitingFeedback(element) {
+    feedOldStyles[element] = element.style.backgroundColor;
     element.style.backgroundColor=feedWaitColor;
 }
 
-function hideWaitingFeedback(tagId) {
+function hideWaitingFeedbackByIdTag(tagId) {
     var element = document.getElementById(tagId);
-    element.style.backgroundColor = feedOldStyles[tagId];
-
-    showSuccessFeedback(tagId);
+    if (element==null) {
+        log.error("Can't hideWaitingFeedbackByIdTag because element " + tagId + " not found.");
+        return;
+    }
+    hideWaitingFeedback(element);
 }
 
-function showSuccessFeedback(tagId) {
-    var element = document.getElementById(tagId);
+function hideWaitingFeedback(element) {
+    element.style.backgroundColor = feedOldStyles[element];
 
-    feedOldStyles[tagId] = element.style.backgroundColor;
+    showSuccessFeedback(element);
+}
+
+function showSuccessFeedbackByIdTag(tagId) {
+    var element = document.getElementById(tagId);
+    if (element==null) {
+          log.error("Can't showSuccessFeedbackByIdTag because element " + tagId + " not found.");
+          return;
+    }
+    showSuccessFeedback(element);
+}
+
+function showSuccessFeedback(element) {
+    feedOldStyles[element] = element.style.backgroundColor;
     element.style.backgroundColor=feedSuccessColor;
 
     window.setTimeout(function() {
-        var element = document.getElementById(tagId);
-        element.style.backgroundColor = feedOldStyles[tagId];
+        element.style.backgroundColor = feedOldStyles[element];
     },feedTimeMs);
 }
 
-function showFailFeedback(tagId) {
+function showFailFeedbackByIdTag(tagId) {
     var element = document.getElementById(tagId);
+    if (element==null) {
+        log.error("Can't showFailFeedbackByIdTag because element " + tagId + " not found.");
+        return;
+    }
+    showFailFeedback(element);
+}
 
-    feedOldStyles[tagId] = element.style.backgroundColor;
+function showFailFeedback(element) {
+    feedOldStyles[element] = element.style.backgroundColor;
     element.style.backgroundColor=feedErrorColor;
 
     window.setTimeout(function() {
-        var element = document.getElementById(tagId);
-        element.style.backgroundColor = feedOldStyles[tagId];
+        element.style.backgroundColor = feedOldStyles[element];
     },feedTimeMs);
 }

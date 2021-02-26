@@ -62,11 +62,24 @@ function collapseBoxExpandable(divExpColl) {
 // Messages
 
 function onErrorFetch(xhttpRequest) {
-    alert("MESSAGE TO USER: Error can't fetch '" + xhttpRequest + "' resource");
+    try {
+        var response = JSON.parse(xhttpRequest.responseText)
+        var code = response.status;
+        var error = response.error;
+        var message = response.message;
+        alert("MESSAGE TO USER: Error can't fetch '" + JSON.parse(xhttpRequest.response).path + "' resource\n [" + code + "] " + error + ": " + message + "");
+    } catch (error) {
+        alert(error);
+        alert(xhttpRequest);
+    }
+
 }
 
 function onWarningFetch(xhttpRequest) {
-    alert("MESSAGE TO USER: Warning can't fetch '" + xhttpRequest + "' resource");
+    var code = JSON.parse(xhttpRequest.responseText).status;
+    var error = JSON.parse(xhttpRequest.responseText).error;
+    var message = JSON.parse(xhttpRequest.responseText).message;
+    alert("MESSAGE TO USER: Warning can't fetch '" + JSON.parse(xhttpRequest.response).path + "' resource\n [" + code + "] " + error + ": " + message + "");
 }
 
 
@@ -107,23 +120,79 @@ function hideLogoutCssClass() {
 }
 
 function addDisabledCssClassById(tagId) {
+    if (document.getElementById(tagId) == null) {
+        console.log("WAR: Can't add 'disabled' class on '" + tagId + "' element because not found");
+        console.trace();
+        return;
+    }
     addDisabledCssClass(document.getElementById(tagId));
 }
 
 function addDisabledCssClass(tag) {
+    if (tag == null) {
+        console.log("WAR: Can't add 'disabled' class on 'null' element");
+        console.trace();
+        return;
+    }
     tag.classList.add('disabled');
 }
 
 function removeDisabledCssClassById(tagId) {
+    if (document.getElementById(tagId) == null) {
+        console.log("WAR: Can't remove 'disabled' class on '" + tagId + "' element because not found");
+        console.trace();
+        return;
+    }
     removeDisabledCssClass(document.getElementById(tagId));
 }
 
 function removeDisabledCssClass(tag) {
+    if (tag == null) {
+        console.log("WAR: Can't remove 'disabled' class on 'null' element");
+        console.trace();
+        return;
+    }
     tag.classList.remove('disabled');
 }
 
 
 // Utils
+
+function replaceInnerHTMLById(tagId,html) {
+    if (document.getElementById(tagId) == null) {
+        console.log("WAR: Can't replace 'innerHTML' on '" + tagId + "' element because not found");
+        console.trace();
+        return;
+    }
+    replaceInnerHTML(document.getElementById(tagId),html);
+}
+
+function replaceInnerHTML(tag,html) {
+    if (tag == null) {
+        console.log("WAR: Can't replace 'innerHTML' on 'null' element");
+        console.trace();
+        return;
+    }
+    tag.innerHTML = html;
+}
+
+function appendInnerHTMLById(tagId,html) {
+    if (document.getElementById(tagId) == null) {
+        console.log("WAR: Can't append 'innerHTML' on '" + tagId + "' element because not found");
+        console.trace();
+        return;
+    }
+    appendInnerHTML(document.getElementById(tagId),html);
+}
+
+function appendInnerHTML(tag,html) {
+    if (tag == null) {
+        console.log("WAR: Can't append 'innerHTML' on 'null' element");
+        console.trace();
+        return;
+    }
+    tag.innerHTML += html;
+}
 
 function findGetParameter(documentUrl,parameterName) {
     var result = null;

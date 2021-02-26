@@ -25,24 +25,38 @@ function fillObjsListMenu(objsListJson) {
         return;
     }
     objsListCache = objsList;
+    var objsListOrdered = new Map();
+    for (i = 0; i < objsList.length; i++) {
+        if (typeof objsListOrdered.get(objsList[i].model) == "undefined")
+            objsListOrdered.set(objsList[i].model,[]);
+        objsListOrdered.get(objsList[i].model).push(objsList[i]);
+    }
 
     // Update menu
     var menuItems = [];
-    menuItems.push(["<div class='title'>OBJECTS</div>" + dropDownObjsListMenuFilter(),null]);
-    for (i = 0; i < objsList.length; i++) {
-        var connI = objsList[i].isConnected ? "C" : "D";
-        if (typeof user === "undefined" || !user.isAuthenticated)
-            if (objsList[i].owner == '00000-00000-00000')
-                menuItems.push([objsList[i].name + " [" + connI + "A]","showObjectContent(\"" + objsList[i].id + "\",true)"]);
-            else
-                menuItems.push([objsList[i].name,"showObjectContent(\"" + objsList[i].id + "\",true)"]);
-        else
-            if (objsList[i].owner == user.id && objsListFilterOwner)
-                menuItems.push([objsList[i].name + " [" + connI + "]","showObjectContent(\"" + objsList[i].id + "\",true)"]);
-            else if (objsList[i].owner != user.id && objsList[i].owner != '00000-00000-00000' && objsListFilterShared)
-                menuItems.push([objsList[i].name + " [" + connI + "S]","showObjectContent(\"" + objsList[i].id + "\",true)"]);
-            else if (objsList[i].owner == '00000-00000-00000' && objsListFilterAnonymous)
-                menuItems.push([objsList[i].name + " [" + connI + "A]","showObjectContent(\"" + objsList[i].id + "\",true)"]);
+    menuItems.push(["<div class='title'><a href='javascript:showHome(true)'>Home</a></div>" + dropDownObjsListMenuFilter(),null]);
+    for (var [model, objList] of objsListOrdered) {
+        menuItems.push(["<div style='font-size: 0.8em; margin: 5px 10px'>" + model + " (" + objList.length + ")</div>",null]);
+
+        for (k = 0; k < objList.length; k++) {
+            var object = objList[k];
+            var connectedColor = object.isConnected ? "lightgreen" : "mediumvioletred";
+            var ownerIcon = "users";       // Shared       -   users
+            if (object.owner == '00000-00000-00000')
+                ownerIcon = "user-o";        // Own          -   user
+            else if (typeof user !== 'undefined' && object.owner == user.id)
+                ownerIcon = "user";      // Anonymous    -   user-o
+            var objLabel = "<i class='fa fa-plug' aria-hidden='true' style='color: " + connectedColor + ";'></i>";
+            objLabel += object.name;
+            objLabel += "<i class='fa fa-" + ownerIcon + "' aria-hidden='true' style='color: white'></i>";
+
+            if ((typeof user === "undefined" || !user.isAuthenticated)
+             || (object.owner == user.id && objsListFilterOwner)
+             || (object.owner != user.id && object.owner != '00000-00000-00000' && objsListFilterShared)
+             || (object.owner == '00000-00000-00000' && objsListFilterAnonymous)
+               )
+                menuItems.push([objLabel,"showObjectContent(\"" + object.id + "\",true)"]);
+        }
     }
 
     if (menuItems.length==1) {

@@ -169,14 +169,14 @@ section {
         }
 
 .disabled {
-    pointer-events: none;
-    opacity: 0.4;
-    background-color: #80808080;
-    box-shadow: 0px 0px 20px grey;
+    /** pointer-events: none; */
+    opacity: 0.5;
+    background-color: #80808015;
+    box-shadow: 0px 0px 10px #80808025;
 }
 
 .disabled * {
-    pointer-events: none;
+    /** pointer-events: none; */
     background-color: initial;
     box-shadow: initial;
 }

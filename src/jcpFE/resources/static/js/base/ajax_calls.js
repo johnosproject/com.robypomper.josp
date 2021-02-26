@@ -51,6 +51,48 @@ function apiGET_retry(baseUrl,path,processResponse,processError,retryTime) {
 // Post calls
 
 function apiPOST(baseUrl,path,processResponse,processError,params) {
+
+    apiOPTIONS(baseUrl,path,function() {
+
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4)
+                if (this.status == 200)
+                    processResponse(this.responseText);
+                else
+                    processError(this);
+
+        };
+        xhttp.onerror = function() {
+            processError(this);
+        };
+
+        xhttp.open("POST", baseUrl + path, true);
+        var cookies="";
+        var body = "";
+        xhttp.withCredentials = true;
+
+        if (params!=null) {
+            xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            body += params;
+        }
+
+        if (csrfToken!=null)
+            body += "&_csrf=" + csrfToken;
+
+        try {
+            xhttp.send(body);
+        } catch {}
+
+    }, processError);
+
+}
+
+
+// Other calls
+
+function apiOPTIONS(baseUrl,path,processResponse,processError) {
     var xhttp = new XMLHttpRequest();
 
     xhttp.onreadystatechange = function() {
@@ -65,17 +107,13 @@ function apiPOST(baseUrl,path,processResponse,processError,params) {
         processError(this);
     };
 
-    xhttp.open("POST", baseUrl + path, true);
+    xhttp.open("OPTIONS", baseUrl + path, true);
     var cookies="";
     xhttp.withCredentials = true;
 
-    if (params!=null) {
-        xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        try {
-            if (csrfToken!=null)
-                xhttp.send(params + "&_csrf=" + csrfToken);
-        } catch {}
-    }
+    try {
+        xhttp.send();
+    } catch {}
 }
 
 

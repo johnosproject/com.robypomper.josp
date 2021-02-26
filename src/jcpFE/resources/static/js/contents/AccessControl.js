@@ -46,7 +46,7 @@ function fillAccessControlContentObject_Add(permsListJson,objName,objOwner,isCon
     permsList = JSON.parse(permsListJson);
 
     // Update div_struct
-    document.getElementById("div_permissions").innerHTML += htmlAccessControlContentObject(permsList,objName,objOwner,isConnected,currentPermissions);
+    appendInnerHTMLById("div_permissions",htmlAccessControlContentObject(permsList,objName,objOwner,isConnected,currentPermissions));
 }
 
 function htmlAccessControlContentObject(permsList,objName,objOwner,isConnected,currentPermissions) {
@@ -177,7 +177,7 @@ function editPermission_Row(rowTag,updUrl,objId,permId) {
     if (srvId!="#All" && srvId!=serviceId)
         srvInput += "  <option value='" + srvId + "'>Latest</option>";
     srvInput += "</datalist>";
-    cols[0].innerHTML = srvInput;
+    replaceInnerHTML(cols[0],srvInput);
 
     var usrInput = "<input list='usrId' value='" + usrId + "'>";
     usrInput += "<datalist id='usrId'>";
@@ -188,7 +188,7 @@ function editPermission_Row(rowTag,updUrl,objId,permId) {
     if (usrId!="#All" && usrId!="#Owner" && (loggedUserId!=null || usrId!=loggedUserId))
         usrInput += "  <option value='" + usrId + "'>Latest</option>";
     usrInput += "</datalist>";
-    cols[1].innerHTML = usrInput;
+    replaceInnerHTML(cols[1],usrInput);
 
     var permInput = "<input list='permType' value='" + permType + "'>";
     permInput += "<datalist id='permType'>";
@@ -197,19 +197,19 @@ function editPermission_Row(rowTag,updUrl,objId,permId) {
     permInput += "  <option value='Actions'>Can execute object's actions</option>";
     permInput += "  <option value='CoOwner'>Can set object's perms and owners</option>";
     permInput += "</datalist>";
-    cols[2].innerHTML = permInput;
+    replaceInnerHTML(cols[2],permInput);
 
     var connInput = "<input list='connType' value='" + connType + "'>";
     connInput += "<datalist id='connType'>";
     connInput += "  <option value='OnlyLocal'>Access granted Only on Local connections</option>";
     connInput += "  <option value='LocalAndCloud'>Access granted for Cloud & Local connections</option>";
     connInput += "</datalist>";
-    cols[3].innerHTML = connInput;
-    cols[4].innerHTML = "<a href='javascript:void(0);' onclick='savePermission_Row(this.parentElement.parentElement,\"" + updUrl + "\",\"" + objId + "\"," + (permId!=null ? "\"" + permId + "\"" : "null") + ")'><i class='fa fa-check-circle-o'></i></a>";
+    replaceInnerHTML(cols[3],connInput);
+    replaceInnerHTML(cols[4],"<a href='javascript:void(0);' onclick='savePermission_Row(this.parentElement.parentElement,\"" + updUrl + "\",\"" + objId + "\"," + (permId!=null ? "\"" + permId + "\"" : "null") + ")'><i class='fa fa-check-circle-o'></i></a>");
     if (permId==null)
-        cols[4].innerHTML += "<a href='javascript:void(0);' onclick='this.parentElement.parentElement.parentElement.removeChild(this.parentElement.parentElement);'><i class='fa fa-times'></i></a>";
+        appendInnerHTML(cols[4],"<a href='javascript:void(0);' onclick='this.parentElement.parentElement.parentElement.removeChild(this.parentElement.parentElement);'><i class='fa fa-times'></i></a>");
     else {
-        cols[4].innerHTML += "<a href='javascript:void(0);' onclick='replace(this.parentElement.parentElement,editablePermission_Row(_originalPermId[\"" + permId_ + "\"],_originalObjId[\"" + permId_ + "\"],_originalSrvId[\"" + permId_ + "\"],_originalUsrId[\"" + permId_ + "\"],_originalPermType[\"" + permId_ + "\"],_originalConnType[\"" + permId_ + "\"]));'><i class='fa fa-times'></i></a>";
+        appendInnerHTML(cols[4],"<a href='javascript:void(0);' onclick='replace(this.parentElement.parentElement,editablePermission_Row(_originalPermId[\"" + permId_ + "\"],_originalObjId[\"" + permId_ + "\"],_originalSrvId[\"" + permId_ + "\"],_originalUsrId[\"" + permId_ + "\"],_originalPermType[\"" + permId_ + "\"],_originalConnType[\"" + permId_ + "\"]));'><i class='fa fa-times'></i></a>");
     }
 }
 
@@ -229,7 +229,7 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
 
     apiPOST(backEndUrl,updUrl,
         async function(responseText) {
-            hideWaitingFeedback(rowTag.id);
+            hideWaitingFeedbackByIdTag(rowTag.id);
             if (responseText == "true") {
                 if (permId==null) {
                     replace(rowTag,editablePermission_Row(permId,objId,srvIdInput.value,usrIdInput.value,permTypeInput.value,connTypeInput.value));
@@ -257,10 +257,10 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
             _originalUsrId[permId_] = null;
             _originalPermType[permId_] = null
             _originalConnType[permId_] = null;
-            showFailFeedback(containerTag.id);
+            showFailFeedbackByIdTag(containerTag.id);
         },
         function(xhttpRequest) {
-            hideWaitingFeedback(rowTag.id);
+            hideWaitingFeedbackByIdTag(rowTag.id);
             alert("Error on executing: " + updUrl + "<br>" + xhttpRequest.responseText);
             replace(rowTag,editablePermission_Row(_originalPermId[permId_],_originalObjId[permId_],_originalSrvId[permId_],_originalUsrId[permId_],_originalPermType[permId_],_originalConnType[permId_]));
             _originalPermId[permId_] = null;
@@ -269,17 +269,19 @@ function savePermission_Row(rowTag,updUrl,objId,permId) {
             _originalUsrId[permId_] = null;
             _originalPermType[permId_] = null
             _originalConnType[permId_] = null;
-            showFailFeedback(containerTag.id);
+            showFailFeedbackByIdTag(containerTag.id);
         },
         "srv_id=" + srvIdInput.value + "&usr_id=" + usrIdInput.value + "&type=" + permTypeInput.value + "&conn=" + connTypeInput.value
     );
-    showWaitingFeedback(rowTag.id);
+    showWaitingFeedbackByIdTag(rowTag.id);
 }
 
 function clonePermission_Row(rowTag,dupUrl,objId,permId) {
+    if (checkPermission()) return;
+
     apiGET(backEndUrl,dupUrl,
         async function(responseText) {
-            hideWaitingFeedback(rowTag.id);
+            hideWaitingFeedbackByIdTag(rowTag.id);
             if (responseText == "true") {
                 await new Promise(r => setTimeout(r, defaultPermissionUpdate));
                 //showAccessControl();
@@ -288,21 +290,23 @@ function clonePermission_Row(rowTag,dupUrl,objId,permId) {
             }
 
             alert("Error on executing: " + dupUrl + "<br>" + responseText);
-            showFailFeedback(containerTag.id);
+            showFailFeedbackByIdTag(containerTag.id);
         },
         function(xhttpRequest) {
-            hideWaitingFeedback(rowTag.id);
+            hideWaitingFeedbackByIdTag(rowTag.id);
             alert("Error on executing: " + dupUrl + "<br>" + xhttpRequest.responseText);
-            showFailFeedback(containerTag.id);
+            showFailFeedbackByIdTag(containerTag.id);
         }
     );
-    showWaitingFeedback(rowTag.id);
+    showWaitingFeedbackByIdTag(rowTag.id);
 }
 
 function deletePermission_Row(rowTag,delUrl,objId,permId) {
+    if (checkPermission()) return;
+
     apiGET(backEndUrl,delUrl,
         async function(responseText) {
-            hideWaitingFeedback(rowTag.id);
+            hideWaitingFeedbackByIdTag(rowTag.id);
             if (responseText == "true") {
                 await new Promise(r => setTimeout(r, defaultPermissionUpdate));
                 //showAccessControl();
@@ -311,15 +315,15 @@ function deletePermission_Row(rowTag,delUrl,objId,permId) {
             }
 
             alert("Error on executing: " + delUrl + "<br>" + responseText);
-            showFailFeedback(containerTag.id);
+            showFailFeedbackByIdTag(containerTag.id);
         },
         function(xhttpRequest) {
-            hideWaitingFeedback(rowTag.id);
+            hideWaitingFeedbackByIdTag(rowTag.id);
             alert("Error on executing: " + delUrl + "<br>" + xhttpRequest.responseText);
-            showFailFeedback(containerTag.id);
+            showFailFeedbackByIdTag(containerTag.id);
         }
     );
-    showWaitingFeedback(rowTag.id);
+    showWaitingFeedbackByIdTag(rowTag.id);
 }
 
 function addCustomPermission_Row(tableTagId,objId) {
@@ -327,10 +331,12 @@ function addCustomPermission_Row(tableTagId,objId) {
 }
 
 function addPermission_Row(tableTagId,objId,srvId,usrId,permType,connType,save) {
+    if (checkPermission()) return;
+
     var tableTag = document.getElementById(tableTagId);
     var tBodyTag = tableTag.getElementsByTagName("tbody")[0];
 
-    tBodyTag.innerHTML += editablePermission_Row(null,objId,srvId,usrId,permType,connType);
+    appendInnerHTML(tBodyTag,editablePermission_Row(null,objId,srvId,usrId,permType,connType));
     var rowTag = tBodyTag.lastElementChild;
 
     var pathAdd = "/apis/permissions/1.0/" + objId + "/add/";
@@ -339,12 +345,18 @@ function addPermission_Row(tableTagId,objId,srvId,usrId,permType,connType,save) 
         savePermission_Row(rowTag,pathAdd,objId,null);
 }
 
+function checkPermission() {
+    if (obj.permission!="CoOwner") {
+        alert("Can't add new permission, because 'CoOwner' permission required.");
+        return false;
+    }
+}
 
 // Utils
 
 function replace(tag,html) {
-        var parent = tag.parentElement;
-        parent.removeChild(tag);
-        parent.innerHTML += html;
-    }
+    var parent = tag.parentElement;
+    parent.removeChild(tag);
+    appendInnerHTML(parent,html);
+}
 

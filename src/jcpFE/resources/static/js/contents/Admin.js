@@ -64,8 +64,7 @@ function showAdminContentGWs(updateHistory) {
         setContent(htmlAdminContent());
         fetchAdminContentHeader();
     }
-    if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentGWs();
+    replaceInnerHTMLById("div_admin_content",htmlAdminContentGWs());
 
     fetchAdminContentGWs();
 }
@@ -82,8 +81,7 @@ function showAdminContentObjects(updateHistory) {
         setContent(htmlAdminContent());
         fetchAdminContentHeader();
     }
-    if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentObjects();
+    replaceInnerHTMLById("div_admin_content",htmlAdminContentObjects());
 
     fetchAdminContentObjects();
 }
@@ -100,8 +98,7 @@ function showAdminContentServices(updateHistory) {
         setContent(htmlAdminContent());
         fetchAdminContentHeader();
     }
-    if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentServices();
+    replaceInnerHTMLById("div_admin_content",htmlAdminContentServices());
 
     fetchAdminContentServices();
 }
@@ -118,8 +115,7 @@ function showAdminContentUsers(updateHistory) {
         setContent(htmlAdminContent());
         fetchAdminContentHeader();
     }
-    if (document.getElementById("div_admin_content") != null)
-        document.getElementById("div_admin_content").innerHTML = htmlAdminContentUsers();
+    replaceInnerHTMLById("div_admin_content",htmlAdminContentUsers());
 
     fetchAdminContentUsers();
 }
@@ -187,20 +183,15 @@ function fetchAdminContentHeader() {
 function fillAdminContent(adminJson) {
     admin = JSON.parse(adminJson);
 
-    if (document.getElementById("div_admin_title") != null)
-        document.getElementById("div_admin_title").innerHTML = htmlObjectContentTitle(obj);
+    replaceInnerHTMLById("div_admin_title",htmlObjectContentTitle(obj));
 }
 
 function fillAdminContentHeaderAPIs(stateJCPAPIsJson) {
     stateJCPAPIs = JSON.parse(stateJCPAPIsJson);
-    if (document.getElementById("val_jcpapis_timeStart") != null)
-        document.getElementById("val_jcpapis_timeStart").innerHTML = dateToString(new Date(stateJCPAPIs.timeStart));
-    if (document.getElementById("val_jcpapis_timeRunning") != null)
-        document.getElementById("val_jcpapis_timeRunning").innerHTML = stateJCPAPIs.timeRunning;
-    if (document.getElementById("val_jcpapis_cpuUsed") != null)
-        document.getElementById("val_jcpapis_cpuUsed").innerHTML = doubleTruncateDigit(stateJCPAPIs.cpuUsed,1);
-    if (document.getElementById("val_jcpapis_memoryUsed") != null)
-        document.getElementById("val_jcpapis_memoryUsed").innerHTML = doubleTruncateDigit(stateJCPAPIs.memoryUsed,2);
+    replaceInnerHTMLById("val_jcpapis_timeStart",dateToString(new Date(stateJCPAPIs.timeStart)));
+    //replaceInnerHTMLById("val_jcpapis_timeRunning",stateJCPAPIs.timeRunning);     // Not displayed
+    replaceInnerHTMLById("val_jcpapis_cpuUsed",doubleTruncateDigit(stateJCPAPIs.cpuUsed,1));
+    replaceInnerHTMLById("val_jcpapis_memoryUsed",doubleTruncateDigit(stateJCPAPIs.memoryUsed,2));
 }
 
 
@@ -236,8 +227,7 @@ function fillAdminContentGWs(jcpGWsJson) {
     for (var i=0; i<jcpGWs.length; i++)
         html += gwToHTML(jcpGWs[i]);
 
-    if (document.getElementById("val_adm_gws") != null)
-        document.getElementById("val_adm_gws").innerHTML = html;
+    replaceInnerHTMLById("val_adm_gws",html);
 }
 
 function gwToHTML(gw) {
@@ -299,18 +289,12 @@ function fetchAdminContentObjects(objId) {
 
 function fillAdminContentObjects(jcpObjsJson) {
     jcpObjs = JSON.parse(jcpObjsJson);
-    if (document.getElementById("val_adm_objs_count") != null)
-        document.getElementById("val_adm_objs_count").innerHTML = jcpObjs.Count;
-    if (document.getElementById("val_adm_objs_online_count") != null)
-        document.getElementById("val_adm_objs_online_count").innerHTML = jcpObjs.onlineCount;
-    if (document.getElementById("val_adm_objs_offline_count") != null)
-        document.getElementById("val_adm_objs_offline_count").innerHTML = jcpObjs.offlineCount;
-    if (document.getElementById("val_adm_objs_active_count") != null)
-        document.getElementById("val_adm_objs_active_count").innerHTML = jcpObjs.activeCount;
-    if (document.getElementById("val_adm_objs_inactive_count") != null)
-        document.getElementById("val_adm_objs_inactive_count").innerHTML = jcpObjs.inactiveCount;
-    if (document.getElementById("val_adm_objs_owners_count") != null)
-        document.getElementById("val_adm_objs_owners_count").innerHTML = jcpObjs.ownersCount;
+    replaceInnerHTMLById("val_adm_objs_count",jcpObjs.Count);
+    replaceInnerHTMLById("val_adm_objs_online_count",jcpObjs.onlineCount);
+    replaceInnerHTMLById("val_adm_objs_offline_count",jcpObjs.offlineCount);
+    replaceInnerHTMLById("val_adm_objs_active_count",jcpObjs.activeCount);
+    replaceInnerHTMLById("val_adm_objs_inactive_count",jcpObjs.inactiveCount);
+    replaceInnerHTMLById("val_adm_objs_owners_count",jcpObjs.ownersCount);
 }
 
 
@@ -350,18 +334,12 @@ function fetchAdminContentServices(objId) {
 
 function fillAdminContentServices(jcpObjsJson) {
     jcpObjs = JSON.parse(jcpObjsJson);
-    if (document.getElementById("val_adm_srvs_count") != null)
-        document.getElementById("val_adm_srvs_count").innerHTML = jcpObjs.count;
-    if (document.getElementById("val_adm_srvs_online_count") != null)
-        document.getElementById("val_adm_srvs_online_count").innerHTML = jcpObjs.onlineCount;
-    if (document.getElementById("val_adm_srvs_offline_count") != null)
-        document.getElementById("val_adm_srvs_offline_count").innerHTML = jcpObjs.offlineCount;
-    if (document.getElementById("val_adm_insts_count") != null)
-        document.getElementById("val_adm_insts_count").innerHTML = jcpObjs.instancesCount;
-    if (document.getElementById("val_adm_insts_online_count") != null)
-        document.getElementById("val_adm_insts_online_count").innerHTML = jcpObjs.instancesOnlineCount;
-    if (document.getElementById("val_adm_insts_offline_count") != null)
-        document.getElementById("val_adm_insts_offline_count").innerHTML = jcpObjs.instancesOfflineCount;
+    replaceInnerHTMLById("val_adm_srvs_count",jcpObjs.count);
+    replaceInnerHTMLById("val_adm_srvs_online_count",jcpObjs.onlineCount);
+    replaceInnerHTMLById("val_adm_srvs_offline_count",jcpObjs.offlineCount);
+    replaceInnerHTMLById("val_adm_insts_count",jcpObjs.instancesCount);
+    replaceInnerHTMLById("val_adm_insts_online_count",jcpObjs.instancesOnlineCount);
+    replaceInnerHTMLById("val_adm_insts_offline_count",jcpObjs.instancesOfflineCount);
 }
 
 
@@ -398,8 +376,7 @@ function fetchAdminContentUsers(objId) {
 
 function fillAdminContentUsers(jcpObjsJson) {
     jcpObjs = JSON.parse(jcpObjsJson);
-    if (document.getElementById("val_adm_usrs_count") != null)
-        document.getElementById("val_adm_usrs_count").innerHTML = jcpObjs.count;
+    replaceInnerHTMLById("val_adm_usrs_count",jcpObjs.count);
 }
 
 

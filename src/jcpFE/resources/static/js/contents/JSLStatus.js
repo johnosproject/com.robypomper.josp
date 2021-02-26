@@ -43,30 +43,17 @@ function fetchJSLStatusContent() {
 
 function fillJSLStatusContent(serviceJson) {
     service = JSON.parse(serviceJson);
-    if (document.getElementById("val_service_name") != null)
-        document.getElementById("val_service_name").innerHTML = service.name;
-    if (document.getElementById("val_service_state") != null)
-        document.getElementById("val_service_state").innerHTML = service.state;
-    if (document.getElementById("val_service_isJCPConnected") != null)
-        document.getElementById("val_service_isJCPConnected").innerHTML = service.isJCPConnected;
-    if (document.getElementById("val_service_isCloudConnected") != null)
-        document.getElementById("val_service_isCloudConnected").innerHTML = service.isCloudConnected;
-    if (document.getElementById("val_service_isLocalRunning") != null)
-        document.getElementById("val_service_isLocalRunning").innerHTML = service.isLocalRunning;
-    if (document.getElementById("val_service_srvId") != null)
-        document.getElementById("val_service_srvId").innerHTML = service.srvId;
-    if (document.getElementById("val_service_usrId") != null)
-        document.getElementById("val_service_usrId").innerHTML = service.usrId;
-    if (document.getElementById("val_service_instId") != null)
-        document.getElementById("val_service_instId").innerHTML = service.instId;
-    if (document.getElementById("val_service_jslVersion") != null)
-        document.getElementById("val_service_jslVersion").innerHTML = service.jslVersion;
-    if (document.getElementById("val_service_supportedJCPAPIsVersions") != null)
-        document.getElementById("val_service_supportedJCPAPIsVersions").innerHTML = service.supportedJCPAPIsVersions;
-    if (document.getElementById("val_service_supportedJOSPProtocolVersions") != null)
-        document.getElementById("val_service_supportedJOSPProtocolVersions").innerHTML = service.supportedJOSPProtocolVersions;
-    if (document.getElementById("val_service_supportedJODVersions") != null)
-        document.getElementById("val_service_supportedJODVersions").innerHTML = service.supportedJODVersions;
-    if (document.getElementById("val_service_sessionId") != null)
-        document.getElementById("val_service_sessionId").innerHTML = service.sessionId;
+    replaceInnerHTMLById("val_service_name",service.name);
+    replaceInnerHTMLById("val_service_state",service.state);
+    replaceInnerHTMLById("val_service_isJCPConnected",service.isJCPConnected);
+    replaceInnerHTMLById("val_service_isCloudConnected",service.isCloudConnected);
+    replaceInnerHTMLById("val_service_isLocalRunning",service.isLocalRunning);
+    replaceInnerHTMLById("val_service_srvId",service.srvId);
+    replaceInnerHTMLById("val_service_usrId",service.usrId);
+    replaceInnerHTMLById("val_service_instId",service.instId);
+    replaceInnerHTMLById("val_service_jslVersion",service.jslVersion);
+    replaceInnerHTMLById("val_service_supportedJCPAPIsVersions",service.supportedJCPAPIsVersions);
+    replaceInnerHTMLById("val_service_supportedJOSPProtocolVersions",service.supportedJOSPProtocolVersions);
+    replaceInnerHTMLById("val_service_supportedJODVersions",service.supportedJODVersions);
+    replaceInnerHTMLById("val_service_sessionId",service.sessionId);
 }

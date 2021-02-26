@@ -54,32 +54,40 @@ function emitObjRem(objId) {
 
 function emitObjConnected(objId) {
     var objPermsTag = document.getElementById("div_" + objId + "_perms");
-    if (objPermsTag!=null) removeDisabledCssClass(objPermsTag);
+    removeDisabledCssClassById("div_" + objId + "_perms");
 
-    if (currentPage==PAGE_OBJ_DETAILS)
-        if (objId==detailObjId) {
+    fetchObjsListMenu();
+
+    if (objId==detailObjId) {
+        removeDisabledCssClassById("obj_" + objId + "_title");
+
+        if (currentPage==PAGE_OBJ_DETAILS) {
             showObjectContent(objId,false);
-
-            removeDisabledCssClassById("obj_" + objId + "_title");
             removeDisabledCssClassById("obj_" + objId + "_content");
         }
-    if (currentPage==PAGE_ACCESS_CONTROL)
-        removeDisabledCssClassById("obj_" + objId + "_perms");
+
+        if (currentPage==PAGE_ACCESS_CONTROL)
+            removeDisabledCssClassById("obj_" + objId + "_perms");
+    }
 }
 
 function emitObjDisconnected(objId) {
     var objPermsTag = document.getElementById("div_" + objId + "_perms");
-    if (objPermsTag!=null) addDisabledCssClass(objPermsTag);
+    addDisabledCssClassById("div_" + objId + "_perms");
 
-    if (currentPage==PAGE_OBJ_DETAILS)
-        if (objId==detailObjId) {
+    fetchObjsListMenu();
+
+    if (objId==detailObjId) {
+        addDisabledCssClassById("obj_" + objId + "_title");
+
+        if (currentPage==PAGE_OBJ_DETAILS) {
             showObjectContent(objId,false);
-
-            addDisabledCssClassById("obj_" + objId + "_title");
             addDisabledCssClassById("obj_" + objId + "_content");
         }
-    if (currentPage==PAGE_ACCESS_CONTROL)
-        addDisabledCssClassById("obj_" + objId + "_perms");
+
+        if (currentPage==PAGE_ACCESS_CONTROL)
+            addDisabledCssClassById("obj_" + objId + "_perms");
+    }
 }
 
 function emitObjUpd(objId,what) {

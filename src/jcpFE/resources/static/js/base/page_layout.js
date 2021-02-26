@@ -34,18 +34,18 @@ const divFooter_id  = "div_footer";
 // Logo methods
 
 function setLogo(logoHtml) {
-    document.getElementById(divLogo_id).innerHTML = logoHtml;
+    replaceInnerHTMLById(divLogo_id,logoHtml);
 }
 
 function setLogo_Img(logo) {
-    document.getElementById(divLogo_id).innerHTML = "<img src='" + logo + "'>";
+    replaceInnerHTMLById(divLogo_id,"<img src='" + logo + "'>");
 }
 
 
 // Menu methods
 
 function setMenu(menuHtml) {
-    document.getElementById(divMenu_id).innerHTML = menuHtml;
+    replaceInnerHTMLById(divMenu_id, menuHtml);
 }
 
 function setMenu_List(menuItems) {
@@ -57,7 +57,7 @@ function setMenu_List(menuItems) {
             html += "<li class='title'>" + menuItems[i][0] + "</li>";
     html += "</ul>";
 
-    document.getElementById(divMenu_id).innerHTML = html;
+    replaceInnerHTMLById(divMenu_id,html);
 }
 
 function setMenu_List_OnClick(menuItems) {
@@ -69,39 +69,39 @@ function setMenu_List_OnClick(menuItems) {
             html += "<li class='title'>" + menuItems[i][0] + "</li>";
     html += "</ul>";
 
-    document.getElementById(divMenu_id).innerHTML = html;
+    replaceInnerHTMLById(divMenu_id,html);
 }
 
 
 // Title methods
 
 function setTitle(titleHtml) {
-    document.getElementById(divTitle_id).innerHTML = titleHtml;
+    replaceInnerHTMLById(divTitle_id,titleHtml);
 }
 
 function setTitle_Str(title) {
-    document.getElementById(divTitle_id).innerHTML = "<h1>" + title + "</h1>";
+    replaceInnerHTMLById(divTitle_id, "<h1>" + title + "</h1>");
 }
 
 
 // Opts methods
 
 function setOpts(optsHtml) {
-    document.getElementById(divOpts_id).innerHTML = optsHtml;
+    replaceInnerHTMLById(divOpts_id,optsHtml);
 }
 
 
 // Content methods
 
 function setContent(contentHtml) {
-    document.getElementById(divContent_id).innerHTML = contentHtml;
+    replaceInnerHTMLById(divContent_id,contentHtml);
 }
 
 
 // Footer methods
 
 function setFooter(footerHtml) {
-    document.getElementById(divFooter_id).innerHTML = footerHtml;
+    replaceInnerHTMLById(divFooter_id,footerHtml);
 }
 
 function setFooter_Cols(col1,col2) {
@@ -109,7 +109,7 @@ function setFooter_Cols(col1,col2) {
     html += "<td style='text-align: left;'>" + col1 + "</td>";
     html += "<td style='text-align: right;'>" + col2 + "</td>";
     html += "</tr></table>";
-    document.getElementById(divFooter_id).innerHTML = html;
+    replaceInnerHTMLById(divFooter_id,html);
 }
 
 function setFooter_Cols(col1,col2,col3) {
@@ -118,5 +118,5 @@ function setFooter_Cols(col1,col2,col3) {
     html += "<td style='width:33%; text-align: center;'>" + col2 + "</td>";
     html += "<td style='width:33%; text-align: right;'>" + col3 + "</td>";
     html += "</tr></table>";
-    document.getElementById(divFooter_id).innerHTML = html;
+    replaceInnerHTMLById(divFooter_id,html);
 }

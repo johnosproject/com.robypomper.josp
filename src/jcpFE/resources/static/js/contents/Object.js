@@ -34,10 +34,6 @@ var defaultObjCompsCollapsed = true;
 // -> fetchObjectContentStatusHistory() ...     *5
 
 function showObjectContent(objId,updateHistory) {
-    showObjectContent(objId,null,updateHistory);
-}
-
-function showObjectContent(objId,compPath,updateHistory) {
     if (updateHistory) setNewPageHistory(PAGE_OBJ_DETAILS, PAGE_OBJ_DETAILS_TITLE, "objId=" + objId);
 
     currentPage = PAGE_OBJ_DETAILS;
@@ -48,8 +44,7 @@ function showObjectContent(objId,compPath,updateHistory) {
         fetchObjectContent(objId);
     }
     setTitle(PAGE_OBJ_DETAILS_TITLE);
-    if (document.getElementById("div_obj_content") != null)
-        document.getElementById("div_obj_content").innerHTML = "";
+    replaceInnerHTMLById("div_obj_content","");
 
     fetchObjectContentStruct(objId);
 }
@@ -57,15 +52,14 @@ function showObjectContent(objId,compPath,updateHistory) {
 function showObjectContentInfo(objId,updateHistory) {
     if (updateHistory) setNewPageHistory(PAGE_OBJ_INFO, PAGE_OBJ_INFO_TITLE, "objId=" + objId);
 
-    currentPage = PAGE_OBJ_DETAILS;
+    currentPage = PAGE_OBJ_INFO;
     var isSwitchObject = detailObjId != objId;
     detailObjId = objId;
     if (document.getElementById("div_obj_content") == null  || isSwitchObject) {
         setContent(htmlObjectContent());
         fetchObjectContent(objId);
     }
-    if (document.getElementById("div_obj_content") != null)
-        document.getElementById("div_obj_content").innerHTML = htmlObjectContentInfo(objId);
+    replaceInnerHTMLById("div_obj_content",htmlObjectContentInfo(objId));
 
     fetchObjectContentInfo(objId);
 }
@@ -73,15 +67,14 @@ function showObjectContentInfo(objId,updateHistory) {
 function showObjectContentAccessControl(objId,updateHistory) {
     if (updateHistory) setNewPageHistory(PAGE_OBJ_PERMS, PAGE_OBJ_PERMS_TITLE, "objId=" + objId);
 
-    currentPage = PAGE_OBJ_DETAILS;
+    currentPage = PAGE_OBJ_PERMS;
     var isSwitchObject = detailObjId != objId;
     detailObjId = objId;
     if (document.getElementById("div_obj_content") == null  || isSwitchObject) {
         setContent(htmlObjectContent());
         fetchObjectContent(objId);
     }
-    if (document.getElementById("div_obj_content") != null)
-        document.getElementById("div_obj_content").innerHTML = htmlObjectContentAccessControl(objId);
+    replaceInnerHTMLById("div_obj_content",htmlObjectContentAccessControl(objId));
 
     fetchObjectContentAccessControl(objId);
 }
@@ -96,8 +89,7 @@ function showObjectContentEvents(objId,updateHistory) {
         setContent(htmlObjectContent());
         fetchObjectContent(objId);
     }
-    if (document.getElementById("div_obj_content") != null)
-        document.getElementById("div_obj_content").innerHTML = htmlObjectContentEvents(objId);
+    replaceInnerHTMLById("div_obj_content",htmlObjectContentEvents(objId));
 
     fetchObjectContentEvents(objId);
 }
@@ -112,8 +104,7 @@ function showObjectContentStatusHistory(objId, compPath, updateHistory) {
         setContent(htmlObjectContent());
         fetchObjectContent(objId);
     }
-    if (document.getElementById("div_obj_content") != null)
-        document.getElementById("div_obj_content").innerHTML = htmlObjectContentStatusHistory(objId,compPath);
+    replaceInnerHTMLById("div_obj_content",htmlObjectContentStatusHistory(objId,compPath));
 
     fetchObjectContentStatusHistory(objId,compPath);
 }
@@ -136,10 +127,8 @@ function fetchObjectContent(objId) {
 function fillObjectContent(objJson) {
     obj = JSON.parse(objJson);
 
-    if (document.getElementById("div_obj_title") != null)
-        document.getElementById("div_obj_title").innerHTML = htmlObjectContentTitle(obj);
-    if (document.getElementById("div_obj_links") != null)
-        document.getElementById("div_obj_links").innerHTML = htmlObjectContentLinks(obj);
+    replaceInnerHTMLById("div_obj_title",htmlObjectContentTitle(obj));
+    replaceInnerHTMLById("div_obj_links",htmlObjectContentLinks(obj));
 
     if (!obj.isConnected) {
         addDisabledCssClassById("div_obj_title");
@@ -149,13 +138,10 @@ function fillObjectContent(objJson) {
 
 function htmlObjectContentTitle(obj) {
     var titleId = "obj_" + obj.id + "_title";
-    var html = "<h1 id='" + titleId + "'>";
-    html += "    " + obj.name;
-    html += "    <a href='javascript:void(0);' onclick='editObjectName_Title(this.parentElement,\"" + obj.name + "\");'>";
-    html += "        <i class='fa fa-pencil' style='font-size: 0.8em;'></i>";
-    html += "    </a>";
-    html += "</h1>";
-    return html;
+    if (obj.permission==="CoOwner")
+        return editableObjectName_Title(obj.name);
+    else
+        return "<h1 id='" + titleId + "'>" + obj.name + "</h1>";
 }
 
 function htmlObjectContentLinks(obj) {
@@ -176,7 +162,6 @@ function htmlObjectContentLinks(obj) {
 //   -> htmlObjectContentStruct()
 //     -> htmlContainer()
 //       -> htmlComponent()
-//       -> htmlComponent()
 //         -> htmlComponentBooleanState
 //         -> htmlComponentRangeState
 //         -> htmlComponentBooleanAction
@@ -189,12 +174,11 @@ function fetchObjectContentStruct(objId) {
 function fillObjectContentStruct(rootJson) {
     root = JSON.parse(rootJson);
 
-    if (document.getElementById("div_obj_content") != null)  //div_struct
-        document.getElementById("div_obj_content").innerHTML = htmlObjectContentStruct(root);
+    replaceInnerHTMLById("div_obj_content",htmlObjectContentStruct(root));
 }
 
 function htmlObjectContentStruct(root) {
-    var titleId = "obj_" + obj.id + "_content";
+    var titleId = "obj_" + root.objId + "_content";
     var html = "<div id='" + titleId + "'>";
     //html += "    <div class='box box_obj_details'>";
     //html += htmlBoxExpandable();
@@ -247,8 +231,11 @@ function htmlComponent(comp) {
         html += "<br><spam style='color:gray; font-size: 0.8em;'>(" + comp.type + ")</span>";
     html += "</p>";
 
-    if (comp.type != "Container")
-        html += "<a href='javascript:void(0);' style='float: right;' onclick='showObjectContentStatusHistory(&quot;" + obj.id + "&quot;,&quot;" + comp.componentPath + "&quot;,true)'>H</a>";
+    if (comp.type != "Container") {
+        html += "<a href='javascript:void(0);' style='float: right;' onclick='showObjectContentStatusHistory(&quot;" + comp.objId + "&quot;,&quot;" + comp.componentPath + "&quot;,true)'>";
+        html += "<i class='fa fa-clock-o' aria-hidden='true'title='Component's history'></i>";
+        html += "</a>";
+    }
 
     if (comp.type == "BooleanState") html += htmlComponentBooleanState(comp);
     else if (comp.type == "BooleanAction") html += htmlComponentBooleanAction(comp);
@@ -273,19 +260,29 @@ function htmlComponentRangeState(comp) {
 }
 
 function htmlComponentBooleanAction(comp) {
+    var style;
+    if (obj.permission!="CoOwner"
+     && obj.permission!="Actions")
+        style = "pointer-events: none; background-color: lightgray; color: darkgray;"
+
     var html = "";
     html += "<p id='" + comp.componentPath + "_state' class='state action_first'>" + comp.state + "</p>";
-    html += "<div id='" + comp.componentPath + "_action' class='action action_single action_first' onClick='executeAction(this,\"" + comp.pathSwitch + "\");'>Switch</div>";
-    html += "<div id='" + comp.componentPath + "_action_switch' class='action action_main action_first' onClick='executeAction(this,\"" + comp.pathSwitch + "\");'>Switch</div>";
-    html += "<div id='" + comp.componentPath + "_action_true' class='action action_first' onClick='executeAction(this,\"" + comp.pathTrue + "\");'>Set TRUE</div>";
-    html += "<div id='" + comp.componentPath + "_action_false' class='action' onClick='executeAction(this,\"" + comp.pathFalse + "\");'>Set FALSE</div>";
+    html += "<div id='" + comp.componentPath + "_action' class='action action_single action_first' style='" + style + "' onClick='executeAction(this,\"" + comp.pathSwitch + "\");'>Switch</div>";
+    html += "<div id='" + comp.componentPath + "_action_switch' class='action action_main action_first' style='" + style + "' onClick='executeAction(this,\"" + comp.pathSwitch + "\");'>Switch</div>";
+    html += "<div id='" + comp.componentPath + "_action_true' class='action action_first' style='" + style + "' onClick='executeAction(this,\"" + comp.pathTrue + "\");'>Set TRUE</div>";
+    html += "<div id='" + comp.componentPath + "_action_false' class='action' style='" + style + "' onClick='executeAction(this,\"" + comp.pathFalse + "\");'>Set FALSE</div>";
     return html;
 }
 
 function htmlComponentRangeAction(comp) {
+    var style;
+    if (obj.permission!="CoOwner"
+     && obj.permission!="Actions")
+        style = "pointer-events: none; background-color: lightgray; color: darkgray;"
+
     var html = "";
     html += "<p id='" + comp.componentPath + "_state' class='state action_first'>" + comp.state + "</p>";
-    html += "<div id='" + comp.componentPath + "_action' class='action action_single action_first'>";
+    html += "<div id='" + comp.componentPath + "_action' class='action action_single action_first' style='" + style + "'>";
     var value_slider_id = comp.componentPath + "_action_slider";
     var value_slider_path = comp.pathSetValue + "\" + document.getElementById(\"" + value_slider_id + "\").value";
     html += "    <p style='width: auto;padding: 5px;'>" + comp.min + "</p>";
@@ -316,7 +313,7 @@ function htmlComponentRangeAction(comp) {
 // -> fillObjectContentInfo_Struct()
 
 function htmlObjectContentInfo(objId) {
-    setTitle("<p><a href='javascript:void(0);' onclick='showObjectContent(&quot;" + obj.id + "&quot;,true)'>Object</a> > Info</p>");
+    setTitle("<p><a href='javascript:void(0);' onclick='showObjectContent(&quot;" + objId + "&quot;,true)'>Object</a> > Info</p>");
 
     var tableStyle = "width: 70%; margin: auto;"
     var html = "";
@@ -370,44 +367,26 @@ function fetchObjectContentInfo(objId) {
 function fillObjectContentInfo_Obj(objJson) {
     obj = JSON.parse(objJson);
 
-    if (document.getElementById("val_obj_id") != null)
-        document.getElementById("val_obj_id").innerHTML = obj.id;
-    if (document.getElementById("val_obj_name") != null)
-        document.getElementById("val_obj_name").innerHTML = obj.name;
-    if (document.getElementById("val_obj_permission") != null)
-        document.getElementById("val_obj_permission").innerHTML = obj.permission;
-    if (document.getElementById("val_obj_owner") != null)
-        document.getElementById("val_obj_owner").innerHTML = obj.owner;
-    if (document.getElementById("val_obj_owner_editable") != null) {
-        var html = "";
-        html = "<span>";
-        html += "    " + obj.owner;
-        html += "    <a href='javascript:void(0);' onclick='editObjectOwner_Field(this.parentElement,\"" + obj.owner + "\");'>";
-        html += "        <i class='fa fa-pencil' style='font-size: 0.8em;'></i>";
-        html += "    </a>";
-        html += "</span>";
-        document.getElementById("val_obj_owner_editable").innerHTML = html;
-    }
-    if (document.getElementById("val_obj_isConnected") != null)
-        document.getElementById("val_obj_isConnected").innerHTML = obj.isConnected;
-    if (document.getElementById("val_obj_isCloudConnected") != null)
-        document.getElementById("val_obj_isCloudConnected").innerHTML = obj.isCloudConnected;
-    if (document.getElementById("val_obj_isLocalConnected") != null)
-        document.getElementById("val_obj_isLocalConnected").innerHTML = obj.isLocalConnected;
-    if (document.getElementById("val_obj_jodVersion") != null)
-        document.getElementById("val_obj_jodVersion").innerHTML = obj.jodVersion;
+    replaceInnerHTMLById("val_obj_id",obj.id);
+    replaceInnerHTMLById("val_obj_name",obj.name);
+    replaceInnerHTMLById("val_obj_permission",obj.permission);
+    replaceInnerHTMLById("val_obj_owner",obj.owner);
+    if (obj.permission==="CoOwner")
+        replaceInnerHTMLById("val_obj_owner",editableObjectOwner_Field(obj.owner));
+    else
+        replaceInnerHTMLById("val_obj_owner",obj.owner);
+    replaceInnerHTMLById("val_obj_isConnected",obj.isConnected);
+    replaceInnerHTMLById("val_obj_isCloudConnected",obj.isCloudConnected);
+    replaceInnerHTMLById("val_obj_isLocalConnected",obj.isLocalConnected);
+    replaceInnerHTMLById("val_obj_jodVersion",obj.jodVersion);
 }
 
 function fillObjectContentInfo_Struct(objStructJson) {
     objStruct = JSON.parse(objStructJson);
-    if (document.getElementById("val_obj_brand") != null)
-        document.getElementById("val_obj_brand").innerHTML = objStruct.brand;
-    if (document.getElementById("val_obj_description") != null)
-        document.getElementById("val_obj_description").innerHTML = objStruct.description;
-    if (document.getElementById("val_obj_descrLong") != null)
-        document.getElementById("val_obj_descrLong").innerHTML = objStruct.descrLong;
-    if (document.getElementById("val_obj_model") != null)
-        document.getElementById("val_obj_model").innerHTML = objStruct.model;
+    replaceInnerHTMLById("val_obj_brand",objStruct.brand);
+    replaceInnerHTMLById("val_obj_description",objStruct.description);
+    replaceInnerHTMLById("val_obj_descrLong",objStruct.descrLong);
+    replaceInnerHTMLById("val_obj_model",objStruct.model);
 }
 
 
@@ -430,7 +409,7 @@ function htmlObjectContentAccessControl(objId) {
 
     html += "    <h2>Access Control</h2>";
 
-    html += "    <p>Object's owner '<b id='val_obj_owner_editable'>...</b>'</p>";
+    html += "    <p>Object's owner <b id='val_obj_owner_editable'>...</b></p>";
     html += "    <p>Current service/user has '<b id='val_obj_permission'>...</b>' permission on object</p>";
 
     html += "    <div class='obj_perms'>";
@@ -457,8 +436,17 @@ function htmlObjectContentAccessControl(objId) {
 }
 
 function fetchObjectContentAccessControl(objId) {
-    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContentInfo_Obj,onErrorFetch);
-    apiGET(backEndUrl,"/apis/permissions/1.0/" + objId + "/",fillObjectContentAccessControl_Perms,onErrorFetch);
+    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContentAccessControl_Obj,onErrorFetch);
+    apiGET(backEndUrl,"/apis/permissions/1.0/" + objId + "/",fillObjectContentAccessControl_Perms,fillObjectContentAccessControl_Perms_onErrorFetch);
+}
+
+function fillObjectContentAccessControl_Obj(objJson) {
+    obj = JSON.parse(objJson);
+
+    if (obj.permission==="CoOwner")
+        replaceInnerHTMLById("val_obj_owner_editable",editableObjectOwner_Field(obj.owner));
+    else
+        replaceInnerHTMLById("val_obj_owner_editable",obj.owner);
 }
 
 function fillObjectContentAccessControl_Perms(objPermsJson) {
@@ -475,9 +463,23 @@ function fillObjectContentAccessControl_Perms(objPermsJson) {
         html += editablePermission_Row(objPerms[i].id,objPerms[i].objId,objPerms[i].srvId,objPerms[i].usrId,objPerms[i].type,objPerms[i].connection);
     }
 
-    var tableId = "table_" + objPerms[0].objId + "_perms";
-    if (document.getElementById(tableId) != null)
-        document.getElementById(tableId).innerHTML = html;
+    replaceInnerHTMLById("table_" + objPerms[0].objId + "_perms",html);
+}
+
+function fillObjectContentAccessControl_Perms_onErrorFetch(xhttpRequest) {
+    if (JSON.parse(xhttpRequest.responseText).status!=403) {
+        onErrorFetch(xhttpRequest);
+        return;
+    }
+
+    var html = "        <p style='color: red;'>";
+    html += "        Can't access '" + obj.id + "' object's<br>";
+    html += "        'Permissions list' require 'CoOwner' permission<br>";
+    html += "        Current service has '" + obj.permission + "' permission.<br>";
+    html += "        <b>access denied!</b>";
+    html += "        </p>";
+
+    replaceInnerHTMLById("table_" + obj.id + "_perms",html);
 }
 
 // Object's Events
@@ -511,7 +513,7 @@ function htmlObjectContentEvents(objId) {
 }
 
 function fetchObjectContentEvents(objId) {
-    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/events/",fillObjectContentEvents_Table,onErrorFetch);
+    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/events/",fillObjectContentEvents_Table,fillObjectContentEvents_Table_onErrorFetch);
 }
 
 function fillObjectContentEvents_Table(eventsJson) {
@@ -577,17 +579,26 @@ function fillObjectContentEvents_Table(eventsJson) {
         html += "</tr>";
     }
 
-    var tableId = "table_" + objId + "_events";
-    if (document.getElementById(tableId) != null)
-        document.getElementById(tableId).innerHTML = html;
+    replaceInnerHTMLById("table_" + objId + "_events",html);
 
-
-    var sumId = "summary_" + objId + "_events";
-    if (document.getElementById(sumId) != null)
-        document.getElementById(sumId).innerHTML = "Listed " + events.length + " Object Status Histories<br>from " +
-        dateToString(new Date(events[0].emittedAt))  + "<br>to " + dateToString(new Date(events[events.length-1].emittedAt)) + "</p>";
+    replaceInnerHTMLById("summary_" + objId + "_events","Listed " + events.length + " Object Status Histories<br>from " + dateToString(new Date(events[0].emittedAt))  + "<br>to " + dateToString(new Date(events[events.length-1].emittedAt)) + "</p>");
 }
 
+function fillObjectContentEvents_Table_onErrorFetch(xhttpRequest) {
+    if (JSON.parse(xhttpRequest.responseText).status!=403) {
+        onErrorFetch(xhttpRequest);
+        return;
+    }
+
+    var html = "        <p style='color: red;'>";
+    html += "        Can't access '" + obj.id + "' object's<br>";
+    html += "        'Permissions list' require 'CoOwner' permission<br>";
+    html += "        Current service has '" + obj.permission + "' permission.<br>";
+    html += "        <b>access denied!</b>";
+    html += "        </p>";
+
+    replaceInnerHTMLById("table_" + obj.id + "_events",html);
+}
 
 // Object's StatusHistory
 
@@ -622,13 +633,40 @@ function htmlObjectContentStatusHistory(objId,compPath) {
         //<a href="javascript:void(0);" style="float: right;" onclick="showObjectContentStatusHistory(&quot;CUQWI-00000-00000&quot;,&quot;Volume (Mac)&quot;,true)">H</a>
         html += "       <a style='float:left; margin: 5px;' href='javascript:void(0);' onClick='showObjectContentStatusHistory(\"" + objId + "\",\"" + compPath + "\",false)'>Reload data</a>";
         var now = new Date();
-        var pastday = new Date(now.getTime() - (1000*60*60*24));
-        var pasthour = new Date(now.getTime() - (1000*60*60));
-        var pastfiveminutes = new Date(now.getTime() - (1000*60*5));
-        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + pastfiveminutes.toISOString() + "\",\"" + now.toISOString() + "\")'>Last 5 minutes</a>";
-        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + pasthour.toISOString() + "\",\"" + now.toISOString() + "\")'>Last hour</a>";
-        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + pastday.toISOString() + "\",\"" + now.toISOString() + "\")'>Last 24 hours</a>";
-        html += "       <a style='float:right; margin: 5px;' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",minDate,maxDate)'>Reset</a>";
+        var past30Days = new Date(now.getTime() - (30 * 1000*60*60*24));
+        var past7Days = new Date(now.getTime() - (7 * 1000*60*60*24));
+        var past24Hours = new Date(now.getTime() - (24 * 1000*60*60));
+        var past12Hours = new Date(now.getTime() - (12 * 1000*60*60));
+        var past6Hours = new Date(now.getTime() - (6 * 1000*60*60));
+        var past60Minutes = new Date(now.getTime() - (60 * 1000*60));
+        var past30Minutes = new Date(now.getTime() - (30 * 1000*60));
+        var past5Minutes = new Date(now.getTime() - (5 * 1000*60));
+        var past1Minutes = new Date(now.getTime() - (1 * 1000*60));
+        var style = "float:right; margin: 5px;"
+        html += "       <div style='" + style + "'>";
+        html += "           <div>";
+        html += "           Last: ";
+        html += "               <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past30Days.toISOString() + "\",\"" + now.toISOString() + "\")'>30</a>";
+        html += "               | <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past7Days.toISOString() + "\",\"" + now.toISOString() + "\")'>7</a>";
+        html += "           days, ";
+        html += "           </div>";
+        html += "           <div>";
+        html += "           ";
+        html += "               <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past24Hours.toISOString() + "\",\"" + now.toISOString() + "\")'>24</a>";
+        html += "               | <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past12Hours.toISOString() + "\",\"" + now.toISOString() + "\")'>12</a>";
+        html += "               | <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past6Hours.toISOString() + "\",\"" + now.toISOString() + "\")'>6</a>";
+        html += "           hours or ";
+        html += "           </div>";
+        html += "           <div>";
+        html += "           ";
+        html += "               <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past60Minutes.toISOString() + "\",\"" + now.toISOString() + "\")'>60</a>";
+        html += "               | <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past30Minutes.toISOString() + "\",\"" + now.toISOString() + "\")'>30</a>";
+        html += "               | <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past5Minutes.toISOString() + "\",\"" + now.toISOString() + "\")'>5</a>";
+        html += "               | <a href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",\"" + past1Minutes.toISOString() + "\",\"" + now.toISOString() + "\")'>1</a>";
+        html += "           minutes";
+        html += "           </div>";
+        html += "       </div>";
+        html += "       <a style='" + style + "' href='javascript:void(0);' onClick='setRange(\"" + chartId + "\",minDate,maxDate)'>Reset</a>";
         html += "    </div>";
         html += "    <div 'style='max-width: 600px; margin: auto;'>";
         html += "       <canvas id='" + canvasId + "'></canvas>";
@@ -667,7 +705,7 @@ function fetchObjectContentStatusHistory(objId,compPath) {
 function fillObjectContentStatusHistory_Chart(statusHistoryJson) {
     statusHistory = JSON.parse(statusHistoryJson);
     if (statusHistory.length==0) {
-        alert("MESSAGE TO USER: Warning no status history for required object/component '" + xhttpRequest + "' resource");
+        alert("MESSAGE TO USER: Warning no status history for required object/component '" + detailObjId + "' resource");
         return;
     }
 
@@ -779,16 +817,9 @@ function fillObjectContentStatusHistory_Chart(statusHistoryJson) {
         html += "</tr>";
     }
 
-    var tableId = "table_" + objId + "_history";
-    if (document.getElementById(tableId) != null)
-        document.getElementById(tableId).innerHTML = html;
+    replaceInnerHTMLById("table_" + objId + "_history",html);
 
-
-    var sumId = "summary_" + objId + "_history";
-    if (document.getElementById(sumId) != null)
-        document.getElementById(sumId).innerHTML = "Listed " + statusHistory.length + " Object Status Histories<br>from " +
-        dateToString(new Date(statusHistory[0].updatedAt))  + "<br>to " + dateToString(new Date(statusHistory[statusHistory.length-1].updatedAt)) + "</p>";
-
+    replaceInnerHTMLById("summary_" + objId + "_history","Listed " + statusHistory.length + " Object Status Histories<br>from " + dateToString(new Date(statusHistory[0].updatedAt))  + "<br>to " + dateToString(new Date(statusHistory[statusHistory.length-1].updatedAt)) + "</p>");
 }
 
 function extractStatusFromPayload(payload,compType) {
@@ -809,17 +840,26 @@ function extractStatusFromPayload(payload,compType) {
 var _originalName = null;
 
 function editableObjectName_Title(objName) {
-    var html = "<h1>" + objName + "<a href='javascript:void(0);' onclick='editObjectName_Title(this.parentElement,\"" + objName + "\");'><i class='fa fa-pencil' style='font-size: 0.8em;'></i></a></h1>";
+    var html = "<h1>";
+    html +=     objName;
+    html += "    <a href='javascript:void(0);' onclick='editObjectName_Title(this.parentElement,\"" + objName + "\");' style='text-decoration: none;'>";
+    html += "        <i class='fa fa-pencil' style='font-size: 0.8em; margin: 5px;'></i>";
+    html += "    </a>";
+    html += "</h1>";
     return html;
 }
 
 function editObjectName_Title(headerTag,defaultValue) {
     _originalName = defaultValue;
-    var html = "<input id='obj_title_" + detailObjId + "' type='text' value='" + defaultValue + "''>";
-    html += "<a href='javascript:void(0);' onclick='saveObjectName_Title(this.parentElement);'><i class='fa fa-check-circle-o' style='font-size: 0.8em;'></i></a>";
-    html += "<a href='javascript:void(0);' onclick='replace(this.parentElement,editableObjectName_Title(_originalName));'><i class='fa fa-times' style='font-size: 0.8em;'></i></a>";
+    var html = "<input id='obj_title_" + detailObjId + "' type='text' value='" + defaultValue + "' style='font-size: inherit;'>";
+    html += "<a href='javascript:void(0);' onclick='saveObjectName_Title(this.parentElement);' style='text-decoration: none;'>";
+    html += "    <i class='fa fa-check-circle-o' style='font-size: 0.8em; margin: 5px;'></i>";
+    html += "</a>";
+    html += "<a href='javascript:void(0);' onclick='replace(this.parentElement,editableObjectName_Title(_originalName));' style='text-decoration: none;'>";
+    html += "    <i class='fa fa-times' style='font-size: 0.8em; margin: 5px;'></i>";
+    html += "</a>";
 
-    headerTag.innerHTML = html;
+    replaceInnerHTML(headerTag,html);
 }
 
 function saveObjectName_Title(containerTag) {
@@ -832,7 +872,7 @@ function saveObjectName_Title(containerTag) {
     var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/name/";
     apiPOST(backEndUrl,actionUrl,
         async function(responseText) {
-            hideWaitingFeedback(containerTag.id);
+            hideWaitingFeedback(containerTag);
             if (responseText == "true") {
                 replace(containerTag,editableObjectName_Title(input.value));
                 _originalName = null;
@@ -844,26 +884,26 @@ function saveObjectName_Title(containerTag) {
             alert("Error on executing: " + actionUrl + "<br>" + responseText);
             replace(containerTag,editableObjectName_Title(_originalName));
             _originalName = null;
-            showFailFeedback(containerTag.id);
+            showFailFeedback(containerTag);
         },
         function(xhttpRequest) {
-            hideWaitingFeedback(containerTag.id);
+            hideWaitingFeedback(containerTag);
             alert("Error on executing: " + actionUrl + "<br>" + xhttpRequest.responseText);
             replace(containerTag,editableObjectName_Title(_originalName));
             _originalName = null;
-            showFailFeedback(containerTag.id);
+            showFailFeedback(containerTag);
         },
         "new_name=" + input.value
     );
-    showWaitingFeedback(input.id);
+    showWaitingFeedback(input);
 }
 
 // Editable Owner (ob)
 var _originalOwner = null;
 
 function editableObjectOwner_Field(objOwner) {
-    var html = "<td class='value'>" + objOwner;
-    html += "           <a href='javascript:void(0);' onclick='editObjectOwner_Field(this.parentElement,\"" + objOwner + "\");'><i class='fa fa-pencil' style='font-size: 0.8em;'></i></a>";
+    var html = "<td class='value'>'" + objOwner;
+    html += "           ' <a href='javascript:void(0);' onclick='editObjectOwner_Field(this.parentElement,\"" + objOwner + "\");'><i class='fa fa-pencil' style='font-size: 0.8em;'></i></a>";
     html += "        </td>";
     return html;
 }
@@ -871,9 +911,9 @@ function editableObjectOwner_Field(objOwner) {
 function editObjectOwner_Field(headerTag,defaultValue) {
     _originalOwner = defaultValue;
 
-    var html = "        <td id='obj_owner_" + detailObjId + "' class='value'>";
+    var html = "        ";//<td id='obj_owner_" + detailObjId + "' class='value'>";
     //html += "           <input type='text' value='" + obj['owner'] + "'>"
-    html += "<input list='usrId' value='" + obj['owner'] + "'>";
+    html += "<input list='usrId' value='" + obj['owner'] + "' style='width: 300px'>";
     html += "<datalist id='usrId'>";
     html += "  <option value='00000-00000-00000'>No Owner - Any user</option>";
     if (loggedUserId!=null)
@@ -882,10 +922,10 @@ function editObjectOwner_Field(headerTag,defaultValue) {
         html += "  <option value='" + obj['owner'] + "'>Latest</option>";
     html += "</datalist>";
     html += "           <a href='javascript:void(0);' onclick='saveObjectOwner_Field(this.parentElement,\"" + obj['owner'] + "\");'><i class='fa fa-check-circle-o'></i></a>";
-    html += "           <a href='javascript:void(0);' onclick='replace(this.parentElement,editableObjectOwner_Field(_originalOwner));'><i class='fa fa-times'></i></a>";
-    html += "        </td>";
+    html += "           <a href='javascript:void(0);' onclick='replaceInnerHTML(this.parentElement,editableObjectOwner_Field(_originalOwner));'><i class='fa fa-times'></i></a>";
+    html += "        ";//</td>";
 
-    headerTag.innerHTML = html;
+    replaceInnerHTML(headerTag,html);
 }
 
 function saveObjectOwner_Field(containerTag) {
@@ -898,7 +938,7 @@ function saveObjectOwner_Field(containerTag) {
     var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/owner/";
     apiPOST(backEndUrl,actionUrl,
     function(responseText) {
-        hideWaitingFeedback(containerTag.id);
+        hideWaitingFeedback(containerTag);
         if (responseText == "true") {
             replace(containerTag,editableObjectOwner_Field(input.value));
             _originalOwner = null;
@@ -906,42 +946,47 @@ function saveObjectOwner_Field(containerTag) {
         }
 
         alert("Error on executing: " + actionUrl + "<br>" + responseText);
-        replace(containerTag,editableObjectOwner_Field(_originalOwner));
+        replaceInnerHTML(containerTag,editableObjectOwner_Field(_originalOwner));
         _originalOwner = null;
-        showFailFeedback(containerTag.id);
+        showFailFeedback(containerTag);
     },
     function(xhttpRequest) {
-        hideWaitingFeedback(containerTag.id);
+        hideWaitingFeedback(containerTag);
         alert("Error on executing: " + actionUrl + "<br>" + xhttpRequest.responseText);
-        replace(containerTag,editableObjectOwner_Field(_originalOwner));
+        replaceInnerHTML(containerTag,editableObjectOwner_Field(_originalOwner));
         _originalOwner = null;
-        showFailFeedback(containerTag.id);
+        showFailFeedback(containerTag);
     },
     "new_owner=" + input.value);
-    showWaitingFeedback(containerTag.id);
+    showWaitingFeedback(containerTag);
 }
 
 
 // Utils
 
 function executeAction(element,actionUrl) {
-            showWaitingFeedback(element.id);
+    if (obj.permission!="CoOwner"
+     && obj.permission!="Actions") {
+        alert("Can't execute action, because 'Action' permission required.");
+        return;
+    }
+    showWaitingFeedback(element);
 
-            apiGET(backEndUrl,actionUrl,
-            function(responseText) {
-                hideWaitingFeedback(element.id);
-                if (responseText == "true")
-                    return;
+    apiGET(backEndUrl,actionUrl,
+    function(responseText) {
+        hideWaitingFeedback(element);
+        if (responseText == "true")
+            return;
 
-                alert("Error on executing: " + actionUrl + "<br>" + responseText);
-                showFailFeedback(element.id);
-            },
-            function(xhttpRequest) {
-                hideWaitingFeedback(element.id);
-                alert("Error on executing: " + actionUrl + "<br>" + xhttpRequest.responseText);
-                showFailFeedback(element.id);
-            });
-        }
+        alert("Error on executing: " + actionUrl + "<br>" + responseText);
+        showFailFeedback(element);
+    },
+    function(xhttpRequest) {
+        hideWaitingFeedback(element);
+        alert("Error on executing: " + actionUrl + "<br>" + xhttpRequest.responseText);
+        showFailFeedback(element);
+    });
+}
 
 
 
@@ -954,7 +999,7 @@ function fetchComponent(objId,compPath) {
 
 function fillComponent(compJson) {
     comp = JSON.parse(compJson);
-    document.getElementById(comp.componentPath).innerHTML = htmlComponent(comp);
+    replaceInnerHTML(comp.componentPath,htmlBoxExpandable() + htmlComponent(comp));
     // current method is called only from "SSE -> emitStateUpd(eventText) -> fetchComponent(objId,compPath)" stack
-    showUpdateFeedback(comp.componentPath + "_state");
+    showUpdateFeedbackByIdTag(comp.componentPath + "_state");
 }
