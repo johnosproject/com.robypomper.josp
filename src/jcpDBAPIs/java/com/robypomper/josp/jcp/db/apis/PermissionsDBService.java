@@ -56,6 +56,17 @@ public class PermissionsDBService {
         return permissions.findByObjId(objId);
     }
 
+    public List<Permission> findBySrv(String srvId) throws DataIntegrityViolationException {
+        return permissions.findBySrvId(srvId);
+    }
+
+    public List<Permission> findBySrvExtended(String srvId) throws DataIntegrityViolationException {
+        List<Permission> result = permissions.findBySrvId(srvId);
+        result.addAll(permissions.findBySrvId(JOSPPerm.WildCards.USR_ALL.toString()));
+        result.addAll(permissions.findBySrvId(JOSPPerm.WildCards.USR_OWNER.toString()));
+        return result;
+    }
+
     public List<Permission> addAll(List<Permission> objPerms) {
         return permissions.saveAll(objPerms);
     }
@@ -65,78 +76,7 @@ public class PermissionsDBService {
     }
 
 
-    // Permission queries
-
-    public List<ServiceStatus> getServicesAllowed(String objId, String ownerId, JOSPPerm.Type minPermReq) {
-        String[] types = getPermListFromMin(minPermReq);
-        List<Permission> ps = permissions.findForObj(JOSPPerm.Connection.LocalAndCloud.name(), types, objId);
-
-        List<ServiceStatus> srvs = new ArrayList<>();
-        for (Permission p : ps)
-            if (p.getUsrId().equals(JOSPPerm.WildCards.USR_ALL.toString())) {
-                if (p.getSrvId().equals(JOSPPerm.WildCards.SRV_ALL.toString()))
-                    srvs.addAll(servicesStatus.findAll());
-                else
-                    srvs.addAll(servicesStatus.findBySrvId(p.getSrvId()));
-            } else if (p.getUsrId().equals(JOSPPerm.WildCards.USR_OWNER.toString())) {
-                if (p.getSrvId().equals(JOSPPerm.WildCards.SRV_ALL.toString())) {
-                    if (ownerId.equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
-                        srvs.addAll(servicesStatus.findAll());
-                    else
-                        srvs.addAll(servicesStatus.findByUsrId(ownerId));
-                } else {
-                    if (ownerId.equals(JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString()))
-                        srvs.addAll(servicesStatus.findBySrvId(p.getSrvId()));
-                    else
-                        srvs.addAll(servicesStatus.findBySrvIdAndUsrId(p.getSrvId(), ownerId));
-                }
-            } else {
-                if (p.getSrvId().equals(JOSPPerm.WildCards.SRV_ALL.toString()))
-                    srvs.addAll(servicesStatus.findByUsrId(p.getUsrId()));
-                else
-                    srvs.addAll(servicesStatus.findBySrvIdAndUsrId(p.getSrvId(), p.getUsrId()));
-            }
-
-        return srvs;
-    }
-
-    public List<Object> getObjectAllowed(String srvId, String usrId, JOSPPerm.Type minPermReq) {
-        String[] types = getPermListFromMin(minPermReq);
-        List<Permission> ps = permissions.findForSrv(JOSPPerm.Connection.LocalAndCloud.name(), types, srvId, usrId);
-
-        List<Object> objs = new ArrayList<>();
-        for (Permission p : ps) {
-            Optional<Object> optObj = objects.findById(p.getObjId());
-            optObj.ifPresent(objs::add);
-        }
-        return objs;
-    }
-
-
-    // Queries utils
-
-    private String[] getPermListFromMin(JOSPPerm.Type minPermReq) {
-        if (minPermReq == JOSPPerm.Type.Status) {
-            return new String[]{
-                    JOSPPerm.Type.Status.name(),
-                    JOSPPerm.Type.Actions.name(),
-                    JOSPPerm.Type.CoOwner.name()
-            };
-
-        } else if (minPermReq == JOSPPerm.Type.Actions) {
-            return new String[]{
-                    JOSPPerm.Type.Actions.name(),
-                    JOSPPerm.Type.CoOwner.name()
-            };
-
-        } else if (minPermReq == JOSPPerm.Type.CoOwner) {
-            return new String[]{
-                    JOSPPerm.Type.CoOwner.name()
-            };
-        }
-
-        return new String[]{};
-    }
+    // Conversion Permission to/from JOSPPerm
 
     public static JOSPPerm dbPermToJOSPPerm(Permission permDB) {
         return new JOSPPerm(permDB.getId(), permDB.getObjId(), permDB.getSrvId(), permDB.getUsrId(), permDB.getType(), permDB.getConnection(), permDB.getUpdatedAt());
