@@ -1,5 +1,6 @@
 package com.robypomper.josp.jcp.jslwebbridge.jsl;
 
+import com.robypomper.java.JavaAssertions;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jsl.FactoryJSL;
 import com.robypomper.josp.jsl.JSL;
@@ -19,14 +20,17 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.states.StateException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
@@ -42,7 +46,7 @@ public class JSLSpringService {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(JSLSpringService.class);
     private final String jslVersion;
     private final boolean useSSL;
     private final String urlAPIs;
@@ -136,6 +140,12 @@ public class JSLSpringService {
 
         session.setAttribute("JSL-Instance", jsl);
         sessions.put(jsl, session);
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+        if (ipAddress == null) {
+            ipAddress = request.getRemoteAddr();
+        }
+        log.info(String.format("Registered HTTP session '%s' with instance id '%s' on client '%s:%d'", session.getId(), jsl.getServiceInfo().getInstanceId(), ipAddress, request.getRemotePort()));
         return jsl;
     }
 
@@ -290,26 +300,26 @@ public class JSLSpringService {
                 .data(data)
                 .id(String.valueOf(sseCount++));
 
-        List<SseEmitter> l1 = emitters.get(jsl);
-        if (l1 == null) {
-            log.warn(String.format("Error on send event '%s' (data) to not found emitter for '%s' JSL instance because emitter not found, check if remove JSL instance.", data, jsl));
+        if (emitters.get(jsl) == null || emitters.get(jsl).size() == 0) {
+            log.warn(String.format("Error on send event '%s' (data) to not found emitter for '%s' JSL instance because emitter not found, check if remove JSL instance.", data, jsl.getServiceInfo().getFullId()));
             processEmitterError(jsl, null);
             return;
         }
 
-        List<SseEmitter> jslEmitters = new ArrayList<>();
+        List<SseEmitter> jslEmitters = new ArrayList<>(emitters.get(jsl));
         for (SseEmitter emitter : jslEmitters)
             try {
                 try {
                     emitter.send(event);
+                    log.debug(String.format("Send event '%s' (data) to '%s' emitter for '%s' JSL instance.", data, emitter, jsl.getServiceInfo().getFullId()));
 
                 } catch (IllegalStateException e) {
                     Thread.sleep(5000);
                     emitter.send(event);
                 }
 
-            } catch (Exception ioException) {
-                log.warn(String.format("Error on send event '%s' (data) to '%s' emitter for '%s' JSL instance because %s, remove emitter.", data, emitter, jsl, ioException.getMessage()));
+            } catch (Exception e) {
+                log.warn(String.format("Error on send event '%s' (data) to '%s' emitter for '%s' JSL instance because %s, remove emitter.", data, emitter, jsl.getServiceInfo().getFullId(), e.getMessage()));
                 processEmitterError(jsl, emitter);
             }
     }
@@ -318,6 +328,11 @@ public class JSLSpringService {
         if (emitter != null) {
             emitter.complete();
             emitters.get(jsl).remove(emitter);
+        }
+
+        if (emitters.get(jsl) == null) {
+            JavaAssertions.makeWarning_Failed(String.format("Emitter list for '%s' JSL instance must not be null", jsl.getServiceInfo().getFullId()));
+            return;
         }
 
         if (emitters.get(jsl).size() == 0) {

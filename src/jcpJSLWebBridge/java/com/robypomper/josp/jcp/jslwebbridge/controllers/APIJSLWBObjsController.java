@@ -92,7 +92,7 @@ public class APIJSLWBObjsController {
     @PostMapping(path = APIJSLWBObjs.FULL_PATH_OWNER, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectOwner(@ApiIgnore HttpSession session,
@@ -120,7 +120,7 @@ public class APIJSLWBObjsController {
     @PostMapping(path = APIJSLWBObjs.FULL_PATH_NAME, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "&&Description&&")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectName(@ApiIgnore HttpSession session,
@@ -156,10 +156,10 @@ public class APIJSLWBObjsController {
         JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         try {
             return ResponseEntity.ok(obj.getInfo().getEventsHistory(limits, 20));
-        } catch (JSLRemoteObject.ObjectNotConnected | JSLRemoteObject.MissingPermission objectNotConnected) {
-            objectNotConnected.printStackTrace();
+
+        } catch (JSLRemoteObject.ObjectNotConnected | JSLRemoteObject.MissingPermission e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on list events from '%s' object.", objId), e);
         }
-        return null;
     }
 
 }
