@@ -222,7 +222,7 @@ function fetchAdminContentGWs(objId) {
 }
 
 function fillAdminContentGWs(jcpGWsJson) {
-    jcpGWs = JSON.parse(jcpGWsJson);
+    var jcpGWs = JSON.parse(jcpGWsJson);
     var html = "";
     for (var i=0; i<jcpGWs.length; i++)
         html += gwToHTML(jcpGWs[i]);
@@ -232,19 +232,30 @@ function fillAdminContentGWs(jcpGWsJson) {
 
 function gwToHTML(gw) {
     var grayStyle = "color: gray;";
+    var cellStyle = "border: 1px solid black; padding: 5px;";
 
     var html = "";
-    html += "<h3>" + gw.id + "<span style='" + grayStyle + "'>(" + gw.type + ")</h3>";
-    html += "<p>Server is " + (gw.isRunning ? "running" : "NOT running") + " with " + gw.clientsCount + " clients connected</p>";
-    html += "<p><span style='" + grayStyle + "'>(Addr: " + gw.address + "; HostName: " + gw.hostName + "; CanonicalHostName: " + gw.hostNameCanonical + ")</span></p>";
+    html += "<h3>" + gw.id + " <span style='" + grayStyle + "'>(" + gw.type + ")</h3>";
+    html += "<p>Server is " + gw.status + " with " + gw.clientsCount + "/" + gw.maxClientsCount + " clients connected</p>";
+    html += "<p style='" + grayStyle + "'>Address: (internal: " + gw.internalAddress + "; public: " + gw.publicAddress + ")</p>";
 
     if (gw.clientsCount==0) {
         html += "<p>No clients connected</p>";
     } else {
         html += "<table style='border: 1px solid black; margin: 10px;'>";
-        html += "<tr><th style='border: 1px solid black;'>Client ID</th><th style='border: 1px solid black;'>Status</th><tr>";
+        html += "<tr>";
+        html += "    <th style='border: 1px solid black;'>Client ID</th>";
+        html += "    <th style='border: 1px solid black;'>Status</th>";
+        html += "    <th style='border: 1px solid black;'>Remote</th>";
+        html += "</tr>";
         for (var i=0; i<gw.clientsList.length; i++) {
-            html += "<tr><td style='border: 1px solid black;'>" + gw.clientsList[i].id + "</td><td style='border: 1px solid black;'>" + (gw.clientsList[i].isConnected ? "CONNECTED" : "NOT CONN.") + "</td><tr>";
+            html += "<tr>";
+            html += "    <td style=' " + cellStyle + "'>" + gw.clientsList[i].id + "</td>";
+            html += "    <td style=' " + cellStyle + "'>" + (gw.clientsList[i].isConnected ? "CONNECTED" : "NOT CONN.") + "</td>";
+            var remote = gw.clientsList[i].remote;
+            remote = remote.substring(remote.indexOf("(")+1,remote.indexOf(")"));
+            html += "    <td style=' " + cellStyle + "'>" + remote + "</td>";
+            html += "<tr>";
         }
         html += "</table>";
     }

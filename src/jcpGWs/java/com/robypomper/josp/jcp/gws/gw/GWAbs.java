@@ -310,17 +310,19 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
     public JCPAPIsStatus.GWs getJCPAPIsStatus() {
         JCPAPIsStatus.GWs gwStatus = new JCPAPIsStatus.GWs();
-        gwStatus.id = getServer().getLocalId();
+        gwStatus.id = getId();
         gwStatus.type = getType();
-        gwStatus.isRunning = getServer().getState().isRunning();
-        gwStatus.address = getServer().getServerPeerInfo().getAddr().getHostAddress();
-        gwStatus.hostName = getServer().getServerPeerInfo().getAddr().getHostName();
-        gwStatus.hostNameCanonical = getServer().getServerPeerInfo().getAddr().getCanonicalHostName();
-        gwStatus.port = getServer().getServerPeerInfo().getPort();
+        gwStatus.status = getServer().getState().toString();
+        gwStatus.internalAddress = getInternalAddress();
+        gwStatus.publicAddress = getPublicAddress();
+        gwStatus.gwPort = getGWPort();
+        gwStatus.apisPort = getAPIsPort();
         gwStatus.clientsCount = getServer().getClients().size();
+        gwStatus.maxClientsCount = getMaxClient();
+
         gwStatus.clientsList = new ArrayList<>();
         for (ServerClient c : getServer().getClients())
-            gwStatus.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getRemoteId(), c.getState().isConnected()));
+            gwStatus.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getRemoteId(), c.getState().isConnected(), c.getConnectionInfo().getLocalInfo().toString(), c.getConnectionInfo().getRemoteInfo().toString()));
         return gwStatus;
     }
 

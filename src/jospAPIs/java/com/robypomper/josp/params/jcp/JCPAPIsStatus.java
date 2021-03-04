@@ -36,22 +36,27 @@ public class JCPAPIsStatus {
 
             public final String id;
             public final boolean isConnected;
+            public final String local;
+            public final String remote;
 
-            public Client(String id, boolean isConnected) {
+            public Client(String id, boolean isConnected, String local, String remote) {
                 this.id = id;
                 this.isConnected = isConnected;
+                this.local = local;
+                this.remote = remote;
             }
 
         }
 
         public String id;
         public GWType type;
-        public boolean isRunning;
-        public String address;
-        public String hostName;
-        public String hostNameCanonical;
-        public int port;
+        public String status;
+        public String internalAddress;
+        public String publicAddress;
+        public int gwPort;
+        public int apisPort;
         public int clientsCount;
+        public int maxClientsCount;
         public List<Client> clientsList;
     }
 
