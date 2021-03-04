@@ -2,6 +2,10 @@
 var currentPage = false;
 var backEndUrl = "N/A";
 var frontEndUrl = "N/A";
+var clientId = "jcp-jsl-web-bridge";
+var clientSecret = "7e27c5b9-2a6a-4b4e-b4a7-c8118b2b1083";
+var poolRetryTime = 1000;
+var sessionIntervalTime = 5 * 60 * 1000;
 
 
 // WebApp start
@@ -10,7 +14,8 @@ function startWebApp(entrypointUrl) {
     backEndUrl = entrypointUrl;
     frontEndUrl = document.location.origin;
     fillPreUpdaterInitialization();
-    updater = startUpdater(backEndUrl + "/apis/sse/1.0/init",updateOnMessage,updateOnOpen,updateOnError);
+
+    updater = startUpdater(backEndUrl + "/apis/init/1.0/sse?client_id=" + clientId + "&client_secret=" + clientSecret,updateOnMessage,updateOnOpen,updateOnError);
 }
 
 
@@ -31,8 +36,6 @@ function fillPostUpdaterInitialization() {
 
     pollReady();
 }
-
-var waitTime = 1000;
 
 function pollReady () {
     if (!isConnected)

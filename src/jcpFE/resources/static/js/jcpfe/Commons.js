@@ -11,10 +11,10 @@ function dropDownUserMenu() {
     html += "<div class='dropdown'>";
     html += "  <button class='dropbtn box_opts box_opts_active'><i class='fa fa-bars'></i></button>";
     html += "  <div class='dropdown-content'>";
-    html += "    <a class='logout' href='" + backEndUrl + "/apis/user/1.0/login/?redirect_uri=' onclick=\"location.href=this.href+document.location.href;return false;\"><i class='fa fa-sign-in'></i>Login</a>";
-    //html += "    <a class='logout' href='/apis/user/1.0/registration/'><i class='fa a-id-card-o'></i>Register</a>";
+    html += "    <a class='logout' onclick='login()'><i class='fa fa-sign-in'></i>Login</a>";
+    html += "    <a class='logout' onclick='registration()'><i class='fa fa-id-card-o'></i>Register</a>";
     html += "    <a class='login' href='javascript:showUserContent(true)'><i class='fa a-id-card-o'></i>Profile</a>";
-    html += "    <a class='login' href='" + backEndUrl + "/apis/user/1.0/logout/?redirect_uri=" + frontEndUrl + "'><i class='fa fa-sign-out'></i>Logout</a>";
+    html += "    <a class='login' onclick='logout()'><i class='fa fa-sign-out'></i>Logout</a>";
     html += "    <hr>";
     html += "    <a href='javascript:showJSLStatus(true)'><i class='fa fa-info'></i>JSL Status</a>";
     if (loggedUser_isAdmin)

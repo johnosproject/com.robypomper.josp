@@ -10,6 +10,32 @@ var onUserLoggedListeners = [];
 var onUserLogoutListeners = [];
 
 
+// Login methods
+
+function login() {
+    var loginUrlPath = "/apis/user/1.0/login/?redirect_uri=" +document.location.href;
+    apiGET(backEndUrl,loginUrlPath,function(responseText) {
+        responseText = responseText.replaceAll('"','');
+        window.location.href = responseText;
+    },onErrorFetch);
+}
+
+function registration() {
+    var loginUrlPath = "/apis/user/1.0/registration/?redirect_uri=" +document.location.href;
+    apiGET(backEndUrl,loginUrlPath,function(responseText) {
+        responseText = responseText.replaceAll('"','');
+        window.location.href = responseText;
+    },onErrorFetch);
+}
+
+function logout() {
+    var loginUrlPath = "/apis/user/1.0/logout/?redirect_uri=" +document.location.href;
+    apiGET(backEndUrl,loginUrlPath,function(responseText) {
+        responseText = responseText.replaceAll('"','');
+        window.location.href = responseText;
+    },onErrorFetch);
+}
+
 // Fetch&Fill methods
 
 function fetchUsrMngm() {
