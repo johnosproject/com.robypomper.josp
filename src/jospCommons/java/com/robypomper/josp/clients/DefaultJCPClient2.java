@@ -278,6 +278,14 @@ public class DefaultJCPClient2 implements JCPClient2 {
      * {@inheritDoc}
      */
     @Override
+    public String getAuthRegistrationUrl() {
+        return prepareUrl(true, getRegistrationPath(), true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getAuthCodeRefreshToken() {
         return authCode_refreshToken;
     }
@@ -348,6 +356,16 @@ public class DefaultJCPClient2 implements JCPClient2 {
         String url = "/auth/realms/" + authRealm + "/protocol/openid-connect/logout";
         if (redirectUrl != null)
             url += "?redirect_uri=" + redirectUrl;
+        return url;
+    }
+
+    private String getRegistrationPath() {
+        //http://localhost:8998/auth/realms/jcp/protocol/openid-connect/registrations?client_id=<client_id>&response_type=code&scope=openid email&redirect_uri=http://<domain.com>/<redirect-path>&kc_locale=<two-digit-lang-code>
+        String url = "/auth/realms/" + authRealm + "/protocol/openid-connect/registrations";
+        url += "?client_id=" + clientId;
+        url += "&response_type=code";
+        //url += "&&scope=openid email";
+        url += "&redirect_uri=" + service.getCallback();
         return url;
     }
 

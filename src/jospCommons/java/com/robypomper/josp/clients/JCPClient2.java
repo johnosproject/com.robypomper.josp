@@ -112,6 +112,8 @@ public interface JCPClient2 {
 
     String getAuthLogoutUrl(String redirectUrl);    /* replace getLogoutUrl(String) */
 
+    String getAuthRegistrationUrl();
+
     String getAuthCodeRefreshToken();
 
     boolean isHttps();
@@ -311,7 +313,7 @@ public interface JCPClient2 {
         private static final String HEADER = "WWW-Authenticate";
 
         public Unauthorized_401(String fullUrl, Response response) {
-            super(String.format(MSG, fullUrl, (response.getHeader(HEADER)!=null ? response.getHeader(HEADER) : "N/A")), fullUrl);
+            super(String.format(MSG, fullUrl, (response.getHeader(HEADER) != null ? response.getHeader(HEADER) : "N/A")), fullUrl);
         }
 
     }
