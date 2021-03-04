@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.paths.jslwb;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 
 public class APIJSLWBSrv {
 //@formatter:off
@@ -8,15 +8,15 @@ public class APIJSLWBSrv {
     // API info
 
     public static final String API_NAME = "service";
-    public static final String API_VER = JCPFEVersions.VER_JCPFE_APIs_1_0;
-    public static final String API_PATH = JCPFEVersions.PATH_FE_BASE + "/" + API_NAME;
+    public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
+    public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
 
     // API's SubGroups
 
     public static class SubGroupService {
-        public final static String NAME = "JCP FrontEnd Service";
-        public final static String DESCR = "";
+        public final static String NAME = "Service's Manager";
+        public final static String DESCR = "Methods to query service's info";
     }
 
 
@@ -27,6 +27,11 @@ public class APIJSLWBSrv {
 
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_DETAILS    = API_PATH + "/" + API_VER + "/" + MTHD_DETAILS;
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_DETAILS   = "Return current service's details";
 
 //@formatter:on
 }

@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.paths.jslwb;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 
 public class APIJSLWBAction {
 //@formatter:off
@@ -8,15 +8,15 @@ public class APIJSLWBAction {
     // API info
 
     public static final String API_NAME = "action";
-    public static final String API_VER = JCPFEVersions.VER_JCPFE_APIs_1_0;
-    public static final String API_PATH = JCPFEVersions.PATH_FE_BASE + "/" + API_NAME;
+    public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
+    public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
 
     // API's SubGroups
 
     public static class SubGroupAction {
-        public final static String NAME = "JCP FrontEnd Object's State";
-        public final static String DESCR = "";
+        public final static String NAME = "Object's Actions";
+        public final static String DESCR = "Methods to send object's actions";
     }
 
 
@@ -62,5 +62,22 @@ public class APIJSLWBAction {
     public static String FULL_PATH_RANGE_1_2    (String objId, String compPath){ return FULL_PATH_RANGE_1_2     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
     public static String FULL_PATH_RANGE_1_3    (String objId, String compPath){ return FULL_PATH_RANGE_1_3     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
     public static String FULL_PATH_RANGE_2_3    (String objId, String compPath){ return FULL_PATH_RANGE_2_3     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_BOOL_SWITCH   = "Send action to boolean component, invert the component state";
+    public static final String DESCR_PATH_BOOL_TRUE     = "Send action to boolean component, set the component state to true";
+    public static final String DESCR_PATH_BOOL_FALSE    = "Send action to boolean component, set the component state to false";
+    public static final String DESCR_PATH_RANGE_SET     = "Send action to range component, set the component state to given value";
+    public static final String DESCR_PATH_RANGE_SETg    = "Send action to range component, set the component state to given value";
+    public static final String DESCR_PATH_RANGE_INC     = "Send action to range component, increment the component state of 1 step";
+    public static final String DESCR_PATH_RANGE_DEC     = "Send action to range component, decrease the component state of 1 stop";
+    public static final String DESCR_PATH_RANGE_MAX     = "Send action to range component, set the component state to max";
+    public static final String DESCR_PATH_RANGE_MIN     = "Send action to range component, set the component state to min";
+    public static final String DESCR_PATH_RANGE_1_2     = "Send action to range component, set the component state to 1/2";
+    public static final String DESCR_PATH_RANGE_1_3     = "Send action to range component, set the component state to 1/3";
+    public static final String DESCR_PATH_RANGE_2_3     = "Send action to range component, set the component state to 2/3";
+
 //@formatter:on
 }

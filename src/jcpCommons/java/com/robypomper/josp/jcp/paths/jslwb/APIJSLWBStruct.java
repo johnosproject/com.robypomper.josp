@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.paths.jslwb;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 
 public class APIJSLWBStruct {
 //@formatter:off
@@ -8,15 +8,15 @@ public class APIJSLWBStruct {
     // API info
 
     public static final String API_NAME = "structure";
-    public static final String API_VER = JCPFEVersions.VER_JCPFE_APIs_1_0;
-    public static final String API_PATH = JCPFEVersions.PATH_FE_BASE + "/" + API_NAME;
+    public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
+    public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
 
     // API's SubGroups
 
     public static class SubGroupStructure {
-        public final static String NAME = "JCP FrontEnd Object's structure";
-        public final static String DESCR = "";
+        public final static String NAME = "Object's Structure";
+        public final static String DESCR = "Methods to query service's structure and components";
     }
 
 
@@ -32,5 +32,12 @@ public class APIJSLWBStruct {
 
     public static String FULL_PATH_STRUCT   (String objId)                  { return FULL_PATH_STRUCT   .replace("{obj_id}",objId); }
     public static String FULL_PATH_COMP     (String objId, String compPath) { return FULL_PATH_COMP     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_STRUCT    = "Return the object's full structure";
+    public static final String DESCR_PATH_COMP      = "Return the object's component";
+
 //@formatter:on
 }

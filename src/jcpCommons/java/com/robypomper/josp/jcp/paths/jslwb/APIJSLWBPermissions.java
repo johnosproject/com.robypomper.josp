@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.paths.jslwb;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 
 public class APIJSLWBPermissions {
 //@formatter:off
@@ -8,15 +8,15 @@ public class APIJSLWBPermissions {
     // API info
 
     public static final String API_NAME = "permissions";
-    public static final String API_VER = JCPFEVersions.VER_JCPFE_APIs_1_0;
-    public static final String API_PATH = JCPFEVersions.PATH_FE_BASE + "/" + API_NAME;
+    public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
+    public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
 
     // API's SubGroups
 
     public static class SubGroupPermissions {
-        public final static String NAME = "JCP FrontEnd Object's permissions";
-        public final static String DESCR = "";
+        public final static String NAME = "Object's Permissions";
+        public final static String DESCR = "Methods to get/upd/rem/dup object's permissions";
     }
 
 
@@ -41,5 +41,15 @@ public class APIJSLWBPermissions {
     public static String FULL_PATH_UPD  (String objId, String permId)   { return FULL_PATH_UPD  .replace("{obj_id}",objId).replace("{perm_id}",permId); }
     public static String FULL_PATH_DEL  (String objId, String permId)   { return FULL_PATH_DEL  .replace("{obj_id}",objId).replace("{perm_id}",permId); }
     public static String FULL_PATH_DUP  (String objId, String permId)   { return FULL_PATH_DUP  .replace("{obj_id}",objId).replace("{perm_id}",permId); }
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_LIST  = "Return the object's permissions list";
+    public static final String DESCR_PATH_ADD   = "Send add permission request to object";
+    public static final String DESCR_PATH_UPD   = "Send update permission request to object";
+    public static final String DESCR_PATH_DEL   = "Send remove permission request to object";
+    public static final String DESCR_PATH_DUP   = "Send duplicate permission request to object";
+
 //@formatter:on
 }

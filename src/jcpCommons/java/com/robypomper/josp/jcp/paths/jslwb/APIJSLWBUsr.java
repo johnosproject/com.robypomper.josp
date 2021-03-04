@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.paths.jslwb;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 
 public class APIJSLWBUsr {
 //@formatter:off
@@ -8,15 +8,15 @@ public class APIJSLWBUsr {
     // API info
 
     public static final String API_NAME = "user";
-    public static final String API_VER = JCPFEVersions.VER_JCPFE_APIs_1_0;
-    public static final String API_PATH = JCPFEVersions.PATH_FE_BASE + "/" + API_NAME;
+    public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
+    public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
 
     // API's SubGroups
 
     public static class SubGroupUser {
-        public final static String NAME = "JCP FrontEnd Current user";
-        public final static String DESCR = "";
+        public final static String NAME = "User's Manager";
+        public final static String DESCR = "Methods to query user's info and perform login/logout";
     }
 
 
@@ -35,6 +35,15 @@ public class APIJSLWBUsr {
     public static final String FULL_PATH_LOGIN_CALLBACK = API_PATH + "/" + API_VER + "/" + MTHD_LOGIN_CALLBACK;
     public static final String FULL_PATH_LOGOUT         = API_PATH + "/" + API_VER + "/" + MTHD_LOGOUT;
     public static final String FULL_PATH_REGISTRATION   = API_PATH + "/" + API_VER + "/" + MTHD_REGISTRATION;
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_DETAILS           = "Return user's details";
+    public static final String DESCR_PATH_LOGIN             = "Redirect (or return) to the auth service login url";
+    public static final String DESCR_PATH_LOGIN_CALLBACK    = "Callback method from auth service's login";
+    public static final String DESCR_PATH_LOGOUT            = "Redirect (or return) to the auth service logout url";
+    public static final String DESCR_PATH_REGISTRATION      = "Redirect (or return) to the auth service registration url";
 
 //@formatter:on
 }

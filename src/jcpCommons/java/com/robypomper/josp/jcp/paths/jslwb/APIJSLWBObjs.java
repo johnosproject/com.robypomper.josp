@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.paths.jslwb;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 
 public class APIJSLWBObjs {
 //@formatter:off
@@ -8,15 +8,15 @@ public class APIJSLWBObjs {
     // API info
 
     public static final String API_NAME = "objsmngr";
-    public static final String API_VER = JCPFEVersions.VER_JCPFE_APIs_1_0;
-    public static final String API_PATH = JCPFEVersions.PATH_FE_BASE + "/" + API_NAME;
+    public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
+    public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
 
     // API's SubGroups
 
     public static class SubGroupObjs {
-        public final static String NAME = "JCP FrontEnd Objects Manager";
-        public final static String DESCR = "";
+        public final static String NAME = "Object's Manager";
+        public final static String DESCR = "Methods to query object's info";
     }
 
 
@@ -40,5 +40,15 @@ public class APIJSLWBObjs {
     public static String FULL_PATH_OWNER    (String objId){ return FULL_PATH_OWNER      .replace("{obj_id}",objId); }
     public static String FULL_PATH_NAME     (String objId){ return FULL_PATH_NAME       .replace("{obj_id}",objId); }
     public static String FULL_PATH_EVENTS   (String objId){ return FULL_PATH_EVENTS       .replace("{obj_id}",objId); }
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_LIST      = "Return the list of available objects";
+    public static final String DESCR_PATH_DETAILS   = "Return object's details";
+    public static final String DESCR_PATH_OWNER     = "Set object's owner";
+    public static final String DESCR_PATH_NAME      = "Set object's name";
+    public static final String DESCR_PATH_EVENTS    = "Return object's events list";
+
 //@formatter:on
 }
