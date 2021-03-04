@@ -1,20 +1,21 @@
 package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
+import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
 import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBState;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLComponent;
-import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanAction;
-import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeAction;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLBooleanState;
+import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPStatusHistory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
@@ -32,30 +33,34 @@ import java.util.List;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIJSLWBState.SubGroupState.NAME})
-public class APIJSLWBStateController {
+public class APIJSLWBStateController extends APIJSLWBControllerAbs {
 
     // Internal vars
 
+    private static final Logger log = LoggerFactory.getLogger(APIJSLWBStateController.class);
     @Autowired
-    private JSLSpringService jslService;
-    @Autowired
-    private SwaggerConfigurer swagger;
+    private JSLWebBridgeService webBridgeService;
 
 
-    // Docs configs
+    // Constructors
+
+    public APIJSLWBStateController() {
+        super(APIJSLWBState.API_NAME, APIJSLWBState.API_VER, JCPJSLWBVersions.API_NAME, APIJSLWBState.SubGroupState.NAME, APIJSLWBState.SubGroupState.DESCR);
+    }
+
+
+    // Swagger configs
 
     @Bean
     public Docket swaggerConfig_APIJSLWBState() {
-        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBState.SubGroupState.NAME, APIJSLWBState.SubGroupState.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBState.API_NAME, APIJSLWBState.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        return swaggerConfig();
     }
 
 
     // Methods - Boolean
 
     @GetMapping(path = APIJSLWBState.FULL_PATH_BOOL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "&&Description&&")
+    @ApiOperation(value = APIJSLWBState.DESCR_PATH_BOOL)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -63,7 +68,7 @@ public class APIJSLWBStateController {
     public ResponseEntity<Boolean> jsonBool(@ApiIgnore HttpSession session,
                                             @PathVariable("obj_id") String objId,
                                             @PathVariable("comp_path") String compPath) {
-        JSLBooleanAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLBooleanAction.class);
+        JSLBooleanState comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLBooleanState.class);
         return ResponseEntity.ok(comp.getState());
     }
 
@@ -71,7 +76,7 @@ public class APIJSLWBStateController {
     // Methods - Range
 
     @GetMapping(path = APIJSLWBState.FULL_PATH_RANGE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "&&Description&&")
+    @ApiOperation(value = APIJSLWBState.DESCR_PATH_RANGE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -79,15 +84,15 @@ public class APIJSLWBStateController {
     public ResponseEntity<Double> jsonRange(@ApiIgnore HttpSession session,
                                             @PathVariable("obj_id") String objId,
                                             @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = jslService.getComp(jslService.getHttp(session), objId, compPath, JSLRangeAction.class);
+        JSLRangeState comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeState.class);
         return ResponseEntity.ok(comp.getState());
     }
 
 
     // Methods - History
 
-    @GetMapping(path = APIJSLWBState.FULL_STATUS_HISTORY, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "&&Description&&")
+    @GetMapping(path = APIJSLWBState.FULL_PATH_STATUS_HISTORY, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = APIJSLWBState.DESCR_PATH_STATUS_HISTORY)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -96,14 +101,18 @@ public class APIJSLWBStateController {
                                                                      @PathVariable("obj_id") String objId,
                                                                      @PathVariable("comp_path") String compPath,
                                                                      HistoryLimits limits) {
-        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
-        JSLComponent comp = obj.getStruct().getComponent(compPath);
+        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLComponent comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLComponent.class);
+
         try {
             return ResponseEntity.ok(obj.getStruct().getComponentHistory(comp, limits, 20));
-        } catch (JSLRemoteObject.ObjectNotConnected | JSLRemoteObject.MissingPermission objectNotConnected) {
-            objectNotConnected.printStackTrace();
+
+        } catch (JSLRemoteObject.MissingPermission e) {
+            throw missingPermissionsExceptionOnHistoryRequest(objId, compPath, e);
+
+        } catch (JSLRemoteObject.ObjectNotConnected e) {
+            throw objNotConnectedExceptionOnHistoryRequest(objId, compPath, e);
         }
-        return null;
     }
 
 }

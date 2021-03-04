@@ -1,25 +1,24 @@
 package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
-import com.robypomper.josp.jcp.info.JCPFEVersions;
-import com.robypomper.josp.jcp.jslwebbridge.jsl.JSLSpringService;
+import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
+import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
 import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBObjs;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
-import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.annotations.ApiIgnore;
 import springfox.documentation.spring.web.plugins.Docket;
 
@@ -30,59 +29,60 @@ import java.util.List;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {APIJSLWBObjs.SubGroupObjs.NAME})
-public class APIJSLWBObjsController {
+public class APIJSLWBObjsController extends APIJSLWBControllerAbs {
 
     // Internal var
 
+    private static final Logger log = LoggerFactory.getLogger(APIJSLWBObjsController.class);
     @Autowired
-    private JSLSpringService jslService;
-    @Autowired
-    private SwaggerConfigurer swagger;
+    private JSLWebBridgeService webBridgeService;
 
 
-    // Docs configs
+    // Constructors
+
+    public APIJSLWBObjsController() {
+        super(APIJSLWBObjs.API_NAME, APIJSLWBObjs.API_VER, JCPJSLWBVersions.API_NAME, APIJSLWBObjs.SubGroupObjs.NAME, APIJSLWBObjs.SubGroupObjs.DESCR);
+    }
+
+
+    // Swagger configs
 
     @Bean
     public Docket swaggerConfig_APIJSLWBObjs() {
-        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIJSLWBObjs.SubGroupObjs.NAME, APIJSLWBObjs.SubGroupObjs.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJSLWBObjs.API_NAME, APIJSLWBObjs.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+        return swaggerConfig();
     }
 
 
     // Methods - Objs List
 
-    public static List<JOSPObjHtml> objectsList(List<JSLRemoteObject> objs) {
-        // Convert object list
-        List<JOSPObjHtml> objHtml = new ArrayList<>();
-        for (JSLRemoteObject o : objs)
-            objHtml.add(new JOSPObjHtml(o));
-
-        return objHtml;
-    }
-
     @GetMapping(path = APIJSLWBObjs.FULL_PATH_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Provide the objects list")
+    @ApiOperation(value = APIJSLWBObjs.DESCR_PATH_LIST)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<List<JOSPObjHtml>> jsonObjectsList(@ApiIgnore HttpSession session) {
-        return ResponseEntity.ok(objectsList(jslService.listObjects(jslService.getHttp(session))));
+        JSL jsl = webBridgeService.getJSL(session.getId());
+
+        List<JOSPObjHtml> objHtml = new ArrayList<>();
+        for (JSLRemoteObject o : jsl.getObjsMngr().getAllObjects())
+            objHtml.add(new JOSPObjHtml(o));
+
+        return ResponseEntity.ok(objHtml);
     }
 
 
     // Methods - Objs Details
 
     @GetMapping(path = APIJSLWBObjs.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "&&Description&&")
+    @ApiOperation(value = APIJSLWBObjs.DESCR_PATH_DETAILS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<JOSPObjHtml> jsonObjectDetails(@ApiIgnore HttpSession session,
                                                          @PathVariable("obj_id") String objId) {
-        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
+        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
         return ResponseEntity.ok(new JOSPObjHtml(obj));
     }
 
@@ -90,7 +90,7 @@ public class APIJSLWBObjsController {
     // Set owner and name
 
     @PostMapping(path = APIJSLWBObjs.FULL_PATH_OWNER, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "&&Description&&")
+    @ApiOperation(value = APIJSLWBObjs.DESCR_PATH_OWNER)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -98,27 +98,23 @@ public class APIJSLWBObjsController {
     public ResponseEntity<Boolean> jsonObjectOwner(@ApiIgnore HttpSession session,
                                                    @PathVariable("obj_id") String objId,
                                                    @RequestParam("new_owner") String newOwner) {
-        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
-
-        // Check permission (Preventive)
-        if (JSLSpringService.getObjPerm(obj) != JOSPPerm.Type.CoOwner)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on update permission to '%s' object.", objId));
+        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
 
         try {
             obj.getInfo().setOwnerId(newOwner);
 
         } catch (JSLRemoteObject.MissingPermission e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on set owner to '%s' object.", objId), e);
+            throw missingPermissionsException(objId, "set owner id", e);
 
         } catch (JSLRemoteObject.ObjectNotConnected e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Can't send 'set owner' message because '%s' object is not connected.", objId), e);
+            throw objNotConnectedException(objId, "set owner id", e);
         }
 
         return ResponseEntity.ok(true);
     }
 
     @PostMapping(path = APIJSLWBObjs.FULL_PATH_NAME, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "&&Description&&")
+    @ApiOperation(value = APIJSLWBObjs.DESCR_PATH_NAME)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -126,16 +122,16 @@ public class APIJSLWBObjsController {
     public ResponseEntity<Boolean> jsonObjectName(@ApiIgnore HttpSession session,
                                                   @PathVariable("obj_id") String objId,
                                                   @RequestParam("new_name") String newName) {
+        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
 
-        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
         try {
             obj.getInfo().setName(newName);
 
         } catch (JSLRemoteObject.MissingPermission e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on rename '%s' object.", objId), e);
+            throw missingPermissionsException(objId, "set name", e);
 
         } catch (JSLRemoteObject.ObjectNotConnected e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Can't send rename message because '%s' object is not connected.", objId), e);
+            throw objNotConnectedException(objId, "set name", e);
         }
 
         return ResponseEntity.ok(true);
@@ -145,7 +141,7 @@ public class APIJSLWBObjsController {
     // Events
 
     @GetMapping(path = APIJSLWBObjs.FULL_PATH_EVENTS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "&&Description&&")
+    @ApiOperation(value = APIJSLWBObjs.DESCR_PATH_EVENTS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -153,12 +149,16 @@ public class APIJSLWBObjsController {
     public ResponseEntity<List<JOSPEvent>> jsonObjectEvents(@ApiIgnore HttpSession session,
                                                             @PathVariable("obj_id") String objId,
                                                             HistoryLimits limits) {
-        JSLRemoteObject obj = jslService.getObj(jslService.getHttp(session), objId);
+        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+
         try {
             return ResponseEntity.ok(obj.getInfo().getEventsHistory(limits, 20));
 
-        } catch (JSLRemoteObject.ObjectNotConnected | JSLRemoteObject.MissingPermission e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Permission denied to current user/service on list events from '%s' object.", objId), e);
+        } catch (JSLRemoteObject.MissingPermission e) {
+            throw missingPermissionsException(objId, "get events", e);
+
+        } catch (JSLRemoteObject.ObjectNotConnected e) {
+            throw objNotConnectedException(objId, "get events", e);
         }
     }
 
