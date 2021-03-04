@@ -38,16 +38,21 @@ function fillPostUpdaterInitialization() {
 }
 
 function pollReady () {
-    if (!isConnected)
-        setTimeout(pollReady, waitTime);
+    if (!isConnected) {
+        setTimeout(pollReady, poolRetryTime);
+        return;
+    }
 
-    else if (isAuthenticated==null
-     || serviceId==null)
-        setTimeout(pollReady, waitTime);
+    if (isAuthenticated==null
+     || serviceId==null) {
+        setTimeout(pollReady, poolRetryTime);
+        return;
+    }
 
-    else
-        if (!fillRequiredContent(document.location))        // fill required content
-            showHome(false);                                // or default (showHome)
+
+    if (!fillRequiredContent(document.location))        // fill required content
+        showHome(false);                                // or default (showHome)
+    startSessionHeartBeat();
 }
 
 function fillRequiredContent(documentUrl) {
@@ -128,3 +133,14 @@ function setNewPageHistory(page,title,extra) {
 window.onpopstate = function(event) {
     fillRequiredContent(document.location,false);
 };
+
+
+// Session heartbeat
+
+function startSessionHeartBeat() {
+    window.setTimeout(function() {
+        apiGET(backEndUrl,"/apis/JCP/2.0/status",function(responseText) {
+            startSessionHeartBeat();
+        },onErrorFetch);
+    },sessionIntervalTime);
+}
