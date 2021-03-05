@@ -32,8 +32,9 @@ public class JSLWebBridgeService {
 
     @Autowired
     protected JSLWebBridgeService(JSLParams jslParams,
+                                  @Value("${jcp.jsl.remove.delay:900}") int jslRemoveScheduledDelaySeconds,
                                   @Value("${jcp.jsl.heartbeat.delay:60}") int heartbeatTimerDelaySeconds) {
-        webBridge = new JSLWebBridge(jslParams, heartbeatTimerDelaySeconds);
+        webBridge = new JSLWebBridge(jslParams, jslRemoveScheduledDelaySeconds, heartbeatTimerDelaySeconds);
     }
 
 

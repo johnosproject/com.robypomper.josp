@@ -2,6 +2,7 @@ spring.application.name: jcpJSLWebBridge
 server.port: 9003
 spring.profiles.active: auth, data-none, ssl, cors
 
+jcp.jsl.remove.delay: 900
 jcp.jsl.heartbeat.delay: 60
 
 # JCP Clients
