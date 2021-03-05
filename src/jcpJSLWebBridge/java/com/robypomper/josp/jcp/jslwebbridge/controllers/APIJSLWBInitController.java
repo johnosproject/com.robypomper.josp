@@ -2,7 +2,7 @@ package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
 import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
-import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
+import com.robypomper.josp.jcp.params.jslwb.JSLStatus;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBInit;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import io.swagger.annotations.Api;
@@ -57,12 +57,33 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
     }
 
 
+    // Methods - JSL Instance Status
+
+    @GetMapping(path = APIJSLWBInit.FULL_PATH_JSL_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = APIJSLWBInit.DESCR_PATH_JSL_STATUS)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = JSLStatus.class),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<JSLStatus> statusJSL(@ApiIgnore HttpSession session) {
+        boolean isJSLInit = false;
+        try {
+            webBridgeService.getJSL(session.getId());
+            isJSLInit = true;
+
+        } catch (ResponseStatusException ignore) {
+        }
+
+        return ResponseEntity.ok(new JSLStatus(session.getId(), isJSLInit));
+    }
+
+
     // Methods - Init JSL Instance
 
     @GetMapping(path = APIJSLWBInit.FULL_PATH_INIT_JSL, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = APIJSLWBInit.DESCR_PATH_INIT_JSL)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> initJSL(@ApiIgnore HttpSession session,
@@ -85,13 +106,13 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
     @GetMapping(path = APIJSLWBInit.FULL_PATH_INIT_SSE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ApiOperation(value = APIJSLWBInit.DESCR_PATH_INIT_SSE)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = SseEmitter.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public SseEmitter initSSE(@ApiIgnore HttpSession session,
                               @ApiIgnore HttpServletResponse response,
-                              @RequestParam("client_id") String clientId,
-                              @RequestParam("client_secret") String clientSecret) {
+                              @RequestParam(name = "client_id", required = false) String clientId,
+                              @RequestParam(name = "client_secret", required = false) String clientSecret) {
         if (clientId != null)
             initJSL(session, clientId, clientSecret);
 

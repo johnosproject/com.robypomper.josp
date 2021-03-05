@@ -41,7 +41,6 @@ public class JSLWebBridge {
     public static final String HEART_BEAT = "HB";
     public static final boolean LOC_COMM_ENABLED = false;
     public static final String TH_SCHEDULE_JSL_REMOVE = "SCHEDULE_JSL_REMOVE";
-    public static final int TH_SCHEDULE_JSL_REMOVE_DELAY_MS = 30 * 1000;
     public static final String TH_EMITTERS_HEARTBEAT = "EMITTERS_HEARTBEAT";
 
 
@@ -98,6 +97,7 @@ public class JSLWebBridge {
     // jsl instances
     private final Map<String, JSL> jslInstances = new HashMap<>();
     private final Map<String, Timer> jslRemoveTimers = new HashMap<>();
+    private final int jslRemoveScheduledDelaySeconds;
     // sse emitters
     private final Map<String, Map<String, SseEmitter>> jslEmitters = new HashMap<>();
     private final Map<SseEmitter, Integer> jslEmittersCounts = new HashMap<>();
@@ -121,8 +121,10 @@ public class JSLWebBridge {
     // Constructors
 
     public JSLWebBridge(JSLParams jslParams,
+                        int jslRemoveScheduledDelaySeconds,
                         int heartbeatTimerDelaySeconds) {
         this.jslParams = jslParams;
+        this.jslRemoveScheduledDelaySeconds = jslRemoveScheduledDelaySeconds;
         this.heartbeatTimerDelaySeconds = heartbeatTimerDelaySeconds;
         startHeartBeatTimer();
     }
@@ -234,7 +236,7 @@ public class JSLWebBridge {
         if (jslRemoveTimers.get(sessionId) != null)
             return;
 
-        Timer timer = JavaTimers.initAndStart(new ScheduleJSLRemove(sessionId), TH_SCHEDULE_JSL_REMOVE, TH_SCHEDULE_JSL_REMOVE_DELAY_MS);
+        Timer timer = JavaTimers.initAndStart(new ScheduleJSLRemove(sessionId), TH_SCHEDULE_JSL_REMOVE, jslRemoveScheduledDelaySeconds);
         log.debug(String.format(LOG_SCHEDULE_JSL_REMOVE, sessionId));
         jslRemoveTimers.put(sessionId, timer);
     }

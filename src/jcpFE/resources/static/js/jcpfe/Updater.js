@@ -42,6 +42,21 @@ function updateOnMessage(event) {
         warnSSE("UNKNOW DATA (" + data + ")");
 }
 
+function updateOnOpen(event) {
+    logSSE("Connected");
+    emitOnConnected();
+}
+
+function updateOnError(event) {
+    logSSE("Disconnected");
+    updater.close()
+    tryReConnectUpdater();
+    emitOnDisconnected();
+}
+
+
+// Message processing methods
+
 function processJCPAPIs(event) {
     if (event.what == "JCP_APIS_CONN") {
         // event.url
@@ -198,7 +213,7 @@ function processObjUpdate(event) {
         // event.new
         // event.old
         emitStateUpd(event.objId,event.compPath);
-        debugSSE("Received 'OBJ_UPD_COMP' on " + event.objId + " value = " + event.new);
+        debugSSE("Received 'OBJ_UPD_COMP' on " + event.objId + " for " + event.compPath + " value = " + event.new);
         return true;
 
     } else if (event.what == "OBJ_UPD_INFO_NAME") {
@@ -253,15 +268,20 @@ function processObjUpdate(event) {
     return false;
 }
 
-function updateOnOpen(event) {
-    logSSE("Connected");
-    emitOnConnected();
+
+// Error processing methods
+
+function tryReConnectUpdater() {
+    var timer = setInterval(function() {
+        if (initJSLInstanceAndSSE())
+            clearInterval(timer);
+        else
+            updater.close();
+    }, 5000);
 }
 
-function updateOnError(event) {
-    logSSE("Disconnected");
-    emitOnDisconnected();
-}
+
+// Log methods
 
 function debugSSE(msg) {
     console.debug("[" + dateToString(new Date()) + " @ SSE] " + msg);

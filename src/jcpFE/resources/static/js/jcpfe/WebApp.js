@@ -2,8 +2,6 @@
 var currentPage = false;
 var backEndUrl = "N/A";
 var frontEndUrl = "N/A";
-var clientId = "jcp-jsl-web-bridge";
-var clientSecret = "7e27c5b9-2a6a-4b4e-b4a7-c8118b2b1083";
 var poolRetryTime = 1000;
 var sessionIntervalTime = 5 * 60 * 1000;
 
@@ -15,7 +13,26 @@ function startWebApp(entrypointUrl) {
     frontEndUrl = document.location.origin;
     fillPreUpdaterInitialization();
 
-    updater = startUpdater(backEndUrl + "/apis/init/1.0/sse?client_id=" + clientId + "&client_secret=" + clientSecret,updateOnMessage,updateOnOpen,updateOnError);
+    initJSLInstanceAndSSE();
+}
+
+function initJSLInstanceAndSSE() {
+    // Query JSL Instance status to WB
+    // If JSL Instance is NOT Init
+    //   Init JSL Instance via FE (with WB's sessionId)
+    // Start updater
+
+    var jslInstStatusResponse = apiGETSync(backEndUrl,"/apis/init/1.0/sessionStatus");
+    if (jslInstStatusResponse.status != 200)
+        return false;
+
+    var jslInstStatus = JSON.parse(jslInstStatusResponse.responseText);
+    if (!jslInstStatus.isJSLInit)
+        if (apiGETSync("","/jslwbsession?session_id=" + jslInstStatus.sessionId).status != 200)
+            return false;
+
+    updater = startUpdater(backEndUrl + "/apis/init/1.0/sse",updateOnMessage,updateOnOpen,updateOnError);
+    return true;
 }
 
 

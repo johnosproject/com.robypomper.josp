@@ -6,46 +6,61 @@
 This file provide all functions required for Ajax Calls (Get and POST).
 */
 
-var csrfToken = null;
-var csrfHeader = null;
-
 // Get calls
+
+function apiGETSync(baseUrl,path) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", baseUrl + path, false);
+
+    _apiGET(xhttp);
+    return xhttp;
+}
+
+async function apiGETSyncRetry(baseUrl,path,retryTime) {
+    if (retryTime==null) retryTime=1000;
+
+    var xhttp = apiGETSync(baseUrl,path);
+    if (xhttp.status != 200) {
+        await sleep(retryTime);
+        return apiGETSync(baseUrl,path);
+    }
+}
 
 function apiGET(baseUrl,path,processResponse,processError) {
     var xhttp = new XMLHttpRequest();
-
     xhttp.onreadystatechange = function() {
-        if (this.readyState == 4)
-            if (this.status == 200)
-                processResponse(this.responseText);
+        if (xhttp.readyState == 4)
+            if (xhttp.status == 200)
+                processResponse(xhttp.responseText);
             else
-                processError(this);
-
+                processError(xhttp);
     };
     xhttp.onerror = function() {
-        processError(this);
+        processError(xhttp);
     };
-
     xhttp.open("GET", baseUrl + path, true);
-    var cookies="";
-    xhttp.withCredentials = true;
-    //if (csrfToken!=null)
-    //    xhttp.setRequestHeader(csrfHeader, csrfToken)
 
-    try {
-        xhttp.send();
-    } catch {}
+    _apiGET(xhttp);
 }
 
 function apiGET_retry(baseUrl,path,processResponse,processError,retryTime) {
     if (retryTime==null) retryTime=1000;
 
     apiGET(baseUrl,path,processResponse,
-        async function onError_RetryFetchObjDetails() {
-            await new Promise(r => setTimeout(r, retryTime));
+        async function apiGET_retryFail() {
+            await sleep(retryTime);
             apiGET(baseUrl,path,processResponse,processError);
         }
-    );}
+    );
+}
+
+function _apiGET(xhttp) {
+    xhttp.withCredentials = true;
+
+    try {
+        xhttp.send();
+    } catch {}
+}
 
 
 // Post calls
@@ -117,7 +132,8 @@ function apiOPTIONS(baseUrl,path,processResponse,processError) {
 }
 
 
-function setCsrf(token,header) {
-    csrfToken = token;
-    csrfHeader = header;
+// Utils methods
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
