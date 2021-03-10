@@ -24,7 +24,8 @@ import com.robypomper.java.JavaJKS;
 import com.robypomper.josp.jcp.gws.gw.GWAbs;
 import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
 import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
-import com.robypomper.josp.jcp.paths.gws.APIGWsGWs;
+import com.robypomper.josp.jcp.info.JCPGWsVersions;
+import com.robypomper.josp.jcp.paths.gws.JCPGWsAccessInfo;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jcp.utils.ParamChecks;
 import com.robypomper.josp.params.jospgws.*;
@@ -34,6 +35,7 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import java.security.cert.Certificate;
@@ -53,29 +56,34 @@ import java.security.cert.CertificateEncodingException;
  * to current JCP GWs.
  */
 @RestController
-@Api(tags = {APIGWsGWs.SubGroupGWs.NAME})
-public class APIGWsGWsController {
+@Api(tags = {JCPGWsAccessInfo.SubGroupGWs.NAME})
+public class JCPGWsAccessInfoController {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(APIGWsGWsController.class);
-    private final GWServiceO2S gwO2SService;
-    private final GWServiceS2O gwS2OService;
-
-
-    // Constructor
-
+    private static final Logger log = LoggerFactory.getLogger(JCPGWsAccessInfoController.class);
     @Autowired
-    protected APIGWsGWsController(GWServiceO2S gwO2SService, GWServiceS2O gwS2OService) {
-        this.gwO2SService = gwO2SService;
-        this.gwS2OService = gwS2OService;
+    private GWServiceO2S gwO2SService;
+    @Autowired
+    private GWServiceS2O gwS2OService;
+    @Autowired
+    private SwaggerConfigurer swagger;
+
+
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_JCPGWsAccessInfo() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(JCPGWsAccessInfo.SubGroupGWs.NAME, JCPGWsAccessInfo.SubGroupGWs.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(JCPGWsAccessInfo.API_NAME, JCPGWsAccessInfo.API_VER, JCPGWsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
     }
 
 
     // Methods
 
-    @PostMapping(path = APIGWsGWs.FULL_PATH_O2S_ACCESS)
-    @ApiOperation(value = "Set object's certificate and request JOSPGw O2S access info",
+    @PostMapping(path = JCPGWsAccessInfo.FULL_PATH_O2S_ACCESS)
+    @ApiOperation(value = JCPGWsAccessInfo.DESCR_PATH_O2S_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
@@ -108,8 +116,8 @@ public class APIGWsGWsController {
     }
 
 
-    @PostMapping(path = APIGWsGWs.FULL_PATH_S2O_ACCESS)
-    @ApiOperation(value = "Set service's certificate and request JOSPGw S2O access info",
+    @PostMapping(path = JCPGWsAccessInfo.FULL_PATH_S2O_ACCESS)
+    @ApiOperation(value = JCPGWsAccessInfo.DESCR_PATH_S2O_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
