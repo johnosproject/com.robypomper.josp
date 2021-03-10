@@ -177,7 +177,11 @@ function fetchAdminContent() {
 }
 
 function fetchAdminContentHeader() {
-    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status",fillAdminContentHeaderAPIs,onErrorFetch);    // OK
+    //apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status",alert("GWs Status OK"),alert("GWs Status ERR"));    // OK
+    apiGET(backEndUrl,pathJSLWB_Admin_APIs_Instance,fillAdminContentHeaderAPIs,onErrorFetch);    // OK
+    apiGET(backEndUrl,pathJSLWB_Admin_GWs_Instance,function() {alert("GWs Status OK")},function(){alert("GWs Status ERR")});    // OK
+    apiGET(backEndUrl,pathJSLWB_Admin_JSLWB_Instance,function(){alert("JSL WB Status OK")},function(){alert("JSL WB Status ERR")});    // OK
+    apiGET(backEndUrl,pathJSLWB_Admin_FE_Instance,function(){alert("FE Status OK")},function(){alert("FE Status ERR")});    // OK
 }
 
 function fillAdminContent(adminJson) {
@@ -218,7 +222,7 @@ function htmlAdminContentGWs() {
 }
 
 function fetchAdminContentGWs(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/gws/status/clients",fillAdminContentGWs,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Admin_GWs_Servers,fillAdminContentGWs,onErrorFetch);
 }
 
 function fillAdminContentGWs(jcpGWsJson) {
@@ -295,7 +299,7 @@ function htmlAdminContentObjects() {
 }
 
 function fetchAdminContentObjects(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/objs",fillAdminContentObjects,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Admin_APIs_Objs,fillAdminContentObjects,onErrorFetch);
 }
 
 function fillAdminContentObjects(jcpObjsJson) {
@@ -340,7 +344,7 @@ function htmlAdminContentServices() {
 }
 
 function fetchAdminContentServices(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/srvs",fillAdminContentServices,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Admin_APIs_Srvs,fillAdminContentServices,onErrorFetch);
 }
 
 function fillAdminContentServices(jcpObjsJson) {
@@ -382,7 +386,7 @@ function htmlAdminContentUsers() {
 }
 
 function fetchAdminContentUsers(objId) {
-    apiGET(backEndUrl,"/apis/JCP/2.0/jslwb/status/apis/status/usrs",fillAdminContentUsers,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Admin_APIs_Usrs,fillAdminContentUsers,onErrorFetch);
 }
 
 function fillAdminContentUsers(jcpObjsJson) {

@@ -23,9 +23,13 @@ import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIJCP;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPGWsClient;
-import com.robypomper.josp.params.jcp.JCPAPIsStatus;
-import com.robypomper.josp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.paths.jcp.APIJCP;
+import com.robypomper.josp.jcp.paths.gws.JCPGWsAccessInfo;
+import com.robypomper.josp.params.jcp.GWsStatus;
+import com.robypomper.josp.params.jospgws.O2SAccessInfo;
+import com.robypomper.josp.params.jospgws.O2SAccessRequest;
+import com.robypomper.josp.params.jospgws.S2OAccessInfo;
+import com.robypomper.josp.params.jospgws.S2OAccessRequest;
+import com.robypomper.josp.paths.jcp.JCPStatusAbs;
 
 import java.util.List;
 
@@ -47,14 +51,47 @@ public class GWsClient extends AbsAPIJCP {
     }
 
 
-    // Generator methods
+    // JCP GWs Status
 
-    public JCPGWsStatus getJCPGWsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_GWS_STATUS, JCPGWsStatus.class, isSecure());
+    public GWsStatus getJCPGWsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, JCPStatusAbs.FULL_PATH_STATUS_INSTANCE, GWsStatus.class, isSecure());
     }
 
-    public List<JCPAPIsStatus.GWs> getJCPAPIsStatusGWsCliReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_GWS_STATUS_CLI, List.class, isSecure());
+    public List<GWsStatus.Server> getJCPAPIsStatusGWsCliReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, com.robypomper.josp.jcp.paths.gws.JCPGWsStatus.FULL_PATH_GWS_STATUS_CLI, List.class, isSecure());
+    }
+
+
+    // Access Info methods
+
+    /**
+     * Request to the JCP object's access info for Gateway O2S connection.
+     * <p>
+     * Object send his public certificate and instance id to the GW O2S and
+     * the JCP respond with the GW O2S's address, port and public certificate.
+     *
+     * @return the GW O2S access info.
+     */
+    public O2SAccessInfo getO2SAccessInfo(String objId, O2SAccessRequest accessRequestParams) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        getClient().setObjectId(objId);
+        O2SAccessInfo response = jcpClient.execReq(Verb.POST, JCPGWsAccessInfo.FULL_PATH_O2S_ACCESS, O2SAccessInfo.class, accessRequestParams, isSecure());
+        getClient().setObjectId(null);
+        return response;
+    }
+
+    /**
+     * Request to the JCP service's access info for Gateway S2O connection.
+     * <p>
+     * Service send his public certificate and instance id to the GW S2O and
+     * the JCP respond with the GW S2O's address, port and public certificate.
+     *
+     * @return the GW S2O access info.
+     */
+    public S2OAccessInfo getS2OAccessInfo(String srvId, S2OAccessRequest accessRequestParams) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        getClient().setServiceId(srvId);
+        S2OAccessInfo response = jcpClient.execReq(Verb.POST, JCPGWsAccessInfo.FULL_PATH_S2O_ACCESS, S2OAccessInfo.class, accessRequestParams, isSecure());
+        getClient().setServiceId(null);
+        return response;
     }
 
 }

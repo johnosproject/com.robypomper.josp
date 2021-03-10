@@ -1,16 +1,22 @@
 package com.robypomper.josp.jcp.fe.controllers;
 
 import com.robypomper.josp.jcp.clients.ClientParams;
+import com.robypomper.josp.jcp.info.JCPFEVersions;
+import com.robypomper.josp.jcp.paths.fe.APIFEEntryPoint;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBInit;
+import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.spring.web.plugins.Docket;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,18 +26,16 @@ import java.net.URL;
 
 @SuppressWarnings("unused")
 @RestController
-/*@Api(tags = {APIJCP.SubGroupAPIsStatus.NAME})*/ /* Private API used only by FE's javascript code*/
+@Api(tags = {APIFEEntryPoint.SubGroupEntryPoint.NAME})
 public class APIFEEntryPointController {
-
-    public static final String URL_ENTRYPOINT = "/entrypoint";
-    public static final String URL_INIT_JSL_SESSION = "/jslwbsession";
-
 
     // Internal vars
 
     private final String jslWBUrl;
     private final String clientId;
     private final String clientSecret;
+    @Autowired
+    private SwaggerConfigurer swagger;
 
 
     // Constructor
@@ -45,10 +49,20 @@ public class APIFEEntryPointController {
     }
 
 
+    // Docs configs
+
+    @Bean
+    public Docket swaggerConfig_JCPFEEntryPoint() {
+        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
+        sg[0] = new SwaggerConfigurer.APISubGroup(APIFEEntryPoint.SubGroupEntryPoint.NAME, APIFEEntryPoint.SubGroupEntryPoint.DESCR);
+        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIFEEntryPoint.API_NAME, APIFEEntryPoint.API_VER, JCPFEVersions.API_NAME, sg), swagger.getUrlBaseAuth());
+    }
+
+
     // Methods
 
-    @GetMapping(path = URL_ENTRYPOINT)
-    @ApiOperation(value = "Return JCP FE Backend entry point")
+    @GetMapping(path = APIFEEntryPoint.FULL_PATH_ENTRYPOINT)
+    @ApiOperation(value = APIFEEntryPoint.DESCR_PATH_ENTRYPOINT)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP FE Backend entry point url", response = String.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
@@ -58,8 +72,8 @@ public class APIFEEntryPointController {
         return ResponseEntity.ok(jslWBUrl);
     }
 
-    @GetMapping(path = URL_INIT_JSL_SESSION)
-    @ApiOperation(value = "Send a JSL Init request to JCP JSL WebBridge")
+    @GetMapping(path = APIFEEntryPoint.FULL_PATH_INIT_JSL_SESSION)
+    @ApiOperation(value = APIFEEntryPoint.DESCR_PATH_INIT_JSL_SESSION)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP FE Backend entry point", response = Boolean.class),
             @ApiResponse(code = 401, message = "User not authenticated"),

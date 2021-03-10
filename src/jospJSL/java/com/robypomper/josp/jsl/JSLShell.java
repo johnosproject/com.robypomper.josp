@@ -225,6 +225,7 @@ public class JSLShell {
                 new CmdsJCPClient(jsl.getJCPClient()),
                 new CmdsJSLServiceInfo(jsl.getServiceInfo()),
                 new CmdsJSLUserMngr(jsl.getUserMngr()),
+                new CmdsJSLAdmin(jsl.getAdmin()),
                 new CmdsJSLCommunication(jsl.getCommunication()),
                 new CmdsJSLObjsMngr(jsl.getObjsMngr())
         );

@@ -26,7 +26,7 @@ public class APIObjs {
 
     // API info
 
-    public static final String API_NAME = "Object";
+    public static final String API_NAME = "Objs";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
     public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
@@ -35,7 +35,7 @@ public class APIObjs {
 
     public static class SubGroupInfo {
         public final static String NAME = "Object's info";
-        public final static String DESCR = "Register/get object info, generate object ids...";
+        public final static String DESCR = "Register/get object info, generate object ids";
     }
 
 
@@ -53,6 +53,13 @@ public class APIObjs {
 
 
     public static final String HEADER_OBJID = "JOSP-Obj-ID";
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_GENERATEID    = "Generate and return an obj's id for a new object";
+    public static final String DESCR_PATH_REGENERATEID  = "Generate and return an obj's id for a existing object";
+    public static final String DESCR_PATH_HISTORY       = "Store given statuses as caller object's statuses history";
 
 //@formatter:on
 }

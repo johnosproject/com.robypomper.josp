@@ -23,8 +23,7 @@ import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.apis.mngs.GWsManager;
-import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.clients.gws.apis.APIGWsGWsClient;
+import com.robypomper.josp.jcp.clients.jcp.jcp.GWsClient;
 import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
@@ -70,8 +69,6 @@ public class APIGWsController {
     private GWsManager gwManager;
     @Autowired
     private SwaggerConfigurer swagger;
-    @Autowired
-    private ClientParams gwsClientsParams;
 
 
     // Docs configs
@@ -87,7 +84,7 @@ public class APIGWsController {
     // Methods
 
     @PostMapping(path = APIGWs.FULL_PATH_O2S_ACCESS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Set object's certificate and request JOSPGw O2S access info",
+    @ApiOperation(value = APIGWs.DESCR_PATH_O2S_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -112,7 +109,7 @@ public class APIGWsController {
         if (gw == null)
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s JCP GWs available.", GWType.Obj2Srv));
 
-        APIGWsGWsClient apiGWsGWs = gwManager.getAPIGWsGWsClient(gw);
+        GWsClient apiGWsGWs = gwManager.getGWsClient(gw);
         O2SAccessInfo accessInfo;
         try {
             accessInfo = apiGWsGWs.getO2SAccessInfo(objId, accessRequest);
@@ -129,7 +126,7 @@ public class APIGWsController {
 
 
     @PostMapping(path = APIGWs.FULL_PATH_S2O_ACCESS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Set service's certificate and request JOSPGw S2O access info",
+    @ApiOperation(value = APIGWs.DESCR_PATH_S2O_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(
@@ -154,7 +151,7 @@ public class APIGWsController {
         if (gw == null)
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s JCP GWs available.", GWType.Srv2Obj));
 
-        APIGWsGWsClient apiGWsGWs = gwManager.getAPIGWsGWsClient(gw);
+        GWsClient apiGWsGWs = gwManager.getGWsClient(gw);
         S2OAccessInfo accessInfo;
         try {
             accessInfo = apiGWsGWs.getS2OAccessInfo(srvId, accessRequest);

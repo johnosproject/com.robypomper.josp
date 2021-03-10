@@ -3,7 +3,6 @@ package com.robypomper.josp.jcp.gws.db;
 import com.robypomper.java.JavaStructures;
 import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
-import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
@@ -19,7 +18,6 @@ public class ObjsDBManager {
 
     // Internal vars
 
-    private final JCPAPIGWsClient jcpAPIsGWs;
     private final Map<String, ObjDB> objsDB = new HashMap<>();
     private final BrokerObjDB broker;
     private final ObjectDBService objectDBService;
@@ -36,8 +34,6 @@ public class ObjsDBManager {
         this.permissionsDBService = permissionsDBService;
 
         JCPAPIsClient jcpAPIsClient = new JCPAPIsClient(jcpAPIsParams, jcpAPIsUrl, false);
-        this.jcpAPIsGWs = new JCPAPIGWsClient(jcpAPIsClient);
-        //this.jcpAPIsGWs.getClient().addConnectionListener(jcpAPIsListener_GWRegister);
 
         loadObjsFromDB();
     }

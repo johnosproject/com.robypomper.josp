@@ -95,8 +95,8 @@ public class APIPermissionsController {
      * @param strategy the strategy to use for permission generation.
      * @return a set of object's permissions.
      */
-    @GetMapping(path = APIPermissions.FULL_PATH_OBJGENERATE + "/{strategy}")
-    @ApiOperation(value = "Generate object permission set",
+    @GetMapping(path = APIPermissions.FULL_PATH_OBJGENERATE)
+    @ApiOperation(value = APIPermissions.DESCR_PATH_OBJGENERATE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(

@@ -15,11 +15,11 @@ import com.robypomper.java.JavaSSL;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
-import com.robypomper.josp.jcp.clients.apis.gws.JCPAPIGWsClient;
+import com.robypomper.josp.jcp.clients.jcp.jcp.APIsClient;
 import com.robypomper.josp.jcp.info.JCPGWsVersions;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.params.jcp.JCPAPIsStatus;
+import com.robypomper.josp.params.jcp.GWsStatus;
 import com.robypomper.josp.params.jospgws.AccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.params.jospgws.S2OAccessInfo;
@@ -48,7 +48,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     private final Logger log;
     private final GWType gwType;
     private final GWServer server;
-    private final JCPAPIGWsClient jcpAPIsGWs;
+    private final APIsClient jcpAPIsGWs;
     private final String addrInternal;
     private final String addrPublic;
     private final int apisPort;
@@ -78,7 +78,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
 
         JCPAPIsClient jcpAPIsClient = new JCPAPIsClient(jcpAPIsParams, jcpAPIsUrl, false);
-        this.jcpAPIsGWs = new JCPAPIGWsClient(jcpAPIsClient);
+        this.jcpAPIsGWs = new APIsClient(jcpAPIsClient);
         this.jcpAPIsGWs.getClient().addConnectionListener(jcpAPIsListener_GWRegister);
 
         this.server = new GWServer(this, sslCtx, idServer, gwPort, trustManager, publicCertificate);
@@ -308,8 +308,8 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
     // GWsController
 
-    public JCPAPIsStatus.GWs getJCPAPIsStatus() {
-        JCPAPIsStatus.GWs gwStatus = new JCPAPIsStatus.GWs();
+    public GWsStatus.Server getJCPAPIsStatus() {
+        GWsStatus.Server gwStatus = new GWsStatus.Server();
         gwStatus.id = getId();
         gwStatus.type = getType();
         gwStatus.status = getServer().getState().toString();
@@ -322,7 +322,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
         gwStatus.clientsList = new ArrayList<>();
         for (ServerClient c : getServer().getClients())
-            gwStatus.clientsList.add(new JCPAPIsStatus.GWs.Client(c.getRemoteId(), c.getState().isConnected(), c.getConnectionInfo().getLocalInfo().toString(), c.getConnectionInfo().getRemoteInfo().toString()));
+            gwStatus.clientsList.add(new GWsStatus.Client(c.getRemoteId(), c.getState().isConnected(), c.getConnectionInfo().getLocalInfo().toString(), c.getConnectionInfo().getRemoteInfo().toString()));
         return gwStatus;
     }
 

@@ -26,7 +26,7 @@ public class APIUsrs {
 
     // API info
 
-    public static final String API_NAME = "User";
+    public static final String API_NAME = "Usrs";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
     public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
@@ -35,7 +35,7 @@ public class APIUsrs {
 
     public static class SubGroupInfo {
         public final static String NAME = "User's info";
-        public final static String DESCR = "Get user info...";
+        public final static String DESCR = "Get users info";
     }
 
 
@@ -46,6 +46,11 @@ public class APIUsrs {
 
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_USERNAME   = API_PATH + "/" + API_VER + "/" + MTHD_USERNAME;
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_USERNAME  = "Return current user's username";
 
 //@formatter:on
 }

@@ -20,6 +20,7 @@ package com.robypomper.josp.jsl;
 
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.jsl.admin.JSLAdmin;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
@@ -124,6 +125,8 @@ public interface JSL {
     JSLServiceInfo getServiceInfo();
 
     JSLUserMngr getUserMngr();
+
+    JSLAdmin getAdmin();
 
     JSLObjsMngr getObjsMngr();
 

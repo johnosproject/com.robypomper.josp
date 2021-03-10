@@ -23,6 +23,7 @@ import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.discovery.Discover;
 import com.robypomper.java.JavaEnum;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.jsl.admin.JSLAdmin;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
@@ -73,6 +74,7 @@ public abstract class AbsJSL implements JSL {
     private final JCPAPIsClientSrv jcpClient;
     private final JSLServiceInfo srvInfo;
     private final JSLUserMngr user;
+    private final JSLAdmin admin;
     private final JSLObjsMngr objs;
     private final JSLCommunication comm;
 
@@ -95,11 +97,12 @@ public abstract class AbsJSL implements JSL {
      * @param objs      {@link JSLObjsMngr} reference.
      * @param comm      {@link JSLCommunication} reference.
      */
-    public AbsJSL(Settings settings, JCPAPIsClientSrv jcpClient, JSLServiceInfo srvInfo, JSLUserMngr user, JSLObjsMngr objs, JSLCommunication comm) {
+    public AbsJSL(Settings settings, JCPAPIsClientSrv jcpClient, JSLServiceInfo srvInfo, JSLUserMngr user, JSLAdmin admin, JSLObjsMngr objs, JSLCommunication comm) {
         this.settings = settings;
         this.jcpClient = jcpClient;
         this.srvInfo = srvInfo;
         this.user = user;
+        this.admin = admin;
         this.objs = objs;
         this.comm = comm;
 
@@ -366,6 +369,14 @@ public abstract class AbsJSL implements JSL {
     @Override
     public JSLUserMngr getUserMngr() {
         return user;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JSLAdmin getAdmin() {
+        return admin;
     }
 
     /**

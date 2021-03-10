@@ -26,7 +26,7 @@ public class APIGWs {
 
     // API info
 
-    public static final String API_NAME = "Gateways";
+    public static final String API_NAME = "GWs";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
     public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
@@ -34,8 +34,8 @@ public class APIGWs {
     // API's SubGroups
 
     public static class SubGroupGWs {
-        public final static String NAME = "All";
-        public final static String DESCR = "Object2Service and Service2Object Gateway's APIs";
+        public final static String NAME = "GWs Access Info";
+        public final static String DESCR = "Register objects and services and get GWs access info";
     }
 
 
@@ -48,6 +48,12 @@ public class APIGWs {
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_O2S_ACCESS     = API_PATH + "/" + API_VER + "/" + MTHD_O2S_ACCESS;
     public static final String FULL_PATH_S2O_ACCESS     = API_PATH + "/" + API_VER + "/" + MTHD_S2O_ACCESS;
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_O2S_ACCESS       = "Set object's certificate and return JCP GWs Obj2Srv access info";
+    public static final String DESCR_PATH_S2O_ACCESS       = "Set service's certificate and return JCP GWs Srv2Obj access info";
 
 //@formatter:on
 }

@@ -38,7 +38,7 @@ function htmlJSLStatusContent() {
 }
 
 function fetchJSLStatusContent() {
-    apiGET(backEndUrl,"/apis/service/1.0/",fillJSLStatusContent,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Srv,fillJSLStatusContent,onErrorFetch);
 }
 
 function fillJSLStatusContent(serviceJson) {

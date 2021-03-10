@@ -1,4 +1,4 @@
-const PAGE_ABOUT = "abount";
+const PAGE_ABOUT = "about";
 const PAGE_ABOUT_TITLE = "JCP FrontEnd About";
 
 // showAbout()

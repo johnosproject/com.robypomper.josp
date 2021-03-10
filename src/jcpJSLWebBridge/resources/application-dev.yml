@@ -10,7 +10,7 @@ jcp.client.ssl.internal: true
 jcp.client.ssl.public: true
 jcp.client.id: jcp-jsl-web-bridge
 jcp.client.secret: 7e27c5b9-2a6a-4b4e-b4a7-c8118b2b1083
-jcp.client.callback: https://${HOST:${HOSTNAME:localhost}}:${server.port}/apis/user/1.0/login/code/
+jcp.client.callback: https://${HOST:${HOSTNAME:localhost}}:${server.port}/apis/JSL/Usr/1.0/login/code/
 jcp.urlAuth: ${HOST:${HOSTNAME:localhost}}:8998
 jcp.urlAPIs: ${HOST:${HOSTNAME:localhost}}:9001
 #jcp.urlGWs: localhost:9001         # registered via APIs

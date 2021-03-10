@@ -1,6 +1,6 @@
 package com.robypomper.josp.jcp.utils;
 
-import com.robypomper.josp.jcp.paths.apis.JCPAPIsGWs;
+import com.robypomper.josp.jcp.paths.apis.JCPAPIsGWRegistration;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
 import org.slf4j.Logger;
@@ -17,8 +17,8 @@ public class ParamChecks {
         checkHeaderParam(log, APISrvs.HEADER_SRVID, srvId);
     }
 
-    public static void checkGwId(Logger log, String objId) {
-        checkHeaderParam(log, JCPAPIsGWs.HEADER_JCPGWID, objId);
+    public static void checkGwId(Logger log, String gwId) throws ResponseStatusException {
+        checkHeaderParam(log, JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
     }
 
     public static void checkHeaderParam(Logger log, String headerName, String value) {

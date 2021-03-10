@@ -22,14 +22,9 @@ package com.robypomper.josp.jcp.clients.jcp.jcp;
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIJCP;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.jcp.clients.JCPGWsClient;
 import com.robypomper.josp.jcp.clients.JCPJSLWebBridgeClient;
-import com.robypomper.josp.params.jcp.JCPAPIsStatus;
-import com.robypomper.josp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.params.jcp.JCPJSLWebBridgeStatus;
-import com.robypomper.josp.paths.jcp.APIJCP;
-
-import java.util.List;
+import com.robypomper.josp.params.jcp.JSLWebBridgeStatus;
+import com.robypomper.josp.paths.jcp.JCPStatusAbs;
 
 
 /**
@@ -51,8 +46,8 @@ public class JSLWebBridgeClient extends AbsAPIJCP {
 
     // Generator methods
 
-    public JCPJSLWebBridgeStatus getJCPJSLWebBridgeReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_JSLWB_STATUS, JCPJSLWebBridgeStatus.class, isSecure());
+    public JSLWebBridgeStatus getJCPJSLWebBridgeReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, JCPStatusAbs.FULL_PATH_STATUS_INSTANCE, JSLWebBridgeStatus.class, isSecure());
     }
 
 }

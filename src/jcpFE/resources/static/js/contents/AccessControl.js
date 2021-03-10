@@ -28,7 +28,7 @@ function htmlAccessControlContent() {
 
 function fetchAccessControlContent(objId) {
     // Fetch the object's list and for each object fetch his permission with fetchAccessControlContentObject() method
-    apiGET(backEndUrl,"/apis/objsmngr/1.0/",function(objsListJson) {
+    apiGET(backEndUrl,pathJSLWB_Objs,function(objsListJson) {
         var objsList = JSON.parse(objsListJson);
 
         for (i = 0; i < objsList.length; i++)
@@ -37,7 +37,7 @@ function fetchAccessControlContent(objId) {
 }
 
 function fetchAccessControlContentObject(objId,objName,objOwner,objConnected,currentPermissions) {
-    apiGET(backEndUrl,"/apis/permissions/1.0/" + objId + "/",function(permsListJson) {
+    apiGET(backEndUrl,pathJSLWB_Perms_Obj.replace("{obj_id}",objId),function(permsListJson) {
         fillAccessControlContentObject_Add(permsListJson,objName,objOwner,objConnected,currentPermissions);
     },onWarningFetch);
 }
@@ -142,9 +142,9 @@ function editablePermission_Row(permId,objId,srvId,usrId,permType,connType) {
     html += "    <td><p>" + connType + "</p></td>";
     html += "    <td class='btn_actions'>";
 
-    var pathUpd = "/apis/permissions/1.0/" + objId + "/upd/" + permId + "/";
-    var pathDel = "/apis/permissions/1.0/" + objId + "/del/" + permId + "/";
-    var pathDup = "/apis/permissions/1.0/" + objId + "/dup/" + permId + "/";
+    var pathUpd = pathJSLWB_Perms_Obj_Upd.replace("{obj_id}",objId).replace("{perm_id}",permId);
+    var pathDel = pathJSLWB_Perms_Obj_Del.replace("{obj_id}",objId).replace("{perm_id}",permId);
+    var pathDup = pathJSLWB_Perms_Obj_Dup.replace("{obj_id}",objId).replace("{perm_id}",permId);
     html += "        <a href='javascript:void(0);' onclick='editPermission_Row(this.parentElement.parentElement,\"" + pathUpd + "\",\"" + objId + "\",\"" + permId + "\")'><i class='fa fa-pencil'></i></a>";
     html += "        <a href='javascript:void(0);' onclick='clonePermission_Row(this.parentElement.parentElement,\"" + pathDup + "\",\"" + objId + "\",\"" + permId + "\")'><i class='fa fa-clone'></i></a>";
     html += "        <a href='javascript:void(0);' onclick='deletePermission_Row(this.parentElement.parentElement,\"" + pathDel + "\",\"" + objId + "\",\"" + permId + "\")'><i class='fa fa-trash'></i></a>";
@@ -339,8 +339,7 @@ function addPermission_Row(tableTagId,objId,srvId,usrId,permType,connType,save) 
     appendInnerHTML(tBodyTag,editablePermission_Row(null,objId,srvId,usrId,permType,connType));
     var rowTag = tBodyTag.lastElementChild;
 
-    var pathAdd = "/apis/permissions/1.0/" + objId + "/add/";
-    editPermission_Row(rowTag,pathAdd,objId,null);
+    editPermission_Row(rowTag,pathJSLWB_Perms_Obj_Add.replace("{obj_id}",objId),objId,null);
     if (save)
         savePermission_Row(rowTag,pathAdd,objId,null);
 }

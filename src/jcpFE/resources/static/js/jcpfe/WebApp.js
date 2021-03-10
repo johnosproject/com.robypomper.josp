@@ -22,16 +22,16 @@ function initJSLInstanceAndSSE() {
     //   Init JSL Instance via FE (with WB's sessionId)
     // Start updater
 
-    var jslInstStatusResponse = apiGETSync(backEndUrl,"/apis/init/1.0/sessionStatus");
+    var jslInstStatusResponse = apiGETSync(backEndUrl,pathJSLWB_Init_Entrypoint);
     if (jslInstStatusResponse.status != 200)
         return false;
 
     var jslInstStatus = JSON.parse(jslInstStatusResponse.responseText);
     if (!jslInstStatus.isJSLInit)
-        if (apiGETSync("","/jslwbsession?session_id=" + jslInstStatus.sessionId).status != 200)
+        if (apiGETSync("",pathFE_EP_Session.replace("{session_id}",jslInstStatus.sessionId)).status != 200)
             return false;
 
-    updater = startUpdater(backEndUrl + "/apis/init/1.0/sse",updateOnMessage,updateOnOpen,updateOnError);
+    updater = startUpdater(backEndUrl + pathJSLWB_Init_Sse,updateOnMessage,updateOnOpen,updateOnError);
     return true;
 }
 
