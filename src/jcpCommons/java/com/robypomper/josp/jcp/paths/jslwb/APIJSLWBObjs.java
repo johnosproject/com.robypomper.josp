@@ -7,7 +7,7 @@ public class APIJSLWBObjs {
 
     // API info
 
-    public static final String API_NAME = "objsmngr";
+    public static final String API_NAME = "JSL/Objs";
     public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
     public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
@@ -15,8 +15,8 @@ public class APIJSLWBObjs {
     // API's SubGroups
 
     public static class SubGroupObjs {
-        public final static String NAME = "Object's Manager";
-        public final static String DESCR = "Methods to query object's info";
+        public final static String NAME = "Objects Manager";
+        public final static String DESCR = "Methods to query objects info";
     }
 
 

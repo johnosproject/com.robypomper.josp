@@ -7,7 +7,7 @@ public class APIJSLWBInit {
 
     // API info
 
-    public static final String API_NAME = "init";
+    public static final String API_NAME = "JSL/Init";
     public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
     public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 

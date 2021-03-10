@@ -7,7 +7,7 @@ public class APIJSLWBState {
 
     // API info
 
-    public static final String API_NAME = "state";
+    public static final String API_NAME = "JSL/State";
     public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
     public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
@@ -15,8 +15,8 @@ public class APIJSLWBState {
     // API's SubGroups
 
     public static class SubGroupState {
-        public final static String NAME = "Object's States";
-        public final static String DESCR = "Methods to get object's states and their histories";
+        public final static String NAME = "Objects States";
+        public final static String DESCR = "Methods to get objects states and their histories";
     }
 
 

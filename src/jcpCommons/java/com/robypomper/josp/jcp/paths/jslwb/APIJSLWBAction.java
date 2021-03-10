@@ -7,7 +7,7 @@ public class APIJSLWBAction {
 
     // API info
 
-    public static final String API_NAME = "action";
+    public static final String API_NAME = "JSL/Action";
     public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
     public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
@@ -15,8 +15,8 @@ public class APIJSLWBAction {
     // API's SubGroups
 
     public static class SubGroupAction {
-        public final static String NAME = "Object's Actions";
-        public final static String DESCR = "Methods to send object's actions";
+        public final static String NAME = "Objects Actions";
+        public final static String DESCR = "Methods to send objects actions";
     }
 
 

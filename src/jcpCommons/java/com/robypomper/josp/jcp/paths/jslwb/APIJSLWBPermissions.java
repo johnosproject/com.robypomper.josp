@@ -7,7 +7,7 @@ public class APIJSLWBPermissions {
 
     // API info
 
-    public static final String API_NAME = "permissions";
+    public static final String API_NAME = "JSL/Permissions";
     public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
     public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
@@ -15,8 +15,8 @@ public class APIJSLWBPermissions {
     // API's SubGroups
 
     public static class SubGroupPermissions {
-        public final static String NAME = "Object's Permissions";
-        public final static String DESCR = "Methods to get/upd/rem/dup object's permissions";
+        public final static String NAME = "Objects Permissions";
+        public final static String DESCR = "Methods to get/upd/rem/dup objects permissions";
     }
 
 

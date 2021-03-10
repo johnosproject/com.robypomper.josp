@@ -7,7 +7,7 @@ public class APIJSLWBStruct {
 
     // API info
 
-    public static final String API_NAME = "structure";
+    public static final String API_NAME = "JSL/Structure";
     public static final String API_VER = JCPJSLWBVersions.VER_JCPJSLWB_APIs_1_0;
     public static final String API_PATH = JCPJSLWBVersions.PATH_JSLWB_BASE + "/" + API_NAME;
 
@@ -15,8 +15,8 @@ public class APIJSLWBStruct {
     // API's SubGroups
 
     public static class SubGroupStructure {
-        public final static String NAME = "Object's Structure";
-        public final static String DESCR = "Methods to query service's structure and components";
+        public final static String NAME = "Objects Structure";
+        public final static String DESCR = "Methods to query objects structure and components";
     }
 
 

@@ -1,14 +1,13 @@
 package com.robypomper.josp.jcp.paths.apis;
 
 import com.robypomper.josp.info.JCPAPIsVersions;
-import com.robypomper.josp.jcp.info.JCPFEVersions;
 
-public class JCPAPIsGWs {
+public class JCPAPIsGWRegistration {
 //@formatter:off
 
     // API info
 
-    public static final String API_NAME = "jcp/gws";
+    public static final String API_NAME = "JCP/GWsReg";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
     public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
@@ -16,8 +15,8 @@ public class JCPAPIsGWs {
     // API's SubGroups
 
     public static class SubGroupRegistration {
-        public final static String NAME = "JCP (internal) Gateways registration";
-        public final static String DESCR = "";
+        public final static String NAME = "(internal) JCP Gateways registration";
+        public final static String DESCR = "JCP GWs register themself to JCP APIs";
     }
 
 
@@ -35,6 +34,13 @@ public class JCPAPIsGWs {
 
 
     public static final String HEADER_JCPGWID = "JCP-GW-ID";
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_STARTUP   = "Register JCP GWs startup";
+    public static final String DESCR_PATH_STATUS    = "Update JCP GWs status";
+    public static final String DESCR_PATH_SHUTDOWN  = "Register JCP GWs shutdown";
 
 //@formatter:on
 }
