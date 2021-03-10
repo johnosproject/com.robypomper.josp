@@ -121,7 +121,7 @@ function htmlObjectContent() {
 }
 
 function fetchObjectContent(objId) {
-    apiGET_retry(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContent,onErrorFetch);
+    apiGET_retry(backEndUrl,pathJSLWB_ObjDetails.replace("{obj_id}",objId),fillObjectContent,onErrorFetch);
 }
 
 function fillObjectContent(objJson) {
@@ -168,7 +168,7 @@ function htmlObjectContentLinks(obj) {
 //         -> htmlComponentRangeAction
 
 function fetchObjectContentStruct(objId) {
-    apiGET(backEndUrl,"/apis/structure/1.0/" + objId + "/",fillObjectContentStruct,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Struct.replace("{obj_id}",objId),fillObjectContentStruct,onErrorFetch);
 }
 
 function fillObjectContentStruct(rootJson) {
@@ -360,8 +360,8 @@ function htmlObjectContentInfo(objId) {
 }
 
 function fetchObjectContentInfo(objId) {
-    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContentInfo_Obj,onErrorFetch);
-    apiGET(backEndUrl,"/apis/structure/1.0/" + objId + "/",fillObjectContentInfo_Struct,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_ObjDetails.replace("{obj_id}",objId),fillObjectContentInfo_Obj,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Struct.replace("{obj_id}",objId),fillObjectContentInfo_Struct,onErrorFetch);
 }
 
 function fillObjectContentInfo_Obj(objJson) {
@@ -436,8 +436,8 @@ function htmlObjectContentAccessControl(objId) {
 }
 
 function fetchObjectContentAccessControl(objId) {
-    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/",fillObjectContentAccessControl_Obj,onErrorFetch);
-    apiGET(backEndUrl,"/apis/permissions/1.0/" + objId + "/",fillObjectContentAccessControl_Perms,fillObjectContentAccessControl_Perms_onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_ObjDetails.replace("{obj_id}",objId),fillObjectContentAccessControl_Obj,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Perms_Obj.replace("{obj_id}",objId),fillObjectContentAccessControl_Perms,fillObjectContentAccessControl_Perms_onErrorFetch);
 }
 
 function fillObjectContentAccessControl_Obj(objJson) {
@@ -513,7 +513,7 @@ function htmlObjectContentEvents(objId) {
 }
 
 function fetchObjectContentEvents(objId) {
-    apiGET(backEndUrl,"/apis/objsmngr/1.0/" + objId + "/events/",fillObjectContentEvents_Table,fillObjectContentEvents_Table_onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_ObjEvents.replace("{obj_id}",objId),fillObjectContentEvents_Table,fillObjectContentEvents_Table_onErrorFetch);
 }
 
 function fillObjectContentEvents_Table(eventsJson) {
@@ -699,7 +699,7 @@ function setRange(chartId,from,to) {
 }
 
 function fetchObjectContentStatusHistory(objId,compPath) {
-    apiGET(backEndUrl,"/apis/state/1.0/history/" + objId + "/" + compPath + "/",fillObjectContentStatusHistory_Chart,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_State_History.replace("{obj_id}",objId).replace("{comp_path}",compPath),fillObjectContentStatusHistory_Chart,onErrorFetch);
 }
 
 function fillObjectContentStatusHistory_Chart(statusHistoryJson) {
@@ -869,7 +869,7 @@ function saveObjectName_Title(containerTag) {
         return;
     }
 
-    var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/name/";
+    var actionUrl = pathJSLWB_ObjName.replace("{obj_id}",detailObjId);
     apiPOST(backEndUrl,actionUrl,
         async function(responseText) {
             hideWaitingFeedback(containerTag);
@@ -935,7 +935,7 @@ function saveObjectOwner_Field(containerTag) {
         return;
     }
 
-    var actionUrl = "/apis/objsmngr/1.0/" + detailObjId + "/owner/";
+    var actionUrl = pathJSLWB_ObjOwner.replace("{obj_id}",detailObjId);
     apiPOST(backEndUrl,actionUrl,
     function(responseText) {
         hideWaitingFeedback(containerTag);
@@ -988,13 +988,11 @@ function executeAction(element,actionUrl) {
     });
 }
 
-
-
 // ???Update
 
 //emitStateUpd () ->
 function fetchComponent(objId,compPath) {
-    apiGET(backEndUrl,"/apis/structure/1.0/" + objId + "/" + compPath + "/",fillComponent,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_StructComp.replace("{obj_id}",objId).replace("{comp_path}",compPath),fillComponent,onErrorFetch);
 }
 
 function fillComponent(compJson) {

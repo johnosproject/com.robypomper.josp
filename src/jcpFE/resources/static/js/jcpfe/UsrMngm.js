@@ -13,24 +13,27 @@ var onUserLogoutListeners = [];
 // Login methods
 
 function login() {
-    var loginUrlPath = "/apis/user/1.0/login/?redirect_uri=" +document.location.href;
-    apiGET(backEndUrl,loginUrlPath,function(responseText) {
+    //var loginUrlPath = "/apis/user/1.0/login/?redirect_uri=" +document.location.href;
+    apiGET(backEndUrl,pathJSLWB_Usr_Login_Redirect.replace("{redirect_uri}",document.location.href),
+    function(responseText) {
         responseText = responseText.replaceAll('"','');
         window.location.href = responseText;
     },onErrorFetch);
 }
 
 function registration() {
-    var loginUrlPath = "/apis/user/1.0/registration/?redirect_uri=" +document.location.href;
-    apiGET(backEndUrl,loginUrlPath,function(responseText) {
+    //var loginUrlPath = "/apis/user/1.0/registration/?redirect_uri=" +document.location.href;
+    apiGET(backEndUrl,pathJSLWB_Usr_Registration_Redirect.replace("{redirect_uri}",document.location.href),
+    function(responseText) {
         responseText = responseText.replaceAll('"','');
         window.location.href = responseText;
     },onErrorFetch);
 }
 
 function logout() {
-    var loginUrlPath = "/apis/user/1.0/logout/?redirect_uri=" +document.location.href;
-    apiGET(backEndUrl,loginUrlPath,function(responseText) {
+    //var loginUrlPath = "/apis/user/1.0/logout/?redirect_uri=" +document.location.href;
+    apiGET(backEndUrl,pathJSLWB_Usr_Logout_Redirect.replace("{redirect_uri}",document.location.href),
+    function(responseText) {
         responseText = responseText.replaceAll('"','');
         window.location.href = responseText;
     },onErrorFetch);
@@ -39,7 +42,8 @@ function logout() {
 // Fetch&Fill methods
 
 function fetchUsrMngm() {
-    apiGET(backEndUrl,"/apis/user/1.0/",fillUsrMngm,onErrorFetch);
+    //apiGET(backEndUrl,"/apis/user/1.0/",fillUsrMngm,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Usr,fillUsrMngm,onErrorFetch);
 }
 
 function fillUsrMngm(userJson) {

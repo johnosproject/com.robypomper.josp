@@ -19,8 +19,8 @@ function htmlHome() {
     html += "<p>Let's start selecting an object from the side menu,<br>";
     html += "if there's not objects listed then ";
     html += "<span class='logout'>";
-    html += "<a href='" + backEndUrl + "/apis/user/1.0/login/?redirect_uri=" + frontEndUrl + "'>login</a>";
-    html += " (or <a href='/apis/user/1.0/registration/'>register</a>)</br>";
+    html += "<a href='" + backEndUrl + pathJSLWB_Usr_Login_Redirect.replace("{redirect_uri}",frontEndUrl) + "'>login</a>";
+    html += " (or <a href='" + backEndUrl + pathJSLWB_Usr_Registration_Redirect.replace("{redirect_uri}",frontEndUrl) + "'>register</a>)</br>";
     html += " or try to ";
     html += "</span>";
     html += "<a href='#'>add new one</a>.</p>";

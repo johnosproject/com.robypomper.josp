@@ -29,7 +29,7 @@ function htmlUserContent() {
 }
 
 function fetchUserContent() {
-    apiGET(backEndUrl,"/apis/user/1.0/",fillUserContent,onErrorFetch);
+    apiGET(backEndUrl,pathJSLWB_Usr,fillUserContent,onErrorFetch);
 }
 
 function fillUserContent(userJson) {

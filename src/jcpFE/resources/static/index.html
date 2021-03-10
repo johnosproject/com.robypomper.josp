@@ -29,6 +29,7 @@
     <script type="text/javascript" src="js/contents/JSLStatus.js"></script>
     <script type="text/javascript" src="js/contents/About.js"></script>
 
+    <script type="text/javascript" src="js/jcpfe/Paths.js"></script>
     <script type="text/javascript" src="js/jcpfe/Commons.js"></script>
     <script type="text/javascript" src="js/jcpfe/WebApp.js"></script>
     <script type="text/javascript" src="js/jcpfe/Events.js"></script>
@@ -41,7 +42,7 @@
 <body>
 <script>
     window.onload = function() {
-        apiGET("","/entrypoint",function(entrypointUrl) {
+        apiGET("",pathFE_EP_Entrypoint,function(entrypointUrl) {
             entrypointUrl = entrypointUrl.replaceAll('"','');
             console.log(entrypointUrl);
             startWebApp(entrypointUrl);
