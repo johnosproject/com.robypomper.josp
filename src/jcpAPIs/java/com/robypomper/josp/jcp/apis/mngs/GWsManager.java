@@ -1,10 +1,8 @@
 package com.robypomper.josp.jcp.apis.mngs;
 
-import com.robypomper.java.JavaNetworks;
 import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPGWsClientMngr;
-import com.robypomper.josp.jcp.clients.gws.apis.APIGWsGWsClient;
 import com.robypomper.josp.jcp.clients.jcp.jcp.GWsClient;
 import com.robypomper.josp.jcp.db.apis.GWDBService;
 import com.robypomper.josp.jcp.db.apis.entities.GW;
@@ -48,7 +46,7 @@ public class GWsManager {
 
     public void remove(GW gw) {
         delete(gw);
-        apiGWsGWsClients.removeGWsClient(gw.getGwId());
+        apiGWsGWsClients.removeJCPGWsClient(gw.getGwId());
     }
 
     public void add(String gwId, JCPGWsStartup gwStartup) {
@@ -194,11 +192,11 @@ public class GWsManager {
     // JCP GWs clients
 
     public GWsClient getGWsClient(GW gw) {
-        return apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), GWsClient.class);
+        return apiGWsGWsClients.getGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort());
     }
 
-    public APIGWsGWsClient getAPIGWsGWsClient(GW gw) {
-        return apiGWsGWsClients.getAPIGWsGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort(), APIGWsGWsClient.class);
+    public GWsClient getAPIGWsGWsClient(GW gw) {
+        return apiGWsGWsClients.getGWsClient(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort());
     }
 
 }
