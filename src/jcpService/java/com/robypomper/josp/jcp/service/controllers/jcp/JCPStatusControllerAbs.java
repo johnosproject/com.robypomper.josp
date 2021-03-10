@@ -3,17 +3,13 @@ package com.robypomper.josp.jcp.service.controllers.jcp;
 import com.robypomper.java.JavaDate;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JCPStatus;
-import com.robypomper.josp.paths.jcp.APIJCP;
+import com.robypomper.josp.params.jcp.ServiceStatus;
+import com.robypomper.josp.paths.jcp.JCPStatusAbs;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpSession;
 import java.lang.management.ManagementFactory;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -21,49 +17,36 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-@SuppressWarnings("unused")
-@RestController
-@Api(tags = {APIJCP.SubGroupStatus.NAME})
-public class APIJCPController {
-
-    // Internal vars
-
-    @Autowired
-    private HttpSession httpSession;
-    @Autowired
-    private SwaggerConfigurer swagger;
-
-
-    // Docs configs
-
-    @Bean
-    public Docket swaggerConfig_APIJCP() {
-        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[5];
-        sg[0] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupStatus.NAME, APIJCP.SubGroupStatus.DESCR);
-        sg[1] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupAPIsStatus.NAME, APIJCP.SubGroupAPIsStatus.DESCR);
-        sg[2] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupGWsStatus.NAME, APIJCP.SubGroupGWsStatus.DESCR);
-        sg[3] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupJSLWebBridgeStatus.NAME, APIJCP.SubGroupJSLWebBridgeStatus.DESCR);
-        sg[4] = new SwaggerConfigurer.APISubGroup(APIJCP.SubGroupFEStatus.NAME, APIJCP.SubGroupFEStatus.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(APIJCP.API_NAME, APIJCP.API_VER, "JCP", sg), swagger.getUrlBaseAuth());
-    }
-
+public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
 
     // Methods
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS)
-    @ApiOperation(value = "Return ONLINE if the service is up")
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_INSTANCE)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_INSTANCE)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JCP Service's instance status", response = ServiceStatus.class),
+            @ApiResponse(code = 401, message = "User not authenticated"),
+            @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
+    })
+    public ResponseEntity<S> getInstanceReq() {
+        return ResponseEntity.ok(getInstanceReqSubClass());
+    }
+
+    protected abstract S getInstanceReqSubClass();
+
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_ONLINE)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_ONLINE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's local date", response = String.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    public ResponseEntity<String> getStateReq() {
+    public ResponseEntity<String> getOnlineReq() {
         return ResponseEntity.ok(JavaDate.getNow());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_PROCESS)
-    @ApiOperation(value = "Return process info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_PROCESS)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_PROCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -82,8 +65,8 @@ public class APIJCPController {
         return ResponseEntity.ok(new JCPStatus.Process());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_JAVA)
-    @ApiOperation(value = "Return java vm + process info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_JAVA)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_JAVA,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -102,8 +85,8 @@ public class APIJCPController {
         return ResponseEntity.ok(new JCPStatus.Java());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_JAVA_THREADS)
-    @ApiOperation(value = "Return java threads info",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_JAVA_THS)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_JAVA_THS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -126,8 +109,8 @@ public class APIJCPController {
         return ResponseEntity.ok(threads);
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_OS)
-    @ApiOperation(value = "Return operating system info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_OS)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_OS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -146,8 +129,8 @@ public class APIJCPController {
         return ResponseEntity.ok(new JCPStatus.Os());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_CPU)
-    @ApiOperation(value = "Return CPU info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_CPU)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_CPU,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -166,8 +149,8 @@ public class APIJCPController {
         return ResponseEntity.ok(new JCPStatus.CPU());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_MEMORY)
-    @ApiOperation(value = "Return memory info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_MEMORY)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -186,8 +169,8 @@ public class APIJCPController {
         return ResponseEntity.ok(new JCPStatus.Memory());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_DISKS)
-    @ApiOperation(value = "Return disks info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_DISKS)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_DISKS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -206,8 +189,8 @@ public class APIJCPController {
         return ResponseEntity.ok(new JCPStatus.Disks());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_NETWORK)
-    @ApiOperation(value = "Return networks's info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_NETWORK)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_NETWORK,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -226,8 +209,8 @@ public class APIJCPController {
         return ResponseEntity.ok(new JCPStatus.Network());
     }
 
-    @GetMapping(path = APIJCP.FULL_PATH_STATUS_NETWORK_INTFS)
-    @ApiOperation(value = "Return network's interfaces info and stats",
+    @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_NETWORK_INTFS)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_NETWORK_INTFS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
