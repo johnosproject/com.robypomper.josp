@@ -14,9 +14,9 @@ function emitOnConnected() {
 
         fillPostUpdaterInitialization();
 
+        fetchUsrMngm();                         // User (Opts links)
         fetchObjsListMenu();                    // Objs list (Nav Bar)
-        fetchUsrMngm();                        // User (Opts links)
-        fetchSrvMngm();                     // Service (Opts links)
+        fetchSrvMngm();                         // Service (Opts links)
     }
 
     var section = document.getElementsByTagName('section')[0];
@@ -53,9 +53,6 @@ function emitObjRem(objId) {
 // Object events
 
 function emitObjConnected(objId) {
-    var objPermsTag = document.getElementById("div_" + objId + "_perms");
-    removeDisabledCssClassById("div_" + objId + "_perms");
-
     fetchObjsListMenu();
 
     if (objId==detailObjId) {
@@ -72,9 +69,6 @@ function emitObjConnected(objId) {
 }
 
 function emitObjDisconnected(objId) {
-    var objPermsTag = document.getElementById("div_" + objId + "_perms");
-    addDisabledCssClassById("div_" + objId + "_perms");
-
     fetchObjsListMenu();
 
     if (objId==detailObjId) {
@@ -99,7 +93,9 @@ function emitObjUpd(objId,what) {
 }
 
 function emitStateUpd(objId,compPath) {
+    if (objId != detailObjId)
+        return;
+
     if (currentPage==PAGE_OBJ_DETAILS)
-        if (objId == detailObjId)
-            fetchComponent(objId,compPath)
+        fetchComponent(objId,compPath)
 }

@@ -66,42 +66,32 @@ function _apiGET(xhttp) {
 // Post calls
 
 function apiPOST(baseUrl,path,processResponse,processError,params) {
+    var xhttp = new XMLHttpRequest();
 
-    apiOPTIONS(baseUrl,path,function() {
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4)
+            if (this.status == 200)
+                processResponse(this.responseText);
+            else
+                processError(this);
 
-        var xhttp = new XMLHttpRequest();
+    };
+    xhttp.onerror = function() {
+        processError(this);
+    };
 
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4)
-                if (this.status == 200)
-                    processResponse(this.responseText);
-                else
-                    processError(this);
+    xhttp.open("POST", baseUrl + path, true);
+    xhttp.withCredentials = true;
 
-        };
-        xhttp.onerror = function() {
-            processError(this);
-        };
+    var body = "";
+    if (params!=null) {
+        xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        body += params;
+    }
 
-        xhttp.open("POST", baseUrl + path, true);
-        var cookies="";
-        var body = "";
-        xhttp.withCredentials = true;
-
-        if (params!=null) {
-            xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            body += params;
-        }
-
-        if (csrfToken!=null)
-            body += "&_csrf=" + csrfToken;
-
-        try {
-            xhttp.send(body);
-        } catch {}
-
-    }, processError);
-
+    try {
+        xhttp.send(body);
+    } catch {}
 }
 
 

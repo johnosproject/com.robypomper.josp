@@ -121,7 +121,7 @@ function hideLogoutCssClass() {
 
 function addDisabledCssClassById(tagId) {
     if (document.getElementById(tagId) == null) {
-        console.log("WAR: Can't add 'disabled' class on '" + tagId + "' element because not found");
+        console.warn("WAR: Can't add 'disabled' class on '" + tagId + "' element because not found");
         console.trace();
         return;
     }
@@ -130,7 +130,7 @@ function addDisabledCssClassById(tagId) {
 
 function addDisabledCssClass(tag) {
     if (tag == null) {
-        console.log("WAR: Can't add 'disabled' class on 'null' element");
+        console.warn("WAR: Can't add 'disabled' class on 'null' element");
         console.trace();
         return;
     }

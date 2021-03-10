@@ -447,6 +447,8 @@ function fillObjectContentAccessControl_Obj(objJson) {
         replaceInnerHTMLById("val_obj_owner_editable",editableObjectOwner_Field(obj.owner));
     else
         replaceInnerHTMLById("val_obj_owner_editable",obj.owner);
+
+    replaceInnerHTMLById("val_obj_permission",obj.permission);
 }
 
 function fillObjectContentAccessControl_Perms(objPermsJson) {
@@ -996,8 +998,10 @@ function fetchComponent(objId,compPath) {
 }
 
 function fillComponent(compJson) {
-    comp = JSON.parse(compJson);
-    replaceInnerHTML(comp.componentPath,htmlBoxExpandable() + htmlComponent(comp));
+    var comp = JSON.parse(compJson);
+    var compTag = document.getElementById(comp.componentPath);
+    var compStateTag = document.getElementById(comp.componentPath +  + "_state");
+    replaceInnerHTML(compTag,htmlBoxExpandable() + htmlComponent(comp));
     // current method is called only from "SSE -> emitStateUpd(eventText) -> fetchComponent(objId,compPath)" stack
-    showUpdateFeedbackByIdTag(comp.componentPath + "_state");
+    showUpdateFeedback(compStateTag);
 }
