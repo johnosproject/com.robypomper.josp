@@ -21,9 +21,9 @@ package com.robypomper.josp.clients.apis.obj;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIObj;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.paths.APIPermissions;
-import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 
@@ -59,7 +59,7 @@ public class APIPermissionsClient extends AbsAPIObj {
      */
     public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         JOSPPerm.GenerateStrategy strategy = JOSPPerm.GenerateStrategy.STANDARD;
-        String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE + "/" + strategy, String.class, isSecure());
+        String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE.replace("{strategy}", strategy.toString()), String.class, isSecure());
         try {
             return JOSPPerm.listFromString(permsStr);
 
