@@ -91,7 +91,7 @@ public class APIObjsController {
      * @return valid object's object id for given params.
      */
     @PostMapping(path = APIObjs.FULL_PATH_GENERATEID)
-    @ApiOperation(value = "Generate a new, random, unique object ID",
+    @ApiOperation(value = APIObjs.DESCR_PATH_GENERATEID,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -121,7 +121,7 @@ public class APIObjsController {
      * @return valid object's object id for given params.
      */
     @PostMapping(path = APIObjs.FULL_PATH_REGENERATEID)
-    @ApiOperation(value = "Generate a new, random, unique object ID",
+    @ApiOperation(value = APIObjs.DESCR_PATH_REGENERATEID,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -156,7 +156,7 @@ public class APIObjsController {
 
 
     @PostMapping(path = APIObjs.FULL_PATH_HISTORY)
-    @ApiOperation(value = "Store given statuses as caller object's statuses history",
+    @ApiOperation(value = APIObjs.DESCR_PATH_HISTORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(

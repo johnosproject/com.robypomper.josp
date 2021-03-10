@@ -70,31 +70,8 @@ public class APIEventsController {
 
     // Methods
 
-    @GetMapping(path = APIEvents.FULL_PATH_OBJECT)
-    @ApiOperation(value = "Return latest events from current object",
-            authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
-                    scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_OBJ_DESC
-                    )
-            )
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Object's events", response = Event.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
-    })
-    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<List<Event>> getObjectEvents(@RequestHeader(APIObjs.HEADER_OBJID) String objId) {
-        if (objId == null || objId.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
-
-        return getObjectEventsById(objId);
-    }
-
-
     @PostMapping(path = APIEvents.FULL_PATH_OBJECT)
-    @ApiOperation(value = "Store given events as caller object's events",
+    @ApiOperation(value = APIEvents.DESCR_PATH_OBJECT,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -120,8 +97,30 @@ public class APIEventsController {
         return getObjectEventsById(objId);
     }
 
+    @GetMapping(path = APIEvents.FULL_PATH_OBJECT)
+    @ApiOperation(value = APIEvents.DESCR_PATH_OBJECTg,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_OBJ_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_OBJ_DESC
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Object's events", response = Event.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
+    })
+    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
+    public ResponseEntity<List<Event>> getObjectEvents(@RequestHeader(APIObjs.HEADER_OBJID) String objId) {
+        if (objId == null || objId.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APIObjs.HEADER_OBJID));
+
+        return getObjectEventsById(objId);
+    }
+
     @GetMapping(path = APIEvents.FULL_PATH_GET_OBJECT)
-    @ApiOperation(value = "Return latest events from specified object",
+    @ApiOperation(value = APIEvents.DESCR_PATH_GET_OBJECT,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -149,7 +148,7 @@ public class APIEventsController {
     // Methods Objects Last
 
     @GetMapping(path = APIEvents.FULL_PATH_OBJECT_LAST)
-    @ApiOperation(value = "Return last event from current object",
+    @ApiOperation(value = APIEvents.DESCR_PATH_OBJECT_LAST,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -172,7 +171,7 @@ public class APIEventsController {
     }
 
     @GetMapping(path = APIEvents.FULL_PATH_GET_OBJECT_LAST)
-    @ApiOperation(value = "Return last event from specified object",
+    @ApiOperation(value = APIEvents.DESCR_PATH_GET_OBJECT_LAST,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -205,7 +204,7 @@ public class APIEventsController {
     // Methods Objects Type
 
     @GetMapping(path = APIEvents.FULL_PATH_OBJECT_BY_TYPE)
-    @ApiOperation(value = "Return latest events of specified type from current object",
+    @ApiOperation(value = APIEvents.DESCR_PATH_OBJECT_BY_TYPE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -229,7 +228,7 @@ public class APIEventsController {
     }
 
     @GetMapping(path = APIEvents.FULL_PATH_GET_OBJECT_BY_TYPE)
-    @ApiOperation(value = "Return latest events of specified type from specified object",
+    @ApiOperation(value = APIEvents.DESCR_PATH_GET_OBJECT_BY_TYPE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
                     scopes = @AuthorizationScope(
@@ -258,8 +257,35 @@ public class APIEventsController {
 
     // Methods Service
 
+    @PostMapping(path = APIEvents.FULL_PATH_SERVICE)
+    @ApiOperation(value = APIEvents.DESCR_PATH_SERVICE,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_SRV_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_SRV_DESC
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Service's events", response = Event.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
+    })
+    @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
+    public ResponseEntity<List<Event>> postSERVICEEvents(@RequestHeader(APISrvs.HEADER_SRVID) String srvId,
+                                                         @RequestBody List<JOSPEvent> events) {
+        if (srvId == null || srvId.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", APISrvs.HEADER_SRVID));
+
+        //eventService.add(Event.newObjEvent(client.getClientId(), JOSPEvent.EventType.ConnectToCloud));
+        for (JOSPEvent e : events)
+            eventService.add(Event.fromJOSPEvent(e));
+
+        return getObjectEventsById(srvId);
+    }
+
     @GetMapping(path = APIEvents.FULL_PATH_SERVICE)              //  /service    -> FULL_PATH_GET_SERVICE
-    @ApiOperation(value = "Return latest events from current service",
+    @ApiOperation(value = APIEvents.DESCR_PATH_SERVICEg,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(
@@ -281,7 +307,7 @@ public class APIEventsController {
     }
 
     @GetMapping(path = APIEvents.FULL_PATH_GET_SERVICE)
-    @ApiOperation(value = "Return latest events from specified services",
+    @ApiOperation(value = APIEvents.DESCR_PATH_GET_SERVICE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(
@@ -311,7 +337,7 @@ public class APIEventsController {
     // Methods Service Last
 
     @GetMapping(path = APIEvents.FULL_PATH_SERVICE_LAST)
-    @ApiOperation(value = "Return last event from current service",
+    @ApiOperation(value = APIEvents.DESCR_PATH_SERVICE_LAST,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(
@@ -334,7 +360,7 @@ public class APIEventsController {
     }
 
     @GetMapping(path = APIEvents.FULL_PATH_GET_SERVICE_LAST)
-    @ApiOperation(value = "Return last event from specified service",
+    @ApiOperation(value = APIEvents.DESCR_PATH_GET_SERVICE_LAST,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(
@@ -369,7 +395,7 @@ public class APIEventsController {
     // Methods Service Type
 
     @GetMapping(path = APIEvents.FULL_PATH_SERVICE_BY_TYPE)
-    @ApiOperation(value = "Return latest events from current service and specified event type",
+    @ApiOperation(value = APIEvents.DESCR_PATH_SERVICE_BY_TYPE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(
@@ -393,7 +419,7 @@ public class APIEventsController {
     }
 
     @GetMapping(path = APIEvents.FULL_PATH_GET_SERVICE_BY_TYPE)
-    @ApiOperation(value = "Return latest events from specified services and specified event type",
+    @ApiOperation(value = APIEvents.DESCR_PATH_GET_SERVICE_BY_TYPE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(

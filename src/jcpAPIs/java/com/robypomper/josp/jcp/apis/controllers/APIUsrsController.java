@@ -20,7 +20,6 @@
 package com.robypomper.josp.jcp.apis.controllers;
 
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.db.apis.UserDBService;
 import com.robypomper.josp.jcp.db.apis.entities.User;
@@ -88,7 +87,7 @@ public class APIUsrsController {
      * @return current user representation.
      */
     @GetMapping(path = APIUsrs.FULL_PATH_USERNAME)
-    @ApiOperation(value = "Return user id and username",
+    @ApiOperation(value = APIUsrs.DESCR_PATH_USERNAME,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
                     scopes = @AuthorizationScope(
