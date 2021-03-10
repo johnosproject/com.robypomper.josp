@@ -21,12 +21,11 @@ package com.robypomper.josp.clients.apis.obj;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIObj;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessRequest;
 import com.robypomper.josp.paths.APIGWs;
-import com.robypomper.josp.clients.AbsAPI;
-import com.robypomper.josp.clients.JCPAPIsClientObj;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
