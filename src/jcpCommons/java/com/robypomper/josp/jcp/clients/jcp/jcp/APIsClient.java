@@ -23,13 +23,8 @@ import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIJCP;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
-import com.robypomper.josp.params.jcp.JCPAPIsStatus;
-import com.robypomper.josp.params.jcp.JCPFEStatus;
-import com.robypomper.josp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.params.jcp.JCPJSLWebBridgeStatus;
-import com.robypomper.josp.paths.jcp.APIJCP;
-
-import java.util.List;
+import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
+import com.robypomper.josp.jcp.paths.apis.JCPAPIsGWRegistration;
 
 
 /**
@@ -49,38 +44,34 @@ public class APIsClient extends AbsAPIJCP {
     }
 
 
-    // Generator methods
+    // JCP APIs Status
 
-    public JCPAPIsStatus getJCPAPIsStatusReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS, JCPAPIsStatus.class, isSecure());
+    // N/A use internal reference
+
+
+    // JCP GWs Registration
+
+    /**
+     * Request to the JCP GWs object's access info for Gateway O2S connection.
+     * <p>
+     * JCP APIs forward object's public certificate and instance id to the GW O2S and
+     * the JCP respond with the GW O2S's address, port and public certificate.
+     *
+     * @return the GW O2S access info.
+     */
+    public boolean postStartup(JCPGWsStartup gwStartup, String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
+        return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_STARTUP, Boolean.class, gwStartup, isSecure());
     }
 
-    public JCPAPIsStatus.Objects getJCPAPIsStatusObjsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_OBJS, JCPAPIsStatus.Objects.class, isSecure());
+    public boolean postStatus(com.robypomper.josp.jcp.params.jcp.JCPGWsStatus gwStatus, String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
+        return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_STATUS, Boolean.class, gwStatus, isSecure());
     }
 
-    public JCPAPIsStatus.Services getJCPAPIsStatusSrvsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_SRVS, JCPAPIsStatus.Services.class, isSecure());
-    }
-
-    public JCPAPIsStatus.Users getJCPAPIsStatusUsrsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_USRS, JCPAPIsStatus.Users.class, isSecure());
-    }
-
-    public List<JCPGWsStatus> getJCPAPIsStatusGWsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS, List.class, isSecure());
-    }
-
-    public List<JCPAPIsStatus.GWs> getJCPAPIsStatusGWsCliReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_GWS_CLI, List.class, isSecure());
-    }
-
-    public JCPJSLWebBridgeStatus getJCPAPIsStatusJSLWBReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_JSLWB, JCPJSLWebBridgeStatus.class, isSecure());
-    }
-
-    public JCPFEStatus getJCPAPIsStatusFEReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIJCP.FULL_PATH_APIS_STATUS_FE, JCPFEStatus.class, isSecure());
+    public boolean postShutdown(String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
+        return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_SHUTDOWN, Boolean.class, isSecure());
     }
 
 }
