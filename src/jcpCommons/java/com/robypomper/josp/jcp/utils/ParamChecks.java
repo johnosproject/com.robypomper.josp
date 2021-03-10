@@ -9,11 +9,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class ParamChecks {
 
-    public static void checkObjId(Logger log, String objId) {
+    public static void checkObjId(Logger log, String objId) throws ResponseStatusException {
         checkHeaderParam(log, APIObjs.HEADER_OBJID, objId);
     }
 
-    public static void checkSrvId(Logger log, String srvId) {
+    public static void checkSrvId(Logger log, String srvId) throws ResponseStatusException {
         checkHeaderParam(log, APISrvs.HEADER_SRVID, srvId);
     }
 
@@ -21,7 +21,7 @@ public class ParamChecks {
         checkHeaderParam(log, JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
     }
 
-    public static void checkHeaderParam(Logger log, String headerName, String value) {
+    public static void checkHeaderParam(Logger log, String headerName, String value) throws ResponseStatusException {
         if (value == null || value.isEmpty()) {
             log.trace(String.format("Error executing request because header '%s' not set", headerName));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Missing mandatory header '%s'.", headerName));
