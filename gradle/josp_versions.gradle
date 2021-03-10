@@ -35,17 +35,17 @@ ext {
     // JOSP
     set('version.jospAPIs'          , v210)             // since v210
     set('version.jospAPIs_DEV'      , v210)
-    set('version.jospCommons'       , v200)
+    set('version.jospCommons'       , v210)
     set('version.jospCommons_DEV'   , v210)
-    set('version.jospJOD'           , v200)
+    set('version.jospJOD'           , v210)
     set('version.jospJOD_DEV'       , v210)
-    set('version.jospJSL'           , v200)
+    set('version.jospJSL'           , v210)
     set('version.jospJSL_DEV'       , v210)
 
     // JCP Commons
-    set('version.jcpAPIsPublic'     , v200)
+    set('version.jcpAPIsPublic'     , v210)
     set('version.jcpAPIsPublic_DEV' , v210)
-    set('version.jcpCommons'        , v200)
+    set('version.jcpCommons'        , v210)
     set('version.jcpCommons_DEV'    , v210)
 
     // JCP DB
@@ -57,15 +57,15 @@ ext {
     set('version.jcpDBFE_DEV'       , v210)
 
     // JCP Services
-    set('version.jcpService'        , v200)
+    set('version.jcpService'        , v210)
     set('version.jcpService_DEV'    , v210)
-    set('version.jcpAPIs'           , v200)
+    set('version.jcpAPIs'           , v210)
     set('version.jcpAPIs_DEV'       , v210)
     set('version.jcpGWs'            , v210)             // since v210
     set('version.jcpGWs_DEV'        , v210)
     set('version.jcpJSLWebBridge'      , v210)             // since v210
     set('version.jcpJSLWebBridge_DEV'  , v210)
-    set('version.jcpFE'             , v200)
+    set('version.jcpFE'             , v210)
     set('version.jcpFE_DEV'         , v210)
     set('version.jcpAll'            , v210)             // since v210
     set('version.jcpAll_DEV'        , v210)
