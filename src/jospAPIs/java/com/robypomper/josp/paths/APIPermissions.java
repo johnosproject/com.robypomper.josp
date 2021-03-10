@@ -26,7 +26,7 @@ public class APIPermissions {
 
     // API info
 
-    public static final String API_NAME = "Permissions";
+    public static final String API_NAME = "Perms";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
     public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
@@ -35,17 +35,22 @@ public class APIPermissions {
 
     public static class SubGroupObjPerm {
         public final static String NAME = "Object's permissions";
-        public final static String DESCR = "Get/merge permissions, set owner...";
+        public final static String DESCR = "Manage objects permissions";
     }
 
 
     // API's methods
 
     // '{mthdName}
-    private static final String MTHD_OBJGENERATE     = "obj";
+    private static final String MTHD_OBJGENERATE     = "obj/{strategy}";
 
     // '/apis/{apiName}/{apiVersion}/{mthdName}
     public static final String FULL_PATH_OBJGENERATE    = API_PATH + "/" + API_VER + "/" + MTHD_OBJGENERATE;
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_OBJGENERATE   = "Generate object's permissions";
 
 //@formatter:on
 }

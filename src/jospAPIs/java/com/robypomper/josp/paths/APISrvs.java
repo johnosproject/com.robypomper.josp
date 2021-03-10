@@ -26,7 +26,7 @@ public class APISrvs {
 
     // API info
 
-    public static final String API_NAME = "Service";
+    public static final String API_NAME = "Srvs";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
     public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
@@ -35,7 +35,7 @@ public class APISrvs {
 
     public static class SubGroupInfo {
         public final static String NAME = "Service's info";
-        public final static String DESCR = "Get service info...";
+        public final static String DESCR = "Get services info";
     }
 
 
@@ -50,6 +50,11 @@ public class APISrvs {
 
     public static final String HEADER_SRVID = "JOSP-Srv-ID";
     public static final String HEADER_USRID = "JOSP-Usr-ID";
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_REGISTER  = "Register service";
 
 //@formatter:on
 }

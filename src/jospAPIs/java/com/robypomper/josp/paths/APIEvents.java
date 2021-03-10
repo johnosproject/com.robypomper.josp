@@ -26,7 +26,7 @@ public class APIEvents {
 
     // API info
 
-    public static final String API_NAME = "Events";
+    public static final String API_NAME = "Evnts";
     public static final String API_VER = JCPAPIsVersions.VER_JCP_APIs_2_0;
     public static final String API_PATH = JCPAPIsVersions.PATH_API_BASE + "/" + API_NAME;
 
@@ -35,7 +35,7 @@ public class APIEvents {
 
     public static class SubGroupEvent {
         public final static String NAME = "Objects and service's events";
-        public final static String DESCR = "Register and get events...";
+        public final static String DESCR = "Register and get events";
     }
 
 
@@ -68,6 +68,24 @@ public class APIEvents {
     public static final String FULL_PATH_GET_SERVICE_LAST       = API_PATH + "/" + API_VER + "/" + MTHD_GET_SERVICE_LAST;
     public static final String FULL_PATH_SERVICE_BY_TYPE        = API_PATH + "/" + API_VER + "/" + MTHD_SERVICE_BY_TYPE;
     public static final String FULL_PATH_GET_SERVICE_BY_TYPE    = API_PATH + "/" + API_VER + "/" + MTHD_GET_SERVICE_BY_TYPE;
+
+
+    // API's descriptions
+
+    public static final String DESCR_PATH_OBJECT                = "Store given events as caller object's events";
+    public static final String DESCR_PATH_OBJECTg               = "Return latest events from current object";
+    public static final String DESCR_PATH_GET_OBJECT            = "Return latest events from specified object";
+    public static final String DESCR_PATH_OBJECT_LAST           = "Return last event from current object";
+    public static final String DESCR_PATH_GET_OBJECT_LAST       = "Return last event from specified object";
+    public static final String DESCR_PATH_OBJECT_BY_TYPE        = "Return latest events of specified type from current object";
+    public static final String DESCR_PATH_GET_OBJECT_BY_TYPE    = "Return latest events of specified type from specified object";
+    public static final String DESCR_PATH_SERVICE               = "Store given events as caller service's events";
+    public static final String DESCR_PATH_SERVICEg              = "Return latest events from current service";
+    public static final String DESCR_PATH_GET_SERVICE           = "Return latest events from specified services";
+    public static final String DESCR_PATH_SERVICE_LAST          = "Return last event from current service";
+    public static final String DESCR_PATH_GET_SERVICE_LAST      = "Return last event from specified service";
+    public static final String DESCR_PATH_SERVICE_BY_TYPE       = "Return latest events from current service and specified event type";
+    public static final String DESCR_PATH_GET_SERVICE_BY_TYPE   = "Return latest events from specified services and specified event type";
 
 //@formatter:on
 }
