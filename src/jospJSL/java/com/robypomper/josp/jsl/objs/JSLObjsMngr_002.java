@@ -175,7 +175,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     @Override
     public void addCloudObject(String objId) {
         assert getById(objId) == null;
-        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new object '%s' to '%s' service", objId, srvInfo.getSrvId()));
+        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new cloud object '%s' to '%s' service", objId, srvInfo.getSrvId()));
         DefaultJSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
         objs.add(remObj);
         emit_ObjAdded(remObj);
