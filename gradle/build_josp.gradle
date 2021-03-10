@@ -20,6 +20,7 @@
 
 import com.robypomper.build.java.JavaPublicationUtils
 import com.robypomper.build.java.JavaRunnableUtils
+import com.robypomper.build.gradle.GradleBuildInfo
 
 /**
  * Gradle configurations to manage JOD and JSL as java implementations.
@@ -99,6 +100,8 @@ dependencies {
 
 }
 
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospJOD, (String)project.ext.get("version.jospJOD_DEV"));
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospJSL, (String)project.ext.get("version.jospJSL_DEV"));
 
 // -------------
 // Runners Tasks

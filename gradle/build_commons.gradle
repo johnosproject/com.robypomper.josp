@@ -1,5 +1,3 @@
-import com.robypomper.build.java.JavaPublicationUtils
-
 /* *****************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
@@ -18,6 +16,9 @@ import com.robypomper.build.java.JavaPublicationUtils
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
+
+import com.robypomper.build.java.JavaPublicationUtils
+import com.robypomper.build.gradle.GradleBuildInfo
 
 /**
  * Gradle configurations to manage JOSP Commons as java implementations.
@@ -86,6 +87,8 @@ dependencies {
 
 }
 
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospAPIs, (String)project.ext.get("version.jospAPIs_DEV"));
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospCommons, (String)project.ext.get("version.jospCommons_DEV"));
 
 // -------------------
 // Publication configs
