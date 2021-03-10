@@ -22,6 +22,8 @@ import com.robypomper.java.JavaVersionUtils;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
+import com.robypomper.josp.jsl.admin.JSLAdmin;
+import com.robypomper.josp.jsl.admin.JSLAdmin_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLCommunication_002;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
@@ -54,8 +56,8 @@ public class JSL_002 extends AbsJSL {
 
     // Constructor
 
-    public JSL_002(JSLSettings_002 settings, JCPAPIsClientSrv jcpClient, JSLServiceInfo srvInfo, JSLUserMngr usr, JSLObjsMngr objs, JSLCommunication comm) {
-        super(settings, jcpClient, srvInfo, usr, objs, comm);
+    public JSL_002(JSLSettings_002 settings, JCPAPIsClientSrv jcpClient, JSLServiceInfo srvInfo, JSLUserMngr usr, JSLAdmin admin, JSLObjsMngr objs, JSLCommunication comm) {
+        super(settings, jcpClient, srvInfo, usr, admin, objs, comm);
     }
 
     public static JSL instance(JSLSettings_002 settings) throws JSLCommunication.LocalCommunicationException, JCPClient2.AuthenticationException {
@@ -102,6 +104,8 @@ public class JSL_002 extends AbsJSL {
 
         JSLUserMngr_002 usr = new JSLUserMngr_002(settings, jcpClient);
 
+        JSLAdmin_002 admin = new JSLAdmin_002(settings, jcpClient, usr);
+
         JSLObjsMngr_002 objs = new JSLObjsMngr_002(settings, srvInfo);
 
         srvInfo.setSystems(usr, objs);
@@ -112,7 +116,7 @@ public class JSL_002 extends AbsJSL {
         usr.setCommunication(comm);
         objs.setCommunication(comm);
 
-        return new JSL_002(settings, jcpClient, srvInfo, usr, objs, comm);
+        return new JSL_002(settings, jcpClient, srvInfo, usr, admin, objs, comm);
     }
 
     @Override
