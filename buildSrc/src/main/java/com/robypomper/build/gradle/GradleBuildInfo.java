@@ -22,6 +22,7 @@ public class GradleBuildInfo {
             "import java.io.IOException;\n" +
             "import java.net.URL;\n" +
             "import java.util.Map;\n" +
+            "import java.io.InputStream;\n" +
             "\n" +
             "public class BuildInfo {\n" +
             "\n" +
@@ -44,14 +45,14 @@ public class GradleBuildInfo {
             "    public Map<String,String> Extra;\n" +
             "\n" +
             "    private static BuildInfo load() {\n" +
-            "        URL resource = BuildInfo.class.getClassLoader().getResource(\"buildInfo.json\");\n" +
+            "        InputStream resource = Thread.currentThread().getContextClassLoader().getResourceAsStream(\"buildInfo.json\");\n" +
             "        if (resource == null) {\n" +
             "            throw new IllegalArgumentException(\"File 'buildInfo.json' not found\");\n" +
             "        }\n" +
             "\n" +
             "        try {\n" +
             "            ObjectMapper mapper = new ObjectMapper();\n" +
-            "            return mapper.readValue(new File(resource.getFile()), BuildInfo.class);\n" +
+            "            return mapper.readValue(resource, BuildInfo.class);\n" +
             "        } catch (IOException e) {\n" +
             "            throw new IllegalArgumentException(\"Error parsing file\", e);\n" +
             "        }\n" +
