@@ -247,9 +247,36 @@ function jsonToHTMLTable(json) {
     return html;
 }
 
-function doubleTruncateDigit(double,display) {
+function doubleTruncateDigit(double,length) {
     var strDouble = "" + double;
-    return strDouble.substring(0,strDouble.indexOf('.')+display+1);
+    return strDouble.substring(0,strDouble.indexOf('.')+length+1);
+}
+
+function stringTruncateAndCopy(string) {
+    var stringTruncated = "<div style='display: flex;'>";
+    stringTruncated += "<span class='tooltip' style='overflow: hidden;text-overflow: ellipsis;white-space: nowrap;'>";
+    stringTruncated += string;
+    stringTruncated += "</span>";
+    stringTruncated += "<i class='fa fa-clipboard' aria-hidden='true' onClick='copyToClipboard(this,\"" + escape(string) + "\")'></i>";
+    stringTruncated += "</div>";
+    return stringTruncated;
+}
+
+function copyToClipboard(icon, string) {
+    var tmpTextArea = document.createElement("textarea");
+    tmpTextArea.value = unescape(string);
+    document.body.appendChild(tmpTextArea);
+
+    tmpTextArea.focus();
+    tmpTextArea.select();
+
+    try {
+        document.execCommand('copy');
+        showUpdateFeedback(icon);
+    } catch (err) {
+        console.warn("WAR: Can't copy text to clipboard ", err);
+    }
+    document.body.removeChild(tmpTextArea);
 }
 
 function stringToDate(str) {

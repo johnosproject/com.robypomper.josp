@@ -122,14 +122,37 @@ function fillRequiredContent(documentUrl) {
 
     } else if (page == PAGE_ADMIN_HOME) {
         showAdminContent(false);
+    } else if (page == PAGE_ADMIN_APIS) {
+        showAdminContentAPIs(false);
     } else if (page == PAGE_ADMIN_GWS) {
         showAdminContentGWs(false);
+    } else if (page == PAGE_ADMIN_JSLWB) {
+        showAdminContentJSLWB(false);
+    } else if (page == PAGE_ADMIN_FE) {
+        showAdminContentFE(false);
     } else if (page == PAGE_ADMIN_OBJECTS) {
         showAdminContentObjects(false);
     } else if (page == PAGE_ADMIN_SERVICES) {
         showAdminContentServices(false);
     } else if (page == PAGE_ADMIN_USER) {
         showAdminContentUsers(false);
+
+    } else if (page == PAGE_ADMIN_BUILD_INFO + "APIs") {
+        showJCPServiceBuildInfo(false,"APIs");
+    } else if (page == PAGE_ADMIN_BUILD_INFO + "GWs") {
+        showJCPServiceBuildInfo(false,"GWs");
+    } else if (page == PAGE_ADMIN_BUILD_INFO + "JSLWB") {
+        showJCPServiceBuildInfo(false,"JSLWB");
+    } else if (page == PAGE_ADMIN_BUILD_INFO + "FE") {
+        showJCPServiceBuildInfo(false,"FE");
+    } else if (page == PAGE_ADMIN_EXEC + "APIs") {
+        showJCPServiceExecutable(false,"APIs");
+    } else if (page == PAGE_ADMIN_EXEC + "GWs") {
+        showJCPServiceExecutable(false,"GWs");
+    } else if (page == PAGE_ADMIN_EXEC + "JSLWB") {
+        showJCPServiceExecutable(false,"JSLWB");
+    } else if (page == PAGE_ADMIN_EXEC + "FE") {
+        showJCPServiceExecutable(false,"FE");
     } else
         return false;
 
@@ -156,7 +179,8 @@ window.onpopstate = function(event) {
 
 function startSessionHeartBeat() {
     window.setTimeout(function() {
-        apiGET(backEndUrl,"/apis/JCP/2.0/status",function(responseText) {
+        //apiGET(backEndUrl,"/apis/JCP/2.0/status",function(responseText) {
+        apiGET(backEndUrl,pathJSLWB_Init_Entrypoint,function(responseText) {
             startSessionHeartBeat();
         },onErrorFetch);
     },sessionIntervalTime);
