@@ -175,7 +175,7 @@ public class GWsManager {
 
         // Test JCP GWs status APIs
         try {
-            cl.getJCPGWsReq();
+            cl.getStatusOnlineReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             return false;
