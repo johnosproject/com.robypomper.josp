@@ -166,61 +166,61 @@ public class JSLAdmin_002 implements JSLAdmin {
     }
 
     @Override
-    public String getJCPGWsExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<String> getJCPGWsExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs Online");
         return apiAdminClient.getJCPGWsStatusExecOnlineReq();
     }
 
     @Override
-    public JCPStatus.CPU getJCPGWsExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<JCPStatus.CPU> getJCPGWsExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs CPU");
         return apiAdminClient.getJCPGWsStatusExecCPUReq();
     }
 
     @Override
-    public JCPStatus.Disks getJCPGWsExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<JCPStatus.Disks> getJCPGWsExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs Disks");
         return apiAdminClient.getJCPGWsStatusExecDisksReq();
     }
 
     @Override
-    public JCPStatus.Java getJCPGWsExecJava() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<JCPStatus.Java> getJCPGWsExecJava() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs Java");
         return apiAdminClient.getJCPGWsStatusExecJavaReq();
     }
 
     @Override
-    public List<JCPStatus.JavaThread> getJCPGWsExecJavaThs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<List<JCPStatus.JavaThread>> getJCPGWsExecJavaThs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs JavaThs");
         return apiAdminClient.getJCPGWsStatusExecJavaThreadsReq();
     }
 
     @Override
-    public JCPStatus.Memory getJCPGWsExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<JCPStatus.Memory> getJCPGWsExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs Memory");
         return apiAdminClient.getJCPGWsStatusExecMemoryReq();
     }
 
     @Override
-    public JCPStatus.Network getJCPGWsExecNetwork() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<JCPStatus.Network> getJCPGWsExecNetwork() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs Network");
         return apiAdminClient.getJCPGWsStatusExecNetworkReq();
     }
 
     @Override
-    public List<JCPStatus.NetworkIntf> getJCPGWsExecNetworkIntfs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<List<JCPStatus.NetworkIntf>> getJCPGWsExecNetworkIntfs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs NetworkIntfs");
         return apiAdminClient.getJCPGWsStatusExecNetworkIntfsReq();
     }
 
     @Override
-    public JCPStatus.Os getJCPGWsExecOs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<JCPStatus.Os> getJCPGWsExecOs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs Os");
         return apiAdminClient.getJCPGWsStatusExecOsReq();
     }
 
     @Override
-    public JCPStatus.Process getJCPGWsExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public List<JCPStatus.Process> getJCPGWsExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP GWs Process");
         return apiAdminClient.getJCPGWsStatusExecProcessReq();
     }
