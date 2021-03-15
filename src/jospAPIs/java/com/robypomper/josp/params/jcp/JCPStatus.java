@@ -41,16 +41,16 @@ public class JCPStatus {
 
         public final long classesLoaded;
         public final long classesLoadedTotal;
-        public final long classesUnoaded;
+        public final long classesUnloaded;
 
         public final double memoryInit;
         public final double memoryUsed;
-        public final double memoryCommited;
+        public final double memoryCommitted;
         public final double memoryMax;
         public final double memoryHeapInit;
         public final double memoryHeapUsed;
         public final double memoryHeapFree;
-        public final double memoryHeapCommited;
+        public final double memoryHeapCommitted;
         public final double memoryHeapMax;
 
         public final long[] threadsIds;
@@ -82,16 +82,16 @@ public class JCPStatus {
 
             classesLoaded = ManagementFactory.getClassLoadingMXBean().getLoadedClassCount();
             classesLoadedTotal = ManagementFactory.getClassLoadingMXBean().getTotalLoadedClassCount();
-            classesUnoaded = ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount();
+            classesUnloaded = ManagementFactory.getClassLoadingMXBean().getUnloadedClassCount();
 
             memoryInit = (double) (ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getInit() / BYTE_TRANSFORM);
             memoryUsed = (double) (ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed() / BYTE_TRANSFORM);
-            memoryCommited = (double) (ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getCommitted() / BYTE_TRANSFORM);
+            memoryCommitted = (double) (ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getCommitted() / BYTE_TRANSFORM);
             memoryMax = (double) (ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax() / BYTE_TRANSFORM);
             memoryHeapInit = (double) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getInit() / BYTE_TRANSFORM);
             memoryHeapUsed = (double) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() / BYTE_TRANSFORM);
             memoryHeapFree = (double) Runtime.getRuntime().freeMemory() / BYTE_TRANSFORM;
-            memoryHeapCommited = (double) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getCommitted() / BYTE_TRANSFORM);
+            memoryHeapCommitted = (double) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getCommitted() / BYTE_TRANSFORM);
             //(double)Runtime.getRuntime().totalMemory() / byteTransform
             memoryHeapMax = (double) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() / BYTE_TRANSFORM);
             //Runtime.getRuntime().maxMemory() == Long.MAX_VALUE ? -1 : (double)Runtime.getRuntime().maxMemory() / byteTransform
@@ -171,9 +171,8 @@ public class JCPStatus {
         public Disks() {
             list = new ArrayList<>();
             File[] roots = File.listRoots();
-            for (File root : roots) {
+            for (File root : roots)
                 list.add(new Disk(root));
-            }
         }
 
     }
@@ -205,13 +204,13 @@ public class JCPStatus {
 
         public Network() {
             addrLoopback = InetAddress.getLoopbackAddress();
+            InetAddress addrLocalhostTmp = null;
             try {
-                addrLocalhost = InetAddress.getLocalHost();
+                addrLocalhostTmp = InetAddress.getLocalHost();
 
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+            } catch (UnknownHostException ignore) {
             }
+            addrLocalhost = addrLocalhostTmp;
         }
 
     }
