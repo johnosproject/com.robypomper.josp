@@ -43,11 +43,4 @@ public class JSLWebBridgeClient extends AbsAPIJCP {
         super(jcpClient);
     }
 
-
-    // Generator methods
-
-    public JSLWebBridgeStatus getJCPJSLWebBridgeReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, JCPStatusAbs.FULL_PATH_STATUS_INSTANCE, JSLWebBridgeStatus.class, isSecure());
-    }
-
 }

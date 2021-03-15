@@ -19,12 +19,8 @@
 
 package com.robypomper.josp.jcp.clients.jcp.jcp;
 
-import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIJCP;
-import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPFEClient;
-import com.robypomper.josp.params.jcp.FEStatus;
-import com.robypomper.josp.paths.jcp.JCPStatusAbs;
 
 
 /**
@@ -41,13 +37,6 @@ public class FEClient extends AbsAPIJCP {
      */
     public FEClient(JCPFEClient jcpClient) {
         super(jcpClient);
-    }
-
-
-    // Generator methods
-
-    public FEStatus getJCPFEStatusReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, JCPStatusAbs.FULL_PATH_STATUS_INSTANCE, FEStatus.class, isSecure());
     }
 
 }

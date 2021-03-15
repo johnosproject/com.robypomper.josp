@@ -44,11 +44,6 @@ public class APIsClient extends AbsAPIJCP {
     }
 
 
-    // JCP APIs Status
-
-    // N/A use internal reference
-
-
     // JCP GWs Registration
 
     /**

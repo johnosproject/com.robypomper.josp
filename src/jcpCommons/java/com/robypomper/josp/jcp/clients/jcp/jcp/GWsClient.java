@@ -53,10 +53,6 @@ public class GWsClient extends AbsAPIJCP {
 
     // JCP GWs Status
 
-    public GWsStatus getJCPGWsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, JCPStatusAbs.FULL_PATH_STATUS_INSTANCE, GWsStatus.class, isSecure());
-    }
-
     public List<GWsStatus.Server> getJCPAPIsStatusGWsCliReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         return jcpClient.execReq(Verb.GET, com.robypomper.josp.jcp.paths.gws.JCPGWsStatus.FULL_PATH_GWS_STATUS_CLI, List.class, isSecure());
     }
