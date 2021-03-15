@@ -11,6 +11,7 @@ import com.robypomper.josp.jcp.paths.apis.JCPAPIsStatus;
 import com.robypomper.josp.jcp.service.controllers.jcp.JCPStatusControllerAbs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.APIsStatus;
+import com.robypomper.josp.params.jcp.ServiceStatus;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +27,7 @@ import javax.servlet.http.HttpSession;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {JCPAPIsStatus.SubGroupAPIsStatus.NAME})
-public class JCPAPIsStatusController extends JCPStatusControllerAbs<APIsStatus> {
+public class JCPAPIsStatusController extends JCPStatusControllerAbs {
 
     // Internal vars
 
@@ -63,7 +64,7 @@ public class JCPAPIsStatusController extends JCPStatusControllerAbs<APIsStatus> 
     // Methods
 
     @Override
-    protected APIsStatus getInstanceReqSubClass() {
+    protected ServiceStatus getInstanceReqSubClass() {
         return new APIsStatus(BuildInfoJcpAPIs.Current);
     }
 
