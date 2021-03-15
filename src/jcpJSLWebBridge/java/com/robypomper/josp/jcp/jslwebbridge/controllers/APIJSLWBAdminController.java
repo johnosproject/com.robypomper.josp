@@ -428,7 +428,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<String> getJCPGWsStatusExecONLINEForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<String>> getJCPGWsStatusExecONLINEForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -450,7 +450,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<JCPStatus.CPU> getJCPGWsStatusExecCPUForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<JCPStatus.CPU>> getJCPGWsStatusExecCPUForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -472,7 +472,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<JCPStatus.Disks> getJCPGWsStatusExecDisksForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<JCPStatus.Disks>> getJCPGWsStatusExecDisksForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -494,7 +494,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<JCPStatus.Java> getJCPGWsStatusExecJavaForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<JCPStatus.Java>> getJCPGWsStatusExecJavaForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -516,7 +516,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<List<JCPStatus.JavaThread>> getJCPGWsStatusExecJavaThsForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<List<JCPStatus.JavaThread>>> getJCPGWsStatusExecJavaThsForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -538,7 +538,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<JCPStatus.Memory> getJCPGWsStatusExecMemoryForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<JCPStatus.Memory>> getJCPGWsStatusExecMemoryForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -560,7 +560,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<JCPStatus.Network> getJCPGWsStatusExecNetworkForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<JCPStatus.Network>> getJCPGWsStatusExecNetworkForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -582,7 +582,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<List<JCPStatus.NetworkIntf>> getJCPGWsStatusExecNetworkIntfsForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<List<JCPStatus.NetworkIntf>>> getJCPGWsStatusExecNetworkIntfsForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -604,7 +604,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<JCPStatus.Os> getJCPGWsStatusExecOsForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<JCPStatus.Os>> getJCPGWsStatusExecOsForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
@@ -626,7 +626,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
-    public ResponseEntity<JCPStatus.Process> getJCPGWsStatusExecProcessForward(@ApiIgnore HttpSession session) {
+    public ResponseEntity<List<JCPStatus.Process>> getJCPGWsStatusExecProcessForward(@ApiIgnore HttpSession session) {
         JSL jsl = webBridgeService.getJSL(session.getId());
 
         try {
