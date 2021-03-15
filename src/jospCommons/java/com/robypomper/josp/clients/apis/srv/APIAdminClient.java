@@ -124,44 +124,44 @@ public class APIAdminClient extends AbsAPISrv {
         return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_SERVERS, List.class, isSecure());
     }
 
-    public String getJCPGWsStatusExecOnlineReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_ONLINE, String.class, isSecure());
+    public List<String> getJCPGWsStatusExecOnlineReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_ONLINE, List.class, isSecure());
     }
 
-    public JCPStatus.CPU getJCPGWsStatusExecCPUReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_CPU, JCPStatus.CPU.class, isSecure());
+    public List<JCPStatus.CPU> getJCPGWsStatusExecCPUReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_CPU, List.class, isSecure());
     }
 
-    public JCPStatus.Disks getJCPGWsStatusExecDisksReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_DISKS, JCPStatus.Disks.class, isSecure());
+    public List<JCPStatus.Disks> getJCPGWsStatusExecDisksReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_DISKS, List.class, isSecure());
     }
 
-    public JCPStatus.Java getJCPGWsStatusExecJavaReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_JAVA, JCPStatus.Java.class, isSecure());
+    public List<JCPStatus.Java> getJCPGWsStatusExecJavaReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_JAVA, List.class, isSecure());
     }
 
-    public List<JCPStatus.JavaThread> getJCPGWsStatusExecJavaThreadsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+    public List<List<JCPStatus.JavaThread>> getJCPGWsStatusExecJavaThreadsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_JAVA_THS, List.class, isSecure());
     }
 
-    public JCPStatus.Memory getJCPGWsStatusExecMemoryReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_MEMORY, JCPStatus.Memory.class, isSecure());
+    public List<JCPStatus.Memory> getJCPGWsStatusExecMemoryReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_MEMORY, List.class, isSecure());
     }
 
-    public JCPStatus.Network getJCPGWsStatusExecNetworkReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_NETWORK, JCPStatus.Network.class, isSecure());
+    public List<JCPStatus.Network> getJCPGWsStatusExecNetworkReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_NETWORK, List.class, isSecure());
     }
 
-    public List<JCPStatus.NetworkIntf> getJCPGWsStatusExecNetworkIntfsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+    public List<List<JCPStatus.NetworkIntf>> getJCPGWsStatusExecNetworkIntfsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_NETWORK_INTFS, List.class, isSecure());
     }
 
-    public JCPStatus.Os getJCPGWsStatusExecOsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_OS, JCPStatus.Os.class, isSecure());
+    public List<JCPStatus.Os> getJCPGWsStatusExecOsReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_OS, List.class, isSecure());
     }
 
-    public JCPStatus.Process getJCPGWsStatusExecProcessReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_PROCESS, JCPStatus.Process.class, isSecure());
+    public List<JCPStatus.Process> getJCPGWsStatusExecProcessReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_PROCESS, List.class, isSecure());
     }
 
 

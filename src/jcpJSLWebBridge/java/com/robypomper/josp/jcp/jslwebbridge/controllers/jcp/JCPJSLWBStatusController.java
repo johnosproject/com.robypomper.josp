@@ -6,6 +6,7 @@ import com.robypomper.josp.jcp.paths.jslwb.JCPJSLWBStatus;
 import com.robypomper.josp.jcp.service.controllers.jcp.JCPStatusControllerAbs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.JSLWebBridgeStatus;
+import com.robypomper.josp.params.jcp.ServiceStatus;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {com.robypomper.josp.jcp.paths.jslwb.JCPJSLWBStatus.SubGroupJSLWebBridgeStatus.NAME})
-public class JCPJSLWBStatusController extends JCPStatusControllerAbs<JSLWebBridgeStatus> {
+public class JCPJSLWBStatusController extends JCPStatusControllerAbs {
 
     // Internal vars
 
@@ -36,7 +37,7 @@ public class JCPJSLWBStatusController extends JCPStatusControllerAbs<JSLWebBridg
     // Methods
 
     @Override
-    protected JSLWebBridgeStatus getInstanceReqSubClass() {
+    protected ServiceStatus getInstanceReqSubClass() {
         return new JSLWebBridgeStatus(BuildInfoJcpJSLWebBridge.Current);
     }
 

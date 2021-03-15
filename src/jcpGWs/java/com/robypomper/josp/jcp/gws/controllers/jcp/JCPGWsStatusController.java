@@ -8,6 +8,7 @@ import com.robypomper.josp.jcp.paths.gws.JCPGWsStatus;
 import com.robypomper.josp.jcp.service.controllers.jcp.JCPStatusControllerAbs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.GWsStatus;
+import com.robypomper.josp.params.jcp.ServiceStatus;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {JCPGWsStatus.SubGroupGWsStatus.NAME})
-public class JCPGWsStatusController extends JCPStatusControllerAbs<GWsStatus> {
+public class JCPGWsStatusController extends JCPStatusControllerAbs {
 
     // Internal vars
 
@@ -52,7 +53,7 @@ public class JCPGWsStatusController extends JCPStatusControllerAbs<GWsStatus> {
     // Methods
 
     @Override
-    protected GWsStatus getInstanceReqSubClass() {
+    protected ServiceStatus getInstanceReqSubClass() {
         return new GWsStatus(BuildInfoJcpGWs.Current);
     }
 

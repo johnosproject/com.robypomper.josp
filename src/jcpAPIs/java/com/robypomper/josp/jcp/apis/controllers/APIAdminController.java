@@ -16,7 +16,6 @@ import com.robypomper.josp.params.jcp.*;
 import com.robypomper.josp.paths.APIAdmin;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -88,7 +87,7 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<APIsStatus> getJCPAPIsInstanceReq() {
+    public ResponseEntity<ServiceStatus> getJCPAPIsInstanceReq() {
         return apiClient.getInstanceReq();
     }
 
@@ -371,8 +370,8 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<List<GWsStatus>> getJCPGWsInstanceReq() {
-        List<GWsStatus> gws = new ArrayList<>();
+    public ResponseEntity<List<ServiceStatus>> getJCPGWsInstanceReq() {
+        List<ServiceStatus> gws = new ArrayList<>();
 
         List<String> gwAPIsUrlsQueried = new ArrayList<>();
         for (GW gw : gwManager.getAll()) {
@@ -382,7 +381,7 @@ public class APIAdminController {
 
             GWsClient apiGWs = gwManager.getGWsClient(gw);
             try {
-                gws.add(apiGWs.getJCPGWsReq());
+                gws.add(apiGWs.getStatusReq());
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
                 e.printStackTrace();
                 continue;
@@ -450,8 +449,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<String> getJCPGWsExecONLINE() {
-        return apiClient.getOnlineReq();
+    public ResponseEntity<List<String>> getJCPGWsExecONLINE() {
+        List<String> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                String gwsTmp = apiGWs.getStatusOnlineReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_CPU)
@@ -470,8 +489,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPStatus.CPU> getJCPGWsExecCPU() {
-        return apiClient.getCPUReq();
+    public ResponseEntity<List<JCPStatus.CPU>> getJCPGWsExecCPU() {
+        List<JCPStatus.CPU> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                JCPStatus.CPU gwsTmp = apiGWs.getStatusCpuReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_DISKS)
@@ -490,8 +529,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPStatus.Disks> getJCPGWsExecDISKS() {
-        return apiClient.getDisksReq();
+    public ResponseEntity<List<JCPStatus.Disks>> getJCPGWsExecDISKS() {
+        List<JCPStatus.Disks> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                JCPStatus.Disks gwsTmp = apiGWs.getStatusDisksReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_JAVA)
@@ -510,8 +569,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPStatus.Java> getJCPGWsExecJAVA() {
-        return apiClient.getJavaReq();
+    public ResponseEntity<List<JCPStatus.Java>> getJCPGWsExecJAVA() {
+        List<JCPStatus.Java> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                JCPStatus.Java gwsTmp = apiGWs.getStatusJavaReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_JAVA_THS)
@@ -530,8 +609,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<List<JCPStatus.JavaThread>> getJCPGWsExecJAVA_THS() {
-        return apiClient.getJavaThreadReq();
+    public ResponseEntity<List<List<JCPStatus.JavaThread>>> getJCPGWsExecJAVA_THS() {
+        List<List<JCPStatus.JavaThread>> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                List<JCPStatus.JavaThread> gwsTmp = apiGWs.getStatusJavaThsReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_MEMORY)
@@ -550,8 +649,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPStatus.Memory> getJCPGWsExecMEMORY() {
-        return apiClient.getMemoryReq();
+    public ResponseEntity<List<JCPStatus.Memory>> getJCPGWsExecMEMORY() {
+        List<JCPStatus.Memory> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                JCPStatus.Memory gwsTmp = apiGWs.getStatusMemoryReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_NETWORK)
@@ -570,8 +689,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPStatus.Network> getJCPGWsExecNETWORK() {
-        return apiClient.getNetworkReq();
+    public ResponseEntity<List<JCPStatus.Network>> getJCPGWsExecNETWORK() {
+        List<JCPStatus.Network> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                JCPStatus.Network gwsTmp = apiGWs.getStatusNetworkReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_NETWORK_INTFS)
@@ -590,8 +729,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<List<JCPStatus.NetworkIntf>> getJCPGWsExecNETWORK_INTFS() {
-        return apiClient.getNetworkIntfsReq();
+    public ResponseEntity<List<List<JCPStatus.NetworkIntf>>> getJCPGWsExecNETWORK_INTFS() {
+        List<List<JCPStatus.NetworkIntf>> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                List<JCPStatus.NetworkIntf> gwsTmp = apiGWs.getStatusNetworkIntfsReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_OS)
@@ -610,8 +769,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPStatus.Os> getJCPGWsExecOS() {
-        return apiClient.getOsReq();
+    public ResponseEntity<List<JCPStatus.Os>> getJCPGWsExecOS() {
+        List<JCPStatus.Os> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                JCPStatus.Os gwsTmp = apiGWs.getStatusOSReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
     @GetMapping(path = APIAdmin.FULL_PATH_JCP_GWS_STATUS_EXEC_PROCESS)
@@ -630,8 +809,28 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JCPStatus.Process> getJCPGWsExecPROCESS() {
-        return apiClient.getProcessReq();
+    public ResponseEntity<List<JCPStatus.Process>> getJCPGWsExecPROCESS() {
+        List<JCPStatus.Process> gws = new ArrayList<>();
+
+        List<String> gwAPIsUrlsQueried = new ArrayList<>();
+        for (GW gw : gwManager.getAll()) {
+            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            if (gwAPIsUrlsQueried.contains(url))
+                continue;
+
+            GWsClient apiGWs = gwManager.getGWsClient(gw);
+            try {
+                JCPStatus.Process gwsTmp = apiGWs.getStatusProcessReq();
+                gws.add(gwsTmp);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            gwAPIsUrlsQueried.add(url);
+        }
+
+        return ResponseEntity.ok(gws);
     }
 
 
@@ -653,16 +852,17 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<JSLWebBridgeStatus> getJCPJSLWBInstanceReq() {
+    public ResponseEntity<ServiceStatus> getJCPJSLWBInstanceReq() {
         try {
-            return ResponseEntity.ok(wbClient.getJCPJSLWebBridgeReq());
+            return ResponseEntity.ok(wbClient.getStatusReq());
+
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error occurred with query 'JCP JSL WebBridge's status' resource because %s", e.getMessage()), e);
+            throw jcpNotConnectedException("JSL WebBridge", "Instance", e);
         }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_ONLINE)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_ONLINE,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_ONLINE)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_ONLINE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -678,11 +878,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<String> getJCPJSLWBExecONLINE() {
-        return apiClient.getOnlineReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusOnlineReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Online", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_CPU)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_CPU,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_CPU)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_CPU,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -698,11 +903,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.CPU> getJCPJSLWBExecCPU() {
-        return apiClient.getCPUReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusCpuReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "CPU", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_DISKS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_DISKS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_DISKS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_DISKS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -718,11 +928,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Disks> getJCPJSLWBExecDISKS() {
-        return apiClient.getDisksReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusDisksReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Disks", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_JAVA)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_JAVA,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_JAVA)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_JAVA,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -738,11 +953,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Java> getJCPJSLWBExecJAVA() {
-        return apiClient.getJavaReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusJavaReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Java", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_JAVA_THS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_JAVA_THS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_JAVA_THS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_JAVA_THS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -758,11 +978,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<List<JCPStatus.JavaThread>> getJCPJSLWBExecJAVA_THS() {
-        return apiClient.getJavaThreadReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusJavaThsReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Java Ths", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_MEMORY)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_MEMORY,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_MEMORY)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -778,11 +1003,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Memory> getJCPJSLWBExecMEMORY() {
-        return apiClient.getMemoryReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusMemoryReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Memory", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_NETWORK)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_NETWORK,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_NETWORK)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_NETWORK,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -798,11 +1028,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Network> getJCPJSLWBExecNETWORK() {
-        return apiClient.getNetworkReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusNetworkReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Network", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_NETWORK_INTFS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_NETWORK_INTFS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_NETWORK_INTFS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_NETWORK_INTFS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -818,11 +1053,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<List<JCPStatus.NetworkIntf>> getJCPJSLWBExecNETWORK_INTFS() {
-        return apiClient.getNetworkIntfsReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusNetworkIntfsReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Network Intfs", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_OS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_OS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_OS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_OS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -838,11 +1078,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Os> getJCPJSLWBExecOS() {
-        return apiClient.getOsReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusOSReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "OS", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_PROCESS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_PROCESS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_JSL_WB_STATUS_EXEC_PROCESS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_JSL_WB_STATUS_EXEC_PROCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -858,7 +1103,12 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Process> getJCPJSLWBExecPROCESS() {
-        return apiClient.getProcessReq();
+        try {
+            return ResponseEntity.ok(wbClient.getStatusProcessReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("JSL WebBridge", "Process", e);
+        }
     }
 
 
@@ -880,17 +1130,17 @@ public class APIAdminController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<FEStatus> getJCPFEInstanceReq() {
+    public ResponseEntity<ServiceStatus> getJCPFEInstanceReq() {
         try {
-            return ResponseEntity.ok(feClient.getJCPFEStatusReq());
+            return ResponseEntity.ok(feClient.getStatusReq());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error occurred with query 'JCP FE's status' resource because %s", e.getMessage()), e);
+            throw jcpNotConnectedException("Front End", "Instance", e);
         }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_ONLINE)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_ONLINE,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_ONLINE)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_ONLINE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -906,11 +1156,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<String> getJCPFEExecONLINE() {
-        return apiClient.getOnlineReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusOnlineReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Online", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_CPU)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_CPU,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_CPU)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_CPU,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -926,11 +1181,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.CPU> getJCPFEExecCPU() {
-        return apiClient.getCPUReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusCpuReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Online", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_DISKS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_DISKS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_DISKS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_DISKS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -946,11 +1206,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Disks> getJCPFEExecDISKS() {
-        return apiClient.getDisksReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusDisksReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Disks", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_JAVA)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_JAVA,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_JAVA)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_JAVA,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -966,11 +1231,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Java> getJCPFEExecJAVA() {
-        return apiClient.getJavaReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusJavaReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Java", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_JAVA_THS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_JAVA_THS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_JAVA_THS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_JAVA_THS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -986,11 +1256,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<List<JCPStatus.JavaThread>> getJCPFEExecJAVA_THS() {
-        return apiClient.getJavaThreadReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusJavaThsReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Java Ths", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_MEMORY)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_MEMORY,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_MEMORY)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -1006,11 +1281,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Memory> getJCPFEExecMEMORY() {
-        return apiClient.getMemoryReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusMemoryReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Memory", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_NETWORK)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_NETWORK,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_NETWORK)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_NETWORK,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -1026,11 +1306,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Network> getJCPFEExecNETWORK() {
-        return apiClient.getNetworkReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusNetworkReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Network", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_NETWORK_INTFS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_NETWORK_INTFS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_NETWORK_INTFS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_NETWORK_INTFS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -1046,11 +1331,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<List<JCPStatus.NetworkIntf>> getJCPFEExecNETWORK_INTFS() {
-        return apiClient.getNetworkIntfsReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusNetworkIntfsReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Network Intfs", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_OS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_OS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_OS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_OS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -1066,11 +1356,16 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Os> getJCPFEExecOS() {
-        return apiClient.getOsReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusOSReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "OS", e);
+        }
     }
 
-    @GetMapping(path = APIAdmin.FULL_PATH_JCP_APIS_STATUS_EXEC_PROCESS)
-    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_APIS_STATUS_EXEC_PROCESS,
+    @GetMapping(path = APIAdmin.FULL_PATH_JCP_FE_STATUS_EXEC_PROCESS)
+    @ApiOperation(value = APIAdmin.DESCR_PATH_JCP_FE_STATUS_EXEC_PROCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
                     scopes = @AuthorizationScope(
@@ -1086,7 +1381,19 @@ public class APIAdminController {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<JCPStatus.Process> getJCPFEExecPROCESS() {
-        return apiClient.getProcessReq();
+        try {
+            return ResponseEntity.ok(feClient.getStatusProcessReq());
+
+        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+            throw jcpNotConnectedException("Front End", "Process", e);
+        }
+    }
+
+
+    // Exception utils
+
+    protected ResponseStatusException jcpNotConnectedException(String service, String resource, Throwable e) {
+        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("Error occurred with query 'JCP %s's %s' resource because %s", service, resource, e.getMessage()), e);
     }
 
 }

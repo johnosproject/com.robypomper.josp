@@ -302,7 +302,7 @@ clean.dependsOn jcpJSLWebBridge_Clean
 bootJcpJSLWebBridgeRun.dependsOn printGradleVersions
 
 // JCP FE
-SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpFE, project.file('src/jcpFE/resources/log4j2_project.xml'), 'dev,auth-none,db-fe,ssl')
+SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpFE, project.file('src/jcpFE/resources/log4j2_project.xml'), 'dev,auth,db-fe,ssl')
 tasks.bootJcpFERun {
     workingDir('envs/runnables/jcpFE')
     doFirst {

@@ -1,6 +1,6 @@
 spring.application.name: jcpFE
 server.port: 9004
-spring.profiles.active: auth-none, db-fe, ssl
+spring.profiles.active: auth, db-fe, ssl
 
 # JCP Clients
 jcp.client.ssl.internal: true

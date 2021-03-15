@@ -5,6 +5,7 @@ import com.robypomper.josp.jcp.info.JCPFEVersions;
 import com.robypomper.josp.jcp.service.controllers.jcp.JCPStatusControllerAbs;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jcp.FEStatus;
+import com.robypomper.josp.params.jcp.ServiceStatus;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +16,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 @SuppressWarnings("unused")
 @RestController
 @Api(tags = {com.robypomper.josp.jcp.paths.fe.JCPFEStatus.SubGroupFEStatus.NAME})
-public class JCPFEStatusController extends JCPStatusControllerAbs<FEStatus> {
+public class JCPFEStatusController extends JCPStatusControllerAbs {
 
     // Internal vars
 
@@ -36,7 +37,7 @@ public class JCPFEStatusController extends JCPStatusControllerAbs<FEStatus> {
     // Methods
 
     @Override
-    protected FEStatus getInstanceReqSubClass() {
+    protected ServiceStatus getInstanceReqSubClass() {
         return new FEStatus(BuildInfoJcpFE.Current);
     }
 
