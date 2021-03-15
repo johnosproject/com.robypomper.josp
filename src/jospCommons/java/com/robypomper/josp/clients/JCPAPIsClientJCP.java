@@ -65,7 +65,7 @@ public class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.Co
     // Constructor
 
     public JCPAPIsClientJCP(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String apiName, String callBack) {
-        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", 30, apiName);
+        super(client, secret, urlAPIs, useSSL, urlAuth, "openid offline_access", callBack, "jcp", 30, apiName);
         addConnectionListener(this);
 
         connFailedPrinted = true;

@@ -38,7 +38,7 @@ public abstract class JCPAPIsClientSrv extends DefaultJCPClient2 implements JCPC
     // Constructor
 
     public JCPAPIsClientSrv(boolean useSSL, String client, String secret, String urlAPIs, String urlAuth, String callBack, String authCodeRefreshToken) {
-        super(client, secret, urlAPIs, useSSL, urlAuth, "openid", callBack, "jcp", authCodeRefreshToken, 30, JCP_NAME);
+        super(client, secret, urlAPIs, useSSL, urlAuth, "openid offline_access", callBack, "jcp", authCodeRefreshToken, 30, JCP_NAME);
         addConnectionListener(this);
 
         connFailedPrinted = true;
