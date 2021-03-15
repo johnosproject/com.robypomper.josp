@@ -17,22 +17,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
+public abstract class JCPStatusControllerAbs {
 
     // Methods
 
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_INSTANCE)
-    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_INSTANCE)
+    @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_INSTANCE,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's instance status", response = ServiceStatus.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    public ResponseEntity<S> getInstanceReq() {
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
+    public ResponseEntity<ServiceStatus> getInstanceReq() {
         return ResponseEntity.ok(getInstanceReqSubClass());
     }
 
-    protected abstract S getInstanceReqSubClass();
+    protected abstract ServiceStatus getInstanceReqSubClass();
 
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_ONLINE)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_ONLINE)
@@ -48,10 +57,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_PROCESS)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_PROCESS,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -60,7 +69,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<JCPStatus.Process> getProcessReq() {
         return ResponseEntity.ok(new JCPStatus.Process());
     }
@@ -68,10 +77,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_JAVA)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_JAVA,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -80,7 +89,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<JCPStatus.Java> getJavaReq() {
         return ResponseEntity.ok(new JCPStatus.Java());
     }
@@ -88,10 +97,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_JAVA_THS)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_JAVA_THS,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -100,7 +109,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<List<JCPStatus.JavaThread>> getJavaThreadReq() {
         List<JCPStatus.JavaThread> threads = new ArrayList<>();
         for (long thId : ManagementFactory.getThreadMXBean().getAllThreadIds())
@@ -112,10 +121,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_OS)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_OS,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -124,7 +133,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<JCPStatus.Os> getOsReq() {
         return ResponseEntity.ok(new JCPStatus.Os());
     }
@@ -132,10 +141,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_CPU)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_CPU,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -144,7 +153,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<JCPStatus.CPU> getCPUReq() {
         return ResponseEntity.ok(new JCPStatus.CPU());
     }
@@ -152,10 +161,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_MEMORY)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_MEMORY,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -164,7 +173,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<JCPStatus.Memory> getMemoryReq() {
         return ResponseEntity.ok(new JCPStatus.Memory());
     }
@@ -172,10 +181,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_DISKS)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_DISKS,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -184,7 +193,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<JCPStatus.Disks> getDisksReq() {
         return ResponseEntity.ok(new JCPStatus.Disks());
     }
@@ -192,10 +201,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_NETWORK)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_NETWORK,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -204,7 +213,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<JCPStatus.Network> getNetworkReq() {
         return ResponseEntity.ok(new JCPStatus.Network());
     }
@@ -212,10 +221,10 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
     @GetMapping(path = JCPStatusAbs.FULL_PATH_STATUS_NETWORK_INTFS)
     @ApiOperation(value = JCPStatusAbs.DESCR_PATH_STATUS_NETWORK_INTFS,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -224,7 +233,7 @@ public abstract class JCPStatusControllerAbs<S extends ServiceStatus> {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<List<JCPStatus.NetworkIntf>> getNetworkIntfsReq() {
         List<JCPStatus.NetworkIntf> listInterfaces = new ArrayList<>();
         List<NetworkInterface> itfs;
