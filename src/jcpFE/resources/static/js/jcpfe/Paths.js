@@ -11,7 +11,7 @@ var pathFE_EP_Session                   = _pathFE_EP + "/jslwbsession?session_id
 
 var _pathJSLWBVersion = "1.0"
 var _pathJSLWB_Init                     = "/apis/JSL/Init/" + _pathJSLWBVersion;
-var pathJSLWB_Init_Entrypoint           = _pathJSLWB_Init + "/sessionStatus";
+var pathJSLWB_Init_Entrypoint           = _pathJSLWB_Init + "/status";
 var pathJSLWB_Init_Sse                  = _pathJSLWB_Init + "/sse";
 var _pathJSLWB_Usr                      = "/apis/JSL/Usr/" + _pathJSLWBVersion;
 var pathJSLWB_Usr_Login                 = _pathJSLWB_Usr + "/login/";                                               // "/apis/user/1.0/login/?redirect_uri=" +document.location.href;
