@@ -21,8 +21,6 @@ package com.robypomper.josp.jcp.clients;
 
 import com.robypomper.josp.clients.JCPAPIsClientJCP;
 import com.robypomper.josp.clients.JCPClient2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 
 /**
@@ -36,9 +34,14 @@ public class JCPAPIsClient extends JCPAPIsClientJCP {
 
     // Constructor
 
-    @Autowired
-    public JCPAPIsClient(ClientParams params, @Value("${jcp.urlAPIs}") String urlAPIs, boolean internal) {
-        super(internal ? params.useSSLInternal : params.useSSLPublic, params.client, params.secret, urlAPIs, params.urlAuth, JCP_NAME, params.callBack);
+    protected JCPAPIsClient(ClientParams params, boolean usePrivate) {
+        super(usePrivate ? params.sslPrivate : params.sslPublic,
+                params.clientId,
+                params.clientSecret,
+                (usePrivate ? params.apisHostPrivate : params.apisHostPublic) + (params.apisPort.isEmpty() ? "" : ":" + params.apisPort),
+                params.authHostPublic + (params.authPort.isEmpty() ? "" : ":" + params.authPort),
+                JCP_NAME,
+                params.clientCallBack);
     }
 
 

@@ -35,8 +35,14 @@ public class JCPGWsClient extends JCPAPIsClientJCP {
 
     // Constructor
 
-    public JCPGWsClient(ClientParams params, String urlGWs, boolean internal, String instanceName) {
-        super(internal ? params.useSSLInternal : params.useSSLPublic, params.client, params.secret, urlGWs, params.urlAuth, String.format(JCP_NAME, instanceName), params.callBack);
+    protected JCPGWsClient(ClientParams params, boolean usePrivate, String urlGWs, String instanceName) {
+        super(usePrivate ? params.sslPrivate : params.sslPublic,
+                params.clientId,
+                params.clientSecret,
+                urlGWs,
+                params.authHostPublic + (params.authPort.isEmpty() ? "" : ":" + params.authPort),
+                String.format(JCP_NAME, instanceName),
+                params.clientCallBack);
     }
 
 }

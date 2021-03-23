@@ -31,7 +31,8 @@ public class APIFEEntryPointController {
 
     // Internal vars
 
-    private final String jslWBUrl;
+    private final String jslWBUrlInternal;
+    private final String jslWBUrlPublic;
     private final String clientId;
     private final String clientSecret;
     @Autowired
@@ -41,11 +42,11 @@ public class APIFEEntryPointController {
     // Constructor
 
     @Autowired
-    public APIFEEntryPointController(@Value("${jcp.urlJSLWebBridge}") String jslWBUrl,
-                                     ClientParams jcpAPIsParams) {
-        this.jslWBUrl = (jcpAPIsParams.useSSLPublic ? "https://" : "http:") + jslWBUrl;
-        this.clientId = jcpAPIsParams.client;
-        this.clientSecret = jcpAPIsParams.secret;
+    public APIFEEntryPointController(ClientParams params) {
+        this.jslWBUrlInternal = (params.sslPrivate ? "https://" : "http:") + (params.jslWBHostPrivate) + ":" + params.jslWBPort;
+        this.jslWBUrlPublic = (params.sslPublic ? "https://" : "http:") + (params.jslWBHostPublic) + ":" + params.jslWBPort;
+        this.clientId = params.clientId;
+        this.clientSecret = params.clientSecret;
     }
 
 
@@ -69,7 +70,7 @@ public class APIFEEntryPointController {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     public ResponseEntity<String> getEntrypoint() {
-        return ResponseEntity.ok(jslWBUrl);
+        return ResponseEntity.ok(jslWBUrlPublic);
     }
 
     @GetMapping(path = APIFEEntryPoint.FULL_PATH_INIT_JSL_SESSION)
@@ -81,7 +82,7 @@ public class APIFEEntryPointController {
     })
     public ResponseEntity<Boolean> initJSLWebBridgeSession(@RequestParam("session_id") String sessionId) {
         try {
-            URL url = new URL(jslWBUrl + APIJSLWBInit.FULL_PATH_INIT_JSL + "?client_id=" + clientId + "&client_secret=" + clientSecret);
+            URL url = new URL(jslWBUrlInternal + APIJSLWBInit.FULL_PATH_INIT_JSL + "?client_id=" + clientId + "&client_secret=" + clientSecret);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
             conn.connect();
