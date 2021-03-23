@@ -8,10 +8,7 @@ import com.robypomper.comm.server.ServerClient;
 import com.robypomper.comm.server.ServerStateListener;
 import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.comm.trustmanagers.DynAddTrustManager;
-import com.robypomper.java.JavaAssertions;
-import com.robypomper.java.JavaDate;
-import com.robypomper.java.JavaJKS;
-import com.robypomper.java.JavaSSL;
+import com.robypomper.java.*;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.clients.JCPAPIsClient;
@@ -33,6 +30,7 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
+import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +39,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     // Class constants
 
     private static final String KS_PASS = "123456";
+    public static final String TH_REGISTER_NAME = "GW_REG_%s";
 
 
     // Internal vars
@@ -56,6 +55,8 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     private final JCPGWsStatus gwStatus;
     private CountDownLatch deregisterCountDown = new CountDownLatch(1);
     private boolean springStarted = false;
+    private Timer registerTimer;
+    private final int registerTimerDelayMS;
 
 
     // Constructor
@@ -69,6 +70,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         this.addrPublic = addrPublic;
         this.apisPort = apiPort;
         this.maxClients = maxClients;
+        this.registerTimerDelayMS = 60 * 1000;
 
         KeyStore ks = JavaJKS.generateKeyStore(idServer, KS_PASS, idServer);
         Certificate publicCertificate = JavaJKS.extractCertificate(ks, idServer);
@@ -178,21 +180,16 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         if (!springStarted)
             return;
 
-        JCPGWsStartup gwStartup = new JCPGWsStartup(getType(), getPublicAddress(), getGWPort(), getInternalAddress(), getAPIsPort(), getMaxClient(), getVersion());
-        try {
-            jcpAPIsGWs.postStartup(gwStartup, getId());
-            log.info(String.format("JCP GW '%s' registered to JCP APIs successfully.", getId()));
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(String.format("Error register JCP GW '%s' to JCP APIs'.", getId()), e);
-        }
-
-        update();
+        if (registerTimer==null)
+            registerTimer = JavaTimers.initAndStart(new RegisterTimer(), true, String.format(TH_REGISTER_NAME, getId()), this.toString(), 0, registerTimerDelayMS);
     }
 
     private void deregister() {
         if (!server.getState().isStopped())
             JavaAssertions.makeAssertion(server.getState().isStopped(), "Can't call GWServiceAbs.deregister() method when internal server is not stopped.");
+
+        JavaTimers.stopTimer(registerTimer);
+        registerTimer = null;
 
         if (!jcpAPIsGWs.getClient().isConnected()) {
             log.warn("Can't de-register JCP GW '%s' because JCP APIs not available");
@@ -206,6 +203,31 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             log.warn(String.format("Error de-register JCP GW '%s' to JCP APIs.", getId()), e);
         }
+    }
+
+    private class RegisterTimer implements Runnable {
+
+        boolean isPrinted = false;
+
+        @Override
+        public void run() {
+            JCPGWsStartup gwStartup = new JCPGWsStartup(getType(), getPublicAddress(), getGWPort(), getInternalAddress(), getAPIsPort(), getMaxClient(), getVersion());
+            try {
+                jcpAPIsGWs.postStartup(gwStartup, getId());
+                if (!isPrinted) {
+                    log.info(String.format("JCP GW '%s' registered to JCP APIs successfully.", getId()));
+                    isPrinted = true;
+                } else
+                    log.trace(String.format("JCP GW '%s' registered to JCP APIs successfully.", getId()));
+
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
+                log.warn(String.format("Error register JCP GW '%s' to JCP APIs'.", getId()), e);
+                isPrinted = false;
+            }
+
+            update();
+        }
+
     }
 
     private void update() {
