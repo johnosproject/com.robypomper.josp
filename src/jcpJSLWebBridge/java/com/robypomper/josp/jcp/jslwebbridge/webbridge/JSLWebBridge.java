@@ -115,6 +115,7 @@ public class JSLWebBridge {
     // components listeners 3rd level
     private final Map<JSL, Map<JSLRemoteObject, Map<JSLComponent, Object>>> objComponentListeners = new HashMap<>();
     // heartbeats
+    private Timer heartbeatTimer;
     private final int heartbeatTimerDelaySeconds;
 
 
@@ -232,53 +233,41 @@ public class JSLWebBridge {
         log.info(String.format(LOG_REMOVED_JSL, jsl.getServiceInfo().getFullId(), sessionId));
     }
 
+
+    // JSL Scheduled remove
+
     private void scheduleRemoveJSLInstance(String sessionId) {
-        if (jslRemoveTimers.get(sessionId) != null)
+        if (jslRemoveTimers.containsKey(sessionId))
             return;
 
-        Timer timer = JavaTimers.initAndStart(new ScheduleJSLRemove(sessionId), TH_SCHEDULE_JSL_REMOVE, jslRemoveScheduledDelaySeconds);
+        Timer timer = JavaTimers.initAndStart(new ScheduleJSLRemoveTimer(sessionId), TH_SCHEDULE_JSL_REMOVE, jslRemoveScheduledDelaySeconds);
         log.debug(String.format(LOG_SCHEDULE_JSL_REMOVE, sessionId));
         jslRemoveTimers.put(sessionId, timer);
     }
 
-    private class ScheduleJSLRemove implements Runnable {
+    private void abortScheduleRemoveJSLInstance(String sessionId) {
+        Timer removedJSLTimer = jslRemoveTimers.remove(sessionId);
+        JavaTimers.stopTimer(removedJSLTimer);
+    }
+
+    private class ScheduleJSLRemoveTimer implements Runnable {
 
         private final String sessionId;
 
-        public ScheduleJSLRemove(String sessionId) {
+        public ScheduleJSLRemoveTimer(String sessionId) {
             this.sessionId = sessionId;
         }
 
         @Override
         public void run() {
-            try {
-                if (getJSLEmitters(sessionId).size() > 0) {
-                    log.debug(String.format(LOG_SCHEDULE_JSL_REMOVE_ABORT, sessionId));
-                    jslRemoveTimers.remove(sessionId);
-                    return;
-                }
+            abortScheduleRemoveJSLInstance(sessionId);
 
-            } catch (EmittersNotInitForSessionException e) {
-                JavaAssertions.makeWarning_Failed("Emitters list for session '%s' must exist until corresponding JSL exist.");
-            }
-
-            JSL jsl = null;
-            try {
-                jsl = getJSLInstance(sessionId);
-
-            } catch (JSLNotInitForSessionException e) {
-                JavaAssertions.makeWarning_Failed("JSL Instance for session '%s' must exist when his schedule remove timer is active.");
-                jslRemoveTimers.remove(sessionId);
+            if (jslEmitters.get(sessionId).size() > 0) {
+                log.debug(String.format(LOG_SCHEDULE_JSL_REMOVE_ABORT, sessionId));
                 return;
             }
 
-            try {
-                removeJSLInstance(sessionId);
-
-            } catch (EmittersNotEmptyForSessionException e) {
-                log.warn(String.format(LOG_ERR_REMOVED_JSL, jsl.getServiceInfo().getFullId(), sessionId, e), e);
-            }
-            jslRemoveTimers.remove(sessionId);
+            destroyJSL(sessionId);
         }
 
     }
@@ -738,7 +727,12 @@ public class JSLWebBridge {
     // Heartbeat timer
 
     private void startHeartBeatTimer() {
-        JavaTimers.initAndStart(new HeartBeatTimer(), TH_EMITTERS_HEARTBEAT, heartbeatTimerDelaySeconds * 1000L, heartbeatTimerDelaySeconds * 1000L);
+        heartbeatTimer = JavaTimers.initAndStart(new HeartBeatTimer(), TH_EMITTERS_HEARTBEAT, heartbeatTimerDelaySeconds * 1000L, heartbeatTimerDelaySeconds * 1000L);
+    }
+
+    private void stopHeartBeatTimer() {
+        JavaTimers.stopTimer(heartbeatTimer);
+        heartbeatTimer = null;
     }
 
     private class HeartBeatTimer implements Runnable {

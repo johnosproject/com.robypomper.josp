@@ -44,8 +44,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     // Class constants
 
-    public static final String TH_CONNECTION_NAME = "_CONN_%s_";
-    public static final String TH_CONNECTION_CHECK_NAME = "_CONN_%s_CHECK_";
+    public static final String TH_CONNECTION_NAME = "CONN_%s";
+    public static final String TH_CONNECTION_CHECK_NAME = "CONN_CK_%s";
     public static final String HEAD_COOKIE = "Cookie";
     public static final String HEAD_SET_COOKIE = "Set-Cookie";
     public static final String SESSION_KEY = "JSESSIONID";
@@ -554,30 +554,30 @@ public class DefaultJCPClient2 implements JCPClient2 {
         return state.enumNotEquals(JCPClient2State.DISCONNECTING);
     }
 
-    private void checkConnection() {
+    private boolean checkConnection() {
         assert state.get().isCONNECTED() :
                 "Method checkConnection() can be called only from CONNECTED_ state";
 
         try {
             checkServerReachability(false, JCPStatusAbs.FULL_PATH_STATUS_ONLINE);
             checkServerReachability(true, "/auth/realms/jcp/.well-known/openid-configuration");
-            return;
+            return true;
 
         } catch (JCPNotReachableException ignore) {
-            cliCred_isConnected = false;
-            authCode_isConnected = false;
-            accessToken = null;
-
-            //synchronized (state) {
-            try {
-                doDisconnect();
-                doConnect();
-            } catch (StateException | AuthenticationException e) {
-                log.warn(String.format("JCP Client '%s' can't reconnect because %s", getApiName(), e.getMessage()), e);
-            }
-            lastDisconnection = JavaDate.getNowDate();
-            emitDisconnected();
         }
+
+        cliCred_isConnected = false;
+        authCode_isConnected = false;
+        accessToken = null;
+
+        try {
+            doDisconnect();
+            doConnect();
+        } catch (StateException | AuthenticationException e) {
+            log.warn(String.format("JCP Client '%s' can't reconnect because %s", getApiName(), e.getMessage()), e);
+        }
+
+        return false;
     }
 
     private void checkServerReachability(boolean toAuth, String path) throws JCPNotReachableException {
@@ -685,25 +685,26 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 || state.enumEquals(JCPClient2State.CONNECTING_WAITING_JCP) :
                 "Method startConnectionTimer() can be called only from CONNECTING_WAITING_JCP or CONNECTING_WAITING_AUTH state";
 
-        long waitMs = connectionTimerDelaySeconds * 1000;
-        connectionTimer = new Timer(true);
-        connectionTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(String.format(TH_CONNECTION_NAME, apiName.toUpperCase()));
-                try {
-                    initConnection();
-                } catch (AuthenticationException ignore) {
-                }
-            }
-        }, waitMs, waitMs);
+        connectionTimer = JavaTimers.initAndStart(new ReConnectionTimer(),true,String.format(TH_CONNECTION_NAME, apiName.toUpperCase()),Integer.toString(this.hashCode()),connectionTimerDelaySeconds * 1000,connectionTimerDelaySeconds * 1000);
     }
 
     private void stopConnectionTimer() {
         if (connectionTimer == null) return;
 
-        connectionTimer.cancel();
+        JavaTimers.stopTimer(connectionTimer);
         connectionTimer = null;
+    }
+
+    private class ReConnectionTimer implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                initConnection();
+            } catch (AuthenticationException ignore) {
+            }
+        }
+
     }
 
 
@@ -713,21 +714,26 @@ public class DefaultJCPClient2 implements JCPClient2 {
         if (!isConnected())
             return;
 
-        connectionCheckTimer = new Timer(true);
-        connectionCheckTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(TH_CONNECTION_CHECK_NAME);
-                checkConnection();
-            }
-        }, 0, connectionTimerDelaySeconds * 1000);
+        connectionCheckTimer = JavaTimers.initAndStart(new CheckConnectionTimer(),true,String.format(TH_CONNECTION_CHECK_NAME, apiName.toUpperCase()),Integer.toString(this.hashCode()),connectionTimerDelaySeconds * 1000,connectionTimerDelaySeconds * 1000);
     }
 
     private void stopConnectionCheckTimer() {
         if (connectionCheckTimer == null) return;
 
-        connectionCheckTimer.cancel();
+        JavaTimers.stopTimer(connectionCheckTimer);
         connectionCheckTimer = null;
+    }
+
+    private class CheckConnectionTimer implements Runnable {
+
+        @Override
+        public void run() {
+            if (!checkConnection()) {
+                log.trace(String.format("Stopped CheckConnectionTimer for JCP Client '%s'", getApiName()));
+                stopConnectionCheckTimer();
+            }
+        }
+
     }
 
 

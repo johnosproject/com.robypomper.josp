@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.java.JavaTimers;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
@@ -35,7 +36,7 @@ public abstract class AbsJODPuller extends AbsJODWorker implements JODPuller {
 
     // Class's constants
 
-    public static final String TH_PULLER_NAME_FORMAT = "_PULL_%s";
+    public static final String TH_PULLER_NAME = "_PULL_%s_";
     public static final int DEF_POLLING_TIME = 5000;
 
 
@@ -86,14 +87,7 @@ public abstract class AbsJODPuller extends AbsJODWorker implements JODPuller {
         if (isEnabled()) return;
 
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Starting puller timer");
-        timer = new Timer(true);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(String.format(TH_PULLER_NAME_FORMAT, getName()));
-                pull();
-            }
-        }, 0, getPollingTime());
+        timer = JavaTimers.initAndStart(new PullerTimer(), true,String.format(TH_PULLER_NAME, getProto()),getName(),0,getPollingTime());
 
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Puller timer started");
     }
@@ -107,9 +101,18 @@ public abstract class AbsJODPuller extends AbsJODWorker implements JODPuller {
         if (!isEnabled()) return;
 
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Stopping puller timer");
-        timer.cancel();
+        JavaTimers.stopTimer(timer);
         timer = null;
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Puller timer stopped");
+    }
+
+    private class PullerTimer implements Runnable {
+
+        @Override
+        public void run() {
+            pull();
+        }
+
     }
 
 }

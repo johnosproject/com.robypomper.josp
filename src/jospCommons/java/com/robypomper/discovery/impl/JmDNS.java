@@ -89,34 +89,8 @@ public class JmDNS {
         if (isStarted())
             return;
 
-        intfTimer = JavaTimers.initAndStart(interfaceLoop, true, TH_INTERFACE_LOOP, 0, INTERFACE_LOOP_INTERVAL_MS);
+        intfTimer = JavaTimers.initAndStart(new InterfaceWatchdogTimer(), true, TH_INTERFACE_LOOP, 0, INTERFACE_LOOP_INTERVAL_MS);
     }
-
-    private static Runnable interfaceLoop = new Runnable() {
-        @Override
-        public void run() {
-            List<NetworkInterface> newInterfaces;
-            try {
-                newInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-
-            } catch (SocketException e) {
-                log.warn("Can't list localhost interfaces, retry at next attempt", e);
-                return;
-            }
-
-            List<NetworkInterface> oldInterfaces = new ArrayList<>(interfaces);
-
-            for (NetworkInterface intf : newInterfaces)
-                if (!interfaces.contains(intf))
-                    JavaThreads.initAndStart(new AddInterfaceRunnable(intf), TH_INTERFACE_LOOP + "_ADD");
-
-            // check for removed interfaces
-            for (NetworkInterface intf : oldInterfaces)
-                if (!newInterfaces.contains(intf))
-                    JavaThreads.initAndStart(new RemoveInterfaceRunnable(intf), TH_INTERFACE_LOOP + "_REM");
-
-        }
-    };
 
     /**
      * Stop the JmDNS sub-system.
@@ -153,6 +127,34 @@ public class JmDNS {
         jmDNSs.clear();
         interfaces.clear();
     }
+
+    private static class InterfaceWatchdogTimer implements Runnable {
+
+        @Override
+        public void run() {
+            List<NetworkInterface> newInterfaces;
+            try {
+                newInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+
+            } catch (SocketException e) {
+                log.warn("Can't list localhost interfaces, retry at next attempt", e);
+                return;
+            }
+
+            List<NetworkInterface> oldInterfaces = new ArrayList<>(interfaces);
+
+            for (NetworkInterface intf : newInterfaces)
+                if (!interfaces.contains(intf))
+                    JavaThreads.initAndStart(new AddInterfaceRunnable(intf), TH_INTERFACE_LOOP + "_ADD");
+
+            // check for removed interfaces
+            for (NetworkInterface intf : oldInterfaces)
+                if (!newInterfaces.contains(intf))
+                    JavaThreads.initAndStart(new RemoveInterfaceRunnable(intf), TH_INTERFACE_LOOP + "_REM");
+
+        }
+
+    };
 
 
     // Interfaces methods
