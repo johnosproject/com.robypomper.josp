@@ -43,10 +43,9 @@ public class APIAdminController {
 
     // Internal vars
 
+    private JCPClientsMngr clientsMngr;
     @Autowired
     private JCPAPIsStatusController apiClient;
-    @Autowired
-    private GWsManager gwManager;
     private final JSLWebBridgeClient wbClient;
     private final FEClient feClient;
     @Autowired
@@ -373,21 +372,12 @@ public class APIAdminController {
     public ResponseEntity<List<ServiceStatus>> getJCPGWsInstanceReq() {
         List<ServiceStatus> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                gws.add(apiGWs.getStatusReq());
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -412,22 +402,12 @@ public class APIAdminController {
     public ResponseEntity<List<GWsStatus.Server>> getJCPGWsClientsReq() {
         List<GWsStatus.Server> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                List<GWsStatus.Server> gwsTmp = apiGWs.getJCPAPIsStatusGWsCliReq();
-                gws.addAll(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.addAll(new GWsClient(gwClient).getJCPAPIsStatusGWsCliReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -452,22 +432,12 @@ public class APIAdminController {
     public ResponseEntity<List<String>> getJCPGWsExecONLINE() {
         List<String> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                String gwsTmp = apiGWs.getStatusOnlineReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusOnlineReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -492,22 +462,12 @@ public class APIAdminController {
     public ResponseEntity<List<JCPStatus.CPU>> getJCPGWsExecCPU() {
         List<JCPStatus.CPU> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                JCPStatus.CPU gwsTmp = apiGWs.getStatusCpuReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusCpuReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -532,22 +492,12 @@ public class APIAdminController {
     public ResponseEntity<List<JCPStatus.Disks>> getJCPGWsExecDISKS() {
         List<JCPStatus.Disks> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                JCPStatus.Disks gwsTmp = apiGWs.getStatusDisksReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusDisksReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -572,22 +522,12 @@ public class APIAdminController {
     public ResponseEntity<List<JCPStatus.Java>> getJCPGWsExecJAVA() {
         List<JCPStatus.Java> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                JCPStatus.Java gwsTmp = apiGWs.getStatusJavaReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusJavaReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -612,22 +552,12 @@ public class APIAdminController {
     public ResponseEntity<List<List<JCPStatus.JavaThread>>> getJCPGWsExecJAVA_THS() {
         List<List<JCPStatus.JavaThread>> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                List<JCPStatus.JavaThread> gwsTmp = apiGWs.getStatusJavaThsReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusJavaThsReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -652,22 +582,12 @@ public class APIAdminController {
     public ResponseEntity<List<JCPStatus.Memory>> getJCPGWsExecMEMORY() {
         List<JCPStatus.Memory> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                JCPStatus.Memory gwsTmp = apiGWs.getStatusMemoryReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusMemoryReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -692,22 +612,12 @@ public class APIAdminController {
     public ResponseEntity<List<JCPStatus.Network>> getJCPGWsExecNETWORK() {
         List<JCPStatus.Network> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                JCPStatus.Network gwsTmp = apiGWs.getStatusNetworkReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusNetworkReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -732,22 +642,12 @@ public class APIAdminController {
     public ResponseEntity<List<List<JCPStatus.NetworkIntf>>> getJCPGWsExecNETWORK_INTFS() {
         List<List<JCPStatus.NetworkIntf>> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                List<JCPStatus.NetworkIntf> gwsTmp = apiGWs.getStatusNetworkIntfsReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusNetworkIntfsReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -772,22 +672,12 @@ public class APIAdminController {
     public ResponseEntity<List<JCPStatus.Os>> getJCPGWsExecOS() {
         List<JCPStatus.Os> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                JCPStatus.Os gwsTmp = apiGWs.getStatusOSReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusOSReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);
@@ -812,22 +702,12 @@ public class APIAdminController {
     public ResponseEntity<List<JCPStatus.Process>> getJCPGWsExecPROCESS() {
         List<JCPStatus.Process> gws = new ArrayList<>();
 
-        List<String> gwAPIsUrlsQueried = new ArrayList<>();
-        for (GW gw : gwManager.getAll()) {
-            String url = String.format("%s:%d", gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            if (gwAPIsUrlsQueried.contains(url))
-                continue;
-
-            GWsClient apiGWs = gwManager.getGWsClient(gw);
+        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
             try {
-                JCPStatus.Process gwsTmp = apiGWs.getStatusProcessReq();
-                gws.add(gwsTmp);
-            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-                e.printStackTrace();
-                continue;
-            }
+                gws.add(new GWsClient(gwClient).getStatusProcessReq());
 
-            gwAPIsUrlsQueried.add(url);
+            } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException ignore) {
+            }
         }
 
         return ResponseEntity.ok(gws);

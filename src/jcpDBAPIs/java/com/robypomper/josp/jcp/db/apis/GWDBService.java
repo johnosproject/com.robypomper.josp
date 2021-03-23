@@ -39,8 +39,6 @@ public class GWDBService {
     // Constructor
 
     public GWDBService(GWRepository gws,
-                       ObjectIdRepository objectsId,
-                       ObjectOwnerRepository objectsOwner,
                        GWStatusRepository gwsStatus) {
         this.gws = gws;
         this.gwsStatus = gwsStatus;
@@ -57,34 +55,8 @@ public class GWDBService {
         return gws.findAll();
     }
 
-    public List<GW> getAllObj2Srv() {
-        return gws.findByType(GWType.Obj2Srv);
-    }
-
-    public List<GW> getAllSrv2Obj() {
-        return gws.findByType(GWType.Srv2Obj);
-    }
-
-    public List<GW> getAllOnline(boolean online) {
-        List<GW> ret = getAllObj2SrvOnline(online);
-        ret.addAll(getAllSrv2ObjOnline(online));
-        return ret;
-    }
-
-    public List<GW> getAllObj2SrvOnline(boolean online) {
-        List<GW> ret = new ArrayList<>();
-        for (GW gw : gws.findByType(GWType.Obj2Srv))
-            if (gw.getStatus().isOnline() == online)
-                ret.add(gw);
-        return ret;
-    }
-
-    public List<GW> getAllSrv2ObjOnline(boolean online) {
-        List<GW> ret = new ArrayList<>();
-        for (GW gw : gws.findByType(GWType.Srv2Obj))
-            if (gw.getStatus().isOnline() == online)
-                ret.add(gw);
-        return ret;
+    public List<GW> getAll(GWType gwType) {
+        return gws.findByType(gwType);
     }
 
 

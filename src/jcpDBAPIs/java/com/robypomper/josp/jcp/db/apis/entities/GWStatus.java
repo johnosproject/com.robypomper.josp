@@ -39,6 +39,8 @@ public class GWStatus {
 
     private boolean online = true;
 
+    private int reconnectionAttempts = 0;
+
     private int clients = 0;
 
     private Date lastClientConnectedAt = null;

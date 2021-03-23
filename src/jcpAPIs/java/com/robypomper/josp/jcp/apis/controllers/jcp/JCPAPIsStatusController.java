@@ -3,6 +3,7 @@ package com.robypomper.josp.jcp.apis.controllers.jcp;
 import com.robypomper.jcpAPIs.BuildInfoJcpAPIs;
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.apis.mngs.GWsManager;
+import com.robypomper.josp.jcp.apis.mngs.exceptions.GWNotFoundException;
 import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
