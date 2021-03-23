@@ -6,7 +6,9 @@ import com.robypomper.comm.peer.PeerInfoRemote;
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaTimers;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.jcp.jslwebbridge.exceptions.*;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLAlreadyInitForSessionException;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLErrorOnInitException;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLNotInitForSessionException;
 import com.robypomper.josp.jsl.FactoryJSL;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.JSLSettings_002;
@@ -56,7 +58,8 @@ public class JSLWebBridge {
     public static final String LOG_ERR_SEND_EVENT = "Error on JSL Instance '%s' for session '%s' at address '%s' sending '%s' event (%s)";
     public static final String ASSERTION_NO_JSL = "Can't call JSLWebBridge.%s() method when no JSL Instance was created for session '%s'";
     public static final String ASSERTION_NO_EMITTERS = "Can't call JSLWebBridge.%s() method when no emitters list was created for session '%s'";
-    public static final String ASSERTION_NO_EMITTER_CLIENT = "Can't call JSLWebBridge.%s() method when no emitters list was created for session '%s' at address '%s'";
+    public static final String ASSERTION_NO_EMITTER_CLIENT = "Can't call JSLWebBridge.%s() method when no emitters was created for session '%s' at address '%s'";
+    public static final String ASSERTION_EXIST_EMITTER_CLIENT = "Can't call JSLWebBridge.%s() method when emitter was already created for session '%s' at address '%s'";
 
     //@formatter:off
     public static final String EVENT_JCP_APIS_CONN          = "{\"what\": \"JCP_APIS_CONN\",        \"url\": \"%s\"}";
@@ -100,8 +103,8 @@ public class JSLWebBridge {
     private final int jslRemoveScheduledDelaySeconds;
     // sse emitters
     private final Map<String, Map<String, SseEmitter>> jslEmitters = new HashMap<>();
-    private final Map<SseEmitter, Integer> jslEmittersCounts = new HashMap<>();
-    private final Map<SseEmitter, String> jslEmittersClientAddress = new HashMap<>();
+    private final Map<SseEmitter, Integer> emittersCounters = new HashMap<>();
+    private final Map<SseEmitter, String> emittersIds = new HashMap<>();
     // jsl listeners 1st level
     private final Map<JSL, JSLObjsMngr.ObjsMngrListener> objsMngrListeners = new HashMap<>();
     private final Map<JSL, JCPClient2.ConnectionListener> cloudAPIsListeners = new HashMap<>();
@@ -130,50 +133,32 @@ public class JSLWebBridge {
         startHeartBeatTimer();
     }
 
-    public void dismiss() {
-        for (Map.Entry<String, JSL> sessionJSL : jslInstances.entrySet()) {
-            String sessionId = sessionJSL.getKey();
-            JSL jsl = sessionJSL.getValue();
-            for (SseEmitter emitter : jslEmitters.get(sessionId).values())
-                removeSSEEmitter(emitter, sessionId);
-            try {
-                removeJSLInstance(sessionId);
-            } catch (EmittersNotEmptyForSessionException e) {
-                log.warn(String.format(LOG_ERR_REMOVED_JSL, jsl.getServiceInfo().getFullId(), sessionId, e), e);
-            }
-        }
+    public void destroyAll() {
+        for (String sessionId : jslInstances.keySet())
+            destroyJSL(sessionId);
+        stopHeartBeatTimer();
     }
 
-    // Getters
 
-    public JSL getJSLInstance(String sessionId) throws JSLNotInitForSessionException {
+    // JSL Instances mngm
+
+    public JSL getJSL(String sessionId) throws JSLNotInitForSessionException {
         JSL jsl = jslInstances.get(sessionId);
         if (jsl == null)
             throw new JSLNotInitForSessionException(sessionId);
         return jsl;
     }
 
-    public Map<String, SseEmitter> getJSLEmitters(String sessionId) throws EmittersNotInitForSessionException {
-        Map<String, SseEmitter> emitters = jslEmitters.get(sessionId);
-        if (emitters == null)
-            throw new EmittersNotInitForSessionException(sessionId);
-        return emitters;
+    public String getJSLFullId(String sessionId) throws JSLNotInitForSessionException {
+        return getJSL(sessionId).getServiceInfo().getFullId();
     }
 
-
-    // JSL Instances mngm
-
-    public JSL createJSLInstance(String sessionId, String clientId, String clientSecret) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {
+    public JSL initJSL(String sessionId, String clientId, String clientSecret) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {
         if (jslInstances.get(sessionId) != null)
             throw new JSLAlreadyInitForSessionException(sessionId);
 
-        JSL jsl;
-        try {
-            jsl = doCreateJSLInstance(jslParams, clientId, clientSecret);
+        JSL jsl = doInitAndStartupJSL(sessionId, jslParams, clientId, clientSecret);
 
-        } catch (JSL.FactoryException | StateException e) {
-            throw new JSLErrorOnInitException(sessionId, e);
-        }
         jslInstances.put(sessionId, jsl);
         jslEmitters.put(sessionId, new HashMap<>());
 
@@ -183,7 +168,7 @@ public class JSLWebBridge {
         return jsl;
     }
 
-    private static JSL doCreateJSLInstance(JSLParams jslParams, String clientId, String clientSecret) throws JSL.FactoryException, StateException {
+    private static JSL doInitAndStartupJSL(String sessionId, JSLParams jslParams, String clientId, String clientSecret) throws JSLErrorOnInitException {
         Map<String, Object> properties = new HashMap<>();
         properties.put(JSLSettings_002.JCP_SSL, jslParams.useSSL);
         properties.put(JSLSettings_002.JCP_URL_APIS, jslParams.urlAPIs);
@@ -195,26 +180,29 @@ public class JSLWebBridge {
         properties.put(JSLSettings_002.JSLSRV_NAME, clientId);
         properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, LOC_COMM_ENABLED);
 
-        JSL.Settings settings = FactoryJSL.loadSettings(properties, jslParams.jslVersion);
-        JSL jsl = FactoryJSL.createJSL(settings, jslParams.jslVersion);
-        jsl.startup();
+        try {
+            JSL.Settings settings = FactoryJSL.loadSettings(properties, jslParams.jslVersion);
+            JSL jsl = FactoryJSL.createJSL(settings, jslParams.jslVersion);
+            jsl.startup();
+            return jsl;
 
-        return jsl;
+        } catch (JSL.FactoryException | StateException e) {
+            throw new JSLErrorOnInitException(sessionId, e);
+        }
     }
 
-    private void removeJSLInstance(String sessionId) throws EmittersNotEmptyForSessionException {
-        try {
-            if (getJSLEmitters(sessionId).size() > 0)
-                throw new EmittersNotEmptyForSessionException(sessionId);
-        } catch (EmittersNotInitForSessionException ignore) {
-        }
+    public void destroyJSL(String sessionId) {
+        Map<String, SseEmitter> emitters = jslEmitters.get(sessionId);
+        if (emitters.size() > 0)
+            for (SseEmitter emitter : emitters.values())
+                destroySSEEmitter(sessionId, getClientFullAddress(emitter));
 
         JSL jsl;
         try {
-            jsl = getJSLInstance(sessionId);
+            jsl = getJSL(sessionId);
 
         } catch (JSLNotInitForSessionException e) {
-            JavaAssertions.makeWarning_Failed(e, String.format(ASSERTION_NO_JSL, "removeJSLInstance", sessionId));
+            JavaAssertions.makeWarning_Failed(e, String.format(ASSERTION_NO_JSL, "destroyJSL", sessionId));
             return;
         }
 
@@ -275,50 +263,73 @@ public class JSLWebBridge {
 
     // SSE mgnm
 
-    public SseEmitter createSSEEmitter(String sessionId) throws EmitterAlreadyInitForSessionException, EmittersNotInitForSessionException, JSLNotInitForSessionException {
-        JSL jsl = getJSLInstance(sessionId);
+    public SseEmitter getJSLEmitter(String sessionId) throws JSLNotInitForSessionException {
+        String emitterId = getClientFullAddress();
+        SseEmitter emitter = getJSLEmitter(sessionId, emitterId);
+        if (emitter == null)
+            emitter = createSSEEmitter(sessionId, emitterId);
 
-        SseEmitter emitter = new SseEmitter(-1L);
-        String clientAddress = getClientFullAddress();
-        if (getJSLEmitters(sessionId).get(clientAddress) != null)
-            throw new EmitterAlreadyInitForSessionException(sessionId, clientAddress);
-
-        getJSLEmitters(sessionId).put(clientAddress, emitter);
-        jslEmittersCounts.put(emitter, 0);
-        jslEmittersClientAddress.put(emitter, clientAddress);
-
-        log.info(String.format(LOG_CREATED_EMITTER, jsl.getServiceInfo().getFullId(), sessionId, getClientFullAddress()));
         return emitter;
     }
 
-    private void removeSSEEmitter(SseEmitter emitter, String sessionId) {
-        JSL jsl;
-        try {
-            jsl = getJSLInstance(sessionId);
+    private SseEmitter getJSLEmitter(String sessionId, String emitterId) throws JSLNotInitForSessionException {
+        Map<String, SseEmitter> emitters = jslEmitters.get(sessionId);
+        if (emitters == null)
+            throw new JSLNotInitForSessionException(sessionId);
+        return emitters.get(emitterId);
+    }
 
-        } catch (JSLNotInitForSessionException e) {
-            JavaAssertions.makeWarning_Failed(e, String.format(ASSERTION_NO_JSL, "removeSSEEmitter", sessionId));
+    private SseEmitter createSSEEmitter(String sessionId, String emitterId) throws JSLNotInitForSessionException {
+        if (getJSLEmitter(sessionId, emitterId) != null) {
+            JavaAssertions.makeWarning_Failed(String.format(ASSERTION_EXIST_EMITTER_CLIENT, "createSSEEmitter", sessionId, emitterId));
+            return getJSLEmitter(sessionId, emitterId);
+        }
+
+        Map<String, SseEmitter> emitters = jslEmitters.get(sessionId);
+        if (emitters == null)
+            throw new JSLNotInitForSessionException(sessionId);
+
+        SseEmitter emitter = new SseEmitter(-1L);
+        emitters.put(emitterId, emitter);
+
+        emittersCounters.put(emitter, 0);
+        emittersIds.put(emitter, emitterId);
+
+        log.info(String.format(LOG_CREATED_EMITTER, getJSLFullId(sessionId), sessionId, getClientFullAddress()));
+        emit(sessionId, HEART_BEAT);
+        return emitter;
+    }
+
+    private void destroySSEEmitter(String sessionId, String emitterId) {
+        Map<String, SseEmitter> emitters = jslEmitters.get(sessionId);
+        if (emitters == null) {
+            JavaAssertions.makeWarning_Failed(String.format(ASSERTION_NO_EMITTERS, "destroySSEEmitter", sessionId));
             return;
         }
 
-        Map<String, SseEmitter> emitters;
+        SseEmitter emitter = null;
         try {
-            emitters = getJSLEmitters(sessionId);
-
-        } catch (EmittersNotInitForSessionException e) {
-            JavaAssertions.makeWarning_Failed(e, String.format(ASSERTION_NO_EMITTERS, "removeSSEEmitter", sessionId));
+            emitter = getJSLEmitter(sessionId, emitterId);
+        } catch (JSLNotInitForSessionException ignore) {
+        }
+        if (emitter == null) {
+            JavaAssertions.makeWarning_Failed(String.format(ASSERTION_NO_EMITTER_CLIENT, "destroySSEEmitter", sessionId, emitterId));
             return;
         }
 
-        String clientAddress = getClientFullAddress(emitter);
+        emittersCounters.remove(emitter);
+        emittersIds.remove(emitter);
+
+        emitters.remove(emitterId);
         emitter.complete();
-        jslEmittersCounts.remove(emitter);
-        jslEmittersClientAddress.remove(emitter);
-        emitters.remove(clientAddress);
-        log.info(String.format(LOG_REMOVED_EMITTER, jsl.getServiceInfo().getFullId(), sessionId, clientAddress));
 
-        if (emitters.size() == 0)
-            scheduleRemoveJSLInstance(sessionId);
+        try {
+            log.info(String.format(LOG_REMOVED_EMITTER, getJSLFullId(sessionId), sessionId, emitterId));
+        } catch (JSLNotInitForSessionException ignore) {
+        }
+
+        //if (emitters.size() == 0)
+        //    scheduleRemoveJSLInstance(sessionId);
     }
 
 
@@ -643,59 +654,51 @@ public class JSLWebBridge {
     }
 
     private void emit(String sessionId, String data) {
-        Collection<SseEmitter> emitters;
-        try {
-            emitters = getJSLEmitters(sessionId).values();
-
-        } catch (EmittersNotInitForSessionException e) {
-            JavaAssertions.makeWarning_Failed(e, String.format(ASSERTION_NO_EMITTERS, "emit", sessionId) + ", remove JSL Instance");
-            try {
-                removeJSLInstance(sessionId);
-            } catch (EmittersNotEmptyForSessionException ignore) { /* Can't throw EmittersNotEmpty because in EmittersNotInit catch block */ }
+        if (jslEmitters.get(sessionId) == null) {
+            JavaAssertions.makeWarning_Failed(String.format(ASSERTION_NO_EMITTERS, "emit", sessionId) + ", ??remove JSL Instance??");
+            //destroyJSL(sessionId);
             return;
         }
+        Collection<SseEmitter> emitters = jslEmitters.get(sessionId).values();
 
-        if (emitters.size() == 0) {
-            JavaAssertions.makeWarning_Failed(String.format(ASSERTION_NO_EMITTERS, "emit", sessionId) + ", remove JSL Instance");
-            scheduleRemoveJSLInstance(sessionId);
-            return;
-        }
+        //if (emitters.size() == 0) {
+        //    scheduleRemoveJSLInstance(sessionId);
+        //    return;
+        //}
 
         List<SseEmitter> emittersTmp = new ArrayList<>(emitters);
         for (SseEmitter emitter : emittersTmp)
-            emit(emitter, sessionId, data);
+            doEmit(emitter, sessionId, data);
     }
 
-    private void emit(SseEmitter emitter, String sessionId, String data) {
-        JSL jsl;
-        try {
-            jsl = getJSLInstance(sessionId);
-
-        } catch (JSLNotInitForSessionException e) {
-            JavaAssertions.makeWarning_Failed(e, String.format(ASSERTION_NO_JSL, "emit", sessionId) + ", remove JSL Instance");
-            return;
-        }
-
+    private void doEmit(SseEmitter emitter, String sessionId, String data) {
         SseEmitter.SseEventBuilder event = SseEmitter.event()
                 .data(data)
                 .id(String.valueOf(increaseSSECounter(emitter)));
 
+        String srvFullId = "N/A";
+        try {
+            srvFullId = getJSLFullId(sessionId);
+        } catch (JSLNotInitForSessionException ignore) {
+        }
+        String emitterId = getClientFullAddress(emitter);
+
         try {
             emitter.send(event);
-            log.debug(String.format(LOG_SEND_EVENT, jsl.getServiceInfo().getFullId(), sessionId, getClientFullAddress(emitter), data));
+            log.trace(String.format(LOG_SEND_EVENT, srvFullId, sessionId, emitterId, data));
 
         } catch (Exception e) {
             if (e instanceof ClientAbortException)
-                log.debug(String.format(LOG_SEND_EVENT_DISCONNECTED, jsl.getServiceInfo().getFullId(), sessionId, getClientFullAddress(emitter)) + ", remove emitter");
+                log.debug(String.format(LOG_SEND_EVENT_DISCONNECTED, srvFullId, sessionId, emitterId) + ", remove emitter");
             else
-                log.warn(String.format(LOG_ERR_SEND_EVENT, jsl.getServiceInfo().getFullId(), sessionId, getClientFullAddress(emitter), data, e) + ", remove emitter", e);
-            removeSSEEmitter(emitter, sessionId);
+                log.warn(String.format(LOG_ERR_SEND_EVENT, srvFullId, sessionId, emitterId, data, e) + ", remove emitter", e);
+            destroySSEEmitter(sessionId, emitterId);
         }
     }
 
     private int increaseSSECounter(SseEmitter emitter) {
-        int newCount = jslEmittersCounts.get(emitter) + 1;
-        jslEmittersCounts.put(emitter, newCount);
+        int newCount = emittersCounters.get(emitter) + 1;
+        emittersCounters.put(emitter, newCount);
         return newCount;
     }
 
@@ -720,7 +723,7 @@ public class JSLWebBridge {
     }
 
     private String getClientFullAddress(SseEmitter emitter) {
-        return jslEmittersClientAddress.get(emitter);
+        return emittersIds.get(emitter);
     }
 
 

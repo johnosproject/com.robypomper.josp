@@ -70,7 +70,7 @@ public class APIJSLWBStructController extends APIJSLWBControllerAbs {
     })
     public ResponseEntity<JOSPStructHtml> jsonObjectStructure(@ApiIgnore HttpSession session,
                                                               @PathVariable("obj_id") String objId) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"get object structure");
 
         return ResponseEntity.ok(new JOSPStructHtml(obj.getStruct().getStructure(), true));     // ToDo add MissingPermission exception to getStructure() method
     }
@@ -87,9 +87,9 @@ public class APIJSLWBStructController extends APIJSLWBControllerAbs {
     public ResponseEntity<JOSPComponentHtml> jsonObjectComponent(@ApiIgnore HttpSession session,
                                                                  @PathVariable("obj_id") String objId,
                                                                  @PathVariable("comp_path") String compPath) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"get object component");
 
-        JSLComponent comp = compPath.equals("-") ? obj.getStruct().getStructure() : webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLComponent.class);
+        JSLComponent comp = compPath.equals("-") ? obj.getStruct().getStructure() : getJSLObjComp(session.getId(),objId,compPath, JSLComponent.class,"get object component");
         return ResponseEntity.ok(generateJOSPComponentHtml(comp));
     }
 

@@ -1,23 +1,23 @@
 package com.robypomper.josp.jcp.jslwebbridge.services;
 
-import com.robypomper.josp.jcp.jslwebbridge.exceptions.*;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLAlreadyInitForSessionException;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLErrorOnInitException;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLNotInitForSessionException;
 import com.robypomper.josp.jcp.jslwebbridge.webbridge.JSLParams;
 import com.robypomper.josp.jcp.jslwebbridge.webbridge.JSLWebBridge;
 import com.robypomper.josp.jsl.JSL;
-import com.robypomper.josp.jsl.objs.JSLRemoteObject;
-import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
-import com.robypomper.josp.jsl.objs.structure.JSLComponent;
-import com.robypomper.josp.protocol.JOSPPerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.PreDestroy;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 
 @Service
 public class JSLWebBridgeService {
@@ -40,84 +40,47 @@ public class JSLWebBridgeService {
 
     @PreDestroy
     public void destroy() {
-        webBridge.dismiss();
+        webBridge.destroyAll();
         log.trace("JSL webBridge service destroyed");
     }
 
 
     // Getters
 
-    public JSL getJSL(String sessionId) throws ResponseStatusException {
-        try {
-            return webBridge.getJSLInstance(sessionId);
-
-        } catch (JSLNotInitForSessionException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
-        }
+    public JSL getJSL(String sessionId) throws JSLNotInitForSessionException {
+        return webBridge.getJSL(sessionId);
     }
 
-    public JSLRemoteObject getJSLObj(String sessionId, String objId) throws ResponseStatusException {
-        JSL jsl = getJSL(sessionId);
-
-        JSLRemoteObject obj = jsl.getObjsMngr().getById(objId);
-        if (obj == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Required obj '%s' not found", objId));
-
-        return obj;
+    public SseEmitter getJSLEmitter(String sessionId) throws JSLNotInitForSessionException {
+        return webBridge.getJSLEmitter(sessionId);
     }
-
-    public <T extends JSLComponent> T getJSLObjComp(String sessionId, String objId, String compPath, Class<T> compClass) throws ResponseStatusException {
-        JSLRemoteObject obj = getJSLObj(sessionId, objId);
-
-        JSLComponent comp = DefaultJSLComponentPath.searchComponent(obj.getStruct().getStructure(), new DefaultJSLComponentPath(compPath));
-        if (comp == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Required component '%s' on object '%s' not found.", compPath, objId));
-
-        if (!compClass.isInstance(comp))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Component '%s' on object '%s' is not %s component type.", compPath, objId, compClass.getSimpleName()));
-
-        return compClass.cast(comp);
-    }
-
-    public JOSPPerm getJSLObjPerm(String sessionId, String objId, String permId) throws ResponseStatusException {
-        JSLRemoteObject obj = getJSLObj(sessionId, objId);
-
-        JOSPPerm perm = null;
-        for (JOSPPerm permSearch : obj.getPerms().getPerms()) {
-            if (permSearch.getId().equals(permId)) {
-                perm = permSearch;
-                break;
-            }
-        }
-
-        if (perm == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Required permission '%s' on object '%s' not found.", permId, objId));
-
-        return perm;
-    }
-
 
     // Creators
 
-    public JSL createJSL(String sessionId, String clientId, String clientSecret) throws ResponseStatusException {
-        try {
-            return webBridge.createJSLInstance(sessionId, clientId, clientSecret);
-
-        } catch (JSLAlreadyInitForSessionException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
-
-        } catch (JSLErrorOnInitException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.toString());
-        }
+    public JSL initJSL(String sessionId, String clientId, String clientSecret) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {
+        return webBridge.initJSL(sessionId, clientId, clientSecret);
     }
 
-    public SseEmitter createJSLEmitter(String sessionId) throws ResponseStatusException {
-        try {
-            return webBridge.createSSEEmitter(sessionId);
 
-        } catch (JSLNotInitForSessionException | EmittersNotInitForSessionException | EmitterAlreadyInitForSessionException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
-        }
+    // Sessions
+
+    @Bean
+    public ServletListenerRegistrationBean<HttpSessionListener> sessionListenerWithMetrics() {
+        ServletListenerRegistrationBean<HttpSessionListener> listenerRegBean = new ServletListenerRegistrationBean<>();
+
+        listenerRegBean.setListener(new HttpSessionListener() {
+            public void sessionCreated(HttpSessionEvent se) {
+            }
+
+            public void sessionDestroyed(HttpSessionEvent se) {
+                String sessionId = se.getSession().getId();
+                log.info(String.format("Terminated session '%s'", sessionId));
+                webBridge.destroyJSL(sessionId);
+            }
+
+        });
+
+        return listenerRegBean;
     }
 
 }
