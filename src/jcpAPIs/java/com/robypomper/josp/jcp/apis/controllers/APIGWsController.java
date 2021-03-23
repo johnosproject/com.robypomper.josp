@@ -19,12 +19,11 @@
 
 package com.robypomper.josp.jcp.apis.controllers;
 
-import com.robypomper.java.JavaThreads;
-import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.jcp.apis.mngs.GWsManager;
-import com.robypomper.josp.jcp.clients.jcp.jcp.GWsClient;
-import com.robypomper.josp.jcp.db.apis.entities.GW;
+import com.robypomper.josp.jcp.apis.mngs.exceptions.GWNotAvailableException;
+import com.robypomper.josp.jcp.apis.mngs.exceptions.GWNotReachableException;
+import com.robypomper.josp.jcp.apis.mngs.exceptions.GWResponseException;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.params.jospgws.O2SAccessInfo;
 import com.robypomper.josp.params.jospgws.O2SAccessRequest;
@@ -33,10 +32,7 @@ import com.robypomper.josp.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.paths.APIGWs;
 import com.robypomper.josp.paths.APIObjs;
 import com.robypomper.josp.paths.APISrvs;
-import com.robypomper.josp.types.josp.gw.GWType;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
@@ -64,7 +60,6 @@ public class APIGWsController {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(APIGWsController.class);
     @Autowired
     private GWsManager gwManager;
     @Autowired
@@ -101,27 +96,17 @@ public class APIGWsController {
             @ApiResponse(code = 503, message = "Internal error, no gateways available certificate")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
-    public ResponseEntity<O2SAccessInfo> postO2SAccess(
-            @RequestHeader(APIObjs.HEADER_OBJID) String objId,
-            @RequestBody O2SAccessRequest accessRequest) {
-
-        GW gw = gwManager.getAvailableObj2Srv();
-        if (gw == null)
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s JCP GWs available.", GWType.Obj2Srv));
-
-        GWsClient apiGWsGWs = gwManager.getGWsClient(gw);
-        O2SAccessInfo accessInfo;
+    public ResponseEntity<O2SAccessInfo> postO2SAccess(@RequestHeader(APIObjs.HEADER_OBJID) String objId,
+                                                       @RequestBody O2SAccessRequest accessRequest) {
         try {
-            accessInfo = apiGWsGWs.getO2SAccessInfo(objId, accessRequest);
-            JavaThreads.softSleep(200);
+            return ResponseEntity.ok(gwManager.getAccessInfo(objId, accessRequest));
 
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(String.format("Error retrieve O2S JCP GWs info for '%s' object", objId));
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' O2S_ACCESS.", gw.getGwId()));
+        } catch (GWNotAvailableException | GWNotReachableException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("Can't get AccessInfo for '%s' client", objId), e);
+
+        } catch (GWResponseException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Forward AccessInfo request for '%s' client failed", objId), e);
         }
-
-        log.trace(String.format("Provided O2S JCP GWs info '%s:%d' to '%s' object", accessInfo.gwAddress, accessInfo.gwPort, objId));
-        return ResponseEntity.ok(accessInfo);
     }
 
 
@@ -143,27 +128,18 @@ public class APIGWsController {
             @ApiResponse(code = 503, message = "Internal error, no gateways available certificate")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_SRV)
-    public ResponseEntity<S2OAccessInfo> postS2OAccess(
-            @RequestHeader(APISrvs.HEADER_SRVID) String srvId,
-            @RequestBody S2OAccessRequest accessRequest) {
-
-        GW gw = gwManager.getAvailableSrv2Obj();
-        if (gw == null)
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("No %s JCP GWs available.", GWType.Srv2Obj));
-
-        GWsClient apiGWsGWs = gwManager.getGWsClient(gw);
-        S2OAccessInfo accessInfo;
+    public ResponseEntity<S2OAccessInfo> postS2OAccess(@RequestHeader(APISrvs.HEADER_SRVID) String srvId,
+                                                       @RequestBody S2OAccessRequest accessRequest) {
         try {
-            accessInfo = apiGWsGWs.getS2OAccessInfo(srvId, accessRequest);
-            JavaThreads.softSleep(200);
+            return ResponseEntity.ok(gwManager.getAccessInfo(srvId, accessRequest));
 
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(String.format("Error retrieve S2O JCP GWs info for '%s' service", srvId));
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't forward request to '%s' S2O_ACCESS.", gw.getGwId()));
+        } catch (GWNotAvailableException | GWNotReachableException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("Can't get AccessInfo for '%s' client", srvId), e);
+
+        } catch (GWResponseException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Forward AccessInfo request for '%s' client failed", srvId), e);
         }
 
-        log.trace(String.format("Provided S2O JCP GWs info '%s:%d' to '%s' service", accessInfo.gwAddress, accessInfo.gwPort, srvId));
-        return ResponseEntity.ok(accessInfo);
     }
 
 }
