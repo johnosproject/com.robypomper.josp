@@ -1,8 +1,6 @@
 package com.robypomper.josp.jcp.gws.db;
 
 import com.robypomper.java.JavaStructures;
-import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.clients.JCPAPIsClient;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
@@ -26,14 +24,10 @@ public class ObjsDBManager {
 
     // Constructors
 
-    public ObjsDBManager(String region, int apiPort,
-                         String jcpAPIsUrl, ClientParams jcpAPIsParams,
-                         BrokerObjDB gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
+    public ObjsDBManager(BrokerObjDB gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
         this.broker = gwBroker;
         this.objectDBService = objectDBService;
         this.permissionsDBService = permissionsDBService;
-
-        JCPAPIsClient jcpAPIsClient = new JCPAPIsClient(jcpAPIsParams, jcpAPIsUrl, false);
 
         loadObjsFromDB();
     }

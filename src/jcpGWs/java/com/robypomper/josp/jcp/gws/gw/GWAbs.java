@@ -10,8 +10,7 @@ import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.comm.trustmanagers.DynAddTrustManager;
 import com.robypomper.java.*;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.clients.JCPAPIsClient;
+import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.clients.jcp.jcp.APIsClient;
 import com.robypomper.josp.jcp.info.JCPGWsVersions;
 import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
@@ -45,6 +44,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     // Internal vars
 
     private final Logger log;
+    protected static final String gwSerial = JavaRandomStrings.randomAlfaString(5);
     private final GWType gwType;
     private final GWServer server;
     private final APIsClient jcpAPIsGWs;
@@ -62,8 +62,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     // Constructor
 
     protected GWAbs(GWType gwType, String idServer, String addrInternal, String addrPublic, int gwPort, int apiPort, int maxClients,
-                    String jcpAPIsUrl, ClientParams jcpAPIsParams,
-                    Logger log) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
+                    JCPClientsMngr clientsMngr, Logger log) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
         this.log = log;
         this.gwType = gwType;
         this.addrInternal = addrInternal;
@@ -79,9 +78,8 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
         this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
 
-        JCPAPIsClient jcpAPIsClient = new JCPAPIsClient(jcpAPIsParams, jcpAPIsUrl, false);
-        this.jcpAPIsGWs = new APIsClient(jcpAPIsClient);
-        this.jcpAPIsGWs.getClient().addConnectionListener(jcpAPIsListener_GWRegister);
+        this.jcpAPIsGWs = new APIsClient(clientsMngr.getJCPAPIsClient());
+        clientsMngr.getJCPAPIsClient().addConnectionListener(jcpAPIsListener_GWRegister);
 
         this.server = new GWServer(this, sslCtx, idServer, gwPort, trustManager, publicCertificate);
         this.server.addListener(serverStateListener_GWRegister);
@@ -232,13 +230,13 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
     private void update() {
         if (!jcpAPIsGWs.getClient().isConnected()) {
-            log.warn("Can't update JCP GW '%s' because JCP APIs not available");
+            log.warn(String.format("Can't update JCP GW '%s' because JCP APIs not available", getId()));
             return;
         }
 
         try {
             jcpAPIsGWs.postStatus(getGWStatus(), getId());
-            log.info(String.format("JCP GW '%s' updated to JCP APIs successfully.", getId()));
+            log.trace(String.format("JCP GW '%s' updated to JCP APIs successfully.", getId()));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             log.warn(String.format("Can't update JCP GW '%s' status to JCP APIs.", getId()), e);
@@ -277,12 +275,10 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
         @Override
         public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-            log.warn("JCP APIs failed connection: " + t);
         }
 
         @Override
         public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
-            log.warn("JCP APIs failed authentication: " + t);
         }
 
         @Override

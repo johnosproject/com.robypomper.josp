@@ -4,7 +4,7 @@ import com.robypomper.comm.exception.ServerStartupException;
 import com.robypomper.comm.server.ServerClient;
 import com.robypomper.java.JavaJKS;
 import com.robypomper.java.JavaSSL;
-import com.robypomper.josp.jcp.clients.ClientParams;
+import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.db.apis.EventDBService;
 import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
@@ -21,7 +21,7 @@ public class GWS2O extends GWAbs {
 
     // Class constants
 
-    private static final String ID = "S2O-%s";
+    private static final String ID = "S2O-%s@%s";
 
 
     // Internal vars
@@ -38,9 +38,9 @@ public class GWS2O extends GWAbs {
 
     public GWS2O(final String region, final String addrInternal, final String addrPublic, final int gwPort, final int apiPort,
                  final int maxClients,
-                 String jcpAPIsUrl, ClientParams jcpAPIsParams,
+                 JCPClientsMngr clientsMngr,
                  BrokerJSL gwBroker, ServiceDBService serviceDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
-        super(GWType.Srv2Obj, String.format(ID, region), addrInternal, addrPublic, gwPort, apiPort, maxClients, jcpAPIsUrl, jcpAPIsParams, log);
+        super(GWType.Srv2Obj, String.format(ID, gwSerial, region), addrInternal, addrPublic, gwPort, apiPort, maxClients, clientsMngr, log);
         this.gwBroker = gwBroker;
         this.serviceDBService = serviceDBService;
         this.eventsDBService = eventsDBService;

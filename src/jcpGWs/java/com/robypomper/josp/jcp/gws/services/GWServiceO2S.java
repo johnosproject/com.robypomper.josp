@@ -3,8 +3,9 @@ package com.robypomper.josp.jcp.gws.services;
 import com.robypomper.comm.exception.ServerStartupException;
 import com.robypomper.java.JavaJKS;
 import com.robypomper.java.JavaSSL;
-import com.robypomper.josp.jcp.clients.ClientParams;
-import com.robypomper.josp.jcp.db.apis.*;
+import com.robypomper.josp.jcp.clients.JCPClientsMngr;
+import com.robypomper.josp.jcp.db.apis.ObjectDBService;
+import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.gws.gw.GWO2S;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,9 @@ public class GWServiceO2S implements ApplicationListener<ContextRefreshedEvent> 
                            @Value("${jcp.gws.o2s.port}") final int gwPort,
                            @Value("${server.port}") final int apiPort,
                            @Value("${jcp.gws.o2s.maxClients}") final int maxClients,
-                           @Value("${jcp.urlAPIs}") String jcpAPIsUrl,
-                           ClientParams jcpAPIsParams,
+                           JCPClientsMngr clientsMngr,
                            BrokerService gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
-        gw = new GWO2S(region, addrInternal, addrPublic, gwPort, apiPort, maxClients, jcpAPIsUrl, jcpAPIsParams, gwBroker.getBrokerJOD(), objectDBService, permissionsDBService);
+        gw = new GWO2S(region, addrInternal, addrPublic, gwPort, apiPort, maxClients, clientsMngr, gwBroker.getBrokerJOD(), objectDBService, permissionsDBService);
     }
 
     @PreDestroy
