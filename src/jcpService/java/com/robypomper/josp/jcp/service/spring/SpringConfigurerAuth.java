@@ -60,6 +60,8 @@ public class SpringConfigurerAuth extends KeycloakWebSecurityConfigurerAdapter {
     private String sshEnabled;
     @Value("${security.require-cors:false}")
     private String corsEnabled;
+    @Value("${security.require-csrf:false}")
+    private String csrfEnabled;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -77,8 +79,9 @@ public class SpringConfigurerAuth extends KeycloakWebSecurityConfigurerAdapter {
             http.cors();
 
 //        // Enable CSRF token as cookie
-//        http.csrf()
-//                .disable()
+        if (!Boolean.parseBoolean(csrfEnabled))
+            http.csrf()
+                    .disable();
 //                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 
         // Enable Auth check
