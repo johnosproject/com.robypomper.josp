@@ -210,18 +210,19 @@ public abstract class ClientAbs extends PeerAbs implements Client {
     }
 
     protected void scheduleReConnecting() {
-        reConnectTimer = JavaTimers.initAndStart(new ClientReConnect(), true, TH_RE_CONNECT_NAME, getLocalId(), getAutoReConnectConfigs().getDelay(), getAutoReConnectConfigs().getDelay());
+        reConnectTimer = JavaTimers.initAndStart(new ClientReConnectTimer(), true, TH_RE_CONNECT_NAME, getLocalId(), getAutoReConnectConfigs().getDelay(), getAutoReConnectConfigs().getDelay());
         emitOnConnecting_Waiting();
     }
 
     protected void stopReConnecting() {
         if (reConnectTimer == null)
             return;
-        reConnectTimer.cancel();
+
+        JavaTimers.stopTimer(reConnectTimer);
         reConnectTimer = null;
     }
 
-    private class ClientReConnect implements Runnable {
+    private class ClientReConnectTimer implements Runnable {
 
         @Override
         public void run() {

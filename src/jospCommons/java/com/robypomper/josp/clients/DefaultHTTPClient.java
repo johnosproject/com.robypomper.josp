@@ -21,10 +21,7 @@ package com.robypomper.josp.clients;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.java.JavaDate;
-import com.robypomper.java.JavaEnum;
-import com.robypomper.java.JavaNetworks;
-import com.robypomper.java.JavaSSLIgnoreChecks;
+import com.robypomper.java.*;
 import com.robypomper.josp.states.HTTPClientState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,8 +40,8 @@ public class DefaultHTTPClient implements HTTPClient {
 
     // Class constants
 
-    public static final String TH_CONNECTION_NAME = "_CONN_%s_";
-    public static final String TH_CONNECTION_CHECK_NAME = "_CONN_%s_CHECK_";
+    public static final String TH_CONNECTION_NAME = "CONN_%s";
+    public static final String TH_CONNECTION_CHECK_NAME = "CONN_CK_%s";
     public static final String HEAD_COOKIE = "Cookie";
     public static final String HEAD_SET_COOKIE = "Set-Cookie";
     public static final String SESSION_KEY = "JSESSIONID";
@@ -64,7 +61,7 @@ public class DefaultHTTPClient implements HTTPClient {
     private final List<AvailabilityListener> availabilityListeners = new ArrayList<>();
     private final List<AvailabilityListener> loginListeners = new ArrayList<>();
     // Connection timers
-    private Timer availabilityTimer = null;
+    private Timer connectionCheckTimer = null;
     // Headers and session
     private final Map<String, String> defaultHeaders = new HashMap<>();
     private String sessionId = null;
@@ -115,7 +112,7 @@ public class DefaultHTTPClient implements HTTPClient {
      */
     @Override
     public boolean isAvailableChecking() {
-        return availabilityTimer != null;
+        return connectionCheckTimer != null;
     }
 
     /**
@@ -182,24 +179,25 @@ public class DefaultHTTPClient implements HTTPClient {
     // HTTP server availability check timer
 
     private void doStartAvailabilityTimer() {
-        if (availabilityTimer != null) return;
+        if (connectionCheckTimer != null) return;
 
-        availabilityTimer = new Timer(true);
-        availabilityTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(String.format(TH_CONNECTION_CHECK_NAME, httpServerName));
-                checkServerReachability();
-
-            }
-        }, 0, availabilityTimerDelaySeconds * 1000);
+        connectionCheckTimer = JavaTimers.initAndStart(new CheckConnectionTimer(),true,String.format(TH_CONNECTION_CHECK_NAME, httpServerName.toUpperCase()),Integer.toString(this.hashCode()),0,availabilityTimerDelaySeconds * 1000);
     }
 
     private void doStopAvailabilityTimer() {
-        if (availabilityTimer == null) return;
+        if (connectionCheckTimer == null) return;
 
-        availabilityTimer.cancel();
-        availabilityTimer = null;
+        JavaTimers.stopTimer(connectionCheckTimer);
+        connectionCheckTimer = null;
+    }
+
+    private class CheckConnectionTimer implements Runnable {
+
+        @Override
+        public void run() {
+            checkServerReachability();
+        }
+
     }
 
 
