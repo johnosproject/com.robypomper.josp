@@ -41,8 +41,6 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
     private HttpSession httpSession;
     @Autowired
     private ClientParams params;
-    @Value("${jcp.urlAPIs}")
-    private String urlAPIs;
 
 
     // Constructors
