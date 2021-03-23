@@ -64,7 +64,6 @@ public class SwaggerConfigurer {
 
     // Class Constants
 
-    private static final String DEFAULT_INCLUDE_PATTERN_NONE = "/none";
     public static final String RES_PATH_DESC = "classpath:docs/api-%s-description.txt";
 
     public static final String ROLE_OBJ = "obj";
@@ -100,8 +99,8 @@ public class SwaggerConfigurer {
 
     // Internal vars
 
-    @Value("${jcp.urlAuth}")
-    private String urlBaseAuth;
+    @Value("${oauth2.url}")
+    private String authUrl;
 
 
     // API's groups
@@ -120,7 +119,7 @@ public class SwaggerConfigurer {
     // API sets configurers
 
     public String getUrlBaseAuth() {
-        return urlBaseAuth;
+        return authUrl;
     }
 
     public static Docket createAPIsGroup(APIGroup api, String urlBaseAuth) {
@@ -156,8 +155,8 @@ public class SwaggerConfigurer {
 
     private static OAuth oauthAuthCodeFlow(String urlBaseAuth) {
         List<GrantType> grants = new ArrayList<>();
-        String urlAuth = "https://" + urlBaseAuth + OAUTH_PATH_AUTH;
-        String urlToken = "https://" + urlBaseAuth + OAUTH_PATH_TOKEN;
+        String urlAuth = urlBaseAuth + OAUTH_PATH_AUTH;
+        String urlToken = urlBaseAuth + OAUTH_PATH_TOKEN;
 
         grants.add(new AuthorizationCodeGrant(
                 new TokenRequestEndpoint(urlAuth,
@@ -174,7 +173,7 @@ public class SwaggerConfigurer {
         List<GrantType> grants = new ArrayList<>();
 
         grants.add(new ClientCredentialsGrant(
-                "https://" + urlBaseAuth + OAUTH_PATH_TOKEN
+                urlBaseAuth + OAUTH_PATH_TOKEN
         ));
 
         return new OAuth(OAUTH_CRED, getScopesList(), grants);
@@ -184,7 +183,7 @@ public class SwaggerConfigurer {
         List<GrantType> grants = new ArrayList<>();
 
         grants.add(new ImplicitGrant(
-                new LoginEndpoint("https://" + urlBaseAuth + OAUTH_PATH_AUTH),
+                new LoginEndpoint(urlBaseAuth + OAUTH_PATH_AUTH),
                 OAUTH_TOKEN_NAME
         ));
 
