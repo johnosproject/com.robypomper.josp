@@ -63,7 +63,7 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
     })
     public ResponseEntity<List<JOSPPermHtml>> jsonObjectPermissions(@ApiIgnore HttpSession session,
                                                                     @PathVariable("obj_id") String objId) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"reuire permissions list");
 
         // Convert permission list
         List<JOSPPermHtml> permsHtml = new ArrayList<>();
@@ -88,7 +88,7 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
                                                            @RequestParam("usr_id") String usrId,
                                                            @RequestParam("type") JOSPPerm.Type type,
                                                            @RequestParam("conn") JOSPPerm.Connection connection) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"add permission");
 
         try {
             obj.getPerms().addPerm(srvId, usrId, type, connection);
@@ -119,8 +119,8 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
                                                            @RequestParam(value = "usr_id", required = false) String usrId,
                                                            @RequestParam(value = "type", required = false) JOSPPerm.Type type,
                                                            @RequestParam(value = "conn", required = false) JOSPPerm.Connection connection) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
-        JOSPPerm perm = webBridgeService.getJSLObjPerm(session.getId(), objId, permId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"update permission");
+        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId,"update permission");
 
         if (srvId == null)
             srvId = perm.getSrvId();
@@ -155,17 +155,17 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonObjectPermissionDel(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
-        JOSPPerm perm = webBridgeService.getJSLObjPerm(session.getId(), objId, permId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"remove permission");
+        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId,"remove permission");
 
         try {
             obj.getPerms().remPerm(perm.getId());
 
         } catch (JSLRemoteObject.MissingPermission e) {
-            throw missingPermissionsException(objId, "duplicate permission", e);
+            throw missingPermissionsException(objId, "remove permission", e);
 
         } catch (JSLRemoteObject.ObjectNotConnected e) {
-            throw objNotConnectedException(objId, "duplicate permission", e);
+            throw objNotConnectedException(objId, "remove permission", e);
         }
 
         return ResponseEntity.ok(true);
@@ -183,17 +183,17 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonObjectPermissionDup(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
-        JOSPPerm perm = webBridgeService.getJSLObjPerm(session.getId(), objId, permId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"duplicate permission");
+        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId,"duplicate permission");
 
         try {
             obj.getPerms().addPerm(perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType());
 
         } catch (JSLRemoteObject.MissingPermission e) {
-            throw missingPermissionsException(objId, "remove permission", e);
+            throw missingPermissionsException(objId, "duplicate permission", e);
 
         } catch (JSLRemoteObject.ObjectNotConnected e) {
-            throw objNotConnectedException(objId, "remove permission", e);
+            throw objNotConnectedException(objId, "duplicate permission", e);
         }
 
         return ResponseEntity.ok(true);

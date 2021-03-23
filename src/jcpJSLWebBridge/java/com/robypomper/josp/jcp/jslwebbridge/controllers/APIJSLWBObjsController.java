@@ -62,7 +62,7 @@ public class APIJSLWBObjsController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<List<JOSPObjHtml>> jsonObjectsList(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(),"list objects");
 
         List<JOSPObjHtml> objHtml = new ArrayList<>();
         for (JSLRemoteObject o : jsl.getObjsMngr().getAllObjects())
@@ -82,7 +82,7 @@ public class APIJSLWBObjsController extends APIJSLWBControllerAbs {
     })
     public ResponseEntity<JOSPObjHtml> jsonObjectDetails(@ApiIgnore HttpSession session,
                                                          @PathVariable("obj_id") String objId) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"get object details");
         return ResponseEntity.ok(new JOSPObjHtml(obj));
     }
 
@@ -98,7 +98,7 @@ public class APIJSLWBObjsController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonObjectOwner(@ApiIgnore HttpSession session,
                                                    @PathVariable("obj_id") String objId,
                                                    @RequestParam("new_owner") String newOwner) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"set object owner");
 
         try {
             obj.getInfo().setOwnerId(newOwner);
@@ -122,7 +122,7 @@ public class APIJSLWBObjsController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonObjectName(@ApiIgnore HttpSession session,
                                                   @PathVariable("obj_id") String objId,
                                                   @RequestParam("new_name") String newName) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"set object name");
 
         try {
             obj.getInfo().setName(newName);
@@ -149,7 +149,7 @@ public class APIJSLWBObjsController extends APIJSLWBControllerAbs {
     public ResponseEntity<List<JOSPEvent>> jsonObjectEvents(@ApiIgnore HttpSession session,
                                                             @PathVariable("obj_id") String objId,
                                                             HistoryLimits limits) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"list object events");
 
         try {
             return ResponseEntity.ok(obj.getInfo().getEventsHistory(limits, 20));

@@ -74,7 +74,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
     })
     public ResponseEntity<JOSPUserHtml> jsonUserDetails(@ApiIgnore HttpSession session) {
 
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(),"get user");
         JSLUserMngr jslUserMngr = jsl.getUserMngr();
         return ResponseEntity.ok(new JOSPUserHtml(jslUserMngr));
     }
@@ -92,7 +92,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
                                                 @ApiIgnore HttpServletResponse response,
                                                 @RequestParam(name = "redirect_uri", required = false) String redirectUrl,
                                                 @RequestParam(name = "auto_redirect", required = false) boolean autoRedirect) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(),"get login url");
 
         if (redirectUrl != null)
             session.setAttribute(SESS_ATTR_LOGIN_REDIRECT, redirectUrl);
@@ -122,7 +122,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
                                                         @RequestParam(name = "session_state") String sessionState,
                                                         @RequestParam(name = "code") String code) {
         //https://localhost:8080/login/code/?session_state=087edff3-848c-4b59-9592-e44c7410e6b0&code=8ab0ceb4-e3cf-48e2-99df-b59fe7be129d.087edff3-848c-4b59-9592-e44c7410e6b0.79e472b0-e562-4535-a516-db7d7696a447
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(),"exec user login callback");
 
         String redirectURL = (String) session.getAttribute(SESS_ATTR_LOGIN_REDIRECT);
         session.removeAttribute(SESS_ATTR_LOGIN_REDIRECT);
@@ -163,7 +163,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
                                                  @RequestParam(name = "redirect_uri", required = false) String redirectUrl,
                                                  @RequestParam(name = "auto_redirect", required = false) boolean autoRedirect) {
 
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(),"get logout url");
 
         String redirect = jsl.getJCPClient().getAuthLogoutUrl(redirectUrl);
         jsl.getJCPClient().userLogout();
@@ -194,7 +194,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
                                                        @RequestParam(name = "redirect_uri", required = false) String redirectUrl,
                                                        @RequestParam(name = "auto_redirect", required = false) boolean autoRedirect) {
 
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(),"get registration url");
 
         if (redirectUrl != null)
             session.setAttribute(SESS_ATTR_LOGIN_REDIRECT, redirectUrl);

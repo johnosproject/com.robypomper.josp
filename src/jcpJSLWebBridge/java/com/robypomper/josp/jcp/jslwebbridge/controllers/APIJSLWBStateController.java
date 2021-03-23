@@ -68,7 +68,7 @@ public class APIJSLWBStateController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonBool(@ApiIgnore HttpSession session,
                                             @PathVariable("obj_id") String objId,
                                             @PathVariable("comp_path") String compPath) {
-        JSLBooleanState comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLBooleanState.class);
+        JSLBooleanState comp = getJSLObjComp(session.getId(), objId, compPath, JSLBooleanState.class, "get boolean component state");
         return ResponseEntity.ok(comp.getState());
     }
 
@@ -84,7 +84,7 @@ public class APIJSLWBStateController extends APIJSLWBControllerAbs {
     public ResponseEntity<Double> jsonRange(@ApiIgnore HttpSession session,
                                             @PathVariable("obj_id") String objId,
                                             @PathVariable("comp_path") String compPath) {
-        JSLRangeState comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeState.class);
+        JSLRangeState comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeState.class,"get range component state");
         return ResponseEntity.ok(comp.getState());
     }
 
@@ -101,8 +101,8 @@ public class APIJSLWBStateController extends APIJSLWBControllerAbs {
                                                                      @PathVariable("obj_id") String objId,
                                                                      @PathVariable("comp_path") String compPath,
                                                                      HistoryLimits limits) {
-        JSLRemoteObject obj = webBridgeService.getJSLObj(session.getId(), objId);
-        JSLComponent comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLComponent.class);
+        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"get component state history");
+        JSLComponent comp = getJSLObjComp(session.getId(),objId,compPath, JSLComponent.class,"get component state history");
 
         try {
             return ResponseEntity.ok(obj.getStruct().getComponentHistory(comp, limits, 20));

@@ -60,7 +60,7 @@ public class APIJSLWBSrvController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 400, message = "JSL Instance not initialized")
     })
     public ResponseEntity<JOSPSrvHtml> jsonServiceDetails(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(),"get service");
 
         JOSPSrvHtml srvHTML = new JOSPSrvHtml(session, jsl);
         return ResponseEntity.ok(srvHTML);

@@ -1,10 +1,12 @@
 package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
 import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.*;
 import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
 import com.robypomper.josp.jcp.params.jslwb.JSLStatus;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBInit;
 import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import com.robypomper.josp.jsl.JSL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -59,8 +61,8 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
 
     // Methods - JSL Instance Status
 
-    @GetMapping(path = APIJSLWBInit.FULL_PATH_JSL_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBInit.DESCR_PATH_JSL_STATUS)
+    @GetMapping(path = APIJSLWBInit.FULL_PATH_INIT_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = APIJSLWBInit.DESCR_PATH_INIT_STATUS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = JSLStatus.class),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -71,7 +73,7 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
             webBridgeService.getJSL(session.getId());
             isJSLInit = true;
 
-        } catch (ResponseStatusException ignore) {
+        } catch (JSLNotInitForSessionException ignore) {
         }
 
         return ResponseEntity.ok(new JSLStatus(session.getId(), isJSLInit));
@@ -83,21 +85,29 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
     @GetMapping(path = APIJSLWBInit.FULL_PATH_INIT_JSL, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = APIJSLWBInit.DESCR_PATH_INIT_JSL)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
-    public ResponseEntity<Boolean> initJSL(@ApiIgnore HttpSession session,
+    public ResponseEntity<String> initJSL(@ApiIgnore HttpSession session,
                                            @RequestParam("client_id") String clientId,
                                            @RequestParam("client_secret") String clientSecret) {
+        JSL jsl = null;
         try {
-            webBridgeService.createJSL(session.getId(), clientId, clientSecret);
+            jsl = webBridgeService.initJSL(session.getId(), clientId, clientSecret);
 
-        } catch (ResponseStatusException e) {
-            if (e.getStatus() != HttpStatus.BAD_REQUEST)
-                throw e;
+        } catch (JSLAlreadyInitForSessionException ignore) {
+            try {
+                jsl = webBridgeService.getJSL(session.getId());
+
+            } catch (JSLNotInitForSessionException ignore2) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't initialize/get JSL instance for '%s' session", session.getId()));
+            }
+
+        } catch (JSLErrorOnInitException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Can't initialize JSL instance for '%s' session (%s)", session.getId(), e));
         }
 
-        return ResponseEntity.ok(true);
+        return ResponseEntity.ok(jsl.getServiceInfo().getFullId());
     }
 
 
@@ -116,7 +126,14 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
         if (clientId != null)
             initJSL(session, clientId, clientSecret);
 
-        SseEmitter emitter = webBridgeService.createJSLEmitter(session.getId());
+        SseEmitter emitter;
+        try {
+            emitter = webBridgeService.getJSLEmitter(session.getId());
+
+        } catch (JSLNotInitForSessionException e) {
+            throw jslNotInitForSessionException(session.getId(),"initialize JSL Emitter");
+        }
+
         response.addHeader("X-Accel-Buffering", "no");
         return emitter;
     }

@@ -65,7 +65,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonBoolSwitch(@ApiIgnore HttpSession session,
                                                   @PathVariable("obj_id") String objId,
                                                   @PathVariable("comp_path") String compPath) {
-        JSLBooleanAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLBooleanAction.class);
+        JSLBooleanAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLBooleanAction.class,"switch boolean component");
 
         try {
             comp.execSwitch();
@@ -88,7 +88,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonBoolTrue(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLBooleanAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLBooleanAction.class);
+        JSLBooleanAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLBooleanAction.class,"set true boolean component");
 
         try {
             comp.execSetTrue();
@@ -111,7 +111,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonBoolFalse(@ApiIgnore HttpSession session,
                                                  @PathVariable("obj_id") String objId,
                                                  @PathVariable("comp_path") String compPath) {
-        JSLBooleanAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLBooleanAction.class);
+        JSLBooleanAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLBooleanAction.class,"set false boolean component");
 
         try {
             comp.execSetFalse();
@@ -155,7 +155,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
         if (dVal == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Request param 'val' can't be cast to double (%s), action '%s' on '%s' object not executed.", val, compPath, objId));
 
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"set value on range component");
 
         try {
             comp.execSetValue(dVal);
@@ -178,7 +178,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonRangeInc(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"increase range component");
 
         try {
             comp.execIncrease();
@@ -201,7 +201,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonRangeDec(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"decrease range component");
 
         try {
             comp.execDecrease();
@@ -224,7 +224,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonRangeMax(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"set max on range component");
 
         try {
             comp.execSetMax();
@@ -247,7 +247,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonRangeMin(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"set min on range component");
 
         try {
             comp.execSetMin();
@@ -270,7 +270,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonRange1_2(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"set 1/2 on range component");
 
         try {
             double half = comp.getMin() + ((comp.getMax() - comp.getMin()) / 2);
@@ -294,7 +294,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonRange1_3(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"set 1/3 on range component");
 
         try {
             double fist_third = comp.getMin() + ((comp.getMax() - comp.getMin()) / 3);
@@ -318,7 +318,7 @@ public class APIJSLWBActionController extends APIJSLWBControllerAbs {
     public ResponseEntity<Boolean> jsonRange2_3(@ApiIgnore HttpSession session,
                                                 @PathVariable("obj_id") String objId,
                                                 @PathVariable("comp_path") String compPath) {
-        JSLRangeAction comp = webBridgeService.getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class);
+        JSLRangeAction comp = getJSLObjComp(session.getId(),objId,compPath, JSLRangeAction.class,"set 2/3 on range component");
 
         try {
             double second_third = comp.getMin() + ((comp.getMax() - comp.getMin()) / 3) + ((comp.getMax() - comp.getMin()) / 3);

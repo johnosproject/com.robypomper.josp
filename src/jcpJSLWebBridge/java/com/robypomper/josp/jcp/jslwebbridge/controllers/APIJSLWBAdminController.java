@@ -3,7 +3,6 @@ package com.robypomper.josp.jcp.jslwebbridge.controllers;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.ClientParams;
 import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
-import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
 import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBAdmin;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.admin.JSLAdmin;
@@ -41,8 +40,6 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
     @Autowired
     private HttpSession httpSession;
     @Autowired
-    private JSLWebBridgeService webBridgeService;
-    @Autowired
     private ClientParams params;
     @Value("${jcp.urlAPIs}")
     private String urlAPIs;
@@ -74,7 +71,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<APIsStatus> getJCPAPIsStatusForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs Status");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsStatus());
@@ -96,7 +93,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<APIsStatus.Objects> getJCPAPIsStatusObjsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs Objects");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsObjects());
@@ -124,10 +121,10 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsServices());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs Services", e);
+            throw jcpClientException("JCP APIs Service", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs Services", e);
+            throw userNotAuthorizedException("JCP APIs Service", e);
         }
     }
 
@@ -140,16 +137,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<APIsStatus.Users> getJCPAPIsStatusUsrsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs Users");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsUsers());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs Users", e);
+            throw jcpClientException("JCP APIs GW", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs Users", e);
+            throw userNotAuthorizedException("JCP APIs GW", e);
         }
     }
 
@@ -162,7 +159,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<String> getJCPAPIsStatusExecONLINEForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable ONLINE");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecOnline());
@@ -184,7 +181,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.CPU> getJCPAPIsStatusExecCPUForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable CPU");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecCPU());
@@ -206,7 +203,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Disks> getJCPAPIsStatusExecDisksForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable DISKS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecDisks());
@@ -228,7 +225,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Java> getJCPAPIsStatusExecJavaForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable JAVA");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecJava());
@@ -250,7 +247,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.JavaThread>> getJCPAPIsStatusExecJavaThsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable JAVA_THS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecJavaThs());
@@ -272,7 +269,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Memory> getJCPAPIsStatusExecMemoryForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable MEMORY");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecMemory());
@@ -294,7 +291,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Network> getJCPAPIsStatusExecNetworkForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable NETWORK");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecNetwork());
@@ -316,7 +313,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.NetworkIntf>> getJCPAPIsStatusExecNetworkIntfsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable NETWORK_INTFS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecNetworkIntfs());
@@ -338,7 +335,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Os> getJCPAPIsStatusExecOsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable OS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecOs());
@@ -360,7 +357,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Process> getJCPAPIsStatusExecProcessForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP APIs executable PROCESS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPAPIsExecProcess());
@@ -385,7 +382,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<GWsStatus>> getJCPGWsStatusForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs Status");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsStatus());
@@ -407,7 +404,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<GWsStatus.Server>> getJCPGWsStatusCliForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs Clients");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsClients());
@@ -429,16 +426,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<String>> getJCPGWsStatusExecONLINEForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable ONLINE");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecOnline());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable ONLINE", e);
+            throw jcpClientException("JCP GWs executable ONLINE", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable ONLINE", e);
+            throw userNotAuthorizedException("JCP FE executable ONLINE", e);
         }
     }
 
@@ -451,16 +448,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.CPU>> getJCPGWsStatusExecCPUForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable CPU");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecCPU());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable CPU", e);
+            throw jcpClientException("JCP GWs executable CPU", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable CPU", e);
+            throw userNotAuthorizedException("JCP FE executable CPU", e);
         }
     }
 
@@ -473,16 +470,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.Disks>> getJCPGWsStatusExecDisksForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable DISKS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecDisks());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable DISKS", e);
+            throw jcpClientException("JCP GWs executable DISKS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable DISKS", e);
+            throw userNotAuthorizedException("JCP FE executable DISKS", e);
         }
     }
 
@@ -495,16 +492,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.Java>> getJCPGWsStatusExecJavaForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable JAVA");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecJava());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable JAVA", e);
+            throw jcpClientException("JCP GWs executable JAVA", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable JAVA", e);
+            throw userNotAuthorizedException("JCP FE executable JAVA", e);
         }
     }
 
@@ -517,16 +514,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<List<JCPStatus.JavaThread>>> getJCPGWsStatusExecJavaThsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable JAVA_THS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecJavaThs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable JAVA_THS", e);
+            throw jcpClientException("JCP GWs executable JAVA_THS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable JAVA_THS", e);
+            throw userNotAuthorizedException("JCP FE executable JAVA_THS", e);
         }
     }
 
@@ -539,16 +536,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.Memory>> getJCPGWsStatusExecMemoryForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable MEMORY");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecMemory());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable MEMORY", e);
+            throw jcpClientException("JCP GWs executable MEMORY", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable MEMORY", e);
+            throw userNotAuthorizedException("JCP FE executable MEMORY", e);
         }
     }
 
@@ -561,16 +558,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.Network>> getJCPGWsStatusExecNetworkForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable NETWORK");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecNetwork());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable NETWORK", e);
+            throw jcpClientException("JCP GWs executable NETWORK", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable NETWORK", e);
+            throw userNotAuthorizedException("JCP FE executable NETWORK", e);
         }
     }
 
@@ -583,16 +580,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<List<JCPStatus.NetworkIntf>>> getJCPGWsStatusExecNetworkIntfsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable NETWORK_INTFS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecNetworkIntfs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable NETWORK_INTFS", e);
+            throw jcpClientException("JCP GWs executable NETWORK_INTFS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable NETWORK_INTFS", e);
+            throw userNotAuthorizedException("JCP FE executable NETWORK_INTFS", e);
         }
     }
 
@@ -605,16 +602,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.Os>> getJCPGWsStatusExecOsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable OS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecOs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable OS", e);
+            throw jcpClientException("JCP GWs executable OS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable OS", e);
+            throw userNotAuthorizedException("JCP FE executable OS", e);
         }
     }
 
@@ -627,16 +624,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.Process>> getJCPGWsStatusExecProcessForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP GWs executable PROCESS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGWsExecProcess());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable PROCESS", e);
+            throw jcpClientException("JCP GWs executable PROCESS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable PROCESS", e);
+            throw userNotAuthorizedException("JCP FE executable PROCESS", e);
         }
     }
 
@@ -652,7 +649,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JSLWebBridgeStatus> getJCPJSLWBStatusForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB Status");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWebBridgeStatus());
@@ -674,16 +671,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<String> getJCPJSLWBStatusExecONLINEForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable ONLINE");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecOnline());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable ONLINE", e);
+            throw jcpClientException("JCP JSL WB executable ONLINE", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable ONLINE", e);
+            throw userNotAuthorizedException("JCP GWs executable ONLINE", e);
         }
     }
 
@@ -696,16 +693,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.CPU> getJCPJSLWBStatusExecCPUForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable CPU");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecCPU());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable CPU", e);
+            throw jcpClientException("JCP JSL WB executable CPU", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable CPU", e);
+            throw userNotAuthorizedException("JCP GWs executable CPU", e);
         }
     }
 
@@ -718,16 +715,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Disks> getJCPJSLWBStatusExecDisksForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable DISKS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecDisks());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable DISKS", e);
+            throw jcpClientException("JCP JSL WB executable DISKS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable DISKS", e);
+            throw userNotAuthorizedException("JCP GWs executable DISKS", e);
         }
     }
 
@@ -740,16 +737,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Java> getJCPJSLWBStatusExecJavaForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable JAVA");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecJava());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable JAVA", e);
+            throw jcpClientException("JCP JSL WB executable JAVA", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable JAVA", e);
+            throw userNotAuthorizedException("JCP GWs executable JAVA", e);
         }
     }
 
@@ -762,16 +759,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.JavaThread>> getJCPJSLWBStatusExecJavaThsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable JAVA_THS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecJavaThs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable JAVA_THS", e);
+            throw jcpClientException("JCP JSL WB executable JAVA_THS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable JAVA_THS", e);
+            throw userNotAuthorizedException("JCP GWs executable JAVA_THS", e);
         }
     }
 
@@ -784,16 +781,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Memory> getJCPJSLWBStatusExecMemoryForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable MEMORY");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecMemory());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable MEMORY", e);
+            throw jcpClientException("JCP JSL WB executable MEMORY", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable MEMORY", e);
+            throw userNotAuthorizedException("JCP GWs executable MEMORY", e);
         }
     }
 
@@ -806,16 +803,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Network> getJCPJSLWBStatusExecNetworkForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable NETWORK");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecNetwork());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable NETWORK", e);
+            throw jcpClientException("JCP JSL WB executable NETWORK", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable NETWORK", e);
+            throw userNotAuthorizedException("JCP GWs executable NETWORK", e);
         }
     }
 
@@ -828,16 +825,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.NetworkIntf>> getJCPJSLWBStatusExecNetworkIntfsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable NETWORK_INTFS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecNetworkIntfs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable NETWORK_INTFS", e);
+            throw jcpClientException("JCP JSL WB executable NETWORK_INTFS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable NETWORK_INTFS", e);
+            throw userNotAuthorizedException("JCP GWs executable NETWORK_INTFS", e);
         }
     }
 
@@ -850,16 +847,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Os> getJCPJSLWBStatusExecOsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable OS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecOs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable OS", e);
+            throw jcpClientException("JCP JSL WB executable OS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable OS", e);
+            throw userNotAuthorizedException("JCP GWs executable OS", e);
         }
     }
 
@@ -872,16 +869,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Process> getJCPJSLWBStatusExecProcessForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP JSL WB executable PROCESS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWBExecProcess());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable PROCESS", e);
+            throw jcpClientException("JCP JSL WB executable PROCESS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable PROCESS", e);
+            throw userNotAuthorizedException("JCP GWs executable PROCESS", e);
         }
     }
 
@@ -897,7 +894,7 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<FEStatus> getJCPFEStatusForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE Status");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEStatus());
@@ -919,16 +916,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<String> getJCPFEStatusExecONLINEForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable ONLINE");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecOnline());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable ONLINE", e);
+            throw jcpClientException("JCP FE executable ONLINE", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable ONLINE", e);
+            throw userNotAuthorizedException("JCP JSL WB executable ONLINE", e);
         }
     }
 
@@ -941,16 +938,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.CPU> getJCPFEStatusExecCPUForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable CPU");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecCPU());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable CPU", e);
+            throw jcpClientException("JCP FE executable CPU", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable CPU", e);
+            throw userNotAuthorizedException("JCP JSL WB executable CPU", e);
         }
     }
 
@@ -963,16 +960,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Disks> getJCPFEStatusExecDisksForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable DISKS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecDisks());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable DISKS", e);
+            throw jcpClientException("JCP FE executable DISKS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable DISKS", e);
+            throw userNotAuthorizedException("JCP JSL WB executable DISKS", e);
         }
     }
 
@@ -985,16 +982,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Java> getJCPFEStatusExecJavaForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable JAVA");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecJava());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable JAVA", e);
+            throw jcpClientException("JCP FE executable JAVA", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable JAVA", e);
+            throw userNotAuthorizedException("JCP JSL WB executable JAVA", e);
         }
     }
 
@@ -1007,16 +1004,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.JavaThread>> getJCPFEStatusExecJavaThsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable JAVA_THS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecJavaThs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable JAVA_THS", e);
+            throw jcpClientException("JCP FE executable JAVA_THS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable JAVA_THS", e);
+            throw userNotAuthorizedException("JCP JSL WB executable JAVA_THS", e);
         }
     }
 
@@ -1029,16 +1026,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Memory> getJCPFEStatusExecMemoryForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable MEMORY");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecMemory());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable MEMORY", e);
+            throw jcpClientException("JCP FE executable MEMORY", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable MEMORY", e);
+            throw userNotAuthorizedException("JCP JSL WB executable MEMORY", e);
         }
     }
 
@@ -1051,16 +1048,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Network> getJCPFEStatusExecNetworkForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable NETWORK");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecNetwork());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable NETWORK", e);
+            throw jcpClientException("JCP FE executable NETWORK", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable NETWORK", e);
+            throw userNotAuthorizedException("JCP JSL WB executable NETWORK", e);
         }
     }
 
@@ -1073,16 +1070,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<List<JCPStatus.NetworkIntf>> getJCPFEStatusExecNetworkIntfsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable NETWORK_INTFS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecNetworkIntfs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable NETWORK_INTFS", e);
+            throw jcpClientException("JCP FE executable NETWORK_INTFS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable NETWORK_INTFS", e);
+            throw userNotAuthorizedException("JCP JSL WB executable NETWORK_INTFS", e);
         }
     }
 
@@ -1095,16 +1092,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Os> getJCPFEStatusExecOsForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable OS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecOs());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable OS", e);
+            throw jcpClientException("JCP FE executable OS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable OS", e);
+            throw userNotAuthorizedException("JCP JSL WB executable OS", e);
         }
     }
 
@@ -1117,16 +1114,16 @@ public class APIJSLWBAdminController extends APIJSLWBControllerAbs {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<JCPStatus.Process> getJCPFEStatusExecProcessForward(@ApiIgnore HttpSession session) {
-        JSL jsl = webBridgeService.getJSL(session.getId());
+        JSL jsl = getJSL(session.getId(), "JCP FE executable PROCESS");
 
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPFEExecProcess());
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
-            throw jcpClientException("JCP APIs executable PROCESS", e);
+            throw jcpClientException("JCP FE executable PROCESS", e);
 
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
-            throw userNotAuthorizedException("JCP APIs executable PROCESS", e);
+            throw userNotAuthorizedException("JCP JSL WB executable PROCESS", e);
         }
     }
 
