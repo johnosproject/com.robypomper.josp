@@ -960,8 +960,6 @@ public class DefaultJCPClient2 implements JCPClient2 {
         String responseBody;
         try {
             response = service.execute(request);
-            if (reqObject != null && reqObject.isInstance(response))
-                return reqObject.cast(response);
 
             if (response.getCode() == 401) {
                 try {
@@ -998,6 +996,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
             if (response.getCode() != 200)
                 throwErrorCodes(request, response);
 
+            if (reqObject != null && reqObject.isInstance(response))
+                return reqObject.cast(response);
             responseBody = response.getBody();
 
         } catch (InterruptedException | ExecutionException | IOException e) {

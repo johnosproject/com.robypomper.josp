@@ -113,7 +113,7 @@ public class JavaThreads {
         String currentThreadName = Thread.currentThread().getName();
         currentThreadName = currentThreadName.substring(currentThreadName.indexOf('.')+1);
         String newThreadName = name + (instance != null && !instance.isEmpty() ? "(" + instance + ")" : "");
-        return String.format("%d.%s/%s", threadsCount++, currentThreadName, newThreadName);
+        return String.format("%d. %s < %s", threadsCount++, newThreadName, currentThreadName);
     }
 
 

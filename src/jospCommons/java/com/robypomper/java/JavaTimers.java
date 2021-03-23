@@ -360,7 +360,7 @@ public class JavaTimers {
      * @return the initialized TimerTask.
      */
     public static TimerTask initTask(Runnable runnable, String name, String instance) {
-        String thName = JavaThreads.prepareThreadName(name + "Task", instance);
+        String thName = JavaThreads.prepareThreadName(name + "_TIMER", instance);
         return new TimerTask() {
 
             @Override
