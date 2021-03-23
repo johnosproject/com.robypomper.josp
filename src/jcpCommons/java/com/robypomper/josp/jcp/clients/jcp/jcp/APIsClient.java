@@ -55,18 +55,24 @@ public class APIsClient extends AbsAPIJCP {
      * @return the GW O2S access info.
      */
     public boolean postStartup(JCPGWsStartup gwStartup, String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
-        return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_STARTUP, Boolean.class, gwStartup, isSecure());
+        synchronized(jcpClient) {
+            jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
+            return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_STARTUP, Boolean.class, gwStartup, isSecure());
+        }
     }
 
     public boolean postStatus(com.robypomper.josp.jcp.params.jcp.JCPGWsStatus gwStatus, String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
-        return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_STATUS, Boolean.class, gwStatus, isSecure());
+        synchronized(jcpClient) {
+            jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
+            return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_STATUS, Boolean.class, gwStatus, isSecure());
+        }
     }
 
     public boolean postShutdown(String gwId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
-        return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_SHUTDOWN, Boolean.class, isSecure());
+        synchronized(jcpClient) {
+            jcpClient.addDefaultHeader(JCPAPIsGWRegistration.HEADER_JCPGWID, gwId);
+            return jcpClient.execReq(Verb.POST, JCPAPIsGWRegistration.FULL_PATH_SHUTDOWN, Boolean.class, isSecure());
+        }
     }
 
 }
