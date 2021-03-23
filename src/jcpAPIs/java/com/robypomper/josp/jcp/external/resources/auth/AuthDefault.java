@@ -19,9 +19,8 @@
 
 package com.robypomper.josp.jcp.external.resources.auth;
 
-import com.robypomper.josp.jcp.clients.ClientParams;
+import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -36,8 +35,8 @@ public class AuthDefault extends AuthKeycloak {
     // Constructor
 
     @Autowired
-    public AuthDefault(ClientParams params, @Value("${jcp.urlAPIs}") String urlAPIs) {
-        super(params, urlAPIs);
+    public AuthDefault(JCPClientsMngr clientsMngr) {
+        super(clientsMngr);
     }
 
 }
