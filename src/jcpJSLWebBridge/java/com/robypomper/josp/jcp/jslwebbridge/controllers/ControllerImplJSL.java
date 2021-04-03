@@ -1,8 +1,10 @@
 package com.robypomper.josp.jcp.jslwebbridge.controllers;
 
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.base.controllers.ControllerImpl;
 import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLNotInitForSessionException;
 import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
+import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.DefaultJSLComponentPath;
@@ -11,13 +13,13 @@ import com.robypomper.josp.protocol.JOSPPerm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import springfox.documentation.spring.web.plugins.Docket;
 
-public class APIJSLWBControllerAbs {
+public class ControllerImplJSL extends ControllerImpl {
 
     // Class constants
 
-    private static final String LOG_ERR_JSL_NOT_INIT = "Can't %s for '%s' session because JSL instance not initialized";
+    private static final String LOG_ERR_JSL_NOT_INIT1 = "Exception executing request for '%s' session because JSL instance not initialized";
+    private static final String LOG_ERR_JSL_NOT_INIT2 = "Can't %s for '%s' session because JSL instance not initialized";
     private static final String LOG_ERR_MISSING_PERMS_ON_ACTION = "Permission denied to current user/service on send '%s' action commands to '%s' object.";
     private static final String LOG_ERR_OBJ_NOT_CONN_ON_ACTION = "Can't send '%s' action commands because '%s' object is not connected.";
     private static final String LOG_ERR_MISSING_PERMS_ON_HISTORY = "Permission denied to current user/service on send '%s' history request to '%s' object.";
@@ -42,7 +44,7 @@ public class APIJSLWBControllerAbs {
 
     // Constructor
 
-    protected APIJSLWBControllerAbs(String swaggerAPIName, String swaggerAPIVers, String swaggerAPISuffix, String swaggerSubGroupName, String swaggerSubGroupDescr) {
+    protected ControllerImplJSL(String swaggerAPIName, String swaggerAPIVers, String swaggerAPISuffix, String swaggerSubGroupName, String swaggerSubGroupDescr) {
         this.swaggerAPIName = swaggerAPIName;
         this.swaggerAPIVers = swaggerAPIVers;
         this.swaggerAPISuffix = swaggerAPISuffix;
@@ -51,16 +53,16 @@ public class APIJSLWBControllerAbs {
     }
 
 
-    // Swagger configs
-
-    public Docket swaggerConfig() {
-        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(swaggerSubGroupName, swaggerSubGroupDescr);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(swaggerAPIName, swaggerAPIVers, swaggerAPISuffix, sg), swagger.getUrlBaseAuth());
-    }
-
-
     // Getter utils
+
+    protected JSL getJSL(String sessionId) {
+        try {
+            return webBridgeService.getJSL(sessionId);
+
+        } catch (JSLNotInitForSessionException e) {
+            throw jslNotInitForSessionException(sessionId);
+        }
+    }
 
     protected JSL getJSL(String sessionId, String request) {
         try {
@@ -72,7 +74,7 @@ public class APIJSLWBControllerAbs {
     }
 
     protected JSLRemoteObject getJSLObj(String sessionId, String objId, String request) {
-        JSL jsl = getJSL(sessionId,request);
+        JSL jsl = getJSL(sessionId, request);
 
         JSLRemoteObject obj = jsl.getObjsMngr().getById(objId);
         if (obj == null)
@@ -95,7 +97,7 @@ public class APIJSLWBControllerAbs {
     }
 
     protected JOSPPerm getJSLObjPerm(String sessionId, String objId, String permId, String request) {
-        JSLRemoteObject obj = getJSLObj(sessionId, objId,request);
+        JSLRemoteObject obj = getJSLObj(sessionId, objId, request);
 
         JOSPPerm perm = null;
         for (JOSPPerm permSearch : obj.getPerms().getPerms()) {
@@ -111,10 +113,26 @@ public class APIJSLWBControllerAbs {
         return perm;
     }
 
+
+    // Utils
+
+    protected void checkAdmin(JSL jsl) {
+        if (!jsl.getUserMngr().isUserAuthenticated())
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED /* 401 */, "User not authenticated");
+
+        if (!jsl.getUserMngr().isAdmin())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN /* 403 */, "Only Admin user can access to this request");
+    }
+
+
     // Exception utils
 
+    protected ResponseStatusException jslNotInitForSessionException(String sessionId) {
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(LOG_ERR_JSL_NOT_INIT1, sessionId));
+    }
+
     protected ResponseStatusException jslNotInitForSessionException(String sessionId, String request) {
-        return new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(LOG_ERR_JSL_NOT_INIT, request, sessionId));
+        return new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(LOG_ERR_JSL_NOT_INIT2, request, sessionId));
     }
 
     protected ResponseStatusException missingPermissionsExceptionOnSendAction(String objId, String compPath, JSLRemoteObject.MissingPermission e) {
@@ -139,6 +157,10 @@ public class APIJSLWBControllerAbs {
 
     protected ResponseStatusException objNotConnectedException(String objId, String request, JSLRemoteObject.ObjectNotConnected e) {
         return new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, String.format(LOG_ERR_OBJ_NOT_CONN, request, objId), e);
+    }
+
+    protected ResponseStatusException userNotAuthorizedException(JCPClient2 client, Throwable cause) {
+        return new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("Access to JCP %s forbidden for current user (%s)", client.getApiName(), cause.toString()), cause);
     }
 
 }
