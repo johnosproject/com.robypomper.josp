@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.params.jslwb;
+package com.robypomper.josp.jcp.params_DEPRECATED.jslwb;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.robypomper.comm.connection.ConnectionState;
