@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.robypomper.java.JavaDate;
+import com.robypomper.josp.defs.core.objects.Params20;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -69,6 +70,37 @@ public class JOSPStatusHistory {
 
     // Converters
 
+    public static Params20.HistoryStatus toHistoryStatus(JOSPStatusHistory history) {
+        Params20.HistoryStatus historyRes = new Params20.HistoryStatus();
+        historyRes.id = history.getId();
+        historyRes.compPath = history.getCompPath();
+        historyRes.compType = history.getCompType();
+        historyRes.updatedAt = history.getUpdatedAt();
+        historyRes.payload = history.getPayload();
+        return historyRes;
+    }
+
+    public static List<Params20.HistoryStatus> toHistoryStatuses(List<JOSPStatusHistory> histories) {
+        List<Params20.HistoryStatus> historyRes = new ArrayList<>();
+        for (JOSPStatusHistory h : histories)
+            historyRes.add(toHistoryStatus(h));
+        return historyRes;
+    }
+
+    public static String toString(JOSPStatusHistory statusHistory) {
+        return String.format(STATUS_HISTORY_REQ_FORMAT, statusHistory.getId(), statusHistory.getCompPath(), statusHistory.getCompType(), JavaDate.DEF_DATE_FORMATTER.format(statusHistory.getUpdatedAt()), statusHistory.getPayload());
+    }
+
+    public static String toString(List<JOSPStatusHistory> statusesHistory) {
+        StringBuilder str = new StringBuilder();
+        for (JOSPStatusHistory s : statusesHistory) {
+            str.append(toString(s));
+            str.append("\n");
+        }
+
+        return str.toString();
+    }
+
     public static JOSPStatusHistory fromString(String statusesHistoryStr) throws JOSPProtocol.ParsingException {
         String[] statusHistoryStrs = statusesHistoryStr.split(";");
         if (statusHistoryStrs.length != 5)
@@ -94,20 +126,6 @@ public class JOSPStatusHistory {
             statuses.add(fromString(statusStr));
 
         return statuses;
-    }
-
-    public static String toString(JOSPStatusHistory statusHistory) {
-        return String.format(STATUS_HISTORY_REQ_FORMAT, statusHistory.getId(), statusHistory.getCompPath(), statusHistory.getCompType(), JavaDate.DEF_DATE_FORMATTER.format(statusHistory.getUpdatedAt()), statusHistory.getPayload());
-    }
-
-    public static String toString(List<JOSPStatusHistory> statusesHistory) {
-        StringBuilder str = new StringBuilder();
-        for (JOSPStatusHistory s : statusesHistory) {
-            str.append(toString(s));
-            str.append("\n");
-        }
-
-        return str.toString();
     }
 
     public static String logStatuses(List<JOSPStatusHistory> statusesHistory, boolean showCompInfo) {
