@@ -17,25 +17,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.gws.controllers;
+package com.robypomper.josp.jcp.gateways.controllers.internal.clients.registration;
 
 import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.java.JavaJKS;
+import com.robypomper.josp.consts.JOSPConstants;
+import com.robypomper.josp.jcp.base.controllers.ControllerImpl;
+import com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20;
+import com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Paths20;
 import com.robypomper.josp.jcp.gws.gw.GWAbs;
 import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
 import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
-import com.robypomper.josp.jcp.info.JCPGWsVersions;
-import com.robypomper.josp.jcp.paths.gws.JCPGWsAccessInfo;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
-import com.robypomper.josp.jcp.utils.ParamChecks;
-import com.robypomper.josp.params.jospgws.*;
-import com.robypomper.josp.paths.APIObjs;
-import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,47 +40,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.annotation.security.RolesAllowed;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 
+
 /**
- * API JCP APIs controller.
- * <p>
- * This controller expose methods called by JCP APIs to add clients certificate
- * to current JCP GWs.
+ * JCP Gateways - Clients / Registration 2.0
  */
-@RestController
-@Api(tags = {JCPGWsAccessInfo.SubGroupGWs.NAME})
-public class JCPGWsAccessInfoController {
+@RestController(value = Paths20.API_NAME + " " + Paths20.DOCS_NAME)
+@Api(tags = Paths20.DOCS_NAME, description = Paths20.DOCS_DESCR)
+public class Controller20 extends ControllerImpl {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(JCPGWsAccessInfoController.class);
+    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
     @Autowired
     private GWServiceO2S gwO2SService;
     @Autowired
     private GWServiceS2O gwS2OService;
-    @Autowired
-    private SwaggerConfigurer swagger;
-
-
-    // Docs configs
-
-    @Bean
-    public Docket swaggerConfig_JCPGWsAccessInfo() {
-        SwaggerConfigurer.APISubGroup[] sg = new SwaggerConfigurer.APISubGroup[1];
-        sg[0] = new SwaggerConfigurer.APISubGroup(JCPGWsAccessInfo.SubGroupGWs.NAME, JCPGWsAccessInfo.SubGroupGWs.DESCR);
-        return SwaggerConfigurer.createAPIsGroup(new SwaggerConfigurer.APIGroup(JCPGWsAccessInfo.API_NAME, JCPGWsAccessInfo.API_VER, JCPGWsVersions.API_NAME, sg), swagger.getUrlBaseAuth());
-    }
 
 
     // Methods
 
-    @PostMapping(path = JCPGWsAccessInfo.FULL_PATH_O2S_ACCESS)
-    @ApiOperation(value = JCPGWsAccessInfo.DESCR_PATH_O2S_ACCESS,
+    @PostMapping(path = Paths20.FULL_PATH_GW_O2S_ACCESS)
+    @ApiOperation(value = Paths20.DESCR_PATH_GW_O2S_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
@@ -93,31 +75,28 @@ public class JCPGWsAccessInfoController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = O2SAccessInfo.class),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Params20.O2SAccessInfo.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 400, message = "Missing mandatory header " + APIObjs.HEADER_OBJID),
+            @ApiResponse(code = 400, message = "Missing mandatory header " + JOSPConstants.API_HEADER_OBJ_ID),
             @ApiResponse(code = 500, message = "Error adding client certificate")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<O2SAccessInfo> postO2SAccess(
-            @RequestHeader(APIObjs.HEADER_OBJID)
-                    String objId,
-            @RequestBody
-                    O2SAccessRequest accessRequest) {
+    public ResponseEntity<Params20.O2SAccessInfo> postO2SAccess(@RequestHeader(JOSPConstants.API_HEADER_OBJ_ID) String objId,
+                                                                @RequestBody Params20.O2SAccessRequest accessRequest) {
 
-        ParamChecks.checkObjId(log, objId);
+        checkObjId(log, objId);
 
-        Certificate clientCertificate = generateCertificate(objId, accessRequest.getObjCertificate(), "objCertificate");
+        Certificate clientCertificate = generateCertificate(Paths20.FULL_PATH_GW_O2S_ACCESS, accessRequest.clientCertificate);
         String certId = String.format("%s/%s", objId, accessRequest.instanceId);
-        registerCertificate(gwO2SService.get(), objId, certId, clientCertificate);
+        registerCertificate(Paths20.FULL_PATH_GW_O2S_ACCESS, gwO2SService.get(), certId, clientCertificate);
         log.trace(String.format("Registered certificate for Object '%s'", objId));
 
-        return ResponseEntity.ok((O2SAccessInfo) getAccessInfo(gwO2SService.get()));
+        return ResponseEntity.ok((Params20.O2SAccessInfo) getAccessInfo(gwO2SService.get()));
     }
 
 
-    @PostMapping(path = JCPGWsAccessInfo.FULL_PATH_S2O_ACCESS)
-    @ApiOperation(value = JCPGWsAccessInfo.DESCR_PATH_S2O_ACCESS,
+    @PostMapping(path = Paths20.FULL_PATH_GW_S2O_ACCESS)
+    @ApiOperation(value = Paths20.DESCR_PATH_GW_S2O_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
@@ -127,52 +106,47 @@ public class JCPGWsAccessInfoController {
             )
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = S2OAccessInfo.class),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Params20.S2OAccessInfo.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
-            @ApiResponse(code = 400, message = "Missing mandatory header " + APISrvs.HEADER_SRVID),
+            @ApiResponse(code = 400, message = "Missing mandatory header " + JOSPConstants.API_HEADER_SRV_ID),
             @ApiResponse(code = 500, message = "Error adding client certificate")
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<S2OAccessInfo> postS2OAccess(
-            @RequestHeader(APISrvs.HEADER_SRVID)
-                    String srvId,
-            @RequestBody
-                    S2OAccessRequest accessRequest) {
+    public ResponseEntity<Params20.S2OAccessInfo> postS2OAccess(@RequestHeader(JOSPConstants.API_HEADER_SRV_ID) String srvId,
+                                                                @RequestBody Params20.S2OAccessRequest accessRequest) {
 
-        ParamChecks.checkSrvId(log, srvId);
+        checkSrvId(log, srvId);
 
-        Certificate clientCertificate = generateCertificate(srvId, accessRequest.getSrvCertificate(), "srvCertificate");
+        Certificate clientCertificate = generateCertificate(Paths20.FULL_PATH_GW_S2O_ACCESS, accessRequest.clientCertificate);
         String certId = String.format("%s/%s", srvId, accessRequest.instanceId);
-        registerCertificate(gwS2OService.get(), srvId, certId, clientCertificate);
+        registerCertificate(Paths20.FULL_PATH_GW_S2O_ACCESS, gwS2OService.get(), certId, clientCertificate);
         log.trace(String.format("Registered certificate for Service '%s'", srvId));
 
-        return ResponseEntity.ok((S2OAccessInfo) getAccessInfo(gwS2OService.get()));
+        return ResponseEntity.ok((Params20.S2OAccessInfo) getAccessInfo(gwS2OService.get()));
     }
 
 
     // Utils
 
-    private static Certificate generateCertificate(String clientId, byte[] certificateBytes, String paramName) {
+    private static Certificate generateCertificate(String requestName, byte[] certificateBytes) {
         try {
             return JavaJKS.loadCertificateFromBytes(certificateBytes);
 
         } catch (JavaJKS.LoadingException e) {
-            log.trace(String.format("Error parsing client '%s' certificate", clientId));
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Body param %s contains invalid value.", paramName));
+            throw genericException(requestName, e);
         }
     }
 
-    private static void registerCertificate(GWAbs gwService, String clientId, String certId, Certificate certificate) {
+    private static void registerCertificate(String requestName, GWAbs gwService, String certId, Certificate certificate) {
         try {
             gwService.addClientCertificate(certId, certificate);
 
         } catch (AbsCustomTrustManager.UpdateException e) {
-            log.trace(String.format("Error registering client '%s' certificate '%s' on GW server '%s'", clientId, certId, gwService.getId()));
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Error registering client certificate '%s' on GW server '%s'.", certId, gwService.getId()));
+            throw genericException(requestName, e);
         }
     }
 
-    private static AccessInfo getAccessInfo(GWAbs gwService) {
+    private static Params20.AccessInfo getAccessInfo(GWAbs gwService) {
         try {
             return gwService.getAccessInfo();
 
