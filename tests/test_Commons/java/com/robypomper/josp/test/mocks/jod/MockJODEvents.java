@@ -5,6 +5,7 @@ import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
+import com.robypomper.josp.types.josp.EventType;
 
 import java.util.List;
 
@@ -15,11 +16,11 @@ public class MockJODEvents implements JODEvents {
     }
 
     @Override
-    public void register(JOSPEvent.Type type, String phase, String payload) {
+    public void register(EventType type, String phase, String payload) {
     }
 
     @Override
-    public void register(JOSPEvent.Type type, String phase, String payload, Throwable error) {
+    public void register(EventType type, String phase, String payload, Throwable error) {
     }
 
     @Override
