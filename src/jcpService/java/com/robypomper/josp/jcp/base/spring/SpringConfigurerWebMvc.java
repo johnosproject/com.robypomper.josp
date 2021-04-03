@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.service.spring;
+package com.robypomper.josp.jcp.base.spring;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

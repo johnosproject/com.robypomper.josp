@@ -1,4 +1,4 @@
-package com.robypomper.josp.jcp.service.spring;
+package com.robypomper.josp.jcp.base.spring;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
