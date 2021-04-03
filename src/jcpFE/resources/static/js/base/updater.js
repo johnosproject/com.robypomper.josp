@@ -8,8 +8,8 @@ This file provide the start function for the Updater mechanism that use a SSE co
 
 // Updater's methods
 
-function startUpdater(path,updateOnMessage,updateOnOpen,updateOnError) {
-    var evtSource = new EventSource(path, { withCredentials: true });
+function startUpdater(baseUrl,path,updateOnMessage,updateOnOpen,updateOnError) {
+    var evtSource = new EventSource(joinUrl(baseUrl,path), { withCredentials: true });
     evtSource.onmessage = updateOnMessage;
     evtSource.onopen = updateOnOpen;
     evtSource.onerror = updateOnError;

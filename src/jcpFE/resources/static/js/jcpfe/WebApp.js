@@ -31,7 +31,7 @@ function initJSLInstanceAndSSE() {
         if (apiGETSync("",pathFE_EP_Session.replace("{session_id}",jslInstStatus.sessionId)).status != 200)
             return false;
 
-    updater = startUpdater(backEndUrl + pathJSLWB_Init_Sse,updateOnMessage,updateOnOpen,updateOnError);
+    updater = startUpdater(backEndUrl,pathJSLWB_Init_Sse,updateOnMessage,updateOnOpen,updateOnError);
     return true;
 }
 

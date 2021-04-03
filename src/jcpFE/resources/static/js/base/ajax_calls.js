@@ -10,7 +10,7 @@ This file provide all functions required for Ajax Calls (Get and POST).
 
 function apiGETSync(baseUrl,path) {
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", baseUrl + path, false);
+    xhttp.open("GET", joinUrl(baseUrl, path), false);
 
     _apiGET(xhttp);
     return xhttp;
@@ -38,7 +38,7 @@ function apiGET(baseUrl,path,processResponse,processError) {
     xhttp.onerror = function() {
         processError(xhttp);
     };
-    xhttp.open("GET", baseUrl + path, true);
+    xhttp.open("GET", joinUrl(baseUrl, path), true);
 
     _apiGET(xhttp);
 }
@@ -80,7 +80,7 @@ function apiPOST(baseUrl,path,processResponse,processError,params) {
         processError(this);
     };
 
-    xhttp.open("POST", baseUrl + path, true);
+    xhttp.open("POST", joinUrl(baseUrl, path), true);
     xhttp.withCredentials = true;
 
     var body = "";
@@ -112,7 +112,7 @@ function apiOPTIONS(baseUrl,path,processResponse,processError) {
         processError(this);
     };
 
-    xhttp.open("OPTIONS", baseUrl + path, true);
+    xhttp.open("OPTIONS", joinUrl(baseUrl, path), true);
     var cookies="";
     xhttp.withCredentials = true;
 
@@ -123,6 +123,15 @@ function apiOPTIONS(baseUrl,path,processResponse,processError) {
 
 
 // Utils methods
+
+function joinUrl(baseUrl,path) {
+    if (baseUrl.endsWith("/"))
+        baseUrl.slice(0, -1);
+    if (path.startsWith("/"))
+        path.substring(1);
+
+    return baseUrl + "/" + path;
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
