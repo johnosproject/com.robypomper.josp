@@ -3,7 +3,7 @@ package com.robypomper.josp.jod.history;
 import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.clients.apis.obj.APIObjsClient;
+import com.robypomper.josp.callers.apis.core.objects.Caller20;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.events.CloudStats;
 import com.robypomper.josp.jod.structure.JODComponent;
@@ -31,7 +31,7 @@ public class JODHistory_002 implements JODHistory {
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
     private JCPAPIsClientObj jcpClient;
-    private APIObjsClient apiObjsClient;
+    private Caller20 apiObjsCaller;
     private final StatusHistoryArray statuses; //statuses;
     private final CloudStats stats;
     private final File statusesFile;    //statusesFile
@@ -53,7 +53,7 @@ public class JODHistory_002 implements JODHistory {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
         this.jcpClient.addConnectionListener(jcpConnectListener);
-        this.apiObjsClient = new APIObjsClient(jcpClient);
+        this.apiObjsCaller = new Caller20(jcpClient);
         boolean statusesFileLoaded = false;
         boolean statsFileLoaded = false;
 
@@ -217,7 +217,7 @@ public class JODHistory_002 implements JODHistory {
                 log.trace(Mrk_JOD.JOD_HISTORY, String.format("- event[%d] %s", e.getId(), e.getPayload()));
 
             try {
-                apiObjsClient.uploadStatusHistory(toUpload);
+                apiObjsCaller.postHistory(JOSPStatusHistory.toHistoryStatuses(toUpload));
 
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
                 log.warn(Mrk_JOD.JOD_HISTORY, String.format("Can't upload statuses history (CloudStats values lastUpd: %d; lastStored: %d) (%s)", stats.lastUploaded, stats.lastStored, e));

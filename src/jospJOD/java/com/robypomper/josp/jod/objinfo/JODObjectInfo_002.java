@@ -25,7 +25,7 @@ import com.robypomper.java.JavaFiles;
 import com.robypomper.java.JavaThreads;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.clients.apis.obj.APIObjsClient;
+import com.robypomper.josp.callers.apis.core.objects.Caller20;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.events.Events;
@@ -45,7 +45,7 @@ import java.io.IOException;
  * <p>
  * This implementation collect all object's info from local
  * {@link com.robypomper.josp.jod.JOD.Settings} or via JCP Client request at
- * API Objs via the support class {@link APIObjsClient}.
+ * API Objs via the support class {@link Caller20}.
  */
 public class JODObjectInfo_002 implements JODObjectInfo {
 
@@ -57,7 +57,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     private static final Logger log = LoggerFactory.getLogger(JODObjectInfo.class);
     private final JODSettings_002 locSettings;
-    private final APIObjsClient apiObjsClient;
+    private final Caller20 apiObjsCaller;
     private JODStructure structure;
     private JODExecutorMngr executorMngr;
     private JODCommunication comm;
@@ -70,7 +70,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
     /**
      * Create new object info.
      * <p>
-     * This constructor create an instance of {@link APIObjsClient} and request
+     * This constructor create an instance of {@link Caller20} and request
      * common/mandatory info for caching them.
      *
      * @param settings   the JOD settings.
@@ -79,7 +79,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
      */
     public JODObjectInfo_002(JODSettings_002 settings, JCPAPIsClientObj jcpClient, String jodVersion) {
         this.locSettings = settings;
-        this.apiObjsClient = new APIObjsClient(jcpClient);
+        this.apiObjsCaller = new Caller20(jcpClient);
         this.jodVersion = jodVersion;
 
         if (getObjIdHw().isEmpty())
@@ -88,11 +88,11 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         if (getObjId().isEmpty())
             generateObjId();
         else {
-            apiObjsClient.getClient().setObjectId(getObjId());
-            if (getObjId().endsWith("00000-00000") && apiObjsClient.isConnected())
+            apiObjsCaller.getClient().setObjectId(getObjId());
+            if (getObjId().endsWith("00000-00000") && apiObjsCaller.isConnected())
                 generateObjId();
             else
-                apiObjsClient.getClient().addConnectionListener(generateObjIdConnectionListener);
+                apiObjsCaller.getClient().addConnectionListener(generateObjIdConnectionListener);
         }
 
         if (getObjName().isEmpty())
@@ -321,15 +321,18 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         String oldObjId = getObjId();
         String newObjId;
         try {
-            newObjId = apiObjsClient.generateObjIdCloud(getObjIdHw(), getOwnerId(), oldObjId.isEmpty() ? null : oldObjId);
+            if (oldObjId.isEmpty())
+                newObjId = apiObjsCaller.getIdGenerated(getObjIdHw(), getOwnerId());
+            else
+                newObjId = apiObjsCaller.getIdRegenerated(getObjIdHw(), getOwnerId());
 
             log.info(String.format("Object ID generated on cloud '%s'", newObjId));
             Events.registerInfoUpd("objId", oldObjId, newObjId);
 
-            apiObjsClient.getClient().removeConnectionListener(generateObjIdConnectionListener);
+            apiObjsCaller.getClient().removeConnectionListener(generateObjIdConnectionListener);
 
         } catch (Throwable e) {
-            apiObjsClient.getClient().addConnectionListener(generateObjIdConnectionListener);
+            apiObjsCaller.getClient().addConnectionListener(generateObjIdConnectionListener);
 
             newObjId = String.format("%s-00000-00000", getObjIdHw());
 
@@ -363,7 +366,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
 
         locSettings.setObjIdCloud(generatedObjId);
-        apiObjsClient.getClient().setObjectId(generatedObjId);
+        apiObjsCaller.getClient().setObjectId(generatedObjId);
         if (permissions != null)
             permissions.updateObjIdAndSave();
 

@@ -23,7 +23,7 @@ import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaFiles;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.clients.apis.obj.APIPermissionsClient;
+import com.robypomper.josp.callers.apis.core.permissions.Caller20;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
@@ -53,7 +53,7 @@ public class JODPermissions_002 implements JODPermissions {
     private static final Logger log = LoggerFactory.getLogger(JODPermissions.class);
     private final JODSettings_002 locSettings;
     private final JODObjectInfo objInfo;
-    private final APIPermissionsClient apiPermissionsClient;
+    private final Caller20 apiPermissionsCaller;
     private final List<JOSPPerm> permissions = new ArrayList<>();
     private JODCommunication comm;
 
@@ -70,7 +70,7 @@ public class JODPermissions_002 implements JODPermissions {
     public JODPermissions_002(JODSettings_002 settings, JODObjectInfo objInfo, JCPAPIsClientObj jcpClient) throws PermissionInvalidObjIdException {
         this.objInfo = objInfo;
         this.locSettings = settings;
-        this.apiPermissionsClient = new APIPermissionsClient(jcpClient);
+        this.apiPermissionsCaller = new Caller20(jcpClient);
 
         if (locSettings.getPermissionsPath().exists())
             loadFromFile();
@@ -406,7 +406,7 @@ public class JODPermissions_002 implements JODPermissions {
     // Permissions generate
 
     private void generatePermissions() {
-        if (apiPermissionsClient.isConnected()) {
+        if (apiPermissionsCaller.isConnected()) {
             try {
                 generatePermissionsFromJCP();
 
@@ -435,7 +435,7 @@ public class JODPermissions_002 implements JODPermissions {
     private void generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.RequestException, JCPClient2.ResponseException {
         synchronized (permissions) {
             permissions.clear();
-            permissions.addAll(apiPermissionsClient.generatePermissionsFromJCP());
+            permissions.addAll(apiPermissionsCaller.getPermissionsGeneratedPUBLIC());
         }
     }
 
