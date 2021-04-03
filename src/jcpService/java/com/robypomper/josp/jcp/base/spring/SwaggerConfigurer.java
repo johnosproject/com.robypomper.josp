@@ -17,12 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.service.docs;
+package com.robypomper.josp.jcp.base.spring;
 
 import com.google.common.collect.Lists;
-import com.robypomper.josp.info.JCPAPIsVersions;
 import com.robypomper.josp.info.JCPContacts;
-import com.robypomper.josp.paths.APIAuth;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -43,16 +41,14 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 
 /**
  * Class to configure Swagger docs features on JCP APIs services.
  * <p>
- * This class get APIs group and sub-groups info from {@link JCPAPIsVersions} class
- * and transform them in Swagger Dockets and Swagger tags.
+ * This class get APIs group and sub-groups info from <code>Versions</code>
+ * classes and allow transform them in Swagger Dockets and Swagger tags.
  * <p>
  * This class, also define, for Swagger environment:
  * AuthFlows: AuthCode, ClientCred, Implicit*
@@ -82,8 +78,8 @@ public class SwaggerConfigurer {
     public static final String OAUTH_IMPL = "ImplicitCodeFlow";
     public static final String OAUTH_PASS = "AuthCodeFlow";
     public static final String OAUTH_CRED = "ClientCredentialsFlow";
-    private static final String OAUTH_PATH_AUTH = APIAuth.FULL_PATH_AUTH;
-    private static final String OAUTH_PATH_TOKEN = APIAuth.FULL_PATH_TOKEN;
+    private static final String OAUTH_PATH_AUTH = com.robypomper.josp.defs.auth.keycloak.Paths20.FULL_PATH_AUTH;
+    private static final String OAUTH_PATH_TOKEN = com.robypomper.josp.defs.auth.keycloak.Paths20.FULL_PATH_TOKEN;
     private static final String OAUTH_TOKEN_NAME = "token";
     private static final String OAUTH_CLIENT_ID = "";
     private static final String OAUTH_CLIENT_SECRET = "";
@@ -120,6 +116,11 @@ public class SwaggerConfigurer {
 
     public String getUrlBaseAuth() {
         return authUrl;
+    }
+
+    public Docket createAPIsGroup(String name, String path, String version, String titleSuffix) {
+        APIGroup apiGroup = new APIGroup(name,path,version,titleSuffix, new APISubGroup[]{});
+        return createAPIsGroup(apiGroup, authUrl);
     }
 
     public static Docket createAPIsGroup(APIGroup api, String urlBaseAuth) {
@@ -246,6 +247,8 @@ public class SwaggerConfigurer {
 
         private final String name;
 
+        private final String path;
+
         private final String version;
 
         private final String titleSuffix;
@@ -254,7 +257,7 @@ public class SwaggerConfigurer {
 
 
         public String getPath() {
-            return String.format("%s/%s/%s/**", JCPAPIsVersions.PATH_API_BASE, getName(), getVersion());
+            return String.format("%s/**", path);
         }
 
         public String getTitle() {
