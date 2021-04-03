@@ -18,31 +18,31 @@ public class GradleBuildInfo {
             "\n" +
             "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
             "\n" +
-            "import java.io.File;\n" +
             "import java.io.IOException;\n" +
-            "import java.net.URL;\n" +
+            "import java.util.Date;\n" +
             "import java.util.Map;\n" +
             "import java.io.InputStream;\n" +
             "\n" +
             "public class BuildInfo {\n" +
             "\n" +
-            "    public final static BuildInfo Current = load();\n" +
+            "    public final static BuildInfo current = load();\n" +
             "    \n" +
-            "    public String Project;\n" +
-            "    public String SourceSet;\n" +
-            "    public String Version;\n" +
-            "    public String VersionBuild;\n" +
-            "    public String BuildTime;\n" +
-            "    public String JavaVersion;\n" +
-            "    public String JavaHome;\n" +
-            "    public String GradleVersion;\n" +
-            "    public String GitCommit;\n" +
-            "    public String GitCommitShort;\n" +
-            "    public String GitBranch;\n" +
-            "    public String User;\n" +
-            "    public String OSName;\n" +
-            "    public String OSVersion;\n" +
-            "    public Map<String,String> Extra;\n" +
+            "    public String project;\n" +
+            "    public String sourceSet;\n" +
+            "    public String version;\n" +
+            "    public String versionBuild;\n" +
+            "    public Date buildTime;\n" +
+            "    public String javaVersion;\n" +
+            "    public String javaHome;\n" +
+            "    public String gradleVersion;\n" +
+            "    public String gitCommit;\n" +
+            "    public String gitCommitShort;\n" +
+            "    public String gitBranch;\n" +
+            "    public String user;\n" +
+            "    public String osName;\n" +
+            "    public String osVersion;\n" +
+            "    public String osArch;\n" +
+            "    public Map<String,String> extra;\n" +
             "\n" +
             "    private static BuildInfo load() {\n" +
             "        InputStream resource = Thread.currentThread().getContextClassLoader().getResourceAsStream(\"buildInfo.json\");\n" +
@@ -73,7 +73,7 @@ public class GradleBuildInfo {
             "}\n";
     private static final String RESOURCE_PROPERTY_TMPL = "    \"%s\": \"%s\",\n";
     private static final String RESOURCE_EXTRA_TMPL = "        \"%s\": \"%s\",\n";
-    private static final String RESOURCE_EXTRAS_TMPL = "    \"Extra\": {\n%s    }\n";
+    private static final String RESOURCE_EXTRAS_TMPL = "    \"extra\": {\n%s    }\n";
     private static final String RESOURCE_TMPL = "{\n%s}";
 
 
@@ -110,20 +110,25 @@ public class GradleBuildInfo {
 
     private static String generateResource(Project project, SourceSet ss, String version, Map<String, Object> extraInfo) {
         String properties = "";
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "Project", project.getName());
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "SourceSet", ss.getName());
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "Version", version);
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "VersionBuild", version + "-" + getBuildDate());
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "BuildTime", getCurrentDateTimeUTC());
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "JavaVersion", System.getProperty("java.specification.version"));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "JavaHome", System.getProperty("java.home"));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "GradleVersion", project.getGradle().getGradleVersion());
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "GitCommit", getGitCommit(project));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "GitCommitShort", getGitCommitShort(project));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "GitBranch", getGitBranch(project));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "User", System.getProperty("user.name"));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "OSName", System.getProperty("os.name"));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "OSVersion", System.getProperty("os.version"));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "project", project.getName());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "sourceSet", ss.getName());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "version", version);
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "versionBuild", version + "-" + getBuildDate());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "buildTime", getCurrentDateTimeUTC());
+        //properties += String.format(RESOURCE_PROPERTY_TMPL, "buildTime", new Date());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "javaVersion", System.getProperty("java.specification.version"));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "javaHome", System.getProperty("java.home"));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "gradleVersion", project.getGradle().getGradleVersion());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "gitCommit", getGitCommit(project));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "gitCommitShort", getGitCommitShort(project));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "gitBranch", getGitBranch(project));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "user", System.getProperty("user.name"));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "osName", System.getProperty("os.name"));
+        //properties += String.format(RESOURCE_PROPERTY_TMPL, "osName", ManagementFactory.getOperatingSystemMXBean().getName());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "osVersion", System.getProperty("os.version"));
+        //properties += String.format(RESOURCE_PROPERTY_TMPL, "osVersion", ManagementFactory.getOperatingSystemMXBean().getVersion());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "osArch", System.getProperty("os.arch"));
+        //properties += String.format(RESOURCE_PROPERTY_TMPL, "osArch", ManagementFactory.getOperatingSystemMXBean().getArch());
 
         if (extraInfo != null) {
             StringBuilder extraProperties = new StringBuilder();
@@ -141,7 +146,7 @@ public class GradleBuildInfo {
 
     private static String getCurrentDateTimeUTC() {
         Date date = new Date();
-        SimpleDateFormat sdf_utc = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'zzz");
+        SimpleDateFormat sdf_utc = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         sdf_utc.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf_utc.format(date);
     }
