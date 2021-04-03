@@ -9,6 +9,8 @@ public interface BrokerClient {
 
     String getId();
 
+    String getName();
+
 
     // Messages methods
 

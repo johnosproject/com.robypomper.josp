@@ -53,6 +53,10 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
         return broker;
     }
 
+    public String getName() {
+        return objDB.getName();
+    }
+
     public String getOwner() {
         return objDB.getOwner();
     }

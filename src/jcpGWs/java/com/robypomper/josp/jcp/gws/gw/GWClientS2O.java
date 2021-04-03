@@ -10,6 +10,7 @@ import com.robypomper.josp.jcp.db.apis.ServiceDBService;
 import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Event;
 import com.robypomper.josp.jcp.db.apis.entities.ObjectStatusHistory;
+import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
 import com.robypomper.josp.jcp.gws.broker.BrokerClientJSL;
 import com.robypomper.josp.jcp.gws.broker.BrokerJSL;
@@ -75,6 +76,13 @@ public class GWClientS2O extends GWClientTCPAbs implements BrokerClientJSL {
 
     protected BrokerJSL getBroker() {
         return broker;
+    }
+
+    public String getName() {
+        Optional<Service> optSrvStatus = serviceDBService.find(srvId);
+        if (!optSrvStatus.isPresent())
+            return "N/A";
+        return optSrvStatus.get().getSrvName();
     }
 
     public String getSrvId() {

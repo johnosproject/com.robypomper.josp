@@ -35,6 +35,11 @@ public class ObjDB implements BrokerClientObjDB {
         return objDBInternal.getObjId();
     }
 
+    @Override
+    public String getName() {
+        return objDBInternal.getName();
+    }
+
 
     // Getters object
 
