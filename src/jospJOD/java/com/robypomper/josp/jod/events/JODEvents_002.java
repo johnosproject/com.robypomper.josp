@@ -26,6 +26,8 @@ import com.robypomper.josp.clients.apis.obj.APIEventsClient;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
+import com.robypomper.josp.types.josp.AgentType;
+import com.robypomper.josp.types.josp.EventType;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -186,19 +188,19 @@ public class JODEvents_002 implements JODEvents {
     // Register new event
 
     @Override
-    public void register(JOSPEvent.Type type, String phase, String payload) {
+    public void register(EventType type, String phase, String payload) {
         register(type, phase, payload, null);
     }
 
     @Override
-    public void register(JOSPEvent.Type type, String phase, String payload, Throwable error) {
+    public void register(EventType type, String phase, String payload, Throwable error) {
         synchronized (events) {
             long newId = events.count() + 1;
             String srcId = locSettings.getObjIdCloud();
             String errorPayload = null;
             if (error != null)
                 errorPayload = String.format("{\"type\": \"%s\", \"msg\": \"%s\", \"stack\": \"%s\"}", error.getClass().getSimpleName(), error.getMessage(), Arrays.toString(error.getStackTrace()));
-            JOSPEvent e = new JOSPEvent(newId, type, srcId, JOSPEvent.SrcType.Obj, new Date(), phase, payload, errorPayload);
+            JOSPEvent e = new JOSPEvent(newId, type, srcId, AgentType.Obj, new Date(), phase, payload, errorPayload);
             events.append(e);
             stats.lastStored = e.getId();
             stats.storeIgnoreExceptions();
@@ -275,7 +277,7 @@ public class JODEvents_002 implements JODEvents {
                 log.trace(Mrk_JOD.JOD_EVENTS, String.format("- event[%d] %s", e.getId(), e.getPayload()));
 
             try {
-                apiEventsClient.uploadEvents(toUpload);
+                apiEventsCaller.uploadEvents(JOSPEvent.toEvents(toUpload));
 
             } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
                 log.warn(Mrk_JOD.JOD_HISTORY, String.format("Can't upload events (CloudStats values lastUpd: %d; lastStored: %d) (%s)", stats.lastUploaded, stats.lastStored, e));

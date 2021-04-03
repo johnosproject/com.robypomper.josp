@@ -35,6 +35,7 @@ import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.permissions.JODPermissions_002;
 import com.robypomper.josp.jod.structure.*;
 import com.robypomper.josp.protocol.*;
+import com.robypomper.josp.types.josp.EventType;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -369,7 +370,7 @@ public class JODCommunication_002 implements JODCommunication {
         if (filterEventType.isEmpty())
             eventsHistory = events.getHistoryEvents(limits);
         else {
-            JOSPEvent.Type type = JOSPEvent.Type.valueOf(filterEventType);
+            EventType type = EventType.valueOf(filterEventType);
             eventsHistory = events.filterHistoryEvents(limits, new JavaJSONArrayToFile.Filter<JOSPEvent>() {
                 @Override
                 public boolean accepted(JOSPEvent o) {

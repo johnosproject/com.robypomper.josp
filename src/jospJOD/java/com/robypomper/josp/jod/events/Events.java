@@ -7,9 +7,9 @@ import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 import com.robypomper.josp.jod.comm.JODLocalServer;
 import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
-import com.robypomper.josp.protocol.JOSPEvent;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.types.josp.EventType;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -33,12 +33,12 @@ public class Events {
             instance.storeCache();
     }
 
-    public static void register(JOSPEvent.Type type, String phase, String payload) {
+    public static void register(EventType type, String phase, String payload) {
         if (instance != null)
             instance.register(type, phase, payload);
     }
 
-    public static void register(JOSPEvent.Type type, String phase, String payload, Throwable t) {
+    public static void register(EventType type, String phase, String payload, Throwable t) {
         if (instance != null)
             instance.register(type, phase, payload, t);
     }
@@ -49,27 +49,27 @@ public class Events {
 
     public static void registerJODStart(String phase) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_START, phase, payload);
+        register(EventType.JOD_START, phase, payload);
     }
 
     public static void registerJODStart(String phase, long time) {
         String payload = String.format("{\"time\": \"%d\"}", time);
-        register(JOSPEvent.Type.JOD_START, phase, payload);
+        register(EventType.JOD_START, phase, payload);
     }
 
     public static void registerJODStart(String phase, String instanceId) {
         String payload = String.format("{\"instanceId\": \"%s\"}", instanceId);
-        register(JOSPEvent.Type.JOD_START, phase, payload);
+        register(EventType.JOD_START, phase, payload);
     }
 
     public static void registerJODStop(String phase) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_STOP, phase, payload);
+        register(EventType.JOD_STOP, phase, payload);
     }
 
     public static void registerJODStop(String phase, long time) {
         String payload = String.format("{\"time\": \"%d\"}", time);
-        register(JOSPEvent.Type.JOD_STOP, phase, payload);
+        register(EventType.JOD_STOP, phase, payload);
     }
 
 
@@ -101,7 +101,7 @@ public class Events {
         if (flow != null)
             payload += String.format(", \"flow\": \"%s\"", flow);
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_JCP_CONN, phase, payload, t);
+        register(EventType.JOD_COMM_JCP_CONN, phase, payload, t);
     }
 
     public static void registerJCPDisconnection(String phase, JCPClient2 jcpClient, String flow) {
@@ -114,7 +114,7 @@ public class Events {
         if (flow != null)
             payload += String.format(", \"flow\": \"%s\"", flow);
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_JCP_DISC, phase, payload);
+        register(EventType.JOD_COMM_JCP_DISC, phase, payload);
     }
 
 
@@ -150,7 +150,7 @@ public class Events {
         }
         payload += "}";
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_CLOUD_CONN, phase, payload, t);
+        register(EventType.JOD_COMM_CLOUD_CONN, phase, payload, t);
     }
 
     public static void registerCloudDisconnect(String phase, JODGwO2SClient gwClient) {
@@ -182,7 +182,7 @@ public class Events {
         }
         payload += "}";
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_CLOUD_DISC, phase, payload, t);
+        register(EventType.JOD_COMM_CLOUD_DISC, phase, payload, t);
     }
 
 
@@ -206,7 +206,7 @@ public class Events {
         payload += String.format(", \"port\": \"%s\"", localServer.getServerPeerInfo().getPort());
         payload += String.format(", \"clientsCount\": \"%s\"", localServer.getClients().size());
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_START, phase, payload, t);
+        register(EventType.JOD_COMM_LOC_START, phase, payload, t);
     }
 
     public static void registerLocalStop(String phase, JODLocalServer localServer) {
@@ -224,7 +224,7 @@ public class Events {
         payload += String.format(", \"port\": \"%s\"", localServer.getServerPeerInfo().getPort());
         payload += String.format(", \"clientsCount\": \"%s\"", localServer.getClients().size());
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_STOP, phase, payload, t);
+        register(EventType.JOD_COMM_LOC_STOP, phase, payload, t);
     }
 
     public static void registerLocalConn(String phase, JODLocalClientInfo clientInfo, ServerClient client) {
@@ -253,7 +253,7 @@ public class Events {
         }
 
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_CONN, phase, payload);
+        register(EventType.JOD_COMM_LOC_CONN, phase, payload);
     }
 
     public static void registerLocalDisc(String phase, JODLocalClientInfo clientInfo, ServerClient client) {
@@ -282,7 +282,7 @@ public class Events {
         }
 
         payload += "}";
-        register(JOSPEvent.Type.JOD_COMM_LOC_DISC, phase, payload);
+        register(EventType.JOD_COMM_LOC_DISC, phase, payload);
     }
 
 
@@ -299,12 +299,12 @@ public class Events {
         if (permissions.size() > 0)
             payload += String.format(", \"objId\": \"%s\"", permissions.get(0).getObjId());
         payload += "}";
-        register(JOSPEvent.Type.JOD_PERMS_LOAD, phase, payload);
+        register(EventType.JOD_PERMS_LOAD, phase, payload);
     }
 
     public static void registerPermLoaded(String phase, Throwable t) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_PERMS_LOAD, phase, payload, t);
+        register(EventType.JOD_PERMS_LOAD, phase, payload, t);
     }
 
     public static void registerPermAdded(JOSPPerm newPerm) {
@@ -319,7 +319,7 @@ public class Events {
         payload += "}";
         payload += "}";
 
-        register(JOSPEvent.Type.JOD_PERMS_ADD, "Permission added", payload);
+        register(EventType.JOD_PERMS_ADD, "Permission added", payload);
     }
 
     public static void registerPermUpdated(JOSPPerm oldPerm, JOSPPerm newPerm) {
@@ -341,7 +341,7 @@ public class Events {
         payload += "}";
         payload += "}";
 
-        register(JOSPEvent.Type.JOD_PERMS_UPD, "Permission updated", payload);
+        register(EventType.JOD_PERMS_UPD, "Permission updated", payload);
     }
 
     public static void registerPermRemoved(JOSPPerm oldPerm) {
@@ -356,7 +356,7 @@ public class Events {
         payload += "}";
         payload += "}";
 
-        register(JOSPEvent.Type.JOD_PERMS_REM, "Permission removed", payload);
+        register(EventType.JOD_PERMS_REM, "Permission removed", payload);
     }
 
 
@@ -372,12 +372,12 @@ public class Events {
         payload += String.format(", \"version\": \"%s\"", version);
         payload += String.format(", \"compsCount\": \"%s\"", compsCount);
         payload += "}";
-        register(JOSPEvent.Type.JOD_STRUCT_LOAD, "Structure loaded", payload);
+        register(EventType.JOD_STRUCT_LOAD, "Structure loaded", payload);
     }
 
     public static void registerStructLoad(Throwable t) {
         String payload = "";
-        register(JOSPEvent.Type.JOD_STRUCT_LOAD, "Structure loaded", payload, t);
+        register(EventType.JOD_STRUCT_LOAD, "Structure loaded", payload, t);
     }
 
 
@@ -386,7 +386,7 @@ public class Events {
 
     public static void registerStatusUpd(AbsJODState comp, JODStateUpdate update) {
         String payload = String.format("{\"comp\": \"%s\", \"name\": \"%s\", \"update\": \"%s\"}", comp.getPath().getString(), comp.getName(), update.encode());
-        register(JOSPEvent.Type.JOD_STATUS_UPD, "Status updated", payload);
+        register(EventType.JOD_STATUS_UPD, "Status updated", payload);
     }
 
     public static void registerInfoUpd(String infoName, String newValue) {
@@ -401,7 +401,7 @@ public class Events {
             payload += String.format(", oldValue\": \"%s\"", oldValue);
         payload += String.format(", newValue\": \"%s\"", newValue);
         payload += "}";
-        register(JOSPEvent.Type.JOD_INFO_UPD, String.format("Info %s updated", infoName), payload);
+        register(EventType.JOD_INFO_UPD, String.format("Info %s updated", infoName), payload);
     }
 
     public static void registerInfoUpd(String infoName, Throwable t) {
@@ -409,7 +409,7 @@ public class Events {
         payload = "{";
         payload += String.format("\"info\": \"%s\"", infoName);
         payload += "}";
-        register(JOSPEvent.Type.JOD_INFO_UPD, String.format("Info %s updated", infoName), payload, t);
+        register(EventType.JOD_INFO_UPD, String.format("Info %s updated", infoName), payload, t);
     }
 
     // JOD_ACTION_REQ,
@@ -424,7 +424,9 @@ public class Events {
         payload += String.format(", \"component\": \"%s\"", cmd.getComponentPath());
         payload += String.format(", \"command\": \"%s\"", cmd.getCommand().getClass().getSimpleName());
         payload += "}";
-        register(JOSPEvent.Type.JOD_ACTION_REQ, "Action requested", payload);
+        register(EventType.JOD_ACTION_REQ,
+                "Action requested",
+                payload);
     }
 
     public static void registerActionExec(String srvId, String usrId, JOSPPerm.Connection connType, JOSPProtocol.ActionCmd cmd) {
@@ -436,7 +438,7 @@ public class Events {
         payload += String.format(", \"component\": \"%s\"", cmd.getComponentPath());
         payload += String.format(", \"command\": \"%s\"", cmd.getCommand().getClass().getSimpleName());
         payload += "}";
-        register(JOSPEvent.Type.JOD_ACTION_EXEC, "Action requested", payload);
+        register(EventType.JOD_ACTION_EXEC, "Action requested", payload);
     }
 
     public static void registerActionExecFail(String error, String srvId, String usrId, JOSPPerm.Connection connType, JOSPProtocol.ActionCmd cmd) {
@@ -449,7 +451,7 @@ public class Events {
         payload += String.format(", \"command\": \"%s\"", cmd.getCommand().getClass().getSimpleName());
         payload += String.format(", \"error\": \"%s\"", error);
         payload += "}";
-        register(JOSPEvent.Type.JOD_ACTION_EXEC, "Action executed", payload, new Exception(error));
+        register(EventType.JOD_ACTION_EXEC, "Action executed", payload, new Exception(error));
     }
 
 }
