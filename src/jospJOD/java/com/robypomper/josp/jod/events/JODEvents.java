@@ -24,6 +24,7 @@ import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
+import com.robypomper.josp.types.josp.EventType;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +34,7 @@ import java.util.List;
  * <p>
  * Events are a collection of structured data that describe what happen on an
  * object. Each object's system register an event when something occurs (see
- * {@link com.robypomper.josp.protocol.JOSPEvent.Type} class).
+ * {@link EventType} class).
  * <p>
  * Events are only request by services. No events updates are send to services.
  * <p>
@@ -55,9 +56,9 @@ public interface JODEvents {
 
     // Register new event
 
-    void register(JOSPEvent.Type type, String phase, String payload);
+    void register(EventType type, String phase, String payload);
 
-    void register(JOSPEvent.Type type, String phase, String payload, Throwable error);
+    void register(EventType type, String phase, String payload, Throwable error);
 
 
     // Status History
