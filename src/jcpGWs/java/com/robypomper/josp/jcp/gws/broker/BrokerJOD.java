@@ -3,9 +3,17 @@ package com.robypomper.josp.jcp.gws.broker;
 import com.robypomper.java.JavaStructures;
 import com.robypomper.josp.protocol.JOSPPerm;
 
+import java.util.List;
 import java.util.Map;
 
 public interface BrokerJOD {
+
+    // Getters
+
+    List<BrokerClientJOD> getAllObjects();
+
+    BrokerClientJOD getObject(String objId);
+
 
     // Registration
 

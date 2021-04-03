@@ -5,7 +5,16 @@ import com.robypomper.comm.exception.PeerStreamException;
 import com.robypomper.josp.jcp.gws.exceptions.JSLServiceMissingPermissionException;
 import com.robypomper.josp.protocol.JOSPPerm;
 
+import java.util.List;
+
 public interface BrokerJSL {
+
+    // Getters
+
+    List<BrokerClientJSL> getAllServices();
+
+    BrokerClientJSL getService(String srvId);
+
 
     // Registration
 

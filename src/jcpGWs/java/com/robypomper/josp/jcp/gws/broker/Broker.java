@@ -11,9 +11,7 @@ import com.robypomper.josp.protocol.JOSPPerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("RedundantIfStatement")
 public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
@@ -31,6 +29,32 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
 
     public Broker(PermissionsDBService permissionsDBService) {
         this.permissions = new BrokerPermissions(registeredObjs, registeredSrvs, registeredObjsDB, permissionsDBService);
+    }
+
+    // Getters
+
+    public List<BrokerClientJOD> getAllObjects() {
+        return new ArrayList<>(registeredObjs.values());
+    }
+
+    public BrokerClientJOD getObject(String objId) {
+        return registeredObjs.get(objId);
+    }
+
+    public List<BrokerClientJSL> getAllServices() {
+        return new ArrayList<>(registeredSrvs.values());
+    }
+
+    public BrokerClientJSL getService(String srvId) {
+        return registeredSrvs.get(srvId);
+    }
+
+    public List<BrokerClientObjDB> getAllObjectsDB() {
+        return new ArrayList<>(registeredObjsDB.values());
+    }
+
+    public BrokerClientObjDB getObjectDB(String objId) {
+        return registeredObjsDB.get(objId);
     }
 
 
