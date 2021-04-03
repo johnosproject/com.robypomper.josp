@@ -16,20 +16,20 @@
  * limitations under the License.
  **************************************************************************** */
 
-package com.robypomper.josp.clients.apis.srv;
+package com.robypomper.josp.callers.apis.admin.gateways.buildinfo;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPISrv;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.params.srvs.SrvName;
-import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.defs.admin.gateways.buildinfo.Params20;
+import com.robypomper.josp.defs.admin.gateways.buildinfo.Paths20;
 
 
 /**
- * Support class for API Srv access to the service's info.
+ * JOSP Admin - Gateways / Build Info 2.0
  */
-public class APISrvsClient extends AbsAPISrv {
+public class Caller20 extends AbsAPISrv {
 
     // Constructor
 
@@ -38,35 +38,22 @@ public class APISrvsClient extends AbsAPISrv {
      *
      * @param jcpClient the JCP client.
      */
-    public APISrvsClient(JCPAPIsClientSrv jcpClient) {
+    public Caller20(JCPAPIsClientSrv jcpClient) {
         super(jcpClient);
-        registerToJCP();
     }
 
-    public void registerToJCP() {
-        try {
-            jcpClient.execReq(Verb.GET, APISrvs.FULL_PATH_REGISTER, SrvName.class, isSecure());
 
-        } catch (JCPClient2.RequestException | JCPClient2.AuthenticationException | JCPClient2.ConnectionException | JCPClient2.ResponseException ignore) {
-            jcpClient.addConnectionListener(new JCPClient2.ConnectionListener() {
-                @Override
-                public void onConnected(JCPClient2 jcpClient) {
-                    registerToJCP();
-                }
+    // Index methods
 
-                @Override
-                public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
-                }
+    public Params20.GatewaysServers getList() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, Paths20.FULL_PATH_JCP_GWS_BUILDINFO_LIST, Params20.GatewaysServers.class, isSecure());
+    }
 
-                @Override
-                public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
-                }
 
-                @Override
-                public void onDisconnected(JCPClient2 jcpClient) {
-                }
-            });
-        }
+    // Build Info methods
+
+    public Params20.BuildInfo getBuildInfoReq(String gwServerId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, Paths20.FULL_PATH_JCP_GWS_BUILDINFO, Params20.BuildInfo.class, gwServerId, isSecure());
     }
 
 }

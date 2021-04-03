@@ -17,25 +17,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.clients.apis.obj;
+package com.robypomper.josp.callers.apis.core.objects;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIObj;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.params.objs.GenerateObjId;
-import com.robypomper.josp.paths.APIObjs;
-import com.robypomper.josp.protocol.JOSPStatusHistory;
+import com.robypomper.josp.defs.core.objects.Params20;
+import com.robypomper.josp.defs.core.objects.Paths20;
 
 import java.util.Collections;
 import java.util.List;
 
 
 /**
- * Support class for API Objs access to the Object Info generators.
+ * JOSP Core - Objects 2.0
  */
 @SuppressWarnings("unused")
-public class APIObjsClient extends AbsAPIObj {
+public class Caller20 extends AbsAPIObj {
 
     // Constructor
 
@@ -44,7 +43,7 @@ public class APIObjsClient extends AbsAPIObj {
      *
      * @param jcpClient the JCP client.
      */
-    public APIObjsClient(JCPAPIsClientObj jcpClient) {
+    public Caller20(JCPAPIsClientObj jcpClient) {
         super(jcpClient);
     }
 
@@ -56,36 +55,43 @@ public class APIObjsClient extends AbsAPIObj {
      *
      * @param objIdHw the object's Hardware ID.
      * @param ownerId the owner's User ID.
-     * @param objId   the object's ID.
      * @return the object's Cloud ID.
      */
-    public String generateObjIdCloud(String objIdHw, String ownerId, String objId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        GenerateObjId params = new GenerateObjId(objIdHw, ownerId);
-        if (objId == null)
-            return jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_GENERATEID, String.class, params, isSecure());
-        else
-            return jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_REGENERATEID, String.class, params, isSecure());
+    public String getIdGenerated(String objIdHw, String ownerId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        Params20.GenerateObjId params = new Params20.GenerateObjId();
+        params.objIdHw = objIdHw;
+        params.ownerId = ownerId;
+
+        return jcpClient.execReq(Verb.POST, Paths20.FULL_PATH_ID_GENERATE, String.class, params, isSecure());
     }
 
-    /**
-     * Upload a single status to the cloud.
-     *
-     * @param statusHistory the status to upload.
-     */
-    public void uploadStatusHistory(JOSPStatusHistory statusHistory) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        uploadStatusHistory(Collections.singletonList(statusHistory));
+    public String getIdRegenerated(String objIdHw, String ownerId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        Params20.GenerateObjId params = new Params20.GenerateObjId();
+        params.objIdHw = objIdHw;
+        params.ownerId = ownerId;
+
+        return jcpClient.execReq(Verb.POST, Paths20.FULL_PATH_ID_REGENERATE, String.class, params, isSecure());
     }
 
 
     // History methods
 
     /**
+     * Upload a single status to the cloud.
+     *
+     * @param statusHistory the status to upload.
+     */
+    public void postHistory(Params20.HistoryStatus statusHistory) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        postHistory(Collections.singletonList(statusHistory));
+    }
+
+    /**
      * Upload a list of statuses to the cloud.
      *
      * @param statusesHistory the statuses to upload.
      */
-    public void uploadStatusHistory(List<JOSPStatusHistory> statusesHistory) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        jcpClient.execReq(Verb.POST, APIObjs.FULL_PATH_HISTORY, statusesHistory, isSecure());
+    public void postHistory(List<Params20.HistoryStatus> statusesHistory) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        jcpClient.execReq(Verb.POST, Paths20.FULL_PATH_HISTORY, statusesHistory, isSecure());
     }
 
 }

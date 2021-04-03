@@ -16,20 +16,20 @@
  * limitations under the License.
  **************************************************************************** */
 
-package com.robypomper.josp.clients.apis.srv;
+package com.robypomper.josp.callers.apis.admin.frontend.buildinfo;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPISrv;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.params.usrs.UsrName;
-import com.robypomper.josp.paths.APIUsrs;
+import com.robypomper.josp.defs.admin.frontend.buildinfo.Params20;
+import com.robypomper.josp.defs.admin.frontend.buildinfo.Paths20;
 
 
 /**
- * Support class for API Usr access to the service's user.
+ * JOSP Admin - Front End / Build Info 2.0
  */
-public class APIUsrsClient extends AbsAPISrv {
+public class Caller20 extends AbsAPISrv {
 
     // Constructor
 
@@ -38,15 +38,15 @@ public class APIUsrsClient extends AbsAPISrv {
      *
      * @param jcpClient the JCP client.
      */
-    public APIUsrsClient(JCPAPIsClientSrv jcpClient) {
+    public Caller20(JCPAPIsClientSrv jcpClient) {
         super(jcpClient);
     }
 
 
-    // Getters methods
+    // JCP Front End status
 
-    public UsrName getUser() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, APIUsrs.FULL_PATH_USERNAME, UsrName.class, isSecure());
+    public Params20.BuildInfo getBuildInfoReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        return jcpClient.execReq(Verb.GET, Paths20.FULL_PATH_JCP_FE_BUILDINFO, Params20.BuildInfo.class, isSecure());
     }
 
 }

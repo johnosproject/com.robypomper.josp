@@ -17,24 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.clients.apis.obj;
+package com.robypomper.josp.callers.apis.core.events;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIObj;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.paths.APIPermissions;
-import com.robypomper.josp.protocol.JOSPPerm;
-import com.robypomper.josp.protocol.JOSPProtocol;
+import com.robypomper.josp.defs.core.events.Params20;
+import com.robypomper.josp.defs.core.events.Paths20;
 
+import java.util.Collections;
 import java.util.List;
 
 
 /**
- * Support class for API Perm access to the object's permissions.
+ * JOSP Core - Events 2.0
  */
-@SuppressWarnings("unused")
-public class APIPermissionsClient extends AbsAPIObj {
+public class Caller20 extends AbsAPIObj {
 
     // Constructor
 
@@ -43,29 +42,32 @@ public class APIPermissionsClient extends AbsAPIObj {
      *
      * @param jcpClient the JCP client.
      */
-    public APIPermissionsClient(JCPAPIsClientObj jcpClient) {
+    public Caller20(JCPAPIsClientObj jcpClient) {
         super(jcpClient);
     }
 
 
-    // Generator methods
+    // Object methods
 
     /**
-     * Request to the JCP a generic object's permission list.
-     * <p>
-     * The list generated can be different depending on generation strategy request.
+     * Upload a single event to the cloud.
      *
-     * @return a valid permission list.
+     * @param event the event to upload.
      */
-    public List<JOSPPerm> generatePermissionsFromJCP() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        JOSPPerm.GenerateStrategy strategy = JOSPPerm.GenerateStrategy.STANDARD;
-        String permsStr = jcpClient.execReq(Verb.GET, APIPermissions.FULL_PATH_OBJGENERATE.replace("{strategy}", strategy.toString()), String.class, isSecure());
-        try {
-            return JOSPPerm.listFromString(permsStr);
+    public void uploadEvent(Params20.Event event) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        uploadEvents(Collections.singletonList(event));
+    }
 
-        } catch (JOSPProtocol.ParsingException e) {
-            throw new JCPClient2.RequestException(String.format("Can't parse JOSPPerm list from returned string '%s'", permsStr));
-        }
+
+    // Service methods
+
+    /**
+     * Upload a list of events to the cloud.
+     *
+     * @param events the events to upload.
+     */
+    public void uploadEvents(List<Params20.Event> events) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+        jcpClient.execReq(Verb.POST, Paths20.FULL_PATH_OBJECT, events, isSecure());
     }
 
 }
