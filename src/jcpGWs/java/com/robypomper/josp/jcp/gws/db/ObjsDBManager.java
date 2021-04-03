@@ -5,6 +5,7 @@ import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.db.apis.entities.Object;
 import com.robypomper.josp.jcp.gws.broker.BrokerObjDB;
+import com.robypomper.josp.jcp.gws.gw.GWAbs;
 import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.ArrayList;
@@ -14,8 +15,14 @@ import java.util.Map;
 
 public class ObjsDBManager {
 
+    // Class constants
+
+    private static final String ID = "ODB-%s@%s";
+
+
     // Internal vars
 
+    private final String id;
     private final Map<String, ObjDB> objsDB = new HashMap<>();
     private final BrokerObjDB broker;
     private final ObjectDBService objectDBService;
@@ -24,7 +31,8 @@ public class ObjsDBManager {
 
     // Constructors
 
-    public ObjsDBManager(BrokerObjDB gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
+    public ObjsDBManager(String region, BrokerObjDB gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
+        this.id = String.format(ID, GWAbs.getSerial(), region);
         this.broker = gwBroker;
         this.objectDBService = objectDBService;
         this.permissionsDBService = permissionsDBService;
@@ -42,6 +50,10 @@ public class ObjsDBManager {
 
 
     // Getters
+
+    public String getId() {
+        return id;
+    }
 
     private BrokerObjDB getBroker() {
         return broker;

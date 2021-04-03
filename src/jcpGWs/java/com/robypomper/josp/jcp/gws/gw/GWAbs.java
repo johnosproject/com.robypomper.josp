@@ -106,6 +106,10 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
     // Getters
 
+    public static String getSerial() {
+        return gwSerial;
+    }
+
     public String getId() {
         return getServer().getLocalId();
     }

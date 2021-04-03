@@ -6,6 +6,7 @@ import com.robypomper.josp.jcp.gws.db.ObjsDBManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
@@ -22,8 +23,9 @@ public class ObjsDBManagerService {
     // Constructors
 
     @Autowired
-    protected ObjsDBManagerService(BrokerService gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
-        objsMngr = new ObjsDBManager(gwBroker.getBrokerObjDB(), objectDBService, permissionsDBService);
+    protected ObjsDBManagerService(@Value("${jcp.gws.region:Central}") final String region,
+                                   BrokerService gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) {
+        objsMngr = new ObjsDBManager(region, gwBroker.getBrokerObjDB(), objectDBService, permissionsDBService);
     }
 
     @PreDestroy
