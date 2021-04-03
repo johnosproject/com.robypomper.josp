@@ -19,7 +19,7 @@
 
 package com.robypomper.josp.clients;
 
-import com.robypomper.josp.paths.APIObjs;
+import com.robypomper.josp.consts.JOSPConstants;
 import com.robypomper.josp.states.StateException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,9 +56,9 @@ public class JCPAPIsClientObj extends DefaultJCPClient2 implements JCPClient2.Co
 
     public void setObjectId(String objId) {
         if (objId != null && !objId.isEmpty())
-            addDefaultHeader(APIObjs.HEADER_OBJID, objId);
+            addDefaultHeader(JOSPConstants.API_HEADER_OBJ_ID, objId);
         else
-            removeDefaultHeader(APIObjs.HEADER_OBJID);
+            removeDefaultHeader(JOSPConstants.API_HEADER_OBJ_ID);
     }
 
 

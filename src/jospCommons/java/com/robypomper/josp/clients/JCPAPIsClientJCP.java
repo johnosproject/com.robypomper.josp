@@ -19,8 +19,7 @@
 
 package com.robypomper.josp.clients;
 
-import com.robypomper.josp.paths.APIObjs;
-import com.robypomper.josp.paths.APISrvs;
+import com.robypomper.josp.consts.JOSPConstants;
 import com.robypomper.josp.states.StateException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,23 +82,23 @@ public class JCPAPIsClientJCP extends DefaultJCPClient2 implements JCPClient2.Co
 
     public void setObjectId(String objId) {
         if (objId != null && !objId.isEmpty())
-            addDefaultHeader(APIObjs.HEADER_OBJID, objId);
+            addDefaultHeader(JOSPConstants.API_HEADER_OBJ_ID, objId);
         else
-            removeDefaultHeader(APIObjs.HEADER_OBJID);
+            removeDefaultHeader(JOSPConstants.API_HEADER_OBJ_ID);
     }
 
-    public void setServiceId(String objId) {
-        if (objId != null && !objId.isEmpty())
-            addDefaultHeader(APISrvs.HEADER_SRVID, objId);
+    public void setServiceId(String srvId) {
+        if (srvId != null && !srvId.isEmpty())
+            addDefaultHeader(JOSPConstants.API_HEADER_SRV_ID, srvId);
         else
-            removeDefaultHeader(APISrvs.HEADER_SRVID);
+            removeDefaultHeader(JOSPConstants.API_HEADER_SRV_ID);
     }
 
     public void setUserId(String usrId) {
         if (usrId != null && !usrId.isEmpty())
-            addDefaultHeader(APISrvs.HEADER_USRID, usrId);
+            addDefaultHeader(JOSPConstants.API_HEADER_SRV_ID, usrId);
         else
-            removeDefaultHeader(APISrvs.HEADER_USRID);
+            removeDefaultHeader(JOSPConstants.API_HEADER_SRV_ID);
     }
 
 

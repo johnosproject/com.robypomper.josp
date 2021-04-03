@@ -15,7 +15,7 @@ import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaJKS;
 import com.robypomper.java.JavaSSL;
 import com.robypomper.java.JavaTimers;
-import com.robypomper.josp.params.jospgws.AccessInfo;
+import com.robypomper.josp.defs.core.gateways.Params20;
 import com.robypomper.josp.protocol.JOSPProtocol;
 
 import javax.net.ssl.SSLContext;
@@ -100,7 +100,7 @@ public abstract class AbsGWsClient extends ClientWrapper {
             preventReConnecting = false;
         }
 
-        AccessInfo accessInfo;
+        Params20.AccessInfo accessInfo;
         try {
             accessInfo = getAccessInfo(localCertificate);
 
@@ -203,9 +203,9 @@ public abstract class AbsGWsClient extends ClientWrapper {
 
     // GWsClient sub classing
 
-    protected abstract AccessInfo getAccessInfo(Certificate localCertificate) throws Throwable;
+    protected abstract Params20.AccessInfo getAccessInfo(Certificate localCertificate) throws Throwable;
 
-    protected abstract Client initGWsClient(AccessInfo accessInfo, SSLContext sslCtx) throws Throwable;
+    protected abstract Client initGWsClient(Params20.AccessInfo accessInfo, SSLContext sslCtx) throws Throwable;
 
 
     // JCP APIs listener
