@@ -1,11 +1,14 @@
-package com.robypomper.josp.jcp.jslwebbridge.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers.pub.core.init;
 
+import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
+import com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.init.Params20;
+import com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.init.Paths20;
 import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
-import com.robypomper.josp.jcp.jslwebbridge.exceptions.*;
+import com.robypomper.josp.jcp.jslwebbridge.controllers.ControllerImplJSL;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLAlreadyInitForSessionException;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLErrorOnInitException;
+import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLNotInitForSessionException;
 import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
-import com.robypomper.josp.jcp.params.jslwb.JSLStatus;
-import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBInit;
-import com.robypomper.josp.jcp.service.docs.SwaggerConfigurer;
 import com.robypomper.josp.jsl.JSL;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,7 +17,6 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,20 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import springfox.documentation.annotations.ApiIgnore;
-import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 
+/**
+ * JCP JSL Web Bridge - Init 2.0
+ */
 @SuppressWarnings("unused")
-@RestController
-@Api(tags = {APIJSLWBInit.SubGroupInit.NAME})
-public class APIJSLWBInitController extends APIJSLWBControllerAbs {
+@RestController(value = Paths20.API_NAME + " " + Paths20.DOCS_NAME)
+@Api(tags = Paths20.DOCS_NAME, description = Paths20.DOCS_DESCR)
+public class Controller20 extends ControllerImplJSL {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(APIJSLWBInitController.class);
+    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
     @Autowired
     private JSLWebBridgeService webBridgeService;
     @Autowired
@@ -46,28 +50,20 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
 
     // Constructors
 
-    public APIJSLWBInitController() {
-        super(APIJSLWBInit.API_NAME, APIJSLWBInit.API_VER, JCPJSLWBVersions.API_NAME, APIJSLWBInit.SubGroupInit.NAME, APIJSLWBInit.SubGroupInit.DESCR);
-    }
-
-
-    // Swagger configs
-
-    @Bean
-    public Docket swaggerConfig_APIJSLWBInit() {
-        return swaggerConfig();
+    public Controller20() {
+        super(Paths20.API_NAME, Paths20.API_VER, JCPJSLWBVersions.API_NAME, Paths20.DOCS_NAME, Paths20.DOCS_DESCR);
     }
 
 
     // Methods - JSL Instance Status
 
-    @GetMapping(path = APIJSLWBInit.FULL_PATH_INIT_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBInit.DESCR_PATH_INIT_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_INIT_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_INIT_STATUS)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JSLStatus.class),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Params20.JSLStatus.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
-    public ResponseEntity<JSLStatus> statusJSL(@ApiIgnore HttpSession session) {
+    public ResponseEntity<Params20.JSLStatus> statusJSL(@ApiIgnore HttpSession session) {
         boolean isJSLInit = false;
         try {
             webBridgeService.getJSL(session.getId());
@@ -76,22 +72,25 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
         } catch (JSLNotInitForSessionException ignore) {
         }
 
-        return ResponseEntity.ok(new JSLStatus(session.getId(), isJSLInit));
+        Params20.JSLStatus jslStatus = new Params20.JSLStatus();
+        jslStatus.sessionId = session.getId();
+        jslStatus.isJSLInit = isJSLInit;
+        return ResponseEntity.ok(jslStatus);
     }
 
 
     // Methods - Init JSL Instance
 
-    @GetMapping(path = APIJSLWBInit.FULL_PATH_INIT_JSL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBInit.DESCR_PATH_INIT_JSL)
+    @GetMapping(path = Paths20.FULL_PATH_INIT_JSL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_INIT_JSL)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = String.class),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<String> initJSL(@ApiIgnore HttpSession session,
-                                           @RequestParam("client_id") String clientId,
-                                           @RequestParam("client_secret") String clientSecret) {
-        JSL jsl = null;
+                                          @RequestParam("client_id") String clientId,
+                                          @RequestParam("client_secret") String clientSecret) {
+        JSL jsl;
         try {
             jsl = webBridgeService.initJSL(session.getId(), clientId, clientSecret);
 
@@ -113,8 +112,8 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
 
     // Methods - SSE Updater
 
-    @GetMapping(path = APIJSLWBInit.FULL_PATH_INIT_SSE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @ApiOperation(value = APIJSLWBInit.DESCR_PATH_INIT_SSE)
+    @GetMapping(path = Paths20.FULL_PATH_INIT_SSE, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_INIT_SSE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Method worked successfully", response = SseEmitter.class),
             @ApiResponse(code = 400, message = "User not authenticated")
@@ -131,7 +130,7 @@ public class APIJSLWBInitController extends APIJSLWBControllerAbs {
             emitter = webBridgeService.getJSLEmitter(session.getId());
 
         } catch (JSLNotInitForSessionException e) {
-            throw jslNotInitForSessionException(session.getId(),"initialize JSL Emitter");
+            throw jslNotInitForSessionException(session.getId(), "initialize JSL Emitter");
         }
 
         response.addHeader("X-Accel-Buffering", "no");

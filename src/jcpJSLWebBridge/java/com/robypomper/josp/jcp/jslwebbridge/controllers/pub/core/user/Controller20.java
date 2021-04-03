@@ -1,11 +1,11 @@
-package com.robypomper.josp.jcp.jslwebbridge.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers.pub.core.user;
 
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.user.Params20;
+import com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.user.Paths20;
 import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
+import com.robypomper.josp.jcp.jslwebbridge.controllers.ControllerImplJSL;
 import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
-import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
-import com.robypomper.josp.jcp.params.jslwb.JOSPUserHtml;
-import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBUsr;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.states.StateException;
@@ -16,7 +16,6 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import springfox.documentation.annotations.ApiIgnore;
-import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,17 +31,20 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
+/**
+ * JCP JSL Web Bridge - User 2.0
+ */
 @SuppressWarnings("unused")
-@RestController
-@Api(tags = {APIJSLWBUsr.SubGroupUser.NAME})
-public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
+@RestController(value = Paths20.API_NAME + " " + Paths20.DOCS_NAME)
+@Api(tags = Paths20.DOCS_NAME, description = Paths20.DOCS_DESCR)
+public class Controller20 extends ControllerImplJSL {
 
     public static final String SESS_ATTR_LOGIN_REDIRECT = "redirect_url_login";
     public static final String SESS_ATTR_LOGOUT_REDIRECT = "redirect_url_logout";
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(APIJSLWBUsrController.class);
+    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
     @Autowired
     private JSLWebBridgeService webBridgeService;
     private final String URL_REDIRECT_HOME = "/";
@@ -51,48 +52,47 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
 
     // Constructors
 
-    public APIJSLWBUsrController() {
-        super(APIJSLWBUsr.API_NAME, APIJSLWBUsr.API_VER, JCPJSLWBVersions.API_NAME, APIJSLWBUsr.SubGroupUser.NAME, APIJSLWBUsr.SubGroupUser.DESCR);
-    }
-
-
-    // Swagger configs
-
-    @Bean
-    public Docket swaggerConfig_APIJSLWBUsr() {
-        return swaggerConfig();
+    public Controller20() {
+        super(Paths20.API_NAME, Paths20.API_VER, JCPJSLWBVersions.API_NAME, Paths20.DOCS_NAME, Paths20.DOCS_DESCR);
     }
 
 
     // Methods User Info
 
-    @GetMapping(path = APIJSLWBUsr.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBUsr.DESCR_PATH_DETAILS)
+    @GetMapping(path = Paths20.FULL_PATH_DETAILS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_DETAILS)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Params20.JOSPUserHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
-    public ResponseEntity<JOSPUserHtml> jsonUserDetails(@ApiIgnore HttpSession session) {
+    public ResponseEntity<Params20.JOSPUserHtml> jsonUserDetails(@ApiIgnore HttpSession session) {
 
-        JSL jsl = getJSL(session.getId(),"get user");
+        JSL jsl = getJSL(session.getId(), "get user");
         JSLUserMngr jslUserMngr = jsl.getUserMngr();
-        return ResponseEntity.ok(new JOSPUserHtml(jslUserMngr));
+        Params20.JOSPUserHtml jospUsr = new Params20.JOSPUserHtml();
+        jospUsr.id = jslUserMngr.getUserId();
+        jospUsr.name = jslUserMngr.getUsername();
+        jospUsr.isAuthenticated = jslUserMngr.isUserAuthenticated();
+        jospUsr.isAdmin = jslUserMngr.isAdmin();
+        jospUsr.isMaker = jslUserMngr.isMaker();
+        jospUsr.isDeveloper = jslUserMngr.isDeveloper();
+        return ResponseEntity.ok(jospUsr);
     }
 
 
     // Methods - Login
 
-    @GetMapping(path = APIJSLWBUsr.FULL_PATH_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBUsr.DESCR_PATH_LOGIN)
+    @GetMapping(path = Paths20.FULL_PATH_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_LOGIN)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<String> htmlLoginUser(@ApiIgnore HttpSession session,
                                                 @ApiIgnore HttpServletResponse response,
                                                 @RequestParam(name = "redirect_uri", required = false) String redirectUrl,
                                                 @RequestParam(name = "auto_redirect", required = false) boolean autoRedirect) {
-        JSL jsl = getJSL(session.getId(),"get login url");
+        JSL jsl = getJSL(session.getId(), "get login url");
 
         if (redirectUrl != null)
             session.setAttribute(SESS_ATTR_LOGIN_REDIRECT, redirectUrl);
@@ -111,10 +111,10 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
         return ResponseEntity.ok(redirect);
     }
 
-    @GetMapping(path = APIJSLWBUsr.FULL_PATH_LOGIN_CALLBACK, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBUsr.DESCR_PATH_LOGIN_CALLBACK)
+    @GetMapping(path = Paths20.FULL_PATH_LOGIN_CALLBACK, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_LOGIN_CALLBACK)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<String> htmlLoginUserCallback(@ApiIgnore HttpSession session,
@@ -122,7 +122,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
                                                         @RequestParam(name = "session_state") String sessionState,
                                                         @RequestParam(name = "code") String code) {
         //https://localhost:8080/login/code/?session_state=087edff3-848c-4b59-9592-e44c7410e6b0&code=8ab0ceb4-e3cf-48e2-99df-b59fe7be129d.087edff3-848c-4b59-9592-e44c7410e6b0.79e472b0-e562-4535-a516-db7d7696a447
-        JSL jsl = getJSL(session.getId(),"exec user login callback");
+        JSL jsl = getJSL(session.getId(), "exec user login callback");
 
         String redirectURL = (String) session.getAttribute(SESS_ATTR_LOGIN_REDIRECT);
         session.removeAttribute(SESS_ATTR_LOGIN_REDIRECT);
@@ -152,10 +152,10 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
 
     // Methods - Logout
 
-    @GetMapping(path = APIJSLWBUsr.FULL_PATH_LOGOUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBUsr.DESCR_PATH_LOGOUT)
+    @GetMapping(path = Paths20.FULL_PATH_LOGOUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_LOGOUT)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<String> htmlLogoutUser(@ApiIgnore HttpSession session,
@@ -163,7 +163,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
                                                  @RequestParam(name = "redirect_uri", required = false) String redirectUrl,
                                                  @RequestParam(name = "auto_redirect", required = false) boolean autoRedirect) {
 
-        JSL jsl = getJSL(session.getId(),"get logout url");
+        JSL jsl = getJSL(session.getId(), "get logout url");
 
         String redirect = jsl.getJCPClient().getAuthLogoutUrl(redirectUrl);
         jsl.getJCPClient().userLogout();
@@ -183,10 +183,10 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
 
     // Methods - Registration
 
-    @GetMapping(path = APIJSLWBUsr.FULL_PATH_REGISTRATION, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBUsr.DESCR_PATH_REGISTRATION)
+    @GetMapping(path = Paths20.FULL_PATH_REGISTRATION, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_REGISTRATION)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<String> htmlRegistrationUser(@ApiIgnore HttpSession session,
@@ -194,7 +194,7 @@ public class APIJSLWBUsrController extends APIJSLWBControllerAbs {
                                                        @RequestParam(name = "redirect_uri", required = false) String redirectUrl,
                                                        @RequestParam(name = "auto_redirect", required = false) boolean autoRedirect) {
 
-        JSL jsl = getJSL(session.getId(),"get registration url");
+        JSL jsl = getJSL(session.getId(), "get registration url");
 
         if (redirectUrl != null)
             session.setAttribute(SESS_ATTR_LOGIN_REDIRECT, redirectUrl);

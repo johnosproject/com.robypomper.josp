@@ -1,10 +1,10 @@
-package com.robypomper.josp.jcp.jslwebbridge.controllers;
+package com.robypomper.josp.jcp.jslwebbridge.controllers.pub.core.objects.permissions;
 
+import com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.permissions.Params20;
+import com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.permissions.Paths20;
 import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
+import com.robypomper.josp.jcp.jslwebbridge.controllers.ControllerImplJSL;
 import com.robypomper.josp.jcp.jslwebbridge.services.JSLWebBridgeService;
-import com.robypomper.josp.jcp.params.jslwb.JOSPObjHtml;
-import com.robypomper.josp.jcp.params.jslwb.JOSPPermHtml;
-import com.robypomper.josp.jcp.paths.jslwb.APIJSLWBPermissions;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.Api;
@@ -14,61 +14,67 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * JCP JSL Web Bridge - Objects / Permissions 2.0
+ */
 @SuppressWarnings("unused")
-@RestController
-@Api(tags = {APIJSLWBPermissions.SubGroupPermissions.NAME})
-public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
+@RestController(value = Paths20.API_NAME + " " + Paths20.DOCS_NAME)
+@Api(tags = Paths20.DOCS_NAME, description = Paths20.DOCS_DESCR)
+public class Controller20 extends ControllerImplJSL {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(APIJSLWBPermissionsController.class);
+    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
     @Autowired
     private JSLWebBridgeService webBridgeService;
 
 
     // Constructors
 
-    public APIJSLWBPermissionsController() {
-        super(APIJSLWBPermissions.API_NAME, APIJSLWBPermissions.API_VER, JCPJSLWBVersions.API_NAME, APIJSLWBPermissions.SubGroupPermissions.NAME, APIJSLWBPermissions.SubGroupPermissions.DESCR);
-    }
-
-
-    // Swagger configs
-
-    @Bean
-    public Docket swaggerConfig_APIJSLWBPermissions() {
-        return swaggerConfig();
+    public Controller20() {
+        super(Paths20.API_NAME, Paths20.API_VER, JCPJSLWBVersions.API_NAME, Paths20.DOCS_NAME, Paths20.DOCS_DESCR);
     }
 
 
     // Methods - Obj's Perms List
 
-    @GetMapping(path = APIJSLWBPermissions.FULL_PATH_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBPermissions.DESCR_PATH_LIST)
+    @GetMapping(path = Paths20.FULL_PATH_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_LIST)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Params20.JOSPPermHtml.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
-    public ResponseEntity<List<JOSPPermHtml>> jsonObjectPermissions(@ApiIgnore HttpSession session,
-                                                                    @PathVariable("obj_id") String objId) {
-        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"reuire permissions list");
+    public ResponseEntity<List<Params20.JOSPPermHtml>> jsonObjectPermissions(@ApiIgnore HttpSession session,
+                                                                             @PathVariable("obj_id") String objId) {
+        JSLRemoteObject obj = getJSLObj(session.getId(), objId, "reuire permissions list");
 
         // Convert permission list
-        List<JOSPPermHtml> permsHtml = new ArrayList<>();
-        for (JOSPPerm p : obj.getPerms().getPerms())        // ToDo add MissingPermission exception on getPerms() method
-            permsHtml.add(new JOSPPermHtml(p));
+        List<Params20.JOSPPermHtml> permsHtml = new ArrayList<>();
+        // ToDo add MissingPermission exception on getPerms() method
+        for (JOSPPerm p : obj.getPerms().getPerms()) {
+            Params20.JOSPPermHtml jospPerm = new Params20.JOSPPermHtml();
+            jospPerm.id = p.getId();
+            jospPerm.objId = p.getObjId();
+            jospPerm.srvId = p.getSrvId();
+            jospPerm.usrId = p.getUsrId();
+            jospPerm.type = p.getPermType().toString();
+            jospPerm.connection = p.getConnType().toString();
+            jospPerm.lastUpdate = p.getUpdatedAt();
+            jospPerm.pathUpd = Paths20.FULL_PATH_UPD(p.getObjId(), p.getId());
+            jospPerm.pathDel = Paths20.FULL_PATH_DEL(p.getObjId(), p.getId());
+            jospPerm.pathDup = Paths20.FULL_PATH_DUP(p.getObjId(), p.getId());
+            permsHtml.add(jospPerm);
+        }
 
         return ResponseEntity.ok(permsHtml);
     }
@@ -76,10 +82,10 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
 
     // Methods - Obj's perm add
 
-    @PostMapping(path = APIJSLWBPermissions.FULL_PATH_ADD, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBPermissions.DESCR_PATH_ADD)
+    @PostMapping(path = Paths20.FULL_PATH_ADD, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_ADD)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionAdd(@ApiIgnore HttpSession session,
@@ -88,7 +94,7 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
                                                            @RequestParam("usr_id") String usrId,
                                                            @RequestParam("type") JOSPPerm.Type type,
                                                            @RequestParam("conn") JOSPPerm.Connection connection) {
-        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"add permission");
+        JSLRemoteObject obj = getJSLObj(session.getId(), objId, "add permission");
 
         try {
             obj.getPerms().addPerm(srvId, usrId, type, connection);
@@ -106,10 +112,10 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
 
     // Methods - Obj's perm upd
 
-    @PostMapping(path = APIJSLWBPermissions.FULL_PATH_UPD, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBPermissions.DESCR_PATH_UPD)
+    @PostMapping(path = Paths20.FULL_PATH_UPD, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_UPD)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionUpd(@ApiIgnore HttpSession session,
@@ -119,8 +125,8 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
                                                            @RequestParam(value = "usr_id", required = false) String usrId,
                                                            @RequestParam(value = "type", required = false) JOSPPerm.Type type,
                                                            @RequestParam(value = "conn", required = false) JOSPPerm.Connection connection) {
-        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"update permission");
-        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId,"update permission");
+        JSLRemoteObject obj = getJSLObj(session.getId(), objId, "update permission");
+        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId, "update permission");
 
         if (srvId == null)
             srvId = perm.getSrvId();
@@ -146,17 +152,17 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
 
     // Methods - Obj's perm remove
 
-    @GetMapping(path = APIJSLWBPermissions.FULL_PATH_DEL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBPermissions.DESCR_PATH_DEL)
+    @GetMapping(path = Paths20.FULL_PATH_DEL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_DEL)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionDel(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
-        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"remove permission");
-        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId,"remove permission");
+        JSLRemoteObject obj = getJSLObj(session.getId(), objId, "remove permission");
+        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId, "remove permission");
 
         try {
             obj.getPerms().remPerm(perm.getId());
@@ -174,17 +180,17 @@ public class APIJSLWBPermissionsController extends APIJSLWBControllerAbs {
 
     // Methods - Obj's perm duplicate
 
-    @GetMapping(path = APIJSLWBPermissions.FULL_PATH_DUP, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = APIJSLWBPermissions.DESCR_PATH_DUP)
+    @GetMapping(path = Paths20.FULL_PATH_DUP, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_DUP)
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Method worked successfully", response = JOSPObjHtml.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "Method worked successfully", response = Boolean.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionDup(@ApiIgnore HttpSession session,
                                                            @PathVariable("obj_id") String objId,
                                                            @PathVariable("perm_id") String permId) {
-        JSLRemoteObject obj = getJSLObj(session.getId(),objId,"duplicate permission");
-        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId,"duplicate permission");
+        JSLRemoteObject obj = getJSLObj(session.getId(), objId, "duplicate permission");
+        JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId, "duplicate permission");
 
         try {
             obj.getPerms().addPerm(perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType());
