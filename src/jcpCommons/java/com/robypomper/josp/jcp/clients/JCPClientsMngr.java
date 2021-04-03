@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -106,6 +107,16 @@ public class JCPClientsMngr {
 
         log.info(String.format("Created JCPGWsClient for '%s' JCP GWs.", gwId));
         return removedClient;
+    }
+
+    public JCPGWsClient getGWsClientByGWServer(String gwServerId) {
+        throw new NotImplementedException();
+        //JCPGWsClient removedClient = gwsClientMngr.remove(gwId);
+        //if (removedClient==null)
+        //    log.warn(String.format("Try to remove not existing JCPGWsClient for '%s' JCP GWs.", gwId));
+        //
+        //log.info(String.format("Created JCPGWsClient for '%s' JCP GWs.", gwId));
+        //return removedClient;
     }
 
     public Map<String,JCPGWsClient> getGWsClientsAll() {
