@@ -19,7 +19,7 @@
 package com.robypomper.josp.jsl.srvinfo;
 
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
-import com.robypomper.josp.clients.apis.srv.APISrvsClient;
+import com.robypomper.josp.callers.apis.core.services.Caller20;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
@@ -45,7 +45,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
 
     private static final Logger log = LogManager.getLogger();
     private final JSLSettings_002 locSettings;
-    private final APISrvsClient apiSrvsClient;
+    private final Caller20 apiSrvsCaller;
     private JSLUserMngr userMngr;
     private JSLObjsMngr objs;
     private JSLCommunication comm;
@@ -57,7 +57,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
     /**
      * Create new service info.
      * <p>
-     * This constructor create an instance of {@link APISrvsClient} and request
+     * This constructor create an instance of {@link Caller20} and request
      * common/mandatory info for caching them.
      *
      * @param settings   the JSL settings.
@@ -67,7 +67,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
     public JSLServiceInfo_002(JSLSettings_002 settings, JCPAPIsClientSrv jcpClient, String instanceId) {
         this.locSettings = settings;
         this.instanceId = instanceId;
-        this.apiSrvsClient = new APISrvsClient(jcpClient);
+        this.apiSrvsCaller = new Caller20(jcpClient);
 
         log.debug(Mrk_JSL.JSL_INFO, "Setting service's id to JCPClient");
         jcpClient.setServiceId(getSrvId());

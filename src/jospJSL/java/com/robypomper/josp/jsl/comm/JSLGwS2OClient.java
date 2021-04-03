@@ -22,10 +22,9 @@ import com.robypomper.comm.client.Client;
 import com.robypomper.comm.client.ClientAbsSSL;
 import com.robypomper.josp.clients.AbsGWsClient;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
-import com.robypomper.josp.clients.apis.srv.APIGWsClient;
+import com.robypomper.josp.callers.apis.core.gateways.Caller20;
+import com.robypomper.josp.defs.core.gateways.Params20;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
-import com.robypomper.josp.params.jospgws.AccessInfo;
-import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,7 +48,7 @@ public class JSLGwS2OClient extends AbsGWsClient {
     private final JSLCommunication_002 jslComm;
     private final JSLServiceInfo srvInfo;
     // Configs
-    private final APIGWsClient apiGWsClient;
+    private final Caller20 apiGWsCaller;
 
 
     // Constructor
@@ -68,7 +67,7 @@ public class JSLGwS2OClient extends AbsGWsClient {
         super(srvInfo.getFullId(), "JSLGWsS2O-Internal", jcpClient);
         this.jslComm = jslComm;
         this.srvInfo = srvInfo;
-        this.apiGWsClient = new APIGWsClient(jcpClient, instanceId);
+        this.apiGWsCaller = new Caller20(jcpClient, instanceId);
     }
 
 
@@ -83,13 +82,13 @@ public class JSLGwS2OClient extends AbsGWsClient {
     // Client connection methods - O2S/S2O Sub classing
 
     @Override
-    protected S2OAccessInfo getAccessInfo(Certificate localCertificate) throws Throwable {
-        return apiGWsClient.getS2OAccessInfo(localCertificate);
+    protected Params20.S2OAccessInfo getAccessInfo(Certificate localCertificate) throws Throwable {
+        return apiGWsCaller.getS2OAccessInfo(localCertificate);
     }
 
     @Override
-    protected Client initGWsClient(AccessInfo accessInfo, SSLContext sslCtx) throws Throwable {
-        assert accessInfo instanceof S2OAccessInfo : String.format("AccessInfo for JODGWsO2SClient must be of type 'S2OAccessInfo', but found '%s'", accessInfo.getClass().getSimpleName());
+    protected Client initGWsClient(Params20.AccessInfo accessInfo, SSLContext sslCtx) throws Throwable {
+        assert accessInfo instanceof Params20.S2OAccessInfo : String.format("AccessInfo for JODGWsO2SClient must be of type 'S2OAccessInfo', but found '%s'", accessInfo.getClass().getSimpleName());
 
         InetAddress gwAddress = InetAddress.getByName(accessInfo.gwAddress);
 

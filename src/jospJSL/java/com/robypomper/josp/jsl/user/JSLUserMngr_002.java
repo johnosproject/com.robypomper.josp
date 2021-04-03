@@ -23,10 +23,10 @@ import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.discovery.Discover;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.clients.apis.srv.APIUsrsClient;
+import com.robypomper.josp.callers.apis.core.users.Caller20;
+import com.robypomper.josp.defs.core.users.Params20;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
-import com.robypomper.josp.params.usrs.UsrName;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.states.StateException;
 import com.robypomper.log.Mrk_JSL;
@@ -50,8 +50,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
     private static final Logger log = LogManager.getLogger();
     private final JSLSettings_002 locSettings;
     private final JCPAPIsClientSrv jcpClient;
-    private final APIUsrsClient apiUsrsClient;
-    private UsrName user;
+    private final Caller20 apiUsrsCaller;
+    private Params20.User user;
     private JSLCommunication comm = null;
 
 
@@ -60,7 +60,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
     public JSLUserMngr_002(JSLSettings_002 settings, JCPAPIsClientSrv jcpClient) {
         this.locSettings = settings;
         this.jcpClient = jcpClient;
-        apiUsrsClient = new APIUsrsClient(jcpClient);
+        apiUsrsCaller = new Caller20(jcpClient);
 
         if (jcpClient.isAuthCodeFlowEnabled()) {
             log.trace(Mrk_JSL.JSL_USR, "Perform JSLUserMngr login");
@@ -88,8 +88,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
      */
     @Override
     public boolean isUserAuthenticated() {
-        return jcpClient.isAuthCodeFlowEnabled() && !user.getUsrId().equals(ANONYMOUS_ID)
-                && user.isAuthenticated();
+        return jcpClient.isAuthCodeFlowEnabled() && !user.usrId.equals(ANONYMOUS_ID)
+                && user.authenticated;
     }
 
     /**
@@ -97,7 +97,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
      */
     @Override
     public boolean isAdmin() {
-        return isUserAuthenticated() && user.isAdmin();
+        return isUserAuthenticated() && user.admin;
     }
 
     /**
@@ -105,7 +105,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
      */
     @Override
     public boolean isMaker() {
-        return isUserAuthenticated() && user.isMaker();
+        return isUserAuthenticated() && user.maker;
     }
 
     /**
@@ -113,7 +113,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
      */
     @Override
     public boolean isDeveloper() {
-        return isUserAuthenticated() && user.isDeveloper();
+        return isUserAuthenticated() && user.developer;
     }
 
     /**
@@ -121,7 +121,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
      */
     @Override
     public String getUserId() {
-        return user!=null ? user.getUsrId() : ANONYMOUS_ID;
+        return user != null ? user.usrId : ANONYMOUS_ID;
     }
 
     /**
@@ -129,7 +129,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
      */
     @Override
     public String getUsername() {
-        return user!=null ? user.getUsername() : ANONYMOUS_USERNAME;
+        return user != null ? user.username : ANONYMOUS_USERNAME;
     }
 
 
@@ -149,7 +149,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         // Cache user's info
         log.debug(Mrk_JSL.JSL_USR, "Caching user's info from JCP");
         try {
-            this.user = apiUsrsClient.getUser();
+            this.user = apiUsrsCaller.getCurrent();
             locSettings.setUsrId(getUserId());
             locSettings.setUsrName(getUsername());
 
@@ -159,7 +159,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             log.warn(Mrk_JSL.JSL_USR, String.format("Error on getting user id and name from JCP because %s", e.getMessage()), e);
             log.trace(Mrk_JSL.JSL_USR, "Set anonymous user");
-            user = UsrName.ANONYMOUS;
+            user = Params20.User.ANONYMOUS;
         }
 
         log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", getUsername(), getUserId()));
@@ -196,7 +196,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         String loggedUsrId = getUserId();
         String loggedUsername = getUsername();
 
-        user = UsrName.ANONYMOUS;
+        user = Params20.User.ANONYMOUS;
         locSettings.setUsrId(null);
         locSettings.setUsrName(null);
 
@@ -242,12 +242,14 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
     private void onLocalLogin() {
         // Cache user's info
         log.debug(Mrk_JSL.JSL_USR, "Set user's info from settings");
-        user = UsrName.fromLocal(locSettings.getUsrId(),locSettings.getUsrName());
+        user = new Params20.User();
+        user.usrId = locSettings.getUsrId();
+        user.username = locSettings.getUsrName();
 
         // Set JCP Client user id header
-        jcpClient.setUserId(user.getUsrId());
+        jcpClient.setUserId(user.usrId);
 
-        log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", user.getUsername(), user.getUsrId()));
+        log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", user.username, user.usrId));
     }
 
 }
