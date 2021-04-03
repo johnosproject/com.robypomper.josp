@@ -4,6 +4,6 @@ public enum GWType {
 
     Obj2Srv,
 
-    Srv2Obj
+    Srv2Obj,
 
 }
