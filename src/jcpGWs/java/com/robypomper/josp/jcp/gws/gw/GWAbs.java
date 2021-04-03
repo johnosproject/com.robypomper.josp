@@ -10,15 +10,10 @@ import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.comm.trustmanagers.DynAddTrustManager;
 import com.robypomper.java.*;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.jcp.callers.apis.gateways.registration.Caller20;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
-import com.robypomper.josp.jcp.clients.jcp.jcp.APIsClient;
+import com.robypomper.josp.jcp.defs.apis.internal.gateways.registration.Params20;
 import com.robypomper.josp.jcp.info.JCPGWsVersions;
-import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
-import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.params.jcp.GWsStatus;
-import com.robypomper.josp.params.jospgws.AccessInfo;
-import com.robypomper.josp.params.jospgws.O2SAccessInfo;
-import com.robypomper.josp.params.jospgws.S2OAccessInfo;
 import com.robypomper.josp.types.josp.gw.GWType;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationListener;
@@ -28,7 +23,6 @@ import javax.net.ssl.SSLContext;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -47,12 +41,12 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     protected static final String gwSerial = JavaRandomStrings.randomAlfaString(5);
     private final GWType gwType;
     private final GWServer server;
-    private final APIsClient jcpAPIsGWs;
+    private final Caller20 jcpAPIsCaller;
     private final String addrInternal;
     private final String addrPublic;
     private final int apisPort;
     private final int maxClients;
-    private final JCPGWsStatus gwStatus;
+    private final Params20.JCPGWsStatus gwStatus;
     private CountDownLatch deregisterCountDown = new CountDownLatch(1);
     private boolean springStarted = false;
     private Timer registerTimer;
@@ -76,9 +70,13 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         DynAddTrustManager trustManager = new DynAddTrustManager();
         SSLContext sslCtx = JavaSSL.generateSSLContext(ks, KS_PASS, trustManager);
 
-        this.gwStatus = new JCPGWsStatus(0, maxClients, null, null);
+        this.gwStatus = new Params20.JCPGWsStatus();
+        this.gwStatus.clients = 0;
+        this.gwStatus.clientsMax = maxClients;
+        this.gwStatus.lastClientConnectedAt = null;
+        this.gwStatus.lastClientDisconnectedAt = null;
 
-        this.jcpAPIsGWs = new APIsClient(clientsMngr.getJCPAPIsClient());
+        this.jcpAPIsCaller = new Caller20(clientsMngr.getJCPAPIsClient());
         clientsMngr.getJCPAPIsClient().addConnectionListener(jcpAPIsListener_GWRegister);
 
         this.server = new GWServer(this, sslCtx, idServer, gwPort, trustManager, publicCertificate);
@@ -114,35 +112,35 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         return getServer().getLocalId();
     }
 
-    private GWType getType() {
+    public GWType getType() {
         return gwType;
     }
 
-    private GWServer getServer() {
+    public GWServer getServer() {
         return server;
     }
 
-    private String getInternalAddress() {
+    public String getInternalAddress() {
         return addrInternal;
     }
 
-    private String getPublicAddress() {
+    public String getPublicAddress() {
         return addrPublic;
     }
 
-    private int getGWPort() {
+    public int getGWPort() {
         return server.getServerPeerInfo().getPort();
     }
 
-    private int getAPIsPort() {
+    public int getAPIsPort() {
         return apisPort;
     }
 
-    private int getMaxClient() {
+    public int getMaxClient() {
         return maxClients;
     }
 
-    private JCPGWsStatus getGWStatus() {
+    private Params20.JCPGWsStatus getGWStatus() {
         return gwStatus;
     }
 
@@ -177,7 +175,7 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     private void tryRegisterAndUpdate() {
         if (!server.getState().isRunning())
             return;
-        if (!jcpAPIsGWs.getClient().isConnected())
+        if (!jcpAPIsCaller.getClient().isConnected())
             return;
         if (!springStarted)
             return;
@@ -193,13 +191,13 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         JavaTimers.stopTimer(registerTimer);
         registerTimer = null;
 
-        if (!jcpAPIsGWs.getClient().isConnected()) {
+        if (!jcpAPIsCaller.getClient().isConnected()) {
             log.warn("Can't de-register JCP GW '%s' because JCP APIs not available");
             return;
         }
 
         try {
-            jcpAPIsGWs.postShutdown(getId());
+            jcpAPIsCaller.postShutdown(getId());
             log.info(String.format("JCP GW '%s' de-registered to JCP APIs successfully.", getId()));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
@@ -213,9 +211,16 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
 
         @Override
         public void run() {
-            JCPGWsStartup gwStartup = new JCPGWsStartup(getType(), getPublicAddress(), getGWPort(), getInternalAddress(), getAPIsPort(), getMaxClient(), getVersion());
+            Params20.JCPGWsStartup gwStartup = new Params20.JCPGWsStartup();
+            gwStartup.type = getType();
+            gwStartup.gwAddr = getPublicAddress();
+            gwStartup.gwPort = getGWPort();
+            gwStartup.gwAPIsAddr = getInternalAddress();
+            gwStartup.gwAPIsPort = getAPIsPort();
+            gwStartup.clientsMax = getMaxClient();
+            gwStartup.version = getVersion();
             try {
-                jcpAPIsGWs.postStartup(gwStartup, getId());
+                jcpAPIsCaller.postStartup(gwStartup, getId());
                 if (!isPrinted) {
                     log.info(String.format("JCP GW '%s' registered to JCP APIs successfully.", getId()));
                     isPrinted = true;
@@ -233,13 +238,13 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
     }
 
     private void update() {
-        if (!jcpAPIsGWs.getClient().isConnected()) {
+        if (!jcpAPIsCaller.getClient().isConnected()) {
             log.warn(String.format("Can't update JCP GW '%s' because JCP APIs not available", getId()));
             return;
         }
 
         try {
-            jcpAPIsGWs.postStatus(getGWStatus(), getId());
+            jcpAPIsCaller.postStatus(getGWStatus(), getId());
             log.trace(String.format("JCP GW '%s' updated to JCP APIs successfully.", getId()));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
@@ -319,33 +324,21 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         getServer().getTrustManager().addCertificate(certId, clientCert);
     }
 
-    public AccessInfo getAccessInfo() throws CertificateEncodingException {
+    public com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.AccessInfo getAccessInfo() throws CertificateEncodingException {
         byte[] certBytes = getServer().getPublicCertificate().getEncoded();
-        if (getType() == GWType.Obj2Srv)
-            return new O2SAccessInfo(getPublicAddress(), getGWPort(), certBytes);
-        else
-            return new S2OAccessInfo(getPublicAddress(), getGWPort(), certBytes);
-    }
-
-
-    // GWsController
-
-    public GWsStatus.Server getJCPAPIsStatus() {
-        GWsStatus.Server gwStatus = new GWsStatus.Server();
-        gwStatus.id = getId();
-        gwStatus.type = getType();
-        gwStatus.status = getServer().getState().toString();
-        gwStatus.internalAddress = getInternalAddress();
-        gwStatus.publicAddress = getPublicAddress();
-        gwStatus.gwPort = getGWPort();
-        gwStatus.apisPort = getAPIsPort();
-        gwStatus.clientsCount = getServer().getClients().size();
-        gwStatus.maxClientsCount = getMaxClient();
-
-        gwStatus.clientsList = new ArrayList<>();
-        for (ServerClient c : getServer().getClients())
-            gwStatus.clientsList.add(new GWsStatus.Client(c.getRemoteId(), c.getState().isConnected(), c.getConnectionInfo().getLocalInfo().toString(), c.getConnectionInfo().getRemoteInfo().toString()));
-        return gwStatus;
+        if (getType() == GWType.Obj2Srv) {
+            com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.O2SAccessInfo ai = new com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.O2SAccessInfo();
+            ai.gwAddress = getPublicAddress();
+            ai.gwPort = getGWPort();
+            ai.gwCertificate = certBytes;
+            return ai;
+        } else {
+            com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.S2OAccessInfo ai = new com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.S2OAccessInfo();
+            ai.gwAddress = getPublicAddress();
+            ai.gwPort = getGWPort();
+            ai.gwCertificate = certBytes;
+            return ai;
+        }
     }
 
 }
