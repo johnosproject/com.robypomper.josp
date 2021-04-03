@@ -17,27 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  **************************************************************************** */
 
-package com.robypomper.josp.jcp.clients.jcp.jcp;
+package com.robypomper.josp.jcp.callers.gateways.clients.registration;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.AbsAPIJCP;
 import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jcp.clients.JCPGWsClient;
-import com.robypomper.josp.jcp.paths.gws.JCPGWsAccessInfo;
-import com.robypomper.josp.params.jcp.GWsStatus;
-import com.robypomper.josp.params.jospgws.O2SAccessInfo;
-import com.robypomper.josp.params.jospgws.O2SAccessRequest;
-import com.robypomper.josp.params.jospgws.S2OAccessInfo;
-import com.robypomper.josp.params.jospgws.S2OAccessRequest;
-import com.robypomper.josp.paths.jcp.JCPStatusAbs;
-
-import java.util.List;
+import com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20;
+import com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Paths20;
 
 
 /**
- * Support class for ...
+ * JCP Gateways - Clients / Registration 2.0
  */
-public class GWsClient extends AbsAPIJCP {
+public class Caller20 extends AbsAPIJCP {
 
     // Constructor
 
@@ -46,15 +39,8 @@ public class GWsClient extends AbsAPIJCP {
      *
      * @param jcpClient the JCP client.
      */
-    public GWsClient(JCPGWsClient jcpClient) {
+    public Caller20(JCPGWsClient jcpClient) {
         super(jcpClient);
-    }
-
-
-    // JCP GWs Status
-
-    public List<GWsStatus.Server> getJCPAPIsStatusGWsCliReq() throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, com.robypomper.josp.jcp.paths.gws.JCPGWsStatus.FULL_PATH_GWS_STATUS_CLI, List.class, isSecure());
     }
 
 
@@ -68,9 +54,9 @@ public class GWsClient extends AbsAPIJCP {
      *
      * @return the GW O2S access info.
      */
-    public O2SAccessInfo getO2SAccessInfo(String objId, O2SAccessRequest accessRequestParams) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+    public Params20.O2SAccessInfo postO2SAccess(String objId, Params20.O2SAccessRequest accessRequestParams) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         getClient().setObjectId(objId);
-        O2SAccessInfo response = jcpClient.execReq(Verb.POST, JCPGWsAccessInfo.FULL_PATH_O2S_ACCESS, O2SAccessInfo.class, accessRequestParams, isSecure());
+        Params20.O2SAccessInfo response = jcpClient.execReq(Verb.POST, Paths20.FULL_PATH_GW_O2S_ACCESS, Params20.O2SAccessInfo.class, accessRequestParams, isSecure());
         getClient().setObjectId(null);
         return response;
     }
@@ -83,9 +69,9 @@ public class GWsClient extends AbsAPIJCP {
      *
      * @return the GW S2O access info.
      */
-    public S2OAccessInfo getS2OAccessInfo(String srvId, S2OAccessRequest accessRequestParams) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
+    public Params20.S2OAccessInfo postS2OAccess(String srvId, Params20.S2OAccessRequest accessRequestParams) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
         getClient().setServiceId(srvId);
-        S2OAccessInfo response = jcpClient.execReq(Verb.POST, JCPGWsAccessInfo.FULL_PATH_S2O_ACCESS, S2OAccessInfo.class, accessRequestParams, isSecure());
+        Params20.S2OAccessInfo response = jcpClient.execReq(Verb.POST, Paths20.FULL_PATH_GW_S2O_ACCESS, Params20.S2OAccessInfo.class, accessRequestParams, isSecure());
         getClient().setServiceId(null);
         return response;
     }
