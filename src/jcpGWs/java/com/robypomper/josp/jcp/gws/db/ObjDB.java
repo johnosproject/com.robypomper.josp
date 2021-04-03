@@ -80,7 +80,7 @@ public class ObjDB implements BrokerClientObjDB {
     @Override
     public String getMsgOBJ_PERM() {
         List<Permission> permsDB = permissionsDBService.findByObj(getId());
-        List<JOSPPerm> permsJOSP = PermissionsDBService.dbPermsToJOSPPerms(permsDB);
+        List<JOSPPerm> permsJOSP = PermissionsDBService.dbPermsToJOSPPerm(permsDB);
         String permJOSPStr = JOSPPerm.toString(permsJOSP);
         return JOSPProtocol_ObjectToService.createObjectPermsMsg(getId(), permJOSPStr);
     }

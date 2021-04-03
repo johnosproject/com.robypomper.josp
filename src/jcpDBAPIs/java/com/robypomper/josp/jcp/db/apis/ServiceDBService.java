@@ -23,6 +23,7 @@ import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceStatus;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -43,6 +44,10 @@ public class ServiceDBService {
 
 
     // Access methods
+
+    public List<Service> findAll() {
+        return services.findAll();
+    }
 
     public Optional<Service> find(String srvId) {
         return services.findById(srvId);

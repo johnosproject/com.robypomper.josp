@@ -43,6 +43,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    private boolean isAdmin;
+
+    private boolean isMaker;
+
+    private boolean isDeveloper;
+
 
     // Details
 

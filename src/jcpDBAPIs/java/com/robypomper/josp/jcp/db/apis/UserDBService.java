@@ -19,11 +19,13 @@
 
 package com.robypomper.josp.jcp.db.apis;
 
+import com.robypomper.josp.jcp.db.apis.entities.Object;
 import com.robypomper.josp.jcp.db.apis.entities.User;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -48,13 +50,17 @@ public class UserDBService {
 
     // Access methods
 
+    public List<User> findAll() {
+        return users.findAll();
+    }
+
     public Optional<User> get(String usrId) {
         if (!user.isPresent() || user.get().getUsrId().compareTo(usrId) != 0)
             user = users.findById(usrId);
         return user;
     }
 
-    public User add(User stock) throws DataIntegrityViolationException {
+    public User save(User stock) throws DataIntegrityViolationException {
         return users.save(stock);
     }
 
