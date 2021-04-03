@@ -22,7 +22,7 @@ package com.robypomper.josp.jod.events;
 import com.robypomper.java.JavaJSONArrayToFile;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.clients.apis.obj.APIEventsClient;
+import com.robypomper.josp.callers.apis.core.events.Caller20;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPEvent;
@@ -52,7 +52,7 @@ public class JODEvents_002 implements JODEvents {
     private static final Logger log = LogManager.getLogger();
     private final JODSettings_002 locSettings;
     private JCPAPIsClientObj jcpClient;
-    private APIEventsClient apiEventsClient;
+    private Caller20 apiEventsCaller;
     private final EventsArray events;
     private final CloudStats stats;
     private final File eventsFile;
@@ -335,7 +335,7 @@ public class JODEvents_002 implements JODEvents {
 
         this.jcpClient = jcpClient;
         this.jcpClient.addConnectionListener(jcpConnectListener);
-        this.apiEventsClient = new APIEventsClient(jcpClient);
+        this.apiEventsCaller = new Caller20(jcpClient);
     }
 
     @Override

@@ -21,7 +21,7 @@ package com.robypomper.josp.jsl;
 import com.robypomper.java.JavaVersionUtils;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.info.JCPAPIsVersions;
+import com.robypomper.josp.defs.core.Versions;
 import com.robypomper.josp.jsl.admin.JSLAdmin;
 import com.robypomper.josp.jsl.admin.JSLAdmin_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
@@ -136,7 +136,7 @@ public class JSL_002 extends AbsJSL {
 
     @Override
     public String[] versionsJCPAPIs() {
-        return new String[]{JCPAPIsVersions.VER_JCP_APIs_2_0};
+        return new String[]{Versions.VER_JCP_APIs_2_0};
     }
 
 }

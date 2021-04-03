@@ -22,7 +22,7 @@ package com.robypomper.josp.jod;
 import com.robypomper.java.JavaVersionUtils;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.info.JCPAPIsVersions;
+import com.robypomper.josp.defs.core.Versions;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODCommunication_002;
 import com.robypomper.josp.jod.events.Events;
@@ -152,7 +152,7 @@ public class JOD_002 extends AbsJOD {
 
     @Override
     public String[] versionsJCPAPIs() {
-        return new String[]{JCPAPIsVersions.VER_JCP_APIs_2_0};
+        return new String[]{Versions.VER_JCP_APIs_2_0};
     }
 
 }

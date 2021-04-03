@@ -6,7 +6,7 @@ spring.profiles.active: auth, data-none, ssl, cors
 localhost.public: ${HOST:${HOSTNAME:localhost}}
 jcp.client.id: jcp-jsl-web-bridge
 jcp.client.secret: 7e27c5b9-2a6a-4b4e-b4a7-c8118b2b1083
-jcp.client.callback: https://${localhost.public}:${server.port}/apis/JSL/Usr/1.0/login/code/
+jcp.client.callback: https://${localhost.public}:${server.port}/apis/pub/jslwebbridge/core/user/2.0/login/code/
 jcp.client.ssl.private: true       #jcp.client.ssl.internal: true
 jcp.client.ssl.public: true
 jcp.client.auth.public: ${localhost.public}

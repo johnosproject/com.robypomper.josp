@@ -21,12 +21,12 @@ package com.robypomper.josp.jcp.external.resources.auth;
 
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.defs.auth.keycloak.Paths20;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.db.apis.entities.Service;
 import com.robypomper.josp.jcp.db.apis.entities.ServiceDetails;
 import com.robypomper.josp.jcp.db.apis.entities.User;
 import com.robypomper.josp.jcp.db.apis.entities.UserProfile;
-import com.robypomper.josp.paths.APIAuth;
 import org.keycloak.representations.idm.UserRepresentation;
 
 
@@ -53,7 +53,7 @@ public class AuthKeycloak implements AuthResource {
      * {@inheritDoc}
      */
     public User queryUser(String usrId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.RequestException, JCPClient2.ResponseException {
-        UserRepresentation kcUser = clientMngr.getJCPAPIsClient().execReq(true, Verb.GET, APIAuth.FULL_PATH_USER + "/" + usrId, UserRepresentation.class, true);
+        UserRepresentation kcUser = clientMngr.getJCPAPIsClient().execReq(true, Verb.GET, Paths20.FULL_PATH_USER + "/" + usrId, UserRepresentation.class, true);
 
         UserProfile profile = new UserProfile();
         User user = new User();

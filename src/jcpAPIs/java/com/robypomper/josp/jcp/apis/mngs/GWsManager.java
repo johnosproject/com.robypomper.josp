@@ -8,18 +8,9 @@ import com.robypomper.josp.jcp.apis.mngs.exceptions.GWNotReachableException;
 import com.robypomper.josp.jcp.apis.mngs.exceptions.GWResponseException;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.clients.JCPGWsClient;
-import com.robypomper.josp.jcp.clients.jcp.jcp.GWsClient;
 import com.robypomper.josp.jcp.db.apis.GWDBService;
 import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.jcp.db.apis.entities.GWStatus;
-import com.robypomper.josp.jcp.params.jcp.JCPGWsStartup;
-import com.robypomper.josp.jcp.params.jcp.JCPGWsStatus;
-import com.robypomper.josp.jcp.paths.apis.JCPAPIsStatus;
-import com.robypomper.josp.params.jcp.APIsStatus;
-import com.robypomper.josp.params.jospgws.O2SAccessInfo;
-import com.robypomper.josp.params.jospgws.O2SAccessRequest;
-import com.robypomper.josp.params.jospgws.S2OAccessInfo;
-import com.robypomper.josp.params.jospgws.S2OAccessRequest;
 import com.robypomper.josp.states.StateException;
 import com.robypomper.josp.types.josp.gw.GWType;
 import org.slf4j.Logger;
@@ -90,7 +81,7 @@ public class GWsManager {
 
     // GW management
 
-    public void register(String gwId, JCPGWsStartup gwStartup) {
+    public void register(String gwId, com.robypomper.josp.jcp.defs.apis.internal.gateways.registration.Params20.JCPGWsStartup gwStartup) {
         GW gw;
         try {
             gw = getById(gwId);
@@ -113,7 +104,7 @@ public class GWsManager {
         save(gw);
     }
 
-    public void update(String gwId, JCPGWsStatus gwStatus) throws GWNotFoundException {
+    public void update(String gwId, com.robypomper.josp.jcp.defs.apis.internal.gateways.registration.Params20.JCPGWsStatus gwStatus) throws GWNotFoundException {
         GW gw = getById(gwId);
 
         gw.getStatus().setOnline(true);
@@ -165,11 +156,11 @@ public class GWsManager {
 
     // JCP GWs Access Info
 
-    public O2SAccessInfo getAccessInfo(String objId, O2SAccessRequest accessRequest) throws GWNotAvailableException, GWNotReachableException, GWResponseException {
+    public com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.O2SAccessInfo getAccessInfo(String objId, com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.O2SAccessRequest accessRequest) throws GWNotAvailableException, GWNotReachableException, GWResponseException {
         GW gw = getAvailable(GWType.Obj2Srv);
-        GWsClient apiGWsGWs = new GWsClient(clientsMngr.getGWsClientByGW(gw.getGwId()));
+        com.robypomper.josp.jcp.callers.gateways.clients.registration.Caller20 apiGWsGWs = new com.robypomper.josp.jcp.callers.gateways.clients.registration.Caller20(clientsMngr.getGWsClientByGW(gw.getGwId()));
         try {
-            return apiGWsGWs.getO2SAccessInfo(objId, accessRequest);
+            return apiGWsGWs.postO2SAccess(objId, accessRequest);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException e) {
             throw new GWNotReachableException(gw.getGwId(), e);
@@ -179,11 +170,11 @@ public class GWsManager {
         }
     }
 
-    public S2OAccessInfo getAccessInfo(String srvId, S2OAccessRequest accessRequest) throws GWNotAvailableException, GWNotReachableException, GWResponseException {
+    public com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.S2OAccessInfo getAccessInfo(String srvId, com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20.S2OAccessRequest accessRequest) throws GWNotAvailableException, GWNotReachableException, GWResponseException {
         GW gw = getAvailable(GWType.Srv2Obj);
-        GWsClient apiGWsGWs = new GWsClient(clientsMngr.getGWsClientByGW(gw.getGwId()));
+        com.robypomper.josp.jcp.callers.gateways.clients.registration.Caller20 apiGWsGWs = new com.robypomper.josp.jcp.callers.gateways.clients.registration.Caller20(clientsMngr.getGWsClientByGW(gw.getGwId()));
         try {
-            return apiGWsGWs.getS2OAccessInfo(srvId, accessRequest);
+            return apiGWsGWs.postS2OAccess(srvId, accessRequest);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException e) {
             throw new GWNotReachableException(gw.getGwId(), e);
@@ -191,48 +182,6 @@ public class GWsManager {
         } catch (JCPClient2.RequestException e) {
             throw new GWResponseException(gw.getGwId(), e);
         }
-    }
-
-
-    // JCP GWs status
-
-    public APIsStatus.GWs getGWsManagerStatus() {
-        APIsStatus.GWs gwsMngrStatus = new APIsStatus.GWs();
-        gwsMngrStatus.count = gwService.count();
-        gwsMngrStatus.removed = removed;
-        gwsMngrStatus.total = total;
-        gwsMngrStatus.list = new ArrayList<>();
-
-        for (GW gw : gwService.getAll()) {
-            APIsStatus.IdNameUrl gwLink = new APIsStatus.IdNameUrl();
-            gwLink.id = gw.getGwId();
-            gwLink.name = gw.getGwId();
-            gwLink.url = JCPAPIsStatus.FULL_PATH_APIS_STATUS_GWS_DETAILS.replace("{gw_id}", gw.getGwId());
-            gwsMngrStatus.list.add(gwLink);
-        }
-
-        return gwsMngrStatus;
-    }
-
-    public APIsStatus.GW getGWStatus(String gwId) throws GWNotFoundException {
-        GW gw = getById(gwId);
-
-        APIsStatus.GW gwStatus = new APIsStatus.GW();
-        gwStatus.gwId = gw.getGwId();
-        gwStatus.gwURL = gw.getGwAddr() + ":" + gw.getGwPort();
-        gwStatus.apiURL = gw.getGwAPIsAddr() + ":" + gw.getGwAPIsPort();
-        gwStatus.type = gw.getType();
-        gwStatus.version = gw.getVersion();
-        gwStatus.connected = gw.getStatus().isOnline();
-        gwStatus.reconnectionAttempts = gw.getStatus().getReconnectionAttempts();
-        gwStatus.createdAt = gw.getCreatedAt();
-        gwStatus.updatedAt = gw.getUpdatedAt();
-        gwStatus.currentClients = gw.getStatus().getClients();
-        gwStatus.maxClients = gw.getClientsMax();
-        gwStatus.lastClientConnected = gw.getStatus().getLastClientConnectedAt();
-        gwStatus.lastClientDisconnected = gw.getStatus().getLastClientDisconnectedAt();
-
-        return gwStatus;
     }
 
 
@@ -249,7 +198,23 @@ public class GWsManager {
 
     // Getters
 
-    private GW getById(String gwId) throws GWNotFoundException {
+    public int getGWsCount() {
+        return gwService.getAll().size();
+    }
+
+    public int getGWsRemovedCount() {
+        return removed;
+    }
+
+    public int getGWsTotalCount() {
+        return total;
+    }
+
+    public List<GW> getAllGWs() {
+        return gwService.getAll();
+    }
+
+    public GW getById(String gwId) throws GWNotFoundException {
         Optional<GW> op = gwService.findById(gwId);
         if (!op.isPresent())
             throw new GWNotFoundException(gwId);
@@ -273,11 +238,11 @@ public class GWsManager {
     // Availability checks
 
     private boolean checkGWAvailability(GW gw) {
-        GWsClient cl = new GWsClient(clientsMngr.getGWsClientByGW(gw.getGwId()));
+        com.robypomper.josp.jcp.callers.base.status.executable.Caller20 cl = new com.robypomper.josp.jcp.callers.base.status.executable.Caller20(clientsMngr.getGWsClientByGW(gw.getGwId()));
 
         // Test JCP GWs status APIs
         try {
-            cl.getStatusOnlineReq();
+            cl.getOnlineReq();
             if (!gw.getStatus().isOnline())
                 log.info(String.format("JCP APIs check JCP GWs '%s' with '%s:%d' address connectivity success", gw.getGwId(), gw.getGwAddr(), gw.getGwPort()));
 

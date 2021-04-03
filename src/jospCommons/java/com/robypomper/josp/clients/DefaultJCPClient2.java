@@ -26,7 +26,7 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.robypomper.java.*;
-import com.robypomper.josp.paths.jcp.JCPStatusAbs;
+import com.robypomper.josp.jcp.defs.base.internal.status.executable.Paths20;
 import com.robypomper.josp.states.JCPClient2State;
 import com.robypomper.josp.states.StateException;
 import org.apache.logging.log4j.LogManager;
@@ -431,7 +431,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 state.set(JCPClient2State.CONNECTING);
 
             try {
-                checkServerReachability(false, JCPStatusAbs.FULL_PATH_STATUS_ONLINE);
+                checkServerReachability(false, Paths20.FULL_PATH_EXEC_ONLINE);
 
             } catch (JCPNotReachableException e) {
                 if (state.enumNotEquals(JCPClient2State.CONNECTING_WAITING_JCP)) {
@@ -559,7 +559,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
                 "Method checkConnection() can be called only from CONNECTED_ state";
 
         try {
-            checkServerReachability(false, JCPStatusAbs.FULL_PATH_STATUS_ONLINE);
+            checkServerReachability(false, Paths20.FULL_PATH_EXEC_ONLINE);
             checkServerReachability(true, "/auth/realms/jcp/.well-known/openid-configuration");
             return true;
 

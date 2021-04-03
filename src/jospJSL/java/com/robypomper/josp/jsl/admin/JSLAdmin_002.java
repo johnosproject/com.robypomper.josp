@@ -20,15 +20,13 @@ package com.robypomper.josp.jsl.admin;
 
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.clients.apis.srv.APIAdminClient;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
-import com.robypomper.josp.params.jcp.*;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import java.util.Date;
 
 
 /**
@@ -40,7 +38,7 @@ public class JSLAdmin_002 implements JSLAdmin {
 
     private static final Logger log = LogManager.getLogger();
     private final JSLSettings_002 locSettings;
-    private final APIAdminClient apiAdminClient;
+    private final JCPAPIsClientSrv jcpClient;
     private final JSLUserMngr userMngr;
 
 
@@ -48,12 +46,14 @@ public class JSLAdmin_002 implements JSLAdmin {
 
     public JSLAdmin_002(JSLSettings_002 settings, JCPAPIsClientSrv jcpClient, JSLUserMngr userMngr) {
         this.locSettings = settings;
-        this.apiAdminClient = new APIAdminClient(jcpClient);
+        this.jcpClient = jcpClient;
         this.userMngr = userMngr;
 
         log.info(Mrk_JSL.JSL_INFO, "Initialized JSLAdmin instance");
     }
 
+
+    // User's checks
 
     public void checkUserIsAdmin(String resource) throws UserNotAuthException, UserNotAdminException {
         if (!userMngr.isUserAuthenticated())
@@ -66,301 +66,477 @@ public class JSLAdmin_002 implements JSLAdmin {
 
     // JCP APIs status
 
-    @Override
-    public APIsStatus getJCPAPIsStatus() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs status");
-        return apiAdminClient.getJCPAPIsStatus();
-    }
-
-    @Override
-    public APIsStatus.Objects getJCPAPIsObjects() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public com.robypomper.josp.defs.admin.apis.status.Params20.Objects getJCPAPIsObjects() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP APIs objects");
-        return apiAdminClient.getJCPAPIsStatusObjsReq();
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getObjectsReq();
     }
 
-    @Override
-    public APIsStatus.Services getJCPAPIsServices() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public com.robypomper.josp.defs.admin.apis.status.Params20.Object getJCPAPIsObject(String objId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs object");
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getObjectReq(objId);
+    }
+
+    public com.robypomper.josp.defs.admin.apis.status.Params20.Services getJCPAPIsServices() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs services");
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getServicesReq();
+    }
+
+    public com.robypomper.josp.defs.admin.apis.status.Params20.Service getJCPAPIsService(String srvId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP APIs service");
-        return apiAdminClient.getJCPAPIsStatusSrvsReq();
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getServiceReq(srvId);
     }
 
-    @Override
-    public APIsStatus.Users getJCPAPIsUsers() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    public com.robypomper.josp.defs.admin.apis.status.Params20.Users getJCPAPIsUsers() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
         checkUserIsAdmin("JCP APIs users");
-        return apiAdminClient.getJCPAPIsStatusUsrsReq();
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getUsersReq();
     }
 
-    @Override
-    public String getJCPAPIsExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs Online");
-        return apiAdminClient.getJCPAPIsStatusExecOnlineReq();
+    public com.robypomper.josp.defs.admin.apis.status.Params20.User getJCPAPIsUser(String usrId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs user");
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getUserReq(usrId);
     }
 
-    @Override
-    public JCPStatus.CPU getJCPAPIsExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs CPU");
-        return apiAdminClient.getJCPAPIsStatusExecCPUReq();
+    public com.robypomper.josp.defs.admin.apis.status.Params20.Gateways getJCPAPIsGateways() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs gateways");
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getGatewaysReq();
     }
 
-    @Override
-    public JCPStatus.Disks getJCPAPIsExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs Disks");
-        return apiAdminClient.getJCPAPIsStatusExecDisksReq();
-    }
-
-    @Override
-    public JCPStatus.Java getJCPAPIsExecJava() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs Java");
-        return apiAdminClient.getJCPAPIsStatusExecJavaReq();
-    }
-
-    @Override
-    public List<JCPStatus.JavaThread> getJCPAPIsExecJavaThs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs JavaThs");
-        return apiAdminClient.getJCPAPIsStatusExecJavaThreadsReq();
-    }
-
-    @Override
-    public JCPStatus.Memory getJCPAPIsExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs Memory");
-        return apiAdminClient.getJCPAPIsStatusExecMemoryReq();
-    }
-
-    @Override
-    public JCPStatus.Network getJCPAPIsExecNetwork() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs Network");
-        return apiAdminClient.getJCPAPIsStatusExecNetworkReq();
-    }
-
-    @Override
-    public List<JCPStatus.NetworkIntf> getJCPAPIsExecNetworkIntfs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs NetworkIntfs");
-        return apiAdminClient.getJCPAPIsStatusExecNetworkIntfsReq();
-    }
-
-    @Override
-    public JCPStatus.Os getJCPAPIsExecOs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs Os");
-        return apiAdminClient.getJCPAPIsStatusExecOsReq();
-    }
-
-    @Override
-    public JCPStatus.Process getJCPAPIsExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP APIs Process");
-        return apiAdminClient.getJCPAPIsStatusExecProcessReq();
+    public com.robypomper.josp.defs.admin.apis.status.Params20.Gateway getJCPAPIsGateway(String gwId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs gateway");
+        return new com.robypomper.josp.callers.apis.admin.apis.status.Caller20(jcpClient).getGatewayReq(gwId);
     }
 
 
-    // JCP GWs status
+    // JCP APIs Executable
 
-    @Override
-    public List<GWsStatus> getJCPGWsStatus() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs status");
-        return apiAdminClient.getJCPGWsStatusReq();
+    public Date getJCPAPIsExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs online executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getOnlineReq();
     }
 
-    @Override
-    public List<GWsStatus.Server> getJCPGWsClients() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs clients");
-        return apiAdminClient.getJCPGWsStatusCliReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.Process getJCPAPIsExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs process executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getProcessReq();
     }
 
-    @Override
-    public List<String> getJCPGWsExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs Online");
-        return apiAdminClient.getJCPGWsStatusExecOnlineReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.JavaVM getJCPAPIsExecJavaVM() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs Java VM executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getJavaVMReq();
     }
 
-    @Override
-    public List<JCPStatus.CPU> getJCPGWsExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs CPU");
-        return apiAdminClient.getJCPGWsStatusExecCPUReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.JavaRuntime getJCPAPIsExecJavaRuntime() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs Java runtime executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getJavaRuntimeReq();
     }
 
-    @Override
-    public List<JCPStatus.Disks> getJCPGWsExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs Disks");
-        return apiAdminClient.getJCPGWsStatusExecDisksReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.JavaTimes getJCPAPIsExecJavaTimes() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs Java times executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getJavaTimesReq();
     }
 
-    @Override
-    public List<JCPStatus.Java> getJCPGWsExecJava() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs Java");
-        return apiAdminClient.getJCPGWsStatusExecJavaReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.JavaClasses getJCPAPIsExecJavaClasses() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs Java classes executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getJavaClassesReq();
     }
 
-    @Override
-    public List<List<JCPStatus.JavaThread>> getJCPGWsExecJavaThs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs JavaThs");
-        return apiAdminClient.getJCPGWsStatusExecJavaThreadsReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.JavaMemory getJCPAPIsExecJavaMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs Java memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getJavaMemoryReq();
     }
 
-    @Override
-    public List<JCPStatus.Memory> getJCPGWsExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs Memory");
-        return apiAdminClient.getJCPGWsStatusExecMemoryReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.JavaThreads getJCPAPIsExecJavaThreads() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs Java threads executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getJavaThreadsReq();
     }
 
-    @Override
-    public List<JCPStatus.Network> getJCPGWsExecNetwork() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs Network");
-        return apiAdminClient.getJCPGWsStatusExecNetworkReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.JavaThread getJCPAPIsExecJavaThread(long threadId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs Java thread executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getJavaThreadReq(threadId);
     }
 
-    @Override
-    public List<List<JCPStatus.NetworkIntf>> getJCPGWsExecNetworkIntfs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs NetworkIntfs");
-        return apiAdminClient.getJCPGWsStatusExecNetworkIntfsReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.OS getJCPAPIsExecOS() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs os executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getOSReq();
     }
 
-    @Override
-    public List<JCPStatus.Os> getJCPGWsExecOs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs Os");
-        return apiAdminClient.getJCPGWsStatusExecOsReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.CPU getJCPAPIsExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs cpu executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getCPUReq();
     }
 
-    @Override
-    public List<JCPStatus.Process> getJCPGWsExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP GWs Process");
-        return apiAdminClient.getJCPGWsStatusExecProcessReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.Memory getJCPAPIsExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getMemoryReq();
     }
 
-
-    // JCP JSL WebBridge status
-
-    @Override
-    public JSLWebBridgeStatus getJCPJSLWebBridgeStatus() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL WebBridge status");
-        return apiAdminClient.getJCPJSLWBStatusReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.Disks getJCPAPIsExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs disks executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getDisksReq();
     }
 
-    @Override
-    public String getJCPJSLWBExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge Online");
-        return apiAdminClient.getJCPJSLWBStatusExecOnlineReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.Disk getJCPAPIsExecDisk(String diskId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs disk executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getDiskReq(diskId);
     }
 
-    @Override
-    public JCPStatus.CPU getJCPJSLWBExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge CPU");
-        return apiAdminClient.getJCPJSLWBStatusExecCPUReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.Networks getJCPAPIsExecNetworks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs networks executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getNetworksReq();
     }
 
-    @Override
-    public JCPStatus.Disks getJCPJSLWBExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge Disks");
-        return apiAdminClient.getJCPJSLWBStatusExecDisksReq();
-    }
-
-    @Override
-    public JCPStatus.Java getJCPJSLWBExecJava() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge Java");
-        return apiAdminClient.getJCPJSLWBStatusExecJavaReq();
-    }
-
-    @Override
-    public List<JCPStatus.JavaThread> getJCPJSLWBExecJavaThs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge JavaThs");
-        return apiAdminClient.getJCPJSLWBStatusExecJavaThreadsReq();
-    }
-
-    @Override
-    public JCPStatus.Memory getJCPJSLWBExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge Memory");
-        return apiAdminClient.getJCPJSLWBStatusExecMemoryReq();
-    }
-
-    @Override
-    public JCPStatus.Network getJCPJSLWBExecNetwork() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge Network");
-        return apiAdminClient.getJCPJSLWBStatusExecNetworkReq();
-    }
-
-    @Override
-    public List<JCPStatus.NetworkIntf> getJCPJSLWBExecNetworkIntfs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge NetworkIntfs");
-        return apiAdminClient.getJCPJSLWBStatusExecNetworkIntfsReq();
-    }
-
-    @Override
-    public JCPStatus.Os getJCPJSLWBExecOs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge Os");
-        return apiAdminClient.getJCPJSLWBStatusExecOsReq();
-    }
-
-    @Override
-    public JCPStatus.Process getJCPJSLWBExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP JSL Web Bridge Process");
-        return apiAdminClient.getJCPJSLWBStatusExecProcessReq();
+    public com.robypomper.josp.defs.admin.apis.executable.Params20.Network getJCPAPIsExecNetwork(int networkId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs network executable status");
+        return new com.robypomper.josp.callers.apis.admin.apis.executable.Caller20(jcpClient).getNetworkReq(networkId);
     }
 
 
-    // JCP FE status
+    // JCP APIs Build Info
 
-    @Override
-    public FEStatus getJCPFEStatus() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP FrontEnd status");
-        return apiAdminClient.getJCPFEStatusReq();
+    public com.robypomper.josp.defs.admin.apis.buildinfo.Params20.BuildInfo getJCPAPIsBuildInfo() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP APIs build info");
+        return new com.robypomper.josp.callers.apis.admin.apis.buildinfo.Caller20(jcpClient).getBuildInfoReq();
     }
 
-    @Override
-    public String getJCPFEExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End Online");
-        return apiAdminClient.getJCPFEStatusExecOnlineReq();
+
+    // JCP Gateways list
+
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.GatewaysServers getJCPGatewaysServers() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways gateways list");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getGWsListReq();      // status
+        //return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getList();      // executable
+        //return new com.robypomper.josp.callers.apis.admin.gateways.buildinfo.Caller20(jcpClient).getList();       // build info
     }
 
-    @Override
-    public JCPStatus.CPU getJCPFEExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End CPU");
-        return apiAdminClient.getJCPFEStatusExecCPUReq();
+
+    // JCP Gateways status
+
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.GWs getJCPGatewaysGWs(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways gateways");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getGWsReq(gwServerId);
     }
 
-    @Override
-    public JCPStatus.Disks getJCPFEExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End Disks");
-        return apiAdminClient.getJCPFEStatusExecDisksReq();
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.GW getJCPGatewaysGW(String gwServerId, String gwId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways gateway");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getGWReq(gwServerId, gwId);
     }
 
-    @Override
-    public JCPStatus.Java getJCPFEExecJava() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End Java");
-        return apiAdminClient.getJCPFEStatusExecJavaReq();
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.GWClient getJCPGatewaysGWsClient(String gwServerId, String gwId, String gwClientId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways gateway client");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getGWsClientReq(gwServerId, gwId, gwClientId);
     }
 
-    @Override
-    public List<JCPStatus.JavaThread> getJCPFEExecJavaThs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End JavaThs");
-        return apiAdminClient.getJCPFEStatusExecJavaThreadsReq();
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.Broker getJCPGatewaysBroker(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways broker");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getBrokerReq(gwServerId);
     }
 
-    @Override
-    public JCPStatus.Memory getJCPFEExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End Memory");
-        return apiAdminClient.getJCPFEStatusExecMemoryReq();
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.BrokerObject getJCPGatewaysBrokerObject(String gwServerId,String objId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways broker's object");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getBrokerObjectReq(gwServerId,objId);
     }
 
-    @Override
-    public JCPStatus.Network getJCPFEExecNetwork() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End Network");
-        return apiAdminClient.getJCPFEStatusExecNetworkReq();
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.BrokerService getJCPGatewaysBrokerService(String gwServerId,String srvId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways broker's service");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getBrokerServiceReq(gwServerId,srvId);
     }
 
-    @Override
-    public List<JCPStatus.NetworkIntf> getJCPFEExecNetworkIntfs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End NetworkIntfs");
-        return apiAdminClient.getJCPFEStatusExecNetworkIntfsReq();
+    public com.robypomper.josp.defs.admin.gateways.status.Params20.BrokerObjectDB getJCPGatewaysBrokerObjectDB(String gwServerId,String objId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways broker's object db");
+        return new com.robypomper.josp.callers.apis.admin.gateways.status.Caller20(jcpClient).getBrokerObjectDBReq(gwServerId,objId);
     }
 
-    @Override
-    public JCPStatus.Os getJCPFEExecOs() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End Os");
-        return apiAdminClient.getJCPFEStatusExecOsReq();
+
+    // JCP Gateways Executable
+
+    public Date getJCPGatewaysExecOnline(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways online executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getOnlineReq(gwServerId);
     }
 
-    @Override
-    public JCPStatus.Process getJCPFEExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
-        checkUserIsAdmin("JCP Front End Process");
-        return apiAdminClient.getJCPFEStatusExecProcessReq();
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.Process getJCPGatewaysExecProcess(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways process executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getProcessReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.JavaVM getJCPGatewaysExecJavaVM(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways Java VM executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getJavaVMReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.JavaRuntime getJCPGatewaysExecJavaRuntime(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways Java runtime executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getJavaRuntimeReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.JavaTimes getJCPGatewaysExecJavaTimes(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways Java times executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getJavaTimesReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.JavaClasses getJCPGatewaysExecJavaClasses(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways Java classes executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getJavaClassesReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.JavaMemory getJCPGatewaysExecJavaMemory(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways Java memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getJavaMemoryReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.JavaThreads getJCPGatewaysExecJavaThreads(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways Java threads executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getJavaThreadsReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.JavaThread getJCPGatewaysExecJavaThread(String gwServerId, long threadId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways Java thread executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getJavaThreadReq(gwServerId, threadId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.OS getJCPGatewaysExecOS(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways os executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getOSReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.CPU getJCPGatewaysExecCPU(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways cpu executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getCPUReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.Memory getJCPGatewaysExecMemory(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getMemoryReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.Disks getJCPGatewaysExecDisks(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways disks executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getDisksReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.Disk getJCPGatewaysExecDisk(String gwServerId, String diskId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways disk executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getDiskReq(gwServerId, diskId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.Networks getJCPGatewaysExecNetworks(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways networks executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getNetworksReq(gwServerId);
+    }
+
+    public com.robypomper.josp.defs.admin.gateways.executable.Params20.Network getJCPGatewaysExecNetwork(String gwServerId, int networkId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways network executable status");
+        return new com.robypomper.josp.callers.apis.admin.gateways.executable.Caller20(jcpClient).getNetworkReq(gwServerId, networkId);
+    }
+
+
+    // JCP Gateways Build Info
+
+    public com.robypomper.josp.defs.admin.gateways.buildinfo.Params20.BuildInfo getJCPGatewaysBuildInfo(String gwServerId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Gateways build info");
+        return new com.robypomper.josp.callers.apis.admin.gateways.buildinfo.Caller20(jcpClient).getBuildInfoReq(gwServerId);
+    }
+
+
+    // JCP JSL Web Bridge status
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.status.Params20.Sessions getJCPJSLWebBridgeSessions() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge sessions");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.status.Caller20(jcpClient).getJCPJSLWBStatusSessions();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.status.Params20.Session getJCPJSLWebBridgeSession(String sessionId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge session");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.status.Caller20(jcpClient).getJCPJSLWBStatusSession(sessionId);
+    }
+
+
+    // JCP JSL Web Bridge Executable
+
+    public Date getJCPJSLWebBridgeExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge online executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getOnlineReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.Process getJCPJSLWebBridgeExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge process executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getProcessReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.JavaVM getJCPJSLWebBridgeExecJavaVM() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge Java VM executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getJavaVMReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.JavaRuntime getJCPJSLWebBridgeExecJavaRuntime() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge Java runtime executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getJavaRuntimeReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.JavaTimes getJCPJSLWebBridgeExecJavaTimes() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge Java times executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getJavaTimesReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.JavaClasses getJCPJSLWebBridgeExecJavaClasses() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge Java classes executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getJavaClassesReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.JavaMemory getJCPJSLWebBridgeExecJavaMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge Java memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getJavaMemoryReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.JavaThreads getJCPJSLWebBridgeExecJavaThreads() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge Java threads executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getJavaThreadsReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.JavaThread getJCPJSLWebBridgeExecJavaThread(long threadId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge Java thread executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getJavaThreadReq(threadId);
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.OS getJCPJSLWebBridgeExecOS() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge os executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getOSReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.CPU getJCPJSLWebBridgeExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge cpu executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getCPUReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.Memory getJCPJSLWebBridgeExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getMemoryReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.Disks getJCPJSLWebBridgeExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge disks executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getDisksReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.Disk getJCPJSLWebBridgeExecDisk(String diskId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge disk executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getDiskReq(diskId);
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.Networks getJCPJSLWebBridgeExecNetworks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge networks executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getNetworksReq();
+    }
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.executable.Params20.Network getJCPJSLWebBridgeExecNetwork(int networkId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge network executable status");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.executable.Caller20(jcpClient).getNetworkReq(networkId);
+    }
+
+
+    // JCP JSL Web Bridge Build Info
+
+    public com.robypomper.josp.defs.admin.jslwebbridge.buildinfo.Params20.BuildInfo getJCPJSLWebBridgeBuildInfo() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP JSL Web Bridge build info");
+        return new com.robypomper.josp.callers.apis.admin.jslwebbridge.buildinfo.Caller20(jcpClient).getBuildInfoReq();
+    }
+
+
+    // JCP Front End status
+
+    //public com.robypomper.josp.defs.admin.frontend.status.Params20.... getJCPFrontEnd...() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+    //    checkUserIsAdmin("JCP Front End ... status");
+    //    return new com.robypomper.josp.callers.apis.admin.frontend.status.Caller20(jcpClient).getObjectsReq();
+    //}
+
+
+    // JCP Front End Executable
+
+    public Date getJCPFrontEndExecOnline() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End online executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getOnlineReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.Process getJCPFrontEndExecProcess() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End process executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getProcessReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.JavaVM getJCPFrontEndExecJavaVM() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End Java VM executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getJavaVMReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.JavaRuntime getJCPFrontEndExecJavaRuntime() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End Java runtime executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getJavaRuntimeReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.JavaTimes getJCPFrontEndExecJavaTimes() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End Java times executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getJavaTimesReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.JavaClasses getJCPFrontEndExecJavaClasses() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End Java classes executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getJavaClassesReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.JavaMemory getJCPFrontEndExecJavaMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End Java memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getJavaMemoryReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.JavaThreads getJCPFrontEndExecJavaThreads() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End Java threads executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getJavaThreadsReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.JavaThread getJCPFrontEndExecJavaThread(long threadId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End Java thread executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getJavaThreadReq(threadId);
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.OS getJCPFrontEndExecOS() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End os executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getOSReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.CPU getJCPFrontEndExecCPU() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End cpu executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getCPUReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.Memory getJCPFrontEndExecMemory() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End memory executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getMemoryReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.Disks getJCPFrontEndExecDisks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End disks executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getDisksReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.Disk getJCPFrontEndExecDisk(String diskId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End disk executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getDiskReq(diskId);
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.Networks getJCPFrontEndExecNetworks() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End networks executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getNetworksReq();
+    }
+
+    public com.robypomper.josp.defs.admin.frontend.executable.Params20.Network getJCPFrontEndExecNetwork(int networkId) throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End network executable status");
+        return new com.robypomper.josp.callers.apis.admin.frontend.executable.Caller20(jcpClient).getNetworkReq(networkId);
+    }
+
+
+    // JCP Front End Build Info
+
+    public com.robypomper.josp.defs.admin.frontend.buildinfo.Params20.BuildInfo getJCPFrontEndBuildInfo() throws UserNotAuthException, UserNotAdminException, JCPClient2.ConnectionException, JCPClient2.ResponseException, JCPClient2.RequestException, JCPClient2.AuthenticationException {
+        checkUserIsAdmin("JCP Front End build info");
+        return new com.robypomper.josp.callers.apis.admin.frontend.buildinfo.Caller20(jcpClient).getBuildInfoReq();
     }
 
 }

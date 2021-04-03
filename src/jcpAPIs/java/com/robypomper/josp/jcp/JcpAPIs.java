@@ -22,8 +22,7 @@ package com.robypomper.josp.jcp;
 import com.robypomper.java.JavaSSLIgnoreChecks;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.ApplicationContext;
 
 /**
  * JCP API's service main class.
@@ -31,8 +30,6 @@ import org.springframework.context.annotation.Configuration;
  * This class start a Spring Boot application that provide JCP API services.
  */
 @SpringBootApplication
-@Configuration
-@ComponentScan
 public class JcpAPIs {
 
     public static void main(String[] args) {
@@ -49,7 +46,7 @@ public class JcpAPIs {
                 System.out.println("\t\tALL");
             }
 
-        SpringApplication.run(JcpAPIs.class, args);
+        ApplicationContext applicationContext = SpringApplication.run(JcpAPIs.class, args);
     }
 
 }
