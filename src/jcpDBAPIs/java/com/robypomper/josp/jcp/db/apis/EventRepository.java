@@ -20,7 +20,7 @@
 package com.robypomper.josp.jcp.db.apis;
 
 import com.robypomper.josp.jcp.db.apis.entities.Event;
-import com.robypomper.josp.protocol.JOSPEvent;
+import com.robypomper.josp.types.josp.EventType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
@@ -32,7 +32,7 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findBySrcIdOrderByEmittedAtDesc(String srcId);
 
-    List<Event> findBySrcIdAndEvnType(String srcId, JOSPEvent.Type evnType);
+    List<Event> findBySrcIdAndEvnType(String srcId, EventType evnType);
 
     List<Event> findBySrcId(@Param("srcId") String srcId);
 

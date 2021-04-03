@@ -20,6 +20,8 @@
 package com.robypomper.josp.jcp.db.apis.entities;
 
 import com.robypomper.josp.protocol.JOSPEvent;
+import com.robypomper.josp.types.josp.AgentType;
+import com.robypomper.josp.types.josp.EventType;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -38,12 +40,12 @@ public class Event {
     private Long evnId;
 
     @Enumerated(EnumType.STRING)                                // Index 1, 2
-    private JOSPEvent.SrcType srcType;
+    private AgentType srcType;
 
     private String srcId;
 
     @Enumerated(EnumType.STRING)                                // Index 2
-    private JOSPEvent.Type evnType;
+    private EventType evnType;
 
     private boolean isError;
 

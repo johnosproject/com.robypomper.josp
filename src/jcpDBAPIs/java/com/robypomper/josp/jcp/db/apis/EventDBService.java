@@ -21,7 +21,7 @@ package com.robypomper.josp.jcp.db.apis;
 
 import com.robypomper.josp.jcp.db.apis.entities.Event;
 import com.robypomper.josp.protocol.HistoryLimits;
-import com.robypomper.josp.protocol.JOSPEvent;
+import com.robypomper.josp.types.josp.EventType;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -54,7 +54,7 @@ public class EventDBService {
         return events.findBySrcIdOrderByEmittedAtDesc(srcId);
     }
 
-    public List<Event> findBySrcIdAndEvnType(String srcId, JOSPEvent.Type type) {
+    public List<Event> findBySrcIdAndEvnType(String srcId, EventType type) {
         return events.findBySrcIdAndEvnType(srcId, type);
     }
 
