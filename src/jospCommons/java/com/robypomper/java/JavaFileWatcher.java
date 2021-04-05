@@ -141,13 +141,14 @@ public class JavaFileWatcher {
     public static void removeListener(Path filePath, JavaFileWatcherListener listener) throws IOException {
         filePath = filePath.toAbsolutePath();
         synchronized (listenersMap) {
-            if (listenersMap.containsKey(filePath))
+            if (listenersMap.containsKey(filePath)) {
                 listenersMap.get(filePath).remove(listener);
-            if (listenersMap.get(filePath).isEmpty()) {
-                listenersMap.remove(filePath);
-                unWatchFile(filePath);
-                if (listenersMap.isEmpty())
-                    stopListen();
+                if (listenersMap.get(filePath).isEmpty()) {
+                    listenersMap.remove(filePath);
+                    unWatchFile(filePath);
+                    if (listenersMap.isEmpty())
+                        stopListen();
+                }
             }
         }
     }
