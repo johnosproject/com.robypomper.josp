@@ -340,8 +340,10 @@ function addPermission_Row(tableTagId,objId,srvId,usrId,permType,connType,save) 
     var rowTag = tBodyTag.lastElementChild;
 
     editPermission_Row(rowTag,pathJSLWB_Perms_Obj_Add.replace("{obj_id}",objId),objId,null);
-    if (save)
+    if (save) {
+        var pathAdd = pathJSLWB_Perms_Obj_Add.replace("{obj_id}",objId);
         savePermission_Row(rowTag,pathAdd,objId,null);
+    }
 }
 
 function checkPermission() {

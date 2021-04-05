@@ -14,32 +14,32 @@ var _pathJSLWB_Init                     = "apis/pub/jslwebbridge/core/init/" + _
 var pathJSLWB_Init_Entrypoint           = _pathJSLWB_Init + "/status";
 var pathJSLWB_Init_Sse                  = _pathJSLWB_Init + "/sse";
 var _pathJSLWB_Srv                      = "apis/pub/jslwebbridge/core/service/" + _pathJSLWBCoreVersion;
-var pathJSLWB_Srv                       = _pathJSLWB_Srv + "/";                                                     // "/apis/service/1.0/"
+var pathJSLWB_Srv                       = _pathJSLWB_Srv + "/";
 var _pathJSLWB_Usr                      = "apis/pub/jslwebbridge/core/user/" + _pathJSLWBCoreVersion;
-var pathJSLWB_Usr_Login                 = _pathJSLWB_Usr + "/login/";                                               // "/apis/user/1.0/login/?redirect_uri=" +document.location.href;
+var pathJSLWB_Usr_Login                 = _pathJSLWB_Usr + "/login/";
 var pathJSLWB_Usr_Login_Redirect        = _pathJSLWB_Usr + "/login/?redirect_uri={redirect_uri}";
-var pathJSLWB_Usr_Registration_Redirect = _pathJSLWB_Usr + "/registration/?redirect_uri={redirect_uri}";            //"/apis/user/1.0/registration/?redirect_uri=" +document.location.href;
-var pathJSLWB_Usr_Logout_Redirect       = _pathJSLWB_Usr + "/logout/?redirect_uri={redirect_uri}";                  //"/apis/user/1.0/logout/?redirect_uri=" +document.location.href;
-var pathJSLWB_Usr                       = _pathJSLWB_Usr + "/";                                                     //"/apis/user/1.0/"
+var pathJSLWB_Usr_Registration_Redirect = _pathJSLWB_Usr + "/registration/?redirect_uri={redirect_uri}";
+var pathJSLWB_Usr_Logout_Redirect       = _pathJSLWB_Usr + "/logout/?redirect_uri={redirect_uri}";
+var pathJSLWB_Usr                       = _pathJSLWB_Usr + "/";
 var _pathJSLWB_Objs                     = "apis/pub/jslwebbridge/core/objects/" + _pathJSLWBCoreVersion;
-var pathJSLWB_Objs                      = _pathJSLWB_Objs + "/";                                                    // "/apis/objsmngr/1.0/"
-var pathJSLWB_ObjDetails                = _pathJSLWB_Objs + "/{obj_id}/";                                           // "/apis/objsmngr/1.0/" + objId + "/"
-var pathJSLWB_ObjEvents                 = _pathJSLWB_Objs + "/{obj_id}/events/";                                    // "/apis/objsmngr/1.0/" + objId + "/events/"
-var pathJSLWB_ObjName                   = _pathJSLWB_Objs + "/{obj_id}/name/";                                      // "/apis/objsmngr/1.0/" + detailObjId + "/name/"
-var pathJSLWB_ObjOwner                  = _pathJSLWB_Objs + "/{obj_id}/owner/";                                     // "/apis/objsmngr/1.0/" + detailObjId + "/owner/"
-var _pathJSLWB_Struct                   = "apis/pub/jslwebbridge/core/structure/" + _pathJSLWBCoreVersion;
-var pathJSLWB_Struct                    = _pathJSLWB_Struct + "/{obj_id}/";                                         // "/apis/structure/1.0/" + objId + "/"
-var pathJSLWB_StructComp                = _pathJSLWB_Struct + "/{obj_id}/{comp_path}/";                             // "/apis/structure/1.0/" + objId + "/" + compPath + "/"
-var _pathJSLWB_State                    = "apis/pub/jslwebbridge/core/states/" + _pathJSLWBCoreVersion;
-var pathJSLWB_State_Bool                = _pathJSLWB_State + "/bool/{obj_id}/{comp_path}/";                         //
-var pathJSLWB_State_Rance               = _pathJSLWB_State + "/range/{obj_id}/{comp_path}/";                        //
-var pathJSLWB_State_History             = _pathJSLWB_State + "/history/{obj_id}/{comp_path}/";                      // "/apis/state/1.0/history/" + objId + "/" + compPath + "/"
-var _pathJSLWB_Perms                    = "apis/pub/jslwebbridge/core/permissions/" + _pathJSLWBCoreVersion;
-var pathJSLWB_Perms_Obj                 = _pathJSLWB_Perms + "/{obj_id}/";                                          // "/apis/permissions/1.0/" + objId + "/"
-var pathJSLWB_Perms_Obj_Add             = _pathJSLWB_Perms + "/{obj_id}/add/";                                      //
-var pathJSLWB_Perms_Obj_Upd             = _pathJSLWB_Perms + "/{obj_id}/upd/{perm_id}/";                            // "/apis/permissions/1.0/" + objId + "/upd/" + permId + "/"
-var pathJSLWB_Perms_Obj_Dup             = _pathJSLWB_Perms + "/{obj_id}/dup/{perm_id}/";                            // "/apis/permissions/1.0/" + objId + "/dup/" + permId + "/"
-var pathJSLWB_Perms_Obj_Del             = _pathJSLWB_Perms + "/{obj_id}/del/{perm_id}/";                            // "/apis/permissions/1.0/" + objId + "/del/" + permId + "/"
+var pathJSLWB_Objs                      = _pathJSLWB_Objs + "/";
+var pathJSLWB_ObjDetails                = _pathJSLWB_Objs + "/{obj_id}/";
+var pathJSLWB_ObjEvents                 = _pathJSLWB_Objs + "/{obj_id}/events/";
+var pathJSLWB_ObjName                   = _pathJSLWB_Objs + "/{obj_id}/name/";
+var pathJSLWB_ObjOwner                  = _pathJSLWB_Objs + "/{obj_id}/owner/";
+var _pathJSLWB_Struct                   = "apis/pub/jslwebbridge/core/objects/structure/" + _pathJSLWBCoreVersion;
+var pathJSLWB_Struct                    = _pathJSLWB_Struct + "/{obj_id}/";
+var pathJSLWB_StructComp                = _pathJSLWB_Struct + "/{obj_id}/{comp_path}/";
+var _pathJSLWB_State                    = "apis/pub/jslwebbridge/core/objects/states/" + _pathJSLWBCoreVersion;
+var pathJSLWB_State_Bool                = _pathJSLWB_State + "/bool/{obj_id}/{comp_path}/";
+var pathJSLWB_State_Rance               = _pathJSLWB_State + "/range/{obj_id}/{comp_path}/";
+var pathJSLWB_State_History             = _pathJSLWB_State + "/history/{obj_id}/{comp_path}/";
+var _pathJSLWB_Perms                    = "apis/pub/jslwebbridge/core/objects/permissions/" + _pathJSLWBCoreVersion;
+var pathJSLWB_Perms_Obj                 = _pathJSLWB_Perms + "/{obj_id}/";
+var pathJSLWB_Perms_Obj_Add             = _pathJSLWB_Perms + "/{obj_id}/add/";
+var pathJSLWB_Perms_Obj_Upd             = _pathJSLWB_Perms + "/{obj_id}/upd/{perm_id}/";
+var pathJSLWB_Perms_Obj_Dup             = _pathJSLWB_Perms + "/{obj_id}/dup/{perm_id}/";
+var pathJSLWB_Perms_Obj_Del             = _pathJSLWB_Perms + "/{obj_id}/del/{perm_id}/";
 
 
 // JSL Web Bridge Admin API's paths
