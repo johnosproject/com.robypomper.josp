@@ -8,8 +8,10 @@ import com.robypomper.josp.jcp.base.controllers.ControllerLink;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.clients.JCPFEClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
+import com.robypomper.josp.jcp.clients.JCPJSLWebBridgeClient;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +35,7 @@ public class Controller20 extends ControllerLink {
 
     // Build info methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_BUILDINFO)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_BUILDINFO, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_JSLWB_BUILDINFO,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -50,7 +52,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
     public ResponseEntity<Params20.BuildInfo> getBuildInfoReq() {
-        JCPFEClient client = clientsMngr.getJCPFEClient();
+        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getBuildInfoReq());

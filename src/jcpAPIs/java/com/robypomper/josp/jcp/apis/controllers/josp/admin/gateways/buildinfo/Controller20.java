@@ -10,6 +10,8 @@ import com.robypomper.josp.jcp.clients.JCPGWsClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,26 +31,37 @@ public class Controller20 extends ControllerLink {
 
     // Internal vars
 
+    @Autowired
     private JCPClientsMngr clientsMngr;
 
 
     // List methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_BUILDINFO_LIST)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_BUILDINFO_LIST)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_BUILDINFO_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_BUILDINFO_LIST,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Gateways's server list", response = Params20.GatewaysServers.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.GatewaysServers> getList() {
         Params20.GatewaysServers gwServers = new Params20.GatewaysServers();
         gwServers.serverList = new ArrayList<>();
-        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
+        for (String serverId : clientsMngr.getGWsServerAll()) {
             RESTItemList gwServer = new RESTItemList();
-            gwServer.id = gwClient.getClientId();
-            gwServer.name = gwClient.getClientId();
-            gwServer.url = Paths20.FULL_PATH_JCP_GWS_BUILDINFO(gwClient.getClientId());
+            gwServer.id = serverId;
+            gwServer.name = serverId;
+            gwServer.url = Paths20.FULL_PATH_JCP_GWS_BUILDINFO(serverId);
+            gwServers.serverList.add(gwServer);
         }
         return ResponseEntity.ok(gwServers);
     }
@@ -56,7 +69,7 @@ public class Controller20 extends ControllerLink {
 
     // Methods JCP GWs
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_BUILDINFO)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_BUILDINFO, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_BUILDINFO,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,

@@ -62,7 +62,7 @@ public class Controller20 extends ControllerImpl {
     // *
     // * @return current service representation.
     // */
-    //@PostMapping(path = Paths20.FULL_PATH_REGISTER)
+    //@PostMapping(path = Paths20.FULL_PATH_REGISTER, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_REGISTER,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,

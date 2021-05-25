@@ -10,6 +10,7 @@ import com.robypomper.josp.jcp.clients.JCPFEClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +34,7 @@ public class Controller20 extends ControllerLink {
 
     // Build info methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_BUILDINFO)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_BUILDINFO, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_BUILDINFO,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,

@@ -7,6 +7,7 @@ import com.robypomper.josp.jcp.defs.apis.internal.status.Params20;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,13 +33,22 @@ public class Controller20 extends ControllerLink {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's status index", response = Params20.Index.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Index> getIndex() {
         return ResponseEntity.ok(new Params20.Index());
     }
@@ -46,7 +56,7 @@ public class Controller20 extends ControllerLink {
 
     // Objects methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_OBJS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_OBJS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_OBJS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -66,7 +76,7 @@ public class Controller20 extends ControllerLink {
         return apiClient.getObjectsReq();
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_OBJ)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_OBJ, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_OBJ,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -89,7 +99,7 @@ public class Controller20 extends ControllerLink {
 
     // Services methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_SRVS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_SRVS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_SRVS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -109,7 +119,7 @@ public class Controller20 extends ControllerLink {
         return apiClient.getServicesReq();
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_SRV)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_SRV, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_SRV,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -132,7 +142,7 @@ public class Controller20 extends ControllerLink {
 
     // Users methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_USRS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_USRS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_USRS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -152,7 +162,7 @@ public class Controller20 extends ControllerLink {
         return apiClient.getUsersReq();
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_USR)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_USR, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_USR,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -175,7 +185,7 @@ public class Controller20 extends ControllerLink {
 
     // Gateways methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_GWS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_GWS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_GWS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -195,7 +205,7 @@ public class Controller20 extends ControllerLink {
         return apiClient.getGatewaysReq();
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_GW)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_APIS_STATUS_GW, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_APIS_STATUS_GW,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,

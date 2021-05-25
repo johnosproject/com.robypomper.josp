@@ -34,6 +34,7 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -73,7 +74,7 @@ public class Controller20 extends ControllerImpl {
      * @param objIdParams object containing the object's hardware id and his owner id.
      * @return valid object's object id for given params.
      */
-    @PostMapping(path = Paths20.FULL_PATH_ID_GENERATE)
+    @PostMapping(path = Paths20.FULL_PATH_ID_GENERATE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_ID_GENERATE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -103,7 +104,7 @@ public class Controller20 extends ControllerImpl {
      * @param objIdParams object containing the object's hardware id and his owner id.
      * @return valid object's object id for given params.
      */
-    @PostMapping(path = Paths20.FULL_PATH_ID_REGENERATE)
+    @PostMapping(path = Paths20.FULL_PATH_ID_REGENERATE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_ID_REGENERATE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -140,7 +141,7 @@ public class Controller20 extends ControllerImpl {
 
     // History methods
 
-    @PostMapping(path = Paths20.FULL_PATH_HISTORY)
+    @PostMapping(path = Paths20.FULL_PATH_HISTORY, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_HISTORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,

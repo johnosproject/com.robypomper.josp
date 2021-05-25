@@ -8,6 +8,7 @@ import com.robypomper.josp.jcp.base.controllers.ControllerLink;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.clients.JCPJSLWebBridgeClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
+import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -36,12 +39,21 @@ public class Controller20 extends ControllerLink {
     // Index methods
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_EXEC)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_JSLWB_EXEC)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_JSLWB_EXEC,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's executable index", response = Params20.Index.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Index> getIndex() {
         return ResponseEntity.ok(new Params20.Index());
     }
@@ -117,14 +129,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaIndex> getJavaIndex() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
-        Caller20 caller = new Caller20(client);
-        try {
-            return ResponseEntity.ok(caller.getJavaIndex());
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            throw jcpServiceNotAvailable(client, e);
-        }
+        return ResponseEntity.ok(new Params20.JavaIndex());
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_EXEC_JAVA_VM)
@@ -281,12 +286,25 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.JavaThreads> getJavaThreadsReq() {
         JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
         Caller20 caller = new Caller20(client);
+        Params20.JavaThreads result;
         try {
-            return ResponseEntity.ok(caller.getJavaThreadsReq());
+            result = caller.getJavaThreadsReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> threadsList = new ArrayList<>();
+        for (RESTItemList item : result.threadsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_JSLWB_EXEC_JAVA_THREAD(Long.parseLong(item.id));
+            threadsList.add(newItem);
+        }
+        result.threadsList = threadsList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_EXEC_JAVA_THREAD)
@@ -428,12 +446,24 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.Disks> getDisksReq() {
         JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
         Caller20 caller = new Caller20(client);
+        Params20.Disks result;
         try {
-            return ResponseEntity.ok(caller.getDisksReq());
+            result = caller.getDisksReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+        List<RESTItemList> disksList = new ArrayList<>();
+        for (RESTItemList item : result.disksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_JSLWB_EXEC_DISK(item.id);
+            disksList.add(newItem);
+        }
+        result.disksList = disksList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_EXEC_DISK)
@@ -485,12 +515,25 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.Networks> getNetworksReq() {
         JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
         Caller20 caller = new Caller20(client);
+        Params20.Networks result;
         try {
-            return ResponseEntity.ok(caller.getNetworksReq());
+            result = caller.getNetworksReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> networkList = new ArrayList<>();
+        for (RESTItemList item : result.networksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_JSLWB_EXEC_NETWORK(Integer.parseInt(item.id));
+            networkList.add(newItem);
+        }
+        result.networksList = networkList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_EXEC_NETWORK)

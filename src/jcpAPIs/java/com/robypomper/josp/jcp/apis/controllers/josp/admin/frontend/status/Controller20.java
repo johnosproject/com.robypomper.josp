@@ -2,16 +2,17 @@ package com.robypomper.josp.jcp.apis.controllers.josp.admin.frontend.status;
 
 import com.robypomper.josp.defs.admin.frontend.status.Paths20;
 import com.robypomper.josp.jcp.base.controllers.ControllerLink;
+import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.defs.apis.internal.status.Params20;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.security.RolesAllowed;
 
 
 /**
@@ -30,13 +31,22 @@ public class Controller20 extends ControllerLink {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_STATUS)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_STATUS,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Front End's status index", response = Params20.Index.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Index> getIndex() {
         return ResponseEntity.ok(new Params20.Index());
     }

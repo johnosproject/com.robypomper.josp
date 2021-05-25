@@ -8,14 +8,18 @@ import com.robypomper.josp.jcp.base.controllers.ControllerLink;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.clients.JCPJSLWebBridgeClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
+import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -34,21 +38,30 @@ public class Controller20 extends ControllerLink {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_STATUS)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_JSLWB_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_JSLWB_STATUS,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "JCP Web Bridge's status index", response = com.robypomper.josp.jcp.defs.apis.internal.status.Params20.Index.class),
+            @ApiResponse(code = 200, message = "JCP Web Bridge's status index", response = Params20.Index.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    public ResponseEntity<com.robypomper.josp.jcp.defs.apis.internal.status.Params20.Index> getIndex() {
-        return ResponseEntity.ok(new com.robypomper.josp.jcp.defs.apis.internal.status.Params20.Index());
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
+    public ResponseEntity<Params20.Index> getIndex() {
+        return ResponseEntity.ok(new Params20.Index());
     }
 
 
     // Sessions methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_STATUS_SESSIONS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_STATUS_SESSIONS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_JSLWB_STATUS_SESSIONS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -67,15 +80,28 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.Sessions> getJCPJSLWBSessionsReq() {
         JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
         Caller20 caller = new Caller20(client);
+        Params20.Sessions result;
         try {
-            return ResponseEntity.ok(caller.getSessionsReq());
+            result = caller.getSessionsReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> sessionsList = new ArrayList<>();
+        for (RESTItemList item : result.sessionsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_JSLWB_STATUS_SESSION(item.id);
+            sessionsList.add(newItem);
+        }
+        result.sessionsList = sessionsList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_STATUS_SESSION)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_JSLWB_STATUS_SESSION, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_JSLWB_STATUS_SESSION,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -91,7 +117,7 @@ public class Controller20 extends ControllerLink {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<Params20.Session> getJCPJSLWBSessionsReq(@PathVariable(Paths20.PARAM_SESSIONS) String sessionId) {
+    public ResponseEntity<Params20.Session> getJCPJSLWBSessionsReq(@PathVariable(Paths20.PARAM_SESSION) String sessionId) {
         JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
         Caller20 caller = new Caller20(client);
         try {

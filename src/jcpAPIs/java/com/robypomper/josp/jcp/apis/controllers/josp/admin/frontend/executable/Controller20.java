@@ -6,17 +6,21 @@ import com.robypomper.josp.defs.admin.frontend.executable.Params20;
 import com.robypomper.josp.defs.admin.frontend.executable.Paths20;
 import com.robypomper.josp.jcp.base.controllers.ControllerLink;
 import com.robypomper.josp.jcp.clients.JCPClientsMngr;
-import com.robypomper.josp.jcp.clients.JCPJSLWebBridgeClient;
+import com.robypomper.josp.jcp.clients.JCPFEClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
+import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -35,13 +39,22 @@ public class Controller20 extends ControllerLink {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's executable index", response = Params20.Index.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Index> getIndex() {
         return ResponseEntity.ok(new Params20.Index());
     }
@@ -49,7 +62,7 @@ public class Controller20 extends ControllerLink {
 
     // Online methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_ONLINE)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_ONLINE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_ONLINE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's local date", response = String.class),
@@ -57,7 +70,7 @@ public class Controller20 extends ControllerLink {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     public ResponseEntity<Date> getOnlineReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getOnlineReq());
@@ -70,7 +83,7 @@ public class Controller20 extends ControllerLink {
 
     // Process methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_PROCESS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_PROCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_PROCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -87,7 +100,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Process> getProcessReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getProcessReq());
@@ -100,7 +113,7 @@ public class Controller20 extends ControllerLink {
 
     // Java methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -117,17 +130,10 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaIndex> getJavaIndex() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
-        Caller20 caller = new Caller20(client);
-        try {
-            return ResponseEntity.ok(caller.getJavaIndex());
-
-        } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            throw jcpServiceNotAvailable(client, e);
-        }
+        return ResponseEntity.ok(new Params20.JavaIndex());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_VM)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_VM, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA_VM,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -144,7 +150,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaVM> getJavaVMReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getJavaVMReq());
@@ -154,7 +160,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_RUNTIME)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_RUNTIME, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA_RUNTIME,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -171,7 +177,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaRuntime> getJavaRuntimeReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getJavaRuntimeReq());
@@ -181,7 +187,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_TIMES)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_TIMES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA_TIMES,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -198,7 +204,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaTimes> getJavaTimesReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getJavaTimesReq());
@@ -208,7 +214,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_CLASSES)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_CLASSES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA_CLASSES,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -225,7 +231,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaClasses> getJavaClassesReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getJavaClassesReq());
@@ -235,7 +241,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_MEMORY)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_MEMORY, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -252,7 +258,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaMemory> getJavaMemoryReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getJavaMemoryReq());
@@ -262,7 +268,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_THREADS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_THREADS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA_THREADS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -279,17 +285,30 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaThreads> getJavaThreadsReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
+        Params20.JavaThreads result;
         try {
-            return ResponseEntity.ok(caller.getJavaThreadsReq());
+            result = caller.getJavaThreadsReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> threadsList = new ArrayList<>();
+        for (RESTItemList item : result.threadsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_THREAD(Long.parseLong(item.id));
+            threadsList.add(newItem);
+        }
+        result.threadsList = threadsList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_THREAD)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_JAVA_THREAD, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_JAVA_THREAD,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -306,7 +325,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.JavaThread> getJavaThreadReq(@PathVariable(Paths20.PARAM_THREAD) long threadId) {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getJavaThreadReq(threadId));
@@ -319,7 +338,7 @@ public class Controller20 extends ControllerLink {
 
     // OS methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_OS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_OS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_OS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -336,7 +355,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.OS> getOSReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getOSReq());
@@ -349,7 +368,7 @@ public class Controller20 extends ControllerLink {
 
     // CPU methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_CPU)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_CPU, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_CPU,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -366,7 +385,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.CPU> getCPUReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getCPUReq());
@@ -379,7 +398,7 @@ public class Controller20 extends ControllerLink {
 
     // Memory methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_MEMORY)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_MEMORY, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_FE_EXEC_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -396,7 +415,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Memory> getMemoryReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getMemoryReq());
@@ -426,14 +445,27 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Disks> getDisksReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
+        Params20.Disks result;
         try {
-            return ResponseEntity.ok(caller.getDisksReq());
+            result = caller.getDisksReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> disksList = new ArrayList<>();
+        for (RESTItemList item : result.disksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_FE_EXEC_DISK(item.id);
+            disksList.add(newItem);
+        }
+        result.disksList = disksList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_DISK)
@@ -453,7 +485,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Disk> getDiskReq(@PathVariable(Paths20.PARAM_DISK) String diskId) {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getDiskReq(diskId));
@@ -483,14 +515,27 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Networks> getNetworksReq() {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
+        Params20.Networks result;
         try {
-            return ResponseEntity.ok(caller.getNetworksReq());
+            result = caller.getNetworksReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> networkList = new ArrayList<>();
+        for (RESTItemList item : result.networksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_FE_EXEC_NETWORK(Integer.parseInt(item.id));
+            networkList.add(newItem);
+        }
+        result.networksList = networkList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_FE_EXEC_NETWORK)
@@ -510,7 +555,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Network> getNetworkReq(@PathVariable(Paths20.PARAM_NTWK) int networkId) {
-        JCPJSLWebBridgeClient client = clientsMngr.getJCPJSLWebBridgeClient();
+        JCPFEClient client = clientsMngr.getJCPFEClient();
         Caller20 caller = new Caller20(client);
         try {
             return ResponseEntity.ok(caller.getNetworkReq(networkId));

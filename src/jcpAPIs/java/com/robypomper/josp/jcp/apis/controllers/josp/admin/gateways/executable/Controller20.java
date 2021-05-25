@@ -10,6 +10,8 @@ import com.robypomper.josp.jcp.clients.JCPGWsClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.security.RolesAllowed;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -30,26 +33,37 @@ public class Controller20 extends ControllerLink {
 
     // Internal vars
 
+    @Autowired
     private JCPClientsMngr clientsMngr;
 
 
     // List methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_LIST)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_LIST)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_LIST,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Gateways's server list", response = Params20.GatewaysServers.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.GatewaysServers> getList() {
         Params20.GatewaysServers gwServers = new Params20.GatewaysServers();
         gwServers.serverList = new ArrayList<>();
-        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
+        for (String serverId : clientsMngr.getGWsServerAll()) {
             RESTItemList gwServer = new RESTItemList();
-            gwServer.id = gwClient.getClientId();
-            gwServer.name = gwClient.getClientId();
-            gwServer.url = com.robypomper.josp.defs.admin.gateways.status.Paths20.FULL_PATH_JCP_GWS_STATUS(gwClient.getClientId());
+            gwServer.id = serverId;
+            gwServer.name = serverId;
+            gwServer.url = Paths20.FULL_PATH_JCP_GWS_EXEC(serverId);
+            gwServers.serverList.add(gwServer);
         }
         return ResponseEntity.ok(gwServers);
     }
@@ -57,13 +71,22 @@ public class Controller20 extends ControllerLink {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's executable index", response = Params20.Index.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Index> getIndex(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         return ResponseEntity.ok(new Params20.Index(gwServerId));
     }
@@ -71,7 +94,7 @@ public class Controller20 extends ControllerLink {
 
     // Online methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_ONLINE)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_ONLINE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_ONLINE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's local date", response = String.class),
@@ -92,7 +115,7 @@ public class Controller20 extends ControllerLink {
 
     // Process methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_PROCESS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_PROCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_PROCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -122,7 +145,7 @@ public class Controller20 extends ControllerLink {
 
     // Java methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -142,7 +165,7 @@ public class Controller20 extends ControllerLink {
         return ResponseEntity.ok(new Params20.JavaIndex(gwServerId));
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_VM)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_VM, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA_VM,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -169,7 +192,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA_RUNTIME,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -196,7 +219,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA_TIMES,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -223,7 +246,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA_CLASSES,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -250,7 +273,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -277,7 +300,7 @@ public class Controller20 extends ControllerLink {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA_THREADS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -296,15 +319,28 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.JavaThreads> getJavaThreadsReq(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
+        Params20.JavaThreads result;
         try {
-            return ResponseEntity.ok(caller.getJavaThreadsReq());
+            result = caller.getJavaThreadsReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> threadsList = new ArrayList<>();
+        for (RESTItemList item : result.threadsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD(gwServerId,Long.parseLong(item.id));
+            threadsList.add(newItem);
+        }
+        result.threadsList = threadsList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_EXEC_JAVA_THREAD,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -444,12 +480,25 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.Disks> getDisksReq(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
+        Params20.Disks result;
         try {
-            return ResponseEntity.ok(caller.getDisksReq());
+            result = caller.getDisksReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> disksList = new ArrayList<>();
+        for (RESTItemList item : result.disksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_EXEC_DISK(gwServerId,item.id);
+            disksList.add(newItem);
+        }
+        result.disksList = disksList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_DISK)
@@ -502,12 +551,25 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.Networks> getNetworksReq(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
+        Params20.Networks result;
         try {
-            return ResponseEntity.ok(caller.getNetworksReq());
+            result = caller.getNetworksReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> networkList = new ArrayList<>();
+        for (RESTItemList item : result.networksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_EXEC_NETWORK(gwServerId,Integer.parseInt(item.id));
+            networkList.add(newItem);
+        }
+        result.networksList = networkList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_EXEC_NETWORK)

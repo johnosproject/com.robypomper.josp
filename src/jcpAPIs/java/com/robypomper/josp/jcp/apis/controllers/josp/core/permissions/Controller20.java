@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,7 +82,7 @@ public class Controller20 extends ControllerImpl {
      * @param strategy the strategy to use for permission generation.
      * @return a set of object's permissions.
      */
-    @GetMapping(path = Paths20.FULL_PATH_GENERATE)
+    @GetMapping(path = Paths20.FULL_PATH_GENERATE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_GENERATE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -100,7 +101,7 @@ public class Controller20 extends ControllerImpl {
     @RolesAllowed(SwaggerConfigurer.ROLE_OBJ)
     public ResponseEntity<String> generatePermissions(
             @RequestHeader(JOSPConstants.API_HEADER_OBJ_ID) String objId,
-            @PathVariable("strategy") JOSPPerm.GenerateStrategy strategy) {
+            @PathVariable(Paths20.PARAM_STRATEGY) JOSPPerm.GenerateStrategy strategy) {
 
         checkObjId(log, objId);
 

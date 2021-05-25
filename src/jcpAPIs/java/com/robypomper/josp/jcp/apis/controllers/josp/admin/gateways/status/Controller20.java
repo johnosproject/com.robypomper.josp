@@ -10,13 +10,17 @@ import com.robypomper.josp.jcp.clients.JCPGWsClient;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -29,26 +33,37 @@ public class Controller20 extends ControllerLink {
 
     // Internal vars
 
+    @Autowired
     private JCPClientsMngr clientsMngr;
 
 
     // List methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_LIST)
-    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS_LIST)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS_LIST,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Gateways's server list", response = Params20.GatewaysServers.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.GatewaysServers> getList() {
         Params20.GatewaysServers gwServers = new Params20.GatewaysServers();
         gwServers.serverList = new ArrayList<>();
-        for (JCPGWsClient gwClient : clientsMngr.getGWsClientsAll().values()) {
+        for (String serverId : clientsMngr.getGWsServerAll()) {
             RESTItemList gwServer = new RESTItemList();
-            gwServer.id = gwClient.getClientId();
-            gwServer.name = gwClient.getClientId();
-            gwServer.url = Paths20.FULL_PATH_JCP_GWS_STATUS(gwClient.getClientId());
+            gwServer.id = serverId;
+            gwServer.name = serverId;
+            gwServer.url = Paths20.FULL_PATH_JCP_GWS_STATUS(serverId);
+            gwServers.serverList.add(gwServer);
         }
         return ResponseEntity.ok(gwServers);
     }
@@ -56,13 +71,22 @@ public class Controller20 extends ControllerLink {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS)
-    @ApiOperation(value = Paths20.FULL_PATH_JCP_GWS_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS,
+            authorizations = @Authorization(
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
+                    scopes = @AuthorizationScope(
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Gateways's status index", response = Params20.Index.class),
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Index> getIndex(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         return ResponseEntity.ok(new Params20.Index(gwServerId));
     }
@@ -70,7 +94,7 @@ public class Controller20 extends ControllerLink {
 
     // GWs status methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_GWS)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_GWS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS_GWS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -89,15 +113,28 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.GWs> getGWsReq(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
+        Params20.GWs result;
         try {
-            return ResponseEntity.ok(caller.getGWsReq());
+            result = caller.getGWsReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> gwsList = new ArrayList<>();
+        for (RESTItemList item : result.gwList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_STATUS_GW(gwServerId, item.id);
+            gwsList.add(newItem);
+        }
+        result.gwList = gwsList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_GW)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_GW, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS_GW,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -117,15 +154,28 @@ public class Controller20 extends ControllerLink {
                                                 @PathVariable(Paths20.PARAM_GW) String gwId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
+        Params20.GW result;
         try {
-            return ResponseEntity.ok(caller.getGWReq(gwId));
+            result = caller.getGWReq(gwId);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> clientsList = new ArrayList<>();
+        for (RESTItemList item : result.clientsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_STATUS_GW_CLIENT(gwServerId, gwId, item.id);
+            clientsList.add(newItem);
+        }
+        result.clientsList = clientsList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_GW_CLIENT)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_GW_CLIENT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS_GW_CLIENT,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -143,7 +193,7 @@ public class Controller20 extends ControllerLink {
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.GWClient> getGWClientReq(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
                                                             @PathVariable(Paths20.PARAM_GW) String gwId,
-                                                            @PathVariable(Paths20.PARAM_GW_CLIENT) String gwClientId) {
+                                                            @RequestParam(Paths20.PARAM_GW_CLIENT) String gwClientId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
         try {
@@ -157,7 +207,7 @@ public class Controller20 extends ControllerLink {
 
     // Broker status methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_BROKER)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_BROKER, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS_BROKER,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -176,15 +226,48 @@ public class Controller20 extends ControllerLink {
     public ResponseEntity<Params20.Broker> getBrokerReq(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
+        Params20.Broker result;
         try {
-            return ResponseEntity.ok(caller.getBrokerReq());
+            result = caller.getBrokerReq();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
             throw jcpServiceNotAvailable(client, e);
         }
+
+        List<RESTItemList> objsList = new ArrayList<>();
+        for (RESTItemList item : result.objsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_STATUS_BROKER_OBJ(gwServerId, item.id);
+            objsList.add(newItem);
+        }
+        result.objsList = objsList;
+
+        List<RESTItemList> srvsList = new ArrayList<>();
+        for (RESTItemList item : result.srvsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_STATUS_BROKER_SRV(gwServerId, item.id);
+            srvsList.add(newItem);
+        }
+        result.srvsList = srvsList;
+
+        List<RESTItemList> objsDBList = new ArrayList<>();
+        for (RESTItemList item : result.objsDBList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JCP_GWS_STATUS_BROKER_OBJ_DB(gwServerId, item.id);
+            objsDBList.add(newItem);
+        }
+        result.objsDBList = objsDBList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_BROKER_OBJ)
+    @GetMapping(path = Paths20.FULL_PATH_JCP_GWS_STATUS_BROKER_OBJ, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JCP_GWS_STATUS_BROKER_OBJ,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -229,7 +312,7 @@ public class Controller20 extends ControllerLink {
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.BrokerService> getBrokerServiceReq(@PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
-                                                                      @PathVariable(Paths20.PARAM_SRV) String srvId) {
+                                                                      @RequestParam(Paths20.PARAM_SRV) String srvId) {
         JCPGWsClient client = clientsMngr.getGWsClientByGWServer(gwServerId);
         Caller20 caller = new Caller20(client);
         try {

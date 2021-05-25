@@ -32,6 +32,7 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,7 +60,7 @@ public class Controller20 extends ControllerImpl {
 
     // Objects methods
 
-    @PostMapping(path = Paths20.FULL_PATH_OBJECT)
+    @PostMapping(path = Paths20.FULL_PATH_OBJECT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_OBJECT,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -85,7 +86,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(true);
     }
     //
-    //@GetMapping(path = Paths20.FULL_PATH_OBJECT)
+    //@GetMapping(path = Paths20.FULL_PATH_OBJECT, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_OBJECTg,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -106,7 +107,7 @@ public class Controller20 extends ControllerImpl {
     //    return getObjectEventsById(objId);
     //}
     //
-    //@GetMapping(path = Paths20.FULL_PATH_GET_OBJECT)
+    //@GetMapping(path = Paths20.FULL_PATH_GET_OBJECT, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_GET_OBJECT,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -134,7 +135,7 @@ public class Controller20 extends ControllerImpl {
 
     //// Methods Objects Last
     //
-    //@GetMapping(path = Paths20.FULL_PATH_OBJECT_LAST)
+    //@GetMapping(path = Paths20.FULL_PATH_OBJECT_LAST, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_OBJECT_LAST,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -156,7 +157,7 @@ public class Controller20 extends ControllerImpl {
     //    return getObjectLastEventById(objId);
     //}
     //
-    //@GetMapping(path = Paths20.FULL_PATH_GET_OBJECT_LAST)
+    //@GetMapping(path = Paths20.FULL_PATH_GET_OBJECT_LAST, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_GET_OBJECT_LAST,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -189,7 +190,7 @@ public class Controller20 extends ControllerImpl {
 
     //// Methods Objects Type
     //
-    //@GetMapping(path = Paths20.FULL_PATH_OBJECT_BY_TYPE)
+    //@GetMapping(path = Paths20.FULL_PATH_OBJECT_BY_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_OBJECT_BY_TYPE,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -212,7 +213,7 @@ public class Controller20 extends ControllerImpl {
     //    return getObjectTypeEventById(objId, type);
     //}
     //
-    //@GetMapping(path = Paths20.FULL_PATH_GET_OBJECT_BY_TYPE)
+    //@GetMapping(path = Paths20.FULL_PATH_GET_OBJECT_BY_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_GET_OBJECT_BY_TYPE,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -242,7 +243,7 @@ public class Controller20 extends ControllerImpl {
 
     // Service methods
 
-    @PostMapping(path = Paths20.FULL_PATH_SERVICE)
+    @PostMapping(path = Paths20.FULL_PATH_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_SERVICE,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_OBJ,
@@ -268,7 +269,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(true);
     }
 
-    //@GetMapping(path = Paths20.FULL_PATH_SERVICE)              //  /service    -> FULL_PATH_GET_SERVICE
+    //@GetMapping(path = Paths20.FULL_PATH_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)              //  /service    -> FULL_PATH_GET_SERVICE
     //@ApiOperation(value = Paths20.DESCR_PATH_SERVICEg,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -289,7 +290,7 @@ public class Controller20 extends ControllerImpl {
     //    return getServiceEventsById(srvId);
     //}
     //
-    //@GetMapping(path = Paths20.FULL_PATH_GET_SERVICE)
+    //@GetMapping(path = Paths20.FULL_PATH_GET_SERVICE, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_GET_SERVICE,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -319,7 +320,7 @@ public class Controller20 extends ControllerImpl {
 
     //// Methods Service Last
     //
-    //@GetMapping(path = Paths20.FULL_PATH_SERVICE_LAST)
+    //@GetMapping(path = Paths20.FULL_PATH_SERVICE_LAST, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_SERVICE_LAST,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -341,7 +342,7 @@ public class Controller20 extends ControllerImpl {
     //    return getServiceLastEventsById(srvId);
     //}
     //
-    //@GetMapping(path = Paths20.FULL_PATH_GET_SERVICE_LAST)
+    //@GetMapping(path = Paths20.FULL_PATH_GET_SERVICE_LAST, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_GET_SERVICE_LAST,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -376,7 +377,7 @@ public class Controller20 extends ControllerImpl {
 
     //// Methods Service Type
     //
-    //@GetMapping(path = Paths20.FULL_PATH_SERVICE_BY_TYPE)
+    //@GetMapping(path = Paths20.FULL_PATH_SERVICE_BY_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_SERVICE_BY_TYPE,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,
@@ -399,7 +400,7 @@ public class Controller20 extends ControllerImpl {
     //    return getServiceTypeEventsById(srvId, type);
     //}
     //
-    //@GetMapping(path = Paths20.FULL_PATH_GET_SERVICE_BY_TYPE)
+    //@GetMapping(path = Paths20.FULL_PATH_GET_SERVICE_BY_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
     //@ApiOperation(value = Paths20.DESCR_PATH_GET_SERVICE_BY_TYPE,
     //        authorizations = @Authorization(
     //                value = SwaggerConfigurer.OAUTH_FLOW_DEF_SRV,

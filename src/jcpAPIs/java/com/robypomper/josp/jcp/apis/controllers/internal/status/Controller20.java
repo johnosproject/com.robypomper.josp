@@ -18,6 +18,7 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,7 +52,7 @@ public class Controller20 extends ControllerImpl {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.FULL_PATH_STATUS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP APIs's status index", response = Params20.Index.class),
@@ -65,7 +66,7 @@ public class Controller20 extends ControllerImpl {
 
     // Objects methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_OBJS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_OBJS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_OBJS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -95,14 +96,14 @@ public class Controller20 extends ControllerImpl {
             RESTItemList objItem = new RESTItemList();
             objItem.id = obj.getObjId();
             objItem.name = obj.getName();
-            objItem.url = Paths20.FULL_PATH_STATUS_SRV(obj.getObjId());
+            objItem.url = Paths20.FULL_PATH_STATUS_OBJ(obj.getObjId());
             objects.objectsList.add(objItem);
         }
 
         return ResponseEntity.ok(objects);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_OBJ)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_OBJ, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_OBJ,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -118,7 +119,8 @@ public class Controller20 extends ControllerImpl {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<Params20.Object> getObjectReq(@PathVariable(Paths20.PARAM_OBJ) String objId) {
+    public ResponseEntity<Params20.Object> getObjectReq(
+            @PathVariable(Paths20.PARAM_OBJ) String objId) {
         Optional<Object> optObj = objDB.find(objId);
         if (!optObj.isPresent())
             throw resourceNotFound("Object", objId);
@@ -140,7 +142,7 @@ public class Controller20 extends ControllerImpl {
 
     // Services methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_SRVS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_SRVS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_SRVS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -177,7 +179,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(services);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_SRV)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_SRV, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_SRV,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -211,7 +213,7 @@ public class Controller20 extends ControllerImpl {
 
     // Users methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_USRS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_USRS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_USRS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -243,7 +245,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_USR)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_USR, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_USR,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -280,7 +282,7 @@ public class Controller20 extends ControllerImpl {
 
     // Gateways methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_GWS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_GWS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_GWS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
@@ -314,7 +316,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(gws);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_GW)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_GW, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_GW,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
