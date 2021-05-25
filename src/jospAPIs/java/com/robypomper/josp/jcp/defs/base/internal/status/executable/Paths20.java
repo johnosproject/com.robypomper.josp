@@ -19,9 +19,13 @@ public class Paths20 {
     // API Params
 
     //@formatter:off
-    public static final String PARAM_THREAD     = "{thread_id}";
-    public static final String PARAM_DISK       = "{disk_id}";
-    public static final String PARAM_NTWK       = "{ntwk_id}";
+    public static final String PARAM_THREAD     = "thread_id";
+    public static final String PARAM_DISK       = "disk_id";
+    public static final String PARAM_NTWK       = "ntwk_id";
+
+    public static final String PARAM_URL_THREAD     = "{" + PARAM_THREAD + "}";
+    public static final String PARAM_URL_DISK       = "{" + PARAM_DISK + "}";
+    public static final String PARAM_URL_NTWK       = "{" + PARAM_NTWK + "}";
     //@formatter:on
 
 
@@ -32,30 +36,30 @@ public class Paths20 {
     // Index
     public static final String MTHD_EXEC                     = "";
     // Online
-    public static final String MTHD_EXEC_ONLINE              = "online";
+    public static final String MTHD_EXEC_ONLINE              = "online/";
     // Process
-    public static final String MTHD_EXEC_PROCESS             = "process";
+    public static final String MTHD_EXEC_PROCESS             = "process/";
     // Java
-    public static final String MTHD_EXEC_JAVA                = "java";
-    public static final String MTHD_EXEC_JAVA_VM             = "java/vm";
-    public static final String MTHD_EXEC_JAVA_RUNTIME        = "java/runtime";
-    public static final String MTHD_EXEC_JAVA_TIMES          = "java/times";
-    public static final String MTHD_EXEC_JAVA_CLASSES        = "java/classes";
-    public static final String MTHD_EXEC_JAVA_MEMORY         = "java/memory";
-    public static final String MTHD_EXEC_JAVA_THREADS        = "java/threads";
-    public static final String MTHD_EXEC_JAVA_THREAD         = "java/threads/" + PARAM_THREAD;
+    public static final String MTHD_EXEC_JAVA                = "java/";
+    public static final String MTHD_EXEC_JAVA_VM             = "java/vm/";
+    public static final String MTHD_EXEC_JAVA_RUNTIME        = "java/runtime/";
+    public static final String MTHD_EXEC_JAVA_TIMES          = "java/times/";
+    public static final String MTHD_EXEC_JAVA_CLASSES        = "java/classes/";
+    public static final String MTHD_EXEC_JAVA_MEMORY         = "java/memory/";
+    public static final String MTHD_EXEC_JAVA_THREADS        = "java/threads/";
+    public static final String MTHD_EXEC_JAVA_THREAD         = "java/threads/" + PARAM_URL_THREAD + "/";
     // OS
-    public static final String MTHD_EXEC_OS                  = "os";
+    public static final String MTHD_EXEC_OS                  = "os/";
     // CPU
-    public static final String MTHD_EXEC_CPU                 = "cpu";
+    public static final String MTHD_EXEC_CPU                 = "cpu/";
     // Memory
-    public static final String MTHD_EXEC_MEMORY              = "memory";
+    public static final String MTHD_EXEC_MEMORY              = "memory/";
     // Disks
-    public static final String MTHD_EXEC_DISKS               = "disks";
-    public static final String MTHD_EXEC_DISK                = "disks/" + PARAM_DISK;
+    public static final String MTHD_EXEC_DISKS               = "disks/";
+    public static final String MTHD_EXEC_DISK                = "disks/" + PARAM_URL_DISK + "/";
     // Networks
-    public static final String MTHD_EXEC_NETWORKS            = "networks";
-    public static final String MTHD_EXEC_NETWORK             = "networks/" + PARAM_NTWK;
+    public static final String MTHD_EXEC_NETWORKS            = "networks/";
+    public static final String MTHD_EXEC_NETWORK             = "networks/" + PARAM_URL_NTWK + "/";
     //@formatter:on
 
 
@@ -97,11 +101,11 @@ public class Paths20 {
 
     //@formatter:off
     // Java
-    public static String FULL_PATH_EXEC_JAVA_THREAD         (long threadId){ return FULL_PATH_EXEC_JAVA_THREAD      .replace(PARAM_THREAD,Long.toString(threadId)); }
+    public static String FULL_PATH_EXEC_JAVA_THREAD         (long threadId){ return FULL_PATH_EXEC_JAVA_THREAD      .replace(PARAM_URL_THREAD,Long.toString(threadId)); }
     // Disks
-    public static String FULL_PATH_EXEC_DISK                (String diskId){ return FULL_PATH_EXEC_DISK             .replace(PARAM_DISK,diskId); }
+    public static String FULL_PATH_EXEC_DISK                (String diskId){ return FULL_PATH_EXEC_DISK             .replace(PARAM_URL_DISK,diskId); }
     // Networks
-    public static String FULL_PATH_EXEC_NETWORK             (int networkId){ return FULL_PATH_EXEC_NETWORK          .replace(PARAM_NTWK,Integer.toString(networkId)); }
+    public static String FULL_PATH_EXEC_NETWORK             (int networkId){ return FULL_PATH_EXEC_NETWORK          .replace(PARAM_URL_NTWK,Integer.toString(networkId)); }
     //@formatter:off
     
 

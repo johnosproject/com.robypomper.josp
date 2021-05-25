@@ -38,7 +38,9 @@ public class Paths20 extends com.robypomper.josp.jcp.defs.base.internal.status.b
     // API Params
 
     //@formatter:off
-    public static final String PARAM_GW_SERVER         = "{gw_server_id}";
+    public static final String PARAM_GW_SERVER         = "gw_server_id";
+
+    public static final String PARAM_URL_GW_SERVER     = "{" + PARAM_GW_SERVER + "}";
     //@formatter:on
 
 
@@ -56,7 +58,7 @@ public class Paths20 extends com.robypomper.josp.jcp.defs.base.internal.status.b
     // Index methods
     public static final String FULL_PATH_JCP_GWS_BUILDINFO_LIST     = API_PATH + "/" + API_VER + "/" + MTHD_LIST;
     // Build Info methods
-    public static final String FULL_PATH_JCP_GWS_BUILDINFO          = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_BUILDINFO;
+    public static final String FULL_PATH_JCP_GWS_BUILDINFO          = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_BUILDINFO;
     //@formatter:on
 
 
@@ -64,9 +66,9 @@ public class Paths20 extends com.robypomper.josp.jcp.defs.base.internal.status.b
 
     //@formatter:off
     // Index methods
-    public static String FULL_PATH_JCP_GWS_BUILDINFO_LIST       (String gwServerId){ return FULL_PATH_JCP_GWS_BUILDINFO_LIST        .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_BUILDINFO_LIST       (String gwServerId){ return FULL_PATH_JCP_GWS_BUILDINFO_LIST        .replace(PARAM_URL_GW_SERVER,gwServerId); }
     // Build Info methods
-    public static String FULL_PATH_JCP_GWS_BUILDINFO            (String gwServerId){ return FULL_PATH_JCP_GWS_BUILDINFO             .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_BUILDINFO            (String gwServerId){ return FULL_PATH_JCP_GWS_BUILDINFO             .replace(PARAM_URL_GW_SERVER,gwServerId); }
 
 
     // API Descriptions

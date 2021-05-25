@@ -16,22 +16,33 @@ public class Paths20 {
     public final static String DOCS_DESCR = "Methods to send objects actions";
 
 
+    // API Params
+
+    //@formatter:off
+    public static final String PARAM_OBJ        = "obj_id";
+    public static final String PARAM_COMP        = "comp_path";
+
+    public static final String PARAM_URL_OBJ        = "{" + PARAM_OBJ + "}";
+    public static final String PARAM_URL_COMP        = "{" + PARAM_COMP + "}";
+    //@formatter:on
+
+
     // API Methods
 
     //@formatter:off
     //
-    private static final String MTHD_BOOL_SWITCH    = "bool/{obj_id}/{comp_path}/switch/";
-    private static final String MTHD_BOOL_TRUE      = "bool/{obj_id}/{comp_path}/true/";
-    private static final String MTHD_BOOL_FALSE     = "bool/{obj_id}/{comp_path}/false/";
-    private static final String MTHD_RANGE_SET      = "range/{obj_id}/{comp_path}/";
-    private static final String MTHD_RANGE_SETg     = "range/{obj_id}/{comp_path}/{val}";
-    private static final String MTHD_RANGE_INC      = "range/{obj_id}/{comp_path}/inc/";
-    private static final String MTHD_RANGE_DEC      = "range/{obj_id}/{comp_path}/dec/";
-    private static final String MTHD_RANGE_MAX      = "range/{obj_id}/{comp_path}/max/";
-    private static final String MTHD_RANGE_MIN      = "range/{obj_id}/{comp_path}/min/";
-    private static final String MTHD_RANGE_1_2      = "range/{obj_id}/{comp_path}/1_2/";
-    private static final String MTHD_RANGE_1_3      = "range/{obj_id}/{comp_path}/1_3/";
-    private static final String MTHD_RANGE_2_3      = "range/{obj_id}/{comp_path}/2_3/";
+    private static final String MTHD_BOOL_SWITCH    = "bool/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/switch/";
+    private static final String MTHD_BOOL_TRUE      = "bool/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/true/";
+    private static final String MTHD_BOOL_FALSE     = "bool/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/false/";
+    private static final String MTHD_RANGE_SET      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/";
+    private static final String MTHD_RANGE_SETg     = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/{val}";
+    private static final String MTHD_RANGE_INC      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/inc/";
+    private static final String MTHD_RANGE_DEC      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/dec/";
+    private static final String MTHD_RANGE_MAX      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/max/";
+    private static final String MTHD_RANGE_MIN      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/min/";
+    private static final String MTHD_RANGE_1_2      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/1_2/";
+    private static final String MTHD_RANGE_1_3      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/1_3/";
+    private static final String MTHD_RANGE_2_3      = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP + "/2_3/";
     //@formatter:on
 
 
@@ -58,18 +69,18 @@ public class Paths20 {
 
     //@formatter:off
     //
-    public static String FULL_PATH_BOOL_SWITCH  (String objId, String compPath){ return FULL_PATH_BOOL_SWITCH   .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_BOOL_TRUE    (String objId, String compPath){ return FULL_PATH_BOOL_TRUE     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_BOOL_FALSE   (String objId, String compPath){ return FULL_PATH_BOOL_FALSE    .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_SET    (String objId, String compPath){ return FULL_PATH_RANGE_SET     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_SETg   (String objId, String compPath){ return FULL_PATH_RANGE_SETg    .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_INC    (String objId, String compPath){ return FULL_PATH_RANGE_INC     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_DEC    (String objId, String compPath){ return FULL_PATH_RANGE_DEC     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_MAX    (String objId, String compPath){ return FULL_PATH_RANGE_MAX     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_MIN    (String objId, String compPath){ return FULL_PATH_RANGE_MIN     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_1_2    (String objId, String compPath){ return FULL_PATH_RANGE_1_2     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_1_3    (String objId, String compPath){ return FULL_PATH_RANGE_1_3     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
-    public static String FULL_PATH_RANGE_2_3    (String objId, String compPath){ return FULL_PATH_RANGE_2_3     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
+    public static String FULL_PATH_BOOL_SWITCH  (String objId, String compPath){ return FULL_PATH_BOOL_SWITCH   .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_BOOL_TRUE    (String objId, String compPath){ return FULL_PATH_BOOL_TRUE     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_BOOL_FALSE   (String objId, String compPath){ return FULL_PATH_BOOL_FALSE    .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_SET    (String objId, String compPath){ return FULL_PATH_RANGE_SET     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_SETg   (String objId, String compPath){ return FULL_PATH_RANGE_SETg    .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_INC    (String objId, String compPath){ return FULL_PATH_RANGE_INC     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_DEC    (String objId, String compPath){ return FULL_PATH_RANGE_DEC     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_MAX    (String objId, String compPath){ return FULL_PATH_RANGE_MAX     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_MIN    (String objId, String compPath){ return FULL_PATH_RANGE_MIN     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_1_2    (String objId, String compPath){ return FULL_PATH_RANGE_1_2     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_1_3    (String objId, String compPath){ return FULL_PATH_RANGE_1_3     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE_2_3    (String objId, String compPath){ return FULL_PATH_RANGE_2_3     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
     //@formatter:on
 
 

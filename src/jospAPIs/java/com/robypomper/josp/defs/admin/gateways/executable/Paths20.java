@@ -38,7 +38,9 @@ public class Paths20 extends com.robypomper.josp.jcp.defs.base.internal.status.e
     // API Params
 
     //@formatter:off
-    public static final String PARAM_GW_SERVER         = "{gw_server_id}";
+    public static final String PARAM_GW_SERVER         = "gw_server_id";
+
+    public static final String PARAM_URL_GW_SERVER     = "{" + PARAM_GW_SERVER + "}";
     //@formatter:on
 
 
@@ -56,64 +58,64 @@ public class Paths20 extends com.robypomper.josp.jcp.defs.base.internal.status.e
     // List methods
     public static final String FULL_PATH_JCP_GWS_EXEC_LIST             = API_PATH + "/" + API_VER + "/" + MTHD_LIST;
     // Index methods
-    public static final String FULL_PATH_JCP_GWS_EXEC                  = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC;
+    public static final String FULL_PATH_JCP_GWS_EXEC                  = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC;
     // Online methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_ONLINE           = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_ONLINE;
+    public static final String FULL_PATH_JCP_GWS_EXEC_ONLINE           = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_ONLINE;
     // Process methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_PROCESS          = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_PROCESS;
+    public static final String FULL_PATH_JCP_GWS_EXEC_PROCESS          = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_PROCESS;
     // Java methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA             = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA;
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_VM          = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA_VM;
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME     = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA_RUNTIME;
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES       = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA_TIMES;
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES     = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA_CLASSES;
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY      = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA_MEMORY;
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS     = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA_THREADS;
-    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD      = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_JAVA_THREAD;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA             = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_VM          = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA_VM;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME     = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA_RUNTIME;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES       = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA_TIMES;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES     = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA_CLASSES;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY      = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA_MEMORY;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS     = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA_THREADS;
+    public static final String FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD      = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_JAVA_THREAD;
     // OS methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_OS               = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_OS;
+    public static final String FULL_PATH_JCP_GWS_EXEC_OS               = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_OS;
     // CPU methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_CPU              = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_CPU;
+    public static final String FULL_PATH_JCP_GWS_EXEC_CPU              = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_CPU;
     // Memory methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_MEMORY           = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_MEMORY;
+    public static final String FULL_PATH_JCP_GWS_EXEC_MEMORY           = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_MEMORY;
     // Disks methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_DISKS            = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_DISKS;
-    public static final String FULL_PATH_JCP_GWS_EXEC_DISK             = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_DISK;
+    public static final String FULL_PATH_JCP_GWS_EXEC_DISKS            = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_DISKS;
+    public static final String FULL_PATH_JCP_GWS_EXEC_DISK             = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_DISK;
     // Networks methods
-    public static final String FULL_PATH_JCP_GWS_EXEC_NETWORKS         = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_NETWORKS;
-    public static final String FULL_PATH_JCP_GWS_EXEC_NETWORK          = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_EXEC_NETWORK;
+    public static final String FULL_PATH_JCP_GWS_EXEC_NETWORKS         = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_NETWORKS;
+    public static final String FULL_PATH_JCP_GWS_EXEC_NETWORK          = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_EXEC_NETWORK;
 
 
     // API Paths composers
 
     //@formatter:off
     // Index methods
-    public static String FULL_PATH_JCP_GWS_EXEC                     (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC                                  .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC                     (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC                                  .replace(PARAM_URL_GW_SERVER,gwServerId); }
     // Online methods
-    public static String FULL_PATH_JCP_GWS_EXEC_ONLINE              (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_ONLINE                           .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_ONLINE              (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_ONLINE                           .replace(PARAM_URL_GW_SERVER,gwServerId); }
     // Process methods
-    public static String FULL_PATH_JCP_GWS_EXEC_PROCESS             (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_PROCESS                          .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_PROCESS             (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_PROCESS                          .replace(PARAM_URL_GW_SERVER,gwServerId); }
     // Java methods
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA                (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA                             .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_VM             (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_VM                          .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME        (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME                     .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES          (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES                       .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES        (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES                     .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY         (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY                      .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS        (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS                     .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD         (String gwServerId, long threadId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD       .replace(PARAM_GW_SERVER,gwServerId).replace(PARAM_THREAD,Long.toString(threadId)); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA                (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA                             .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_VM             (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_VM                          .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME        (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_RUNTIME                     .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES          (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_TIMES                       .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES        (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_CLASSES                     .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY         (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_MEMORY                      .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS        (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_THREADS                     .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD         (String gwServerId, long threadId){ return FULL_PATH_JCP_GWS_EXEC_JAVA_THREAD       .replace(PARAM_URL_GW_SERVER,gwServerId).replace(PARAM_URL_THREAD,Long.toString(threadId)); }
     // OS methods
-    public static String FULL_PATH_JCP_GWS_EXEC_OS                  (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_OS                               .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_OS                  (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_OS                               .replace(PARAM_URL_GW_SERVER,gwServerId); }
     // CPU methods
-    public static String FULL_PATH_JCP_GWS_EXEC_CPU                 (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_CPU                              .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_CPU                 (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_CPU                              .replace(PARAM_URL_GW_SERVER,gwServerId); }
     // Memory methods
-    public static String FULL_PATH_JCP_GWS_EXEC_MEMORY              (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_MEMORY                           .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_MEMORY              (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_MEMORY                           .replace(PARAM_URL_GW_SERVER,gwServerId); }
     // Disks methods
-    public static String FULL_PATH_JCP_GWS_EXEC_DISKS               (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_DISKS                            .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_DISK                (String gwServerId, String diskId){ return FULL_PATH_JCP_GWS_EXEC_DISK              .replace(PARAM_GW_SERVER,gwServerId).replace(PARAM_DISK,diskId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_DISKS               (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_DISKS                            .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_DISK                (String gwServerId, String diskId){ return FULL_PATH_JCP_GWS_EXEC_DISK              .replace(PARAM_URL_GW_SERVER,gwServerId).replace(PARAM_URL_DISK,diskId); }
     // Networks methods
-    public static String FULL_PATH_JCP_GWS_EXEC_NETWORKS            (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_NETWORKS                         .replace(PARAM_GW_SERVER,gwServerId); }
-    public static String FULL_PATH_JCP_GWS_EXEC_NETWORK             (String gwServerId, int networkId){ return FULL_PATH_JCP_GWS_EXEC_NETWORK           .replace(PARAM_GW_SERVER,gwServerId).replace(PARAM_NTWK,Integer.toString(networkId)); }
+    public static String FULL_PATH_JCP_GWS_EXEC_NETWORKS            (String gwServerId){ return FULL_PATH_JCP_GWS_EXEC_NETWORKS                         .replace(PARAM_URL_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JCP_GWS_EXEC_NETWORK             (String gwServerId, int networkId){ return FULL_PATH_JCP_GWS_EXEC_NETWORK           .replace(PARAM_URL_GW_SERVER,gwServerId).replace(PARAM_URL_NTWK,Integer.toString(networkId)); }
     //@formatter:on
 
 

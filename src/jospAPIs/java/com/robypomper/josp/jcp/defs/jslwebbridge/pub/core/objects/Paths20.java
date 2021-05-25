@@ -16,15 +16,24 @@ public class Paths20 {
     public final static String DOCS_DESCR = "Methods to query objects info";
 
 
+    // API Params
+
+    //@formatter:off
+    public static final String PARAM_OBJ        = "obj_id";
+
+    public static final String PARAM_URL_OBJ        = "{" + PARAM_OBJ + "}";
+    //@formatter:on
+
+
     // API Methods
 
     //@formatter:off
     //
     private static final String MTHD_LIST       = "";
-    private static final String MTHD_DETAILS    = "{obj_id}/";
-    private static final String MTHD_OWNER      = "{obj_id}/owner/";
-    private static final String MTHD_NAME       = "{obj_id}/name/";
-    private static final String MTHD_EVENTS     = "{obj_id}/events/";
+    private static final String MTHD_DETAILS    = PARAM_URL_OBJ;
+    private static final String MTHD_OWNER      = PARAM_URL_OBJ + "/owner/";
+    private static final String MTHD_NAME       = PARAM_URL_OBJ + "/name/";
+    private static final String MTHD_EVENTS     = PARAM_URL_OBJ + "/events/";
     //@formatter:on
 
 
@@ -43,10 +52,10 @@ public class Paths20 {
 
     //@formatter:off
     //
-    public static String FULL_PATH_DETAILS  (String objId){ return FULL_PATH_DETAILS    .replace("{obj_id}",objId); }
-    public static String FULL_PATH_OWNER    (String objId){ return FULL_PATH_OWNER      .replace("{obj_id}",objId); }
-    public static String FULL_PATH_NAME     (String objId){ return FULL_PATH_NAME       .replace("{obj_id}",objId); }
-    public static String FULL_PATH_EVENTS   (String objId){ return FULL_PATH_EVENTS       .replace("{obj_id}",objId); }
+    public static String FULL_PATH_DETAILS  (String objId){ return FULL_PATH_DETAILS    .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_OWNER    (String objId){ return FULL_PATH_OWNER      .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_NAME     (String objId){ return FULL_PATH_NAME       .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_EVENTS   (String objId){ return FULL_PATH_EVENTS       .replace(PARAM_URL_OBJ,objId); }
     //@formatter:on
 
 

@@ -29,8 +29,8 @@ public class Paths20 extends com.robypomper.josp.defs.admin.frontend.executable.
     public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_TIMES       = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_JAVA_TIMES;
     public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_CLASSES     = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_JAVA_CLASSES;
     public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_MEMORY      = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_JAVA_MEMORY;
-    public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREADS     = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_JAVA_THREAD;
-    public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREAD      = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_JAVA_THREADS;
+    public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREADS     = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_JAVA_THREADS;
+    public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREAD      = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_JAVA_THREAD;
     public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_OS               = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_OS;
     public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_CPU              = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_CPU;
     public static final String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_MEMORY           = API_PATH + "/" + API_VER + "/" + MTHD_EXEC_MEMORY;
@@ -45,9 +45,9 @@ public class Paths20 extends com.robypomper.josp.defs.admin.frontend.executable.
 
     //@formatter:off
     // JCP Front End Executable methods
-    public static String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREAD         (long threadId){ return FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREAD      .replace(PARAM_THREAD,Long.toString(threadId)); }
-    public static String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_DISK                (String diskId){ return FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_DISK             .replace(PARAM_DISK,diskId); }
-    public static String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_NETWORK             (int networkId){ return FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_NETWORK          .replace(PARAM_NTWK,Integer.toString(networkId)); }
+    public static String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREAD         (long threadId){ return FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_THREAD      .replace(PARAM_URL_THREAD,Long.toString(threadId)); }
+    public static String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_DISK                (String diskId){ return FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_DISK             .replace(PARAM_URL_DISK,diskId); }
+    public static String FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_NETWORK             (int networkId){ return FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_NETWORK          .replace(PARAM_URL_NTWK,Integer.toString(networkId)); }
     //@formatter:off
 
 

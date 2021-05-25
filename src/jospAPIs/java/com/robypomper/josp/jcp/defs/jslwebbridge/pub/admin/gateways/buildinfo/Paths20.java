@@ -21,7 +21,7 @@ public class Paths20 extends com.robypomper.josp.defs.admin.gateways.buildinfo.P
     //@formatter:off
     // JCP Gateways Build Info methods
     public static final String FULL_PATH_JSLWB_ADMIN_GATEWAYS_LIST          = API_PATH + "/" + API_VER + "/" + MTHD_LIST;
-    public static final String FULL_PATH_JSLWB_ADMIN_GATEWAYS_BUILDINFO     = API_PATH + "/" + API_VER + "/" + PARAM_GW_SERVER + "/" + MTHD_BUILDINFO;
+    public static final String FULL_PATH_JSLWB_ADMIN_GATEWAYS_BUILDINFO     = API_PATH + "/" + API_VER + "/" + PARAM_URL_GW_SERVER + "/" + MTHD_BUILDINFO;
     
     //@formatter:on
 
@@ -30,7 +30,7 @@ public class Paths20 extends com.robypomper.josp.defs.admin.gateways.buildinfo.P
 
     //@formatter:off
     // JCP Gateways Build Info methods
-    public static String FULL_PATH_JSLWB_ADMIN_GATEWAYS_BUILDINFO            (String gwServerId){ return FULL_PATH_JSLWB_ADMIN_GATEWAYS_BUILDINFO             .replace(PARAM_GW_SERVER,gwServerId); }
+    public static String FULL_PATH_JSLWB_ADMIN_GATEWAYS_BUILDINFO            (String gwServerId){ return FULL_PATH_JSLWB_ADMIN_GATEWAYS_BUILDINFO             .replace(PARAM_URL_GW_SERVER,gwServerId); }
     //@formatter:off
 
 

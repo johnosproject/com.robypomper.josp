@@ -36,10 +36,10 @@ public class Paths20 extends com.robypomper.josp.defs.admin.apis.status.Paths20 
 
     //@formatter:off
     // JCP APIs Status methods
-    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_OBJ      (String objId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_OBJ        .replace(PARAM_OBJ,objId); }
-    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_SRV      (String srvId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_SRV        .replace(PARAM_SRV,srvId); }
-    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_USR      (String usrId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_USR        .replace(PARAM_USR,usrId); }
-    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_GW       (String gwId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_GW          .replace(PARAM_USR,gwId); }
+    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_OBJ      (String objId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_OBJ        .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_SRV      (String srvId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_SRV        .replace(PARAM_URL_SRV,srvId); }
+    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_USR      (String usrId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_USR        .replace(PARAM_URL_USR,usrId); }
+    public static String FULL_PATH_JSLWB_ADMIN_APIS_STATUS_GW       (String gwId){ return FULL_PATH_JSLWB_ADMIN_APIS_STATUS_GW          .replace(PARAM_URL_GW,gwId); }
     //@formatter:off
 
 

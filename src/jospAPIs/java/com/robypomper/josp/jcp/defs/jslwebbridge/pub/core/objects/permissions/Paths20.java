@@ -16,15 +16,26 @@ public class Paths20 {
     public final static String DOCS_DESCR = "Methods to get/upd/rem/dup objects permissions";
 
 
+    // API Params
+
+    //@formatter:off
+    public static final String PARAM_OBJ        = "obj_id";
+    public static final String PARAM_PERM       = "comp_path";
+
+    public static final String PARAM_URL_OBJ        = "{" + PARAM_OBJ + "}";
+    public static final String PARAM_URL_PERM       = "{" + PARAM_PERM + "}";
+    //@formatter:on
+
+
     // API Methods
 
     //@formatter:off
     //
-    private static final String MTHD_LIST    = "{obj_id}/";
-    private static final String MTHD_ADD      = "{obj_id}/add/";
-    private static final String MTHD_UPD      = "{obj_id}/upd/{perm_id}/";
-    private static final String MTHD_DEL      = "{obj_id}/del/{perm_id}/";
-    private static final String MTHD_DUP      = "{obj_id}/dup/{perm_id}/";
+    private static final String MTHD_LIST    = "" + PARAM_URL_OBJ + "/";
+    private static final String MTHD_ADD      = "" + PARAM_URL_OBJ + "/add/";
+    private static final String MTHD_UPD      = "" + PARAM_URL_OBJ + "/upd/" + PARAM_URL_PERM + "/";
+    private static final String MTHD_DEL      = "" + PARAM_URL_OBJ + "/del/" + PARAM_URL_PERM + "/";
+    private static final String MTHD_DUP      = "" + PARAM_URL_OBJ + "/dup/" + PARAM_URL_PERM + "/";
     //@formatter:on
 
 
@@ -44,11 +55,11 @@ public class Paths20 {
 
     //@formatter:off
     //
-    public static String FULL_PATH_LIST (String objId)                  { return FULL_PATH_LIST .replace("{obj_id}",objId); }
-    public static String FULL_PATH_ADD  (String objId)                  { return FULL_PATH_ADD  .replace("{obj_id}",objId); }
-    public static String FULL_PATH_UPD  (String objId, String permId)   { return FULL_PATH_UPD  .replace("{obj_id}",objId).replace("{perm_id}",permId); }
-    public static String FULL_PATH_DEL  (String objId, String permId)   { return FULL_PATH_DEL  .replace("{obj_id}",objId).replace("{perm_id}",permId); }
-    public static String FULL_PATH_DUP  (String objId, String permId)   { return FULL_PATH_DUP  .replace("{obj_id}",objId).replace("{perm_id}",permId); }
+    public static String FULL_PATH_LIST (String objId)                  { return FULL_PATH_LIST .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_ADD  (String objId)                  { return FULL_PATH_ADD  .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_UPD  (String objId, String permId)   { return FULL_PATH_UPD  .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_PERM,permId); }
+    public static String FULL_PATH_DEL  (String objId, String permId)   { return FULL_PATH_DEL  .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_PERM,permId); }
+    public static String FULL_PATH_DUP  (String objId, String permId)   { return FULL_PATH_DUP  .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_PERM,permId); }
     //@formatter:on
 
 

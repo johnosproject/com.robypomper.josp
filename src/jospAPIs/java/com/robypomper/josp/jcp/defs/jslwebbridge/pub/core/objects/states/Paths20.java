@@ -19,8 +19,11 @@ public class Paths20 {
     // API Params
 
     //@formatter:off
-    public static final String PARAM_OBJ        = "{obj_id}";
-    public static final String PARAM_COMP       = "{comp_path}";
+    public static final String PARAM_OBJ        = "obj_id";
+    public static final String PARAM_COMP       = "comp_path";
+
+    public static final String PARAM_URL_OBJ        = "{" + PARAM_OBJ + "}";
+    public static final String PARAM_URL_COMP       = "{" + PARAM_COMP + "}";
     //@formatter:on
 
 
@@ -28,10 +31,10 @@ public class Paths20 {
 
     //@formatter:off
     // State methods
-    private static final String MTHD_BOOL   = "bool/" + PARAM_OBJ +"/" + PARAM_COMP +"/";
-    private static final String MTHD_RANGE  = "range/" + PARAM_OBJ + "/" + PARAM_COMP +"/";
+    private static final String MTHD_BOOL   = "bool/" + PARAM_URL_OBJ +"/" + PARAM_URL_COMP +"/";
+    private static final String MTHD_RANGE  = "range/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP +"/";
     // History methods
-    private static final String MTHD_STATUS_HISTORY  = "history/" + PARAM_OBJ + "/" + PARAM_COMP +"/";
+    private static final String MTHD_STATUS_HISTORY  = "history/" + PARAM_URL_OBJ + "/" + PARAM_URL_COMP +"/";
     //@formatter:on
 
 
@@ -50,10 +53,10 @@ public class Paths20 {
 
     //@formatter:off
     // State methods
-    public static String FULL_PATH_BOOL     (String objId, String compPath){ return FULL_PATH_BOOL  .replace(PARAM_OBJ,objId).replace(PARAM_COMP,compPath); }
-    public static String FULL_PATH_RANGE    (String objId, String compPath){ return FULL_PATH_RANGE .replace(PARAM_OBJ,objId).replace(PARAM_COMP,compPath); }
+    public static String FULL_PATH_BOOL     (String objId, String compPath){ return FULL_PATH_BOOL  .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
+    public static String FULL_PATH_RANGE    (String objId, String compPath){ return FULL_PATH_RANGE .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
     // History methods
-    public static String FULL_PATH_STATUS_HISTORY       (String objId, String compPath){ return FULL_PATH_STATUS_HISTORY .replace(PARAM_OBJ,objId).replace(PARAM_COMP,compPath); }
+    public static String FULL_PATH_STATUS_HISTORY       (String objId, String compPath){ return FULL_PATH_STATUS_HISTORY .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
     //@formatter:on
 
 

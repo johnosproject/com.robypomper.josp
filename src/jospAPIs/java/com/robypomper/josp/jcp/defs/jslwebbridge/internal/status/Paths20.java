@@ -19,7 +19,9 @@ public class Paths20 {
     // API Params
 
     //@formatter:off
-    public static final String PARAM_SESSIONS       = "{session_id}";
+    public static final String PARAM_SESSION        = "session_id";
+
+    public static final String PARAM_URL_SESSION    = "{" + PARAM_SESSION + "}";
     //@formatter:on
 
 
@@ -30,7 +32,7 @@ public class Paths20 {
     public static final String MTHD_STATUS      = "";
     // Sessions methods
     public static final String MTHD_STATUS_SESSIONS     = "sessions";
-    public static final String MTHD_STATUS_SESSION      = "sessions/" + PARAM_SESSIONS;
+    public static final String MTHD_STATUS_SESSION      = "sessions/" + PARAM_URL_SESSION;
     //@formatter:on
 
 
@@ -49,7 +51,7 @@ public class Paths20 {
 
     //@formatter:off
     // Sessions methods
-    public static String FULL_PATH_STATUS_SESSION       (String sessionId){ return FULL_PATH_STATUS_SESSION     .replace(PARAM_SESSIONS,sessionId); }
+    public static String FULL_PATH_STATUS_SESSION       (String sessionId){ return FULL_PATH_STATUS_SESSION     .replace(PARAM_URL_SESSION,sessionId); }
     //@formatter:on
 
 

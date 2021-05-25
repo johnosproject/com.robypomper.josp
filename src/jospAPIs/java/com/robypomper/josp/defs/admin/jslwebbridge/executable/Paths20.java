@@ -70,11 +70,11 @@ public class Paths20 extends com.robypomper.josp.jcp.defs.base.internal.status.e
 
     //@formatter:off
     // Java
-    public static String FULL_PATH_JCP_JSLWB_EXEC_JAVA_THREAD         (long threadId){ return FULL_PATH_JCP_JSLWB_EXEC_JAVA_THREAD      .replace(PARAM_THREAD,Long.toString(threadId)); }
+    public static String FULL_PATH_JCP_JSLWB_EXEC_JAVA_THREAD         (long threadId){ return FULL_PATH_JCP_JSLWB_EXEC_JAVA_THREAD      .replace(PARAM_URL_THREAD,Long.toString(threadId)); }
     // Disks
-    public static String FULL_PATH_JCP_JSLWB_EXEC_DISK                (String diskId){ return FULL_PATH_JCP_JSLWB_EXEC_DISK             .replace(PARAM_DISK,diskId); }
+    public static String FULL_PATH_JCP_JSLWB_EXEC_DISK                (String diskId){ return FULL_PATH_JCP_JSLWB_EXEC_DISK             .replace(PARAM_URL_DISK,diskId); }
     // Networks
-    public static String FULL_PATH_JCP_JSLWB_EXEC_NETWORK             (int networkId){ return FULL_PATH_JCP_JSLWB_EXEC_NETWORK          .replace(PARAM_NTWK,Integer.toString(networkId)); }
+    public static String FULL_PATH_JCP_JSLWB_EXEC_NETWORK             (int networkId){ return FULL_PATH_JCP_JSLWB_EXEC_NETWORK          .replace(PARAM_URL_NTWK,Integer.toString(networkId)); }
     //@formatter:off
 
 

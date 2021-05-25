@@ -30,7 +30,7 @@ public class Paths20 extends com.robypomper.josp.defs.admin.jslwebbridge.status.
 
     //@formatter:off
     // JCP JSL Web Bridge Status methods
-    public static String FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION         (String sessionId){ return FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION      .replace(PARAM_SESSIONS,sessionId); }
+    public static String FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION         (String sessionId){ return FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION      .replace(PARAM_URL_SESSION,sessionId); }
     //@formatter:off
 
 

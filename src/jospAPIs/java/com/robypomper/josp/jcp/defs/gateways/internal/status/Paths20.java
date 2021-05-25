@@ -1,6 +1,9 @@
 package com.robypomper.josp.jcp.defs.gateways.internal.status;
 
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 /**
  * JCP Gateways - Status 2.0
  */
@@ -19,10 +22,15 @@ public class Paths20 {
     // API Params
 
     //@formatter:off
-    public static final String PARAM_GW         = "{gw_id}";
-    public static final String PARAM_GW_CLIENT  = "{gw_client_id}";
-    public static final String PARAM_OBJ        = "{obj_id}";
-    public static final String PARAM_SRV        = "{srv_id}";
+    public static final String PARAM_GW         = "gw_id";
+    public static final String PARAM_GW_CLIENT  = "gw_client_id";
+    public static final String PARAM_OBJ        = "obj_id";
+    public static final String PARAM_SRV        = "srv_id";
+
+    public static final String PARAM_URL_GW         = "{" + PARAM_GW + "}";
+    public static final String PARAM_URL_GW_CLIENT  = "{" + PARAM_GW_CLIENT + "}";
+    public static final String PARAM_URL_OBJ        = "{" + PARAM_OBJ + "}";
+    public static final String PARAM_URL_SRV        = "{" + PARAM_SRV + "}";
     //@formatter:on
 
 
@@ -33,13 +41,13 @@ public class Paths20 {
     public static final String MTHD_STATUS             = "";
     // GWs status methods
     public static final String MTHD_STATUS_GWS         = "gws";
-    public static final String MTHD_STATUS_GW          = "gws/" + PARAM_GW;
-    public static final String MTHD_STATUS_GW_CLIENT   = "gws/" + PARAM_GW + "/" + PARAM_GW_CLIENT;
+    public static final String MTHD_STATUS_GW          = "gws/" + PARAM_URL_GW;
+    public static final String MTHD_STATUS_GW_CLIENT   = "gws/" + PARAM_URL_GW + "/clients";// + "?" + PARAM_GW_CLIENT + "=" + PARAM_URL_GW_CLIENT;
     // Broker status methods
     public static final String MTHD_STATUS_BROKER          = "broker";
-    public static final String MTHD_STATUS_BROKER_OBJ      = "broker/obj/" + PARAM_OBJ;
-    public static final String MTHD_STATUS_BROKER_SRV      = "broker/srv/" + PARAM_SRV;
-    public static final String MTHD_STATUS_BROKER_OBJ_DB   = "broker/objdb/" + PARAM_OBJ;
+    public static final String MTHD_STATUS_BROKER_OBJ      = "broker/obj/" + PARAM_URL_OBJ;
+    public static final String MTHD_STATUS_BROKER_SRV      = "broker/srv/";// + "?" + PARAM_SRV + "=" + PARAM_URL_SRV;
+    public static final String MTHD_STATUS_BROKER_OBJ_DB   = "broker/objdb/" + PARAM_URL_OBJ;
     //@formatter:on
 
 
@@ -61,15 +69,22 @@ public class Paths20 {
 
 
     // API Paths composers
+    protected static String encode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return value;
+        }
+    }
 
     //@formatter:off
     // GWs status methods
-    public static String FULL_PATH_STATUS_GW                (String gwId){ return FULL_PATH_STATUS_GW                               .replace(PARAM_GW,gwId); }
-    public static String FULL_PATH_STATUS_GW_CLIENT         (String gwId, String gwClientId){ return FULL_PATH_STATUS_GW_CLIENT     .replace(PARAM_GW,gwId).replace(PARAM_GW_CLIENT,gwClientId); }
+    public static String FULL_PATH_STATUS_GW                (String gwId){ return FULL_PATH_STATUS_GW                               .replace(PARAM_URL_GW,gwId); }
+    public static String FULL_PATH_STATUS_GW_CLIENT         (String gwId, String gwClientId){ return FULL_PATH_STATUS_GW_CLIENT     .replace(PARAM_URL_GW,gwId) + "?" + PARAM_GW_CLIENT + "=" + encode(gwClientId); }
     // Broker status methods
-    public static String FULL_PATH_STATUS_BROKER_OBJ        (String objId){ return FULL_PATH_STATUS_BROKER_OBJ          .replace(PARAM_OBJ,objId); }
-    public static String FULL_PATH_STATUS_BROKER_SRV        (String srvId){ return FULL_PATH_STATUS_BROKER_SRV          .replace(PARAM_SRV,srvId); }
-    public static String FULL_PATH_STATUS_BROKER_OBJ_DB     (String objId){ return FULL_PATH_STATUS_BROKER_OBJ_DB       .replace(PARAM_OBJ,objId); }
+    public static String FULL_PATH_STATUS_BROKER_OBJ        (String objId){ return FULL_PATH_STATUS_BROKER_OBJ          .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_STATUS_BROKER_SRV        (String srvId){ return FULL_PATH_STATUS_BROKER_SRV          + "?" + PARAM_SRV + "=" + encode(srvId); }
+    public static String FULL_PATH_STATUS_BROKER_OBJ_DB     (String objId){ return FULL_PATH_STATUS_BROKER_OBJ_DB       .replace(PARAM_URL_OBJ,objId); }
     //@formatter:on
 
 

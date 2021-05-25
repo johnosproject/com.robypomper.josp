@@ -38,7 +38,9 @@ public class Paths20 {
     // API Params
 
     //@formatter:off
-    public static final String PARAM_STRATEGY       = "{strategy}";
+    public static final String PARAM_STRATEGY       = "strategy";
+
+    public static final String PARAM_URL_STRATEGY     = "{" + PARAM_STRATEGY + "}";
     //@formatter:on
 
 
@@ -46,7 +48,7 @@ public class Paths20 {
 
     //@formatter:off
     // Generator methods
-    private static final String MTHD_GENERATE     = "generate/" + PARAM_STRATEGY;
+    private static final String MTHD_GENERATE     = "generate/" + PARAM_URL_STRATEGY;
     //@formatter:on
 
 
@@ -62,7 +64,7 @@ public class Paths20 {
 
     //@formatter:off
     // Generator methods
-    public static String FULL_PATH_GENERATE     (String strategy){ return FULL_PATH_GENERATE        .replace(PARAM_STRATEGY,strategy); }
+    public static String FULL_PATH_GENERATE     (String strategy){ return FULL_PATH_GENERATE        .replace(PARAM_URL_STRATEGY,strategy); }
     //@formatter:off
 
 

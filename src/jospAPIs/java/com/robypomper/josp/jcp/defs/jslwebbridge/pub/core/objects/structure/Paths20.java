@@ -16,12 +16,23 @@ public class Paths20 {
     public final static String DOCS_DESCR = "Methods to query objects structure and components";
 
 
+    // API Params
+
+    //@formatter:off
+    public static final String PARAM_OBJ        = "obj_id";
+    public static final String PARAM_COMP        = "comp_path";
+
+    public static final String PARAM_URL_OBJ        = "{" + PARAM_OBJ + "}";
+    public static final String PARAM_URL_COMP        = "{" + PARAM_COMP + "}";
+    //@formatter:on
+
+
     // API Methods
 
     //@formatter:off
     //
-    private static final String MTHD_STRUCT    = "{obj_id}/";
-    private static final String MTHD_COMP      = "{obj_id}/{comp_path}/";
+    private static final String MTHD_STRUCT    = PARAM_URL_OBJ;
+    private static final String MTHD_COMP      = PARAM_URL_OBJ + "/" + PARAM_URL_COMP;
     //@formatter:on
 
 
@@ -37,8 +48,8 @@ public class Paths20 {
 
     //@formatter:off
     //
-    public static String FULL_PATH_STRUCT   (String objId)                  { return FULL_PATH_STRUCT   .replace("{obj_id}",objId); }
-    public static String FULL_PATH_COMP     (String objId, String compPath) { return FULL_PATH_COMP     .replace("{obj_id}",objId).replace("{comp_path}",compPath); }
+    public static String FULL_PATH_STRUCT   (String objId)                  { return FULL_PATH_STRUCT   .replace(PARAM_URL_OBJ,objId); }
+    public static String FULL_PATH_COMP     (String objId, String compPath) { return FULL_PATH_COMP     .replace(PARAM_URL_OBJ,objId).replace(PARAM_URL_COMP,compPath); }
     //@formatter:on
 
 

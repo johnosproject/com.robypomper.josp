@@ -19,10 +19,15 @@ public class Paths20 {
     // API Params
 
     //@formatter:off
-    public static final String PARAM_OBJ        = "{obj_id}";
-    public static final String PARAM_SRV        = "{srv_id}";
-    public static final String PARAM_USR        = "{usr_id}";
-    public static final String PARAM_GW         = "{gw_id}";
+    public static final String PARAM_OBJ        = "obj_id";
+    public static final String PARAM_SRV        = "srv_id";
+    public static final String PARAM_USR        = "usr_id";
+    public static final String PARAM_GW         = "gw_id";
+
+    public static final String PARAM_URL_OBJ        = "{" + PARAM_OBJ + "}";
+    public static final String PARAM_URL_SRV        = "{" + PARAM_SRV + "}";
+    public static final String PARAM_URL_USR        = "{" + PARAM_USR + "}";
+    public static final String PARAM_URL_GW         = "{" + PARAM_GW + "}";
     //@formatter:on
 
 
@@ -33,16 +38,16 @@ public class Paths20 {
     public static final String MTHD_STATUS             = "";
     // Objects
     public static final String MTHD_STATUS_OBJS        = "objects";
-    public static final String MTHD_STATUS_OBJ         = "objects/" + PARAM_OBJ;
+    public static final String MTHD_STATUS_OBJ         = "objects/" + PARAM_URL_OBJ;
     // Services
     public static final String MTHD_STATUS_SRVS        = "services";
-    public static final String MTHD_STATUS_SRV         = "services/" + PARAM_SRV;
+    public static final String MTHD_STATUS_SRV         = "services/" + PARAM_URL_SRV;
     // Users
     public static final String MTHD_STATUS_USRS        = "users";
-    public static final String MTHD_STATUS_USR         = "users/" + PARAM_USR;
+    public static final String MTHD_STATUS_USR         = "users/" + PARAM_URL_USR;
     // Gateways
     public static final String MTHD_STATUS_GWS         = "gateways";
-    public static final String MTHD_STATUS_GW          = "gateways/" + PARAM_GW;
+    public static final String MTHD_STATUS_GW          = "gateways/" + PARAM_URL_GW;
     //@formatter:on
 
 
@@ -70,13 +75,13 @@ public class Paths20 {
 
     //@formatter:off
     // Objects
-    public static String FULL_PATH_STATUS_OBJ      (String objId){ return FULL_PATH_STATUS_OBJ        .replace(PARAM_OBJ,objId); }
+    public static String FULL_PATH_STATUS_OBJ      (String objId){ return FULL_PATH_STATUS_OBJ        .replace(PARAM_URL_OBJ,objId); }
     // Service
-    public static String FULL_PATH_STATUS_SRV      (String srvId){ return FULL_PATH_STATUS_SRV        .replace(PARAM_SRV,srvId); }
+    public static String FULL_PATH_STATUS_SRV      (String srvId){ return FULL_PATH_STATUS_SRV        .replace(PARAM_URL_SRV,srvId); }
     // Users
-    public static String FULL_PATH_STATUS_USR      (String usrId){ return FULL_PATH_STATUS_USR        .replace(PARAM_USR,usrId); }
+    public static String FULL_PATH_STATUS_USR      (String usrId){ return FULL_PATH_STATUS_USR        .replace(PARAM_URL_USR,usrId); }
     // Gateways
-    public static String FULL_PATH_STATUS_GW       (String gwId){ return FULL_PATH_STATUS_GW          .replace(PARAM_GW,gwId); }
+    public static String FULL_PATH_STATUS_GW       (String gwId){ return FULL_PATH_STATUS_GW          .replace(PARAM_URL_GW,gwId); }
     //@formatter:off
 
 

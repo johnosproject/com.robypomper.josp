@@ -46,6 +46,14 @@ public class Paths20 extends com.robypomper.josp.jcp.defs.jslwebbridge.internal.
     //@formatter:on
 
 
+    // API Paths composers
+
+    //@formatter:off
+    // Sessions methods
+    public static String FULL_PATH_JCP_JSLWB_STATUS_SESSION     (String sessionId){ return FULL_PATH_JCP_JSLWB_STATUS_SESSION       .replace(PARAM_URL_SESSION,sessionId); }
+    //@formatter:on
+
+
     // API Descriptions
 
     //@formatter:off
