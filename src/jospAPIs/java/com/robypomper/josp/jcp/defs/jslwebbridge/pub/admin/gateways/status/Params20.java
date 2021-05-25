@@ -10,7 +10,6 @@ public class Params20 extends com.robypomper.josp.defs.admin.gateways.status.Par
 
     public static class Index {
 
-        public final String urlServers = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_LIST;
         public final String urlGateways;
         public final String urlBroker;
 

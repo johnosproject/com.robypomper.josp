@@ -17,7 +17,7 @@ public class Params20 extends com.robypomper.josp.defs.admin.jslwebbridge.execut
         public final String urlCPU = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_EXEC_CPU;
         public final String urlMemory = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_EXEC_MEMORY;
         public final String urlDisks = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_EXEC_DISKS;
-        public final String urlNetworks = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_EXEC_NETWORK;
+        public final String urlNetworks = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_EXEC_NETWORKS;
 
     }
 

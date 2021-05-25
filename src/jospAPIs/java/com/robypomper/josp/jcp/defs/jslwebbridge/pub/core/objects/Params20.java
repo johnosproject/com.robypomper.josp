@@ -18,6 +18,7 @@ public class Params20 {
         public String jodVersion;
         public String pathSingle;
         public String pathStruct;
+        public String pathEvents;
         public String pathPerms;
         public String pathPermsAdd;
         public String pathSetOwner;

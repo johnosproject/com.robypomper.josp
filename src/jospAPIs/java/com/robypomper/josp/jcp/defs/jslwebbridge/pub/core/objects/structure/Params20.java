@@ -17,7 +17,8 @@ public class Params20 {
         public String componentPath;
         public String type;
         public String pathSelf;
-        
+        public String pathHistory;
+
     }
     
     public static class JOSPContainerHtml extends JOSPComponentHtml {
@@ -48,6 +49,7 @@ public class Params20 {
         public String pathFalse;
 
     }
+
     public static class JOSPRangeStateHtml extends JOSPComponentHtml {
 
         public double state;

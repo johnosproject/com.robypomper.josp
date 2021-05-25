@@ -10,6 +10,7 @@ public class Params20 {
 
     public static class Index {
 
+        public final String urlTest = "Test";
         //public final String url... = Paths20.FULL_PATH_STATUS_...;
 
     }

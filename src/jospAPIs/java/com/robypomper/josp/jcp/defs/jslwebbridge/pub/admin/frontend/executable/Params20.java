@@ -17,11 +17,11 @@ public class Params20 extends com.robypomper.josp.defs.admin.frontend.executable
         public final String urlCPU = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_CPU;
         public final String urlMemory = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_MEMORY;
         public final String urlDisks = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_DISKS;
-        public final String urlNetworks = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_NETWORK;
+        public final String urlNetworks = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_NETWORKS;
 
     }
 
-    public static class IndexJava {
+    public static class JavaIndex {
 
         public final String urlVM = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_VM;
         public final String urlRuntime = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_EXEC_JAVA_RUNTIME;

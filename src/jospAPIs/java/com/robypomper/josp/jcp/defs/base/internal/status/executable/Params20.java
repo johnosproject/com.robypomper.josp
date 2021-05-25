@@ -1,11 +1,15 @@
 package com.robypomper.josp.jcp.defs.base.internal.status.executable;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.robypomper.josp.consts.JOSPConstants;
 import com.robypomper.josp.types.RESTItemList;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
@@ -27,7 +31,7 @@ public class Params20 {
         public final String urlCPU = Paths20.FULL_PATH_EXEC_CPU;
         public final String urlMemory = Paths20.FULL_PATH_EXEC_MEMORY;
         public final String urlDisks = Paths20.FULL_PATH_EXEC_DISKS;
-        public final String urlNetworks = Paths20.FULL_PATH_EXEC_NETWORK;
+        public final String urlNetworks = Paths20.FULL_PATH_EXEC_NETWORKS;
 
     }
 
@@ -35,6 +39,8 @@ public class Params20 {
     // Process
 
     public static class Process {
+
+        public final String test = "test-ok";
 
         public Process() {
 
@@ -201,6 +207,21 @@ public class Params20 {
             this.timeBlockedCount = ManagementFactory.getThreadMXBean().getThreadInfo(thId).getBlockedTime();
         }
 
+        @JsonCreator
+        public JavaThread(@JsonProperty long id, @JsonProperty String name, @JsonProperty String state,
+                          @JsonProperty long timeCpu, @JsonProperty long timeUser, @JsonProperty long timeWaited,
+                          @JsonProperty long timeWaitedCount, @JsonProperty long timeBlocked, @JsonProperty long timeBlockedCount) {
+            this.id = id;
+            this.name = name;
+            this.state = state;
+            this.timeCpu = timeCpu;
+            this.timeUser = timeUser;
+            this.timeWaited = timeWaited;
+            this.timeWaitedCount = timeWaitedCount;
+            this.timeBlocked = timeBlocked;
+            this.timeBlockedCount = timeBlockedCount;
+        }
+
     }
 
 
@@ -243,6 +264,8 @@ public class Params20 {
 
     public static class Memory {
 
+        public final String test = "test-ok";
+
         public Memory() {
 
         }
@@ -262,7 +285,11 @@ public class Params20 {
                 RESTItemList disk = new RESTItemList();
                 disk.id = root.toString();
                 disk.name = root.toString();
-                disk.url = Paths20.FULL_PATH_EXEC_DISK(root.toString());
+                try {
+                    disk.url = Paths20.FULL_PATH_EXEC_DISK(URLEncoder.encode(root.toString(), StandardCharsets.UTF_8.toString()));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
                 disksList.add(disk);
             }
         }
