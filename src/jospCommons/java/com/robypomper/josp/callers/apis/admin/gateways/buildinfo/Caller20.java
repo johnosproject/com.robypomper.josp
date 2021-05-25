@@ -53,7 +53,7 @@ public class Caller20 extends AbsAPISrv {
     // Build Info methods
 
     public Params20.BuildInfo getBuildInfoReq(String gwServerId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, Paths20.FULL_PATH_JCP_GWS_BUILDINFO, Params20.BuildInfo.class, gwServerId, isSecure());
+        return jcpClient.execReq(Verb.GET, Paths20.FULL_PATH_JCP_GWS_BUILDINFO(gwServerId), Params20.BuildInfo.class, isSecure());
     }
 
 }

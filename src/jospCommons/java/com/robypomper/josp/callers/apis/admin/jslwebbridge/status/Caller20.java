@@ -57,7 +57,7 @@ public class Caller20 extends AbsAPISrv {
     }
 
     public Params20.Session getJCPJSLWBStatusSession(String sessionId) throws JCPClient2.ConnectionException, JCPClient2.AuthenticationException, JCPClient2.ResponseException, JCPClient2.RequestException {
-        return jcpClient.execReq(Verb.GET, Paths20.FULL_PATH_JCP_JSLWB_STATUS_SESSION.replace(Paths20.PARAM_SESSIONS, sessionId), Params20.Session.class, isSecure());
+        return jcpClient.execReq(Verb.GET, Paths20.FULL_PATH_JCP_JSLWB_STATUS_SESSION(sessionId), Params20.Session.class, isSecure());
     }
 
 }
