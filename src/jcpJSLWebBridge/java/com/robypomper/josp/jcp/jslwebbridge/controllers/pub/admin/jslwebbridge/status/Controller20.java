@@ -8,6 +8,7 @@ import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 import com.robypomper.josp.jcp.jslwebbridge.controllers.ControllerLinkJSL;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.admin.JSLAdmin;
+import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -51,7 +55,7 @@ public class Controller20 extends ControllerLinkJSL {
 
     // JCP JSL Web Bridge Status methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_JSLWB_STATUS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.Index.class),
@@ -63,7 +67,7 @@ public class Controller20 extends ControllerLinkJSL {
         return ResponseEntity.ok(new Params20.Index());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSIONS)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSIONS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSIONS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.Sessions.class),
@@ -73,8 +77,9 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Sessions> getJCPJSLWebBridgeStatusSessionsReq(@ApiIgnore HttpSession session) {
         JSL jsl = getJSL(session.getId());
+        Params20.Sessions result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWebBridgeSessions());
+            result = jsl.getAdmin().getJCPJSLWebBridgeSessions();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -82,9 +87,21 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+        List<RESTItemList> sessionsList = new ArrayList<>();
+        for (RESTItemList item : result.sessionsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION(item.id);
+            sessionsList.add(newItem);
+        }
+        result.sessionsList = sessionsList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_JSLWB_STATUS_SESSION)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.Session.class),
@@ -94,7 +111,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Session> getJCPJSLWebBridgeStatusSessionReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.jslwebbridge.status.Paths20.PARAM_SESSIONS) String sessionId) {
+            @PathVariable(com.robypomper.josp.defs.admin.jslwebbridge.status.Paths20.PARAM_SESSION) String sessionId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPJSLWebBridgeSession(sessionId));

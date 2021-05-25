@@ -59,8 +59,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonBool(@ApiIgnore HttpSession session,
-                                            @PathVariable("obj_id") String objId,
-                                            @PathVariable("comp_path") String compPath) {
+                                            @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                            @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLBooleanState comp = getJSLObjComp(session.getId(), objId, compPath, JSLBooleanState.class, "get boolean component state");
         return ResponseEntity.ok(comp.getState());
     }
@@ -75,8 +75,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Double> jsonRange(@ApiIgnore HttpSession session,
-                                            @PathVariable("obj_id") String objId,
-                                            @PathVariable("comp_path") String compPath) {
+                                            @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                            @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeState comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeState.class, "get range component state");
         return ResponseEntity.ok(comp.getState());
     }
@@ -91,8 +91,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<List<JOSPStatusHistory>> jsonStatusHistory(@ApiIgnore HttpSession session,
-                                                                     @PathVariable("obj_id") String objId,
-                                                                     @PathVariable("comp_path") String compPath,
+                                                                     @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                                     @PathVariable(Paths20.PARAM_COMP) String compPath,
                                                                      HistoryLimits limits) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "get component state history");
         JSLComponent comp = getJSLObjComp(session.getId(), objId, compPath, JSLComponent.class, "get component state history");

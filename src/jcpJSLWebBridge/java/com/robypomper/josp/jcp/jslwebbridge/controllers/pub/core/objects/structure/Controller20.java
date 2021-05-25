@@ -63,7 +63,7 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Params20.JOSPStructHtml> jsonObjectStructure(@ApiIgnore HttpSession session,
-                                                                       @PathVariable("obj_id") String objId) {
+                                                                       @PathVariable(Paths20.PARAM_OBJ) String objId) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "get object structure");
 
         // ToDo add MissingPermission exception to getStructure() method
@@ -85,8 +85,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Params20.JOSPComponentHtml> jsonObjectComponent(@ApiIgnore HttpSession session,
-                                                                          @PathVariable("obj_id") String objId,
-                                                                          @PathVariable("comp_path") String compPath) {
+                                                                          @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                                          @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "get object component");
 
         JSLComponent comp = compPath.equals("-") ? obj.getStruct().getStructure() : getJSLObjComp(session.getId(), objId, compPath, JSLComponent.class, "get object component");
@@ -149,6 +149,7 @@ public class Controller20 extends ControllerImplJSL {
         compHtml.componentPath = comp.getPath().getString();
         compHtml.type = comp.getType();
         compHtml.pathSelf = Paths20.FULL_PATH_COMP(objId, comp instanceof JSLRoot ? "-" : componentPath);
+        compHtml.pathHistory = com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.states.Paths20.FULL_PATH_STATUS_HISTORY(objId, comp instanceof JSLRoot ? "-" : componentPath);
     }
 
     private static void setBoolStateHtml(Params20.JOSPBooleanStateHtml compHtml, JSLBooleanState comp) {

@@ -55,7 +55,7 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<List<Params20.JOSPPermHtml>> jsonObjectPermissions(@ApiIgnore HttpSession session,
-                                                                             @PathVariable("obj_id") String objId) {
+                                                                             @PathVariable(Paths20.PARAM_OBJ) String objId) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "reuire permissions list");
 
         // Convert permission list
@@ -89,7 +89,7 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionAdd(@ApiIgnore HttpSession session,
-                                                           @PathVariable("obj_id") String objId,
+                                                           @PathVariable(Paths20.PARAM_OBJ) String objId,
                                                            @RequestParam("srv_id") String srvId,
                                                            @RequestParam("usr_id") String usrId,
                                                            @RequestParam("type") JOSPPerm.Type type,
@@ -119,8 +119,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionUpd(@ApiIgnore HttpSession session,
-                                                           @PathVariable("obj_id") String objId,
-                                                           @PathVariable("perm_id") String permId,
+                                                           @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                           @PathVariable(Paths20.PARAM_PERM) String permId,
                                                            @RequestParam(value = "srv_id", required = false) String srvId,
                                                            @RequestParam(value = "usr_id", required = false) String usrId,
                                                            @RequestParam(value = "type", required = false) JOSPPerm.Type type,
@@ -159,8 +159,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionDel(@ApiIgnore HttpSession session,
-                                                           @PathVariable("obj_id") String objId,
-                                                           @PathVariable("perm_id") String permId) {
+                                                           @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                           @PathVariable(Paths20.PARAM_PERM) String permId) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "remove permission");
         JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId, "remove permission");
 
@@ -187,8 +187,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectPermissionDup(@ApiIgnore HttpSession session,
-                                                           @PathVariable("obj_id") String objId,
-                                                           @PathVariable("perm_id") String permId) {
+                                                           @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                           @PathVariable(Paths20.PARAM_PERM) String permId) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "duplicate permission");
         JOSPPerm perm = getJSLObjPerm(session.getId(), objId, permId, "duplicate permission");
 

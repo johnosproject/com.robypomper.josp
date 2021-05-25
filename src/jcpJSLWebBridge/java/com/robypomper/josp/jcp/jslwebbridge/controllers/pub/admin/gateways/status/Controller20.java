@@ -8,6 +8,7 @@ import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 import com.robypomper.josp.jcp.jslwebbridge.controllers.ControllerLinkJSL;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.admin.JSLAdmin;
+import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -15,13 +16,17 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -51,7 +56,7 @@ public class Controller20 extends ControllerLinkJSL {
 
     // JCP Gateways Status methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_LIST)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_LIST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_LIST)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.GatewaysServers.class),
@@ -61,8 +66,9 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.GatewaysServers> getJCPGatewaysStatusGatewaysServersReq(@ApiIgnore HttpSession session) {
         JSL jsl = getJSL(session.getId());
+        Params20.GatewaysServers result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysServers());
+            result = jsl.getAdmin().getJCPGatewaysServers();
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -70,9 +76,21 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+        List<RESTItemList> jslwbServerList = new ArrayList<>();
+        for (RESTItemList item : result.serverList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS(item.id);
+            jslwbServerList.add(newItem);
+        }
+        result.serverList = jslwbServerList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.Index.class),
@@ -81,11 +99,11 @@ public class Controller20 extends ControllerLinkJSL {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<Params20.Index> getJCPAPIsStatusReq(
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         return ResponseEntity.ok(new Params20.Index(gwServerId));
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GWS)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GWS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GWS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.GWs.class),
@@ -95,10 +113,11 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.GWs> getJCPGatewaysStatusGatewaysReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
+        Params20.GWs result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysGWs(gwServerId));
+            result = jsl.getAdmin().getJCPGatewaysGWs(gwServerId);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -106,9 +125,21 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+        List<RESTItemList> jslwbGatewaysList = new ArrayList<>();
+        for (RESTItemList item : result.gwList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW(gwServerId, item.id);
+            jslwbGatewaysList.add(newItem);
+        }
+        result.gwList = jslwbGatewaysList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.GW.class),
@@ -118,11 +149,12 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.GW> getJCPGatewaysStatusGatewayReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW) String gwId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @PathVariable(Paths20.PARAM_GW) String gwId) {
         JSL jsl = getJSL(session.getId());
+        Params20.GW result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysGW(gwServerId, gwServerId));
+            result = jsl.getAdmin().getJCPGatewaysGW(gwServerId, gwId);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -130,9 +162,21 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+        List<RESTItemList> clientsList = new ArrayList<>();
+        for (RESTItemList item : result.clientsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW_CLIENT(gwServerId, gwId, item.id);
+            clientsList.add(newItem);
+        }
+        result.clientsList = clientsList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW_CLIENT)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW_CLIENT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_GW_CLIENT)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.GWClient.class),
@@ -142,12 +186,12 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.GWClient> getJCPGatewaysStatusGatewayClientReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW) String gwId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_CLIENT) String gwClientId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @PathVariable(Paths20.PARAM_GW) String gwId,
+            @RequestParam(Paths20.PARAM_GW_CLIENT) String gwClientId) {
         JSL jsl = getJSL(session.getId());
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysGWsClient(gwServerId, gwServerId, gwClientId));
+            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysGWsClient(gwServerId, gwId, gwClientId));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -157,7 +201,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.Broker.class),
@@ -167,10 +211,11 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Broker> getJCPGatewaysStatusBrokerReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
+        Params20.Broker result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysBroker(gwServerId));
+            result = jsl.getAdmin().getJCPGatewaysBroker(gwServerId);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -178,9 +223,42 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+
+        List<RESTItemList> objsList = new ArrayList<>();
+        for (RESTItemList item : result.objsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ(gwServerId, item.id);
+            objsList.add(newItem);
+        }
+        result.objsList = objsList;
+
+        List<RESTItemList> srvsList = new ArrayList<>();
+        for (RESTItemList item : result.srvsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_SRV(gwServerId, item.id);
+            srvsList.add(newItem);
+        }
+        result.srvsList = srvsList;
+
+        List<RESTItemList> objsDBList = new ArrayList<>();
+        for (RESTItemList item : result.objsDBList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ_DB(gwServerId, item.id);
+            objsDBList.add(newItem);
+        }
+        result.objsDBList = objsDBList;
+
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.BrokerObject.class),
@@ -190,8 +268,8 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.BrokerObject> getJCPGatewaysStatusBrokerObjectReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_OBJ) String objId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @PathVariable(Paths20.PARAM_OBJ) String objId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysBrokerObject(gwServerId, objId));
@@ -204,7 +282,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_SRV)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_SRV, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_SRV)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.BrokerService.class),
@@ -214,8 +292,8 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.BrokerService> getJCPGatewaysStatusBrokerServiceReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_SRV) String srvId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @RequestParam(Paths20.PARAM_SRV) String srvId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysBrokerService(gwServerId, srvId));
@@ -228,7 +306,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ_DB)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ_DB, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_STATUS_BROKER_OBJ_DB)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.BrokerObjectDB.class),
@@ -238,8 +316,8 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.BrokerObjectDB> getJCPGatewaysStatusBrokerObjectDBReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.status.Paths20.PARAM_OBJ) String objId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @PathVariable(Paths20.PARAM_OBJ) String objId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysBrokerObjectDB(gwServerId, objId));

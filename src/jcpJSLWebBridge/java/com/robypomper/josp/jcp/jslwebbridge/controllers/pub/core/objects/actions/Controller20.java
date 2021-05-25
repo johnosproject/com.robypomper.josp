@@ -56,8 +56,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonBoolSwitch(@ApiIgnore HttpSession session,
-                                                  @PathVariable("obj_id") String objId,
-                                                  @PathVariable("comp_path") String compPath) {
+                                                  @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                  @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLBooleanAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLBooleanAction.class, "switch boolean component");
 
         try {
@@ -79,8 +79,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonBoolTrue(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLBooleanAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLBooleanAction.class, "set true boolean component");
 
         try {
@@ -102,8 +102,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonBoolFalse(@ApiIgnore HttpSession session,
-                                                 @PathVariable("obj_id") String objId,
-                                                 @PathVariable("comp_path") String compPath) {
+                                                 @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                 @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLBooleanAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLBooleanAction.class, "set false boolean component");
 
         try {
@@ -128,8 +128,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRangeSet_POST(@ApiIgnore HttpSession session,
-                                                     @PathVariable("obj_id") String objId,
-                                                     @PathVariable("comp_path") String compPath,
+                                                     @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                     @PathVariable(Paths20.PARAM_COMP) String compPath,
                                                      @RequestParam("val") String val) {
         return jsonRangeSet(session, objId, compPath, val);
     }
@@ -141,8 +141,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRangeSet(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath,
+                                                @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                @PathVariable(Paths20.PARAM_COMP) String compPath,
                                                 @PathVariable("val") String val) {
         Double dVal = JavaFormatter.strToDouble(val);
         if (dVal == null)
@@ -169,8 +169,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRangeInc(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class, "increase range component");
 
         try {
@@ -192,8 +192,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRangeDec(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class, "decrease range component");
 
         try {
@@ -215,8 +215,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRangeMax(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class, "set max on range component");
 
         try {
@@ -238,8 +238,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRangeMin(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class, "set min on range component");
 
         try {
@@ -261,8 +261,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRange1_2(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                 @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                 @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class, "set 1/2 on range component");
 
         try {
@@ -285,8 +285,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRange1_3(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                 @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                 @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class, "set 1/3 on range component");
 
         try {
@@ -309,8 +309,8 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonRange2_3(@ApiIgnore HttpSession session,
-                                                @PathVariable("obj_id") String objId,
-                                                @PathVariable("comp_path") String compPath) {
+                                                 @PathVariable(Paths20.PARAM_OBJ) String objId,
+                                                 @PathVariable(Paths20.PARAM_COMP) String compPath) {
         JSLRangeAction comp = getJSLObjComp(session.getId(), objId, compPath, JSLRangeAction.class, "set 2/3 on range component");
 
         try {

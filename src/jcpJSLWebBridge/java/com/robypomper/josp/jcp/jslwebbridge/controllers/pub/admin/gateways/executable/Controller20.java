@@ -8,6 +8,7 @@ import com.robypomper.josp.jcp.info.JCPJSLWBVersions;
 import com.robypomper.josp.jcp.jslwebbridge.controllers.ControllerLinkJSL;
 import com.robypomper.josp.jsl.JSL;
 import com.robypomper.josp.jsl.admin.JSLAdmin;
+import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -52,7 +59,7 @@ public class Controller20 extends ControllerLinkJSL {
 
     // JCP Gateways Executable methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.Index.class),
@@ -61,11 +68,11 @@ public class Controller20 extends ControllerLinkJSL {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<Params20.Index> getJCPGatewaysExecReq(
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         return ResponseEntity.ok(new Params20.Index(gwServerId));
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_ONLINE)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_ONLINE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_ONLINE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Date.class),
@@ -75,7 +82,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Date> getJCPGatewaysExecOnlineReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecOnline(gwServerId));
@@ -88,7 +95,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_PROCESS)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_PROCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_PROCESS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.Process.class),
@@ -98,7 +105,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Process> getJCPGatewaysExecProcessReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecProcess(gwServerId));
@@ -111,7 +118,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.JavaIndex.class),
@@ -120,11 +127,11 @@ public class Controller20 extends ControllerLinkJSL {
             @ApiResponse(code = 503, message = "Error accessing the resource"),
     })
     public ResponseEntity<Params20.JavaIndex> getJCPGatewaysExecJavaReq(
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         return ResponseEntity.ok(new Params20.JavaIndex(gwServerId));
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_VM)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_VM, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_VM)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.JavaVM.class),
@@ -134,7 +141,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.JavaVM> getJCPGatewaysExecJavaVMReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecJavaVM(gwServerId));
@@ -147,7 +154,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_RUNTIME)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_RUNTIME, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_RUNTIME)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.JavaRuntime.class),
@@ -157,7 +164,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.JavaRuntime> getJCPGatewaysExecJavaRuntimeReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecJavaRuntime(gwServerId));
@@ -170,7 +177,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_TIMES)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_TIMES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_TIMES)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.JavaTimes.class),
@@ -180,7 +187,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.JavaTimes> getJCPGatewaysExecJavaTimesReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecJavaTimes(gwServerId));
@@ -193,7 +200,7 @@ public class Controller20 extends ControllerLinkJSL {
         }
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_CLASSES)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_CLASSES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_CLASSES)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.JavaClasses.class),
@@ -203,7 +210,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.JavaClasses> getJCPGatewaysExecJavaClassesReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecJavaClasses(gwServerId));
@@ -226,7 +233,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.JavaMemory> getJCPGatewaysExecJavaMemoryReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecJavaMemory(gwServerId));
@@ -249,10 +256,11 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.JavaThreads> getJCPGatewaysExecJavaThreadsReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
+        Params20.JavaThreads result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecJavaThreads(gwServerId));
+            result = jsl.getAdmin().getJCPGatewaysExecJavaThreads(gwServerId);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -260,6 +268,18 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+        List<RESTItemList> threadsList = new ArrayList<>();
+        for (RESTItemList item : result.threadsList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_THREAD(gwServerId,Long.parseLong(item.id));
+            threadsList.add(newItem);
+        }
+        result.threadsList = threadsList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_JAVA_THREAD)
@@ -272,8 +292,8 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.JavaThread> getJCPGatewaysExecJavaThreadReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_THREAD) String threadId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @PathVariable(Paths20.PARAM_THREAD) String threadId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecJavaThread(gwServerId, Long.parseLong(threadId)));
@@ -296,7 +316,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.OS> getJCPGatewaysExecOSReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecOS(gwServerId));
@@ -319,7 +339,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.CPU> getJCPGatewaysExecCPUReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecCPU(gwServerId));
@@ -342,7 +362,7 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Memory> getJCPGatewaysExecMemoryReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecMemory(gwServerId));
@@ -365,10 +385,11 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Disks> getJCPGatewaysExecDisksReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
+        Params20.Disks result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecDisks(gwServerId));
+            result = jsl.getAdmin().getJCPGatewaysExecDisks(gwServerId);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -376,6 +397,22 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+        List<RESTItemList> diskList = new ArrayList<>();
+        for (RESTItemList item : result.disksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            try {
+                newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_DISK(gwServerId,URLEncoder.encode(item.id, StandardCharsets.UTF_8.toString()));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            diskList.add(newItem);
+        }
+        result.disksList = diskList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_DISK)
@@ -388,8 +425,8 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Disk> getJCPGatewaysExecDiskReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_THREAD) String diskId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @PathVariable(Paths20.PARAM_THREAD) String diskId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecDisk(gwServerId, diskId));
@@ -412,10 +449,11 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Networks> getJCPGatewaysExecNetworksReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId) {
         JSL jsl = getJSL(session.getId());
+        Params20.Networks result;
         try {
-            return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecNetworks(gwServerId));
+            result = jsl.getAdmin().getJCPGatewaysExecNetworks(gwServerId);
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.RequestException | JCPClient2.ResponseException e) {
             throw jcpServiceNotAvailable(jsl.getJCPClient(), e);
@@ -423,6 +461,18 @@ public class Controller20 extends ControllerLinkJSL {
         } catch (JSLAdmin.UserNotAdminException | JSLAdmin.UserNotAuthException e) {
             throw userNotAuthorizedException(jsl.getJCPClient(), e);
         }
+
+        List<RESTItemList> networkList = new ArrayList<>();
+        for (RESTItemList item : result.networksList) {
+            RESTItemList newItem = new RESTItemList();
+            newItem.id = item.id;
+            newItem.name = item.name;
+            newItem.url = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_NETWORK(gwServerId,Integer.parseInt(item.id));
+            networkList.add(newItem);
+        }
+        result.networksList = networkList;
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_GATEWAYS_EXEC_NETWORK)
@@ -435,8 +485,8 @@ public class Controller20 extends ControllerLinkJSL {
     })
     public ResponseEntity<Params20.Network> getJCPGatewaysExecNetworkReq(
             @ApiIgnore HttpSession session,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_GW_SERVER) String gwServerId,
-            @PathVariable(com.robypomper.josp.defs.admin.gateways.executable.Paths20.PARAM_NTWK) String networkId) {
+            @PathVariable(Paths20.PARAM_GW_SERVER) String gwServerId,
+            @PathVariable(Paths20.PARAM_NTWK) String networkId) {
         JSL jsl = getJSL(session.getId());
         try {
             return ResponseEntity.ok(jsl.getAdmin().getJCPGatewaysExecNetwork(gwServerId, Integer.parseInt(networkId)));

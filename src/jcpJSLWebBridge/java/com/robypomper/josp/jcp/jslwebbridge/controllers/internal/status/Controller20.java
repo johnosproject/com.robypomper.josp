@@ -10,6 +10,7 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,7 +38,7 @@ public class Controller20 extends ControllerImpl {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.FULL_PATH_STATUS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP JSL Web Bridge's status index", response = Params20.Index.class),
@@ -51,13 +52,13 @@ public class Controller20 extends ControllerImpl {
 
     // Sessions methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_SESSIONS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_SESSIONS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_SESSIONS,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -66,7 +67,7 @@ public class Controller20 extends ControllerImpl {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
     public ResponseEntity<Params20.Sessions> getSessionsReq() {
         Params20.Sessions sessions = new Params20.Sessions();
 
@@ -82,13 +83,13 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(sessions);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_SESSION)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_SESSION, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_SESSION,
             authorizations = @Authorization(
-                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_MNG,
+                    value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
                     scopes = @AuthorizationScope(
-                            scope = SwaggerConfigurer.ROLE_MNG_SWAGGER,
-                            description = SwaggerConfigurer.ROLE_MNG_DESC
+                            scope = SwaggerConfigurer.ROLE_JCP_SWAGGER,
+                            description = SwaggerConfigurer.ROLE_JCP_DESC
                     )
             )
     )
@@ -97,8 +98,8 @@ public class Controller20 extends ControllerImpl {
             @ApiResponse(code = 401, message = "User not authenticated"),
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
-    @RolesAllowed(SwaggerConfigurer.ROLE_MNG)
-    public ResponseEntity<Params20.Session> getSessionReq(@PathVariable(Paths20.PARAM_SESSIONS) String sessionId) {
+    @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
+    public ResponseEntity<Params20.Session> getSessionReq(@PathVariable(Paths20.PARAM_SESSION) String sessionId) {
         HttpSession session = jslWB.getSession(sessionId);
         if (session == null)
             throw resourceNotFound("Web Session", sessionId);

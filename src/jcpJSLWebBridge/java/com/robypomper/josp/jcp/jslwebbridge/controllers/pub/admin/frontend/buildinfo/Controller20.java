@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,7 +51,7 @@ public class Controller20 extends ControllerLinkJSL {
 
     // JCP Front End Build Info methods
 
-    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_BUILDINFO)
+    @GetMapping(path = Paths20.FULL_PATH_JSLWB_ADMIN_FRONTEND_BUILDINFO, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_JSLWB_ADMIN_FRONTEND_BUILDINFO)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP ", response = Params20.BuildInfo.class),

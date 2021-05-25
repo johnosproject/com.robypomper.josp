@@ -73,6 +73,7 @@ public class Controller20 extends ControllerImplJSL {
             jospObj.jodVersion = obj.getInfo().getJODVersion();
             jospObj.pathSingle = Paths20.FULL_PATH_DETAILS(obj.getId());
             jospObj.pathStruct = com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.structure.Paths20.FULL_PATH_STRUCT(obj.getId());
+            jospObj.pathEvents = Paths20.FULL_PATH_EVENTS(obj.getId());
             jospObj.pathPerms = com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.permissions.Paths20.FULL_PATH_LIST(obj.getId());
             jospObj.pathPermsAdd = com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.permissions.Paths20.FULL_PATH_ADD(obj.getId());
             jospObj.pathSetOwner = Paths20.FULL_PATH_OWNER(obj.getId());
@@ -94,7 +95,7 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Params20.JOSPObjHtml> jsonObjectDetails(@ApiIgnore HttpSession session,
-                                                                  @PathVariable("obj_id") String objId) {
+                                                                  @PathVariable(Paths20.PARAM_OBJ) String objId) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "get object details");
         Params20.JOSPObjHtml jospObj = new Params20.JOSPObjHtml();
         jospObj.id = obj.getId();
@@ -107,6 +108,7 @@ public class Controller20 extends ControllerImplJSL {
         jospObj.jodVersion = obj.getInfo().getJODVersion();
         jospObj.pathSingle = Paths20.FULL_PATH_DETAILS(obj.getId());
         jospObj.pathStruct = com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.structure.Paths20.FULL_PATH_STRUCT(obj.getId());
+        jospObj.pathEvents = Paths20.FULL_PATH_EVENTS(obj.getId());
         jospObj.pathPerms = com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.permissions.Paths20.FULL_PATH_LIST(obj.getId());
         jospObj.pathPermsAdd = com.robypomper.josp.jcp.defs.jslwebbridge.pub.core.objects.permissions.Paths20.FULL_PATH_ADD(obj.getId());
         jospObj.pathSetOwner = Paths20.FULL_PATH_OWNER(obj.getId());
@@ -125,7 +127,7 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectOwner(@ApiIgnore HttpSession session,
-                                                   @PathVariable("obj_id") String objId,
+                                                   @PathVariable(Paths20.PARAM_OBJ) String objId,
                                                    @RequestParam("new_owner") String newOwner) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "set object owner");
 
@@ -149,7 +151,7 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<Boolean> jsonObjectName(@ApiIgnore HttpSession session,
-                                                  @PathVariable("obj_id") String objId,
+                                                  @PathVariable(Paths20.PARAM_OBJ) String objId,
                                                   @RequestParam("new_name") String newName) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "set object name");
 
@@ -176,7 +178,7 @@ public class Controller20 extends ControllerImplJSL {
             @ApiResponse(code = 400, message = "User not authenticated")
     })
     public ResponseEntity<List<JOSPEvent>> jsonObjectEvents(@ApiIgnore HttpSession session,
-                                                            @PathVariable("obj_id") String objId,
+                                                            @PathVariable(Paths20.PARAM_OBJ) String objId,
                                                             HistoryLimits limits) {
         JSLRemoteObject obj = getJSLObj(session.getId(), objId, "list object events");
 
