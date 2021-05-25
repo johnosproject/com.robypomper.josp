@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,7 +50,7 @@ public class Controller20 extends ControllerImpl {
 
     // Methods
 
-    @GetMapping(path = Paths20.FULL_PATH_ENTRYPOINT)
+    @GetMapping(path = Paths20.FULL_PATH_ENTRYPOINT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_ENTRYPOINT)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP FE Backend entry point url", response = String.class),
@@ -60,7 +61,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(jslWBUrlPublic);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_INIT_JSL_SESSION)
+    @GetMapping(path = Paths20.FULL_PATH_INIT_JSL_SESSION, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_INIT_JSL_SESSION)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP FE Backend entry point", response = Boolean.class),
