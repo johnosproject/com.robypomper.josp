@@ -41,7 +41,7 @@ public class ControllerBase {
     }
 
     protected static ResponseStatusException jcpServiceNotAvailable(JCPClient2 client, Throwable cause) {
-        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("JCP %s unavailable (%s)", client.getApiName(), cause.toString()), cause);
+        return new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, String.format("Service %s unavailable (%s)", client.getApiName(), cause.toString()), cause);
     }
 
 }

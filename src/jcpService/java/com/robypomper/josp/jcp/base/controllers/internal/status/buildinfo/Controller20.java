@@ -7,6 +7,7 @@ import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -36,7 +37,7 @@ public abstract class Controller20 extends ControllerImplAbs {
 
     // Methods
 
-    @GetMapping(path = Paths20.FULL_PATH_BUILDINFO)
+    @GetMapping(path = Paths20.FULL_PATH_BUILDINFO, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_BUILDINFO,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,

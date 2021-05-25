@@ -8,6 +8,7 @@ import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +33,7 @@ public class Controller20 extends ControllerImpl {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -55,7 +56,7 @@ public class Controller20 extends ControllerImpl {
 
     // Online methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_ONLINE)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_ONLINE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_ONLINE)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Service's local date", response = String.class)
@@ -67,7 +68,7 @@ public class Controller20 extends ControllerImpl {
 
     // Process methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_PROCESS)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_PROCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_PROCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -90,7 +91,7 @@ public class Controller20 extends ControllerImpl {
 
     // Java methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -110,7 +111,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.JavaIndex());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_VM)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_VM, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA_VM,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -130,7 +131,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.JavaVM());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_RUNTIME)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_RUNTIME, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA_RUNTIME,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -150,7 +151,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.JavaRuntime());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_TIMES)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_TIMES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA_TIMES,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -170,7 +171,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.JavaTimes());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_CLASSES)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_CLASSES, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA_CLASSES,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -190,7 +191,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.JavaClasses());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_MEMORY)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_MEMORY, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -210,7 +211,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.JavaMemory());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_THREADS)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_THREADS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA_THREADS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -230,7 +231,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.JavaThreads());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_THREAD)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_JAVA_THREAD, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_JAVA_THREAD,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -253,7 +254,7 @@ public class Controller20 extends ControllerImpl {
 
     // OS methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_OS)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_OS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_OS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -276,7 +277,7 @@ public class Controller20 extends ControllerImpl {
 
     // CPU methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_CPU)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_CPU, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_CPU,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -299,7 +300,7 @@ public class Controller20 extends ControllerImpl {
 
     // Memory methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_MEMORY)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_MEMORY, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_MEMORY,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -322,7 +323,7 @@ public class Controller20 extends ControllerImpl {
 
     // Disks methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_DISKS)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_DISKS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_DISKS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -342,7 +343,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.Disks());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_DISK)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_DISK, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_DISK,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -365,7 +366,7 @@ public class Controller20 extends ControllerImpl {
 
     // Networks methods
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_NETWORKS)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_NETWORKS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_NETWORKS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -385,7 +386,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(new Params20.Networks());
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_EXEC_NETWORK)
+    @GetMapping(path = Paths20.FULL_PATH_EXEC_NETWORK, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_EXEC_NETWORK,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
