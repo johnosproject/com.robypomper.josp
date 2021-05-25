@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,7 +65,7 @@ public class Controller20 extends ControllerImpl {
 
     // Methods
 
-    @PostMapping(path = Paths20.FULL_PATH_GW_O2S_ACCESS)
+    @PostMapping(path = Paths20.FULL_PATH_GW_O2S_ACCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_GW_O2S_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -95,7 +96,7 @@ public class Controller20 extends ControllerImpl {
     }
 
 
-    @PostMapping(path = Paths20.FULL_PATH_GW_S2O_ACCESS)
+    @PostMapping(path = Paths20.FULL_PATH_GW_S2O_ACCESS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_GW_S2O_ACCESS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,

@@ -17,12 +17,16 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 
@@ -47,7 +51,7 @@ public class Controller20 extends ControllerImpl {
 
     // Index methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.FULL_PATH_STATUS)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP Gateways's status index", response = Params20.Index.class),
@@ -69,7 +73,7 @@ public class Controller20 extends ControllerImpl {
 
     // GWs status methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_GWS)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_GWS, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_GWS,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -105,7 +109,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(gws);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_GW)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_GW, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_GW,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -132,7 +136,7 @@ public class Controller20 extends ControllerImpl {
             throw resourceNotFound("GW", gwId);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_GW_CLIENT)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_GW_CLIENT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_GW_CLIENT,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -148,7 +152,7 @@ public class Controller20 extends ControllerImpl {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Params20.GWClient> getGWClientReq(@PathVariable(Paths20.PARAM_GW) String gwId, @PathVariable(Paths20.PARAM_GW_CLIENT) String gwClientId) {
+    public ResponseEntity<Params20.GWClient> getGWClientReq(@PathVariable(Paths20.PARAM_GW) String gwId, @RequestParam(Paths20.PARAM_GW_CLIENT) String gwClientId) {
         if (gwO2SService.get().getId().equals(gwId))
             return ResponseEntity.ok(generateGWClient(gwO2SService.get(), gwClientId));
 
@@ -208,7 +212,7 @@ public class Controller20 extends ControllerImpl {
 
     // Broker status methods
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_BROKER)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_BROKER, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_BROKER,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -257,7 +261,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(broker);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_BROKER_OBJ)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_BROKER_OBJ, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_BROKER_OBJ,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -285,7 +289,7 @@ public class Controller20 extends ControllerImpl {
         return ResponseEntity.ok(objRes);
     }
 
-    @GetMapping(path = Paths20.FULL_PATH_STATUS_BROKER_SRV)
+    @GetMapping(path = Paths20.FULL_PATH_STATUS_BROKER_SRV, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_STATUS_BROKER_SRV,
             authorizations = @Authorization(
                     value = SwaggerConfigurer.OAUTH_FLOW_DEF_JCP,
@@ -301,7 +305,7 @@ public class Controller20 extends ControllerImpl {
             @ApiResponse(code = 403, message = "Only Admin user can access to this request"),
     })
     @RolesAllowed(SwaggerConfigurer.ROLE_JCP)
-    public ResponseEntity<Params20.BrokerService> getBrokerServiceReq(@PathVariable(Paths20.PARAM_SRV) String srvId) {
+    public ResponseEntity<Params20.BrokerService> getBrokerServiceReq(@RequestParam(Paths20.PARAM_SRV) String srvId) {
         BrokerClientJSL srv = brokerService.getBrokerJSL().getService(srvId);
         if (srv == null)
             throw resourceNotFound("Broker's service", srvId);
