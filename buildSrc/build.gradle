@@ -35,10 +35,15 @@ ext {
 }
 
 dependencies {
+
     // Docker compose support
     compile "com.avast.gradle:gradle-docker-compose-plugin:${dockerGradlePluginVersion}"
 
     // Spring Boot support
     compile "org.springframework.boot:spring-boot-gradle-plugin:${springGradlePluginVersion}"
+
+    // Node.js support
+    compile 'com.github.node-gradle.node:com.github.node-gradle.node.gradle.plugin:3.0.1'
+
 }
 
