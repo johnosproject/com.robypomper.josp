@@ -196,7 +196,7 @@ public class CmdsJSLObjsMngr {
             return String.format("Missing permission to object '%s', can't get Events\n%s", obj.getId(), e.getMessage());
         }
 
-        if (eventsHistory.isEmpty())
+        if (eventsHistory==null || eventsHistory.isEmpty())
             return String.format("No events for '%s' Object", objId);
 
         return String.format("Events for '%s' Object\n", objId) +
