@@ -24,6 +24,8 @@ public class AbsAPI {
     protected final JCPClient2 jcpClient;
 
     public AbsAPI(JCPClient2 jcpClient) {
+        if (jcpClient==null)
+            throw new RuntimeException("Can't initialize AbsAPI with null jcpClient");
         this.jcpClient = jcpClient;
     }
 
