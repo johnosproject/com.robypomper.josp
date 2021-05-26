@@ -280,7 +280,7 @@ clean.dependsOn jcpGWs_Clean
 bootJcpGWsRun.dependsOn printGradleVersions
 
 // JCP JSL Web Bridge
-SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpJSLWebBridge, project.file('src/jcpJSLWebBridge/resources/log4j2_project.xml'), 'dev,auth,data-none,ssl,cors')
+SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpJSLWebBridge, project.file('src/jcpJSLWebBridge/resources/log4j2_project.xml'), 'dev,auth,data-none,ssl,cors,sessions')
 tasks.bootJcpJSLWebBridgeRun {
     workingDir('envs/runnables/jcpJSLWebBridge')
     doFirst {
