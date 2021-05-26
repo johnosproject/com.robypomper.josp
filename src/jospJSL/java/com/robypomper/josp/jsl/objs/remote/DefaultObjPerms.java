@@ -111,12 +111,14 @@ public class DefaultObjPerms extends ObjBase implements ObjPerms {
     }
 
     private void emitInfo_PermissionsChanged(List<JOSPPerm> perms, List<JOSPPerm> oldPerms) {
-        for (RemoteObjectPermsListener l : listenersInfo)
+        List<RemoteObjectPermsListener> tmpList = new ArrayList<>(listenersInfo);
+        for (RemoteObjectPermsListener l : tmpList)
             l.onPermissionsChanged(getRemote(), perms, oldPerms);
     }
 
     private void emitInfo_ServicePermChanged(JOSPPerm.Connection connType, JOSPPerm.Type type, JOSPPerm.Type oldPermType) {
-        for (RemoteObjectPermsListener l : listenersInfo)
+        List<RemoteObjectPermsListener> tmpList = new ArrayList<>(listenersInfo);
+        for (RemoteObjectPermsListener l : tmpList)
             l.onServicePermChanged(getRemote(), connType, type, oldPermType);
     }
 

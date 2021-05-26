@@ -22,6 +22,7 @@ import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
 import com.robypomper.josp.jsl.objs.remote.DefaultObjComm;
+import com.robypomper.josp.jsl.objs.remote.ObjPerms;
 import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.log.Mrk_JSL;
@@ -141,6 +142,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
                 log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection (%s) to '%s' service", locConnObjId, serverConnection, srvInfo.getSrvId()));
                 remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
                 objs.add(remObj);
+                remObj.getPerms().addListener(objectPermsListener);
                 emit_ObjAdded(remObj);
 
             } else {
@@ -176,8 +178,9 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     public void addCloudObject(String objId) {
         assert getById(objId) == null;
         log.info(Mrk_JSL.JSL_OBJS, String.format("Register new cloud object '%s' to '%s' service", objId, srvInfo.getSrvId()));
-        DefaultJSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
+        JSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
         objs.add(remObj);
+        remObj.getPerms().addListener(objectPermsListener);
         emit_ObjAdded(remObj);
     }
 
@@ -204,9 +207,28 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     }
 
     private void emit_ObjRemoved(JSLRemoteObject obj) {
-        // ToDo: add calls to emit_ObjRemoved()
         for (ObjsMngrListener l : listeners)
             l.onObjRemoved(obj);
     }
+
+    // Listeners object permission's changes
+
+    private ObjPerms.RemoteObjectPermsListener objectPermsListener = new ObjPerms.RemoteObjectPermsListener() {
+
+        @Override
+        public void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {}
+
+        @Override
+        public void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
+            if (obj.getPerms().getServicePerm(JOSPPerm.Connection.LocalAndCloud) == JOSPPerm.Type.None
+                && obj.getPerms().getServicePerm(JOSPPerm.Connection.OnlyLocal) == JOSPPerm.Type.None) {
+                obj.getPerms().removeListener(objectPermsListener);
+                objs.remove(obj);
+                emit_ObjRemoved(obj);
+            }
+
+        }
+
+    };
 
 }
