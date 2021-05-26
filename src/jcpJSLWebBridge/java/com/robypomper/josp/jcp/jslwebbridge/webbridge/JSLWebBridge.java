@@ -134,7 +134,8 @@ public class JSLWebBridge {
     }
 
     public void destroyAll() {
-        for (String sessionId : jslInstances.keySet())
+        List<String> tmpSessionIds = new ArrayList<>(jslInstances.keySet());
+        for (String sessionId : tmpSessionIds)
             destroyJSL(sessionId);
         stopHeartBeatTimer();
     }
