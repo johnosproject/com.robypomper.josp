@@ -186,12 +186,13 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> service : oldAllowedServices.entrySet())
             if (!newAllowedServices.containsKey(service.getKey()))
                 removedServices.put(service.getKey(),service.getValue());
-        System.out.println("");
-        System.out.println("Updated permissions on " + objId + " object:");
-        System.out.println(" ADD: " + String.join(", ", addedServices.keySet()));
-        System.out.println(" UPD: " + String.join(", ", updatedServices.keySet()));
-        System.out.println(" REM: " + String.join(", ", removedServices.keySet()));
-        System.out.println("");
+
+        // System.out.println("");
+        // System.out.println("Updated permissions on " + objId + " object:");
+        // System.out.println(" ADD: " + String.join(", ", addedServices.keySet()));
+        // System.out.println(" UPD: " + String.join(", ", updatedServices.keySet()));
+        // System.out.println(" REM: " + String.join(", ", removedServices.keySet()));
+        // System.out.println("");
 
         // added (send presentations)
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : addedServices.entrySet()) {

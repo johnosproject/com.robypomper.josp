@@ -61,6 +61,7 @@ public class JSLWebBridgeService {
         return webBridge.getJSLEmitter(sessionId);
     }
 
+
     // Creators
 
     public JSL initJSL(String sessionId, String clientId, String clientSecret) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {

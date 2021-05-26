@@ -164,7 +164,7 @@ public class JOSPEvent {
                 statuses.add(fromString(eventStr));
 
             } catch (JOSPProtocol.ParsingException e) {
-                System.out.println("Error on JOSPProtocol.ParsingException event: " + eventStr);
+                System.err.println(String.format("Error on JOSPProtocol.ParsingException event, skip current event and continue (skipped event: %S)", eventStr));
             }
 
         return statuses;

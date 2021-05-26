@@ -94,9 +94,6 @@ public class DefaultHistoryObjEvents extends HistoryBase implements HistoryObjEv
     // Processing
 
     public boolean processHistoryEventsMsg(String msg) {
-        // Received StatusHistory message
-        System.out.println(String.format("Received Events Message for %s object", getRemote().getName()));
-
         String reqId;
         List<JOSPEvent> eventsHistory;
         try {
