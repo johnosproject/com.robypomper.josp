@@ -358,6 +358,8 @@ public class JODPermissions_002 implements JODPermissions {
         if (mustUpdateObjID)
             updateObjIdAndSave();
 
+        permissions.clear();
+        permissions.addAll(loadedPerms);
         Events.registerPermLoaded("Load permissions from file", permissions);
     }
 
