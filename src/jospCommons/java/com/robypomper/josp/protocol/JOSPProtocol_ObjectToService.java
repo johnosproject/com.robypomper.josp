@@ -239,14 +239,9 @@ public class JOSPProtocol_ObjectToService {
         return JOSPProtocol.extractFieldFromResponse(msg, 3, 2, HISTORY_EVENTS_REQ_NAME);
     }
 
-    public static List<JOSPEvent> getHistoryEventsMsg_HistoryStatus(String msg) {
-        try {
-            String eventsHistoryStr = JOSPProtocol.extractPayloadFromResponse(msg, 3, 3, HISTORY_EVENTS_REQ_NAME);
-            return JOSPEvent.listFromString(eventsHistoryStr);
-        } catch (JOSPProtocol.ParsingException ignore) {
-        }
-
-        return new ArrayList<>();
+    public static List<JOSPEvent> getHistoryEventsMsg_HistoryStatus(String msg) throws JOSPProtocol.ParsingException {
+        String eventsHistoryStr = JOSPProtocol.extractPayloadFromResponse(msg, 3, 3, HISTORY_EVENTS_REQ_NAME);
+        return JOSPEvent.listFromString(eventsHistoryStr);
     }
 
 

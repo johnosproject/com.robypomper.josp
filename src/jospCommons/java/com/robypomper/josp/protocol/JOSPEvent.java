@@ -160,7 +160,12 @@ public class JOSPEvent {
         List<JOSPEvent> statuses = new ArrayList<>();
 
         for (String eventStr : eventsHistoryStr.split("\n"))
-            statuses.add(fromString(eventStr));
+            try {
+                statuses.add(fromString(eventStr));
+
+            } catch (JOSPProtocol.ParsingException e) {
+                System.out.println("Error on JOSPProtocol.ParsingException event: " + eventStr);
+            }
 
         return statuses;
     }
