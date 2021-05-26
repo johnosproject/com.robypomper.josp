@@ -102,7 +102,7 @@ public class JOSPCommunicationIntegration {
         srvInfo = new MockJSLServiceInfo("srvId/usrId/instId");
         jslUserMngr = new MockJSLUserMngr_002();
         //jslObjsMngr = new MockJSLObjsMngr_002();
-        jslObjsMngr = new JSLObjsMngr_002(jslSettings, srvInfo);
+        jslObjsMngr = new JSLObjsMngr_002(jslSettings, srvInfo, jslUserMngr);
 
         log.debug(Mrk_Test.TEST_METHODS, "test");
     }

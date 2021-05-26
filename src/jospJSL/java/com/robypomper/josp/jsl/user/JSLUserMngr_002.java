@@ -33,6 +33,9 @@ import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  *
@@ -53,6 +56,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
     private final Caller20 apiUsrsCaller;
     private Params20.User user;
     private JSLCommunication comm = null;
+    // Listeners
+    private final List<JSLUserMngr.UserListener> userListeners = new ArrayList<>();
 
 
     // Constructor
@@ -142,6 +147,43 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
     }
 
 
+    // User events
+
+    @Override
+    public void addUserListener(JSLUserMngr.UserListener listener) {
+        userListeners.add(listener);
+    }
+
+    @Override
+    public void removeUserListener(JSLUserMngr.UserListener listener) {
+        userListeners.add(listener);
+    }
+
+    private void _emitLoggedIn_PreRestart() {
+        List<JSLUserMngr.UserListener> tmpList = new ArrayList<>(userListeners);
+        for (JSLUserMngr.UserListener l : tmpList)
+            l.onLoginPreRestart(this);
+    }
+
+    private void _emitLoggedOut_PreRestart() {
+        List<JSLUserMngr.UserListener> tmpList = new ArrayList<>(userListeners);
+        for (JSLUserMngr.UserListener l : tmpList)
+            l.onLogoutPreRestart(this);
+    }
+
+    private void _emitLoggedIn() {
+        List<JSLUserMngr.UserListener> tmpList = new ArrayList<>(userListeners);
+        for (JSLUserMngr.UserListener l : tmpList)
+            l.onLogin(this);
+    }
+
+    private void _emitLoggedOut() {
+        List<JSLUserMngr.UserListener> tmpList = new ArrayList<>(userListeners);
+        for (JSLUserMngr.UserListener l : tmpList)
+            l.onLogout(this);
+    }
+
+
     // LoginManager impl
 
     @Override
@@ -163,6 +205,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         }
 
         log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", getUsername(), getUserId()));
+        _emitLoggedIn_PreRestart();
 
         if (comm == null)
             return;
@@ -189,6 +232,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
             }
         }
 
+        _emitLoggedIn();
     }
 
     @Override
@@ -204,6 +248,7 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         jcpClient.setUserId(null);
 
         log.info(Mrk_JSL.JSL_USR, String.format("Logged out user '%s' with id '%s'", loggedUsername, loggedUsrId));
+        _emitLoggedOut_PreRestart();
 
         if (comm == null)
             return;
@@ -229,6 +274,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
                 log.warn(Mrk_JSL.JSL_USR, String.format("Error on restart local communication on updating user id because %s", e.getMessage()), e);
             }
         }
+
+        _emitLoggedOut();
     }
 
     /**
@@ -250,6 +297,8 @@ public class JSLUserMngr_002 implements JSLUserMngr, JCPClient2.LoginListener {
         jcpClient.setUserId(user.usrId);
 
         log.info(Mrk_JSL.JSL_USR, String.format("Logged in user '%s' with id '%s'", user.username, user.usrId));
+
+        _emitLoggedIn();
     }
 
 }

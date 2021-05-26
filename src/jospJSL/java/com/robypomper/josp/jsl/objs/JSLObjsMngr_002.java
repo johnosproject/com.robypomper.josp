@@ -25,6 +25,8 @@ import com.robypomper.josp.jsl.objs.remote.DefaultObjComm;
 import com.robypomper.josp.jsl.objs.remote.ObjPerms;
 import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,9 +59,10 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * @param settings the JSL settings.
      * @param srvInfo  the service's info.
      */
-    public JSLObjsMngr_002(JSLSettings_002 settings, JSLServiceInfo srvInfo) {
+    public JSLObjsMngr_002(JSLSettings_002 settings, JSLServiceInfo srvInfo, JSLUserMngr usrMngr) {
         this.locSettings = settings;
         this.srvInfo = srvInfo;
+        usrMngr.addUserListener(userListener);
 
         log.info(Mrk_JSL.JSL_OBJS, "Initialized JSLObjsMngr");
 
@@ -121,6 +124,19 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     public List<JSLRemoteObject> searchObjects(JSLObjectSearchPattern pattern) {
         log.warn(Mrk_JSL.JSL_OBJS, "Method searchObjects(...) not implemented, return empty objects list");
         return new ArrayList<>();
+    }
+
+
+    // Object's mngm
+
+    private void resetAllObjects() {
+        synchronized (objs) {
+            List<JSLRemoteObject> tmpList = new ArrayList<>(objs);
+            for (JSLRemoteObject obj : tmpList) {
+                objs.remove(obj);
+                emit_ObjRemoved(obj);
+            }
+        }
     }
 
 
@@ -229,6 +245,32 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
 
         }
 
+    };
+
+
+    // User's login/out
+
+    private final JSLUserMngr.UserListener userListener = new JSLUserMngr.UserListener() {
+
+        @Override
+        public void onLoginPreRestart(JSLUserMngr jslUserMngr) {
+            resetAllObjects();
+        }
+
+        @Override
+        public void onLogoutPreRestart(JSLUserMngr jslUserMngr) {
+            resetAllObjects();
+        }
+
+        @Override
+        public void onLogin(JSLUserMngr jslUserMngr) {
+
+        }
+
+        @Override
+        public void onLogout(JSLUserMngr jslUserMngr) {
+
+        }
     };
 
 }

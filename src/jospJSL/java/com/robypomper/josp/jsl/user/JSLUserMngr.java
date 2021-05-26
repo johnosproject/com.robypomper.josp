@@ -83,4 +83,23 @@ public interface JSLUserMngr {
     // ToDo: implements user's related to current service settings (local/cloud)
     // String getUserSrvSetting(String key);
 
+
+    // User events
+
+    void addUserListener(JSLUserMngr.UserListener listener);
+
+    void removeUserListener(JSLUserMngr.UserListener listener);
+
+    interface UserListener {
+
+        void onLoginPreRestart(JSLUserMngr jslUserMngr);
+
+        void onLogoutPreRestart(JSLUserMngr jslUserMngr);
+
+        void onLogin(JSLUserMngr jslUserMngr);
+
+        void onLogout(JSLUserMngr jslUserMngr);
+
+    }
+
 }

@@ -106,7 +106,7 @@ public class JSL_002 extends AbsJSL {
 
         JSLAdmin_002 admin = new JSLAdmin_002(settings, jcpClient, usr);
 
-        JSLObjsMngr_002 objs = new JSLObjsMngr_002(settings, srvInfo);
+        JSLObjsMngr_002 objs = new JSLObjsMngr_002(settings, srvInfo, usr);
 
         srvInfo.setSystems(usr, objs);
 
