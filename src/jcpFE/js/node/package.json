@@ -1,0 +1,56 @@
+{
+  "name": "jcp-fe-static",
+  "version": "2.1.0",
+  "description": "JCP Front End",
+  "main": "app.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build2": "node build-dev.js",
+    "build3": "react-app-rewired build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "keywords": [
+    "josp",
+    "jcp"
+  ],
+  "author": "roberto pompermaier",
+  "license": "AGPL-3.0",
+  "devDependencies": {
+    "@babel/cli": "^7.14.3",
+    "@babel/preset-env": "^7.14.2",
+    "@babel/preset-react": "^7.13.13",
+    "babel-loader": "^8.2.2",
+    "react-scripts": "^4.0.3",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^4.7.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@material-ui/data-grid": "*",
+    "@material-ui/lab": "*",
+    "axios": "^0.21.1",
+    "chart.js": "^3.2.0",
+    "chartjs-adapter-moment": "^1.0.0",
+    "jwt-decode": "^3.1.2",
+    "moment": "^2.29.1",
+    "ra-data-simple-rest": "^3.13.4",
+    "react": "^17.0.2",
+    "react-admin": "^3.14.2",
+    "react-chartjs-2": "^3.0.3",
+    "react-dom": "^17.0.2",
+    "react-transition-group": "^4.4.1"
+  }
+}
