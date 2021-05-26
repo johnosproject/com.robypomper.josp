@@ -400,8 +400,8 @@ public class JSLWebBridge {
                 obj.getStruct().removeListener(objStructListeners.get(jsl).remove(obj));
                 obj.getPerms().removeListener(objPermsListeners.get(jsl).remove(obj));
 
-                objComponentListeners.get(jsl).remove(obj);
                 removeObjComponentListenerRecursively(jsl, obj, obj.getStruct().getStructure());
+                objComponentListeners.get(jsl).remove(obj);
             }
         };
         objsMngrListeners.put(jsl, l);
