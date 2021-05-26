@@ -1072,7 +1072,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
             case 400:
                 throw new BadRequest_400(fullUrl);
             case 401:
-                throw new Unauthorized_401(fullUrl, response);
+                if (response.getCode() == 401 && response.getHeader("WWW-Authenticate").contains("invalid_token"))
+                    throw new Unauthorized_401(fullUrl, response, request.getHeaders().get("Authorization").substring("Bearer ".length()));
+                else
+                    throw new Unauthorized_401(fullUrl, response);
             case 403:
                 throw new NotAuthorized_403(fullUrl);
             case 404:

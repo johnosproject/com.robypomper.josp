@@ -309,11 +309,16 @@ public interface JCPClient2 {
 
     class Unauthorized_401 extends ResponseException {
 
-        private static final String MSG = "Server received Unauthorized for '%s' resource, error: '%s'.";
+        private static final String MSG_1 = "Server received Unauthorized for '%s' resource, error: '%s'.";
+        private static final String MSG_2 = "Server received Unauthorized for '%s' resource, error: '%s'\n\tinvalid_token='%s'";
         private static final String HEADER = "WWW-Authenticate";
 
         public Unauthorized_401(String fullUrl, Response response) {
-            super(String.format(MSG, fullUrl, (response.getHeader(HEADER)!=null ? response.getHeader(HEADER) : "N/A")), fullUrl);
+            super(String.format(MSG_1, fullUrl, (response.getHeader(HEADER)!=null ? response.getHeader(HEADER) : "N/A")), fullUrl);
+        }
+
+        public Unauthorized_401(String fullUrl, Response response, String invalidToken) {
+            super(String.format(MSG_2, fullUrl, (response.getHeader(HEADER)!=null ? response.getHeader(HEADER) : "N/A"), invalidToken), fullUrl);
         }
 
     }
