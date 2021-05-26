@@ -22,6 +22,7 @@ import com.robypomper.build.gradle.GradleBuildInfo
 import com.robypomper.build.gradle.GradleUtils.PrintGradleVersion
 import com.robypomper.build.java.JavaPublicationUtils
 import com.robypomper.build.spring.SpringBuildUtils
+import com.robypomper.build.node.NodeBuildUtils
 
 /**
  * Gradle configurations to manage JCP components.
@@ -88,7 +89,11 @@ sourceSets {
     jcpJSLWebBridge {}
 
     // JCP FE
-    jcpFE {}
+    jcpFE {
+        resources {
+             srcDir 'build/generated/resources/node/jcpFE'
+        }
+    }
 
     // JCP All
     jcpAll {}
@@ -318,10 +323,112 @@ task jcpFE_Clean(type: Delete) {
     group 'JOSP cleaners'
     delete 'envs/runnables/jcpFE'
 
-    //...delete and recreate jcp_api database in dbms
+    //...delete and recreate jcp_fe database in dbms
 }
 clean.dependsOn jcpFE_Clean
 bootJcpFERun.dependsOn printGradleVersions
+
+// JCP FE Static
+NodeBuildUtils.makeNodeFromSourceSet(project, sourceSets.jcpFE.getName(), file("${project.projectDir}/src/jcpFE/js/node"))
+task processJcpFEResourcesNpm(type: Copy) {
+    dependsOn tasks.nodeJcpFEBuild // ex: processJcpFEResourcesNpmBuild
+
+    from "${project.projectDir}/src/jcpFE/js/node/build"
+    into "${project.projectDir}/build/generated/resources/node/jcpFE/public"
+}
+tasks.processJcpFEResources.dependsOn tasks.processJcpFEResourcesNpm
+task jcpFEStatic_Start {
+    description = 'Runs...'
+    group = 'JOSP runners jcp (soft)'
+    dependsOn nodeJcpFERun
+}
+task jcpFEStatic_Clean(type: Delete) {
+    group 'JOSP cleaners'
+    delete "${project.projectDir}/src/jcpFE/js/node/build"
+    delete "${project.projectDir}/src/jcpFE/js/node/node_modules"
+}
+clean.dependsOn tasks.jcpFEStatic_Clean
+nodeJcpFERun.dependsOn printGradleVersions
+
+
+//npm_install {
+//    args = [
+//            //'tabler-react',
+//            //'react-table',
+//
+//            'react',
+//            'react-dom',
+//            //'react-scripts',
+//            //'react-bootstrap','bootstrap',
+//
+//            //'@testing-library/jest-dom',
+//            //'@testing-library/react',
+//            //'@testing-library/user-event',
+//            //'web-vitals',
+//            //'mdbreact',
+//            //'react-router-dom'
+//    ]
+//    //npm install react          --legacy-peer-deps react-admin
+//    //npm install --save-dev react-scripts
+//
+//    //npm install tabler-react react-table
+//}
+//task processJcpFEResourcesNPMDevModules(type: NpmTask) {
+//    // install the express package only
+//    args = ['install', '--save-dev',
+//            '@babel/cli',
+//            '@babel/preset-env',
+//            '@babel/preset-react',
+//            'babel-loader',
+//            'webpack',
+//            'webpack-cli'
+//    ]
+//    //npm install --save-dev webpack webpack-cli webpack-dev-server @babel/core @babel/plugin-transform-async-to-generator @babel/plugin-transform-runtime @babel/preset-env @babel/preset-react babel-loader html-webpack-plugin style-loader css-loader extract-text-webpack-plugin@next
+//}
+//tasks.npm_install.dependsOn tasks.processJcpFEResourcesNPMDevModules
+//
+//task processJcpFEResourcesNPMModules(type: Copy) {
+//    from "${project.projectDir}/src/jcpFE/js/node/node_modules"
+//    into "${project.projectDir}/build/generated/resources/node/jcpFE/public/node_modules"
+//}
+//task processJcpFEResourcesBabel(type: NpxTask) {
+//    dependsOn tasks.npmInstall
+//    dependsOn tasks.npm_install
+//    dependsOn tasks.processJcpFEResourcesNPMModules
+//
+//    command = 'babel'
+//    environment = ['NODE_ENV': "development"]       // or test or production
+//    args = ["${project.projectDir}/src/jcpFE/js/src", '--out-dir', "${project.projectDir}/build/generated/resources/node/jcpFE/public", '--presets', '@babel/preset-react']
+//}
+////tasks.processJcpFEResources.dependsOn tasks.processJcpFEResourcesBabel
+//
+//task processJcpFEResourcesNpmBuild(type: NpmTask) {
+//    dependsOn tasks.npm_install
+//    dependsOn tasks.npmInstall
+//
+//    //command = 'create-react-app'
+//    //environment = ['NODE_ENV': "development"]       // or test or production
+//    //args = ['jcp-fe-static']
+//    //command = 'react-scripts'
+//    //environment = ['NODE_ENV': "dev"]       // or test or production
+//    //args = ['build']
+//    npmCommand = ['run', 'build']
+//    //command = 'webpack'
+//    //args = ['--mode=development']
+//}
+//task processJcpFEResourcesNpmCopy(type: Copy) {
+//    dependsOn tasks.processJcpFEResourcesNpmBuild
+//
+//    from "${project.projectDir}/src/jcpFE/js/node/build"
+//    into "${project.projectDir}/build/generated/resources/node/jcpFE/public"
+//}
+//tasks.processJcpFEResources.dependsOn tasks.processJcpFEResourcesNpmCopy
+//
+//// BABEL -> NPM MODULES
+////       -> (NPM INSTALL (both))
+//// [JCP FE RESOURCES] -> NPM COPY -> NPM BUILD -> NPM INSTALL (both) -> NPM DEV MODULES
+
+
 
 // JCP All
 SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpAll, project.file('src/jcpAll/resources/log4j2_project.xml'), 'dev,auth,db-all,ssl')
