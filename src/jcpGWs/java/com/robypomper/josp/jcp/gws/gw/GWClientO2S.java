@@ -173,30 +173,45 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
 
         Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newAllowedServices = getBroker().getObjectCloudAllowedServices(getId());
 
+        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> addedServices = new HashMap<>();
+        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> updatedServices = new HashMap<>();
+        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> removedServices = new HashMap<>();
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> service : newAllowedServices.entrySet())
+            if (!oldAllowedServices.containsKey(service.getKey()))
+                addedServices.put(service.getKey(),service.getValue());
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> service : newAllowedServices.entrySet())
+            if (oldAllowedServices.containsKey(service.getKey())
+                    && !oldAllowedServices.get(service.getKey()).equals(service.getValue()))
+                updatedServices.put(service.getKey(),service.getValue());
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> service : oldAllowedServices.entrySet())
+            if (!newAllowedServices.containsKey(service.getKey()))
+                removedServices.put(service.getKey(),service.getValue());
+        System.out.println("");
+        System.out.println("Updated permissions on " + objId + " object:");
+        System.out.println(" ADD: " + String.join(", ", addedServices.keySet()));
+        System.out.println(" UPD: " + String.join(", ", updatedServices.keySet()));
+        System.out.println(" REM: " + String.join(", ", removedServices.keySet()));
+        System.out.println("");
+
         // added (send presentations)
-        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : newAllowedServices.entrySet())
-            if (!oldAllowedServices.containsKey(newService.getKey())) {
-                getBroker().send(this, newService.getKey(), getMsgOBJ_INFO(), JOSPPerm.Type.Status);
-                getBroker().send(this, newService.getKey(), getMsgOBJ_STRUCT(), JOSPPerm.Type.Status);
-            }
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : addedServices.entrySet()) {
+            getBroker().send(this, newService.getKey(), getMsgOBJ_INFO(), JOSPPerm.Type.Status);
+            getBroker().send(this, newService.getKey(), getMsgOBJ_STRUCT(), JOSPPerm.Type.Status);
+        }
 
         getBroker().send(this, data, JOSPPerm.Type.CoOwner);
 
         // added
-        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : newAllowedServices.entrySet())
-            if (!oldAllowedServices.containsKey(newService.getKey()))
-                getBroker().send(this, newService.getKey(), getMsgSERVICE_PERM(newService.getValue().getFirst(), newService.getValue().getSecond()), JOSPPerm.Type.None);
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : addedServices.entrySet())
+            getBroker().send(this, newService.getKey(), getMsgSERVICE_PERM(newService.getValue().getFirst(), newService.getValue().getSecond()), JOSPPerm.Type.None);
 
         // to update
-        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : newAllowedServices.entrySet())
-            if (oldAllowedServices.containsKey(newService.getKey())
-                    && !oldAllowedServices.get(newService.getKey()).equals(newService.getValue()))
-                getBroker().send(this, newService.getKey(), getMsgSERVICE_PERM(newService.getValue().getFirst(), newService.getValue().getSecond()), JOSPPerm.Type.None);
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> newService : updatedServices.entrySet())
+            getBroker().send(this, newService.getKey(), getMsgSERVICE_PERM(newService.getValue().getFirst(), newService.getValue().getSecond()), JOSPPerm.Type.None);
 
         // to remove
-        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> oldService : oldAllowedServices.entrySet())
-            if (!newAllowedServices.containsKey(oldService.getKey()))
-                getBroker().send(this, oldService.getKey(), getMsgSERVICE_PERM(JOSPPerm.Type.None, oldService.getValue().getSecond()), JOSPPerm.Type.None);
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> oldService : removedServices.entrySet())
+            getBroker().send(this, oldService.getKey(), getMsgSERVICE_PERM(JOSPPerm.Type.None, oldService.getValue().getSecond()), JOSPPerm.Type.None);
     }
 
     private void processUpdateMsg(String data) throws JOSPProtocol.ParsingException, JODObjectIdNotEqualException, JODObjectNotInDBException {

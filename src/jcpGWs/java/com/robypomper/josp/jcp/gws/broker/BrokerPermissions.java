@@ -16,15 +16,11 @@ public class BrokerPermissions {
     // Internal vars
 
     private static final Logger log = LoggerFactory.getLogger(Broker.class);
-    private final Map<String, BrokerClientJOD> registeredObjs;
-    private final Map<String, BrokerClientJSL> registeredSrvs;
-    private final Map<String, BrokerClientObjDB> registeredObjsDB;
+    private final Broker broker;
     private final PermissionsDBService permissionsDBService;
 
-    public BrokerPermissions(Map<String, BrokerClientJOD> registeredObjs, Map<String, BrokerClientJSL> registeredSrvs, Map<String, BrokerClientObjDB> registeredObjsDB, PermissionsDBService permissionsDBService) {
-        this.registeredObjs = registeredObjs;
-        this.registeredSrvs = registeredSrvs;
-        this.registeredObjsDB = registeredObjsDB;
+    public BrokerPermissions(Broker broker, PermissionsDBService permissionsDBService) {
+        this.broker = broker;
         this.permissionsDBService = permissionsDBService;
     }
 
@@ -66,6 +62,8 @@ public class BrokerPermissions {
         //         add object (keep major permission)
         for (Permission srvExtPerm : srvExtendedPermissions) {
             BrokerClientJOD obj = getRegisteredObj(srvExtPerm.getObjId());
+            if (obj==null)
+                continue;
             if (permissionCheck(srvExtPerm, obj.getId(), srvId, minPermConnectionReq, minPermTypeReq))
                 addGreaterServicePerm(allowedObjects, obj.getId(), srvExtPerm);
         }
@@ -89,7 +87,7 @@ public class BrokerPermissions {
         //         if service allowed for access to obj
         //             add service (keep major permission)
         for (Permission objPerm : objPermissions)
-            for (BrokerClientJSL srv : registeredSrvs.values())
+            for (BrokerClientJSL srv : broker.getAllServices())
                 if (permissionCheck(objPerm, objId, srv.getId(), minPermConnectionReq, minPermTypeReq))
                     addGreaterServicePerm(allowedServices, srv.getId(), objPerm);
 
@@ -100,9 +98,9 @@ public class BrokerPermissions {
     // Broker client's methods
 
     private BrokerClientJOD getRegisteredObj(String objId) {
-        BrokerClientJOD obj = registeredObjs.get(objId);
+        BrokerClientJOD obj = broker.getObject(objId);
         if (obj == null)
-            obj = registeredObjsDB.get(objId);
+            obj = broker.getObjectDB(objId);
         if (obj == null)
             log.warn(String.format("Error on get Object '%s' because not registered on broker", objId));
 
@@ -110,7 +108,7 @@ public class BrokerPermissions {
     }
 
     private BrokerClientJSL getRegisteredSrv(String srvId) {
-        BrokerClientJSL srv = registeredSrvs.get(srvId);
+        BrokerClientJSL srv = broker.getService(srvId);
         if (srv == null)
             log.warn(String.format("Error on get Service '%s' because not registered on broker", srvId));
 
@@ -122,6 +120,8 @@ public class BrokerPermissions {
 
     private boolean permissionCheck(Permission objPerm, String objId, String srvId, JOSPPerm.Connection minPermConnectionReq, JOSPPerm.Type minPermTypeReq) {
         BrokerClientJOD obj = getRegisteredObj(objId);
+        if (obj==null)
+            return false;
         BrokerClientJSL srv = getRegisteredSrv(srvId);
 
         String permSrvId = objPerm.getSrvId();

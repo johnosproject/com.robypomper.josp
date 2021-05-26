@@ -28,7 +28,7 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
     // Constructors
 
     public Broker(PermissionsDBService permissionsDBService) {
-        this.permissions = new BrokerPermissions(registeredObjs, registeredSrvs, registeredObjsDB, permissionsDBService);
+        this.permissions = new BrokerPermissions(this, permissionsDBService);
     }
 
     // Getters
@@ -101,16 +101,16 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
 
     @Override
     public void deregisterObject(BrokerClientJOD gwObject) {
+        send(gwObject, gwObject.getMsgOBJ_DISCONNECTED(), JOSPPerm.Type.Status);
+
         synchronized (registeredObjs) {
             if (!registeredObjs.containsKey(gwObject.getId())) {
-                log.warn(String.format("Error registering Object '%s' to GW Broker, object NOT registered", gwObject.getId()));
+                log.warn(String.format("Error deregistering Object '%s' to GW Broker, object NOT registered", gwObject.getId()));
                 return;
             }
 
             registeredObjs.remove(gwObject.getId());
         }
-
-        send(gwObject, gwObject.getMsgOBJ_DISCONNECTED(), JOSPPerm.Type.Status);
 
         if (!registeredObjsDB.containsKey(gwObject.getId())) {
             if (gwObject.getObjDB() != null)
@@ -178,6 +178,8 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
         // send errors (PeerStreamException, PeerNotConnectedException) are only logged
 
         Set<String> srvIds = permissions.getObjectAllowedServices(gwClientJOD.getId(), JOSPPerm.Connection.LocalAndCloud, minPerm).keySet();
+        //System.out.println("\n\t\tSend message " + data.substring(9,data.indexOf(' ',9)) + " from " + gwClientJOD.getId() + " to:");
+        //System.out.println(" srvs: " + String.join(", ", srvIds) + "\n");
         for (String srvId : srvIds) {
             BrokerClientJSL srv = registeredSrvs.get(srvId);
             if (srv == null) {
@@ -192,10 +194,6 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
                 log.warn(String.format("Error forward data from Object '%s' to Service '%s'", gwClientJOD.getId(), srvId), e);
             }
         }
-
-        log.debug(String.format("Redirect from Object '%s' msg '%s", gwClientJOD.getId(), data.substring(0, 30)));
-        log.trace(String.format("          available services [%s]", String.join(", ", registeredSrvs.keySet())));
-        log.debug(String.format("          allowed services   [%s]", String.join(", ", srvIds)));
     }
 
     @Override
@@ -203,8 +201,9 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
         // from JOD to JSL
         // send to 'gwClientJSL' service only if it has at least 'minPerm' on gwClientJOD
         // send errors (JSLServiceMissingPermissionException, PeerStreamException, PeerNotConnectedException) are only logged
+        //System.out.println("\n\t\tSend message " + data.substring(9,data.indexOf(' ',9)) + " from " + gwClientJOD.getId() + " to " + srvId + "\n");
 
-        if (!permissions.checkServicePermissionOnObject(srvId, gwClientJOD.getId(), JOSPPerm.Connection.LocalAndCloud, minPerm)) {
+        if (minPerm!=JOSPPerm.Type.None && !permissions.checkServicePermissionOnObject(srvId, gwClientJOD.getId(), JOSPPerm.Connection.LocalAndCloud, minPerm)) {
             log.warn(String.format("Error send data from Object '%s' to Service '%s', service missing permission to object ", gwClientJOD.getId(), srvId));
             return;
         }
@@ -228,6 +227,7 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
         // from JSL to JOD
         // send to 'objId' object only if 'gwClientJSL' has at least 'minPerm' on destination object
         // send errors (PeerStreamException, PeerNotConnectedException) are throw to caller methods
+        //System.out.println("\n\t\tSend message " + data.substring(9,data.indexOf(' ',9)) + " from " + gwClientJSL.getId() + " to " + objId + "\n");
 
         BrokerClientJOD obj = registeredObjs.get(objId);
         if (obj == null) {
