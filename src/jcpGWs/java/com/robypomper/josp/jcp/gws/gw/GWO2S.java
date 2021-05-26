@@ -37,7 +37,7 @@ public class GWO2S extends GWAbs {
                  int maxClients,
                  JCPClientsMngr clientsMngr,
                  BrokerJOD gwBroker, ObjectDBService objectDBService, PermissionsDBService permissionsDBService) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
-        super(GWType.Obj2Srv, region, addrInternal, addrPublic, gwPort, apiPort, maxClients, clientsMngr, log);
+        super(GWType.Obj2Srv, getSerial() + "_O2S", addrInternal, addrPublic, gwPort, apiPort, maxClients, clientsMngr, log);
         this.gwBroker = gwBroker;
         this.objectDBService = objectDBService;
         this.permissionsDBService = permissionsDBService;

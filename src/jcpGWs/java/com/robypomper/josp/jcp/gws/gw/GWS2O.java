@@ -40,7 +40,7 @@ public class GWS2O extends GWAbs {
                  final int maxClients,
                  JCPClientsMngr clientsMngr,
                  BrokerJSL gwBroker, ServiceDBService serviceDBService, EventDBService eventsDBService, StatusHistoryDBService statusesHistoryDBService) throws ServerStartupException, JavaJKS.GenerationException, JavaSSL.GenerationException {
-        super(GWType.Srv2Obj, region, addrInternal, addrPublic, gwPort, apiPort, maxClients, clientsMngr, log);
+        super(GWType.Srv2Obj, getSerial() + "_S2O", addrInternal, addrPublic, gwPort, apiPort, maxClients, clientsMngr, log);
         this.gwBroker = gwBroker;
         this.serviceDBService = serviceDBService;
         this.eventsDBService = eventsDBService;

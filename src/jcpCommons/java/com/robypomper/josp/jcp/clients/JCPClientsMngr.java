@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Component
@@ -110,17 +109,29 @@ public class JCPClientsMngr {
     }
 
     public JCPGWsClient getGWsClientByGWServer(String gwServerId) {
-        throw new NotImplementedException();
-        //JCPGWsClient removedClient = gwsClientMngr.remove(gwId);
-        //if (removedClient==null)
-        //    log.warn(String.format("Try to remove not existing JCPGWsClient for '%s' JCP GWs.", gwId));
-        //
-        //log.info(String.format("Created JCPGWsClient for '%s' JCP GWs.", gwId));
-        //return removedClient;
+        //return gwsClientMngr.get(gwServerId);
+        for (String gwKey : gwsClientMngr.keySet())
+            if (gwKey.startsWith(gwServerId))
+                return gwsClientMngr.get(gwKey);
+
+        return null;
     }
 
     public Map<String,JCPGWsClient> getGWsClientsAll() {
         return gwsClientMngr;
+    }
+
+    public Collection<String> getGWsServerAll() {
+        //return gwsClientMngr.keySet();
+        List<String> serverIds = new ArrayList<>();
+
+        for (String gwKey : gwsClientMngr.keySet()) {
+            String gwsSerial = gwKey.substring(0,gwKey.length()-4);
+            if (!serverIds.contains(gwsSerial))
+                serverIds.add(gwsSerial);
+        }
+
+        return serverIds;
     }
 
 
