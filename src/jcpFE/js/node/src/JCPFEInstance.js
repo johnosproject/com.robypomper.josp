@@ -6,7 +6,7 @@ Log.log("JCPFE","".padEnd(80,"#"));
 Log.log("JCPFE","    Init JCPFE");
 Log.log("JCPFE","".padEnd(80,"#"));
 
-const JCPFE = new JCPFEClass('','https://' + window.location.hostname + ':9003');
+const JCPFE = new JCPFEClass('',window.location.port == 3000 ? 'https://' + window.location.hostname + ':9003' : '');;
 export default JCPFE;
 
 

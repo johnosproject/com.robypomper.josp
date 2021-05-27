@@ -136,11 +136,12 @@ export class JCPJSLWBClass {
                 function processResponse(thiz,responseText) {
                     try {
                         thiz._logStartup("1.1","Set JSL WB url (via FE call)","--->_initJSL()");
-                        thiz._urlJSLWB = urlJSLWB;
-                        this._tryEmitOnStateChanged();
+                        thiz._urlJSLWB = responseText;
+                        thiz._tryEmitOnStateChanged();
                         thiz._initJSL();
 
                     } catch (err) {
+                        console.error(err);
                         thiz._errorOnInitUrls("Invalid response on JSL WB url request");
                     }
                 },
