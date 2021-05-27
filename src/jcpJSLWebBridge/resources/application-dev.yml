@@ -31,7 +31,3 @@ jcp.url.apis: ${jcp.client.apis.public}:${jcp.client.apis.port}
 jcp.url.auth: ${jcp.client.auth.public}:${jcp.client.auth.port}
 jsl.comm.local.enabled: false
 jsl.comm.local.discovery: DNSSD
-
-
-# Spring Sessions
-sessions.sameSiteNone: true
