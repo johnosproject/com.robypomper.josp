@@ -50,7 +50,7 @@ public class Controller20 extends ControllerImpl {
 
     // Methods
 
-    @GetMapping(path = Paths20.FULL_PATH_ENTRYPOINT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = Paths20.FULL_PATH_ENTRYPOINT, produces = MediaType.TEXT_PLAIN_VALUE)
     @ApiOperation(value = Paths20.DESCR_PATH_ENTRYPOINT)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JCP FE Backend entry point url", response = String.class),
