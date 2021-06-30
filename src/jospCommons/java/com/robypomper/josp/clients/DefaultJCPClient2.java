@@ -681,7 +681,11 @@ public class DefaultJCPClient2 implements JCPClient2 {
             }
 
         } catch (OAuth2AccessTokenErrorResponse e) {
-            throw new AuthenticationException(String.format("Error connecting to %s because %s", apiName, e.getMessage()), e);
+            String exMessage = e.getMessage();
+            if (exMessage.contains("Incorrect redirect_uri"))
+                exMessage = String.format("Incorrect redirect_uri (%s)", service.getCallback());
+            String method = String.format("get access token with auth code flow (%s)", loginCode!=null ? "loginCode" : "refreshToken");
+            throw new AuthenticationException(String.format("Error connecting to %s (%s) because %s", apiName, method, exMessage), e);
 
         } catch (IOException | InterruptedException | ExecutionException e) {
             throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Auth Code flow because %s", apiName, e.getMessage()), e);
