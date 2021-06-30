@@ -55,7 +55,7 @@
     <Loggers>
 
         <Logger name="com.robypomper" additivity="false">
-            <AppenderRef ref="warn-libs"/>
+            <AppenderRef ref="error-libs"/>
             <AppenderRef ref="trace-file"/>
         </Logger>
 
@@ -65,7 +65,7 @@
         </Logger>
 
         <Logger name="com.robypomper.josp.jsl" additivity="false">
-            <AppenderRef ref="info-libs"/>
+            <!--<AppenderRef ref="info-libs"/>-->
             <AppenderRef ref="trace-file"/>
         </Logger>
 

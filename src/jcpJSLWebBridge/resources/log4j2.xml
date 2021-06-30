@@ -65,7 +65,7 @@
         </Logger>
 
         <Logger name="com.robypomper.josp.jsl" additivity="false">
-            <AppenderRef ref="info-libs"/>
+            <!--<AppenderRef ref="warning-libs"/>-->
             <AppenderRef ref="info-file"/>
         </Logger>
 

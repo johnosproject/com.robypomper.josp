@@ -56,6 +56,8 @@ public class JSLWebBridge {
     public static final String LOG_SEND_EVENT = "JSL Instance '%s' for session '%s' at address '%s' send '%s' event";
     public static final String LOG_SEND_EVENT_DISCONNECTED = "JSL Instance '%s' for session '%s' at address '%s' emitter disconnected";
     public static final String LOG_ERR_SEND_EVENT = "Error on JSL Instance '%s' for session '%s' at address '%s' sending '%s' event (%s)";
+    public static final String LOG_JSL_EVENT = "JSL Instance '%s' event '%s'";
+    public static final String LOG_JSL_ERROR = "JSL Instance '%s' error '%s'";
     public static final String ASSERTION_NO_JSL = "Can't call JSLWebBridge.%s() method when no JSL Instance was created for session '%s'";
     public static final String ASSERTION_NO_EMITTERS = "Can't call JSLWebBridge.%s() method when no emitters list was created for session '%s'";
     public static final String ASSERTION_NO_EMITTER_CLIENT = "Can't call JSLWebBridge.%s() method when no emitters was created for session '%s' at address '%s'";
@@ -389,6 +391,8 @@ public class JSLWebBridge {
 
                 objComponentListeners.get(jsl).put(obj, new HashMap<>());
                 addObjComponentListenerRecursively(jsl, obj, obj.getStruct().getStructure(), sessionId);
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("onObjAdded(%s)", obj.getId())));
             }
 
             @Override
@@ -402,6 +406,8 @@ public class JSLWebBridge {
 
                 removeObjComponentListenerRecursively(jsl, obj, obj.getStruct().getStructure());
                 objComponentListeners.get(jsl).remove(obj);
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("onObjRemoved(%s)", obj.getId())));
             }
         };
         objsMngrListeners.put(jsl, l);
@@ -413,21 +419,29 @@ public class JSLWebBridge {
             @Override
             public void onConnected(JCPClient2 jcpClient) {
                 emit(sessionId, String.format(EVENT_JCP_APIS_CONN, jcpClient.getAPIsUrl()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP APIs::onConnected(%s)", jcpClient.getAPIsUrl())));
             }
 
             @Override
             public void onConnectionFailed(JCPClient2 jcpClient, Throwable t) {
                 emit(sessionId, String.format(EVENT_JCP_APIS_FAIL_GEN, jcpClient.getAPIsUrl(), t));
+
+                log.warn(String.format(LOG_JSL_ERROR, jsl.getServiceInfo().getFullId(), String.format("JCP APIs::onConnectionFailed(%s) %s", jcpClient.getAPIsUrl(), t.getMessage())));
             }
 
             @Override
             public void onAuthenticationFailed(JCPClient2 jcpClient, Throwable t) {
                 emit(sessionId, String.format(EVENT_JCP_APIS_FAIL_AUTH, jcpClient.getAPIsUrl(), t));
+
+                log.warn(String.format(LOG_JSL_ERROR, jsl.getServiceInfo().getFullId(), String.format("JCP APIs::onAuthenticationFailed(%s) %s", jcpClient.getAPIsUrl(), t.getMessage())));
             }
 
             @Override
             public void onDisconnected(JCPClient2 jcpClient) {
                 emit(sessionId, String.format(EVENT_JCP_APIS_DISCONN, jcpClient.getAPIsUrl()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP APIs::onDisconnected(%s)", jcpClient.getAPIsUrl())));
             }
         };
         cloudAPIsListeners.put(jsl, l);
@@ -439,11 +453,15 @@ public class JSLWebBridge {
             @Override
             public void onLogin(JCPClient2 jcpClient) {
                 emit(sessionId, String.format(EVENT_JCP_APIS_LOGIN, jcpClient.getAPIsUrl(), jsl.getUserMngr().getUserId(), jsl.getUserMngr().getUsername()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP APIs::onLogin(%s)", jcpClient.getAPIsUrl())));
             }
 
             @Override
             public void onLogout(JCPClient2 jcpClient) {
                 emit(sessionId, String.format(EVENT_JCP_APIS_LOGOUT, jcpClient.getAPIsUrl()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP APIs::onLogin(%s)", jcpClient.getAPIsUrl())));
             }
         };
         cloudAPIsLoginListeners.put(jsl, l);
@@ -456,36 +474,48 @@ public class JSLWebBridge {
             public void onConnecting(Peer peer) {
                 PeerInfoRemote remoteInfo = peer.getConnectionInfo().getRemoteInfo();
                 emit(sessionId, String.format(EVENT_JCP_GWS_CONNECTING, remoteInfo.getProto(), remoteInfo.getHostname(), remoteInfo.getPort()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP GWs::onConnecting(%s)", peer.getRemoteId())));
             }
 
             @Override
             public void onWaiting(Peer peer) {
                 PeerInfoRemote remoteInfo = peer.getConnectionInfo().getRemoteInfo();
                 emit(sessionId, String.format(EVENT_JCP_GWS_WAITING, remoteInfo.getProto(), remoteInfo.getHostname(), remoteInfo.getPort()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP GWs::onWaiting(%s)", peer.getRemoteId())));
             }
 
             @Override
             public void onConnect(Peer peer) {
                 PeerInfoRemote remoteInfo = peer.getConnectionInfo().getRemoteInfo();
                 emit(sessionId, String.format(EVENT_JCP_GWS_CONNECTED, remoteInfo.getProto(), remoteInfo.getHostname(), remoteInfo.getPort()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP GWs::onConnect(%s)", peer.getRemoteId())));
             }
 
             @Override
             public void onDisconnecting(Peer peer) {
                 PeerInfoRemote remoteInfo = peer.getConnectionInfo().getRemoteInfo();
                 emit(sessionId, String.format(EVENT_JCP_GWS_DISCONNECTING, remoteInfo.getProto(), remoteInfo.getHostname(), remoteInfo.getPort()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP GWs::onDisconnecting(%s)", peer.getRemoteId())));
             }
 
             @Override
             public void onDisconnect(Peer peer) {
                 PeerInfoRemote remoteInfo = peer.getConnectionInfo().getRemoteInfo();
                 emit(sessionId, String.format(EVENT_JCP_GWS_DISCONNECTED, remoteInfo.getProto(), remoteInfo.getHostname(), remoteInfo.getPort()));
+
+                log.info(String.format(LOG_JSL_EVENT, jsl.getServiceInfo().getFullId(), String.format("JCP GWs::onDisconnect(%s)", peer.getRemoteId())));
             }
 
             @Override
             public void onFail(Peer peer, String failMsg, Throwable t) {
                 PeerInfoRemote remoteInfo = peer.getConnectionInfo().getRemoteInfo();
                 emit(sessionId, String.format(EVENT_JCP_GWS_FAIL, remoteInfo.getProto(), remoteInfo.getHostname(), remoteInfo.getPort(), t));
+
+                log.warn(String.format(LOG_JSL_ERROR, jsl.getServiceInfo().getFullId(), String.format("JCP GWs::onFail(%s) %s", peer.getRemoteId(), t.getMessage())));
             }
         };
         cloudConnectionListeners.put(jsl, l);
