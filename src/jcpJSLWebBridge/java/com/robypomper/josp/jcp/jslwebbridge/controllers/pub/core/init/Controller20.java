@@ -89,10 +89,11 @@ public class Controller20 extends ControllerImplJSL {
     })
     public ResponseEntity<String> initJSL(@ApiIgnore HttpSession session,
                                           @RequestParam("client_id") String clientId,
-                                          @RequestParam("client_secret") String clientSecret) {
+                                          @RequestParam("client_secret") String clientSecret,
+                                          @RequestParam(name = "client_callback", required = false) String clientCallback) {
         JSL jsl;
         try {
-            jsl = webBridgeService.initJSL(session.getId(), clientId, clientSecret);
+            jsl = webBridgeService.initJSL(session.getId(), clientId, clientSecret, clientCallback);
 
         } catch (JSLAlreadyInitForSessionException ignore) {
             try {
@@ -121,9 +122,10 @@ public class Controller20 extends ControllerImplJSL {
     public SseEmitter initSSE(@ApiIgnore HttpSession session,
                               @ApiIgnore HttpServletResponse response,
                               @RequestParam(name = "client_id", required = false) String clientId,
-                              @RequestParam(name = "client_secret", required = false) String clientSecret) {
+                              @RequestParam(name = "client_secret", required = false) String clientSecret,
+                              @RequestParam(name = "client_callback", required = false) String clientCallback) {
         if (clientId != null)
-            initJSL(session, clientId, clientSecret);
+            initJSL(session, clientId, clientSecret,clientCallback);
 
         SseEmitter emitter;
         try {

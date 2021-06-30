@@ -154,11 +154,11 @@ public class JSLWebBridge {
         return getJSL(sessionId).getServiceInfo().getFullId();
     }
 
-    public JSL initJSL(String sessionId, String clientId, String clientSecret) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {
+    public JSL initJSL(String sessionId, String clientId, String clientSecret, String clientCallback) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {
         if (jslInstances.get(sessionId) != null)
             throw new JSLAlreadyInitForSessionException(sessionId);
 
-        JSL jsl = doInitAndStartupJSL(sessionId, jslParams, clientId, clientSecret);
+        JSL jsl = doInitAndStartupJSL(sessionId, jslParams, clientId, clientSecret, clientCallback);
 
         jslInstances.put(sessionId, jsl);
         jslEmitters.put(sessionId, new HashMap<>());
@@ -169,14 +169,14 @@ public class JSLWebBridge {
         return jsl;
     }
 
-    private static JSL doInitAndStartupJSL(String sessionId, JSLParams jslParams, String clientId, String clientSecret) throws JSLErrorOnInitException {
+    private static JSL doInitAndStartupJSL(String sessionId, JSLParams jslParams, String clientId, String clientSecret, String clientCallback) throws JSLErrorOnInitException {
         Map<String, Object> properties = new HashMap<>();
         properties.put(JSLSettings_002.JCP_SSL, jslParams.useSSL);
         properties.put(JSLSettings_002.JCP_URL_APIS, jslParams.urlAPIs);
         properties.put(JSLSettings_002.JCP_URL_AUTH, jslParams.urlAuth);
         properties.put(JSLSettings_002.JCP_CLIENT_ID, clientId);
         properties.put(JSLSettings_002.JCP_CLIENT_SECRET, clientSecret);
-        properties.put(JSLSettings_002.JCP_CLIENT_CALLBACK, jslParams.clientCallback);
+        properties.put(JSLSettings_002.JCP_CLIENT_CALLBACK, clientCallback!=null ? clientCallback : jslParams.clientCallback);
         properties.put(JSLSettings_002.JSLSRV_ID, clientId);
         properties.put(JSLSettings_002.JSLSRV_NAME, clientId);
         properties.put(JSLSettings_002.JSLCOMM_LOCAL_ENABLED, LOC_COMM_ENABLED);

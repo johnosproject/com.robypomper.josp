@@ -64,8 +64,8 @@ public class JSLWebBridgeService {
 
     // Creators
 
-    public JSL initJSL(String sessionId, String clientId, String clientSecret) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {
-        return webBridge.initJSL(sessionId, clientId, clientSecret);
+    public JSL initJSL(String sessionId, String clientId, String clientSecret, String clientCallback) throws JSLAlreadyInitForSessionException, JSLErrorOnInitException {
+        return webBridge.initJSL(sessionId, clientId, clientSecret, clientCallback);
     }
 
 
