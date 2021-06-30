@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 
 /**
@@ -147,6 +149,47 @@ public class Controller20 extends ControllerImplJSL {
         }
 
         return ResponseEntity.ok(String.format("User login successfully but redirect failed, please go to <a href=\"%s\">%s</a>", URL_REDIRECT_HOME, URL_REDIRECT_HOME));
+    }
+
+    @GetMapping(path = Paths20.FULL_PATH_LOGIN_EXT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = Paths20.DESCR_PATH_LOGIN_EXT)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Method worked successfully", response = String.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "User not authenticated")
+    })
+    public ResponseEntity<String> htmlLoginUserExt(@ApiIgnore HttpSession session,
+                                                @ApiIgnore HttpServletResponse response,
+                                                @RequestParam(name = "code_redirect_uri", required = false) String codeRedirectUrl,
+                                                @RequestParam(name = "redirect_uri", required = false) String redirectUrl,
+                                                @RequestParam(name = "auto_redirect", required = false) boolean autoRedirect) {
+        JSL jsl = getJSL(session.getId(), "get login url");
+
+        if (redirectUrl != null)
+            session.setAttribute(SESS_ATTR_LOGIN_REDIRECT, redirectUrl);
+
+        String redirect = jsl.getJCPClient().getAuthLoginUrl();
+        // https://auth-stage.johnosproject.org:/auth/realms/jcp/protocol/openid-connect/auth?response_type=code&client_id=jcp-fe&redirect_uri=https%3A%2F%2Fjslwb-stage.johnosproject.org%3A443%2Fapis%2Fpub%2Fjslwebbridge%2Fcore%2Fuser%2F2.0%2Flogin%2Fcode%2F&scope=openid%20offline_access
+
+        String authUrl = redirect;
+        String authUrl_url = authUrl.split("\\?")[0];
+        String authUrl_params = authUrl.split("\\?")[1];
+        try {
+            authUrl_params = authUrl_params.replaceFirst("\\bredirect_uri=.*?(&|$)", "redirect_uri=" + URLEncoder.encode(codeRedirectUrl, "UTF-8") + "$1");
+        } catch (UnsupportedEncodingException e) {
+            authUrl_params = authUrl_params.replaceFirst("\\bredirect_uri=.*?(&|$)", "redirect_uri=" + codeRedirectUrl + "$1");
+        }
+        redirect = authUrl_url + "?" + authUrl_params;
+
+        if (autoRedirect) {
+            try {
+                response.sendRedirect(redirect);
+
+            } catch (IOException ignore) {
+            }
+            return ResponseEntity.ok(String.format("Redirect failed, please go to <a href=\"%s\">%s</a>", redirect, redirect));
+        }
+
+        return ResponseEntity.ok(redirect);
     }
 
 
