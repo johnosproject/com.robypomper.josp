@@ -459,8 +459,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
             if (isClientCredentialFlowEnabled()) {
                 try {
                     accessToken = getAccessTokenCliCredFlow(service, apiName);
-                } catch (ConnectionException ignore) {
-                }
+                } catch (AuthenticationException e) {
+                    initConnectionException(e);
+                    throw new AuthenticationException(String.format("Client '%s' can't authenticate to %s (Exception on get access token via Client Credential Flow: %s)", clientId, apiName, e), e);
+                } catch (ConnectionException ignore) {}
                 cliCred_refreshToken = accessToken.getRefreshToken();
                 cliCred_isConnected = true;
 
@@ -485,10 +487,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     state.set(JCPClient2State.CONNECTED_LOGGED);
 
                 } catch (AuthenticationException e) {
-                    authCode_refreshToken = null;
-                    authCode_loginCode = null;
-                    emitAuthenticationFailed(e);
-                    throw new AuthenticationException(String.format("Client '%s' can't authenticate to %s", clientId, apiName), e);
+                    initConnectionException(e);
+                    throw new AuthenticationException(String.format("Client '%s' can't authenticate to %s (Exception on get access token via Auth Code Flow: %s)", clientId, apiName, e), e);
                 }
             }
 
@@ -498,6 +498,18 @@ public class DefaultJCPClient2 implements JCPClient2 {
             emitConnected();
         }
 
+    }
+
+    private void initConnectionException(AuthenticationException e) {
+        state.set(JCPClient2State.DISCONNECTED);
+        authCode_refreshToken = null;
+        authCode_loginCode = null;
+        emitAuthenticationFailed(e);
+        try {
+            initConnection();
+        } catch (AuthenticationException ignore) {
+            /* No authentication in initConnection() because reset all auth fields */
+        }
     }
 
     private boolean stopConnecting() {
