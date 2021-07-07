@@ -244,17 +244,17 @@ public class GWsManager {
         try {
             cl.getOnlineReq();
             if (!gw.getStatus().isOnline())
-                log.info(String.format("JCP APIs check JCP GWs '%s' with '%s:%d' address connectivity success", gw.getGwId(), gw.getGwAddr(), gw.getGwPort()));
+                log.info(String.format("JCP APIs check JCP GWs '%s' connectivity success", gw.getGwId()));
 
         } catch (JCPClient2.ConnectionException | JCPClient2.AuthenticationException | JCPClient2.ResponseException | JCPClient2.RequestException e) {
-            log.warn(String.format("JCP APIs check JCP GWs '%s' with '%s:%d' address connectivity failed (%s)", gw.getGwId(), gw.getGwAddr(), gw.getGwPort(), e));
+            log.warn(String.format("JCP APIs check JCP GWs '%s' connectivity failed", gw.getGwId()));
             updateGWAvailability(gw, false);
             return false;
         }
 
         // Test JCP GW JOSP server
         //if (!JavaNetworks.checkSocketReachability(gw.getGwAddr(), gw.getGwPort(), AVAILABILITY_SOCKET_TIMEOUT_MS)) {
-        //    log.warn(String.format("JCP APIs check JCP GWs '%s' with '%s:%d' address connectivity failed (%s)", gw.getGwId(), gw.getGwAddr(), gw.getGwPort(), e));
+        //    log.warn(String.format("JCP APIs check JCP GWs '%s' connectivity failed", gw.getGwId()) + "\n" + ControllerError.concatenateCauses(e));
         //    updateGWAvailability(gw, false);
         //    return false;
         //}
