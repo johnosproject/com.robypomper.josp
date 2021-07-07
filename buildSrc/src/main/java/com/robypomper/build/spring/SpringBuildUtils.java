@@ -92,11 +92,31 @@ public class SpringBuildUtils {
         //run.conventionMapping(ss.getName(), new MainClassConvention2(project, run::getClasspath));
         run.conventionMapping("main", new MainClassConvention2(project, run::getClasspath));
 
-        try {
-            run.environment("HOSTNAME", InetAddress.getLocalHost().getHostName().toLowerCase());
-        } catch (UnknownHostException ignore) {
-        }
+        run.environment("HOSTNAME", getHostName());             // DEV - Allow local network
+        run.environment("DISABLE_SSL_CHECKS", "ALL");
+
+        // run.environment("HOSTNAME", "localhost");                    // DEV - Only localhost
+        // run.environment("DISABLE_SSL_CHECKS", "LOCALHOST");
         return run;
+    }
+
+    private static String getHostName() {
+        String hostnameAndDomain;
+        String hostname;
+        try {
+            hostnameAndDomain = InetAddress.getLocalHost().getHostName().toLowerCase();
+            hostname = hostnameAndDomain.substring(0, hostnameAndDomain.indexOf('.'));
+            try {
+                InetAddress.getAllByName(hostname);
+
+            } catch (UnknownHostException ignore1) {
+                InetAddress.getAllByName(hostnameAndDomain);
+            }
+            return hostname;
+
+        } catch (UnknownHostException ignore) {
+            return "localhost";
+        }
     }
 
 }
