@@ -54,13 +54,13 @@ public class DockerNetworkUtils {
     }
 
     /**
-     *  </pre>
-     *  task testTestNetwork(type: Exec) {
-     *      group 'docker maintenance'
-     *      commandLine('docker', 'network', 'inspect', 'rp-test' )
-     *      ignoreExitValue = true
-     *  }
-     *  </pre>
+     * </pre>
+     * task testTestNetwork(type: Exec) {
+     * group 'docker maintenance'
+     * commandLine('docker', 'network', 'inspect', networkName )
+     * ignoreExitValue = true
+     * }
+     * </pre>
      */
     static private Exec tryConfigureTestNetworkTask(Project project, String networkName) {
         String taskName = String.format("test%sNetwork", Naming.capitalize(networkName));
@@ -76,7 +76,7 @@ public class DockerNetworkUtils {
      *  </pre>
      *  task createTestNetwork(type: Exec) {
      *      group 'docker maintenance'
-     *      commandLine('docker', 'network', 'create', 'rp-test' )
+     *      commandLine('docker', 'network', 'create', networkName )
      *      dependsOn testTestNetwork
      *      onlyIf {
      *          testTestNetwork.getExecResult().getExitValue() != 0
@@ -98,7 +98,7 @@ public class DockerNetworkUtils {
      *  </pre>
      *  task removeTestNetworkSilent(type: Exec) {
      *      group 'docker maintenance'
-     *      commandLine('docker', 'network', 'rm', 'rp-test' )
+     *      commandLine('docker', 'network', 'rm', networkName )
      *      ignoreExitValue = true
      *  }
      *  </pre>
