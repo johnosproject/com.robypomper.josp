@@ -167,16 +167,32 @@ public abstract class AbsGWsClient extends ClientWrapper {
     }
 
     @Override
+    public void disconnect() throws PeerDisconnectionException {
+        if (getWrapper() == null && !getState().isConnecting())
+            throw new PeerDisconnectionException(this, String.format("Error on Peer '%s' disconnection because wrapped client not set", this));
+
+        if (getState().isDisconnected())
+            return;
+
+        if (getState().isDisconnecting())
+            return;
+
+        doDisconnect();
+    }
+
+    @Override
     protected void doDisconnect() throws PeerDisconnectionException {
         if (getState().isDisconnected()) {
             JavaAssertions.makeAssertion_Failed("Can't call AbsGWsClient::doDisconnect() when already disconnected");
             return;
         }
 
+        ConnectionState originalState = getState();
+
         if (!getState().isDisconnecting())
             emitOnDisconnecting();
 
-        if (getState() == ConnectionState.WAITING_SERVER) {         // waiting JCP APIs or GWs's Info
+        if (originalState == ConnectionState.WAITING_SERVER) {         // waiting JCP APIs or GWs's Info
             tryRemoveJCPConnectionListener();
             stopReConnecting();     // or tryStopReConnecting()
             emitOnDisconnect();
@@ -313,6 +329,9 @@ public abstract class AbsGWsClient extends ClientWrapper {
             //resetWrapper();
 
             if (!getAutoReConnectConfigs().isEnable())
+                return;
+
+            if (getWrapper()==null)                                                                 // If wrapper is null, no auto re-connection
                 return;
 
             if (getWrapper().getDisconnectionReason() == DisconnectionReason.LOCAL_REQUEST)         // Check on wrapper because wrapper connectionInfo not yet updated because PeerConnectionListeners order

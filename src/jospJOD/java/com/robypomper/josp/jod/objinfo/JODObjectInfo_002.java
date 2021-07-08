@@ -356,7 +356,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         }
 
         boolean wasCloudRunning = false;
-        if (comm != null && comm.getCloudConnection().getState().isConnected()) {
+        if (comm != null && (comm.getCloudConnection().getState().isConnected() || comm.getCloudConnection().getState().isConnecting())) {
             wasCloudRunning = true;
             try {
                 comm.getCloudConnection().disconnect();
