@@ -100,8 +100,10 @@ public class JOD_002 extends AbsJOD {
                 Events.registerJCPConnection("JCP Connected", jcpClient);
 
             } catch (JCPClient2.AuthenticationException e) {
-                log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on user authentication to the JCP %s, retry", e.getMessage()), e);
-                jcpClient.connect();
+                log.debug(Mrk_JSL.JSL_MAIN, String.format("Error on user authentication to the JCP %s", e.getMessage()), e);
+                log.warn(Mrk_JSL.JSL_MAIN, "Error on user authentication please check JCP client's id and secret in your object's configurations");
+                //log.warn(Mrk_JSL.JSL_MAIN, String.format("Error on user authentication to the JCP %s, retry", e.getMessage()), e);
+                //jcpClient.connect();
 
             } catch (StateException e) {
                 assert false : "Exception StateException can't be thrown because connect() was call after client creation.";
