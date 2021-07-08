@@ -505,11 +505,11 @@ public class DefaultJCPClient2 implements JCPClient2 {
         authCode_refreshToken = null;
         authCode_loginCode = null;
         emitAuthenticationFailed(e);
-        try {
-            initConnection();
-        } catch (AuthenticationException ignore) {
-            /* No authentication in initConnection() because reset all auth fields */
-        }
+        //try {
+        //    initConnection();
+        //} catch (AuthenticationException ignore) {
+        //    /* No authentication in initConnection() because reset all auth fields */
+        //}
     }
 
     private boolean stopConnecting() {
