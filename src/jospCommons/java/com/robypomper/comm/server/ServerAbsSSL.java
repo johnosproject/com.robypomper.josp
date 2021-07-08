@@ -8,7 +8,10 @@ import com.robypomper.comm.exception.ServerShutdownException;
 import com.robypomper.comm.exception.ServerStartupException;
 import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -31,7 +34,11 @@ public abstract class ServerAbsSSL extends ServerAbs {
 
     private final SSLContext sslCtx;
     private final boolean requireAuth;
-    private final ServerCertSharing serverCertSharing;
+    private final boolean enableServerCertSharing;
+    private ServerCertSharing serverCertSharing = null;
+    private final InetAddress bindAddr;
+    private final AbsCustomTrustManager trustManager;
+    private final Certificate localPublicCertificate;
 
 
     // Constructors
@@ -62,7 +69,10 @@ public abstract class ServerAbsSSL extends ServerAbs {
                 enableByeMsg, byeMsg);
         this.sslCtx = sslCtx;
         this.requireAuth = requireAuth;
-        this.serverCertSharing = enableCertSharing ? new ServerCertSharing(localId + "-CertSharing", null, bindPort + 1, this, trustManager, localPublicCertificate) : null;
+        this.enableServerCertSharing = enableCertSharing;
+        this.bindAddr = null;
+        this.trustManager = trustManager;
+        this.localPublicCertificate = localPublicCertificate;
     }
 
     protected ServerAbsSSL(String localId, int bindPort, String protoName,
@@ -76,8 +86,10 @@ public abstract class ServerAbsSSL extends ServerAbs {
                 enableByeMsg, byeMsg);
         this.sslCtx = sslCtx;
         this.requireAuth = requireAuth;
-
-        this.serverCertSharing = enableCertSharing ? ServerCertSharing.generate(this, null, bindPort, trustManager, localPublicCertificate) : null;
+        this.enableServerCertSharing = enableCertSharing;
+        this.bindAddr = null;
+        this.trustManager = trustManager;
+        this.localPublicCertificate = localPublicCertificate;
     }
 
     protected ServerAbsSSL(String localId, InetAddress bindAddr, int bindPort, String protoName,
@@ -106,7 +118,10 @@ public abstract class ServerAbsSSL extends ServerAbs {
                 enableByeMsg, byeMsg);
         this.sslCtx = sslCtx;
         this.requireAuth = requireAuth;
-        this.serverCertSharing = enableCertSharing ? new ServerCertSharing(localId + "-CertSharing", bindAddr, bindPort + 1, this, trustManager, localPublicCertificate) : null;
+        this.enableServerCertSharing = enableCertSharing;
+        this.bindAddr = bindAddr;
+        this.trustManager = trustManager;
+        this.localPublicCertificate = localPublicCertificate;
     }
 
     protected ServerAbsSSL(String localId, InetAddress bindAddr, int bindPort, String protoName,
@@ -120,8 +135,10 @@ public abstract class ServerAbsSSL extends ServerAbs {
                 enableByeMsg, byeMsg);
         this.sslCtx = sslCtx;
         this.requireAuth = requireAuth;
-
-        this.serverCertSharing = enableCertSharing ? ServerCertSharing.generate(this, bindAddr, bindPort, trustManager, localPublicCertificate) : null;
+        this.enableServerCertSharing = enableCertSharing;
+        this.bindAddr = bindAddr;
+        this.trustManager = trustManager;
+        this.localPublicCertificate = localPublicCertificate;
     }
 
 
@@ -140,8 +157,10 @@ public abstract class ServerAbsSSL extends ServerAbs {
 
     public void startup() throws ServerStartupException {
         super.startup();
-        if (serverCertSharing != null)
+        if (enableServerCertSharing) {
+            serverCertSharing = ServerCertSharing.generate(this, bindAddr, super.getServerPeerInfo().getPort(), trustManager, localPublicCertificate);
             serverCertSharing.startup();
+        }
     }
 
     protected ServerClient generateClient(Socket socket) throws PeerConnectionException {
@@ -165,8 +184,11 @@ public abstract class ServerAbsSSL extends ServerAbs {
 
     public void shutdown() throws ServerShutdownException {
         super.shutdown();
-        if (serverCertSharing != null)
+
+        if (enableServerCertSharing) {
             serverCertSharing.shutdown();
+            serverCertSharing = null;
+        }
     }
 
 
