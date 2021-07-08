@@ -55,6 +55,7 @@ public class JODCommunication_002 implements JODCommunication {
     // JOD
     private final JODSettings_002 locSettings;
     private final JODObjectInfo_002 objInfo;
+    private final String instanceId;
     private final JODPermissions_002 permissions;
     private final JODEvents_002 events;
     private JODStructure_002 structure;
@@ -62,7 +63,7 @@ public class JODCommunication_002 implements JODCommunication {
     private final JCPAPIsClientObj jcpClient;
     private final JODGwO2SClient gwClient;
     private JODLocalServer localServer = null;
-    private final Publisher localServerPublisher;
+    private Publisher localServerPublisher = null;
 
 
     // Constructor
@@ -80,6 +81,7 @@ public class JODCommunication_002 implements JODCommunication {
      */
     public JODCommunication_002(JODSettings_002 settings, JODObjectInfo_002 objInfo, JCPAPIsClientObj jcpClient, JODPermissions_002 permissions, JODEvents_002 events, String instanceId) throws LocalCommunicationException {
         this.locSettings = settings;
+        this.instanceId = instanceId;
         this.objInfo = objInfo;
         this.permissions = permissions;
         this.jcpClient = jcpClient;
@@ -87,12 +89,22 @@ public class JODCommunication_002 implements JODCommunication {
         this.events = events;
 
         // Publish local object server
+        if (locSettings.getLocalServerPort() != 0)
+            initializeLocalServerPublisher(locSettings.getLocalServerPort());
+
+        // Init cloud object client
+        this.gwClient = new JODGwO2SClient(this, objInfo, jcpClient, instanceId);
+        this.gwClient.addListener(gwClientListener);
+
+        log.info(Mrk_JOD.JOD_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') object", objInfo.getObjName(), objInfo.getObjId()));
+    }
+
+    private void initializeLocalServerPublisher(int localPort) throws LocalCommunicationException {
         String publisherImpl = locSettings.getLocalDiscovery();
         String publisherSrvName = objInfo.getObjName() + "-" + instanceId;
         try {
             log.debug(Mrk_JOD.JOD_COMM, String.format("Creating publisher '%s' service for local object's server", publisherImpl));
             log.trace(Mrk_JOD.JOD_COMM, String.format("Local object's server publisher use '%s' service name", publisherSrvName));
-            int localPort = locSettings.getLocalServerPort();
             localServerPublisher = DiscoverySystemFactory.createPublisher(publisherImpl, JOSPProtocol.DISCOVERY_TYPE, publisherSrvName, localPort, instanceId);
             log.debug(Mrk_JOD.JOD_COMM, String.format("Publisher '%s' service created for local object's server", publisherImpl));
 
@@ -100,12 +112,6 @@ public class JODCommunication_002 implements JODCommunication {
             log.warn(Mrk_JOD.JOD_COMM, String.format("Error on creating publisher '%s' service for local object's server because %s", publisherImpl, e.getMessage()), e);
             throw new LocalCommunicationException(String.format("Error on creating publisher '%s' service for local object's server", publisherImpl), e);
         }
-
-        // Init cloud object client
-        this.gwClient = new JODGwO2SClient(this, objInfo, jcpClient, instanceId);
-        this.gwClient.addListener(gwClientListener);
-
-        log.info(Mrk_JOD.JOD_COMM, String.format("Initialized JODCommunication instance for '%s' ('%s') object", objInfo.getObjName(), objInfo.getObjId()));
     }
 
     private JODLocalServer initLocalServer() {
@@ -554,6 +560,8 @@ public class JODCommunication_002 implements JODCommunication {
             Events.registerLocalStart("Comm Local Started", localServer);
 
             log.debug(Mrk_JOD.JOD_COMM, "Publishing local object's server");
+            if (localServerPublisher == null)
+                initializeLocalServerPublisher(localServer.getServerPeerInfo().getPort());
             localServerPublisher.publish(true);
             log.debug(Mrk_JOD.JOD_COMM, "Local object's server published");
             Events.registerLocalStart("Comm Local Published", localServer);
@@ -587,6 +595,8 @@ public class JODCommunication_002 implements JODCommunication {
             Events.registerLocalStop("Comm Local Stopped", localServer);
 
             log.debug(Mrk_JOD.JOD_COMM, "Hiding local object's server");
+            if (localServerPublisher == null)
+                initializeLocalServerPublisher(localServer.getServerPeerInfo().getPort());
             localServerPublisher.hide(true);
             log.debug(Mrk_JOD.JOD_COMM, "Local object's server hided");
             Events.registerLocalStop("Comm Local Hided", localServer);

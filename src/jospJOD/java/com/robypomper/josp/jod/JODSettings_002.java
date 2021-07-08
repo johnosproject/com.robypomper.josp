@@ -75,7 +75,7 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JODCOMM_LOCAL_DISCOVERY  = "jod.comm.local.discovery";
     public static final String JODCOMM_LOCAL_DISCOVERY_DEF = "Auto";
     public static final String JODCOMM_LOCAL_PORT       = "jod.comm.local.port";
-    public static final String JODCOMM_LOCAL_PORT_DEF   = "1234";
+    public static final String JODCOMM_LOCAL_PORT_DEF   = "0";
 
     public static final String JODCOMM_CLOUD_ENABLED = "jod.comm.cloud.enabled";
     public static final String JODCOMM_CLOUD_ENABLED_DEF = "true";
