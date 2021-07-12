@@ -95,11 +95,11 @@ public class PullerHTTP extends AbsJODPuller {
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' error on exec request '%s' because '%s'", getName(), getProto(), requestUrl, e.getMessage()), e);
             return;
         }
-        if (lastResponse.compareTo(response) != 0) {
+        if (lastResponse.compareTo(response) == 0) {
             log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' get same response as last attempt, skip it", getName(), getProto()));
-            lastResponse = response;
-        } else
             return;
+        }
+        lastResponse = response;
 
         String result;
         try {
@@ -112,10 +112,11 @@ public class PullerHTTP extends AbsJODPuller {
 
         log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' read state '%s'", getName(), getProto(), result));
 
-        if (lastResult.compareTo(result) != 0)
-            lastResult = result;
-        else
+        if (lastResult.compareTo(result) == 0){
+            log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' get same result as last attempt, skip it", getName(), getProto()));
             return;
+        }
+        lastResult = result;
 
         String resultEvaluated;
         try {
