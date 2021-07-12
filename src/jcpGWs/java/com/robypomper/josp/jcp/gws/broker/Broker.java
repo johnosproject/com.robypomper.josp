@@ -135,7 +135,9 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
             registeredSrvs.put(gwService.getId(), gwService);
         }
 
-        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> allowedObjects = permissions.getServiceAllowedObjects(gwService.getId(), JOSPPerm.Connection.LocalAndCloud);
+        Map<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> allowedObjects;
+
+        allowedObjects = permissions.getServiceAllowedObjects(gwService.getId(), JOSPPerm.Connection.LocalAndCloud, JOSPPerm.Type.Status);
         for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> objAllowed : allowedObjects.entrySet()) {
             BrokerClientJOD obj = registeredObjs.get(objAllowed.getKey());
             if (obj == null)
@@ -148,6 +150,15 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
             send(obj, gwService.getId(), obj.getMsgSERVICE_PERM(objPerm.getFirst(), objPerm.getSecond()), JOSPPerm.Type.None);
             if (obj instanceof BrokerClientObjDB)
                 send(obj, gwService.getId(), obj.getMsgOBJ_DISCONNECTED(), JOSPPerm.Type.Status);
+        }
+
+        allowedObjects = permissions.getServiceAllowedObjects(gwService.getId(), JOSPPerm.Connection.LocalAndCloud, JOSPPerm.Type.CoOwner);
+        for (Map.Entry<String, Pair<JOSPPerm.Type, JOSPPerm.Connection>> objAllowed : allowedObjects.entrySet()) {
+            BrokerClientJOD obj = registeredObjs.get(objAllowed.getKey());
+            if (obj == null)
+                obj = registeredObjsDB.get(objAllowed.getKey());
+
+            send(obj, gwService.getId(), obj.getMsgOBJ_PERM(), JOSPPerm.Type.CoOwner);
         }
 
         log.info(String.format("Registered service '%s' to broker", gwService.getId()));
