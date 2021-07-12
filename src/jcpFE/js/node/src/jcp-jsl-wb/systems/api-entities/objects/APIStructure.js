@@ -18,9 +18,16 @@ function enrichObjectStructure(jcpJSLWB, component) {
         return new APIRangeAction(jcpJSLWB, component);
 
     if (component.type=="Container") {
-        component.subComps.forEach(function(component, idx, objPerms) {
-            objPerms[idx] = enrichObjectStructure(jcpJSLWB, component);
-        });
+        if (component.componentPath==="") {
+            component.subComps.forEach(function(component, idx, objPerms) {
+                objPerms[idx] = enrichObjectStructure(jcpJSLWB, component);
+            });
+        } else {
+            component = new APIContainer(jcpJSLWB, component);
+            component.getSubComponents().forEach(function(component, idx, objPerms) {
+                objPerms[idx] = enrichObjectStructure(jcpJSLWB, component);
+            });
+        }
     }
         
     return component;
