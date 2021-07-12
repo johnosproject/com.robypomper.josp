@@ -698,8 +698,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     private void startConnectionTimer() {
         assert state.enumEquals(JCPClient2State.CONNECTING_WAITING_JCP)
-                || state.enumEquals(JCPClient2State.CONNECTING_WAITING_JCP) :
-                "Method startConnectionTimer() can be called only from CONNECTING_WAITING_JCP or CONNECTING_WAITING_AUTH state";
+                || state.enumEquals(JCPClient2State.CONNECTING_WAITING_AUTH) :
+                "Method startConnectionTimer() can be called only from CONNECTING_WAITING_JCP or CONNECTING_WAITING_AUTH state; current state " + state.get();
 
         connectionTimer = JavaTimers.initAndStart(new ReConnectionTimer(),true,String.format(TH_CONNECTION_NAME, apiName.toUpperCase()),Integer.toString(this.hashCode()),connectionTimerDelaySeconds * 1000,connectionTimerDelaySeconds * 1000);
     }
