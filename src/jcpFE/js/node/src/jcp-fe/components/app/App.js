@@ -1,10 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Link } from 'react-router-dom';
 import { withTheme } from '@material-ui/core/styles';
+import { withRouter } from "react-router";
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Backdrop from '@material-ui/core/Backdrop';
 import Drawer from '@material-ui/core/Drawer';
 import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -43,6 +45,13 @@ class App extends React.Component {
         super(props);
         this.jcpFE = props.jcpfe;
 
+        var footerName = document.querySelector("#app").getAttribute("footer");
+        this.footerName = footerName ? footerName : "JCPFEFooter";
+        if (this.footerName === "JCPFEExtFooter")
+            this.footer = JCPFEExtFooter;
+        else //if (this.footerName === "JCPFEFooter")
+            this.footer = JCPFEFooter;
+
         this.handleStateChanged = this.handleStateChanged.bind(this);
 
         this._onStateChangedListener = new OnStateChangedListener(this);
@@ -72,27 +81,43 @@ class App extends React.Component {
     }
 
     render () {
-        const appRouter = <AppRouter {...this.props} />;
-        
+        const Footer = this.footer;
+
         return (
-            <div style={{display: 'flex'}}>
-                <CssBaseline />
-                <JCPFEBackdrop showBackdrop={this.state.showBackdrop} isFirstShow={this.isFirstShow} jcpFEState={this.state.jcpFEState} />
-                { this.jcpFE.getState() == this.jcpFE.StateEnum.READY ?
-                    <BrowserRouter>
-                        <JCPFEAppBar jcpfe={this.jcpFE} title="John Cloud Platform"/>
-                        {/* <JCPFEDrawer jcpfe={this.jcpFE} router={appRouter}/> */}
-                        <main style={{flexGrow: '1',height: '100vh',overflow: 'auto'}}>
-                            <JCPFEAppBarSpacer />
-                            <Container maxWidth="lg" style={{paddingTop: this.props.theme.spacing(4), paddingBottom: this.props.theme.spacing(4)}}>
-                                {appRouter}
-                                <JCPFEFooter homeUrl={this.state} />
-                            </Container>
-                        </main>
-                    </BrowserRouter>
-                : null }
-                <JCPFESnackBarMessage jcpfe={this.jcpFE} />
-            </div>
+            <BrowserRouter basename="/">
+                <div id="app_internal">
+                    <CssBaseline />            
+                    
+                    <div id="app_utils">
+                        <JCPFEBackdrop showBackdrop={this.state.showBackdrop} isFirstShow={this.isFirstShow} jcpFEState={this.state.jcpFEState} jcpfe={this.jcpFE} />
+                        <JCPFESnackBarMessage jcpfe={this.jcpFE} />
+                    </div>
+
+                    
+                    <div id="app_contents">
+                    { this.jcpFE.getState() == this.jcpFE.StateEnum.READY ?
+                        <React.Fragment>
+                            <JCPFEAppBar jcpfe={this.jcpFE} title="John Cloud Platform"/>
+                            <JCPFEDrawer jcpfe={this.jcpFE} path={this.path} {...this.props} />
+                            <JCPFEDrawerSpacer style={{float: 'left'}} />
+                            <div id="app-scrolling" style={{flexGrow: '1',height: '100vh',overflow: 'auto'}}>
+                                <main>
+                                    <JCPFEAppBarSpacer />
+                                    <div>
+                                        <Container maxWidth="lg" style={{paddingTop: this.props.theme.spacing(4), paddingBottom: this.props.theme.spacing(4), display: "flex"}}>
+                                            <AppRouter {...this.props} />
+                                        </Container>
+                                    </div>
+                                </main>
+                                <Footer homeUrl={this.state} />
+                            </div>
+                        </React.Fragment>
+                    : null }
+                    </div>
+                        
+                        
+                </div>
+            </BrowserRouter>
         );
     }
 
@@ -120,6 +145,7 @@ class JCPFEBackdropRaw extends React.Component {
 
     constructor(props) {
         super(props);
+        this.jcpFE = props.jcpfe;
         this.state = {
             transition: false
         }
@@ -135,27 +161,29 @@ class JCPFEBackdropRaw extends React.Component {
         const state = this.props.jcpFEState;
         
         return (
-            <Backdrop style={{zIndex: this.props.theme.zIndex.drawer + 2,color: '#fff',}} open={showBackdrop} style={{flexDirection: 'column'}}>
-                {isFirstShow
-                    ? this.getFirstBackdrop(state)
-                    :  <div>
-                        <Typography component="p" variant="h6" color="inherit" noWrap gutterBottom>
-                            <b>Error:</b> Can't connect to JOSP eco system!
-                        </Typography>
-                        <Typography component="p" variant="body1" color="inherit">
-                            Next connection attempt within 30 seconds<br/>
-                            Current client state is: {state}
-                        </Typography>
-                    </div>
-                }
-            </Backdrop>
+            <div id="backdrop_internal">
+                <Backdrop style={{zIndex: this.props.theme.zIndex.drawer + 2,color: '#fff',flexDirection: 'column'}} open={showBackdrop}>
+                    {isFirstShow
+                        ? this.getFirstBackdrop(state)
+                        :  <div>
+                            <Typography component="p" variant="h6" color="inherit" noWrap gutterBottom>
+                                <b>Error:</b> Can't connect to JOSP eco system!
+                            </Typography>
+                            <Typography component="p" variant="body1" color="inherit">
+                                Next connection attempt within 30 seconds<br/>
+                                Current client state is: {state}
+                            </Typography>
+                        </div>
+                    }
+                </Backdrop>
+            </div>
         );
     }
 
     getFirstBackdrop(state) {
         const backdrop_img_number = Math.floor(Math.random() * 4) + 1;
-        //const backdrop_img = "backdrop/backdrop_" + backdrop_img_number + ".jpg";   // random backdrop_[1-4].jpg
-        const backdrop_img = "backdrop/backdrop_john_1280.png";
+        //const backdrop_img = this.jcpFE.getFEUrl() + "/media/backdrop/backdrop_" + backdrop_img_number + ".jpg";   // random backdrop_[1-4].jpg
+        const backdrop_img = this.jcpFE.getFEUrl() + "/media/backdrop/backdrop_john_1280.png";
         const css = `
         .backdrop-internal {
             background-color: black;
@@ -177,7 +205,7 @@ class JCPFEBackdropRaw extends React.Component {
                             radial-gradient(transparent 60%, black 74%),
                             linear-gradient(180deg, transparent 70%, black 75%),
                             linear-gradient(180deg, black 30%, transparent 35%),
-                            url('/media/` + backdrop_img + `');
+                            url(${backdrop_img});
             background-color: black;
             background-size: 100%;
             background-repeat: no-repeat;
@@ -298,7 +326,6 @@ class JCPFEAppBarRaw extends React.Component {
 
     render() {
         const classes = this.props.classes;
-        
         return (
             <AppBar position="absolute" style={{
                     background: 'linear-gradient(-90deg, #92dacb 0%, #3064b7 100%)',
@@ -306,7 +333,7 @@ class JCPFEAppBarRaw extends React.Component {
                 }}>
                 <Toolbar style={{paddingRight: '24'}}>
                     <Link to="/">
-                        <img src="/media/logo_250.png" style={{height: '32px',marginRight: '16px'}} />
+                        <img src={this.jcpFE.getFEUrl() + "/media/logo/logo_250.png"} style={{height: '32px',marginRight: '16px'}} />
                     </Link>
                     <Typography component="h1" variant="h6" color="inherit" noWrap style={{flexGrow: '1'}}>
                         {this.props.title}
@@ -442,11 +469,13 @@ class JCPFEDrawerRaw extends React.Component {
     constructor(props) {
         super(props);
         this.jcpFE = props.jcpfe;
+        this.match = props.match;
+        this.location = props.location;
+        this.history = props.history;
     }
 
     render() {
         const {isHome, isObjects, isService, isJCP, isStats} = getIsSection_App();
-
         const mainListItems = (
             <div>
                 <Link to="/">
@@ -514,7 +543,7 @@ class JCPFEDrawerRaw extends React.Component {
     }
 
 }
-export const JCPFEDrawer = withTheme(JCPFEDrawerRaw)
+export const JCPFEDrawer = withRouter(withTheme(JCPFEDrawerRaw))
 
 export class JCPFEDrawerSpacer extends React.Component {
 
@@ -532,13 +561,104 @@ export class JCPFEDrawerSpacer extends React.Component {
 
 // JCPFEFooter
 
-class JCPFEFooter extends React.Component {
+class JCPFEFooterRaw extends React.Component {
 
     constructor(props) {
         super(props);
     }
 
     render() {
+        const classes = this.props.classes;
+        const openDrawer = this.props.openDrawer;
+        
+        const css = `
+            footer a {
+                color: white;
+            }
+            footer .col_header {
+                margin: 0 0 16px 0;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            footer ul {
+                list-style-type: none;
+                margin-bottom: 0;
+                padding-left: 0;
+            }
+            footer a {
+                line-height: 2;
+                text-decoration-line: none;
+            }
+            footer .MuiGrid-item {
+                align-self: flex-end;
+            }
+            footer .copyright {
+                text-align: center;
+            }
+            footer .copyright a {
+                color: #3064b7;
+            }
+        `;
+
+        return (
+            
+            <Box pt={4} component="footer" style={{backgroundColor: '#303846'}}>
+                <style>{css}</style>
+                <Container maxWidth="lg" style={{paddingTop: this.props.theme.spacing(4), paddingBottom: this.props.theme.spacing(4), display: "flex"}}>
+                    <Grid container spacing={3} style={{color: 'white', padding: '10px'}}>
+                        <Grid item xs={4}>
+                            <p className="col_header">Links</p>
+                            <ul class="footer__items">
+                                <li class="footer__item">
+                                    <a href="https://www.johnosproject.org" target="_blank" rel="noopener noreferrer" class="footer__link-item">
+                                        <span>John O.S. Project
+                                            <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg>
+                                </span></a></li>
+                                <li class="footer__item">
+                                    <a href="https://www.johnosproject.org/docs/index.html" target="_blank" rel="noopener noreferrer" class="footer__link-item">
+                                        <span>JOSP Docs
+                                            <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg>
+                                </span></a></li>
+                                <li class="footer__item">
+                                    <a href="https://www.johnosproject.org/frontend/index.html" target="_blank" rel="noopener noreferrer" class="footer__link-item">
+                                        <span>Public JCP
+                                            <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg>
+                                </span></a></li>
+                            </ul>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <p></p>
+                            <ul class="footer__items">
+                                <li class="footer__item">
+                                    <a href="https://bitbucket.org/johnosproject_shared/com.robypomper.josp/issues/new" target="_blank" rel="noopener noreferrer" class="footer__link-item"><span>Report issue<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></span></a>
+                                </li>
+                                <li class="footer__item">
+                                    <a class="footer__link-item" href="/docs/#contacts-and-support">Contact</a>
+                                </li>
+                            </ul>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <p className="col_header">Community</p>
+                            <ul class="footer__items">
+                                <li class="footer__item">
+                                    <a href="https://www.facebook.com/johnosproject" target="_blank" rel="noopener noreferrer" class="footer__link-item"><span>Facebook<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></span></a>
+                                </li>
+                                <li class="footer__item">
+                                    <a href="https://www.youtube.com/channel/UCb4HveVMSmCaSaluou6D3xQ" target="_blank" rel="noopener noreferrer" class="footer__link-item"><span>YouTube<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></span></a>
+                                </li>
+                            </ul>
+                        </Grid>
+                        <Grid item xs={12} className="copyright">
+                            Copyright © 2021 John O.S. Project<br/>
+                        </Grid>
+                    </Grid>
+                </Container>
+            </Box>
+        );
+        
+    }
+
+    render_() {
         const classes = this.props.classes;
         const openDrawer = this.props.openDrawer;
         
@@ -557,6 +677,111 @@ class JCPFEFooter extends React.Component {
     }
 
 }
+const JCPFEFooter = withTheme(JCPFEFooterRaw)
+
+
+// JCPFEFooterExt
+
+class JCPFEExtFooterRaw extends React.Component {
+
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const classes = this.props.classes;
+        const openDrawer = this.props.openDrawer;
+        
+        const css = `
+            footer a {
+                color: white;
+            }
+            footer .col_header {
+                margin: 0 0 16px 0;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            footer ul {
+                list-style-type: none;
+                margin-bottom: 0;
+                padding-left: 0;
+            }
+            footer a {
+                line-height: 2;
+                text-decoration-line: none;
+            }
+            footer .MuiGrid-item {
+                align-self: flex-end;
+            }
+            footer .copyright {
+                text-align: center;
+            }
+            footer .copyright a {
+                color: #3064b7;
+            }
+        `;
+
+        return (
+            
+            <Box pt={4} component="footer" style={{backgroundColor: '#303846'}}>
+                <style>{css}</style>
+                <Container maxWidth="lg" style={{paddingTop: this.props.theme.spacing(4), paddingBottom: this.props.theme.spacing(4), display: "flex"}}>
+                    <Grid container spacing={3} style={{color: 'white', padding: '10px'}}>
+                        <Grid item xs={4}>
+                            <p className="col_header">Links</p>
+                            <ul class="footer__items">
+                                <li class="footer__item">
+                                    <a href="https://www.johnosproject.org" target="_blank" rel="noopener noreferrer" class="footer__link-item">
+                                        <span>John O.S. Project
+                                            <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg>
+                                </span></a></li>
+                                <li class="footer__item">
+                                    <a href="https://www.johnosproject.org/docs/index.html" target="_blank" rel="noopener noreferrer" class="footer__link-item">
+                                        <span>JOSP Docs
+                                            <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg>
+                                </span></a></li>
+                                <li class="footer__item">
+                                    <a href="https://www.johnosproject.org/frontend/index.html" target="_blank" rel="noopener noreferrer" class="footer__link-item">
+                                        <span>Public JCP
+                                            <svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg>
+                                </span></a></li>
+                            </ul>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <p></p>
+                            <ul class="footer__items">
+                                <li class="footer__item">
+                                    <a href="https://bitbucket.org/johnosproject_shared/com.robypomper.josp/issues/new" target="_blank" rel="noopener noreferrer" class="footer__link-item"><span>Report issue<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></span></a>
+                                </li>
+                                <li class="footer__item">
+                                    <a class="footer__link-item" href="/docs/#contacts-and-support">Contact</a>
+                                </li>
+                            </ul>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <p className="col_header">Community</p>
+                            <ul class="footer__items">
+                                <li class="footer__item">
+                                    <a href="https://www.facebook.com/johnosproject" target="_blank" rel="noopener noreferrer" class="footer__link-item"><span>Facebook<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></span></a>
+                                </li>
+                                <li class="footer__item">
+                                    <a href="https://www.youtube.com/channel/UCb4HveVMSmCaSaluou6D3xQ" target="_blank" rel="noopener noreferrer" class="footer__link-item"><span>YouTube<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-next-theme-IconExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></span></a>
+                                </li>
+                            </ul>
+                        </Grid>
+                        <Grid item xs={12} className="copyright">
+                            Copyright © 2021 John O.S. Project<br/>
+                            <a href="https://www.johnosproject.org/policy.html">Privacy Policy</a> | <a href="https://www.johnosproject.org/terms.html">Terms and Conditions</a> | <a href="https://www.johnosproject.org/licence.html">Licences</a>
+                        </Grid>
+                    </Grid>
+                </Container>
+            </Box>
+        );
+        
+    }
+
+}
+export const JCPFEExtFooter = withTheme(JCPFEExtFooterRaw)
 
 
 // JCPFESnackBar

@@ -21,59 +21,43 @@ export class AppRouter extends React.Component {
         const jcpFE = this.props.jcpfe;
         
         return (
-            <div id="appRouter" >
-                <Switch>
+                <Switch id="appRouter">
                     <Route path="/objects/:objId" render={(props) => (  
                         <React.Fragment>
-                            <JCPFEDrawer jcpfe={jcpFE} path={this.path} {...this.props} />
-                            <JCPFEDrawerSpacer style={{float: 'left'}} />
                             <ObjectRouter {...props} jcpfe={jcpFE} objId={props.match.params.objId} style={{float: 'left', width: 'calc(100% - 56px)'}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/objects" render={(props) => (  
                         <React.Fragment>
-                            <JCPFEDrawer jcpfe={jcpFE} path={this.path} {...this.props} />
-                            <JCPFEDrawerSpacer style={{float: 'left'}} />
                             <ObjectsListPage {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/user" render={(props) => (  
                         <React.Fragment>
-                            <JCPFEDrawer jcpfe={jcpFE} path={this.path} {...this.props} />
-                            <JCPFEDrawerSpacer style={{float: 'left'}} />
                             <UserPage {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/service" render={(props) => (  
                         <React.Fragment>
-                            <JCPFEDrawer jcpfe={jcpFE} path={this.path} {...this.props} />
-                            <JCPFEDrawerSpacer style={{float: 'left'}} />
                             <ServicePage {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/jcp" render={(props) => (  
                         <React.Fragment>
-                            <JCPFEDrawer jcpfe={jcpFE} path={this.path} {...this.props} />
-                            <JCPFEDrawerSpacer style={{float: 'left'}} />
                             <JCPRouter {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/stats" render={(props) => ( 
                         <React.Fragment>
-                            <JCPFEDrawer jcpfe={jcpFE} path={this.path} {...this.props} />
-                            <JCPFEDrawerSpacer style={{float: 'left'}} />
                             <JCPJSLWBStatus {...props} jcpjslwb={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/" render={(props) => ( 
                         <React.Fragment>
-                            <JCPFEDrawer jcpfe={jcpFE} path={this.path} {...this.props} />
-                            <JCPFEDrawerSpacer style={{float: 'left'}} />
                             <Dashboard {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
                         </React.Fragment> 
                     )} />
                 </Switch>
-            </div>
         );
     }
 
