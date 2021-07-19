@@ -3,6 +3,7 @@
   "version": "2.1.0",
   "description": "JCP Front End",
   "main": "app.js",
+  "homepage": "/frontend",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

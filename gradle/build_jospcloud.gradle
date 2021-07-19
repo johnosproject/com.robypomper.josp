@@ -334,7 +334,7 @@ task processJcpFEResourcesNpm(type: Copy) {
     dependsOn tasks.nodeJcpFEBuild // ex: processJcpFEResourcesNpmBuild
 
     from "${project.projectDir}/src/jcpFE/js/node/build"
-    into "${project.projectDir}/build/generated/resources/node/jcpFE/public"
+    into "${project.projectDir}/build/generated/resources/node/jcpFE/public/frontend"
 }
 tasks.processJcpFEResources.dependsOn tasks.processJcpFEResourcesNpm
 task jcpFEStatic_Start {

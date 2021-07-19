@@ -84,7 +84,7 @@ class App extends React.Component {
         const Footer = this.footer;
 
         return (
-            <BrowserRouter basename="/">
+            <BrowserRouter basename="/frontend">
                 <div id="app_internal">
                     <CssBaseline />            
                     
