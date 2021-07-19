@@ -16,7 +16,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebMvc
-@Profile({"auth"})
+//@Profile({"auth"})
 public class SpringConfigurerWebMvc implements WebMvcConfigurer {
 
     @Bean
@@ -46,8 +46,11 @@ public class SpringConfigurerWebMvc implements WebMvcConfigurer {
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
         String[] CLASSPATH_RESOURCE_LOCATIONS = {
-                "classpath:/META-INF/resources/", "classpath:/resources/",
-                "classpath:/static/", "classpath:/public/"};
+                "classpath:/META-INF/resources/",
+                "classpath:/resources/",
+                "classpath:/static/",
+                "classpath:/public/"
+        };
         registry.addResourceHandler("/**").addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS);
     }
 
