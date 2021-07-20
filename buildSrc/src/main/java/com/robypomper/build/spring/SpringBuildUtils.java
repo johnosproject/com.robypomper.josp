@@ -32,6 +32,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -48,17 +50,25 @@ public class SpringBuildUtils {
      * @param ss
      */
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss) {
-        makeSpringBootFromSourceSet(project, ss, null);
+        makeSpringBootFromSourceSet(project, ss, null, new HashMap<>());
     }
 
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, String profiles) {
+        makeSpringBootFromSourceSet(project, ss, profiles, new HashMap<>());
+    }
+
+    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, String profiles, Map<String, ?> envs) {
         SpringBuildUtils.configureBootJarTask(project, ss);
-        SpringBuildUtils.configureBootRunTask(project, ss, profiles);
+        SpringBuildUtils.configureBootRunTask(project, ss, profiles, envs);
     }
 
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File logConfigs, String profiles) {
+        makeSpringBootFromSourceSet(project, ss, logConfigs, profiles, new HashMap<>());
+    }
+
+    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File logConfigs, String profiles, Map<String, ?> envs) {
         SpringBuildUtils.configureBootJarTask(project, ss);
-        BootRun br = SpringBuildUtils.configureBootRunTask(project, ss, profiles);
+        BootRun br = SpringBuildUtils.configureBootRunTask(project, ss, profiles, envs);
         br.setJvmArgs(Collections.singletonList("-Dlog4j.configurationFile=" + logConfigs.getAbsolutePath()));
     }
 
@@ -73,7 +83,7 @@ public class SpringBuildUtils {
         return bootJar;
     }
 
-    static private BootRun configureBootRunTask(Project project, SourceSet ss, String profiles) {
+    static private BootRun configureBootRunTask(Project project, SourceSet ss, String profiles, Map<String, ?> envs) {
         String taskName = String.format("boot%sRun", Naming.capitalize(ss.getName()));
         String buildTaskName = String.format("boot%sJar", Naming.capitalize(ss.getName()));
         JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
@@ -92,8 +102,10 @@ public class SpringBuildUtils {
         //run.conventionMapping(ss.getName(), new MainClassConvention2(project, run::getClasspath));
         run.conventionMapping("main", new MainClassConvention2(project, run::getClasspath));
 
-        run.environment("HOSTNAME", getHostName());             // DEV - Allow local network
-        run.environment("DISABLE_SSL_CHECKS", "ALL");
+        run.environment(envs);
+
+        //run.environment("HOSTNAME", getHostName());                   // DEV - Allow local network
+        //run.environment("DISABLE_SSL_CHECKS", "ALL");
 
         // run.environment("HOSTNAME", "localhost");                    // DEV - Only localhost
         // run.environment("DISABLE_SSL_CHECKS", "LOCALHOST");
