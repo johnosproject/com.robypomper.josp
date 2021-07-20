@@ -310,6 +310,7 @@ def jospJODPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.josp
         .setArtifactOpens()
         .setArtifactDistr()
 JavaPublicationUtils.generatePublication(project,jospJODPubDesc)
+tasks.jospJODDocs.enabled = !project.ext.get("disableDocs");
 
 // JOSP JSL
 String jospJSLName = 'JOSP Service Library'
@@ -322,6 +323,7 @@ def jospJSLPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.josp
         .setArtifactOpens()
         .setArtifactDistr()
 JavaPublicationUtils.generatePublication(project,jospJSLPubDesc)
+tasks.jospJSLDocs.enabled = !project.ext.get("disableDocs");
 
 // -----------------
 // Publication tasks

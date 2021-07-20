@@ -468,6 +468,7 @@ def jcpCommonsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp")
 JavaPublicationUtils.generatePublication(project, jcpCommonsPubDesc)
+tasks.jcpCommonsDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP DB
 String jcpDBName = 'JCP DB'
@@ -480,6 +481,7 @@ def jcpDBPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpDB
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp.db")
 JavaPublicationUtils.generatePublication(project, jcpDBPubDesc)
+tasks.jcpDBDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP DB APIs
 String jcpDBAPIsName = 'JCP DB APIs'
@@ -492,6 +494,7 @@ def jcpDBAPIsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.j
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp.db")
 JavaPublicationUtils.generatePublication(project, jcpDBAPIsPubDesc)
+tasks.jcpDBAPIsDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP DB FE
 String jcpDBFEName = 'JCP DB FE'
@@ -504,6 +507,7 @@ def jcpDBFEPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcp
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp.db")
 JavaPublicationUtils.generatePublication(project, jcpDBFEPubDesc)
+tasks.jcpDBFEDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP Service
 String jcpServiceName = 'JCP Service'
@@ -516,6 +520,7 @@ def jcpServicePubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp")
 JavaPublicationUtils.generatePublication(project, jcpServicePubDesc)
+tasks.jcpServiceDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP APIs
 String jcpAPIsName = 'JCP APIs'
@@ -529,6 +534,7 @@ def jcpAPIsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcp
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp")
 JavaPublicationUtils.generatePublication(project, jcpAPIsPubDesc)
+tasks.jcpAPIsDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP GWs
 String jcpGWsName = 'JCP GWs'
@@ -542,6 +548,7 @@ def jcpGWsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpG
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp")
 JavaPublicationUtils.generatePublication(project, jcpGWsPubDesc)
+tasks.jcpGWsDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP JSL Web Bridge
 String jcpJSLWebBridgeName = 'JCP JSL Web Bridge'
@@ -555,6 +562,7 @@ def jcpJSLWebBridgePubDesc = new JavaPublicationUtils.Descriptor(project, source
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp")
 JavaPublicationUtils.generatePublication(project, jcpJSLWebBridgePubDesc)
+tasks.jcpJSLWebBridgeDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP FE
 String jcpFEName = 'JCP Front End'
@@ -568,6 +576,7 @@ def jcpFEPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpFE
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp")
 JavaPublicationUtils.generatePublication(project, jcpFEPubDesc)
+tasks.jcpFEDocs.enabled = !project.ext.get("disableDocs");
 
 // JCP All
 String jcpAllName = 'JCP All'
@@ -581,6 +590,7 @@ def jcpAllPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpA
         .setArtifactDistr()
         .setGroupId((String) project.getGroup() + ".jcp")
 JavaPublicationUtils.generatePublication(project, jcpAllPubDesc)
+tasks.jcpAllDocs.enabled = !project.ext.get("disableDocs");
 
 
 // -----------------

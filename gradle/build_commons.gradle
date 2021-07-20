@@ -103,6 +103,7 @@ def jospAPIsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jos
         .setLicenceGPLv3()
         .setArtifactOpens()
 JavaPublicationUtils.generatePublication(project,jospAPIsPubDesc)
+tasks.jospAPIsDocs.enabled = !project.ext.get("disableDocs");
 
 // JOSP Commons
 String jospCommonsName = 'JOSP Commons Library'
@@ -113,6 +114,7 @@ def jospCommonsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.
         .setLicenceGPLv3()
         .setArtifactOpens()
 JavaPublicationUtils.generatePublication(project,jospCommonsPubDesc)
+tasks.jospCommonsDocs.enabled = !project.ext.get("disableDocs");
 
 
 // -----------------

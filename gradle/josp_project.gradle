@@ -5,6 +5,7 @@
 
 group = 'com.robypomper.josp'
 sourceCompatibility = '1.8'
+ext.set('disableDocs',true)     // set to true only for development environment
 
 ext {
     set('projectUrl', 'http://johnosproject.com')
