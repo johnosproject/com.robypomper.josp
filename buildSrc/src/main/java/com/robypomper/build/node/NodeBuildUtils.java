@@ -23,7 +23,11 @@ import com.github.gradle.node.npm.task.NpmTask;
 import com.robypomper.build.commons.Naming;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.plugins.BasePlugin;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.OutputDirectory;
 
 import java.io.File;
 
@@ -35,6 +39,16 @@ import java.io.File;
  * another for project modules), build and run given Node.js project.
  */
 public class NodeBuildUtils {
+
+    public static abstract class NpmTaskExt extends NpmTask {
+
+        @InputFiles
+        public abstract ConfigurableFileCollection getConfigFiles();
+
+        @OutputDirectory
+        public abstract DirectoryProperty getOutputDir();
+
+    }
 
     /**
      * Create Node.js project install, build and run tasks for given source set.
@@ -49,67 +63,13 @@ public class NodeBuildUtils {
         NodeBuildUtils.configureNodeRunTask(project, sourceSetName, sourceSetDir, npmInstall);
     }
 
-    /*
-    static private BootJar configureBootJarTask(Project project, SourceSet ss) {
-        String taskName = String.format("boot%sJar", Naming.capitalize(ss.getName()));
-        BootJar bootJar = project.getTasks().create(taskName, BootJar.class);
-        bootJar.setDescription(String.format("Assembles an executable jar archive containing the %s classes and their dependencies.", ss.getName()));
-        bootJar.setGroup(BasePlugin.BUILD_GROUP);
-        bootJar.classpath(ss.getRuntimeClasspath());
-        //bootJar.conventionMapping(String.format("%sClassName", ss.getName()), new MainClassConvention2(project, bootJar::getClasspath));
-        bootJar.conventionMapping(String.format("mainClassName"), new MainClassConvention2(project, bootJar::getClasspath));
-        return bootJar;
-    }
-
-    static private BootRun configureBootRunTask(Project project, SourceSet ss, String profiles) {
-        String taskName = String.format("boot%sRun", Naming.capitalize(ss.getName()));
-        String buildTaskName = String.format("boot%sJar", Naming.capitalize(ss.getName()));
-        JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-        BootRun run = project.getTasks().create(taskName, BootRun.class);
-        run.setDescription(String.format("Runs this project %s sources as a Spring Boot application.", ss.getName()));
-        run.setGroup(ApplicationPlugin.APPLICATION_GROUP);
-        run.classpath(ss.getRuntimeClasspath());
-        if (profiles != null)
-            run.setArgs(Collections.singletonList("--spring.profiles.active=" + profiles));
-        run.getConventionMapping().map("jvmArgs", () -> {
-            if (project.hasProperty("applicationDefaultJvmArgs")) {
-                return project.property("applicationDefaultJvmArgs");
-            }
-            return Collections.emptyList();
-        });
-        //run.conventionMapping(ss.getName(), new MainClassConvention2(project, run::getClasspath));
-        run.conventionMapping("main", new MainClassConvention2(project, run::getClasspath));
-
-        String hostnameAndDomain;
-        String hostname;
-        try {
-            hostnameAndDomain = InetAddress.getLocalHost().getHostName().toLowerCase();
-            hostname = hostnameAndDomain.substring(0,hostnameAndDomain.indexOf('.'));
-            try {
-                InetAddress.getAllByName(hostname);
-
-            } catch (UnknownHostException ignore1) {
-                InetAddress.getAllByName(hostnameAndDomain);
-            }
-        } catch (UnknownHostException ignore) {
-            hostname = "localhost";
-        }
-        run.environment("HOSTNAME", hostname);
-        run.doFirst(new Action<Object>(){
-            @Override
-            public void execute(Object task) {
-                System.out.println("HOSTNAME: " + ((BootRun)task).getEnvironment().get("HOSTNAME"));
-            }
-        });
-        return run;
-    }
-    */
-
-
     // node{SourceSetName}InstallDev
     static private NpmTask configureNpmDevInstallTask(Project project, String sourceSetName, File sourceSetDir) {
         String taskName = String.format("node%sInstallDev", Naming.capitalize(sourceSetName));
-        NpmTask npmInstallDev = project.getTasks().create(taskName, NpmTask.class);
+        NpmTaskExt npmInstallDev = project.getTasks().create(taskName, NpmTaskExt.class);
+
+        npmInstallDev.getConfigFiles().setFrom(project.files(sourceSetDir + "/package.json"));
+        npmInstallDev.getOutputDir().set(project.file(sourceSetDir + "/node_modules"));
 
         npmInstallDev.setDescription(String.format("Install Node.js DEV modules for '%s' project.", sourceSetName));
         npmInstallDev.setGroup(BasePlugin.BUILD_GROUP);
@@ -130,7 +90,10 @@ public class NodeBuildUtils {
     // node{SourceSetName}Install
     static private NpmTask configureNpmInstallTask(Project project, String sourceSetName, File sourceSetDir, Task npmInstallDev) {
         String taskName = String.format("node%sInstall", Naming.capitalize(sourceSetName));
-        NpmTask npmInstall = project.getTasks().create(taskName, NpmTask.class);
+        NpmTaskExt npmInstall = project.getTasks().create(taskName, NpmTaskExt.class);
+
+        npmInstall.getConfigFiles().setFrom(project.files(sourceSetDir + "/package.json"));
+        npmInstall.getOutputDir().set(project.file(sourceSetDir + "/node_modules"));
 
         npmInstall.setDescription(String.format("Install Node.js modules for '%s' project.", sourceSetName));
         npmInstall.setGroup(BasePlugin.BUILD_GROUP);
@@ -145,13 +108,17 @@ public class NodeBuildUtils {
     // node{SourceSetName}Build       ex: processJcpFEResourcesNpmBuild
     static private NpmTask configureNpmBuildTask(Project project, String sourceSetName, File sourceSetDir, Task npmInstall) {
         String taskName = String.format("node%sBuild", Naming.capitalize(sourceSetName));
-        NpmTask npmBuild = project.getTasks().create(taskName, NpmTask.class);
+        NpmTaskExt npmBuild = project.getTasks().create(taskName, NpmTaskExt.class);
+
+        npmBuild.getConfigFiles().setFrom(project.fileTree(sourceSetDir).exclude("/build").exclude("/node_modules").exclude("/.*"));
+        npmBuild.getOutputDir().set(project.file(sourceSetDir + "/build"));
 
         npmBuild.setDescription(String.format("Build Node.js '%s' project.", sourceSetName));
         npmBuild.setGroup(BasePlugin.BUILD_GROUP);
         npmBuild.getWorkingDir().set(sourceSetDir);
         String[] cmds = {"run", "build"};
         npmBuild.getNpmCommand().addAll(cmds);
+
 
         npmBuild.dependsOn(npmInstall);
         return npmBuild;
