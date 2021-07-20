@@ -49,6 +49,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
     public static final String HEAD_COOKIE = "Cookie";
     public static final String HEAD_SET_COOKIE = "Set-Cookie";
     public static final String SESSION_KEY = "JSESSIONID";
+    public static final String DEFAULT_ACCEPT = "application/json";
 
 
     // Internal vars
@@ -129,6 +130,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
         this.authRealm = authRealm;
         this.connectionTimerDelaySeconds = connectionRetrySeconds;
         this.state.setStateName(apiName);
+
+        this.defaultHeaders.put("Accept",DEFAULT_ACCEPT);
     }
 
 
@@ -458,33 +461,18 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
             if (isClientCredentialFlowEnabled()) {
                 try {
-                    accessToken = getAccessTokenCliCredFlow(service, apiName);
+                    initAccessTokenCliCredFlow();
                 } catch (AuthenticationException e) {
                     initConnectionException(e);
                     throw new AuthenticationException(String.format("Client '%s' can't authenticate to %s (Exception on get access token via Client Credential Flow: %s)", clientId, apiName, e), e);
                 } catch (ConnectionException ignore) {}
-                cliCred_refreshToken = accessToken.getRefreshToken();
-                cliCred_isConnected = true;
-
-                authCode_isConnected = false;
-                authCode_refreshToken = null;
-                authCode_loginCode = null;
-                state.set(JCPClient2State.CONNECTED_ANONYMOUS);
 
             } else if (isAuthCodeFlowEnabled()) {
                 try {
                     try {
-                        accessToken = getAccessTokenAuthCodeFlow(service, authCode_refreshToken, authCode_loginCode, apiName);
+                        initAccessTokenAuthCodeFlow();
                     } catch (ConnectionException ignore) {
                     }
-                    authCode_refreshToken = accessToken.getRefreshToken();
-                    authCode_isConnected = true;
-                    authCode_loginCode = null;
-                    emitLoggedIn();
-
-                    cliCred_isConnected = false;
-                    cliCred_refreshToken = null;
-                    state.set(JCPClient2State.CONNECTED_LOGGED);
 
                 } catch (AuthenticationException e) {
                     initConnectionException(e);
@@ -498,6 +486,16 @@ public class DefaultJCPClient2 implements JCPClient2 {
             emitConnected();
         }
 
+    }
+
+    private boolean refreshConnection() {
+        if (isClientCredentialFlowEnabled())
+            return refreshAccessTokenCliCredFlow();
+
+        if (isAuthCodeFlowEnabled())
+            return refreshAccessTokenAuthCodeFlow();
+
+        return false;
     }
 
     private void initConnectionException(AuthenticationException e) {
@@ -631,52 +629,61 @@ public class DefaultJCPClient2 implements JCPClient2 {
         }
     }
 
-    private static OAuth2AccessToken getAccessTokenCliCredFlow(OAuth20Service service, String apiName) throws ConnectionException, AuthenticationException {
+    private void initAccessTokenCliCredFlow() throws ConnectionException, AuthenticationException {
         try {
             try {
-                return service.getAccessTokenClientCredentialsGrant();
+                accessToken = service.getAccessTokenClientCredentialsGrant();
+                log.debug(String.format("JCP Client '%s' authenticated via CliCred flow.", getApiName()));
 
             } catch (SSLHandshakeException e) {
 
                 try {
                     JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
-                    return service.getAccessTokenClientCredentialsGrant();
+                    accessToken = service.getAccessTokenClientCredentialsGrant();
+                    log.debug(String.format("JCP Client '%s' authenticated via CliCred flow (SSL localhost checks disabled).", getApiName()));
 
                 } catch (SSLHandshakeException e1) {
-                    throw new ConnectionException(String.format("Error connecting to %s because SSL handshaking failed (%s)", apiName, e.getMessage()), e1);
+                    throw new ConnectionException(String.format("Error connecting to %s because SSL handshaking failed (%s)", getApiName(), e.getMessage()), e1);
                 }
             }
 
-        } catch (IOException | InterruptedException | ExecutionException e) {
-            throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Client Credentials flow ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
-
         } catch (OAuth2AccessTokenErrorResponse e) {
-            throw new AuthenticationException(String.format("Error connecting to %s because authentication error for client ([%s] %s)", apiName, e.getClass().getSimpleName(), e.getMessage()), e);
+            throw new AuthenticationException(String.format("Error connecting to %s because authentication error for client ([%s] %s)", getApiName(), e.getClass().getSimpleName(), e.getMessage()), e);
+
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Client Credentials flow ([%s] %s)", getApiName(), e.getClass().getSimpleName(), e.getMessage()), e);
         }
+
+
+        cliCred_refreshToken = accessToken.getRefreshToken();
+        cliCred_isConnected = true;
+
+        authCode_isConnected = false;
+        authCode_refreshToken = null;
+        authCode_loginCode = null;
+        state.set(JCPClient2State.CONNECTED_ANONYMOUS);
     }
 
-    private static OAuth2AccessToken getAccessTokenAuthCodeFlow(OAuth20Service service, String refreshToken, String loginCode, String apiName) throws ConnectionException, AuthenticationException {
-        if (loginCode == null && refreshToken == null)
-            throw new AuthenticationException(String.format("Error connecting to %s because Login Code nor Refresh Token were set for Auth Code flow", apiName));
+    private void initAccessTokenAuthCodeFlow() throws ConnectionException, AuthenticationException {
+        if (authCode_loginCode == null && authCode_refreshToken == null)
+            throw new AuthenticationException(String.format("Error connecting to %s because Login Code nor Refresh Token were set for Auth Code flow", getApiName()));
 
         try {
             try {
-                if (loginCode != null)
-                    return service.getAccessToken(loginCode);
-                else
-                    return service.refreshAccessToken(refreshToken);
+                accessToken = authCode_loginCode != null
+                        ? service.getAccessToken(authCode_loginCode)
+                        : service.refreshAccessToken(authCode_refreshToken);
 
             } catch (SSLHandshakeException e) {
 
                 try {
                     JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
-                    if (loginCode != null)
-                        return service.getAccessToken(loginCode);
-                    else
-                        return service.refreshAccessToken(refreshToken);
+                    accessToken = authCode_loginCode != null
+                            ? service.getAccessToken(authCode_loginCode)
+                            : service.refreshAccessToken(authCode_refreshToken);
 
                 } catch (SSLHandshakeException e1) {
-                    throw new ConnectionException(String.format("Error connecting to %s because SSL handshaking failed (%s)", apiName, e.getMessage()), e1);
+                    throw new ConnectionException(String.format("Error connecting to %s because SSL handshaking failed (%s)", getApiName(), e.getMessage()), e1);
                 }
             }
 
@@ -684,14 +691,55 @@ public class DefaultJCPClient2 implements JCPClient2 {
             String exMessage = e.getMessage();
             if (exMessage.contains("Incorrect redirect_uri"))
                 exMessage = String.format("Incorrect redirect_uri (%s)", service.getCallback());
-            String method = String.format("get access token with auth code flow (%s)", loginCode!=null ? "loginCode" : "refreshToken");
-            throw new AuthenticationException(String.format("Error connecting to %s (%s) because %s", apiName, method, exMessage), e);
+            String method = String.format("get access token with auth code flow (%s)", authCode_loginCode!=null ? "loginCode" : "refreshToken");
+            throw new AuthenticationException(String.format("Error connecting to %s (%s) because %s", getApiName(), method, exMessage), e);
 
         } catch (IOException | InterruptedException | ExecutionException e) {
-            throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Auth Code flow because %s", apiName, e.getMessage()), e);
-
+            throw new ConnectionException(String.format("Error connecting to %s because can't get the access token for Auth Code flow because %s", getApiName(), e.getMessage()), e);
         }
+
+        authCode_refreshToken = accessToken.getRefreshToken();
+        authCode_isConnected = true;
+        authCode_loginCode = null;
+        emitLoggedIn();
+
+        cliCred_isConnected = false;
+        cliCred_refreshToken = null;
+        state.set(JCPClient2State.CONNECTED_LOGGED);
     }
+
+    private boolean refreshAccessTokenCliCredFlow() {
+        if (cliCred_refreshToken==null)
+            return false;
+
+        try {
+            accessToken = service.refreshAccessToken(cliCred_refreshToken);
+            log.debug(String.format("JCP Client '%s' refreshed access token via CliCred flow.", getApiName()));
+
+        } catch (OAuth2AccessTokenErrorResponse | IOException | InterruptedException | ExecutionException ignore) {
+            return false;
+        }
+
+        cliCred_refreshToken = accessToken.getRefreshToken();
+        return true;
+    }
+
+    private boolean refreshAccessTokenAuthCodeFlow() {
+        if (authCode_refreshToken==null)
+            return false;
+
+        try {
+            accessToken = service.refreshAccessToken(cliCred_refreshToken);
+            log.debug(String.format("JCP Client '%s' refreshed access token via AuthCode flow.", getApiName()));
+
+        } catch (OAuth2AccessTokenErrorResponse | IOException | InterruptedException | ExecutionException ignore) {
+            return false;
+        }
+
+        authCode_refreshToken = accessToken.getRefreshToken();
+        return true;
+    }
+
 
 
     // JCP re-connection timer
@@ -984,30 +1032,44 @@ public class DefaultJCPClient2 implements JCPClient2 {
             response = service.execute(request);
 
             if (response.getCode() == 401) {
-                try {
-                    // Refresh access token
-                    if (isClientCredentialFlowEnabled())
-                        accessToken = service.refreshAccessToken(cliCred_refreshToken);
-                    else if (isAuthCodeFlowEnabled())
-                        accessToken = service.refreshAccessToken(authCode_refreshToken);
+                log.warn(String.format("JCP Client '%s' unauthorized, refresh it.", getApiName()));
 
-                } catch (OAuth2AccessTokenErrorResponse e) {
-
-                    // Get new access token with new authentication process
-                    if (isClientCredentialFlowEnabled())
-                        accessToken = getAccessTokenCliCredFlow(service, apiName);
-                    if (isAuthCodeFlowEnabled()) {
-                        emitLoggedOut();
+                if (!refreshConnection()) {
+                    log.warn(String.format("JCP Client '%s' refresh failed, re-connect.", getApiName()));
+                    try {
+                        disconnect();
                         try {
-                            accessToken = getAccessTokenAuthCodeFlow(service, authCode_refreshToken, authCode_loginCode, apiName);
-                            emitLoggedIn();
+                            connect();
 
-                        } catch (AuthenticationException e1) {
+                        } catch (AuthenticationException e) {
+                            if (!isAuthCodeFlowEnabled())
+                                throw e;
 
-                            // AuthCode logout but ClientCredential connected
-                            accessToken = getAccessTokenCliCredFlow(service, apiName);
+                            authCode_refreshToken = null;
+                            authCode_loginCode = null;
+
+                            connect();
                         }
-                    }
+
+                    } catch (StateException ignore) {}
+//
+//                    // Get new access token with new authentication process
+//                    if (isClientCredentialFlowEnabled())
+//                        initAccessTokenCliCredFlow();
+//
+//                    else if (isAuthCodeFlowEnabled()) {
+//                        emitLoggedOut();
+//                        log.debug(String.format("JCP Client '%s' de-authenticated, re-authenticate via AuthCode flow.", getApiName()));
+//                        try {
+//                            initAccessTokenAuthCodeFlow();
+//
+//                        } catch (AuthenticationException e) {
+//
+//                            // AuthCode logout but ClientCredential connected
+//                            log.debug(String.format("JCP Client '%s' can't re-authenticate via AuthCode flow because '%s'", getApiName(), e));
+//                            initAccessTokenCliCredFlow();
+//                        }
+//                    }
                 }
 
                 service.signRequest(accessToken, request);
