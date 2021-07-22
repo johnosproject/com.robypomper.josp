@@ -26,6 +26,9 @@ import com.robypomper.build.gradle.GradleBuildInfo
  * Components list:
  * <ul>
  *     <li>
+ *         JOSP APIs
+ *     </li>
+ *     <li>
  *         JOSP Commons
  *     </li>
  * </ul>
@@ -33,16 +36,13 @@ import com.robypomper.build.gradle.GradleBuildInfo
  * Summary:
  * <ul>
  *     <li>
- *         Components configs
+ *         Components configs: sourceSets, configurations, dependencies and BuildInfo
  *     </li>
  *     <li>
- *         Runners Tasks: no runners
+ *         Publication configs: component's publications
  *     </li>
  *     <li>
- *         Publication configs
- *     </li>
- *     <li>
- *         Publication tasks
+ *         Publication tasks: publication's tasks to local repository
  *     </li>
  * </ul>
  */
@@ -74,8 +74,7 @@ dependencies {
     jospAPIsImplementation "com.fasterxml.jackson.core:jackson-annotations:${project.ext.get("version.jackson")}"
 
     // JOSP Commons
-    if (!project.ext.get("deps.jospAPIsDisabled"))
-        jospCommonsImplementation "com.robypomper.josp:jospAPIs:${project.ext.get("version.jospAPIs")}"
+    jospCommonsImplementation "com.robypomper.josp:jospAPIs:${project.ext.get("version.deps.jospAPIs")}"
     jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
     jospCommonsImplementation "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
     jospCommonsImplementation "org.yaml:snakeyaml:${project.ext.get("version.snakeyaml")}"                              // YAML
@@ -87,8 +86,8 @@ dependencies {
 
 }
 
-GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospAPIs, (String)project.ext.get("version.jospAPIs_DEV"));
-GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospCommons, (String)project.ext.get("version.jospCommons_DEV"));
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospAPIs, (String)project.ext.get("version.build.jospAPIs"));
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospCommons, (String)project.ext.get("version.build.jospCommons"));
 
 // -------------------
 // Publication configs
@@ -97,7 +96,7 @@ GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospCommons, (Stri
 // JOSP Commons
 String jospAPIsName = 'JOSP APIs Library'
 String jospAPIsArtifact = 'jospAPIs'
-String jospAPIsVersion = project.ext.get("version.jospAPIs_DEV")
+String jospAPIsVersion = project.ext.get("version.build.jospAPIs")
 def jospAPIsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospAPIs,jospAPIsName,jospAPIsArtifact,jospAPIsVersion)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
@@ -108,7 +107,7 @@ tasks.jospAPIsDocs.enabled = !project.ext.get("disableDocs");
 // JOSP Commons
 String jospCommonsName = 'JOSP Commons Library'
 String jospCommonsArtifact = 'jospCommons'
-String jospCommonsVersion = project.ext.get("version.jospCommons_DEV")
+String jospCommonsVersion = project.ext.get("version.build.jospCommons")
 def jospCommonsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospCommons,jospCommonsName,jospCommonsArtifact,jospCommonsVersion)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
@@ -121,20 +120,22 @@ tasks.jospCommonsDocs.enabled = !project.ext.get("disableDocs");
 // Publication tasks
 // -----------------
 
+// ALL
 task all_PublishToLocal {
-    description = 'Publish...'
+    description = 'Publish all JOSP and JCP components to local repository...'
     group = 'JOSP publishers (locals)'
 }
 
+// ALL JOSP
 task josp_PublishToLocal {
-    description = 'Publish...'
+    description = 'Publish all JOSP components to local repository...'
     group = 'JOSP publishers (locals)'
     tasks.all_PublishToLocal.dependsOn josp_PublishToLocal
 }
 
 // JOSP APIs
 task jospAPIs_PublishToLocal {
-    description = 'Publish...'
+    description = 'Publish JOSP APIs component to local repository...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospAPIsPublicationToMavenLocal
     tasks.josp_PublishToLocal.dependsOn jospAPIs_PublishToLocal
@@ -142,8 +143,9 @@ task jospAPIs_PublishToLocal {
 
 // JOSP Commons
 task jospCommons_PublishToLocal {
-    description = 'Publish...'
+    description = 'Publish JOSP Commons component to local repository...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospCommonsPublicationToMavenLocal
     tasks.josp_PublishToLocal.dependsOn jospCommons_PublishToLocal
+    mustRunAfter jospAPIs_PublishToLocal
 }

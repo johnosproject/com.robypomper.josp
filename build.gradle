@@ -28,6 +28,7 @@ plugins {
     id 'idea'
 }
 
+apply from: 'gradle/josp_definitions.gradle'
 apply from: 'gradle/josp_project.gradle'
 apply from: 'gradle/josp_versions.gradle'
 

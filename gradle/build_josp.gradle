@@ -38,22 +38,22 @@ import com.robypomper.build.gradle.GradleBuildInfo
  * Summary:
  * <ul>
  *     <li>
- *         Components configs
+ *         Components configs: sourceSets, configurations, dependencies and BuildInfo
  *     </li>
  *     <li>
- *         Runners Tasks
+ *         Runners Tasks: task to run components as java application
  *     </li>
  *     <li>
- *         Runners Configs Tasks
+ *         Runners Configs Tasks: task to run components as java application with different configurations
  *     </li>
  *     <li>
- *         Runners Discovery Tasks
+ *         Runners Discovery Tasks: task to run components as java application with different discovery systems
  *     </li>
  *     <li>
- *         Publication configs
+ *         Publication configs: component's publications
  *     </li>
  *     <li>
- *         Publication tasks
+ *         Publication tasks: publication's tasks to local repository
  *     </li>
  * </ul>
  */
@@ -78,8 +78,7 @@ configurations {}
 dependencies {
 
     // JOSP JOD
-    if (!project.ext.get("deps.jospCommonsDisabled"))
-        jospJODImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
+    jospJODImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.deps.jospCommons")}"
     jospJODImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
     jospJODImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
     jospJODImplementation "net.sourceforge.htmlcleaner:htmlcleaner:${project.ext.get("version.htmlcleaner")}"
@@ -90,8 +89,7 @@ dependencies {
 
 
     // JOSP JSL
-    if (!project.ext.get("deps.jospCommonsDisabled"))
-        jospJSLImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.jospCommons")}"
+    jospJSLImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.deps.jospCommons")}"
     jospJSLImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
     jospJSLImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
     jospJSLRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:${project.ext.get("version.apache.log4j")}"
@@ -100,8 +98,8 @@ dependencies {
 
 }
 
-GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospJOD, (String)project.ext.get("version.jospJOD_DEV"));
-GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospJSL, (String)project.ext.get("version.jospJSL_DEV"));
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospJOD, (String)project.ext.get("version.build.jospJOD"));
+GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospJSL, (String)project.ext.get("version.build.jospJSL"));
 
 // -------------
 // Runners Tasks
@@ -302,7 +300,7 @@ makeJSLJavaRunnable('JmmDNS','discovery/jsl_jmmdns.yml','Discovery')
 // JOSP JOD
 String jospJODName = 'JOSP Object Daemon'
 String jospJODArtifact = 'jospJOD'
-String jospJODVersion = project.ext.get("version.jospJOD_DEV")
+String jospJODVersion = project.ext.get("version.build.jospJOD")
 def jospJODPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJOD,jospJODName,jospJODArtifact,jospJODVersion)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
@@ -315,7 +313,7 @@ tasks.jospJODDocs.enabled = !project.ext.get("disableDocs");
 // JOSP JSL
 String jospJSLName = 'JOSP Service Library'
 String jospJSLArtifact = 'jospJSL'
-String jospJSLVersion = project.ext.get("version.jospJSL_DEV")
+String jospJSLVersion = project.ext.get("version.build.jospJSL")
 def jospJSLPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJSL,jospJSLName,jospJSLArtifact,jospJSLVersion)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
@@ -331,16 +329,18 @@ tasks.jospJSLDocs.enabled = !project.ext.get("disableDocs");
 
 // JOSP JOD
 task jospJOD_PublishToLocal {
-    description = 'Publish...'
+    description = 'Publish JOSP JOD component to local repository...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospJODPublicationToMavenLocal
     tasks.josp_PublishToLocal.dependsOn jospJOD_PublishToLocal
+    mustRunAfter jospCommons_PublishToLocal
 }
 
 // JOSP JSL
 task jospJSL_PublishToLocal {
-    description = 'Publish...'
+    description = 'Publish JOSP JSL component to local repository...'
     group = 'JOSP publishers (locals)'
     dependsOn publishJospJSLPublicationToMavenLocal
     tasks.josp_PublishToLocal.dependsOn jospJSL_PublishToLocal
+    mustRunAfter jospCommons_PublishToLocal
 }

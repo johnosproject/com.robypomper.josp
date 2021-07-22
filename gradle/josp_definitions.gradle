@@ -1,0 +1,64 @@
+/**
+ * Gradle definitions to manage JOSP build's project.
+ *
+ * Summary:
+ * - JOSP Mode
+ * - JOSP Versions
+ *
+ * <h2>JOSP Mode</h2>
+ * The JOSP Mode is the main configuration on JOSP project building system.
+ * It act as a configurations selector, depending on selected mode it set
+ * different build configs. See 'josp_project.gradle' for more info.
+ *
+ * <h2>JOSP Versions</h2>
+ * The JOSP Versions is a set of constants that defines all JOSP versions.
+ * Those values are used for building JOSP artifact's versions and for their
+ * dependencies.
+ *
+ * To update PREV, CURRENT and NEXT values, you must force fist local publication.
+ * In order to avoid dependencies errors on build system, when the JOSP Versions
+ * values are updated it's required to publish all JOSP Components (on local
+ * repository) with internal JOSP dependencies that points to existing artifacts
+ * on same repository (the local one).
+ *
+ * <b>Note:</b> When released, all published JOSP components and their JOSP dependencies
+ * link to the same JOSP version.
+ */
+
+
+//@formatter:off
+
+// ---------
+// JOSP Mode
+// ---------
+
+def MODE_DEV        = 'dev'
+def MODE_STAGE      = 'stage'
+def MODE_RELEASE    = 'release'
+
+ext.set('jospModes.DEV',MODE_DEV)
+ext.set('jospModes.STAGE',MODE_STAGE)
+ext.set('jospModes.RELEASE',MODE_RELEASE)
+
+
+// -------------
+// JOSP Versions
+// -------------
+
+// All versions
+def v200 = '2.0.0'                  // XX Aug, 2020
+def v210 = '2.1.0'                  // XX Feb, 2021 < Current release
+
+ext.set('jospVersions.200'  ,v200)
+ext.set('jospVersions.210'  ,v210)
+
+// Default versions
+def vPREV       = v200
+def vCURRENT    = v200
+def vNEXT       = v210
+
+ext.set('jospVersions.PREV'     ,vPREV)
+ext.set('jospVersions.CURRENT'  ,vCURRENT)
+ext.set('jospVersions.NEXT'     ,vNEXT)
+
+//@formatter:on

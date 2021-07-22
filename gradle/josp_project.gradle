@@ -1,3 +1,29 @@
+/**
+ * Project's build configurations.
+ *
+ * Summary:
+ * - Project build configurations
+ * - Detailed configurations
+ *
+ * <h2>Project build configurations</h2>
+ * Those are the main configurations for project build. Here developers can easily
+ * configure the build system. Each config is set as Gradle ext property and then
+ * accessed from all Gradle files.
+ *
+ * Configs descriptions can be found at config declaration.
+ *
+ * <h2>Detailed configurations</h2>
+ * Previous 'Project build configurations' actually are used to configure the
+ * 'Detailed configurations' with default values. So 'Project build configurations'
+ * can be considered pre-set of 'Detailed configurations'.
+ *
+ * Most of detailed configurations can be customized directly from the
+ * 'Project build configurations' with the OVERRIDE_XY configs.
+ *
+ * Detailed configs descriptions and their default values can be found at
+ * config declaration.
+ */
+
 
 // ---------------
 // Project configs
@@ -5,36 +31,59 @@
 
 group = 'com.robypomper.josp'
 sourceCompatibility = '1.8'
-ext.set('disableDocs',true)     // set to true only for development environment
 
 ext {
-    set('projectUrl', 'http://johnosproject.com')
+
+    // PROJECT BUILD CONFIGURATIONS - START
+
+    set('projectUrl', 'https://www.johnosproject.org')
     set('projectGit', 'bitbucket.org:johnosproject_shared/com.robypomper.josp.git')
-    set('projectGitUrl', 'hhttps://bitbucket.org/johnosproject_shared/com.robypomper.josp')
+    set('projectGitUrl', 'https://bitbucket.org/johnosproject_shared/com.robypomper.josp')
+
+    // Preset build modes for JOSP Project
+    set('jospMode', ext.get('jospModes.DEV'))           // on first build, set jospDependenciesVersion=CURRENT
+    //set('jospMode', ext.get('jospModes.STAGE'))
+    //set('jospMode', ext.get('jospModes.RELEASE'))
+
+    // Set true to enable private tasks (require $USER_HOME/.gradle/properties.gradle file)
+    set('OVERRIDE_enablePrivate', false)
+
+    // Customize version used for JOSP Components build
+    //ext.set('OVERRIDE_jospBuildVersion',ext.get('jospVersions.CURRENT'))              // Default: NEXT if jospMode=DEV, CURRENT otherwise
+    //ext.set('OVERRIDE_jospBuildClassifier',SNAPSHOT)                                  // Default: 'DEV if jospMode=DEV, 'SNAPSHOT' if jospMode='STAGE, '' otherwise
+
+    // Customize version required for JOSP Components internal dependencies
+    // (de-comment for first jospModes=DEV's build)
+    ext.set('OVERRIDE_jospDependenciesVersion',ext.get('jospVersions.NEXT'))       // Default: jospBuildVersion
+
+    // PROJECT BUILD CONFIGURATIONS - END
+
 }
 
 
-// ----------------------------
-// Project dependencies configs
-// ----------------------------
+// -----------------------
+// Detailed configurations
+// -----------------------
 
-ext {
-    set('deps.jospAPIsDisabled', false)
-    set('deps.jospCommonsDisabled', false)
+// enablePrivate
+// If true, enable remote publications but require the properties.gradle file
+// It's true when jospMode=STAGE or RELEASE
+// When the source code is released, it's in jospMode=RELEASE and enablePrivate=false
+def enablePrivate = hasProperty('OVERRIDE_enablePrivate')
+        ? ext.get('OVERRIDE_enablePrivate')
+        : (ext.get('jospMode') == ext.get('jospModes.DEV')
+        ? false
+        : true
+)
+ext.set('enablePrivate', enablePrivate)
 
-    set('deps.jospJODDisabled', false)
-    set('deps.jospJSLDisabled', false)
-
-    set('deps.jcpCommonsDisabled', false)
-    set('deps.jcpDBDisabled', false)
-    set('deps.jcpDBAPIsDisabled', false)
-    set('deps.jcpDBFEDisabled', false)
-
-    set('deps.jcpServiceDisabled', false)
-    set('deps.jcpAPIsDisabled', false)
-    set('deps.jcpGWsDisabled', false)
-    set('deps.jcpJSLWebBridgeDisabled', false)
-    set('deps.jcpFEDisabled', false)
-
-    set('deps.jcpAllDisabled', false)
-}
+// disableDocs
+// If true, all docs tasks are disabled
+// It's true when jospMode=DEV
+def disableDocs = hasProperty('OVERRIDE_disableDocs')
+        ? ext.get('OVERRIDE_disableDocs')
+        : (ext.get('jospMode') == ext.get('jospModes.DEV')
+        ? true
+        : false
+)
+ext.set('disableDocs', disableDocs)
