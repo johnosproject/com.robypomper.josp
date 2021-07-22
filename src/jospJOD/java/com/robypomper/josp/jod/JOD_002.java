@@ -40,6 +40,7 @@ import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jod.structure.JODStructure_002;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.states.StateException;
+import com.robypomper.jospJOD.BuildInfoJospJOD;
 import com.robypomper.log.Mrk_JOD;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
@@ -52,7 +53,7 @@ public class JOD_002 extends AbsJOD {
 
     // Class constants
 
-    public static final String VERSION = FactoryJOD.JOD_VER_2_0_0;   // Upgraded to 2.0.0
+    public static final String VERSION = BuildInfoJospJOD.current.versionBuild;
     private static final int MAX_INSTANCE_ID = 10000;
 
 
