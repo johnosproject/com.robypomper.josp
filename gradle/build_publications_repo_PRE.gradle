@@ -1,0 +1,30 @@
+/**
+ * Configuration for remote publication of JOSP Components.
+ *
+ * Those configs allow to fecth JOSP components as dependencies from STAGE's
+ * repository.
+ */
+
+def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+def repoUrl = ext.get('jospMode') == ext.get('jospModes.RELEASE') ? releasesRepoUrl : snapshotsRepoUrl
+
+
+// ------------------------
+// Maven repository configs
+// ------------------------
+
+def enablePrivate = ext.get('enablePrivate')
+
+if (ext.get('jospMode') == ext.get('jospModes.STAGE') || ext.get('jospMode') == ext.get('jospModes.REPORT')) {
+    println "Config stage repo"
+    repositories {
+        maven {
+            url = uri(repoUrl)
+            credentials {
+                username enablePrivate ? project.sonatypeUser : ''
+                password enablePrivate ? project.sonatypePassword: ''
+            }
+        }
+    }
+}

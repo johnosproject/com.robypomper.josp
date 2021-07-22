@@ -32,18 +32,6 @@ def repoUrl = ext.get('jospMode') == ext.get('jospModes.RELEASE') ? releasesRepo
 // -------------------
 
 if (ext.get('enablePrivate')) {
-
-    if (ext.get('jospMode') == ext.get('jospModes.STAGE'))
-        repositories {
-            maven {
-                url = uri(repoUrl)
-                credentials {
-                    username project.sonatypeUser
-                    password project.sonatypePassword
-                }
-            }
-        }
-
     publishing {
 
         publications.each { pub ->

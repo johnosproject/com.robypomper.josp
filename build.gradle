@@ -57,13 +57,14 @@ repositories {
 apply from: 'gradle/spring_support.gradle'
 apply from: 'gradle/node_configs.gradle'
 
+apply from: 'gradle/build_publications_repo_PRE.gradle'
 apply from: 'gradle/build_commons.gradle'
 apply from: 'gradle/build_dockers.gradle'
 apply from: 'gradle/build_josp.gradle'
 apply from: 'gradle/build_jospcloud.gradle'
 apply from: 'gradle/build_josp_platform.gradle'
 apply from: 'gradle/build_tests.gradle'
-apply from: 'gradle/build_publications_repo.gradle'
+apply from: 'gradle/build_publications_repo_POST.gradle'
 
 if (tasks.findByName("wrapper")==null)
     task wrapper(type: Wrapper) {
