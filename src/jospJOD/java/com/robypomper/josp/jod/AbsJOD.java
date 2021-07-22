@@ -21,6 +21,7 @@ package com.robypomper.josp.jod;
 
 import com.robypomper.comm.exception.PeerConnectionException;
 import com.robypomper.comm.exception.PeerDisconnectionException;
+import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaEnum;
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
@@ -193,7 +194,11 @@ public abstract class AbsJOD implements JOD {
         log.trace(Mrk_JOD.JOD_MAIN, String.format("JOD state is %s", getState()));
 
         if (state.enumEquals(JODState.RUN))
-            shutdownInstance();
+            try {
+                shutdownInstance();
+            } catch (Throwable e) {
+                JavaAssertions.makeWarning_Failed(e, "Error on shutdown JOD instance");
+            }
 
         else if (state.enumEquals(JODState.STARTING))
             throw new StateException("Can't shout down JOD daemon instance because is starting, try again later");

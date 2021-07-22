@@ -37,14 +37,15 @@ public class ControllerError implements ErrorController {
         // Error info
         HttpStatus status = generateHttpStatus(request);
         String type = "HTTP_" + status;
-        String msg = generateMessage(request, status);
+        String msg = extractOriginalError(request, status);
         String details = "";
 
         // Request info
         String headerAccept = request.getHeader("accept");
-        String reqUrl = request.getRequestURI();
+        String reqUrl = extractOriginalUri(request, status);
 
-        ControllerError.log.warn(String.format("REQUEST ERROR [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, request));
+        String reqSource = String.format("method: %s, src: %s:%d, remoteUser: %s", request.getMethod(), request.getRemoteAddr(), request.getRemotePort(), request.getRemoteUser());
+        ControllerError.log.warn(String.format("REQUEST ERROR [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, reqSource));
 
         // Prepare response
         if (headerAccept.contains("text/html"))
@@ -77,7 +78,8 @@ public class ControllerError implements ErrorController {
                 reqUrl = notFound_Path.toString();
         }
 
-        ControllerError.log.warn(String.format("REQUEST ERROR [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, request));
+        String reqSource = String.format("method: %s, src: %s:%d, remoteUser: %s", request.getMethod(), request.getRemoteAddr(), request.getRemotePort(), request.getRemoteUser());
+        ControllerError.log.warn(String.format("REQUEST EXCEPTION [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, reqSource));
 
         // Prepare response
         if (headerAccept.contains("text/html"))
@@ -98,7 +100,11 @@ public class ControllerError implements ErrorController {
 
             case "RequestRejectedException":
             case "HttpRequestMethodNotSupportedException":
+            case "IllegalArgumentException":
                 return HttpStatus.BAD_REQUEST;
+
+            case "AccessDeniedException":
+                return HttpStatus.FORBIDDEN;
 
             case "GWNotAvailableException":
             case "Exception":
@@ -129,6 +135,22 @@ public class ControllerError implements ErrorController {
         return "Unknown error";
     }
 
+    private static String extractOriginalUri(HttpServletRequest request, HttpStatus status) {
+        Object originalUri = request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
+        if (originalUri != null)
+            return originalUri.toString();
+
+        return "Unknown original Uri";
+    }
+
+    private static String extractOriginalError(HttpServletRequest request, HttpStatus status) {
+        Object originalError = request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
+        if (originalError != null)
+            return originalError.toString();
+
+        return "Unknown original Error";
+    }
+
     private static String concatenateCauses(Throwable ex) {
         if (ex == null)
             return "";
@@ -140,9 +162,10 @@ public class ControllerError implements ErrorController {
         return current;
     }
 
-    private static String generateHtmlResponse(String reqUrl, HttpStatus status, String type, String message, String details) {
-        return String.format("<center><h1>Error %d</h1><p>Error <b>%s</b> on request '%s':<br>%s</p></center>", status.value(), type, reqUrl, message);
+    private static ResponseEntity<String> generateHtmlResponse(String reqUrl, HttpStatus status, String type, String message, String details) {
+        String error = String.format("<center><h1>Error %d</h1><p>Error <b>%s</b> on request '%s':<br>%s</p></center><!--\n%s\n-->", status.value(), type, reqUrl, message, details);
         //return new ResponseEntity<String>
+        return ResponseEntity.status(status).body(error);
     }
 
     private static ResponseEntity<Params20.Error> generateDefaultResponse(String reqUrl, HttpStatus status, String type, String message, String details) {

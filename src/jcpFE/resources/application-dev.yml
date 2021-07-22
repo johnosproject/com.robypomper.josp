@@ -1,6 +1,6 @@
 spring.application.name: jcpFE
 server.port: 9004
-spring.profiles.active: auth, db-fe, ssl
+#spring.profiles.active: auth, db-fe, ssl
 
 # JCP Clients
 localhost.public: ${HOST:${HOSTNAME:localhost}}

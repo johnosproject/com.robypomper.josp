@@ -36,9 +36,9 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JCP_SSL                  = "jcp.client.ssl";
     public static final String JCP_SSL_DEF              = "true";
     public static final String JCP_URL_APIS             = "jcp.url.apis";
-    public static final String JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
+    public static final String JCP_URL_DEF_APIS         = "api.johnosproject.org";
     public static final String JCP_URL_AUTH             = "jcp.url.auth";
-    public static final String JCP_URL_DEF_AUTH         = "auth.johnosproject.com:443";
+    public static final String JCP_URL_DEF_AUTH         = "auth.johnosproject.org";
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
     public static final String JCP_CLIENT_ID_DEF        = "";
     public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";

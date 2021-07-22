@@ -188,7 +188,9 @@ public abstract class GWAbs implements ApplicationListener<ContextRefreshedEvent
         if (!server.getState().isStopped())
             JavaAssertions.makeAssertion(server.getState().isStopped(), "Can't call GWServiceAbs.deregister() method when internal server is not stopped.");
 
-        JavaTimers.stopTimer(registerTimer);
+        JavaAssertions.makeWarning(registerTimer != null, "GW's registerTimer can't be null on GW's deregistration.");
+        if (registerTimer != null)
+            JavaTimers.stopTimer(registerTimer);
         registerTimer = null;
 
         if (!jcpAPIsCaller.getClient().isConnected()) {

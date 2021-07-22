@@ -195,8 +195,8 @@ public class JSLWebBridge {
     }
 
     public void destroyJSL(String sessionId) {
-        Map<String, SseEmitter> emitters = jslEmitters.get(sessionId);
-        if (emitters!=null && emitters.size() > 0)
+        Map<String, SseEmitter> emitters = new HashMap<>(jslEmitters.get(sessionId));
+        if (emitters.size() > 0)
             for (SseEmitter emitter : emitters.values())
                 destroySSEEmitter(sessionId, getClientFullAddress(emitter));
 
