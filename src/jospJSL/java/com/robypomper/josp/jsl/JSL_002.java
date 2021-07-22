@@ -34,6 +34,7 @@ import com.robypomper.josp.jsl.user.JSLUserMngr;
 import com.robypomper.josp.jsl.user.JSLUserMngr_002;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.states.StateException;
+import com.robypomper.jospJSL.BuildInfoJospJSL;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +46,7 @@ public class JSL_002 extends AbsJSL {
 
     // Class constants
 
-    public static final String VERSION = FactoryJSL.JSL_VER_2_0_0;   // Upgraded to 2.0.0
+    public static final String VERSION = BuildInfoJospJSL.current.versionBuild;
     private static final int MAX_INSTANCE_ID = 10000;
 
 
