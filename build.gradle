@@ -24,6 +24,7 @@ plugins {
     id "com.github.node-gradle.node" // version "3.0.1"                         // for jcpFE Javascript resources only
     id 'java'
     id 'maven-publish'
+    id 'signing'
 
     id 'idea'
 }
@@ -31,6 +32,21 @@ plugins {
 apply from: 'gradle/josp_definitions.gradle'
 apply from: 'gradle/josp_project.gradle'
 apply from: 'gradle/josp_versions.gradle'
+
+println "--------------------------"
+println "Building John O.S. Project"
+println "--------------------------"
+println "Mode:                  " + ext.get('jospMode')
+println "Project:"
+println "- url:                 " + ext.get('projectUrl')
+println "- git:                 " + ext.get('projectGit')
+println "- git-url:             " + ext.get('projectGitUrl')
+println "JOSP Versions:"
+println "- default:             " + ext.get('version.build.josp') + " / " + ext.get('version.deps.josp') + "          (Building / Required)"
+//println "- JOSP APIs            " + ext.get('version.build.jospAPIs') + " / " + ext.get('version.deps.jospAPIs')
+println "JOSP Configs:"
+println "- enablePrivate:       " + ext.get('enablePrivate')
+println "- disableDocs:         " + ext.get('disableDocs')
 
 
 repositories {
@@ -43,10 +59,11 @@ apply from: 'gradle/node_configs.gradle'
 
 apply from: 'gradle/build_commons.gradle'
 apply from: 'gradle/build_dockers.gradle'
-apply from: 'gradle/build_jospcloud.gradle'
 apply from: 'gradle/build_josp.gradle'
+apply from: 'gradle/build_jospcloud.gradle'
 apply from: 'gradle/build_josp_platform.gradle'
 apply from: 'gradle/build_tests.gradle'
+apply from: 'gradle/build_publications_repo.gradle'
 
 if (tasks.findByName("wrapper")==null)
     task wrapper(type: Wrapper) {
