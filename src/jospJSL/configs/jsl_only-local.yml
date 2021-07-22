@@ -4,9 +4,9 @@
 jcp.connect: 'false'
 # JCP_REFRESH_TIME_DEF     = "30";
 #jcp.client.refresh: '5'
-#jcp.url.apis: api.johnosproject.org:443
+# JCP_URL_DEF_APIS         = "api.johnosproject.org"
 jcp.url.apis: 'localhost:9001'
-#jcp.url.auth: auth.johnosproject.org:443
+# JCP_URL_DEF_AUTH         = "auth.johnosproject.org"
 jcp.url.auth: 'localhost:8998'
 # JCP_CLIENT_ID_DEF        = "";
 jcp.client.id: 'test-client-srv'
