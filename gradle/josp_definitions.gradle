@@ -48,14 +48,16 @@ ext.set('jospModes.RELEASE',MODE_RELEASE)
 // All versions
 def v200 = '2.0.0'                  // XX Aug, 2020
 def v210 = '2.1.0'                  // XX Feb, 2021 < Current release
+def v220 = '2.2.0'                  // XX Aug, 2021 < Current development
 
 ext.set('jospVersions.200'  ,v200)
 ext.set('jospVersions.210'  ,v210)
+ext.set('jospVersions.220'  ,v220)
 
 // Default versions
 def vPREV       = v200
-def vCURRENT    = v200
-def vNEXT       = v210
+def vCURRENT    = v210
+def vNEXT       = v220
 
 ext.set('jospVersions.PREV'     ,vPREV)
 ext.set('jospVersions.CURRENT'  ,vCURRENT)
