@@ -1,5 +1,0 @@
-# JCP APIs - User
-
-TODO
-
-APIUsrs.FULL_PATH_USERNAME

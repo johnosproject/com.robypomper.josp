@@ -1,6 +1,0 @@
-# JOSP JOD - Structure
-
-TODO
-
-...
-
