@@ -1,7 +1,27 @@
+/*******************************************************************************
+ * The John Cloud Platform is the set of infrastructure and software required to provide
+ * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright 2021 Roberto Pompermaier
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
 package com.robypomper.josp.jcp.gateways.controllers.internal.status;
 
 import com.robypomper.comm.server.ServerClient;
 import com.robypomper.josp.jcp.base.controllers.ControllerImpl;
+import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.jcp.defs.gateways.internal.status.Params20;
 import com.robypomper.josp.jcp.defs.gateways.internal.status.Paths20;
 import com.robypomper.josp.jcp.gws.broker.BrokerClientJOD;
@@ -11,7 +31,6 @@ import com.robypomper.josp.jcp.gws.gw.GWAbs;
 import com.robypomper.josp.jcp.gws.services.BrokerService;
 import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
 import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
-import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.types.RESTItemList;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -25,8 +44,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 

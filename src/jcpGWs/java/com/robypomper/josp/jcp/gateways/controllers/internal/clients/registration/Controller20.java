@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Cloud Platform set of infrastructure and software required to provide
+/*******************************************************************************
+ * The John Cloud Platform is the set of infrastructure and software required to provide
  * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jcp.gateways.controllers.internal.clients.registration;
 
@@ -23,12 +23,12 @@ import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.java.JavaJKS;
 import com.robypomper.josp.consts.JOSPConstants;
 import com.robypomper.josp.jcp.base.controllers.ControllerImpl;
+import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Params20;
 import com.robypomper.josp.jcp.defs.gateways.internal.clients.registration.Paths20;
 import com.robypomper.josp.jcp.gws.gw.GWAbs;
 import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
 import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
-import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

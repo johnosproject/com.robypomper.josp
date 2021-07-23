@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Cloud Platform set of infrastructure and software required to provide
+/*******************************************************************************
+ * The John Cloud Platform is the set of infrastructure and software required to provide
  * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jcp.apis.controllers.josp.core.permissions;
 
@@ -23,8 +23,8 @@ import com.robypomper.java.JavaDate;
 import com.robypomper.josp.consts.JOSPConstants;
 import com.robypomper.josp.defs.core.permissions.Paths20;
 import com.robypomper.josp.jcp.base.controllers.ControllerImpl;
-import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
+import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
