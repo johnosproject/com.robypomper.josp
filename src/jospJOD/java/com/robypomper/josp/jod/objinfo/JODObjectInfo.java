@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.objinfo;
 
@@ -51,6 +51,13 @@ public interface JODObjectInfo {
 
 
     // Obj's info
+
+    /**
+     * The full service id is composed by service and user ids.
+     *
+     * @return an id composed by service and user id.
+     */
+    String getFullId();
 
     /**
      * The JOD version represent the object's agent version and define witch
@@ -92,6 +99,18 @@ public interface JODObjectInfo {
      */
     String getOwnerId();
 
+    /**
+     * Set object's owner.
+     *
+     * @param ownerId the user's id.
+     */
+    void setOwnerId(String ownerId);
+
+    /**
+     * Set object's owner to unset.
+     */
+    void resetOwnerId();
+
 
     // Structure's info
 
@@ -117,13 +136,6 @@ public interface JODObjectInfo {
     String getStructForJSL() throws JODStructure.ParsingException;
 
     /**
-     * Object's permissions string for JSL.
-     *
-     * @return the object's permissions.
-     */
-    String getPermsForJSL() throws JODStructure.ParsingException;
-
-    /**
      * The object's brand.
      *
      * @return object's brand.
@@ -145,23 +157,6 @@ public interface JODObjectInfo {
     String getLongDescr();
 
 
-    // Permissions's info
-
-    /**
-     * The object's permissions local file.
-     *
-     * @return object's permissions file's path.
-     */
-    String getPermissionsPath();
-
-    /**
-     * The object's permissions stored on local file.
-     *
-     * @return object's locally stored permissions.
-     */
-    String readPermissionsStr();
-
-
     // Mngm methods
 
     /**
@@ -177,15 +172,5 @@ public interface JODObjectInfo {
     void stopAutoRefresh();
 
     void syncObjInfo();
-
-    // Obj's id
-
-    /**
-     * Delete current object's id and generate a new one.
-     * <p>
-     * This operations is called when the object's owner is changed, so it
-     * regenerate all permissions will be invalidated (and regenerated).
-     */
-    void regenerateObjId();
 
 }

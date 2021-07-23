@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod;
 
@@ -33,10 +33,12 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
     public static final String JCP_REFRESH_TIME_DEF     = "30";
+    public static final String JCP_SSL                  = "jcp.client.ssl";
+    public static final String JCP_SSL_DEF              = "true";
     public static final String JCP_URL_APIS             = "jcp.url.apis";
-    public static final String JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
+    public static final String JCP_URL_DEF_APIS         = "api.johnosproject.org";
     public static final String JCP_URL_AUTH             = "jcp.url.auth";
-    public static final String JCP_URL_DEF_AUTH         = "auth.johnosproject.com:443";
+    public static final String JCP_URL_DEF_AUTH         = "auth.johnosproject.org";
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
     public static final String JCP_CLIENT_ID_DEF        = "";
     public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";
@@ -60,20 +62,20 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JODSTRUCT_PATH_DEF       = "struct.jod";
 
     public static final String JODPERM_PATH             = "jod.permissions.path";
-    public static final String JODPERM_PATH_DEF = "perms.jod";
-    public static final String JODPERM_REFRESH = "jod.permissions.refresh";
-    public static final String JODPERM_REFRESH_DEF = "30";
-    public static final String JODPERM_GENSTARTEGY = "jod.permissions.generation_strategy";
-    public static final String JODPERM_GENSTARTEGY_DEF = "standard";
-    public static final String JODPERM_OWNER = "jod.permissions.owner";
-    public static final String JODPERM_OWNER_DEF = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
+    public static final String JODPERM_PATH_DEF         = "perms.jod";
+    public static final String JODPERM_REFRESH          = "jod.permissions.refresh";
+    public static final String JODPERM_REFRESH_DEF      = "30";
+    public static final String JODPERM_GENSTARTEGY      = "jod.permissions.generation_strategy";
+    public static final String JODPERM_GENSTARTEGY_DEF  = "standard";
+    public static final String JODPERM_OWNER            = "jod.permissions.owner";
+    public static final String JODPERM_OWNER_DEF        = JOSPPerm.WildCards.USR_ANONYMOUS_ID.toString();
 
-    public static final String JODCOMM_LOCAL_ENABLED = "jod.comm.local.enabled";
+    public static final String JODCOMM_LOCAL_ENABLED    = "jod.comm.local.enabled";
     public static final String JODCOMM_LOCAL_ENABLED_DEF = "true";
-    public static final String JODCOMM_LOCAL_DISCOVERY = "jod.comm.local.discovery";
-    public static final String JODCOMM_LOCAL_DISCOVERY_DEF = "JmDNS";
-    public static final String JODCOMM_LOCAL_PORT = "jod.comm.local.port";
-    public static final String JODCOMM_LOCAL_PORT_DEF = "1234";
+    public static final String JODCOMM_LOCAL_DISCOVERY  = "jod.comm.local.discovery";
+    public static final String JODCOMM_LOCAL_DISCOVERY_DEF = "Auto";
+    public static final String JODCOMM_LOCAL_PORT       = "jod.comm.local.port";
+    public static final String JODCOMM_LOCAL_PORT_DEF   = "0";
 
     public static final String JODCOMM_CLOUD_ENABLED = "jod.comm.cloud.enabled";
     public static final String JODCOMM_CLOUD_ENABLED_DEF = "true";
@@ -84,6 +86,10 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
 
     public static JOD.Settings instance(File file) throws IOException {
         return new JODSettings_002(file);
+    }
+
+    public static JOD.Settings instance(Map<String, Object> properties) {
+        return new JODSettings_002(properties);
     }
 
     public JODSettings_002(File file) throws IOException {
@@ -105,6 +111,11 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     //@Override
     public int getJCPRefreshTime() {
         return getInt(JCP_REFRESH_TIME, JCP_REFRESH_TIME_DEF);
+    }
+
+    //@Override
+    public boolean getJCPUseSSL() {
+        return getBoolean(JCP_SSL, JCP_SSL_DEF);
     }
 
     //@Override

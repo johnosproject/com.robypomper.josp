@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
 import com.robypomper.josp.jod.JOD;
+import com.robypomper.josp.states.JODState;
+import com.robypomper.josp.states.StateException;
 
 public class CmdsJOD {
 
@@ -35,9 +37,9 @@ public class CmdsJOD {
      *
      * @return the JOD Object status.
      */
-    @Command(description = "Print current JOD Object status.")
-    public JOD.Status jodStatus() {
-        return jod.status();
+    @Command(description = "Print current JOD daemon state.")
+    public JODState jodState() {
+        return jod.getState();
     }
 
     /**
@@ -48,8 +50,8 @@ public class CmdsJOD {
     @Command(description="Start current JOD Object.")
     public String jodStart() {
         try {
-            jod.start();
-        } catch (com.robypomper.josp.jod.JOD.RunException e) {
+            jod.startup();
+        } catch (StateException e) {
             return String.format("Error on starting JOD Object:\n\t'%s'", e.getMessage());
         }
         return "JOD Object started successfully.";
@@ -63,8 +65,8 @@ public class CmdsJOD {
     @Command(description="Stop current JOD Object.")
     public String jodStop() {
         try {
-            jod.stop();
-        } catch (com.robypomper.josp.jod.JOD.RunException e) {
+            jod.shutdown();
+        } catch (StateException e) {
             return String.format("Error on stopping JOD Object:\n\t'%s'", e.getMessage());
         }
         return "JOD Object stopped successfully.";

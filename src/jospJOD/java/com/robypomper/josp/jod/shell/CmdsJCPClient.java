@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
-import com.robypomper.josp.core.jcpclient.JCPClient2;
+import com.robypomper.josp.clients.JCPClient2;
+import com.robypomper.josp.states.StateException;
 
 public class CmdsJCPClient {
 
@@ -44,14 +45,11 @@ public class CmdsJCPClient {
         try {
             jcpClient.connect();
 
-        } catch (JCPClient2.ConnectionException e) {
+        } catch (StateException e) {
             return String.format("Error on JCP Client connection: %s.", e.getMessage());
 
         } catch (JCPClient2.AuthenticationException e) {
             return String.format("Error on JCP Client authentication: %s.", e.getMessage());
-
-        } catch (JCPClient2.JCPNotReachableException e) {
-            return String.format("Error JCP Client not reachable: %s.", e.getMessage());
         }
 
         return "JCP Client connected successfully.";
@@ -62,7 +60,13 @@ public class CmdsJCPClient {
         if (!jcpClient.isConnected())
             return "JCP Client already disconnected.";
 
-        jcpClient.disconnect();
+        try {
+            jcpClient.disconnect();
+
+        } catch (StateException e) {
+            return String.format("Error on JCP Client disconnection: %s.", e.getMessage());
+        }
+
         return "JCP Client disconnected successfully.";
     }
 

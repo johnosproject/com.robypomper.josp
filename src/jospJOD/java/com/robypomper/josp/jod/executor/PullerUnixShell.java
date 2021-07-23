@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
@@ -38,8 +38,7 @@ public class PullerUnixShell extends AbsJODPuller {
     // Class constants
 
     private static final String PROP_CMD = "cmd";
-    private static final String PROP_FREQ = "freq";
-    public static final int UNIX_SHELL_POLLING_TIME = 30000;
+    private static final String PROP_FREQ_SEC = "freq";                 // in seconds
 
 
     // Internal vars
@@ -51,27 +50,19 @@ public class PullerUnixShell extends AbsJODPuller {
     // Constructor
 
     /**
-     * Default PullerTest constructor.
+     * Default PullerUnixShell constructor.
      *
      * @param name       name of the puller.
      * @param proto      proto of the puller.
      * @param configsStr configs string, can be an empty string.
      */
-    public PullerUnixShell(String name, String proto, String configsStr, JODComponent component) {
+    public PullerUnixShell(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException, ParsingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell for component '%s' init with config string '%s://%s'.", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
-        cmd = genericSubstitution(properties.get(PROP_CMD), getComponent());
-        int freq_msTMP;
-        try {
-            freq_msTMP = parseConfigInt(properties, PROP_FREQ, UNIX_SHELL_POLLING_TIME / 1000) * 1000;
-
-        } catch (MissingPropertyException | ParsingPropertyException e) {
-            log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("Error on parsing %s property on PullerUnixShell for component '%s' init with config string '%s://%s', use default value '%d' seconds", PROP_FREQ, getName(), proto, configsStr, UNIX_SHELL_POLLING_TIME / 1000));
-            freq_msTMP = UNIX_SHELL_POLLING_TIME;
-        }
-        freq_ms = freq_msTMP;
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        cmd = parseConfigString(configs, PROP_CMD);
+        freq_ms = parseConfigInt(configs, PROP_FREQ_SEC, Integer.toString(AbsJODPuller.DEF_POLLING_TIME / 1000)) * 1000;
     }
 
     protected long getPollingTime() {
@@ -86,17 +77,18 @@ public class PullerUnixShell extends AbsJODPuller {
      */
     @Override
     public void pull() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest '%s' of proto '%s' pulling (cmd='%s')", getName(), getProto(), cmd));
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell '%s' of proto '%s' pulling (cmd='%s')", getName(), getProto(), cmd));
 
         // CmdPartitioning
         String state;
         try {
-            state = JavaExecProcess.execCmd(cmd);
+            state = JavaExecProcess.execCmd(cmd).trim();
 
-        } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s'", cmd, getName()));
+        } catch (IOException | JavaExecProcess.ExecStillAliveException e) {
+            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell error on executing cmd '%s' for component '%s' because '%s'", cmd, getName(), e.getMessage()), e);
             return;
         }
+        log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell '%s' of proto '%s' read state '%s'", getName(), getProto(), state));
 
         if (!convertAndSetStatus(state))
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerUnixShell for component '%s' can't update his component because not supported (%s)", getName(), getComponent().getClass().getSimpleName()));

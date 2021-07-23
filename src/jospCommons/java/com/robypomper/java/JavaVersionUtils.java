@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +15,31 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.java;
 
 import java.io.File;
+import java.util.Map;
 
+/**
+ * Utils class to print current JVM details.
+ */
 public class JavaVersionUtils {
 
+    /**
+     * Return current JVM details in a formatted as a table string.
+     *
+     * @param mainAppName    current application name.
+     * @param mainAppVersion current application version.
+     * @return a string formatted as a table containing current JVM details.
+     */
     public static String buildJavaVersionStr(String mainAppName, String mainAppVersion) {
+        StringBuilder envVarsList = new StringBuilder();
+        Map<String, String> enviorntmentVars = System.getenv();
+        for (Map.Entry<String, String> var : enviorntmentVars.entrySet())
+            envVarsList.append(var.getKey()).append(": ").append(var.getValue()).append("\n");
+
         return mainAppName + " versions:   " + mainAppVersion + "\n" +
                 "+-----------------\n" +
                 "| Current dir:     " + new File("").getAbsolutePath() + "\n" +
@@ -43,6 +59,7 @@ public class JavaVersionUtils {
                 "| Dflt language:   " + System.getProperty("user.language") + "\n" +
                 "| Dflt encoding:   " + System.getProperty("sun.jnu.encoding") + "\n" +
                 "| File encoding:   " + System.getProperty("file.encoding") + "\n" +
+                "| Env Vars:        " + envVarsList.toString() + "\n" +
                 "+-----------------\n" +
                 "| Working dir:     " + System.getProperty("user.dir") + "\n" +
                 "+-----------------\n";

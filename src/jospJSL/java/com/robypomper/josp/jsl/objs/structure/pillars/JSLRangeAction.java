@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Service Library is the software library to connect "software"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jsl.objs.structure.pillars;
 
@@ -112,7 +112,10 @@ public class JSLRangeAction extends JSLRangeState implements JSLAction {
 
         @Override
         public String encode() {
-            return String.format("new:%s\nold:%s", JavaFormatter.doubleToStr(newState), JavaFormatter.doubleToStr(oldState));
+            // No '\n', no ';'
+            String newVal = String.format(KEY_VALUE_FORMAT, "new", JavaFormatter.doubleToStr(newState));
+            String oldVal = String.format(KEY_VALUE_FORMAT, "old", JavaFormatter.doubleToStr(oldState));
+            return newVal + ITEMS_SEP + oldVal;
         }
 
     }

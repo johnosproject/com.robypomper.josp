@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.structure;
 
@@ -23,7 +23,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.events.Events;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
@@ -44,6 +46,7 @@ public class JODStructure_002 implements JODStructure {
     private static final Logger log = LogManager.getLogger();
     private final JODObjectInfo objInfo;
     private final JODExecutorMngr executorMngr;
+    private final JODHistory history;
     private final JODRoot root;
     private Date lastStructureUpdate;
     private JODCommunication comm;
@@ -60,9 +63,10 @@ public class JODStructure_002 implements JODStructure {
      * @param objInfo      the Object Info system.
      * @param executorMngr the Executor Manager system.
      */
-    public JODStructure_002(JODObjectInfo objInfo, JODExecutorMngr executorMngr) throws ParsingException {
+    public JODStructure_002(JODObjectInfo objInfo, JODExecutorMngr executorMngr, JODHistory history) throws ParsingException {
         this.objInfo = objInfo;
         this.executorMngr = executorMngr;
+        this.history = history;
 
         root = loadStructure(objInfo.readStructureStr());
 
@@ -204,14 +208,17 @@ public class JODStructure_002 implements JODStructure {
             InjectableValues.Std injectVars = new InjectableValues.Std();
             injectVars.addValue(JODStructure.class, this);
             injectVars.addValue(JODExecutorMngr.class, executorMngr);
+            injectVars.addValue(JODHistory.class, history);
             objMapper.setInjectableValues(injectVars);
 
             log.trace(Mrk_JOD.JOD_STRU, String.format("Parsing '%s' object structure '%s...'", objInfo.getObjId(), structureStr.substring(0, 100).replace("\n", " ")));
             root = objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
+            Events.registerStructLoad(root.getModel(),"version",root.getComponents().size());
 
         } catch (JsonProcessingException e) {
             String eMessage = e.getMessage().indexOf('\n') == -1 ? e.getMessage() : e.getMessage().substring(0, e.getMessage().indexOf('\n'));
             log.warn(Mrk_JOD.JOD_STRU, String.format("Error on loading object structure because %s", eMessage), e);
+            Events.registerStructLoad(e);
             throw new ParsingException("Error on parsing JOD Structure", e);
         }
 

@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
+import com.robypomper.java.JavaTimers;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.log.Mrk_JOD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -35,7 +35,7 @@ public abstract class AbsJODPuller extends AbsJODWorker implements JODPuller {
 
     // Class's constants
 
-    public static final String TH_PULLER_NAME_FORMAT = "_PULL_%s";
+    public static final String TH_PULLER_NAME = "_PULL_%s_";
     public static final int DEF_POLLING_TIME = 5000;
 
 
@@ -86,14 +86,7 @@ public abstract class AbsJODPuller extends AbsJODWorker implements JODPuller {
         if (isEnabled()) return;
 
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Starting puller timer");
-        timer = new Timer(true);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Thread.currentThread().setName(String.format(TH_PULLER_NAME_FORMAT, getName()));
-                pull();
-            }
-        }, 0, getPollingTime());
+        timer = JavaTimers.initAndStart(new PullerTimer(), true,String.format(TH_PULLER_NAME, getProto()),getName(),0,getPollingTime());
 
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Puller timer started");
     }
@@ -107,9 +100,18 @@ public abstract class AbsJODPuller extends AbsJODWorker implements JODPuller {
         if (!isEnabled()) return;
 
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Stopping puller timer");
-        timer.cancel();
+        JavaTimers.stopTimer(timer);
         timer = null;
         log.debug(Mrk_JOD.JOD_EXEC_SUB, "Puller timer stopped");
+    }
+
+    private class PullerTimer implements Runnable {
+
+        @Override
+        public void run() {
+            pull();
+        }
+
     }
 
 }

@@ -1,4 +1,4 @@
-Placeholder for JCP User APIs
+Placeholder for API Users
 
 <a href="/swagger-ui.html?urls.primaryName=default">
 Back to All APIs

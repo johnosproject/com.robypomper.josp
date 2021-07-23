@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.structure.pillars;
 
 import com.robypomper.java.JavaFormatter;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -57,8 +58,8 @@ public class JODRangeState extends AbsJODState {
      * @param listener  the listener full configs string.
      * @param puller    the puller full configs string.
      */
-    public JODRangeState(JODStructure structure, JODExecutorMngr execMngr, String name, String descr, String listener, String puller, Double min, Double max, Double step) throws JODStructure.ComponentInitException {
-        super(structure, execMngr, name, descr, listener, puller);
+    public JODRangeState(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String name, String descr, String listener, String puller, Double min, Double max, Double step) throws JODStructure.ComponentInitException {
+        super(structure, execMngr, history, name, descr, listener, puller);
         this.min = min != null ? min : 0;
         this.max = max != null ? max : 100;
         this.step = step != null ? step : 10;
@@ -81,6 +82,10 @@ public class JODRangeState extends AbsJODState {
     @Override
     public String getState() {
         return Double.toString(state);
+    }
+
+    public double getStateRange() {
+        return state;
     }
 
     public double getMin() {
@@ -131,7 +136,10 @@ public class JODRangeState extends AbsJODState {
 
         @Override
         public String encode() {
-            return String.format("new:%s\nold:%s", JavaFormatter.doubleToStr(newState), JavaFormatter.doubleToStr(oldState));
+            // No '\n', no ';'
+            String newVal = String.format(KEY_VALUE_FORMAT, "new", JavaFormatter.doubleToStr(newState));
+            String oldVal = String.format(KEY_VALUE_FORMAT, "old", JavaFormatter.doubleToStr(oldState));
+            return newVal + ITEMS_SEP + oldVal;
         }
 
     }

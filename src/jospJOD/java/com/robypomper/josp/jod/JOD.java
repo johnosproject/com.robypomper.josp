@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,26 +15,33 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod;
 
+import com.robypomper.java.JavaAssertions;
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.events.JODEvents;
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
-import com.robypomper.josp.jod.jcpclient.JCPClient_Object;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.objinfo.JODObjectInfo;
 import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
+import com.robypomper.josp.states.JODState;
+import com.robypomper.josp.states.StateException;
 
 import java.io.File;
+import java.util.Map;
 
 
 /**
  * Main interface for JOD object.
- *
+ * <p>
  * This interface define methods to initialize and manage a JOD object. Moreover,
  * it define also JOD support classes, struct and exceptions.
  */
+@SuppressWarnings("unused")
 public interface JOD {
 
     // New instance method
@@ -52,7 +59,7 @@ public interface JOD {
      * @return null pointer.
      */
     static JOD instance(Settings settings) {
-        return null;
+        return JavaAssertions.makeAssertion_Failed("Each sub-class must override this method", null);
     }
 
 
@@ -79,41 +86,40 @@ public interface JOD {
     // JOD mngm
 
     /**
-     * Start current JOD object and all his systems.
-     *
-     * Update the JOD object's status {@link #status()}.
-     *
-     * @throws RunException thrown if errors occurs on JOD object start.
+     * @return the JOD daemon's state.
      */
-    void start() throws RunException;
+    JODState getState();
+
+    /**
+     * Start current JOD object and all his systems.
+     * <p>
+     * Update the JOD object's status {@link #getState()}.
+     */
+    void startup() throws StateException;
 
     /**
      * Stop current JOD object and all his systems.
-     *
-     * Update the JOD object's status {@link #status()}.
-     *
-     * @throws RunException thrown if errors occurs on JOD object stop.
+     * <p>
+     * Update the JOD object's status {@link #getState()}.
      */
-    void stop() throws RunException;
+    void shutdown() throws StateException;
 
     /**
      * Stop then restart current JOD object and all his systems.
-     *
-     * Update the JOD object's status {@link #status()}.
-     *
-     * @throws RunException thrown if errors occurs on JOD object stop and start.
+     * <p>
+     * Update the JOD object's status {@link #getState()}.
      */
-    void restart() throws RunException;
+    boolean restart() throws StateException;
 
     /**
-     * @return the JOD object's status.
+     * Pretty formatted JOD instance's info on current logger.
      */
-    Status status();
+    void printInstanceInfo();
 
 
     // JOD Systems
 
-    JCPClient_Object getJCPClient();
+    JCPAPIsClientObj getJCPClient();
 
     JODObjectInfo getObjectInfo();
 
@@ -125,57 +131,16 @@ public interface JOD {
 
     JODPermissions getPermission();
 
+    JODEvents getEvents();
+
+    JODHistory getHistory();
+
 
     // Support struct and classes
 
     /**
-     * JOD Objects statuses.
-     */
-    enum Status {
-        /**
-         * JOD object is starting.
-         *
-         * The method {@link #start()} was called, when finish the status become
-         * {@link #RUNNING} or {@link #STOPPED} if error occurs.
-         */
-        STARTING,
-
-        /**
-         * JOD object is running.
-         *
-         * The method {@link #start()} was called and the JOD object was started
-         * successfully.
-         */
-        RUNNING,
-
-        /**
-         * JOD object is shouting down.
-         *
-         * The method {@link #stop()} was called, when finish the status become
-         * {@link #STOPPED}.
-         */
-        SHUTDOWN,
-
-        /**
-         * JOD object is stopped.
-         *
-         * The method {@link #stop()} was called and the JOD object was stopped
-         * successfully.
-         */
-        STOPPED,
-
-        /**
-         * JOD object is shouting down and restarted.
-         * <p>
-         * The method {@link #restart()} was called, when finish the status become
-         * {@link #RUNNING} or {@link #STOPPED} if error occurs.
-         */
-        REBOOTING
-    }
-
-    /**
      * JOD's settings interface.
-     *
+     * <p>
      * JOD.Settings implementations can be used by JOD implementations to
      * customize settings for specific JOD implementations.
      */
@@ -198,23 +163,25 @@ public interface JOD {
             return null;
         }
 
+        /**
+         * Static method to generate JOD.Settings object from <code>file</code>
+         * configs.
+         *
+         * <b>This method (from {@link JOD.Settings} interface) return null object</b>,
+         * because JOD.Settings sub-classes must re-implement the same method and
+         * return sub-class instance.
+         *
+         * @param properties map containing the properties to set as JOD configurations.
+         * @return null pointer.
+         */
+        static Settings instance(Map<String, Object> properties) {
+            return null;
+        }
+
     }
 
 
     // Exceptions
-
-    /**
-     * Exceptions for JOD object startup and shout down errors.
-     */
-    class RunException extends Throwable {
-        public RunException(String msg) {
-            super(msg);
-        }
-
-        public RunException(String msg, Exception e) {
-            super(msg,e);
-        }
-    }
 
     /**
      * Exceptions for {@link JOD} and {@link JOD.Settings} object creation.
@@ -225,7 +192,7 @@ public interface JOD {
         }
 
         public FactoryException(String msg, Exception e) {
-            super(msg,e);
+            super(msg, e);
         }
     }
 

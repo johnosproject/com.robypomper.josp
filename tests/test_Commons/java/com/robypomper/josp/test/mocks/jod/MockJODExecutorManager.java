@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.test.mocks.jod;
 
@@ -64,72 +64,58 @@ public class MockJODExecutorManager implements JODExecutorMngr {
 
     @Override
     public void activateAll() {
-
     }
 
     @Override
     public void deactivateAll() {
-
     }
 
     @Override
     public void startPuller(JODComponent component) {
-
     }
 
     @Override
     public void stopPuller(JODComponent component) {
-
     }
 
     @Override
     public void startAllPullers() {
-
     }
 
     @Override
     public void stopAllPullers() {
-
     }
 
     @Override
     public void connectListener(JODComponent component) {
-
     }
 
     @Override
     public void disconnectListener(JODComponent component) {
-
     }
 
     @Override
     public void connectAllListeners() {
-
     }
 
     @Override
     public void disconnectAllListeners() {
-
     }
 
     @Override
     public void enableExecutor(JODComponent component) {
-
     }
 
     @Override
     public void disableExecutor(JODComponent component) {
-
     }
 
     @Override
     public void enableAllExecutors() {
-
     }
 
     @Override
     public void disableAllExecutors() {
-
     }
 
 }

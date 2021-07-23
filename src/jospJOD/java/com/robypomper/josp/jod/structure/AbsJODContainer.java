@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
@@ -73,8 +74,8 @@ public class AbsJODContainer extends AbsJODComponent
      * @param name      the name of the component.
      * @param descr     the description of the component.
      */
-    protected AbsJODContainer(JODStructure structure, JODExecutorMngr execMngr, String name, String descr) {
-        super(structure, name, descr);
+    protected AbsJODContainer(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String name, String descr) {
+        super(structure, history, name, descr);
         this.executorMngr = execMngr;
     }
 
@@ -87,8 +88,8 @@ public class AbsJODContainer extends AbsJODComponent
      * @param name      the name of the component.
      * @param descr     the description of the component.
      */
-    private AbsJODContainer(JODStructure structure, String name, String descr) {
-        super(structure, name, descr);
+    private AbsJODContainer(JODStructure structure, JODHistory history, String name, String descr) {
+        super(structure, history, name, descr);
     }
 
 
@@ -133,7 +134,7 @@ public class AbsJODContainer extends AbsJODComponent
      * method is called.
      * <p>
      * Protected method used by {@link AbsJODContainer} sub classes in conjunction
-     * with the protected {@link AbsJODContainer#AbsJODContainer(JODStructure, JODExecutorMngr, String, String)}
+     * with the protected {@link AbsJODContainer#AbsJODContainer(JODStructure, JODExecutorMngr, JODHistory, String, String)}
      * constructor.
      */
     protected void setComponents(Map<String, JODComponent> subComps) throws JODStructure.ComponentInitException {
@@ -167,6 +168,9 @@ public class AbsJODContainer extends AbsJODComponent
      * @return the created component.
      */
     protected JODComponent createComponent(String parentCompName, String compName, String compType, Map<String, Object> compSettings) throws JODStructure.ParsingException {
+        if (compType == null || compType.isEmpty())
+            throw new JODStructure.ParsingException(String.format("Missing 'compType' for '%s' component.", compName));
+
         if (StructureDefinitions.TYPE_JOD_CONTAINER.compareToIgnoreCase(compType) == 0)
             return createContainer(parentCompName, compName, compSettings);
 
@@ -195,11 +199,11 @@ public class AbsJODContainer extends AbsJODComponent
 
         try {
             if (StructureDefinitions.TYPE_BOOL_STATE.compareToIgnoreCase(compType) == 0)
-                return new JODBooleanState(getStructure(), getExecutorMngr(), compName, descr, listener, puller);
+                return new JODBooleanState(getStructure(), getExecutorMngr(), getHistory(), compName, descr, listener, puller);
 
             if (StructureDefinitions.TYPE_BOOL_ACTION.compareToIgnoreCase(compType) == 0) {
                 String executor = (String) compSettings.get(StructureDefinitions.PROP_COMPONENT_EXECUTOR);
-                return new JODBooleanAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor);
+                return new JODBooleanAction(getStructure(), getExecutorMngr(), getHistory(), compName, descr, listener, puller, executor);
             }
 
         } catch (JODStructure.ComponentInitException e) {
@@ -247,7 +251,7 @@ public class AbsJODContainer extends AbsJODComponent
                         log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error parsing param 'step' of range state component '%s' for parent container '%s' because %s, default value will used", compName, parentCompName, e.getMessage()), e);
                     step = null;
                 }
-                return new JODRangeState(getStructure(), getExecutorMngr(), compName, descr, listener, puller, min, max, step);
+                return new JODRangeState(getStructure(), getExecutorMngr(), getHistory(), compName, descr, listener, puller, min, max, step);
             }
 
             if (StructureDefinitions.TYPE_RANGE_ACTION.compareToIgnoreCase(compType) == 0) {
@@ -274,7 +278,7 @@ public class AbsJODContainer extends AbsJODComponent
                         log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error parsing param 'step' of range state component '%s' for parent container '%s' because %s, default value will used", compName, parentCompName, e.getMessage()), e);
                     step = null;
                 }
-                return new JODRangeAction(getStructure(), getExecutorMngr(), compName, descr, listener, puller, executor, min, max, step);
+                return new JODRangeAction(getStructure(), getExecutorMngr(), getHistory(), compName, descr, listener, puller, executor, min, max, step);
             }
 
         } catch (JODStructure.ComponentInitException e) {
@@ -298,7 +302,7 @@ public class AbsJODContainer extends AbsJODComponent
         log.debug(Mrk_JOD.JOD_STRU_SUB, String.format("Creating container component '%s' for parent container '%s'", compName, parentCompName));
 
 
-        AbsJODContainer cont = new AbsJODContainer(getStructure(), compName, descr);
+        AbsJODContainer cont = new AbsJODContainer(getStructure(), getHistory(), compName, descr);
 
         log.trace(Mrk_JOD.JOD_STRU_SUB, String.format("Create and set container '%s''s sub components", compName));
         @SuppressWarnings("unchecked")

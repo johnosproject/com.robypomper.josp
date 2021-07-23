@@ -1,4 +1,4 @@
-Placeholder for JCP Permissions APIs
+Placeholder for API Permissions
 
 <a href="/swagger-ui.html?urls.primaryName=default">
 Back to All APIs

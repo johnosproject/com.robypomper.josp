@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.comm;
 
-import com.robypomper.communication.server.ClientInfo;
+import com.robypomper.comm.exception.PeerDisconnectionException;
+import com.robypomper.comm.server.ServerClient;
 import com.robypomper.josp.protocol.JOSPProtocol_Service;
 
 import java.net.InetAddress;
@@ -32,7 +33,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
 
     // Local vars
 
-    private final ClientInfo client;
+    private final ServerClient client;
     private final String fullSrvId;
     private final String srvId;
     private final String usrId;
@@ -47,10 +48,10 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      *
      * @param client the communication level's client's info.
      */
-    public DefaultJODLocalClientInfo(ClientInfo client) {
+    public DefaultJODLocalClientInfo(ServerClient client) {
         this.client = client;
 
-        fullSrvId = client.getClientId();
+        fullSrvId = client.getRemoteId();
         this.srvId = JOSPProtocol_Service.fullSrvIdToSrvId(fullSrvId);
         this.usrId = JOSPProtocol_Service.fullSrvIdToUsrId(fullSrvId);
         this.instId = JOSPProtocol_Service.fullSrvIdToInstId(fullSrvId);
@@ -98,7 +99,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      * {@inheritDoc}
      */
     @Override
-    public ClientInfo getClient() {
+    public ServerClient getClient() {
         return client;
     }
 
@@ -107,7 +108,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      */
     @Override
     public String getClientId() {
-        return client.getClientId();
+        return client.getLocalId();
     }
 
     /**
@@ -115,7 +116,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      */
     @Override
     public InetAddress getClientAddress() {
-        return client.getPeerAddress();
+        return client.getConnectionInfo().getRemoteInfo().getAddr();
     }
 
     /**
@@ -123,7 +124,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      */
     @Override
     public int getClientPort() {
-        return client.getPeerPort();
+        return client.getConnectionInfo().getRemoteInfo().getPort();
     }
 
     /**
@@ -131,7 +132,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      */
     @Override
     public String getClientFullAddress() {
-        return client.getPeerFullAddress();
+        return String.format("%s:%s", getClientAddress(), getClientPort());
     }
 
     /**
@@ -139,7 +140,7 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      */
     @Override
     public String getLocalFullAddress() {
-        return client.getLocalFullAddress();
+        return String.format("%s:%s", client.getConnectionInfo().getLocalInfo().getAddr(), client.getConnectionInfo().getLocalInfo().getPort());
     }
 
 
@@ -150,15 +151,20 @@ public class DefaultJODLocalClientInfo implements JODLocalClientInfo {
      */
     @Override
     public boolean isConnected() {
-        return client.isConnected();
+        return client.getState().isConnected();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void disconnectLocal() {
-        client.closeConnection();
+    public void disconnectLocal() throws JODCommunication.LocalCommunicationException {
+        try {
+            client.disconnect();
+
+        } catch (PeerDisconnectionException e) {
+            throw new JODCommunication.LocalCommunicationException(String.format("Error on JODLocalServer on disconnecting client '%s'", getClientId()), e);
+        }
     }
 
 }

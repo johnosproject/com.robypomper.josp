@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Service Library is the software library to connect "software"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jsl;
 
@@ -22,9 +22,12 @@ import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jsl.info.JSLInfo;
 import com.robypomper.josp.jsl.shell.*;
+import com.robypomper.josp.states.JSLState;
+import com.robypomper.josp.states.StateException;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
+
 
 /**
  * Runnable class for JSL Shell.
@@ -55,8 +58,8 @@ public class JSLShell {
 
     private static final int EXIT_OK = 0;
     private static final int EXIT_ERROR_CONFIG = -1;
-    private static final int EXIT_ERROR_START = -2;
-    private static final int EXIT_ERROR_STOP = -3;
+    private static final int EXIT_ERROR_STARTUP = -2;
+    private static final int EXIT_ERROR_SHUTDOWN = -3;
     private static final int EXIT_ERROR_SHELL = -4;
 
 
@@ -91,13 +94,13 @@ public class JSLShell {
             return;
         }
 
-        // Connect JSL
+        // Startup JSL
         System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
-        System.out.println("INF: Connect JSL Lib.");
+        System.out.println("INF: Startup JSL Lib.");
         try {
-            shell.connectJSL();
-        } catch (Exception | JSL.ConnectException e) {
-            shell.fatal(e, EXIT_ERROR_START);
+            shell.startupJSL();
+        } catch (Exception | StateException e) {
+            shell.fatal(e, EXIT_ERROR_STARTUP);
             return;
         }
 
@@ -111,14 +114,14 @@ public class JSLShell {
             return;
         }
 
-        // Disconnect JSL
+        // Shutdown JSL
         System.out.println("######### ######### ######### ######### ######### ######### ######### ######### ");
-        if (shell.jsl.status() != JSL.Status.DISCONNECTED) {
-            System.out.println("INF: Disconnect JSL Lib.");
+        if (shell.jsl.getState() != JSLState.STOP) {
+            System.out.println("INF: Shutdown JSL Lib.");
             try {
-                shell.disconnectJSL();
-            } catch (Exception | JSL.ConnectException e) {
-                shell.fatal(e, EXIT_ERROR_STOP);
+                shell.shutdownJSL();
+            } catch (Exception | StateException e) {
+                shell.fatal(e, EXIT_ERROR_SHUTDOWN);
                 return;
             }
         } else {
@@ -145,11 +148,11 @@ public class JSLShell {
             case EXIT_ERROR_CONFIG:
                 msg = String.format("Can't load JSL Object because configuration error: '%s'", e.getMessage());
                 break;
-            case EXIT_ERROR_START:
-                msg = String.format("Can't start JSL Object because startup error: '%s'", e.getMessage());
+            case EXIT_ERROR_STARTUP:
+                msg = String.format("Can't startup JSL Object because startup error: '%s'", e.getMessage());
                 break;
-            case EXIT_ERROR_STOP:
-                msg = String.format("Error on stopping JSL Object because: '%s'", e.getMessage());
+            case EXIT_ERROR_SHUTDOWN:
+                msg = String.format("Error on shutdown JSL Object because: '%s'", e.getMessage());
                 break;
             case EXIT_ERROR_SHELL:
                 msg = String.format("Error on JSL Shell execution: '%s'", e.getMessage());
@@ -181,9 +184,9 @@ public class JSLShell {
      * @param jslVer   used to force JSL Object version to create, if empty latest
      *                 version is used.
      */
-    public void createJSL(JSL.Settings settings, String jslVer) throws Exception, JSL.FactoryException {
+    public void createJSL(JSL.Settings settings, String jslVer) throws JSLShell.Exception, JSL.FactoryException {
         if (jsl != null)
-            throw new Exception("Can't initialize JSL object twice.");
+            throw new JSLShell.Exception("Can't initialize JSL object twice.");
 
         jsl = FactoryJSL.createJSL(settings, jslVer);
     }
@@ -191,27 +194,21 @@ public class JSLShell {
     /**
      * Connect internal JSL library and start all his sub-systems.
      */
-    public void connectJSL() throws Exception, JSL.ConnectException {
+    public void startupJSL() throws JSLShell.Exception, StateException {
         if (jsl == null)
-            throw new Exception("Can't connect JSL object because was not initialized.");
+            throw new JSLShell.Exception("Can't connect JSL object because was not initialized.");
 
-        if (jsl.status() != JSL.Status.DISCONNECTED)
-            throw new Exception("Can't stop JSL object because was is already connected or it's starting up.");
-
-        jsl.connect();
+        jsl.startup();
     }
 
     /**
      * Disconnect internal JSL library and stops all his sub-systems.
      */
-    public void disconnectJSL() throws Exception, JSL.ConnectException {
+    public void shutdownJSL() throws JSLShell.Exception, StateException {
         if (jsl == null)
-            throw new Exception("Can't disconnect JSL object because was not initialized.");
+            throw new JSLShell.Exception("Can't disconnect JSL object because was not initialized.");
 
-        if (jsl.status() != JSL.Status.CONNECTED)
-            throw new Exception("Can't stop JSL object because was is already disconnected or it's shouting down.");
-
-        jsl.disconnect();
+        jsl.shutdown();
     }
 
 
@@ -228,6 +225,7 @@ public class JSLShell {
                 new CmdsJCPClient(jsl.getJCPClient()),
                 new CmdsJSLServiceInfo(jsl.getServiceInfo()),
                 new CmdsJSLUserMngr(jsl.getUserMngr()),
+                new CmdsJSLAdmin(jsl.getAdmin()),
                 new CmdsJSLCommunication(jsl.getCommunication()),
                 new CmdsJSLObjsMngr(jsl.getObjsMngr())
         );

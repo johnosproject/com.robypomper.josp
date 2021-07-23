@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.discovery;
 
-import com.robypomper.discovery.impl.DiscoveryAvahi;
-import com.robypomper.discovery.impl.DiscoveryDNSSD;
-import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import com.robypomper.discovery.impl.DiscoveryJmmDNS;
+import com.robypomper.discovery.impl.*;
 
 
 /**
@@ -30,12 +27,17 @@ import com.robypomper.discovery.impl.DiscoveryJmmDNS;
  * <p>
  * Available implementations list:
  * <ul>
- *     <li>{@value DiscoveryAvahi#IMPL_NAME}: use the Avahi cmd line program</li>
- *     <li>{@value DiscoveryJmDNS#IMPL_NAME}: use the a JmDNS instances for each network interface</li>
- *     <li>{@value DiscoveryJmmDNS#IMPL_NAME}: use the JmmDNS instance for all network interfaces</li>
+ *     <li>{@value Avahi#IMPL_NAME}: use the Avahi cmd line program</li>
+ *     <li>{@value JmDNS#IMPL_NAME}: use the a JmDNS instances for each network interface</li>
+ *     <li>{@value JmmDNS#IMPL_NAME}: use the JmmDNS instance for all network interfaces</li>
  * </ul>
  */
 public class DiscoverySystemFactory {
+
+    // Class constants
+
+    public static final String IMPL_NAME_AUTO = "Auto";
+
 
     /**
      * Create and return a {@link Publisher} instance of class depending on
@@ -63,16 +65,19 @@ public class DiscoverySystemFactory {
      * @return instance of {@link Publisher}.
      */
     public static Publisher createPublisher(String implementation, String srvType, String srvName, int srvPort, String extraText) throws Publisher.PublishException {
-        if (DiscoveryAvahi.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryAvahi.Publisher(srvType, srvName, srvPort, extraText);
-        if (DiscoveryJmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryJmDNS.Publisher(srvType, srvName, srvPort, extraText);
-        if (DiscoveryJmmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryJmmDNS.Publisher(srvType, srvName, srvPort, extraText);
-        if (DiscoveryDNSSD.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryDNSSD.Publisher(srvType, srvName, srvPort, extraText);
+        if (IMPL_NAME_AUTO.equalsIgnoreCase(implementation))
+            implementation = detectAutoImplementation();
 
-        throw new Publisher.PublishException(String.format("ERR: can't find '%s' AbsPublisher implementation", implementation));
+        if (Avahi.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new PublisherAvahi(srvType, srvName, srvPort, extraText);
+        if (JmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new PublisherJmDNS(srvType, srvName, srvPort, extraText);
+        if (JmmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new PublisherJmmDNS(srvType, srvName, srvPort, extraText);
+        if (DNSSD.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new PublisherDNSSD(srvType, srvName, srvPort, extraText);
+
+        throw new Publisher.PublishException(String.format("ERR: can't find '%s' PublisherAbs implementation", implementation));
     }
 
     /**
@@ -84,16 +89,27 @@ public class DiscoverySystemFactory {
      * @return instance of {@link Discover}.
      */
     public static Discover createDiscover(String implementation, String srvType) throws Discover.DiscoveryException {
-        if (DiscoveryAvahi.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryAvahi.Discover(srvType);
-        if (DiscoveryJmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryJmDNS.Discover(srvType);
-        if (DiscoveryJmmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryJmmDNS.Discover(srvType);
-        if (DiscoveryDNSSD.IMPL_NAME.equalsIgnoreCase(implementation))
-            return new DiscoveryDNSSD.Discover(srvType);
+        if (IMPL_NAME_AUTO.equalsIgnoreCase(implementation))
+            implementation = detectAutoImplementation();
 
-        throw new Discover.DiscoveryException(String.format("ERR: can't find '%s' AbsDiscovery implementation", implementation));
+        if (Avahi.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new DiscoverAvahi(srvType);
+        if (JmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new DiscoverJmDNS(srvType);
+        if (JmmDNS.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new DiscoverJmmDNS(srvType);
+        if (DNSSD.IMPL_NAME.equalsIgnoreCase(implementation))
+            return new DiscoverDNSSD(srvType);
+
+        throw new Discover.DiscoveryException(String.format("ERR: can't find '%s' DiscoverAbs implementation", implementation));
+    }
+
+    private static String detectAutoImplementation() {
+        if (Avahi.isAvailable())
+            return Avahi.IMPL_NAME;
+        if (DNSSD.isAvailable())
+            return DNSSD.IMPL_NAME;
+        return JmDNS.IMPL_NAME;
     }
 
 }

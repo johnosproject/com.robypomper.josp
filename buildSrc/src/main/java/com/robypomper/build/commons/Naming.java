@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.build.commons;
 
@@ -32,6 +32,16 @@ public class Naming {
      */
     static public String capitalize(String str) {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
+    /**
+     * Minuscule given string.
+     *
+     * @param str string to minuscule
+     * @return minusculed string
+     */
+    static public String minuscule(String str) {
+        return str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
 }

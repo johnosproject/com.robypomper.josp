@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.structure;
 
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 
 
 /**
@@ -54,8 +55,8 @@ public class AbsJODRoot extends AbsJODContainer
      * @param structure the JOD Structure system.
      * @param execMngr  the JOD Executor Mngr system.
      */
-    protected AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr) {
-        super(structure, execMngr, StructureDefinitions.ROOT_NAME, StructureDefinitions.ROOT_DESCR);
+    protected AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr, JODHistory history) {
+        super(structure, execMngr, history, StructureDefinitions.ROOT_NAME, StructureDefinitions.ROOT_DESCR);
     }
 
     /**
@@ -67,8 +68,8 @@ public class AbsJODRoot extends AbsJODContainer
      * @param brand     the object's brand.
      * @param descrLong the object's long description.
      */
-    public AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr, String model, String brand, String descrLong) {
-        this(structure, execMngr);
+    public AbsJODRoot(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String model, String brand, String descrLong) {
+        this(structure, execMngr, history);
         setModel(model);
         setBrand(brand);
         setDescr_long(descrLong);

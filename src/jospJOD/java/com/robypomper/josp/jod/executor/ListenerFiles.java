@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
@@ -62,18 +62,15 @@ public class ListenerFiles extends AbsJODListener {
      * @param proto      proto of the listener.
      * @param configsStr configs string, can be an empty string.
      */
-    public ListenerFiles(String name, String proto, String configsStr, JODComponent component) {
+    public ListenerFiles(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerFiles for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
 
-        filePath = genericSubstitution(properties.get(PROP_FILE_PATH), getComponent());
-        if (filePath == null || filePath.isEmpty()) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerFiles for component '%s' property '%s' not set on component's config string", getName(), PROP_FILE_PATH));
-            return;
-        }
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        filePath = parseConfigString(configs, PROP_FILE_PATH);
 
+        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerFiles for component '%s' listen for changes on file '%s'", getName(), filePath));
         try {
             JavaFiles.createParentIfNotExist(filePath);
 

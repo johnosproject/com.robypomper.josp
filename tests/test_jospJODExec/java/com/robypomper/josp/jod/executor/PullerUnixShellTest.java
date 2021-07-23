@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class PullerUnixShellTest {
 
     @Test
-    public void pullerTest() throws InterruptedException {
+    public void pullerTest() throws InterruptedException, JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
         String echoParam = "new state value " + new Date();
         String configs = String.format("cmd=echo '%s'", echoParam);
         CountDownLatch latch = new CountDownLatch(1);
@@ -49,7 +49,7 @@ public class PullerUnixShellTest {
     }
 
     @Test
-    public void pullerTestViaFile() throws InterruptedException, IOException {
+    public void pullerTestViaFile() throws InterruptedException, IOException, JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
         String filePath = "pullerUnixShellTest.txt";
         String configs = "cmd=cat " + filePath;
         CountDownLatch latch = new CountDownLatch(1);
@@ -68,7 +68,7 @@ public class PullerUnixShellTest {
     }
 
 
-    public PullerUnixShell execCommand(String configs, CountDownLatch latch) {
+    public PullerUnixShell execCommand(String configs, CountDownLatch latch) throws JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
         String name = "pullerTest";
         String proto = "shell";
 

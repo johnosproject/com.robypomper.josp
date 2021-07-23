@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,66 +15,216 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.java;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Path;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
+/**
+ * Utils class to execute shell command directly from Java code.
+ */
 public class JavaExecProcess {
+
+    // Class constants
+
+    private static final String SHELL_BIN_SH = "/bin/sh";
+    private static final String SHELL_BIN_BASH = "/bin/bash";
+    /**
+     * Default shell's bin path.
+     */
+    private static final String DEF_SHELL_BIN = SHELL_BIN_SH;
+
+    /**
+     * Default timeout in ms for cmd execution.
+     */
+    public static final int DEF_TIMEOUT = 60 * 1000;
+
 
     // Exec process
 
-    public static String execCmd(String cmd) throws IOException {
-        ProcessBuilder pBuild = new ProcessBuilder(splitCmd(cmd));
+
+    /**
+     * Execute given <code>cmd</code> as a command for {@link #getShellBin()} shell.
+     * <p>
+     * The <code>cmd</code> string can contain any available command on running
+     * machine and his all params. It also support piped command (<code>|</code>)
+     * for example <code>echo "hello world" | sed 's/world/john/g'</code>.
+     * Redirects (<code>cmd &gt;&gt; out.txt</code>, <code>cmd &gt; out.txt</code>,
+     * <code>cmd &amp;&gt; out.txt</code>, <code>cmd &gt; out.txt 2&gt;err.txt</code>)
+     * are not supported.
+     * <p>
+     * Before exit from this method, it checks if the command was terminated.
+     * If it's not, then this method throw a {@link ExecStillAliveException}.
+     * The command timeout is defined in ms by {@link #DEF_TIMEOUT} constant.
+     *
+     * @param cmd the command to execute.
+     * @return a String containing the command output.
+     * @throws IOException             if an I/O error occurs
+     * @throws ExecStillAliveException if the command don't terminate before
+     *                                 timeout.
+     */
+    public static String execCmd(String cmd) throws IOException, ExecStillAliveException {
+        return execCmd(cmd, DEF_TIMEOUT);
+    }
+
+    /**
+     * Execute given <code>cmd</code> as a command for {@link #getShellBin()} shell.
+     * <p>
+     * The <code>cmd</code> string can contain any available command on running
+     * machine and his all params. It also support piped command (<code>|</code>)
+     * for example <code>echo "hello world" | sed 's/world/john/g'</code>.
+     * Redirects (<code>cmd &gt;&gt; out.txt</code>, <code>cmd &gt; out.txt</code>,
+     * <code>cmd &amp;&gt; out.txt</code>, <code>cmd &gt; out.txt 2&gt;err.txt</code>)
+     * are not supported.
+     * <p>
+     * Before exit from this method, it checks if the command was terminated.
+     * If it's not, then this method throw a {@link ExecStillAliveException}.
+     * The command timeout can be set via the <code>timeout</code> param.
+     *
+     * @param cmd       the command to execute.
+     * @param timeoutMs the command's timeout in ms.
+     * @return a String containing the command output.
+     * @throws IOException             if an I/O error occurs
+     * @throws ExecStillAliveException if the command don't terminate before
+     *                                 timeout.
+     */
+    public static String execCmd(String cmd, int timeoutMs) throws IOException, ExecStillAliveException {
+        Process process = createAndRunProcess(cmd);
+        waitTerminate(process, cmd, timeoutMs);
+        return readProcessOutput(process);
+    }
+
+
+    /**
+     * Execute given <code>cmd</code> as a command for {@link #getShellBin()} shell.
+     * <p>
+     * The <code>cmd</code> string can contain any available command on running
+     * machine and his all params. It also support piped command (<code>|</code>)
+     * for example <code>echo "hello world" | sed 's/world/john/g'</code>.
+     * Redirects (<code>cmd &gt;&gt; out.txt</code>, <code>cmd &gt; out.txt</code>,
+     * <code>cmd &amp;&gt; out.txt</code>, <code>cmd &gt; out.txt 2&gt;err.txt</code>)
+     * are not supported.
+     * <p>
+     * Differently from {@link #execCmd} methods, this one exits without waiting
+     * for command termination.
+     *
+     * @param cmd the command to execute.
+     * @throws IOException if an I/O error occurs
+     */
+    public static void execDaemon(String cmd) throws IOException {
+        Process process = createAndRunProcess(cmd);
+    }
+
+    /**
+     * Execute given <code>cmd</code> as a commands concatenation by
+     * <code>&amp;&amp;</code>.
+     * <p>
+     * The <code>cmd</code> concatenated are executed by {@link #execCmd}
+     * method. So before executing each cmd, this method wait for previous cmd
+     * termination.
+     * <p>
+     * Each cmd must be terminate before {@link #DEF_TIMEOUT}.
+     *
+     * @param cmd the commands concatenation to execute.
+     * @return a String containing all commands output.
+     * @throws ExecConcatException on a single command error or timeout.
+     */
+    public static String execCmdConcat(String cmd) throws ExecConcatException {
+        return execCmdConcat(cmd, DEF_TIMEOUT);
+    }
+
+    /**
+     * Execute given <code>cmd</code> as a commands concatenation by
+     * <code>&amp;&amp;</code>.
+     * <p>
+     * The <code>cmd</code> concatenated are executed by {@link #execCmd}
+     * method. So before executing each cmd, this method wait for previous cmd
+     * termination.
+     * <p>
+     * Each cmd must be terminate before <code>timeoutMs</code>.
+     *
+     * @param cmd       the commands concatenation to execute.
+     * @param timeoutMs the single command's timeout in ms.
+     * @return a String containing all commands output.
+     * @throws ExecConcatException on a single command error or timeout.
+     */
+    public static String execCmdConcat(String cmd, int timeoutMs) throws ExecConcatException {
+        StringBuilder all = new StringBuilder();
+
+        for (String singleCmd : cmd.split("&&")) {
+            all.append("CMD:").append(singleCmd).append("\n");
+            try {
+                all.append(execCmd(singleCmd, timeoutMs));
+            } catch (IOException | ExecStillAliveException e) {
+                throw new ExecConcatException(cmd, singleCmd, all.toString(), e);
+            }
+        }
+
+        return all.toString();
+    }
+
+
+    // Execution utils
+
+    private static Process createAndRunProcess(String cmd) throws IOException {
+        ProcessBuilder pBuild = new ProcessBuilder(getShellBin(), "-c", cmd);
+        return pBuild.start();
+    }
+
+    private static void waitTerminate(Process process, String cmd, int timeoutMs) throws ExecStillAliveException {
+        JavaThreads.softSleep(100);
+        try {
+            process.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ignore) {
+        }
+        if (process.isAlive())
+            throw new ExecStillAliveException(cmd, timeoutMs);
+    }
+
+    private static String readProcessOutput(Process process) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
         StringBuilder sb = new StringBuilder();
-        Process process = pBuild.start();
-        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line;
-        while ((line = br.readLine()) != null) sb.append(line);
+        while ((line = br.readLine()) != null) sb.append(line).append("\n");
 
         return sb.toString();
     }
 
-    public static void execCmdConcat(String cmd, Path redirectFile, long timeout) throws IOException {
-        for (String singleCmd : cmd.split("&&")) {
-            ProcessBuilder pBuild = new ProcessBuilder(splitCmd(singleCmd));
-            if (redirectFile == null) {
-                pBuild.inheritIO();
-            } else {
-                File f = redirectFile.toFile();
-                if (!f.getParentFile().exists())
-                    //noinspection ResultOfMethodCallIgnored
-                    f.getParentFile().mkdirs();
-                pBuild.redirectOutput(f);
-                pBuild.redirectError(f);
-            }
-            Process process;
-            process = pBuild.start();
-            if (timeout != 0)
-                try {
-                    process.waitFor(timeout, TimeUnit.SECONDS);
-                    process.getOutputStream().flush();
 
-                } catch (InterruptedException e) {
-                    process.destroy();
-                }
-        }
+    // Configs
+
+    private static String shellBin = DEF_SHELL_BIN;
+
+    /**
+     * This method allow to change default shell binary.
+     *
+     * @param bin the full path of shell binary file.
+     * @throws FileNotFoundException if given path refer to a not existing file.
+     */
+    public static void setShellBin(String bin) throws FileNotFoundException {
+        if (new File(bin).exists())
+            shellBin = bin;
+        else
+            throw new FileNotFoundException(String.format("Shell's binaries doesn't exist. File not found %s", bin));
+    }
+
+    /**
+     * @return current shell bin path.
+     */
+    public static String getShellBin() {
+        return shellBin;
     }
 
 
     // Conversion methods used by exec process
 
-    public static String[] splitCmd(String cmd) {
+    private static String[] splitCmd(String cmd) {
         String[] cmdParts = cmd.trim().split(" ");
         List<String> cmdSplitted = new ArrayList<>();
         for (int i = 0; i < cmdParts.length; i++) {
@@ -101,6 +251,41 @@ public class JavaExecProcess {
             cmdSplitted.add(part);
         }
         return cmdSplitted.toArray(new String[0]);
+    }
+
+
+    // Exceptions
+
+    /**
+     * Exceptions thrown on execution timeout.
+     */
+    public static class ExecStillAliveException extends Throwable {
+
+        private static final String MSG = "Timeout of %d milliseconds reached on cmd '%s'";
+
+        public ExecStillAliveException(String cmd, int timeout) {
+            super(String.format(MSG, timeout, cmd));
+        }
+
+    }
+
+    /**
+     * Exceptions thrown on concatenated commands error.
+     */
+    public static class ExecConcatException extends Throwable {
+
+        private static final String MSG = "Error executing '%s' from concat command '%s'";
+
+        private final String provisionalOutput;
+
+        public ExecConcatException(String cmd, String singleCmd, String provisionalOutput, Throwable e) {
+            super(String.format(MSG, singleCmd, cmd), e);
+            this.provisionalOutput = provisionalOutput;
+        }
+
+        public String getProvisionalOutput() {
+            return provisionalOutput;
+        }
     }
 
 }

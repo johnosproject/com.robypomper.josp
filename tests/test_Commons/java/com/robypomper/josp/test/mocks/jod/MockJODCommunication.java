@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.test.mocks.jod;
 
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODGwO2SClient;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
+import com.robypomper.josp.jod.comm.JODLocalServer;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -37,22 +39,22 @@ public class MockJODCommunication implements JODCommunication {
     }
 
     @Override
-    public boolean sendToCloud(String msg) throws CloudNotConnected {
+    public boolean sendToCloud(String msg) {
         return false;
     }
 
     @Override
-    public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) throws ServiceNotConnected {
+    public boolean sendToSingleLocalService(JODLocalClientInfo locConn, String msg, JOSPPerm.Type minReqPerm) {
         return false;
     }
 
     @Override
     public void sendObjectUpdMsg(JODState component, JODStateUpdate update) {
-
     }
 
     @Override
-    public void syncObject() {}
+    public void syncObject() {
+    }
 
     @Override
     public boolean processFromServiceMsg(String msg, JOSPPerm.Connection connType) {
@@ -60,12 +62,28 @@ public class MockJODCommunication implements JODCommunication {
     }
 
     @Override
-    public JODGwO2SClient getGwO2SClient() {
+    public JCPAPIsClientObj getCloudAPIs() {
         return null;
     }
 
     @Override
+    public JODGwO2SClient getCloudConnection() {
+        return null;
+    }
+
+    @Override
+    public JODLocalServer getLocalServer() {
+        return null;
+    }
+
+
+    @Override
     public List<JODLocalClientInfo> getAllLocalClientsInfo() {
+        return null;
+    }
+
+    @Override
+    public JODLocalClientInfo findLocalClientsInfo(String serviceId) {
         return null;
     }
 
@@ -76,32 +94,14 @@ public class MockJODCommunication implements JODCommunication {
 
     @Override
     public void startLocal() {
-
     }
 
     @Override
     public void stopLocal() {
-
-    }
-
-    @Override
-    public boolean isCloudConnected() {
-        return false;
-    }
-
-    @Override
-    public void connectCloud() {
-
-    }
-
-    @Override
-    public void disconnectCloud() {
-
     }
 
     @Override
     public void setStructure(JODStructure structure) {
-
     }
 
     @Override

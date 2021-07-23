@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.shell;
 
@@ -26,6 +26,7 @@ import com.robypomper.josp.jod.executor.factories.AbsFactoryJODWorker;
 import com.robypomper.josp.jod.executor.factories.FactoryJODExecutor;
 import com.robypomper.josp.jod.executor.factories.FactoryJODListener;
 import com.robypomper.josp.jod.executor.factories.FactoryJODPuller;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jod.structure.StructureDefinitions;
 import com.robypomper.josp.jod.structure.executor.JODComponentExecutor;
@@ -47,13 +48,15 @@ public class CmdsJODExecutorMngr {
 
     private final JODExecutorMngr executorMngr;
     private final JODStructure structure;
+    private final JODHistory history;
     private final Map<String, JODPuller> pullers = new HashMap<>();
     private final Map<String, JODListener> listeners = new HashMap<>();
     private final Map<String, JODExecutor> executors = new HashMap<>();
 
-    public CmdsJODExecutorMngr(JODStructure structure, JODExecutorMngr executor) {
+    public CmdsJODExecutorMngr(JODStructure structure, JODExecutorMngr executor, JODHistory history) {
         this.structure = structure;
         this.executorMngr = executor;
+        this.history = history;
     }
 
 
@@ -136,9 +139,9 @@ public class CmdsJODExecutorMngr {
                                 @Param(name = "configStr", description = "String containing puller configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
         JODComponentPuller compPuller;
         if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_STATE) == 0)
-            compPuller = new JODComponentPuller(new JODBooleanState(structure, executorMngr, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
+            compPuller = new JODComponentPuller(new JODBooleanState(structure, executorMngr, history, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str), name, proto, conf_str);
         else if (type.compareToIgnoreCase(StructureDefinitions.TYPE_RANGE_STATE) == 0)
-            compPuller = new JODComponentPuller(new JODRangeState(structure, executorMngr, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null, null, null), name, proto, conf_str);
+            compPuller = new JODComponentPuller(new JODRangeState(structure, executorMngr, history, "comp-" + name, "com's description", null, proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null, null, null), name, proto, conf_str);
         else
             return String.format("Unknow pillar's type '%s'", type);
 
@@ -161,9 +164,9 @@ public class CmdsJODExecutorMngr {
                                   @Param(name = "configStr", description = "String containing listener configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
         JODComponentListener compListener;
         if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_STATE) == 0)
-            compListener = new JODComponentListener(new JODBooleanState(structure, executorMngr, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null), name, proto, conf_str);
+            compListener = new JODComponentListener(new JODBooleanState(structure, executorMngr, history, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null), name, proto, conf_str);
         else if (type.compareToIgnoreCase(StructureDefinitions.TYPE_RANGE_STATE) == 0)
-            compListener = new JODComponentListener(new JODRangeState(structure, executorMngr, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null, null, null, null), name, proto, conf_str);
+            compListener = new JODComponentListener(new JODRangeState(structure, executorMngr, history, "comp-" + name, "com's description", proto + AbsJODWorker.CONFIG_STR_SEP + conf_str, null, null, null, null), name, proto, conf_str);
         else
             return String.format("Unknown pillar's type '%s'", type);
 
@@ -184,9 +187,9 @@ public class CmdsJODExecutorMngr {
                                   @Param(name = "configStr", description = "String containing executor configs with format 'k1=v1[;k2=v2][...]") String conf_str) throws JODStructure.ComponentInitException {
         JODComponentExecutor compExecutor;
         if (type.compareToIgnoreCase(StructureDefinitions.TYPE_BOOL_ACTION) == 0)
-            compExecutor = new JODComponentExecutor(new JODBooleanAction(structure, executorMngr, "comp-" + name, "com's description", null, null, conf_str), name, proto, conf_str);
+            compExecutor = new JODComponentExecutor(new JODBooleanAction(structure, executorMngr, history, "comp-" + name, "com's description", null, null, conf_str), name, proto, conf_str);
         else if (type.compareToIgnoreCase(StructureDefinitions.TYPE_RANGE_ACTION) == 0)
-            compExecutor = new JODComponentExecutor(new JODRangeAction(structure, executorMngr, "comp-" + name, "com's description", null, null, conf_str, null, null, null), name, proto, conf_str);
+            compExecutor = new JODComponentExecutor(new JODRangeAction(structure, executorMngr, history, "comp-" + name, "com's description", null, null, conf_str, null, null, null), name, proto, conf_str);
         else
             return String.format("Unknow pillar's type '%s'", type);
 

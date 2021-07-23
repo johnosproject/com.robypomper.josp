@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.protocol;
 
@@ -25,10 +25,11 @@ package com.robypomper.josp.protocol;
 // [...]
 
 
+import com.robypomper.java.JavaDate;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -43,8 +44,13 @@ public class JOSPProtocol {
     public static final String JOSP_PROTO_VERSION_2_0 = "2.0";
 
     public static final String DISCOVERY_TYPE = "_josp2._tcp";
+    public static final boolean CLIENT_AUTH_REQUIRED = true;
+    public static final boolean CERT_SHARING_ENABLE = true;
+    public static final int CERT_SHARING_TIMEOUT = 30 * 1000;
+
     public static final String JOSP_PROTO_VERSION = JOSP_PROTO_VERSION_2_0;
-    protected static final String JOSP_PROTO = "JOSP/" + JOSP_PROTO_VERSION;
+    public static final String JOSP_PROTO_NAME = "JOSP";
+    protected static final String JOSP_PROTO = JOSP_PROTO_NAME + "/" + JOSP_PROTO_VERSION;
 
     private static final String UPD_MSG_BASE = JOSPProtocol.JOSP_PROTO + " UPD_MSG";
     private static final String UPD_MSG = UPD_MSG_BASE + " %s\nobjId:%s\ncompPath:%s\nupdType:%s\n%s";
@@ -69,7 +75,7 @@ public class JOSPProtocol {
     }
 
     public static String fromUpdToMsg(StatusUpd upd) {
-        return String.format(UPD_MSG, getNow(), upd.getObjectId(),
+        return String.format(UPD_MSG, JavaDate.getNow(), upd.getObjectId(),
                 upd.getComponentPath(), upd.getUpdate().getType(), upd.getUpdate().encode());
     }
 
@@ -143,7 +149,7 @@ public class JOSPProtocol {
     }
 
     public static String fromCmdToMsg(ActionCmd cmd) {
-        return String.format(CMD_MSG, getNow(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
+        return String.format(CMD_MSG, JavaDate.getNow(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
                 cmd.getComponentPath(), cmd.getCommand().getType(), cmd.getCommand().encode());
     }
 
@@ -308,7 +314,7 @@ public class JOSPProtocol {
 
     // Message classes (internal purposes)
 
-    private static class JOSPStateUpdateStr implements JOSPStateUpdateParams {
+    public static class JOSPStateUpdateStr implements JOSPStateUpdateParams {
 
         private final String updType;
         private final String updData;
@@ -330,7 +336,7 @@ public class JOSPProtocol {
 
     }
 
-    private static class JOSPActionCommandStr implements JOSPActionCommandParams {
+    public static class JOSPActionCommandStr implements JOSPActionCommandParams {
 
         private final String cmdType;
         private final String cmdData;
@@ -354,26 +360,6 @@ public class JOSPProtocol {
 
 
     // Utils
-
-    public static Date getNowDate() {
-        return new Date();
-    }
-
-    public static String getNow() {
-        return dateFormatter.format(getNowDate());
-    }
-
-    public static Date getEpochDate() {
-        return new Date(0);
-    }
-
-    public static String getEpoch() {
-        return dateFormatter.format(getEpochDate());
-    }
-
-    public static SimpleDateFormat getDateFormatter() {
-        return dateFormatter;
-    }
 
     public static String extractFieldFromResponse(String msg, int msgMinLines, int fieldLine, String msgName) throws JOSPProtocol.ParsingException {
         String[] lines = msg.split("\n");

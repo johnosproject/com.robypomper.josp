@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +15,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.discovery;
 
-import com.robypomper.discovery.impl.DiscoveryAvahi;
-import com.robypomper.discovery.impl.DiscoveryDNSSD;
-import com.robypomper.discovery.impl.DiscoveryJmDNS;
-import com.robypomper.discovery.impl.DiscoveryJmmDNS;
+import com.robypomper.discovery.impl.Avahi;
+import com.robypomper.discovery.impl.DNSSD;
+import com.robypomper.discovery.impl.JmDNS;
+import com.robypomper.discovery.impl.JmmDNS;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 
-import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
@@ -47,271 +47,178 @@ public class DiscoveryTestGeneric {
 
     protected static Logger log = LogManager.getLogger();
 
+    String implName;
+    int timeoutMs;
+
     Publisher pub;
     Publisher pub2;
     Discover disc;
-    TestDiscoverListener listener;
-    TestDiscoverListener listenerBis;
+    DiscoverStateListener_Latch discoverStateListener;
+    PublisherStateListener_Latch publisherStateListener;
+    DiscoveryServicesListener_Latch discoveryServiceListener;
+
+    public DiscoveryTestGeneric(String implName) {
+        this(implName, 1000);
+    }
+
+    public DiscoveryTestGeneric(String implName, int timeoutMs) {
+        this.implName = implName;
+        this.timeoutMs = timeoutMs;
+    }
 
 
     // Test configurations
 
-    @BeforeAll
-    static void setUp() {
-
-    }
-
-    @AfterAll
-    static void tearDown() {
-
-    }
-
     @BeforeEach
-    public void setUpEach() {
+    void setUp() {
+        discoverStateListener = new DiscoverStateListener_Latch();
+        publisherStateListener = new PublisherStateListener_Latch();
+        discoveryServiceListener = new DiscoveryServicesListener_Latch();
     }
 
     @AfterEach
-    public void tearDownEach() {
-        System.out.println("\n\n\n########################                    test's tearDown\n\n\n\n");
-        try {
-            if (pub != null && pub.isPublishedPartially()) pub.hide(true);
-            pub = null;
-        } catch (Publisher.PublishException ignore) {
+    void tearDown() {
+        if (pub != null && pub.isPublishedPartially()) {
+            System.out.println("TEAR_DOWN: Hide publisher 1");
+            pub.hide(true);
         }
-        try {
-            if (pub2 != null && pub2.isPublishedPartially()) pub2.hide(true);
-            pub2 = null;
-        } catch (Publisher.PublishException ignore) {
-        }
+        pub = null;
 
-        try {
-            if (disc != null && disc.isRunning()) disc.stop();
-            disc = null;
-        } catch (Discover.DiscoveryException ignore) {
+        if (pub2 != null && pub2.isPublishedPartially()) {
+            System.out.println("TEAR_DOWN: Hide publisher 2");
+            pub2.hide(true);
         }
+        pub2 = null;
+
+        if (disc != null && disc.getState().isRunning()) {
+            System.out.println("TEAR_DOWN: Stop discover");
+            disc.stop();
+        }
+        disc = null;
     }
 
 
     // Generic implementation tests
 
-    public void test_startAndStop(String discoveryImplName) throws Discover.DiscoveryException, Publisher.PublishException {
-        if (!checkDiscoverySystemSupportOnCurrentOs(discoveryImplName)) {
-            System.out.println("\nStart And Stop TEST (" + discoveryImplName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
+    public void METHOD_Discover_startAndStop() throws Discover.DiscoveryException, InterruptedException {
+        if (!checkDiscoverySystemSupportOnCurrentOs(implName)) {
+            System.out.println("Start And Stop Discover TEST (" + implName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
             return;
         }
 
-        System.out.println("\nCREATE PUBLISHER and DISCOVER (" + discoveryImplName + ")");
-        pub = DiscoverySystemFactory.createPublisher(discoveryImplName, DISC_SRV_TYPE, String.format(DISC_SRV_NAME, discoveryImplName, "Start&Stop"), DISC_SRV_PORT);
-        disc = DiscoverySystemFactory.createDiscover(discoveryImplName, DISC_SRV_TYPE);
+        System.out.println("Create discover (" + implName + ")");
+        disc = DiscoverySystemFactory.createDiscover(implName, DISC_SRV_TYPE);
+        disc.addListener(discoverStateListener);
 
-        System.out.println("\nSTART AND STOP DISCOVER (" + discoveryImplName + ")");
-        start(disc);
-        stop(disc);
-
-        System.out.println("\nSTART AND STOP PUBLISHER (" + discoveryImplName + ")");
-        pub(pub);
-        hide(pub);
-    }
-
-    public void test_PublishAndDiscover(String discoveryImplName) throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        if (!checkDiscoverySystemSupportOnCurrentOs(discoveryImplName)) {
-            System.out.println("\nPublish And Discovery TEST (" + discoveryImplName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
-            return;
-        }
-
-        System.out.println("\nCREATE PUBLISHER and DISCOVER (" + discoveryImplName + ")");
-        String srvName = String.format(DISC_SRV_NAME, discoveryImplName, "Pub&Disc");
-        pub = DiscoverySystemFactory.createPublisher(discoveryImplName, DISC_SRV_TYPE, srvName, DISC_SRV_PORT);
-        disc = DiscoverySystemFactory.createDiscover(discoveryImplName, DISC_SRV_TYPE);
-        listener = new TestDiscoverListener(srvName);
-        disc.addListener(listener);
-
-        //System.out.println(String.format("DIS: %s", Integer.toHexString(disc.hashCode())));
-        //System.out.println(String.format("PUB: %s", Integer.toHexString(pub.hashCode())));
-
-        System.out.println("\nPUBLISH AND START DISCOVERER");
-        pub(pub);
-        start(disc);
-
-        System.out.println("\nWAIT FOR SERVICE DISCOVERY");
-        System.out.println(new Date());
-        waitDiscover(listener);
-        System.out.println(new Date());
-
-        //for (DiscoveryService s : new ArrayList<>(disc.getServicesDiscovered()))
-        //    System.out.println(Integer.toHexString(disc.hashCode()) + " DIS: " + s);
-        //if (pub.getInternalDiscovered()!=null)
-        //    for (DiscoveryService s : new ArrayList<>(pub.getInternalDiscovered().getServicesDiscovered()))
-        //        System.out.println(Integer.toHexString(pub.getInternalDiscovered().hashCode()) + " PUB: " + s);
-
-        System.out.println("\nDE-PUBLISH");
-        hide(pub);
-
-        System.out.println("\nWAIT FOR SERVICE LOST");
-        System.out.println(new Date());
-        waitLost(listener);
-        System.out.println(new Date());
-
-        //for (DiscoveryService s : new ArrayList<>(disc.getServicesDiscovered()))
-        //    System.out.println(Integer.toHexString(disc.hashCode()) + " DIS: " + s);
-        //if (pub.getInternalDiscovered()!=null)
-        //    for (DiscoveryService s : new ArrayList<>(pub.getInternalDiscovered().getServicesDiscovered()))
-        //        System.out.println(Integer.toHexString(pub.getInternalDiscovered().hashCode()) + " PUB: " + s);
-
-        System.out.println("\nSTOP DISCOVERER");
-        stop(disc);
-
-        //for (DiscoveryService s : new ArrayList<>(disc.getServicesDiscovered()))
-        //    System.out.println(Integer.toHexString(disc.hashCode()) + " DIS: " + s);
-        //if (pub.getInternalDiscovered()!=null)
-        //    for (DiscoveryService s : new ArrayList<>(pub.getInternalDiscovered().getServicesDiscovered()))
-        //        System.out.println(Integer.toHexString(pub.getInternalDiscovered().hashCode()) + " PUB: " + s);
-    }
-
-    public void test_DiscoverAndPublish(String discoveryImplName) throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        if (!checkDiscoverySystemSupportOnCurrentOs(discoveryImplName)) {
-            System.out.println("\nPublish And Discovery TEST (" + discoveryImplName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
-            return;
-        }
-
-        System.out.println("\nCREATE PUBLISHER and DISCOVER (" + discoveryImplName + ")");
-        String srvName = String.format(DISC_SRV_NAME, discoveryImplName, "Disc&Pub");
-        pub = DiscoverySystemFactory.createPublisher(discoveryImplName, DISC_SRV_TYPE, srvName, DISC_SRV_PORT);
-        disc = DiscoverySystemFactory.createDiscover(discoveryImplName, DISC_SRV_TYPE);
-        listener = new TestDiscoverListener(srvName);
-        disc.addListener(listener);
-
-        System.out.println("\nSTART DISCOVERER AND PUBLISH");
-        start(disc);
-        pub(pub);
-
-        System.out.println("\nWAIT FOR SERVICE DISCOVERY");
-        System.out.println(new Date());
-        waitDiscover(listener);
-        System.out.println(new Date());
-
-        System.out.println("\nSTOP DISCOVERER");
-        stop(disc);
-
-        System.out.println("\nWAIT FOR SERVICE LOST");
-        System.out.println(new Date());
-        waitLost(listener);
-        System.out.println(new Date());
-
-        System.out.println("\nDE-PUBLISH");
-        hide(pub);
-    }
-
-    public void test_PublishDiscoverAndPublish(String discoveryImplName) throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
-        if (!checkDiscoverySystemSupportOnCurrentOs(discoveryImplName)) {
-            System.out.println("\nPublish, Discovery And Publish TEST (" + discoveryImplName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
-            return;
-        }
-
-        System.out.println("\nCREATE PUBLISHER and DISCOVER (" + discoveryImplName + ")");
-        String srvName = String.format(DISC_SRV_NAME, discoveryImplName, "PubDisc&Pub");
-        pub = DiscoverySystemFactory.createPublisher(discoveryImplName, DISC_SRV_TYPE, srvName, DISC_SRV_PORT);
-        disc = DiscoverySystemFactory.createDiscover(discoveryImplName, DISC_SRV_TYPE);
-        listener = new TestDiscoverListener(srvName);
-        disc.addListener(listener);
-
-        pub(pub);
-        start(disc);
-
-        System.out.println(String.format("DIS: %s", Integer.toHexString(disc.hashCode())));
-        System.out.println(String.format("PUB: %s", Integer.toHexString(pub.getInternalDiscovered().hashCode())));
-
-        System.out.println("\nWAIT FOR SERVICE DISCOVERY");
-        System.out.println(new Date());
-        waitDiscover(listener);
-        System.out.println(new Date());
-
-        System.out.println("\nCREATE AND PUBLISH 2nd SERVICE");
-        String srvName2 = "222-" + String.format(DISC_SRV_NAME, discoveryImplName, "PubDisc&Pub") + "-222";
-        listenerBis = new TestDiscoverListener(srvName2);
-        disc.addListener(listenerBis);
-        pub2 = DiscoverySystemFactory.createPublisher(discoveryImplName, DISC_SRV_TYPE, srvName2, DISC_SRV_PORT);
-        pub(pub2);
-
-        System.out.println(String.format("PU2: %s", Integer.toHexString(pub2.getInternalDiscovered().hashCode())));
-
-        System.out.println("\nWAIT FOR 2nd SERVICE DISCOVERY");
-        System.out.println(new Date());
-        waitDiscover(listenerBis);
-        System.out.println(new Date());
-
-        //Thread.sleep(1000*10);
-
-        System.out.println("\nDE-PUBLISH 2nd SERVICE");
-        hide(pub2);
-
-        System.out.println("\nWAIT FOR 2nd SERVICE LOST");
-        System.out.println(new Date());
-        waitLost(listenerBis);
-        System.out.println(new Date());
-
-        System.out.println("\nDE-PUBLISH SERVICE");
-        hide(pub);
-
-        //Thread.sleep(1000*10);
-
-        System.out.println("\nWAIT FOR SERVICE LOST");
-        System.out.println(new Date());
-        waitLost(listener);
-        System.out.println(new Date());
-
-        System.out.println("\nSTOP DISCOVERER");
-        stop(disc);
-    }
-
-
-    // Operations with assertions
-
-    public static void pub(Publisher pub) throws Publisher.PublishException {
-        //Assertions.assertAll(() -> pub.publish(true));
-        pub.publish(true);
-        Assertions.assertTrue(pub.isPublishedPartially());
-    }
-
-    public static void hide(Publisher pub) throws Publisher.PublishException {
-        pub.hide(true);
-        Assertions.assertFalse(pub.isPublishedFully());
-    }
-
-    public static void start(Discover disc) throws Discover.DiscoveryException {
+        System.out.println("Start discover (" + implName + ")");
         disc.start();
-        Assertions.assertTrue(disc.isRunning());
-    }
+        Assertions.assertTrue(disc.getState().isRunning());
+        Assertions.assertTrue(discoverStateListener.onStart.await(timeoutMs, TimeUnit.MILLISECONDS));
 
-    public static void stop(Discover disc) throws Discover.DiscoveryException {
+        System.out.println("Stop discover (" + implName + ")");
         disc.stop();
-        Assertions.assertFalse(disc.isRunning());
+        Assertions.assertFalse(disc.getState().isRunning());
+        Assertions.assertTrue(discoverStateListener.onStop.await(timeoutMs, TimeUnit.MILLISECONDS));
     }
 
-    public static void waitDiscover(TestDiscoverListener l) throws InterruptedException {
-        Assertions.assertTrue(l.onServiceDiscovered.await(10, TimeUnit.SECONDS));
-        l.onServiceDiscovered = new CountDownLatch(1);
+    public void METHOD_Publisher_startAndStop() throws Publisher.PublishException, InterruptedException {
+        if (!checkDiscoverySystemSupportOnCurrentOs(implName)) {
+            System.out.println("Start And Stop Publisher TEST (" + implName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
+            return;
+        }
+
+        System.out.println("Create publisher (" + implName + ")");
+        pub = DiscoverySystemFactory.createPublisher(implName, DISC_SRV_TYPE, String.format(DISC_SRV_NAME, implName, "Start&Stop"), DISC_SRV_PORT);
+        pub.addListener(publisherStateListener);
+        pub.addListener(discoveryServiceListener);
+
+        System.out.println("Start publisher (" + implName + ")");
+        pub.publish(false);
+        Assertions.assertTrue(pub.getState().isRunning());
+        Assertions.assertTrue(publisherStateListener.onStart.await(timeoutMs, TimeUnit.MILLISECONDS));
+        Assertions.assertTrue(discoveryServiceListener.onServiceDiscovered.await(timeoutMs, TimeUnit.MILLISECONDS));
+
+        System.out.println("Stop publisher (" + implName + ")");
+        pub.hide(false);
+        Assertions.assertFalse(pub.getState().isRunning());
+        Assertions.assertTrue(publisherStateListener.onStop.await(timeoutMs, TimeUnit.MILLISECONDS));
+        Assertions.assertTrue(discoveryServiceListener.onServiceLost.await(timeoutMs, TimeUnit.MILLISECONDS));
     }
 
-    public static void waitLost(TestDiscoverListener l) throws InterruptedException {
-        Assertions.assertTrue(l.onServiceLost.await(10, TimeUnit.SECONDS));
-        l.onServiceLost = new CountDownLatch(1);
+    public void INTEGRATION_PublishAndDiscover() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
+        if (!checkDiscoverySystemSupportOnCurrentOs(implName)) {
+            System.out.println("Publish And Discovery TEST (" + implName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
+            return;
+        }
+
+        String srvName = String.format(DISC_SRV_NAME, implName, "Pub&Disc");
+
+        System.out.println("Create and start publisher (" + implName + ")");
+        pub = DiscoverySystemFactory.createPublisher(implName, DISC_SRV_TYPE, srvName, DISC_SRV_PORT);
+        pub.publish(false);
+
+        System.out.println("Create and start discover (" + implName + ")");
+        disc = DiscoverySystemFactory.createDiscover(implName, DISC_SRV_TYPE);
+        disc.addListener(discoveryServiceListener);
+        disc.start();
+
+        System.out.println("Wait for discover, discovering service");
+        Assertions.assertTrue(discoveryServiceListener.onServiceDiscovered.await(timeoutMs, TimeUnit.MILLISECONDS));
+
+        System.out.println("Stop publisher (" + implName + ")");
+        pub.hide(false);
+
+        System.out.println("Wait for discover, losing service");
+        Assertions.assertTrue(discoveryServiceListener.onServiceLost.await(timeoutMs, TimeUnit.MILLISECONDS));
+
+        System.out.println("Stop discover (" + implName + ")");
+        disc.stop();
+    }
+
+    public void INTEGRATION_DiscoverAndPublish() throws Discover.DiscoveryException, Publisher.PublishException, InterruptedException {
+        if (!checkDiscoverySystemSupportOnCurrentOs(implName)) {
+            System.out.println("Publish And Discovery TEST (" + implName + ") - NOT SUPPORTED on current OS (" + currentOs() + ")");
+            return;
+        }
+
+        String srvName = String.format(DISC_SRV_NAME, implName, "Disc&Pub");
+
+        System.out.println("Create and start discover (" + implName + ")");
+        disc = DiscoverySystemFactory.createDiscover(implName, DISC_SRV_TYPE);
+        disc.addListener(discoveryServiceListener);
+        disc.start();
+
+        System.out.println("Create and start publisher (" + implName + ")");
+        pub = DiscoverySystemFactory.createPublisher(implName, DISC_SRV_TYPE, srvName, DISC_SRV_PORT);
+        pub.publish(false);
+
+        System.out.println("Wait for discover, discovering service");
+        Assertions.assertTrue(discoveryServiceListener.onServiceDiscovered.await(timeoutMs, TimeUnit.MILLISECONDS));
+
+        System.out.println("Stop discover (" + implName + ")");
+        disc.stop();
+
+        System.out.println("Wait for discover, losing service");
+        Assertions.assertTrue(discoveryServiceListener.onServiceLost.await(timeoutMs, TimeUnit.MILLISECONDS));
+
+        System.out.println("Stop publisher (" + implName + ")");
+        pub.hide(false);
     }
 
 
     // OS Support checks methods
 
-    protected static boolean checkDiscoverySystemSupportOnCurrentOs(String discoveryImplName) {
-        if (DiscoveryJmDNS.IMPL_NAME.equalsIgnoreCase(discoveryImplName)) {
+    protected static boolean checkDiscoverySystemSupportOnCurrentOs(String implementation) {
+        if (JmDNS.IMPL_NAME.equalsIgnoreCase(implementation)) {
             return true;
 
-        } else if (DiscoveryJmmDNS.IMPL_NAME.equalsIgnoreCase(discoveryImplName)) {
+        } else if (JmmDNS.IMPL_NAME.equalsIgnoreCase(implementation)) {
             return true;
 
-        } else if (DiscoveryAvahi.IMPL_NAME.equalsIgnoreCase(discoveryImplName)) {
+        } else if (Avahi.IMPL_NAME.equalsIgnoreCase(implementation)) {
             return isLinux();
 
-        } else if (DiscoveryDNSSD.IMPL_NAME.equalsIgnoreCase(discoveryImplName)) {
+        } else if (DNSSD.IMPL_NAME.equalsIgnoreCase(implementation)) {
             return isMac();
 
         }

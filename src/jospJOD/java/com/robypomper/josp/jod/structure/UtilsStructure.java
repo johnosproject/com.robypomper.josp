@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.structure;
 
@@ -65,29 +65,17 @@ public class UtilsStructure {
     private static String compToPrettyPrint_RECURSIVE(JODComponent comp, boolean recursively, String indent) {
         String compStr = String.format("%s+ %-20s (%s)", indent, comp.getName(), comp.getClass().getSimpleName());
 
-        String workersStr;
-        if (comp instanceof JODAction) {
-            workersStr = ((JODAction) comp).getWorker();
-            workersStr += ", " + ((JODAction) comp).getExecutor();
-        } else if (comp instanceof JODState) {
-            workersStr = ((JODState) comp).getWorker();
-        } else
-            workersStr = "N/A";
-
         String pathStr = comp.getPath().getString();
 
         //String out = String.format("%-50s | %s", compStr, workersStr);
-        String out = String.format("%-50s | %s", compStr, pathStr);
-
+        StringBuilder out = new StringBuilder(String.format("%-50s | %s", compStr, pathStr));
         if (recursively && comp instanceof JODContainer) {
             JODContainer container = (JODContainer) comp;
             for (JODComponent subComp : container.getComponents()) {
-                out += "\n" + compToPrettyPrint_RECURSIVE(subComp, true, indent + "| ");
+                out.append("\n").append(compToPrettyPrint_RECURSIVE(subComp, true, indent + "| "));
             }
         }
-
-
-        return out;
+        return out.toString();
     }
 
     /**

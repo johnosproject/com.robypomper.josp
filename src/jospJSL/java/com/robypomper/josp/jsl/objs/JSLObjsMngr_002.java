@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Service Library is the software library to connect "software"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jsl.objs;
 
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.comm.JSLLocalClient;
+import com.robypomper.josp.jsl.objs.remote.DefaultObjComm;
+import com.robypomper.josp.jsl.objs.remote.ObjPerms;
 import com.robypomper.josp.jsl.objs.structure.AbsJSLState;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
+import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.log.Mrk_JSL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,9 +59,10 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
      * @param settings the JSL settings.
      * @param srvInfo  the service's info.
      */
-    public JSLObjsMngr_002(JSLSettings_002 settings, JSLServiceInfo srvInfo) {
+    public JSLObjsMngr_002(JSLSettings_002 settings, JSLServiceInfo srvInfo, JSLUserMngr usrMngr) {
         this.locSettings = settings;
         this.srvInfo = srvInfo;
+        usrMngr.addUserListener(userListener);
 
         log.info(Mrk_JSL.JSL_OBJS, "Initialized JSLObjsMngr");
 
@@ -82,7 +87,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     public List<JSLRemoteObject> getAllConnectedObjects() {
         List<JSLRemoteObject> connObjs = new ArrayList<>();
         for (JSLRemoteObject obj : objs)
-            if (obj.isLocalConnected())
+            if (obj.getComm().isLocalConnected())
                 connObjs.add(obj);
 
         return Collections.unmodifiableList(connObjs);
@@ -106,7 +111,7 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     @Override
     public JSLRemoteObject getByConnection(JSLLocalClient client) {
         for (JSLRemoteObject obj : objs)
-            if (obj.getLocalClients().contains(client))
+            if (((DefaultObjComm) obj.getComm()).getLocalClients().contains(client))
                 return obj;
 
         return null;
@@ -122,29 +127,47 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     }
 
 
+    // Object's mngm
+
+    private void resetAllObjects() {
+        synchronized (objs) {
+            List<JSLRemoteObject> tmpList = new ArrayList<>(objs);
+            for (JSLRemoteObject obj : tmpList) {
+                objs.remove(obj);
+                emit_ObjRemoved(obj);
+            }
+        }
+    }
+
+
     // Connections mngm
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addNewConnection(JSLLocalClient serverConnection) {
-        String locConnObjId = serverConnection.getObjId();
-        String serverAddr = String.format("%s:%d", serverConnection.getServerAddr(), serverConnection.getServerPort());
-        String clientAddr = String.format("%s:%d", serverConnection.getClientAddr(), serverConnection.getClientPort());
+    public JSLRemoteObject addNewConnection(JSLLocalClient serverConnection) {
+        assert serverConnection.getState().isConnected() : "Method addLocalClient() can be call only if localClient is connected.";
 
-        JSLRemoteObject remObj = getById(locConnObjId);
-        boolean toRegObj = remObj == null;
-        if (toRegObj) {
-            log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
-            remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
-            objs.add(remObj);
-            emit_ObjAdded(remObj);
+        String locConnObjId = serverConnection.getRemoteId();
 
-        } else {
-            log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection ('%s' > '%s) to '%s' service", locConnObjId, clientAddr, serverAddr, srvInfo.getSrvId()));
-            remObj.addLocalClient(serverConnection);
+        JSLRemoteObject remObj;
+        synchronized (objs) {
+            remObj = getById(locConnObjId);
+            if (remObj == null) {
+                log.info(Mrk_JSL.JSL_OBJS, String.format("Register new local object '%s' and add connection (%s) to '%s' service", locConnObjId, serverConnection, srvInfo.getSrvId()));
+                remObj = new DefaultJSLRemoteObject(srvInfo, locConnObjId, serverConnection, communication);
+                objs.add(remObj);
+                remObj.getPerms().addListener(objectPermsListener);
+                emit_ObjAdded(remObj);
+
+            } else {
+                log.info(Mrk_JSL.JSL_OBJS, String.format("Add object '%s' connection (%s) to '%s' service", locConnObjId, serverConnection, srvInfo.getSrvId()));
+                ((DefaultObjComm) remObj.getComm()).addLocalClient(serverConnection);
+            }
         }
+
+        return remObj;
     }
 
     /**
@@ -170,9 +193,10 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     @Override
     public void addCloudObject(String objId) {
         assert getById(objId) == null;
-        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new object '%s' to '%s' service", objId, srvInfo.getSrvId()));
-        DefaultJSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
+        log.info(Mrk_JSL.JSL_OBJS, String.format("Register new cloud object '%s' to '%s' service", objId, srvInfo.getSrvId()));
+        JSLRemoteObject remObj = new DefaultJSLRemoteObject(srvInfo, objId, communication);
         objs.add(remObj);
+        remObj.getPerms().addListener(objectPermsListener);
         emit_ObjAdded(remObj);
     }
 
@@ -199,9 +223,54 @@ public class JSLObjsMngr_002 implements JSLObjsMngr {
     }
 
     private void emit_ObjRemoved(JSLRemoteObject obj) {
-        // ToDo: add calls to emit_ObjRemoved()
         for (ObjsMngrListener l : listeners)
             l.onObjRemoved(obj);
     }
+
+    // Listeners object permission's changes
+
+    private ObjPerms.RemoteObjectPermsListener objectPermsListener = new ObjPerms.RemoteObjectPermsListener() {
+
+        @Override
+        public void onPermissionsChanged(JSLRemoteObject obj, List<JOSPPerm> newPerms, List<JOSPPerm> oldPerms) {}
+
+        @Override
+        public void onServicePermChanged(JSLRemoteObject obj, JOSPPerm.Connection connType, JOSPPerm.Type newPermType, JOSPPerm.Type oldPermType) {
+            if (obj.getPerms().getServicePerm(JOSPPerm.Connection.LocalAndCloud) == JOSPPerm.Type.None
+                && obj.getPerms().getServicePerm(JOSPPerm.Connection.OnlyLocal) == JOSPPerm.Type.None) {
+                obj.getPerms().removeListener(objectPermsListener);
+                objs.remove(obj);
+                emit_ObjRemoved(obj);
+            }
+
+        }
+
+    };
+
+
+    // User's login/out
+
+    private final JSLUserMngr.UserListener userListener = new JSLUserMngr.UserListener() {
+
+        @Override
+        public void onLoginPreRestart(JSLUserMngr jslUserMngr) {
+            resetAllObjects();
+        }
+
+        @Override
+        public void onLogoutPreRestart(JSLUserMngr jslUserMngr) {
+            resetAllObjects();
+        }
+
+        @Override
+        public void onLogin(JSLUserMngr jslUserMngr) {
+
+        }
+
+        @Override
+        public void onLogout(JSLUserMngr jslUserMngr) {
+
+        }
+    };
 
 }

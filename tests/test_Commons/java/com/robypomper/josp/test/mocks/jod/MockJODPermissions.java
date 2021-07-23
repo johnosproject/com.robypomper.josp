@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.test.mocks.jod;
 
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.permissions.JODPermissions;
-import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
 
 import java.util.List;
@@ -29,13 +28,11 @@ import java.util.List;
 public class MockJODPermissions implements JODPermissions {
 
     @Override
-    public void setCommunication(JODCommunication comm) throws JODStructure.CommunicationSetException {
-
+    public void setCommunication(JODCommunication comm) {
     }
 
     @Override
     public void syncObjPermissions() {
-
     }
 
     @Override
@@ -50,6 +47,11 @@ public class MockJODPermissions implements JODPermissions {
 
     @Override
     public JOSPPerm.Type getServicePermission(String srvId, String usrId, JOSPPerm.Connection connType) {
+        return null;
+    }
+
+    @Override
+    public String getPermsForJSL() {
         return null;
     }
 
@@ -69,32 +71,16 @@ public class MockJODPermissions implements JODPermissions {
     }
 
     @Override
-    public String getOwnerId() {
-        return null;
-    }
-
-    @Override
-    public void setOwnerId(String ownerId) {
-
-    }
-
-    @Override
-    public void resetOwnerId() {
-
-    }
-
-    @Override
     public void startAutoRefresh() {
-
     }
 
     @Override
     public void stopAutoRefresh() {
-
     }
 
     @Override
-    public void regeneratePermissions() throws PermissionsFileException {
+    public void updateObjIdAndSave() {
 
     }
+
 }

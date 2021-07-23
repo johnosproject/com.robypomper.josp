@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.structure.pillars;
 
 import com.robypomper.josp.jod.executor.JODExecutorMngr;
+import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -53,8 +54,8 @@ public class JODBooleanState extends AbsJODState {
      * @param listener  the listener full configs string.
      * @param puller    the puller full configs string.
      */
-    public JODBooleanState(JODStructure structure, JODExecutorMngr execMngr, String name, String descr, String listener, String puller) throws JODStructure.ComponentInitException {
-        super(structure, execMngr, name, descr, listener, puller);
+    public JODBooleanState(JODStructure structure, JODExecutorMngr execMngr, JODHistory history, String name, String descr, String listener, String puller) throws JODStructure.ComponentInitException {
+        super(structure, execMngr, history, name, descr, listener, puller);
     }
 
 
@@ -74,6 +75,10 @@ public class JODBooleanState extends AbsJODState {
     @Override
     public String getState() {
         return Boolean.toString(state);
+    }
+
+    public boolean getStateBoolean() {
+        return state;
     }
 
 
@@ -112,7 +117,10 @@ public class JODBooleanState extends AbsJODState {
 
         @Override
         public String encode() {
-            return String.format("new:%s\nold:%s", newState, oldState);
+            // No '\n', no ';'
+            String newVal = String.format(KEY_VALUE_FORMAT, "new", Boolean.toString(newState));
+            String oldVal = String.format(KEY_VALUE_FORMAT, "old", Boolean.toString(oldState));
+            return newVal + ITEMS_SEP + oldVal;
         }
 
     }

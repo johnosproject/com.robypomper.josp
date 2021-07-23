@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.shell;
 
 import asg.cliche.Command;
+import com.robypomper.comm.exception.PeerConnectionException;
+import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.josp.jod.comm.JODCommunication;
+import com.robypomper.josp.jod.comm.JODGwO2SClient;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
 
 public class CmdsJODCommunication {
@@ -41,7 +44,7 @@ public class CmdsJODCommunication {
 
     @Command(description = "Print local communication status.")
     public String commLocalStatus() {
-        return String.format("Local communication server is %s", comm.isLocalRunning() ? "running" : "NOT running");
+        return String.format("Local communication discovery system is %s", comm.isLocalRunning());
     }
 
     @Command(description = "Start the local communication server.")
@@ -94,34 +97,48 @@ public class CmdsJODCommunication {
 
     @Command(description = "Print cloud communication status.")
     public String commCloudStatus() {
-        return String.format("Cloud communication client is %s", comm.isCloudConnected() ? "connected" : "NOT connected");
+        JODGwO2SClient cloud = comm.getCloudConnection();
+
+        return String.format("Cloud communication client system is %s ([%d] %s)", cloud.getState(), cloud.hashCode(), cloud);
     }
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudConnect() {
-        if (comm.isCloudConnected())
+        JODGwO2SClient cloud = comm.getCloudConnection();
+
+        if (cloud.getState().isConnected())
             return "Cloud communication client is already connected, do noting";
 
+        if (cloud.getState().isConnecting())
+            return "Cloud communication client is already connecting, do noting";
+
         try {
-            comm.connectCloud();
-        } catch (JODCommunication.CloudCommunicationException e) {
-            return String.format("Error on connecting cloud communication client because %s.", e.getMessage());
+            cloud.connect();
+
+        } catch (PeerConnectionException e) {
+            return String.format("ERROR on Cloud communication client disconnection because [%s] %s\nCloud communication state %s (%s)", e.getClass().getSimpleName(), e.getMessage(), cloud.getState(), cloud);
         }
 
-        if (comm.isCloudConnected())
+        if (cloud.getState().isConnected())
             return "Cloud communication client connected successfully.";
 
-        return "Error on connecting cloud communication client.";
+        return String.format("Error on connecting cloud communication client, %s (%s).", cloud.getState(), cloud);
     }
 
     @Command(description = "Connect the cloud communication client.")
     public String commCloudDisconnect() {
-        if (!comm.isCloudConnected())
+        JODGwO2SClient cloud = comm.getCloudConnection();
+
+        if (!cloud.getState().isConnected())
             return "Cloud communication client is already disconnected, do noting";
 
-        comm.disconnectCloud();
+        try {
+            cloud.disconnect();
+        } catch (PeerDisconnectionException e) {
+            return String.format("ERROR on Cloud communication client disconnection because [%s] %s\nCloud communication state %s (%s)", e.getClass().getSimpleName(), e.getMessage(), cloud.getState(), cloud);
+        }
 
-        if (!comm.isCloudConnected())
+        if (!cloud.getState().isConnected())
             return "Cloud communication client disconnected successfully.";
 
         return "Error on disconnecting cloud communication client.";

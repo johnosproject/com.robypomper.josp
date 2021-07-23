@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Service Library is the software library to connect "software"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jsl.comm;
 
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.protocol.JOSPPerm;
-
-import java.util.List;
 
 
 /**
@@ -32,6 +31,7 @@ import java.util.List;
  * when are closed. Then it advise the {@link JSLObjsMngr} system for connections
  * changes.
  */
+@SuppressWarnings("unused")
 public interface JSLCommunication {
 
     // To Object Msg
@@ -47,75 +47,19 @@ public interface JSLCommunication {
     // Connections access
 
     /**
+     * @return the JCP APIs connection, null if not connected.
+     */
+    JCPAPIsClientSrv getCloudAPIs();
+
+    /**
      * @return the Gw S2O connection, null if not connected.
      */
     JSLGwS2OClient getCloudConnection();
 
     /**
-     * @return an array containing all local connections.
+     * @return the Local Client Manager, null if local not started.
      */
-    List<JSLLocalClient> getAllLocalServers();
-
-    /**
-     * Remove given server connection from internal server connections list.
-     * <p>
-     * This method is called from {@link JSLLocalClient} on server disconnection.
-     *
-     * @param server the server connection to remove.
-     */
-    void removeServer(JSLLocalClient server);
-
-
-    // Mngm methods
-
-    /**
-     * @return <code>true</code> if the local search system is active.
-     */
-    boolean isLocalRunning();
-
-    /**
-     * Start local Object's server and publish it.
-     */
-    void startLocal() throws LocalCommunicationException;
-
-    /**
-     * Stop local Object's server and de-publish it, then close all opened connections.
-     */
-    void stopLocal() throws LocalCommunicationException;
-
-    /**
-     * @return <code>true</code> if current JSL library is connected to the Gw S2O.
-     */
-    boolean isCloudConnected();
-
-    /**
-     * Start JOSP Gw S2O Client.
-     */
-    void connectCloud() throws CloudCommunicationException;
-
-    /**
-     * Stop JOSP Gw S2O Client.
-     */
-    void disconnectCloud();
-
-
-    // Listeners
-
-    void addListener(CommunicationListener listener);
-
-    void removeListener(CommunicationListener listener);
-
-    interface CommunicationListener {
-
-        void onCloudConnected(JSLCommunication comm);
-
-        void onCloudDisconnected(JSLCommunication comm);
-
-        void onLocalStarted(JSLCommunication comm);
-
-        void onLocalStopped(JSLCommunication comm);
-
-    }
+    JSLLocalClientsMngr getLocalConnections();
 
 
     // Exceptions

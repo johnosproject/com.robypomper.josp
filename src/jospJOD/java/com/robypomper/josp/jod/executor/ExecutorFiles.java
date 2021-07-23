@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
@@ -47,8 +47,18 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
 
     // Internal vars
 
+    /**
+     * Path for local file to monitoring.
+     * <p>
+     * In configs it can be defined using the component's substitution vars.
+     */
     private final String filePath;
-    private final String format;
+    /**
+     * Specify in witch format the component state's value must be written on file.
+     * <p>
+     * It can be set as Substitution ACTION_xy value. Default Substitutions.ACTION_VAL.
+     */
+    private final String actionStrFormat;
 
 
     // Constructor
@@ -60,18 +70,13 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
      * @param proto      proto of the executor.
      * @param configsStr configs string, can be an empty string.
      */
-    public ExecutorFiles(String name, String proto, String configsStr, JODComponent component) {
+    public ExecutorFiles(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorFiles for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
-        format = properties.get(PROP_DEF_FORMAT) != null ? properties.get(PROP_DEF_FORMAT) : Substitutions.ACTION_VAL;
-
-        filePath = genericSubstitution(properties.get(PROP_FILE_PATH), getComponent());
-        if (filePath == null || filePath.isEmpty()) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorFiles for component '%s' property '%s' not set on component's config string", getName(), PROP_FILE_PATH));
-            return;
-        }
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        actionStrFormat = parseConfigString(configs, PROP_DEF_FORMAT, Substitutions.ACTION_VAL);
+        filePath = parseConfigString(configs, PROP_FILE_PATH);
 
         try {
             JavaFiles.createParentIfNotExist(filePath);
@@ -103,11 +108,13 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
         System.out.printf("\tnewState %b%n", cmdAction.newState);
         System.out.printf("\toldState %b%n", cmdAction.oldState);
 
-        String stateStr = actionSubstitution(format, getComponent(), commandAction, cmdAction);
-        log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Write ExecutorFiles state '%s' on '%s' file", stateStr, filePath));
+        String actionStr = new Substitutions(actionStrFormat)
+                .substituteAction(commandAction)
+                .toString();
+        log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Write ExecutorFiles state '%s' on '%s' file", actionStr, filePath));
 
         try {
-            JavaFiles.writeString(filePath, stateStr);
+            JavaFiles.writeString(filePath, actionStr);
 
         } catch (IOException e) {
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorFiles error on writing file '%s' for component '%s'", filePath, getName()));
@@ -125,12 +132,14 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
         System.out.printf("\toldState %f%n", cmdAction.oldState);
 
 
-        String stateStr = actionSubstitution(format, getComponent(), commandAction, cmdAction);
-        log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Write ExecutorFiles state '%s' on '%s' file", stateStr, filePath));
+        String actionStr = new Substitutions(actionStrFormat)
+                .substituteAction(commandAction)
+                .toString();
+        log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Write ExecutorFiles state '%s' on '%s' file", actionStr, filePath));
 
-        if (stateStr != null)
+        if (actionStr != null)
             try {
-                JavaFiles.writeString(filePath, stateStr);
+                JavaFiles.writeString(filePath, actionStr);
 
             } catch (IOException e) {
                 log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorFiles error on writing file '%s' for component '%s'", filePath, getName()));

@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.protocol;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.robypomper.java.JavaDate;
 import com.robypomper.java.JavaRandomStrings;
+import com.robypomper.josp.consts.JOSPConstants;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -40,11 +42,26 @@ public class JOSPPerm {
         /**
          * Allow only when connection is local.
          */
-        OnlyLocal,
+        OnlyLocal(0),
         /**
          * Allow for both local and cloud connections.
          */
-        LocalAndCloud
+        LocalAndCloud(1);
+
+        private final int level;
+
+        Connection(int level) {
+            this.level = level;
+        }
+
+        public boolean greaterThan(Connection other) {
+            return this.level > other.level;
+        }
+
+        public boolean lowerThan(Connection other) {
+            return this.level < other.level;
+        }
+
     }
 
     /**
@@ -54,19 +71,34 @@ public class JOSPPerm {
         /**
          * Allow only access to object's basic info.
          */
-        None,
+        None(0),
         /**
          * Allow access to object's info and status updates.
          */
-        Status,
+        Status(1),
         /**
          * Like {@link #Status}, plus allow action execution.
          */
-        Actions,
+        Actions(2),
         /**
          * Like {@link #Actions}, plus allow object's configuration.
          */
-        CoOwner
+        CoOwner(3);
+
+        private final int level;
+
+        Type(int level) {
+            this.level = level;
+        }
+
+        public boolean greaterThan(Type other) {
+            return this.level > other.level;
+        }
+
+        public boolean lowerThan(Type other) {
+            return this.level < other.level;
+        }
+
     }
 
     /**
@@ -98,11 +130,11 @@ public class JOSPPerm {
         /**
          * Reference for anonymous user's id
          */
-        USR_ANONYMOUS_ID("00000-00000-00000"),
+        USR_ANONYMOUS_ID(JOSPConstants.ANONYMOUS_ID),
         /**
          * Reference for anonymous user's name
          */
-        USR_ANONYMOUS_NAME("Anonymous"),
+        USR_ANONYMOUS_NAME(JOSPConstants.ANONYMOUS_USERNAME),
         /**
          * Indicate that the permission is applicable to all services.
          */
@@ -144,9 +176,9 @@ public class JOSPPerm {
         this.connType = Connection.valueOf(connType);
         Date updTmp;
         try {
-            updTmp = JOSPProtocol.getDateFormatter().parse(updatedAt);
+            updTmp = JavaDate.DEF_DATE_FORMATTER.parse(updatedAt);
         } catch (ParseException e) {
-            updTmp = JOSPProtocol.getNowDate();
+            updTmp = JavaDate.getNowDate();
         }
         this.updatedAt = updTmp;
     }
@@ -211,7 +243,7 @@ public class JOSPPerm {
 
     @JsonIgnore
     public String getUpdatedAtStr() {
-        return JOSPProtocol.getDateFormatter().format(updatedAt);
+        return JavaDate.DEF_DATE_FORMATTER.format(updatedAt);
     }
 
 
@@ -243,7 +275,7 @@ public class JOSPPerm {
     }
 
     public static String toString(JOSPPerm perm) {
-        return String.format(OBJ_PERMS_REQ_FORMAT, perm.getId(), perm.getObjId(), perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType(), JOSPProtocol.getDateFormatter().format(perm.getUpdatedAt()));
+        return String.format(OBJ_PERMS_REQ_FORMAT, perm.getId(), perm.getObjId(), perm.getSrvId(), perm.getUsrId(), perm.getPermType(), perm.getConnType(), JavaDate.DEF_DATE_FORMATTER.format(perm.getUpdatedAt()));
     }
 
     public static String toString(List<JOSPPerm> perms) {
@@ -258,12 +290,13 @@ public class JOSPPerm {
 
     public static String logPermissions(List<JOSPPerm> permissions) {
         StringBuilder str = new StringBuilder();
-        str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+---------+\n");
-        str.append("  | ObjId              | SrvId                | UsrId                | Perm. and Connection Type | Updated At              | PermId  |\n");
-        str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+---------+\n");
+        str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+-------------------------+\n");
+        str.append("  | ObjId              | SrvId                | UsrId                | Perm. and Connection Type | Updated At              | PermId                  |\n");
+        str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+-------------------------+\n");
         for (JOSPPerm p : permissions)
-            str.append(String.format("  | %-18s | %-20s | %-20s | %-10s, %-13s | %-23s | %-23s |\n", p.getObjId(), p.getSrvId(), p.getUsrId(), p.getPermType(), p.getConnType(), p.getUpdatedAtStr(), p.getId()));
-        str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+\n");
+            str.append(String.format("  | %-18s | %-20s | %-20s | %-10s, %-13s | %-23s | %-23s |\n",
+                    p.getObjId(), p.getSrvId(), p.getUsrId(), p.getPermType(), p.getConnType(), p.getUpdatedAtStr(), p.getId()));
+        str.append("  +--------------------+----------------------+----------------------+---------------------------+-------------------------+-------------------------+\n");
         return str.toString();
     }
 

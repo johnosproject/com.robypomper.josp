@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
@@ -70,13 +70,13 @@ public class ListenerTestAdv extends AbsJODListenerLoop {
      * @param configsStr configs string, parse {@value #PROP_FREQUENCY}(int) and
      *                   {@value #PROP_SLEEP_TIME}(int)properties.
      */
-    public ListenerTestAdv(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException, ParsingPropertyException {
+    public ListenerTestAdv(String name, String proto, String configsStr, JODComponent component) throws ParsingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTestAdv for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
-        frequency = parseConfigInt(properties, PROP_FREQUENCY, frequency);
-        sleepTime = parseConfigInt(properties, PROP_SLEEP_TIME, sleepTime);
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        frequency = parseConfigInt(configs, PROP_FREQUENCY, Integer.toString(frequency));
+        sleepTime = parseConfigInt(configs, PROP_SLEEP_TIME, Integer.toString(sleepTime));
     }
 
 

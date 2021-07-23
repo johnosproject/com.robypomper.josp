@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Service Library is the software library to connect "software"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jsl;
 
+import com.robypomper.java.JavaAssertions;
+import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.jsl.admin.JSLAdmin;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
-import com.robypomper.josp.jsl.jcpclient.JCPClient_Service;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
+import com.robypomper.josp.states.JSLState;
+import com.robypomper.josp.states.StateException;
 
 import java.io.File;
+import java.util.Map;
 
 
 /**
@@ -33,6 +38,7 @@ import java.io.File;
  * This interface define methods to initialize and manage a JSL library. Moreover,
  * it define also JSL support classes, struct and exceptions.
  */
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface JSL {
 
     // New instance method
@@ -47,10 +53,10 @@ public interface JSL {
      * @param settings JSL.Settings containing JSL settings. Sub-classes can
      *                 extend JSL.Settings and used extended class as
      *                 <code>instance</code> param.
-     * @return null pointer.
+     * @return none, it throw a JavaNotImplementedException().
      */
     static JSL instance(Settings settings) {
-        return null;
+        return JavaAssertions.makeAssertion_Failed("Each sub-class must override this method", null);
     }
 
 
@@ -61,18 +67,15 @@ public interface JSL {
      */
     String version();
 
-
     /**
      * @return the list of supported JOSP JOD (direct) versions.
      */
     String[] versionsJOSPObject();
 
-
     /**
      * @return the list of supported JOSP Protocol versions.
      */
     String[] versionsJOSPProtocol();
-
 
     /**
      * @return the list of supported JCP APIs versions.
@@ -83,16 +86,21 @@ public interface JSL {
     // JSL mngm
 
     /**
+     * @return the JSL library's state.
+     */
+    JSLState getState();
+
+    /**
      * Starts JSL library and his systems, then connect current JSL library
      * instance to the Gw S2O and to all available local JOD objects.
      */
-    void connect() throws ConnectException;
+    void startup() throws StateException;
 
     /**
      * Disconnect current JSL library instance from the JCP cloud and from all
      * local JOD objects, then stops JSL and all his systems.
      */
-    void disconnect() throws ConnectException;
+    void shutdown() throws StateException;
 
     /**
      * Disconnect and connect again current JSL library instance from the
@@ -102,75 +110,27 @@ public interface JSL {
      *
      * @return <code>true</code> if the JSL library result connected.
      */
-    boolean reconnect() throws ConnectException;
+    boolean restart() throws StateException;
 
     /**
-     * @return the JSL library's status.
+     * Pretty formatted JSL instance's info on current logger.
      */
-    Status status();
+    void printInstanceInfo();
 
 
     // JSL Systems
 
-    JCPClient_Service getJCPClient();
+    JCPAPIsClientSrv getJCPClient();
 
     JSLServiceInfo getServiceInfo();
 
     JSLUserMngr getUserMngr();
 
+    JSLAdmin getAdmin();
+
     JSLObjsMngr getObjsMngr();
 
     JSLCommunication getCommunication();
-
-
-    // Support struct and classes
-
-    /**
-     * JSL Library statuses.
-     */
-    enum Status {
-
-        /**
-         * JSL library is starting.
-         * <p>
-         * The method {@link #connect()} was called, when finish the status become
-         * {@link #CONNECTED} or {@link #DISCONNECTED} if error occurs.
-         */
-        CONNECTING,
-
-        /**
-         * JSL library is connected and operative.
-         * <p>
-         * The method {@link #connect()} was called and the JSL library was started
-         * successfully.
-         */
-        CONNECTED,
-
-        /**
-         * JSL library is disconnecting.
-         * <p>
-         * The method {@link #disconnect()} was called, when finish the status
-         * become {@link #DISCONNECTED}.
-         */
-        DISCONNECTING,
-
-        /**
-         * JSL library is disconnected.
-         * <p>
-         * The method {@link #disconnect()} was called and the JSL library was
-         * stopped successfully.
-         */
-        DISCONNECTED,
-
-        /**
-         * JSL library is disconnecting and reconnecting.
-         * <p>
-         * The method {@link #reconnect()} was called, when finish the status
-         * become {@link #CONNECTED} or {@link #DISCONNECTED} if error occurs.
-         */
-        RECONNECTING,
-
-    }
 
 
     // Settings class
@@ -200,23 +160,25 @@ public interface JSL {
             return null;
         }
 
+        /**
+         * Static method to generate JSL.Settings object from <code>file</code>
+         * configs.
+         *
+         * <b>This method (from {@link JSL.Settings} interface) return null object</b>,
+         * because JSL.Settings sub-classes must re-implement the same method and
+         * return sub-class instance.
+         *
+         * @param properties map containing the properties to set as JSL configurations.
+         * @return null pointer.
+         */
+        static Settings instance(Map<String, Object> properties) {
+            return null;
+        }
+
     }
 
 
     // Exceptions
-
-    /**
-     * Exceptions for JSL object connection and disconnection down errors.
-     */
-    class ConnectException extends Throwable {
-        public ConnectException(String msg) {
-            super(msg);
-        }
-
-        public ConnectException(String msg, Exception e) {
-            super(msg, e);
-        }
-    }
 
     /**
      * Exceptions for {@link JSL} and {@link JSL.Settings} object creation.

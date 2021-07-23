@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Service Library is the software library to connect "software"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jsl;
 
@@ -31,10 +31,12 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JCP_CONNECT_DEF          = "true";
     public static final String JCP_REFRESH_TIME         = "jcp.client.refresh";
     public static final String JCP_REFRESH_TIME_DEF     = "30";
+    public static final String JCP_SSL                  = "jcp.client.ssl";
+    public static final String JCP_SSL_DEF              = "true";
     public static final String JCP_URL_APIS             = "jcp.url.apis";
-    public static final String JCP_URL_DEF_APIS         = "apis.johnosproject.com:443";
+    public static final String JCP_URL_DEF_APIS         = "api.johnosproject.org";
     public static final String JCP_URL_AUTH             = "jcp.url.auth";
-    public static final String JCP_URL_DEF_AUTH         = "auth.johnosproject.com:443";
+    public static final String JCP_URL_DEF_AUTH         = "auth.johnosproject.org";
     public static final String JCP_CLIENT_ID            = "jcp.client.id";
     public static final String JCP_CLIENT_ID_DEF        = "";
     public static final String JCP_CLIENT_SECRET        = "jcp.client.secret";
@@ -49,19 +51,19 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     public static final String JSLSRV_ID                = "jsl.srv.id";
     public static final String JSLSRV_ID_DEF            = "";
 
-    public static final String JSLUSR_NAME = "jsl.usr.name";
-    public static final String JSLUSR_NAME_DEF = "";
-    public static final String JSLUSR_ID = "jsl.usr.id";
-    public static final String JSLUSR_ID_DEF = "";
+    public static final String JSLUSR_NAME              = "jsl.usr.name";
+    public static final String JSLUSR_NAME_DEF          = "";
+    public static final String JSLUSR_ID                = "jsl.usr.id";
+    public static final String JSLUSR_ID_DEF            = "";
 
-    public static final String JSLCOMM_LOCAL_ENABLED = "jsl.comm.local.enabled";
+    public static final String JSLCOMM_LOCAL_ENABLED    = "jsl.comm.local.enabled";
     public static final String JSLCOMM_LOCAL_ENABLED_DEF = "true";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST = "jsl.comm.local.onlyLocalhost";
     public static final String JSLCOMM_LOCAL_ONLY_LOCALHOST_DEF = "false";
-    public static final String JSLCOMM_LOCAL_DISCOVERY = "jsl.comm.local.discovery";
-    public static final String JSLCOMM_LOCAL_DISCOVERY_DEF = "JmDNS";
+    public static final String JSLCOMM_LOCAL_DISCOVERY  = "jsl.comm.local.discovery";
+    public static final String JSLCOMM_LOCAL_DISCOVERY_DEF = "Auto";
 
-    public static final String JSLCOMM_CLOUD_ENABLED = "jsl.comm.cloud.enabled";
+    public static final String JSLCOMM_CLOUD_ENABLED    = "jsl.comm.cloud.enabled";
     public static final String JSLCOMM_CLOUD_ENABLED_DEF = "true";
     //@formatter:on
 
@@ -70,6 +72,10 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
 
     public static JSL.Settings instance(File file) throws IOException {
         return new JSLSettings_002(file);
+    }
+
+    public static JSL.Settings instance(Map<String, Object> properties) {
+        return new JSLSettings_002(properties);
     }
 
     public JSLSettings_002(File file) throws IOException {
@@ -91,6 +97,11 @@ public class JSLSettings_002 extends DefaultSettings implements JSL.Settings {
     //@Override
     public int getJCPRefreshTime() {
         return getInt(JCP_REFRESH_TIME, JCP_REFRESH_TIME_DEF);
+    }
+
+    //@Override
+    public boolean getJCPUseSSL() {
+        return getBoolean(JCP_SSL, JCP_SSL_DEF);
     }
 
     //@Override

@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.build.gradle;
 
@@ -23,6 +23,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.util.Map;
 
 public class GradleUtils {
 
@@ -30,6 +31,11 @@ public class GradleUtils {
 
         @TaskAction
         void print() {
+            StringBuilder envVarsList = new StringBuilder();
+            Map<String, String> enviorntmentVars = System.getenv();
+            for (Map.Entry<String, String> var : enviorntmentVars.entrySet())
+                envVarsList.append(var.getKey()).append(": ").append(var.getValue()).append("\n|                  ");
+
             String str = "Gradle versions:" +
                     "+-----------------\n" +
                     "| Gradle:          " + getProject().getGradle().getGradleVersion() + "\n" +
@@ -50,6 +56,7 @@ public class GradleUtils {
                     "| Dflt language:   " + System.getProperty("user.language") + "\n" +
                     "| Dflt encoding:   " + System.getProperty("sun.jnu.encoding") + "\n" +
                     "| File encoding:   " + System.getProperty("file.encoding") + "\n" +
+                    "| Env Vars:        " + envVarsList.toString().trim() + "\n" +
                     "+-----------------\n" +
                     "| Working dir:     " + System.getProperty("user.dir") + "\n" +
                     "+-----------------\n";

@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
 
 import com.robypomper.java.JavaExecProcess;
+import com.robypomper.java.JavaFiles;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
@@ -29,7 +30,6 @@ import com.robypomper.log.Mrk_Commons;
 import com.robypomper.log.Mrk_JOD;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Map;
 
 
@@ -44,6 +44,7 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
 
     private static final String PROP_CMD = "cmd";
     private static final String PROP_REDIRECT = "redirect";
+    private static final int CMD_EXECUTION_TIMEOUT_MS = 5000;
 
 
     // Internal vars
@@ -61,13 +62,13 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
      * @param proto      proto of the executor.
      * @param configsStr configs string, can be an empty string.
      */
-    public ExecutorUnixShell(String name, String proto, String configsStr, JODComponent component) {
+    public ExecutorUnixShell(String name, String proto, String configsStr, JODComponent component) throws MissingPropertyException {
         super(name, proto, component);
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorUnixShell for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
 
-        Map<String, String> properties = splitConfigsStrings(configsStr);
-        cmd = properties.get(PROP_CMD);
-        redirect = properties.get(PROP_REDIRECT);
+        Map<String, String> configs = splitConfigsStrings(configsStr);
+        cmd = parseConfigString(configs, PROP_CMD);
+        redirect = parseConfigString(configs, PROP_REDIRECT, "");
     }
 
 
@@ -93,17 +94,28 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
         System.out.printf("\toldState %b%n", cmdAction.oldState);
 
 
-        String cmdUpd = actionSubstitution(cmd, getComponent(), commandAction, cmdAction);
-        String redirectUpd = actionSubstitution(redirect, getComponent(), commandAction, cmdAction);
+        String cmdUpd = new Substitutions(cmd)
+                .substituteAction(commandAction)
+                .toString();
+        String redirectUpd = redirect.isEmpty() ? null :
+                new Substitutions(redirect)
+                        .substituteAction(commandAction)
+                        .toString();
 
         log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec ExecutorUnixShell cmd '%s'", cmdUpd));
 
         // Split, redirect*redirectUpd!=null, CmdPartitioning
         try {
-            JavaExecProcess.execCmdConcat(cmdUpd, redirectUpd != null ? Paths.get(redirectUpd) : null, 0);
+            String output = JavaExecProcess.execCmdConcat(cmdUpd, CMD_EXECUTION_TIMEOUT_MS);
+            if (redirectUpd != null)
+                JavaFiles.writeString(redirectUpd, output);
+
+        } catch (JavaExecProcess.ExecConcatException e) {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            return false;
 
         } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on writing output to '%s' file of partial cmd '%s' for component '%s' because %s", redirectUpd, cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
 
@@ -116,18 +128,28 @@ public class ExecutorUnixShell extends AbsJODExecutor implements JODBooleanActio
         System.out.printf("\tnewState %f%n", cmdAction.newState);
         System.out.printf("\toldState %f%n", cmdAction.oldState);
 
-
-        String cmdUpd = actionSubstitution(cmd, getComponent(), commandAction, cmdAction);
-        String redirectUpd = actionSubstitution(redirect, getComponent(), commandAction, cmdAction);
+        String cmdUpd = new Substitutions(cmd)
+                .substituteAction(commandAction)
+                .toString();
+        String redirectUpd = redirect.isEmpty() ? null :
+                new Substitutions(redirect)
+                        .substituteAction(commandAction)
+                        .toString();
 
         log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Exec ExecutorUnixShell cmd '%s'", cmdUpd));
 
         // Split, redirect*redirectUpd!=null, CmdPartitioning
         try {
-            JavaExecProcess.execCmdConcat(cmdUpd, redirectUpd != null ? Paths.get(redirectUpd) : null, 0);
+            String output = JavaExecProcess.execCmdConcat(cmdUpd, CMD_EXECUTION_TIMEOUT_MS);
+            if (redirectUpd != null)
+                JavaFiles.writeString(redirectUpd, output);
+
+        } catch (JavaExecProcess.ExecConcatException e) {
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            return false;
 
         } catch (IOException e) {
-            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on executing partial cmd '%s' for component '%s' because %s", cmdUpd, getName(), e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorUnixShell error on writing output to '%s' file of partial cmd '%s' for component '%s' because %s", redirectUpd, cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
 

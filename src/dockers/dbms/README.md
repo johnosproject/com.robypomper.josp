@@ -13,8 +13,8 @@ password is ```root```.
 
 Like others Docker based project, it can be **started and stopped** with following cmds:
 ```shell script
-./gradlew dbmsComposeUp
-./gradlew dbmsComposeDown
+./gradlew dbms_Up
+./gradlew dbms_Down
 ```
 
 If you'd like to **reset the databases** to initial preset datasets, then
@@ -23,8 +23,8 @@ server. During the reboot, the server will parse all files contained in
 ```sql/``` dir.
 
 ```shell script
-./gradlew dbmsComposeUp
-./gradlew dbmsComposeDown
+./gradlew dbms_Up
+./gradlew dbms_Down
 sudo rm -rf docker_envs/dbms/mysql/data
 ```
 
@@ -49,9 +49,12 @@ Dataset for testing purposes.
 
 It define only the user ```test_db``` with all permissions on the dataset database.
 
-### auth_josp
+### jcp_auth
 Dataset for the [Auth](../../auth/docs/README.md) micro-service.
 
-It contains all tables and data compatible with Keycloak 9.0.0 server and
-contains all settings described in
-[Auth#Preset configurations](../../auth/docs/README.md#Preset-configurations).
+It defines only the DB schema and users.
+
+### jcp_apis
+Dataset for the [JCP APIs](../../../docs/jcpAPIs/README.md) micro-service.
+
+It defines only the DB schema and users.

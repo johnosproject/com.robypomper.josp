@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.executor;
 
 import com.robypomper.josp.jod.structure.JODComponent;
+
+import java.util.Map;
 
 
 /**
@@ -49,6 +51,15 @@ public interface JODWorker {
      * @return the JODWorker's component.
      */
     JODComponent getComponent();
+
+    /**
+     * Current JODWorker's configs map.
+     * <p>
+     * This map contains config's placeholder as keys and config's value as key.
+     *
+     * @return the JODWorker's configs.
+     */
+    Map<String, String> getConfigs();
 
     /**
      * @return <code>true</code> if current worker is enabled, <code>false</code>

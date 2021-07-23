@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.build.java;
 
@@ -29,6 +29,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.jvm.tasks.Jar;
 
 import java.io.File;
+import java.util.Collections;
 
 
 /**
@@ -110,6 +111,7 @@ public class JavaRunnableUtils {
         run.classpath(ss.getRuntimeClasspath());
         run.setMain(mainClass);
         run.setWorkingDir(workingDir);
+        run.setJvmArgs(Collections.singletonList("-ea"));
         run.doFirst(task -> {
             if (!workingDir.exists())
                 workingDir.mkdirs();

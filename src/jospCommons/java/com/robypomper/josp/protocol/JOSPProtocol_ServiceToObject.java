@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.protocol;
 
+
+import com.robypomper.java.JavaDate;
 
 public class JOSPProtocol_ServiceToObject {
 
@@ -54,7 +56,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_SETNAME_REQ = OBJ_SETNAME_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nobjName:%s";
 
     public static String createObjectSetNameMsg(String fullSrvId, String objId, String newName) {
-        return String.format(OBJ_SETNAME_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newName);
+        return String.format(OBJ_SETNAME_REQ, JavaDate.getNow(), fullSrvId, objId, newName);
     }
 
     public static boolean isObjectSetNameMsg(String msg) {
@@ -73,7 +75,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_SETOWNERID_REQ = OBJ_SETOWNERID_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nownerId:%s";
 
     public static String createObjectSetOwnerIdMsg(String fullSrvId, String objId, String newOwnerId) {
-        return String.format(OBJ_SETOWNERID_REQ, JOSPProtocol.getNow(), fullSrvId, objId, newOwnerId);
+        return String.format(OBJ_SETOWNERID_REQ, JavaDate.getNow(), fullSrvId, objId, newOwnerId);
     }
 
     public static boolean isObjectSetOwnerIdMsg(String msg) {
@@ -92,7 +94,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_ADDPERM_REQ = OBJ_ADDPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nsrvId:%s\nusrId:%s\npermType:%s\nconnType:%s";
 
     public static String createObjectAddPermMsg(String fullSrvId, String objId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) {
-        return String.format(OBJ_ADDPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, srvId, usrId, permType, connType);
+        return String.format(OBJ_ADDPERM_REQ, JavaDate.getNow(), fullSrvId, objId, srvId, usrId, permType, connType);
     }
 
     public static boolean isObjectAddPermMsg(String msg) {
@@ -123,7 +125,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_UPDPERM_REQ = OBJ_UPDPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\npermId:%s\nsrvId:%s\nusrId:%s\npermType:%s\nconnType:%s";
 
     public static String createObjectUpdPermMsg(String fullSrvId, String objId, String permId, String srvId, String usrId, JOSPPerm.Type permType, JOSPPerm.Connection connType) {
-        return String.format(OBJ_UPDPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, permId, srvId, usrId, permType, connType);
+        return String.format(OBJ_UPDPERM_REQ, JavaDate.getNow(), fullSrvId, objId, permId, srvId, usrId, permType, connType);
     }
 
     public static boolean isObjectUpdPermMsg(String msg) {
@@ -158,7 +160,7 @@ public class JOSPProtocol_ServiceToObject {
     private static final String OBJ_REMPERM_REQ = OBJ_REMPERM_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\npermId:%s";
 
     public static String createObjectRemPermMsg(String fullSrvId, String objId, String permId) {
-        return String.format(OBJ_REMPERM_REQ, JOSPProtocol.getNow(), fullSrvId, objId, permId);
+        return String.format(OBJ_REMPERM_REQ, JavaDate.getNow(), fullSrvId, objId, permId);
     }
 
     public static boolean isObjectRemPermMsg(String msg) {
@@ -172,6 +174,7 @@ public class JOSPProtocol_ServiceToObject {
 
     // Action Cmd Msg class
 
+    public static final String CMD_MSG_NAME = "ActionReqest";
     private static final String CMD_MSG_BASE = JOSPProtocol.JOSP_PROTO + " CMD_MSG";
     private static final String CMD_MSG = CMD_MSG_BASE + " %s\nfullSrvId:%s/%s/%s\nobjId:%s\ncompPath:%s\ncmdType:%s\n%s";
 
@@ -243,10 +246,88 @@ public class JOSPProtocol_ServiceToObject {
         // Casting
 
         static String fromCmdToMsg(ActionCmdMsg cmd) {
-            return String.format(CMD_MSG, JOSPProtocol.getNow(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
+            return String.format(CMD_MSG, JavaDate.getNow(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
                     cmd.getComponentPath(), cmd.getCommand().getType(), cmd.getCommand().encode());
         }
 
+    }
+
+
+    // Events History Msg class (Request)
+
+    public static final JOSPPerm.Type HISTORY_EVENTS_REQ_MIN_PERM = JOSPPerm.Type.None;         // ToDo Should be CoOwner???
+    public static final String HISTORY_EVENTS_REQ_NAME = "HistoryEventsReq";
+    private static final String HISTORY_EVENTS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_EVENTS_MSG";
+    private static final String HISTORY_EVENTS_REQ = HISTORY_EVENTS_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\nreqId:%s\nlimits:%s\nevType:%s";
+
+    public static String createHistoryEventsMsg(String fullSrvId, String objId, String reqId, HistoryLimits limits) {
+        return createHistoryEventsMsg(fullSrvId, objId, reqId, limits, "");
+    }
+
+    public static String createHistoryEventsMsg(String fullSrvId, String objId, String reqId, HistoryLimits limits, String filterEventType) {
+        return String.format(HISTORY_EVENTS_REQ, JavaDate.getNow(), fullSrvId, objId, reqId, HistoryLimits.toString(limits), filterEventType);
+    }
+
+    public static boolean isHistoryEventsMsg(String msg) {
+        return msg.startsWith(HISTORY_EVENTS_REQ_BASE);
+    }
+
+    public static String getHistoryEventsMsg_FullSrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 1, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static String getHistoryEventsMsg_ObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 2, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static String getHistoryEventsMsg_ReqId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 3, HISTORY_EVENTS_REQ_NAME);
+    }
+
+    public static HistoryLimits getHistoryEventsMsg_Limits(String msg) throws JOSPProtocol.ParsingException {
+        String limitsStr = JOSPProtocol.extractFieldFromResponse(msg, 6, 4, HISTORY_EVENTS_REQ_NAME);
+        return HistoryLimits.fromString(limitsStr);
+    }
+
+    public static String getHistoryEventsMsg_FilterEventType(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 5, HISTORY_EVENTS_REQ_NAME);
+    }
+
+
+    // Status History Msg class (Request)
+
+    public static final JOSPPerm.Type HISTORY_STATUS_REQ_MIN_PERM = JOSPPerm.Type.Status;
+    public static final String HISTORY_STATUS_REQ_NAME = "HistoryStatusReq";
+    private static final String HISTORY_STATUS_REQ_BASE = JOSPProtocol.JOSP_PROTO + " H_STATUS_MSG";
+    private static final String HISTORY_STATUS_REQ = HISTORY_STATUS_REQ_BASE + " %s\nfullSrvId:%s\nobjId:%s\ncompPath:%s\nreqId:%s\nlimits:%s";
+
+    public static String createHistoryCompStatusMsg(String fullSrvId, String objId, String compPath, String reqId, HistoryLimits limits) {
+        return String.format(HISTORY_STATUS_REQ, JavaDate.getNow(), fullSrvId, objId, compPath, reqId, HistoryLimits.toString(limits));
+    }
+
+    public static boolean isHistoryCompStatusMsg(String msg) {
+        return msg.startsWith(HISTORY_STATUS_REQ_BASE);
+    }
+
+    public static String getHistoryCompStatusMsg_FullSrvId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 1, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_ObjId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 2, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_CompPath(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 3, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static String getHistoryCompStatusMsg_ReqId(String msg) throws JOSPProtocol.ParsingException {
+        return JOSPProtocol.extractFieldFromResponse(msg, 6, 4, HISTORY_STATUS_REQ_NAME);
+    }
+
+    public static HistoryLimits getHistoryCompStatusMsg_Limits(String msg) throws JOSPProtocol.ParsingException {
+        String limitsStr = JOSPProtocol.extractFieldFromResponse(msg, 6, 5, HISTORY_STATUS_REQ_NAME);
+        return HistoryLimits.fromString(limitsStr);
     }
 
 }

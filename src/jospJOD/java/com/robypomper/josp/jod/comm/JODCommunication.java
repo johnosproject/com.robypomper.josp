@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Object Daemon is the agent software to connect "objects"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jod.comm;
 
+import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
@@ -41,6 +42,7 @@ import java.util.List;
  * if the JOSP GW check service/user permissions, current object perform security
  * checks.
  */
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public interface JODCommunication {
 
     // To Service Msg
@@ -75,14 +77,29 @@ public interface JODCommunication {
     // Connections access
 
     /**
-     * @return the Gw O2S connection, null if not connected.
+     * @return the JCP APIs connection, null if not connected.
      */
-    JODGwO2SClient getGwO2SClient();
+    JCPAPIsClientObj getCloudAPIs();
+
+    /**
+     * @return the Gw S2O connection, null if not connected.
+     */
+    JODGwO2SClient getCloudConnection();
+
+    /**
+     * @return the Local server, null if not started.
+     */
+    JODLocalServer getLocalServer();
 
     /**
      * @return an array containing all local connections.
      */
     List<JODLocalClientInfo> getAllLocalClientsInfo();
+
+    /**
+     * @return an array containing all local connections.
+     */
+    JODLocalClientInfo findLocalClientsInfo(String serviceId);
 
 
     // Mngm methods
@@ -101,21 +118,6 @@ public interface JODCommunication {
      * Stop local Object's server and de-publish it, then close all opened connections.
      */
     void stopLocal() throws LocalCommunicationException;
-
-    /**
-     * @return <code>true</code> if cloud communication server is connected.
-     */
-    boolean isCloudConnected();
-
-    /**
-     * Start JOSP Gw O2S Client.
-     */
-    void connectCloud() throws CloudCommunicationException;
-
-    /**
-     * Stop JOSP Gw O2S Client.
-     */
-    void disconnectCloud();
 
 
     // Cross component references
@@ -152,6 +154,7 @@ public interface JODCommunication {
      * Exceptions for local communication errors.
      */
     class LocalCommunicationException extends Throwable {
+
         public LocalCommunicationException(String msg) {
             super(msg);
         }
@@ -159,12 +162,14 @@ public interface JODCommunication {
         public LocalCommunicationException(String msg, Throwable e) {
             super(msg, e);
         }
+
     }
 
     /**
      * Exceptions for cloud communication errors.
      */
     class CloudCommunicationException extends Throwable {
+
         public CloudCommunicationException(String msg) {
             super(msg);
         }
@@ -172,17 +177,20 @@ public interface JODCommunication {
         public CloudCommunicationException(String msg, Throwable e) {
             super(msg, e);
         }
+
     }
 
     /**
      * Exceptions for cloud communication errors.
      */
     class MissingPermissionException extends Throwable {
+
         private static final String MSG = "Can't elaborate '%s' request because missing permission on service '%s' / user '%s'";
 
         public MissingPermissionException(String reqType, String srvId, String usrId) {
             super(String.format(MSG, reqType, srvId, usrId));
         }
+
     }
 
     class ServiceNotConnected extends Throwable {

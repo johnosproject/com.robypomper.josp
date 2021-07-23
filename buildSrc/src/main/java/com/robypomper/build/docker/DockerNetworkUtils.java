@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.build.docker;
 
@@ -54,13 +54,13 @@ public class DockerNetworkUtils {
     }
 
     /**
-     *  </pre>
-     *  task testTestNetwork(type: Exec) {
-     *      group 'docker maintenance'
-     *      commandLine('docker', 'network', 'inspect', 'rp-test' )
-     *      ignoreExitValue = true
-     *  }
-     *  </pre>
+     * </pre>
+     * task testTestNetwork(type: Exec) {
+     * group 'docker maintenance'
+     * commandLine('docker', 'network', 'inspect', networkName )
+     * ignoreExitValue = true
+     * }
+     * </pre>
      */
     static private Exec tryConfigureTestNetworkTask(Project project, String networkName) {
         String taskName = String.format("test%sNetwork", Naming.capitalize(networkName));
@@ -76,7 +76,7 @@ public class DockerNetworkUtils {
      *  </pre>
      *  task createTestNetwork(type: Exec) {
      *      group 'docker maintenance'
-     *      commandLine('docker', 'network', 'create', 'rp-test' )
+     *      commandLine('docker', 'network', 'create', networkName )
      *      dependsOn testTestNetwork
      *      onlyIf {
      *          testTestNetwork.getExecResult().getExitValue() != 0
@@ -98,7 +98,7 @@ public class DockerNetworkUtils {
      *  </pre>
      *  task removeTestNetworkSilent(type: Exec) {
      *      group 'docker maintenance'
-     *      commandLine('docker', 'network', 'rm', 'rp-test' )
+     *      commandLine('docker', 'network', 'rm', networkName )
      *      ignoreExitValue = true
      *  }
      *  </pre>
