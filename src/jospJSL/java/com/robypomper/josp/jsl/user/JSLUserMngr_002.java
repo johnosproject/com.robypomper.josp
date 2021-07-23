@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Service Library is the software library to connect "software"
  * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jsl.user;
 
 import com.robypomper.comm.exception.PeerConnectionException;
 import com.robypomper.comm.exception.PeerDisconnectionException;
 import com.robypomper.discovery.Discover;
+import com.robypomper.josp.callers.apis.core.users.Caller20;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.clients.JCPClient2;
-import com.robypomper.josp.callers.apis.core.users.Caller20;
 import com.robypomper.josp.defs.core.users.Params20;
 import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;

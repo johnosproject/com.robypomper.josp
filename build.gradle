@@ -1,7 +1,7 @@
-/* *****************************************************************************
+/*******************************************************************************
  * The John Operating System Project is the collection of software and configurations
  * to generate IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 plugins {
     id 'com.avast.gradle.docker-compose' //version '0.10.9'
@@ -57,13 +57,14 @@ repositories {
 apply from: 'gradle/spring_support.gradle'
 apply from: 'gradle/node_configs.gradle'
 
+apply from: 'gradle/build_publications_repo_PRE.gradle'
 apply from: 'gradle/build_commons.gradle'
 apply from: 'gradle/build_dockers.gradle'
 apply from: 'gradle/build_josp.gradle'
 apply from: 'gradle/build_jospcloud.gradle'
 apply from: 'gradle/build_josp_platform.gradle'
 apply from: 'gradle/build_tests.gradle'
-apply from: 'gradle/build_publications_repo.gradle'
+apply from: 'gradle/build_publications_repo_POST.gradle'
 
 if (tasks.findByName("wrapper")==null)
     task wrapper(type: Wrapper) {

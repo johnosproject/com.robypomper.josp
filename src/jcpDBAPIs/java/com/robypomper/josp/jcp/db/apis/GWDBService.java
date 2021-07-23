@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Cloud Platform set of infrastructure and software required to provide
+/*******************************************************************************
+ * The John Cloud Platform is the set of infrastructure and software required to provide
  * the "cloud" to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright 2020 Roberto Pompermaier
+ * Copyright 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,14 +15,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.jcp.db.apis;
 
 import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.types.josp.gw.GWType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

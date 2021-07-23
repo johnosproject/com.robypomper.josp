@@ -1,7 +1,7 @@
-/* *****************************************************************************
- * The John Object Daemon is the agent software to connect "objects"
- * to an IoT EcoSystem, like the John Operating System Platform one.
- * Copyright (C) 2020 Roberto Pompermaier
+/*******************************************************************************
+ * The John Operating System Project is the collection of software and configurations
+ * to generate IoT EcoSystem, like the John Operating System Platform one.
+ * Copyright (C) 2021 Roberto Pompermaier
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- **************************************************************************** */
+ ******************************************************************************/
 
 package com.robypomper.josp.callers.apis.core.gateways;
 
 import com.github.scribejava.core.model.Verb;
-import com.robypomper.josp.clients.*;
+import com.robypomper.josp.clients.AbsAPI;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.defs.core.gateways.Params20;
 import com.robypomper.josp.defs.core.gateways.Paths20;
 

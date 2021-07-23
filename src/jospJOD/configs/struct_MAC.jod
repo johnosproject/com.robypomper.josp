@@ -1,5 +1,5 @@
 {
-    "model": "MacOS JOSP Object",
+    "model": "MacOS JOSP Object (DEV)",
     "brand": "Apple Inc.",
     "descr": "A MacOS computer that expose his features to JOSP's services.",
     "descr_long": "This obect can be used to control remotely functions as system volume, lightning, keyboard, mouce...",
