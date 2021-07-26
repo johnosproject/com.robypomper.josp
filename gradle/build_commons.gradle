@@ -97,7 +97,8 @@ GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospCommons, (Stri
 String jospAPIsName = 'JOSP APIs Library'
 String jospAPIsArtifact = 'jospAPIs'
 String jospAPIsVersion = project.ext.get("version.build.jospAPIs")
-def jospAPIsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospAPIs,jospAPIsName,jospAPIsArtifact,jospAPIsVersion)
+String jospAPIsDescription = "This is the JOSP APIs library from John O.S. Project"
+def jospAPIsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospAPIs,jospAPIsName,jospAPIsArtifact,jospAPIsVersion,jospAPIsDescription)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
         .setArtifactOpens()
@@ -108,7 +109,8 @@ tasks.jospAPIsDocs.enabled = !project.ext.get("disableDocs");
 String jospCommonsName = 'JOSP Commons Library'
 String jospCommonsArtifact = 'jospCommons'
 String jospCommonsVersion = project.ext.get("version.build.jospCommons")
-def jospCommonsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospCommons,jospCommonsName,jospCommonsArtifact,jospCommonsVersion)
+String jospCommonsDescription = "This is the JOSP Commons library from John O.S. Project"
+def jospCommonsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospCommons,jospCommonsName,jospCommonsArtifact,jospCommonsVersion,jospCommonsDescription)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
         .setArtifactOpens()
