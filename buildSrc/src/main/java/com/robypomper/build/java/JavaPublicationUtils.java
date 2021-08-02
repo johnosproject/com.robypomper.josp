@@ -80,13 +80,14 @@ public class JavaPublicationUtils {
         public String licence;
         public String licenceUrl;
 
-        public Descriptor(SourceSet sourceSet, Configuration runtimeConfig, String groupId, String name, String artifact, String version) {
+        public Descriptor(SourceSet sourceSet, Configuration runtimeConfig, String groupId, String name, String artifact, String version, String description) {
             this.sourceSet = sourceSet;
             this.runtimeConfig = runtimeConfig;
             this.groupId = groupId;
             this.name = name;
             this.artifact = artifact;
             this.version = version;
+            this.description = description;
             this.executable = false;
             this.artifactDeps = false;
             //this.artifactFat = false;
@@ -94,12 +95,12 @@ public class JavaPublicationUtils {
             this.artifactSrc = false;
         }
 
-        public Descriptor(Project p, SourceSet sourceSet, String groupId, String name, String artifact, String version) {
-            this(sourceSet, p.getConfigurations().getByName(sourceSet.getImplementationConfigurationName()), groupId, name, artifact, version);
+        public Descriptor(Project p, SourceSet sourceSet, String groupId, String name, String artifact, String version, String description) {
+            this(sourceSet, p.getConfigurations().getByName(sourceSet.getImplementationConfigurationName()), groupId, name, artifact, version, description);
         }
 
-        public Descriptor(Project p, SourceSet sourceSet, String name, String artifact, String version) {
-            this(sourceSet, p.getConfigurations().getByName(sourceSet.getImplementationConfigurationName()), p.getGroup().toString(), name, artifact, version);
+        public Descriptor(Project p, SourceSet sourceSet, String name, String artifact, String version, String description) {
+            this(sourceSet, p.getConfigurations().getByName(sourceSet.getImplementationConfigurationName()), p.getGroup().toString(), name, artifact, version, description);
         }
 
         //
@@ -176,8 +177,8 @@ public class JavaPublicationUtils {
 
     // Class constants
 
-    public static final String CLASSIFIER_DOC = "doc";
-    public static final String CLASSIFIER_SRC = "src";
+    public static final String CLASSIFIER_DOC = "javadoc";
+    public static final String CLASSIFIER_SRC = "sources";
     public static final String CLASSIFIER_DEP = "deps";
     public static final String CLASSIFIER_FAT = "fat";
     public static final boolean JAVADOC_FAIL_ON_ERROR = false;

@@ -37,14 +37,14 @@ println "--------------------------"
 println "Building John O.S. Project"
 println "--------------------------"
 println "Mode:                  " + ext.get('jospMode')
-println "Project:"
+println "Project"
 println "- url:                 " + ext.get('projectUrl')
 println "- git:                 " + ext.get('projectGit')
 println "- git-url:             " + ext.get('projectGitUrl')
-println "JOSP Versions:"
+println "JOSP Versions"
 println "- default:             " + ext.get('version.build.josp') + " / " + ext.get('version.deps.josp') + "          (Building / Required)"
 //println "- JOSP APIs            " + ext.get('version.build.jospAPIs') + " / " + ext.get('version.deps.jospAPIs')
-println "JOSP Configs:"
+println "JOSP Build configs"
 println "- enablePrivate:       " + ext.get('enablePrivate')
 println "- disableDocs:         " + ext.get('disableDocs')
 

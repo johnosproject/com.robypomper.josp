@@ -149,7 +149,7 @@ def makeJODJavaRunnable(String runnableName, boolean isDaemon, String config_yml
                     rename 'jod(.+).yml', 'jod.yml'
                     rename 'struct(.+).jod', 'struct.jod'
                     rename 'perms(.+).jod', 'perms.jod'
-                    into workingDir
+                    into "$workingDir/configs"
                 }
         }
     }
@@ -301,7 +301,8 @@ makeJSLJavaRunnable('JmmDNS','discovery/jsl_jmmdns.yml','Discovery')
 String jospJODName = 'JOSP Object Daemon'
 String jospJODArtifact = 'jospJOD'
 String jospJODVersion = project.ext.get("version.build.jospJOD")
-def jospJODPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJOD,jospJODName,jospJODArtifact,jospJODVersion)
+String jospJODDescription = "This is the JOSP JOD executable from John O.S. Project"
+def jospJODPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJOD,jospJODName,jospJODArtifact,jospJODVersion,jospJODDescription)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
         .setExecutable()
@@ -314,7 +315,8 @@ tasks.jospJODDocs.enabled = !project.ext.get("disableDocs");
 String jospJSLName = 'JOSP Service Library'
 String jospJSLArtifact = 'jospJSL'
 String jospJSLVersion = project.ext.get("version.build.jospJSL")
-def jospJSLPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJSL,jospJSLName,jospJSLArtifact,jospJSLVersion)
+String jospJSLDescription = "This is the JOSP JSL library from John O.S. Project"
+def jospJSLPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jospJSL,jospJSLName,jospJSLArtifact,jospJSLVersion,jospJSLDescription)
         .setUrlsFromProject(project)
         .setLicenceGPLv3()
         .setExecutable()

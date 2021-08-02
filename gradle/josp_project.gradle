@@ -69,7 +69,7 @@ ext {
 
     // Customize version used for JOSP Components build
     //ext.set('OVERRIDE_jospBuildVersion',ext.get('jospVersions.CURRENT'))              // Default: NEXT if jospMode=DEV, CURRENT otherwise
-    ext.set('OVERRIDE_jospBuildClassifier','alpha')                                  // Default: 'DEV if jospMode=DEV, 'SNAPSHOT' if jospMode='STAGE, '' otherwise
+    //ext.set('OVERRIDE_jospBuildClassifier','alpha')                                  // Default: 'DEV if jospMode=DEV, 'SNAPSHOT' if jospMode='STAGE, '' otherwise
 
     // Customize version required for JOSP Components internal dependencies
     // (de-comment for first jospModes=DEV's build)
