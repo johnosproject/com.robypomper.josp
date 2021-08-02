@@ -385,7 +385,8 @@ bootJcpAllRun.dependsOn printGradleVersions
 String jcpCommonsName = 'JCP Commons'
 String jcpCommonsArtifact = 'jcpCommons'
 String jcpCommonsVersion = project.ext.get("version.build.jcpCommons")
-def jcpCommonsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpCommons, jcpCommonsName, jcpCommonsArtifact, jcpCommonsVersion)
+String jcpCommonsDescription = "This is the JCP Commons library from John O.S. Project"
+def jcpCommonsPubDesc = new JavaPublicationUtils.Descriptor(project,sourceSets.jcpCommons,jcpCommonsName,jcpCommonsArtifact,jcpCommonsVersion,jcpCommonsDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setArtifactOpens()
@@ -398,7 +399,8 @@ tasks.jcpCommonsDocs.enabled = !project.ext.get("disableDocs");
 String jcpDBName = 'JCP DB'
 String jcpDBArtifact = 'jcpDB'
 String jcpDBVersion = project.ext.get("version.build.jcpDB")
-def jcpDBPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpDB, jcpDBName, jcpDBArtifact, jcpDBVersion)
+String jcpDBDescription = "This is the JCP DB library from John O.S. Project"
+def jcpDBPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpDB, jcpDBName, jcpDBArtifact, jcpDBVersion, jcpDBDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setArtifactOpens()
@@ -411,7 +413,8 @@ tasks.jcpDBDocs.enabled = !project.ext.get("disableDocs");
 String jcpDBAPIsName = 'JCP DB APIs'
 String jcpDBAPIsArtifact = 'jcpDBAPIs'
 String jcpDBAPIsVersion = project.ext.get("version.build.jcpDBAPIs")
-def jcpDBAPIsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpDBAPIs, jcpDBAPIsName, jcpDBAPIsArtifact, jcpDBAPIsVersion)
+String jcpDBAPIsDescription = "This is the JCP DB APIs library LE from John O.S. Project"
+def jcpDBAPIsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpDBAPIs, jcpDBAPIsName, jcpDBAPIsArtifact, jcpDBAPIsVersion, jcpDBAPIsDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setArtifactOpens()
@@ -424,7 +427,8 @@ tasks.jcpDBAPIsDocs.enabled = !project.ext.get("disableDocs");
 String jcpDBFEName = 'JCP DB FE'
 String jcpDBFEArtifact = 'jcpDBFE'
 String jcpDBFEVersion = project.ext.get("version.build.jcpDBFE")
-def jcpDBFEPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpDBFE, jcpDBFEName, jcpDBFEArtifact, jcpDBFEVersion)
+String jcpDBFEDescription = "This is the JOSP DB FE library from John O.S. Project"
+def jcpDBFEPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpDBFE, jcpDBFEName, jcpDBFEArtifact, jcpDBFEVersion, jcpDBFEDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setArtifactOpens()
@@ -437,7 +441,8 @@ tasks.jcpDBFEDocs.enabled = !project.ext.get("disableDocs");
 String jcpServiceName = 'JCP Service'
 String jcpServiceArtifact = 'jcpService'
 String jcpServiceVersion = project.ext.get("version.build.jcpService")
-def jcpServicePubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpService, jcpServiceName, jcpServiceArtifact, jcpServiceVersion)
+String jcpServiceDescription = "This is the JCP Service library from John O.S. Project"
+def jcpServicePubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpService, jcpServiceName, jcpServiceArtifact, jcpServiceVersion, jcpServiceDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setArtifactOpens()
@@ -450,7 +455,8 @@ tasks.jcpServiceDocs.enabled = !project.ext.get("disableDocs");
 String jcpAPIsName = 'JCP APIs'
 String jcpAPIsArtifact = 'jcpAPIs'
 String jcpAPIsVersion = project.ext.get("version.build.jcpAPIs")
-def jcpAPIsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpAPIs, jcpAPIsName, jcpAPIsArtifact, jcpAPIsVersion)
+String jcpAPIsDescription = "This is the JCP APIs executable from John O.S. Project"
+def jcpAPIsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpAPIs, jcpAPIsName, jcpAPIsArtifact, jcpAPIsVersion, jcpAPIsDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setExecutable()
@@ -464,7 +470,8 @@ tasks.jcpAPIsDocs.enabled = !project.ext.get("disableDocs");
 String jcpGWsName = 'JCP GWs'
 String jcpGWsArtifact = 'jcpGWs'
 String jcpGWsVersion = project.ext.get("version.build.jcpGWs")
-def jcpGWsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpGWs, jcpGWsName, jcpGWsArtifact, jcpGWsVersion)
+String jcpGWsDescription = "This is the JCP Gateway executable from John O.S. Project"
+def jcpGWsPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpGWs, jcpGWsName, jcpGWsArtifact, jcpGWsVersion, jcpGWsDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setExecutable()
@@ -478,7 +485,8 @@ tasks.jcpGWsDocs.enabled = !project.ext.get("disableDocs");
 String jcpJSLWebBridgeName = 'JCP JSL Web Bridge'
 String jcpJSLWebBridgeArtifact = 'jcpJSLWebBridge'
 String jcpJSLWebBridgeVersion = project.ext.get("version.build.jcpJSLWebBridge")
-def jcpJSLWebBridgePubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpJSLWebBridge, jcpJSLWebBridgeName, jcpJSLWebBridgeArtifact, jcpJSLWebBridgeVersion)
+String jcpJSLWebBridgeDescription = "This is the JCP JSL Web Bridge executable from John O.S. Project"
+def jcpJSLWebBridgePubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpJSLWebBridge, jcpJSLWebBridgeName, jcpJSLWebBridgeArtifact, jcpJSLWebBridgeVersion, jcpJSLWebBridgeDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setExecutable()
@@ -492,7 +500,8 @@ tasks.jcpJSLWebBridgeDocs.enabled = !project.ext.get("disableDocs");
 String jcpFEName = 'JCP Front End'
 String jcpFEArtifact = 'jcpFE'
 String jcpFEVersion = project.ext.get("version.build.jcpFE")
-def jcpFEPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpFE, jcpFEName, jcpFEArtifact, jcpFEVersion)
+String jcpFEDescription = "This is the JCP Front End executable from John O.S. Project"
+def jcpFEPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpFE, jcpFEName, jcpFEArtifact, jcpFEVersion, jcpFEDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setExecutable()
@@ -506,7 +515,8 @@ tasks.jcpFEDocs.enabled = !project.ext.get("disableDocs");
 String jcpAllName = 'JCP All'
 String jcpAllArtifact = 'jcpAll'
 String jcpAllVersion = project.ext.get("version.build.jcpAll")
-def jcpAllPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpAll, jcpAllName, jcpAllArtifact, jcpAllVersion)
+String jcpAllDescription = "This is the JCP All executable from John O.S. Project"
+def jcpAllPubDesc = new JavaPublicationUtils.Descriptor(project, sourceSets.jcpAll, jcpAllName, jcpAllArtifact, jcpAllVersion, jcpAllDescription)
         .setUrlsFromProject(project)
         .setLicenceAGPLv3()
         .setExecutable()

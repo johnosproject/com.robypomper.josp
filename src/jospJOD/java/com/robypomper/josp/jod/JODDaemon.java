@@ -46,7 +46,7 @@ public class JODDaemon {
     private static final String ARG_CONFIGS_FILE = "configs";
     private static final String ARG_CONFIGS_FILE_SHORT = "c";
     private static final String ARG_CONFIGS_FILE_DESCR = "specify JOD config file path (default: jod.yml)";
-    private static final String ARGS_DEF_CONFIGS_FILE = "jod.yml";
+    private static final String ARGS_DEF_CONFIGS_FILE = "configs/jod.yml";
 
 
     // Exit codes

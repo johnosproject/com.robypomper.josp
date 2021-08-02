@@ -59,10 +59,10 @@ public class JODSettings_002 extends DefaultSettings implements JOD.Settings {
     public static final String JODEXECUTOR_IMPLS_DEF    = "";
 
     public static final String JODSTRUCT_PATH           = "jod.structure.path";
-    public static final String JODSTRUCT_PATH_DEF       = "struct.jod";
+    public static final String JODSTRUCT_PATH_DEF       = "configs/struct.jod";
 
     public static final String JODPERM_PATH             = "jod.permissions.path";
-    public static final String JODPERM_PATH_DEF         = "perms.jod";
+    public static final String JODPERM_PATH_DEF         = "configs/perms.jod";
     public static final String JODPERM_REFRESH          = "jod.permissions.refresh";
     public static final String JODPERM_REFRESH_DEF      = "30";
     public static final String JODPERM_GENSTARTEGY      = "jod.permissions.generation_strategy";
