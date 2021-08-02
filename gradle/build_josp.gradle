@@ -149,7 +149,7 @@ def makeJODJavaRunnable(String runnableName, boolean isDaemon, String config_yml
                     rename 'jod(.+).yml', 'jod.yml'
                     rename 'struct(.+).jod', 'struct.jod'
                     rename 'perms(.+).jod', 'perms.jod'
-                    into workingDir
+                    into "$workingDir/configs"
                 }
         }
     }
