@@ -60,9 +60,9 @@ ext {
     set('projectGitUrl', 'https://bitbucket.org/johnosproject_shared/com.robypomper.josp')
 
     // Preset build modes for JOSP Project
-    //set('jospMode', ext.get('jospModes.DEV'))           // on first build, set jospDependenciesVersion=CURRENT
+    set('jospMode', ext.get('jospModes.DEV'))           // on first build, set jospDependenciesVersion=CURRENT
     //set('jospMode', ext.get('jospModes.STAGE'))
-    set('jospMode', ext.get('jospModes.RELEASE'))
+    //set('jospMode', ext.get('jospModes.RELEASE'))
 
     // Set true to enable private tasks (require $USER_HOME/.gradle/properties.gradle file)
     set('OVERRIDE_enablePrivate', false)
