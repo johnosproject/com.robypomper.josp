@@ -78,7 +78,7 @@ public class JavaJKS {
             // keytool -genkey -noprompt -keyalg RSA -keysize 2048 -alias alias1 -dname 'CN=CommonNameXY,OU=ID,O=IBM,L=Hursley,S=Hants,C=GB' -keystore keytore -deststoretype pkcs12 -keypass changeit -storepass changeit
             // keytool -genkey -noprompt -keyalg RSA -keysize 2048 -alias serverCertId -dname 'CN=serverCertId,OU=ID,O=IBM,L=Hursley,S=Hants,C=GB' -keystore /var/folders/b3/j2w969b52rb62zz86bwg20fm0000gn/T/tmpks5392130243111193632 -deststoretype pkcs12 -storepass '' -keypass ''
             String genKeyStore = String.format("keytool -genkey -noprompt -keyalg %s -keysize %d -validity %d -alias %s -dname 'CN=%s,OU=com.robypomper.comm,O=John,L=Trento,S=TN,C=IT' -keystore %s -deststoretype pkcs12 -storepass '%s' -keypass '%s'", SIGING_ALG, KEY_SIZE, CERT_VALIDITY_DAYS, certAlias, certificateID, tmpKeyStoreFile.getAbsolutePath(), ksPass, ksPass);
-            JavaExecProcess.execCmd(genKeyStore);
+            JavaExecProcess.execCmd(genKeyStore, JavaExecProcess.DEF_TIMEOUT * 5);
             if (!tmpKeyStoreFile.exists())
                 throw new GenerationException(String.format("Error on generating keystore for '%s' commonName, temporary keysyore not created", certificateID));
 
