@@ -52,7 +52,7 @@ jod.executor_mngr.executors:
 
 # JODPERM_PATH_DEF         = "configs/perms.jod";
 #jod.permissions.path: 'configs/perms.jod'
-# JODPERM_REFRESH_DEF      = "300";
+# JODPERM_REFRESH_DEF      = "30";
 #jod.permissions.refresh: '30'
 # JODPERM_GENSTARTEGY_DEF  = "standard";
 #jod.permissions.generation_strategy: 'standard'
