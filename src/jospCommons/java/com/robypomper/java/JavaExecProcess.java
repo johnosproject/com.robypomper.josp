@@ -34,10 +34,19 @@ public class JavaExecProcess {
 
     private static final String SHELL_BIN_SH = "/bin/sh";
     private static final String SHELL_BIN_BASH = "/bin/bash";
+    private static final String SHELL_BIN_WIN_CMD = "cmd";
+    private static final String SHELL_BIN_WIN_PS = "powershell";
+
+    private static final String SHELL_ARG_SH = "-c";
+    private static final String SHELL_ARG_BASH = "-c";
+    private static final String SHELL_ARG_WIN_CMD = "/c";
+    private static final String SHELL_ARG_WIN_PS = "-c";
+
     /**
      * Default shell's bin path.
      */
-    private static final String DEF_SHELL_BIN = SHELL_BIN_SH;
+    private static final String DEF_SHELL_BIN = autoDetectShellBin();
+    private static final String DEF_SHELL_ARG = autoDetectShellArg();
 
     /**
      * Default timeout in ms for cmd execution.
@@ -96,7 +105,11 @@ public class JavaExecProcess {
     public static String execCmd(String cmd, int timeoutMs) throws IOException, ExecStillAliveException {
         Process process = createAndRunProcess(cmd);
         waitTerminate(process, cmd, timeoutMs);
-        return readProcessOutput(process);
+
+        String output = readProcessOutput(process);
+        if (output.isEmpty())
+            output = readProcessError(process);
+        return output;
     }
 
 
@@ -172,7 +185,7 @@ public class JavaExecProcess {
     // Execution utils
 
     private static Process createAndRunProcess(String cmd) throws IOException {
-        ProcessBuilder pBuild = new ProcessBuilder(getShellBin(), "-c", cmd);
+        ProcessBuilder pBuild = new ProcessBuilder(getShellBin(), getShellArg(), cmd);
         return pBuild.start();
     }
 
@@ -187,7 +200,15 @@ public class JavaExecProcess {
     }
 
     private static String readProcessOutput(Process process) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        return readProcessStream(process, process.getInputStream());
+    }
+
+    private static String readProcessError(Process process) throws IOException {
+        return readProcessStream(process, process.getErrorStream());
+    }
+
+    private static String readProcessStream(Process process, InputStream stream) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
 
         StringBuilder sb = new StringBuilder();
         String line;
@@ -200,6 +221,7 @@ public class JavaExecProcess {
     // Configs
 
     private static String shellBin = DEF_SHELL_BIN;
+    private static String shellArg = DEF_SHELL_ARG;
 
     /**
      * This method allow to change default shell binary.
@@ -219,6 +241,41 @@ public class JavaExecProcess {
      */
     public static String getShellBin() {
         return shellBin;
+    }
+
+    /**
+     * This method allow to change default shell argument.
+     *
+     * @param arg the first argument for the shell to run a command (pe: '-c' or '\\c').
+     */
+    public static void setShellArg(String arg) {
+        shellArg = arg;
+    }
+
+    /**
+     * @return current shell argument.
+     */
+    public static String getShellArg() {
+        return shellArg;
+    }
+
+
+    // Shell detection methods
+
+    private static String autoDetectShellBin() {
+        String os = System.getProperty("os.name");
+        if (os.startsWith("Windows"))
+            return SHELL_BIN_WIN_PS;
+        else
+            return SHELL_BIN_BASH;
+    }
+
+    private static String autoDetectShellArg() {
+        String os = System.getProperty("os.name");
+        if (os.startsWith("Windows"))
+            return SHELL_ARG_WIN_PS;
+        else
+            return SHELL_ARG_BASH;
     }
 
 
