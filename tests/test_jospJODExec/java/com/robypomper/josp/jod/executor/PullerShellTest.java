@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class PullerUnixShellTest {
+public class PullerShellTest {
 
     @Test
     public void pullerTest() throws InterruptedException, JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
@@ -39,7 +39,7 @@ public class PullerUnixShellTest {
 
 
         System.out.println("\nCREATE AND START PULLER FOR UNIX SHELL");
-        PullerUnixShell l = execCommand(configs, latch);
+        PullerShell l = execCommand(configs, latch);
 
         System.out.println("\nWAIT UNIX SHELL EXECUTION");
         Assertions.assertTrue(latch.await(10, TimeUnit.SECONDS));
@@ -50,12 +50,12 @@ public class PullerUnixShellTest {
 
     @Test
     public void pullerTestViaFile() throws InterruptedException, IOException, JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
-        String filePath = "pullerUnixShellTest.txt";
+        String filePath = "pullerShellTest.txt";
         String configs = "cmd=cat " + filePath;
         CountDownLatch latch = new CountDownLatch(1);
 
         System.out.println("\nCREATE AND START PULLER FOR UNIX SHELL");
-        PullerUnixShell l = execCommand(configs, latch);
+        PullerShell l = execCommand(configs, latch);
 
         System.out.println("\nUPDATE FILE");
         JavaFiles.writeString(filePath, "new state value " + new Date());
@@ -68,11 +68,11 @@ public class PullerUnixShellTest {
     }
 
 
-    public PullerUnixShell execCommand(String configs, CountDownLatch latch) throws JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
+    public PullerShell execCommand(String configs, CountDownLatch latch) throws JODWorker.MissingPropertyException, JODWorker.ParsingPropertyException {
         String name = "pullerTest";
         String proto = "shell";
 
-        PullerUnixShell l = new PullerUnixShell(name, proto, configs, null) {
+        PullerShell l = new PullerShell(name, proto, configs, null) {
             @Override
             protected boolean convertAndSetStatus(String newStatus) {
                 System.out.println("Status received: " + newStatus);
