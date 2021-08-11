@@ -202,4 +202,31 @@ public class JavaFiles {
         myWriter.close();
     }
 
+
+    // Manage path for specific platforms
+
+    /**
+     * Convert given <code>path</code> to a valid Windows's path.
+     * <p>
+     * Replace all dirs names that contains spaces with double quote version
+     * and all '/' separators with the double '\\' separator.
+     * <p>
+     * This method is used to onvert regular java path to valid windows path
+     * (to use with windows tools like shells, etc..).
+     *
+     * @param path the java path to convert.
+     * @return converted path for Windows conventions.
+     */
+    public static String toWindowsPath(String path) {
+        //String path = "C:\\Documents and Settings\\Manoj\\Desktop";
+        path = path.replace("/", "\\");
+        StringBuilder path_result = new StringBuilder();
+        for (String s : path.split("\\\\")) {
+            if (s.contains(" "))
+                s = "'" + s + "'";
+            path_result.append("\\").append(s);
+        }
+        path_result = new StringBuilder(path_result.substring(1));
+        return path_result.toString();
+    }
 }
