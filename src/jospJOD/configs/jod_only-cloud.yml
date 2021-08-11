@@ -29,7 +29,7 @@ jcp.client.secret: '2d1f9b96-70d3-443b-b21b-08a401ddc16c'
 # JODPULLER_IMPLS_DEF      = "";
 jod.executor_mngr.pullers:
   'tstP://com.robypomper.josp.jod.executor.PullerTest
-   shell://com.robypomper.josp.jod.executor.PullerUnixShell
+   shell://com.robypomper.josp.jod.executor.PullerShell
    http://com.robypomper.josp.jod.executor.impls.http.PullerHTTP'
 jod.executor_mngr.listeners:
   'tstL://com.robypomper.josp.jod.executor.ListenerTest
@@ -37,7 +37,7 @@ jod.executor_mngr.listeners:
    file://com.robypomper.josp.jod.executor.ListenerFiles'
 jod.executor_mngr.executors:
   'tstE://com.robypomper.josp.jod.executor.ExecutorTest
-   shell://com.robypomper.josp.jod.executor.ExecutorUnixShell
+   shell://com.robypomper.josp.jod.executor.ExecutorShell
    file://com.robypomper.josp.jod.executor.ExecutorFiles
    http://com.robypomper.josp.jod.executor.impls.http.ExecutorHTTP'
 
