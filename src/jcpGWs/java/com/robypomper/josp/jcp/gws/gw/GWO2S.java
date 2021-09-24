@@ -72,7 +72,9 @@ public class GWO2S extends GWAbs {
 
     @Override
     protected void onClientConnection(ServerClient client) {
-        log.info(String.format("JOD Object '%s' connected to JCP GW '%s'", client.getRemoteId(), getId()));
+        InetAddress remAddr = client.getConnectionInfo().getRemoteInfo().getAddr();
+        int remPort = client.getConnectionInfo().getRemoteInfo().getPort();
+        log.info(String.format("JOD Object '%s' connected to JCP GW '%s' (remote peer: '%s:%d')", client.getRemoteId(), getId(), remAddr.getHostAddress(), remPort));
 
         if (jodGWClients.get(client.getRemoteId()) != null) {
             disconnectBecauseError(client, "already connected");
@@ -87,7 +89,9 @@ public class GWO2S extends GWAbs {
 
     @Override
     protected void onClientDisconnection(ServerClient client) {
-        log.info(String.format("JOD Object '%s' disconnected from JCP GW '%s'", client.getRemoteId(), getId()));
+        InetAddress remAddr = client.getConnectionInfo().getRemoteInfo().getAddr();
+        int remPort = client.getConnectionInfo().getRemoteInfo().getPort();
+        log.info(String.format("JOD Object '%s' disconnected from JCP GW '%s' (remote peer: '%s:%d')", client.getRemoteId(), getId(), remAddr.getHostAddress(), remPort));
 
         if (jodGWClients.get(client.getRemoteId()) == null)
             return;
