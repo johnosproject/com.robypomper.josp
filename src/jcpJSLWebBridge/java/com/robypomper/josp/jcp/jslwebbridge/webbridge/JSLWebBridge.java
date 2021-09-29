@@ -214,11 +214,6 @@ public class JSLWebBridge {
     }
 
     public void destroyJSL(String sessionId) {
-        Map<String, SseEmitter> emitters = new HashMap<>(jslEmitters.get(sessionId));
-        if (emitters.size() > 0)
-            for (SseEmitter emitter : emitters.values())
-                destroySSEEmitter(sessionId, getClientFullAddress(emitter));
-
         JSL jsl;
         try {
             jsl = getJSL(sessionId);
@@ -227,6 +222,11 @@ public class JSLWebBridge {
             JavaAssertions.makeWarning_Failed(e, String.format(ASSERTION_NO_JSL, "destroyJSL", sessionId));
             return;
         }
+
+        Map<String, SseEmitter> emitters = new HashMap<>(jslEmitters.get(sessionId));
+        if (emitters.size() > 0)
+            for (SseEmitter emitter : emitters.values())
+                destroySSEEmitter(sessionId, getClientFullAddress(emitter));
 
         deregisterJSLEvents(jsl);
 
