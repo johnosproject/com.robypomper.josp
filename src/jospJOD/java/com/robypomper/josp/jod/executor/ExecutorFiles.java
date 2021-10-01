@@ -64,7 +64,7 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
     // Constructor
 
     /**
-     * Default ExecutorUnixShell constructor.
+     * Default ExecutorFile constructor.
      *
      * @param name       name of the executor.
      * @param proto      proto of the executor.

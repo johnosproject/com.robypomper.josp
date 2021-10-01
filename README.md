@@ -1,8 +1,12 @@
 **This is the main repository of the Open Source John O.S. Project.**
 
+* Current version: 2.2.1</td></tr>
+* References: [JOSP Components @ JOSP Docs](href="https://www.johnosproject.org/docs/References/JOSP_Components/Home)
+* Repository: [com.robypomper.josp @ Bitbucket](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/master/)
+
 ![John O.S. Project Logo](docs/media/logo_text_full_500.png "John O.S. Project")
 
-The **John O.S. Project simplify the design and build process of modern Internet of Things solutions**:
+**The John O.S. Project simplify the design and build process of modern Internet of Things solutions**:
 
 * reduces smart object's creation a 5 minutes activity, even without coding skills
 * it's possible integrate any kind of connected object, regardless of communication protocol used by the object
@@ -25,8 +29,7 @@ This project also provides Tools to help makers and developers to speed up IoT o
 
 **Note:** These docs are intended for JOSP developers. Makers, Developers and End Users can look at the **[JOSP Project's Documentation](https://www.johnosproject.org/docs/)**.
 
-JOSP's developers can found more info about the [JOSP project](docs/overview.md)
-and his [development](docs/development.md) in this documentation. For a rapid IoT EcoSystem startup, read next chapter.
+JOSP's developers can find more info about the [JOSP project](docs/overview.md) and his [development](docs/development.md) in this pages. For a rapid IoT EcoSystem startup, read next chapter.
 
 ----
 
@@ -151,12 +154,13 @@ John Operating System Project provided softwares must communicate togheter and w
 | [JSL APIs Ver](docs/josp/internal_versions.md#JSL-APIs)         | 1.0    |     1st JCP JSL Web Bridge's API version
 | [JOD Executors](docs/josp/internal_versions.md#JOD-Executor)    | 2a     |     JOSP>2 Executors>a
 | [JOD Structure](docs/josp/internal_versions.md#JOD-Structure)   | 2a     |     JOSP>2 Structure>a
-| [JSL Interface](docs/josp/internal_versions.md#JSL-Interface)   | 2.2.0  |     Same as current release
+| [JSL Interface](docs/josp/internal_versions.md#JSL-Interface)   | 2.2.0  |     Same as current (?mayor?) release
 
-All components from current source code's release are build with **2.2.0** version.
+All components from current source code's release are build with **2.2.1** version.
 
 **Older version of JOSP source code:**
 
+* v [2.2.1](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.1/)
 * v [2.2.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.0/)
 * v [2.1.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.1.0/)
 * v [2.0.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.0.0/)

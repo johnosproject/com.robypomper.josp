@@ -23,6 +23,7 @@ import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -75,12 +76,14 @@ public class JavaJKS {
 
         KeyStore ks;
         try {
-            // keytool -genkey -noprompt -keyalg RSA -keysize 2048 -alias alias1 -dname 'CN=CommonNameXY,OU=ID,O=IBM,L=Hursley,S=Hants,C=GB' -keystore keytore -deststoretype pkcs12 -keypass changeit -storepass changeit
-            // keytool -genkey -noprompt -keyalg RSA -keysize 2048 -alias serverCertId -dname 'CN=serverCertId,OU=ID,O=IBM,L=Hursley,S=Hants,C=GB' -keystore /var/folders/b3/j2w969b52rb62zz86bwg20fm0000gn/T/tmpks5392130243111193632 -deststoretype pkcs12 -storepass '' -keypass ''
-            String genKeyStore = String.format("keytool -genkey -noprompt -keyalg %s -keysize %d -validity %d -alias %s -dname 'CN=%s,OU=com.robypomper.comm,O=John,L=Trento,S=TN,C=IT' -keystore %s -deststoretype pkcs12 -storepass '%s' -keypass '%s'", SIGING_ALG, KEY_SIZE, CERT_VALIDITY_DAYS, certAlias, certificateID, tmpKeyStoreFile.getAbsolutePath(), ksPass, ksPass);
-            JavaExecProcess.execCmd(genKeyStore);
-            if (!tmpKeyStoreFile.exists())
-                throw new GenerationException(String.format("Error on generating keystore for '%s' commonName, temporary keysyore not created", certificateID));
+            String genKeyStoreDir = Paths.get(System.getProperty("java.home"), "bin/keytool").toString();
+            if (System.getProperty("os.name").startsWith("Windows"))
+                genKeyStoreDir = JavaFiles.toWindowsPath(genKeyStoreDir);
+            String genKeyStore = genKeyStoreDir + String.format(" -genkey -noprompt -keyalg %s -keysize %d -validity %d -alias %s -dname 'CN=%s,OU=com.robypomper.comm,O=John,L=Trento,S=TN,C=IT' -keystore %s -deststoretype pkcs12 -storepass '%s' -keypass '%s'", SIGING_ALG, KEY_SIZE, CERT_VALIDITY_DAYS, certAlias, certificateID, tmpKeyStoreFile.getAbsolutePath(), ksPass, ksPass);
+            String output = JavaExecProcess.execCmd(genKeyStore, JavaExecProcess.DEF_TIMEOUT * 5).trim();
+            if (!tmpKeyStoreFile.exists()) {
+                throw new GenerationException(String.format("Error on generating keystore for '%s' commonName, temporary keystore not create because '%s'", certificateID, output));
+            }
 
             ks = loadKeyStore(tmpKeyStoreFile.getAbsolutePath(), ksPass);
 

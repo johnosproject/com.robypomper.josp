@@ -180,7 +180,7 @@ public class Broker implements BrokerJOD, BrokerJSL, BrokerObjDB {
             send(obj, gwService.getId(), obj.getMsgOBJ_PERM(), JOSPPerm.Type.CoOwner);
         }
 
-        log.info(String.format("Registered service '%s' to broker", gwService.getId()));
+        log.info(String.format("Registered service '%s' to broker %d/%d/%d (online/total/service-available)", gwService.getId(), registeredObjs.size(), registeredObjsDB.size(), allowedObjects.size()));
         log.trace(String.format("          available objects      [%s]", String.join(", ", registeredObjs.keySet())));
         log.trace(String.format("          available objects (DB) [%s]", String.join(", ", registeredObjsDB.keySet())));
         log.trace(String.format("          allowed objects        [%s]", String.join(", ", allowedObjects.keySet())));

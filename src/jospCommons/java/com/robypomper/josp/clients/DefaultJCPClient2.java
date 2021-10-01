@@ -729,7 +729,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
             return false;
 
         try {
-            accessToken = service.refreshAccessToken(cliCred_refreshToken);
+            accessToken = service.refreshAccessToken(authCode_refreshToken);
             log.debug(String.format("JCP Client '%s' refreshed access token via AuthCode flow.", getApiName()));
 
         } catch (OAuth2AccessTokenErrorResponse | IOException | InterruptedException | ExecutionException ignore) {
