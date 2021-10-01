@@ -1,6 +1,6 @@
 **This is the main repository of the Open Source John O.S. Project.**
 
-* Current version: 2.2.0</td></tr>
+* Current version: 2.2.1</td></tr>
 * References: [JOSP Components @ JOSP Docs](href="https://www.johnosproject.org/docs/References/JOSP_Components/Home)
 * Repository: [com.robypomper.josp @ Bitbucket](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/master/)
 
@@ -156,10 +156,11 @@ John Operating System Project provided softwares must communicate togheter and w
 | [JOD Structure](docs/josp/internal_versions.md#JOD-Structure)   | 2a     |     JOSP>2 Structure>a
 | [JSL Interface](docs/josp/internal_versions.md#JSL-Interface)   | 2.2.0  |     Same as current (?mayor?) release
 
-All components from current source code's release are build with **2.2.0** version.
+All components from current source code's release are build with **2.2.1** version.
 
 **Older version of JOSP source code:**
 
+* v [2.2.1](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.1/)
 * v [2.2.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.0/)
 * v [2.1.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.1.0/)
 * v [2.0.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.0.0/)
