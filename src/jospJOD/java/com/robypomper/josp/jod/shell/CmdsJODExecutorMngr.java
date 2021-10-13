@@ -293,18 +293,4 @@ public class CmdsJODExecutorMngr {
         return String.format("Executor '%s' disabled successfully.", name);
     }
 
-
-    // exec > Executor
-
-    @Command(description = "Execute JOD Executor action.")
-    public String execActionExecutor(@Param(name = "name", description = "Name of the executor to exec") String name) {
-        if (!executors.containsKey(name))
-            return String.format("No Executor with '%s' name.", name);
-
-        if (executors.get(name).exec())
-            return String.format("Executor '%s' exec successfully.", name);
-        else
-            return String.format("Executor '%s' not exec because disabled.", name);
-    }
-
 }

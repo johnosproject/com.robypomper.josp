@@ -70,16 +70,13 @@ public abstract class AbsJODExecutor extends AbsJODWorker implements JODExecutor
             return false;
         }
 
-        if (!subExec()) {
-            log.warn(Mrk_JOD.JOD_EXEC_SUB, String.format("Error on executing '%s' executor action because returned false", getName()));
-            return false;
-        }
+        // Do something...
+        log.trace(Mrk_JOD.JOD_EXEC_SUB, "Do something...");
+
 
         log.debug(Mrk_JOD.JOD_EXEC_SUB, String.format("Executor '%s' executed", getName()));
         return true;
     }
-
-    protected abstract boolean subExec();
 
 
     // Mngm

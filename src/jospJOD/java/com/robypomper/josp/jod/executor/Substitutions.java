@@ -62,7 +62,7 @@ public class Substitutions {
     // Action substitution placeholders
     // Generic
     public static final String ACTION_VAL               = "%VAL%";
-    public static final String ACTION_VAL_OLD           = "%VAL%";
+    public static final String ACTION_VAL_OLD           = "%VAL_OLD%";
     public static final String ACTION_SRV_ID            = "%SRV_ID%";
     public static final String ACTION_USR_ID            = "%USR_ID%";
     // Boolean
@@ -70,13 +70,13 @@ public class Substitutions {
     public static final String ACTION_VAL_OLD_BOOL      = "%VAL_OLD_BOOL%";
     public static final String ACTION_VAL_BIN           = "%VAL_BIN%";
     public static final String ACTION_VAL_OLD_BIN       = "%VAL_OLD_BIN%";
-    public static final String ACTION_VAL_INT           = "%VAL_INT%";
-    public static final String ACTION_VAL_OLD_INT       = "%VAL_OLD_INT%";
     // Range
     public static final String ACTION_VAL_COMMA         = "%VAL_COMMA%";
     public static final String ACTION_VAL_OLD_COMMA     = "%VAL_OLD_COMMA%";
     public static final String ACTION_VAL_POINT         = "%VAL_POINT%";
     public static final String ACTION_VAL_OLD_POINT     = "%VAL_OLD_POINT%";
+    public static final String ACTION_VAL_INT           = "%VAL_INT%";
+    public static final String ACTION_VAL_OLD_INT       = "%VAL_OLD_INT%";
     //@formatter:on
 
 

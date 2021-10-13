@@ -56,15 +56,6 @@ public class ExecutorTest extends AbsJODExecutor implements JODBooleanAction.JOS
     // Mngm
 
     /**
-     * Exec action method: print a log messages and return <code>true</code>.
-     */
-    @Override
-    protected boolean subExec() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorTest for component '%s' of proto '%s' exec", getName(), getProto()));
-        return true;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
