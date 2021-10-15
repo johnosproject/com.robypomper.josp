@@ -579,12 +579,26 @@ public abstract class PeerAbs implements Peer {
         log.warn(String.format("Peer '%s' failed '%s'", getLocalId(), failMsg));
 
         Throwable finalException = exception != null ? exception : new Throwable(failMsg);
-        JavaListeners.emitter(this, listenersConnection, "onFail", new JavaListeners.ListenerMapper<PeerConnectionListener>() {
-            @Override
-            public void map(PeerConnectionListener l) {
-                l.onFail(PeerAbs.this, failMsg, finalException);
-            }
-        });
+        JavaListeners.emitter(this, listenersConnection, "onFail", new OnFailListenerMapper(PeerAbs.this, failMsg, finalException));
+    }
+
+    private static class OnFailListenerMapper implements JavaListeners.ListenerMapper<PeerConnectionListener> {
+
+        private final PeerAbs peerAbs;
+        private final String failMsg;
+        private final Throwable finalException;
+
+        public OnFailListenerMapper(PeerAbs peerAbs, String failMsg, Throwable finalException) {
+            this.peerAbs = peerAbs;
+            this.failMsg = failMsg;
+            this.finalException = finalException;
+        }
+
+        @Override
+        public void map(PeerConnectionListener l) {
+            l.onFail(peerAbs, failMsg, finalException);
+        }
+
     }
 
     @Override

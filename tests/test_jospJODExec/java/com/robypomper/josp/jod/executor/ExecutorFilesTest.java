@@ -48,7 +48,7 @@ public class ExecutorFilesTest {
         JOSPProtocol.ActionCmd commandAction = new MockActionCmd();
 
         System.out.println("\nEXECUTE RANGE ACTION");
-        String updStr = ExecutorUnixShellTest.formatUpdStr(true, false);
+        String updStr = ExecutorShellTest.formatUpdStr(true, false);
         JODBooleanAction.JOSPBoolean cmdActionBoolean = new JODBooleanAction.JOSPBoolean(updStr);
         e.exec(commandAction, cmdActionBoolean);
         Thread.sleep(1000);
@@ -56,7 +56,7 @@ public class ExecutorFilesTest {
         Assertions.assertTrue(JavaFormatter.strToBoolean(readFile));
 
         System.out.println("\nEXECUTE RANGE ACTION");
-        updStr = ExecutorUnixShellTest.formatUpdStr(5.33, 0.0);
+        updStr = ExecutorShellTest.formatUpdStr(5.33, 0.0);
         JODRangeAction.JOSPRange cmdActionRange = new JODRangeAction.JOSPRange(updStr);
         e.exec(commandAction, cmdActionRange);
         Thread.sleep(1000);

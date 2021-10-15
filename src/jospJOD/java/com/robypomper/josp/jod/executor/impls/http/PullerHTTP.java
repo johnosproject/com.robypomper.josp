@@ -19,6 +19,7 @@
 
 package com.robypomper.josp.jod.executor.impls.http;
 
+import com.robypomper.java.JavaDate;
 import com.robypomper.josp.clients.HTTPClient;
 import com.robypomper.josp.jod.executor.AbsJODPuller;
 import com.robypomper.josp.jod.structure.JODComponent;
@@ -28,6 +29,8 @@ import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 import com.robypomper.log.Mrk_JOD;
 
 import java.net.MalformedURLException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -35,10 +38,15 @@ import java.util.Map;
  * JOD Puller test.
  */
 public class PullerHTTP extends AbsJODPuller {
-
+    class CachedResponse {
+        Date date;
+        String response;
+    }
     // Class constants
 
     private static final String PROP_FREQ_SEC = "freq";                 // in seconds
+    private static final String PROP_CACHE_TIMEOUT = "cache_timeout";  // in seconds
+    public static final int DEF_CACHE_TIMEOUT = 30000;
 
     // Internal vars
 
@@ -46,8 +54,10 @@ public class PullerHTTP extends AbsJODPuller {
     private final FormatterInternal formatter;
     private final EvaluatorInternal evaluator;
     private final int freq_ms;
+    private final int cache_timeout_ms;
     private String lastResponse = "";
     private String lastResult = "";
+    private static Map<String, CachedResponse> cache = new HashMap();
 
 
     // Constructor
@@ -68,6 +78,7 @@ public class PullerHTTP extends AbsJODPuller {
         evaluator = new EvaluatorInternal(this, name, proto, configsStr, component);
         Map<String, String> configs = splitConfigsStrings(configsStr);
         freq_ms = parseConfigInt(configs, PROP_FREQ_SEC, Integer.toString(AbsJODPuller.DEF_POLLING_TIME / 1000)) * 1000;
+        cache_timeout_ms = parseConfigInt(configs, PROP_CACHE_TIMEOUT, Integer.toString(DEF_CACHE_TIMEOUT / 1000)) * 1000;
     }
 
     protected long getPollingTime() {
@@ -87,19 +98,38 @@ public class PullerHTTP extends AbsJODPuller {
 
         String requestUrl = http.getStateRequest();
 
-        String response;
-        try {
-            response = http.execRequest(requestUrl);
+        String response = null;
+        synchronized (cache) {
+            CachedResponse cachedRes = cache.get(requestUrl);
+            if (cachedRes != null) {
+                Date lastAcceptableDate = new Date(JavaDate.getNowDate().getTime() - cache_timeout_ms);
+                if (cachedRes.date.after(lastAcceptableDate)) {
+                    log.debug(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' use cached response", getName(), getProto()));
+                    response = cachedRes.response;
+                }
+            }
 
-        } catch (HTTPClient.RequestException | MalformedURLException | HTTPClient.ResponseException e) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' error on exec request '%s' because '%s'", getName(), getProto(), requestUrl, e.getMessage()), e);
-            return;
+            if (response == null) {
+                try {
+                    response = http.execRequest(requestUrl);
+
+                } catch (HTTPClient.RequestException | MalformedURLException | HTTPClient.ResponseException e) {
+                    log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' error on exec request '%s' because '%s'", getName(), getProto(), requestUrl, e.getMessage()), e);
+                    return;
+                }
+
+                CachedResponse toCacheRes = new CachedResponse();
+                toCacheRes.date = JavaDate.getNowDate();
+                toCacheRes.response = response;
+                cache.put(requestUrl, toCacheRes);
+
+                if (lastResponse.compareTo(response) == 0) {
+                    log.debug(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' get same response as last attempt, skip it", getName(), getProto()));
+                    return;
+                }
+                lastResponse = response;
+            }
         }
-        if (lastResponse.compareTo(response) == 0) {
-            log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' get same response as last attempt, skip it", getName(), getProto()));
-            return;
-        }
-        lastResponse = response;
 
         String result;
         try {
@@ -110,10 +140,10 @@ public class PullerHTTP extends AbsJODPuller {
             return;
         }
 
-        log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' read state '%s'", getName(), getProto(), result));
+        log.debug(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' read state '%s'", getName(), getProto(), result));
 
         if (lastResult.compareTo(result) == 0){
-            log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' get same result as last attempt, skip it", getName(), getProto()));
+            log.debug(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTTP '%s' of proto '%s' get same result as last attempt, skip it", getName(), getProto()));
             return;
         }
         lastResult = result;

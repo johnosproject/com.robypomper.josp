@@ -136,7 +136,7 @@ public class GradleBuildInfo {
         properties += String.format(RESOURCE_PROPERTY_TMPL, "buildTime", getCurrentDateTimeUTC());
         //properties += String.format(RESOURCE_PROPERTY_TMPL, "buildTime", new Date());
         properties += String.format(RESOURCE_PROPERTY_TMPL, "javaVersion", System.getProperty("java.specification.version"));
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "javaHome", System.getProperty("java.home"));
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "javaHome", System.getProperty("java.home").replace("\\", "\\\\"));
         properties += String.format(RESOURCE_PROPERTY_TMPL, "gradleVersion", project.getGradle().getGradleVersion());
         properties += String.format(RESOURCE_PROPERTY_TMPL, "gitCommit", getGitCommit(project));
         properties += String.format(RESOURCE_PROPERTY_TMPL, "gitCommitShort", getGitCommitShort(project));

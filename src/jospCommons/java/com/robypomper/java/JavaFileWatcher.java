@@ -88,15 +88,16 @@ public class JavaFileWatcher {
      *                     {@link WatchService}.
      */
     public static void addListener(Path filePath, JavaFileWatcherListener listener) throws IOException {
+        Path absFilePath = filePath.toAbsolutePath();
         synchronized (listenersMap) {
-            if (!listenersMap.containsKey(filePath)) {
+            if (!listenersMap.containsKey(absFilePath)) {
                 int oldSize = listenersMap.size();
-                listenersMap.put(filePath, new ArrayList<>());
-                watchFile(filePath);
+                listenersMap.put(absFilePath, new ArrayList<>());
+                watchFile(absFilePath);
                 if (oldSize == 0)
                     startListen();
             }
-            listenersMap.get(filePath).add(listener);
+            listenersMap.get(absFilePath).add(listener);
         }
     }
 
@@ -139,13 +140,13 @@ public class JavaFileWatcher {
      *                     {@link WatchService}.
      */
     public static void removeListener(Path filePath, JavaFileWatcherListener listener) throws IOException {
-        filePath = filePath.toAbsolutePath();
+        Path absFilePath = filePath.toAbsolutePath();
         synchronized (listenersMap) {
-            if (listenersMap.containsKey(filePath)) {
-                listenersMap.get(filePath).remove(listener);
-                if (listenersMap.get(filePath).isEmpty()) {
-                    listenersMap.remove(filePath);
-                    unWatchFile(filePath);
+            if (listenersMap.containsKey(absFilePath)) {
+                listenersMap.get(absFilePath).remove(listener);
+                if (listenersMap.get(absFilePath).isEmpty()) {
+                    listenersMap.remove(absFilePath);
+                    unWatchFile(absFilePath);
                     if (listenersMap.isEmpty())
                         stopListen();
                 }

@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-public class ExecutorUnixShellTest {
+public class ExecutorShellTest {
 
     @Test
     public void executorTest() throws InterruptedException, JODWorker.MissingPropertyException {
@@ -39,7 +39,7 @@ public class ExecutorUnixShellTest {
         String configs = String.format("cmd=echo %s", echoParam);
 
         System.out.println("\nCREATE AND START LISTENER FOR FILES");
-        ExecutorUnixShell e = new ExecutorUnixShell(name, proto, configs, null);
+        ExecutorShell e = new ExecutorShell(name, proto, configs, null);
         JOSPProtocol.ActionCmd commandAction = new MockActionCmd();
 
         System.out.println("\nEXECUTE RANGE ACTION");

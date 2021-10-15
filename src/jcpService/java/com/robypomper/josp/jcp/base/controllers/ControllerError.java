@@ -63,14 +63,36 @@ public class ControllerError implements ErrorController {
         String headerAccept = request.getHeader("accept");
         String reqUrl = extractOriginalUri(request, status);
 
-        String reqSource = String.format("method: %s, src: %s:%d, remoteUser: %s", request.getMethod(), request.getRemoteAddr(), request.getRemotePort(), request.getRemoteUser());
-        ControllerError.log.warn(String.format("REQUEST ERROR [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, reqSource));
+        String originalClient = extractOriginalClientAddr(request);
+        //String reqSource = String.format("method: %s, src: %s:%d, remoteUser: %s", request.getMethod(), request.getRemoteAddr(), request.getRemotePort(), request.getRemoteUser());
+        String reqSource = String.format("method: %s, src: %s, remoteUser: %s", request.getMethod(), originalClient, request.getRemoteUser());
+        ControllerError.log.warn(String.format("INCOMING REQUEST ERROR [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, reqSource));
 
         // Prepare response
         if (headerAccept.contains("text/html"))
             return generateHtmlResponse(request.getRequestURI(), status, type, msg, details);
 
         return generateDefaultResponse(request.getRequestURI(), status, type, msg, details);
+    }
+
+    private static String extractOriginalClientAddr(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 
     @Override
