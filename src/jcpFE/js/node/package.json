@@ -19,11 +19,7 @@
   "author": "roberto pompermaier",
   "license": "AGPL-3.0",
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/preset-env": "^7.14.2",
-    "@babel/preset-react": "^7.13.13",
-    "react-scripts": "^4.0.3",
-    "webpack-cli": "^4.7.0"
+    "react-scripts": "^4.0.3"
   },
   "browserslist": {
     "production": [
