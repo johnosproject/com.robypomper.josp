@@ -69,9 +69,9 @@ public class ControllerError implements ErrorController {
         ControllerError.log.warn(String.format("INCOMING REQUEST ERROR [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, reqSource));
 
         // Prepare response
-        if (headerAccept.contains("text/html"))
+        if (headerAccept!=null && headerAccept.contains("text/html"))
             return generateHtmlResponse(request.getRequestURI(), status, type, msg, details);
-
+//2021-10-16T11:59:31.022+02:00	com.robypomper.comm.exception.PeerConnectionException: Error on get JCP GWs's access info from JCP APIs
         return generateDefaultResponse(request.getRequestURI(), status, type, msg, details);
     }
 
