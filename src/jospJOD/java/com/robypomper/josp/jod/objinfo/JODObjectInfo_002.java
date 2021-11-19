@@ -85,15 +85,20 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         if (getObjIdHw().isEmpty())
             generateObjIdHw();
 
-        if (getObjId().isEmpty())
+        apiObjsCaller.getClient().setObjectId(getObjId());
+        if (getObjId().isEmpty()) {
+            log.info("No Object ID, generate new one.");
             generateObjId();
-        else {
-            apiObjsCaller.getClient().setObjectId(getObjId());
-            if (getObjId().endsWith("00000-00000") && apiObjsCaller.isConnected())
+        } else if (getObjId().endsWith("00000-00000")) {
+            if (apiObjsCaller.isConnected()) {
+                log.info(String.format("Local Object ID (%s), generate new one.", getObjId()));
                 generateObjId();
-            else
+            } else {
+                log.info(String.format("Local Object ID (%s), generate new one on connection (observer).", getObjId()));
                 apiObjsCaller.getClient().addConnectionListener(generateObjIdConnectionListener);
-        }
+            }
+        } else
+            log.info(String.format("Loaded Object ID (%s)", getObjId()));
 
         if (getObjName().isEmpty())
             generateObjName();
@@ -196,6 +201,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
         JavaThreads.initAndStart(new Runnable() {
             @Override
             public void run() {
+                log.info(String.format("Update Object ID (%s), because new owner", getObjId()));
                 generateObjId();    // > saveObjId() > JODPermissions.updateObjIdAndSave()
             }
         }, "OBJ_ID_GENERATION");
@@ -332,6 +338,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
             apiObjsCaller.getClient().removeConnectionListener(generateObjIdConnectionListener);
 
         } catch (Throwable e) {
+            log.info(String.format("Error generating Object ID (old: %s), generate new one on connection (observer)", getObjId()));
             apiObjsCaller.getClient().addConnectionListener(generateObjIdConnectionListener);
 
             newObjId = String.format("%s-00000-00000", getObjIdHw());
@@ -419,6 +426,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
         @Override
         public void onConnected(JCPClient2 jcpClient) {
+            log.info(String.format("Local Object ID (%s), generate new one on connection (listener)", getObjId()));
             generateObjId();
         }
 
