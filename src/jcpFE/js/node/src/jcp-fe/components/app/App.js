@@ -183,7 +183,14 @@ class JCPFEBackdropRaw extends React.Component {
     getFirstBackdrop(state) {
         const backdrop_img_number = Math.floor(Math.random() * 4) + 1;
         //const backdrop_img = this.jcpFE.getFEUrl() + "/media/backdrop/backdrop_" + backdrop_img_number + ".jpg";   // random backdrop_[1-4].jpg
-        const backdrop_img = this.jcpFE.getFEUrl() + "/media/backdrop/backdrop_john_1280.png";
+        const pageWidth = window.innerWidth;
+        var backdrop_img;
+        if (pageWidth>=1920)
+          backdrop_img = this.jcpFE.getFEUrl() + "/media/backdrop/backdrop_john_2560.png";
+        else if (pageWidth>=1024)
+          backdrop_img = this.jcpFE.getFEUrl() + "/media/backdrop/backdrop_john_1024.png";
+        else
+          backdrop_img = this.jcpFE.getFEUrl() + "/media/backdrop/backdrop_john_768.png";
         const css = `
         .backdrop-internal {
             background-color: black;
