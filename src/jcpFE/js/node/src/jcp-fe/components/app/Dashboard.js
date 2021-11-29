@@ -175,11 +175,13 @@ export class DashboardLastObjectActivityNamesCard extends ReactDashboardBaseCard
     // Objects activities Events
 
     onObjectsActivitiesUpdate(objectActivitiesList) {
-        if (objectActivitiesList[0].objId != "NONE")
+        if (objectActivitiesList[0].objId != "NONE") {
+            const object = this.jcpFE.getObjects().getById(objectActivitiesList[0].objId);
             this.setState({
                 objId: objectActivitiesList[0].objId,
-                objName: this.jcpFE.getObjects().getById(objectActivitiesList[0].objId).getName()
+                objName: object ? object.getName() : "N/A"
             });
+        }
     }
 
 
