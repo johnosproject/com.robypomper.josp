@@ -104,7 +104,7 @@ class App extends React.Component {
                                 <main>
                                     <JCPFEAppBarSpacer />
                                     <div>
-                                        <Container maxWidth="lg" style={{paddingTop: this.props.theme.spacing(4), paddingBottom: this.props.theme.spacing(4), display: "flex"}}>
+                                        <Container id="app_router" maxWidth="lg" style={{paddingTop: this.props.theme.spacing(4), paddingBottom: this.props.theme.spacing(4), display: "flex"}}>
                                             <AppRouter {...this.props} />
                                         </Container>
                                     </div>

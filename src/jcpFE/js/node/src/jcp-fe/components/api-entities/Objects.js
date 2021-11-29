@@ -612,7 +612,7 @@ export class ObjectsListFiltered extends ReactObjectsBase {
                                             color="primary"
                                         />
                                     }
-                                    label={"(" + countAll + ") All" }
+                                    label={<span style={{whiteSpace: 'nowrap'}}>({countAll}) Show All</span> }
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4} style={styleFilterItems}>
@@ -624,7 +624,7 @@ export class ObjectsListFiltered extends ReactObjectsBase {
                                             color="primary"
                                         />
                                     }
-                                    label={"(" + countMy + ") Show my objects" }
+                                    label={<span style={{whiteSpace: 'nowrap'}}>({countMy}) Show MY Objects</span> }
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} md={4} style={styleFilterItems}>
@@ -636,7 +636,7 @@ export class ObjectsListFiltered extends ReactObjectsBase {
                                             color="primary"
                                         />
                                     }
-                                    label={"(" + countShared + ") Show objects shared with me" }
+                                    label={<span style={{whiteSpace: 'nowrap'}}>({countShared}) Show Objects shared</span> }
                                 />
                             </Grid>
                             <Grid item xs={12} sm={12} md={4} style={styleFilterItems}>
@@ -648,7 +648,7 @@ export class ObjectsListFiltered extends ReactObjectsBase {
                                             color="primary"
                                         />
                                     }
-                                    label={"(" + countDisc + ") Also show disconnected objects" }
+                                    label={<span style={{whiteSpace: 'nowrap'}}>({countDisc}) Show Disconnected objects</span> }
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6} style={styleFilterItems}>
