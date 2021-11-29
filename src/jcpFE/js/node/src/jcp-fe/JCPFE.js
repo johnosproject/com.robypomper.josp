@@ -220,13 +220,15 @@ class Stats {
     }
 
     addObjectsActivity(objId = null, type, description) {
-        this._objectActivitiesList.unshift({
+        const newActivity = {
             id: this._objectActivitiesLastId++,
             time: new Date().getTime(),
             objId: objId ? objId : "NONE",
             type: type,
             description: description,
-        })
+        };
+        this._objectActivitiesList = Object.assign([], this._objectActivitiesList);
+        this._objectActivitiesList.unshift(newActivity)
         this._emitOnObjectActivitiesUpdate();
     }
 
