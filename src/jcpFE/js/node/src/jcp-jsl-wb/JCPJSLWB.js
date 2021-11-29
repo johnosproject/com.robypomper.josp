@@ -228,7 +228,7 @@ export class JCPJSLWBClass {
         thiz._jslSession.check(
             function onInit(jcpJSLWB, jslSession) {
                 jcpJSLWB._log("JSL Session is up (" + sessionId + ")");
-                // jcpJSLWB._startJSLSystems();         // Probably resolve BackToSuspension problem
+                jcpJSLWB._startJSLSystems();
                 jcpJSLWB._tryEmitOnStateChanged();
             },
             
