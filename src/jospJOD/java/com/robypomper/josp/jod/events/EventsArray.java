@@ -34,7 +34,7 @@ public class EventsArray extends JavaJSONArrayToFile<JOSPEvent, Long> {
 
     @Override
     protected int compareItemIds(Long id1, Long id2) {
-        return (int) (id1 - id2);
+        return id1.compareTo(id2);
     }
 
     @Override
