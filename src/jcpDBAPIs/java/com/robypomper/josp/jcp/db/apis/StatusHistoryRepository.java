@@ -21,6 +21,7 @@ package com.robypomper.josp.jcp.db.apis;
 
 import com.robypomper.josp.jcp.db.apis.entities.ObjectStatusHistory;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
@@ -32,6 +33,10 @@ public interface StatusHistoryRepository extends JpaRepository<ObjectStatusHisto
 
     List<ObjectStatusHistory> findByObjIdAndCompPath(@Param("objId") String objId,
                                                      @Param("compPath") String compPath);
+
+    List<ObjectStatusHistory> findByObjIdAndCompPath(@Param("objId") String objId,
+                                                     @Param("compPath") String compPath,
+                                                     Sort sort);
 
     List<ObjectStatusHistory> findByObjIdAndCompPath(@Param("objId") String objId,
                                                      @Param("compPath") String compPath,

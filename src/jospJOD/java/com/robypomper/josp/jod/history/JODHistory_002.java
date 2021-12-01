@@ -261,17 +261,37 @@ public class JODHistory_002 implements JODHistory {
             }
         };
 
-        if (limits.isLatestCount())
+        if (HistoryLimits.isLatestCount(limits))
             return statuses.tryLatest(filter, limits.getLatestCount());
 
-        if (limits.isAncientCount())
+        if (HistoryLimits.isAncientCount(limits))
             return statuses.tryAncient(filter, limits.getAncientCount());
 
-        if (limits.isIDRange())
-            return statuses.tryById(filter, limits.getFromId(), limits.getToId());
+        if (HistoryLimits.isIDRange(limits))
+            return statuses.tryById(filter, limits.getFromIDOrDefault(), limits.getToIDOrDefault());
 
-        if (limits.isDateRange())
-            return statuses.tryByDate(filter, limits.getFromDate(), limits.getToDate());
+        if (HistoryLimits.isDateRange(limits))
+            return statuses.tryByDate(filter, limits.getFromDateOrDefault(), limits.getToDateOrDefault());
+
+        if (HistoryLimits.isPageRange(limits)) {
+            try {
+                List<JOSPStatusHistory> all = statuses.filterAll(filter);
+                int page = limits.getPageNumOrDefault();
+                int size = limits.getPageSizeOrDefault();
+
+                int posStart = page*size;
+                if (posStart>all.size()-1)
+                    return new ArrayList<>();
+
+                int posEnd = (page*size) + size - 1;
+                if (posEnd>=all.size()-1)
+                    posEnd = all.size()-1;
+                return all.subList(posStart,posEnd+1);
+
+            } catch (IOException e) {
+                return new ArrayList<>();
+            }
+        }
 
         try {
             return statuses.filterAll(filter);
