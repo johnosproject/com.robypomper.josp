@@ -33,11 +33,11 @@ public class HistoryLimits {
 
     // Default HistoryLimits
 
-    public static final HistoryLimits NO_LIMITS = new HistoryLimits();
-    public static final HistoryLimits LATEST_10 = new HistoryLimits();
-    public static final HistoryLimits ANCIENT_10 = new HistoryLimits();
-    public static final HistoryLimits LAST_HOUR = new HistoryLimits();
-    public static final HistoryLimits PAST_HOUR = new HistoryLimits();
+    public static final HistoryLimits NO_LIMITS = new HistoryLimits(-1L, -1L, -1L, -1L, null, null);
+    public static final HistoryLimits LATEST_10 = new HistoryLimits(-1L, -1L, -1L, -1L, null, null);
+    public static final HistoryLimits ANCIENT_10 = new HistoryLimits(-1L, -1L, -1L, -1L, null, null);
+    public static final HistoryLimits LAST_HOUR = new HistoryLimits(-1L, -1L, -1L, -1L, null, null);
+    public static final HistoryLimits PAST_HOUR = new HistoryLimits(-1L, -1L, -1L, -1L, null, null);
     private static final String LATEST_JSON_FORMATTER = "{ \"latestCount\":\"%d\" }";
 
     // Internal consts

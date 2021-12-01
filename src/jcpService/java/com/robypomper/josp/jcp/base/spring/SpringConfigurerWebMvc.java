@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -34,7 +36,6 @@ import java.util.List;
 
 @Configuration
 @EnableWebMvc
-//@Profile({"auth"})
 public class SpringConfigurerWebMvc implements WebMvcConfigurer {
 
     @Bean
@@ -43,6 +44,8 @@ public class SpringConfigurerWebMvc implements WebMvcConfigurer {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.registerModule(new Hibernate5Module());
+        //objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        //objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         converter.setObjectMapper(objectMapper);
         return converter;
     }
@@ -85,8 +88,14 @@ public class SpringConfigurerWebMvc implements WebMvcConfigurer {
         return taskExecutor;
     }
 
+    @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setTaskExecutor(mvcTaskExecutor());
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addFormatter(new DateFormatter("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
     }
 
 }
