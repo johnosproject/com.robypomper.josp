@@ -19,42 +19,50 @@ export class AppRouter extends React.Component {
 
     render() {
         const jcpFE = this.props.jcpfe;
+        const pageWidth = window.innerWidth;
+        var width;
+        if (pageWidth>=1920)
+          width = 'calc(100% - 56px)';
+        else if (pageWidth>=1024)
+          width = 'calc(100% - 56px)';
+        else
+          width = '100%';
         
         return (
                 <Switch id="appRouter">
                     <Route path="/objects/:objId" render={(props) => (  
                         <React.Fragment>
-                            <ObjectRouter {...props} jcpfe={jcpFE} objId={props.match.params.objId} style={{float: 'left', width: 'calc(100% - 56px)'}} />
+                            <ObjectRouter {...props} jcpfe={jcpFE} objId={props.match.params.objId} style={{float: 'left', width: width}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/objects" render={(props) => (  
                         <React.Fragment>
-                            <ObjectsListPage {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
+                            <ObjectsListPage {...props} jcpfe={jcpFE} style={{float: 'left', width: width}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/user" render={(props) => (  
                         <React.Fragment>
-                            <UserPage {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
+                            <UserPage {...props} jcpfe={jcpFE} style={{float: 'left', width: width}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/service" render={(props) => (  
                         <React.Fragment>
-                            <ServicePage {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
+                            <ServicePage {...props} jcpfe={jcpFE} style={{float: 'left', width: width}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/jcp" render={(props) => (  
                         <React.Fragment>
-                            <JCPRouter {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
+                            <JCPRouter {...props} jcpfe={jcpFE} style={{float: 'left', width: width}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/stats" render={(props) => ( 
                         <React.Fragment>
-                            <JCPJSLWBStatus {...props} jcpjslwb={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
+                            <JCPJSLWBStatus {...props} jcpjslwb={jcpFE} style={{float: 'left', width: width}} />
                         </React.Fragment> 
                     )} />
                     <Route path="/" render={(props) => ( 
                         <React.Fragment>
-                            <Dashboard {...props} jcpfe={jcpFE} style={{float: 'left', width: 'calc(100% - 56px)'}} />
+                            <Dashboard {...props} jcpfe={jcpFE} style={{float: 'left', width: width}} />
                         </React.Fragment> 
                     )} />
                 </Switch>

@@ -20,7 +20,7 @@ export class JCPJSLWBClass {
     });
     API_VERSION = '2.0';
     API_FE_ENTRY_POINT = '/apis/pub/frontend/entrypoint/2.0/entrypoint';
-        API_FE_INIT_SESSION = '/apis/pub/frontend/entrypoint/2.0/jslwbsession';
+        API_FE_INIT_SESSION = '/../apis/pub/frontend/entrypoint/2.0/jslwbsession';
         API_JSLWB_INIT_STATUS = '/apis/pub/jslwebbridge/core/init/2.0/status';
     API_JSLWB_INIT_SSE = '/apis/pub/jslwebbridge/core/init/2.0/sse';
     API_JSLWB_INIT_SESSION = '/apis/pub/jslwebbridge/core/init/2.0/jsl';
@@ -228,7 +228,7 @@ export class JCPJSLWBClass {
         thiz._jslSession.check(
             function onInit(jcpJSLWB, jslSession) {
                 jcpJSLWB._log("JSL Session is up (" + sessionId + ")");
-                // jcpJSLWB._startJSLSystems();         // Probably resolve BackToSuspension problem
+                jcpJSLWB._startJSLSystems();
                 jcpJSLWB._tryEmitOnStateChanged();
             },
             

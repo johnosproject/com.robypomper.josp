@@ -187,7 +187,9 @@ class Stats {
     _objectActivitiesList = [{
         id: this._objectActivitiesLastId++,
         time: new Date().getTime(),
-        object: "NONE",
+        objId: "N/A",
+        objName: "N/A",
+        objOwner: "N/A",
         type: "JCPFE_INIT",
         description: "JCP FE Client initialized"
     }];
@@ -219,17 +221,53 @@ class Stats {
         }
     }
 
-    addObjectsActivity(objId = null, type, description) {
-        this._objectActivitiesList.unshift({
-            id: this._objectActivitiesLastId++,
-            time: new Date().getTime(),
-            objId: objId ? objId : "NONE",
-            type: type,
-            description: description,
-        })
+    addObjectsActivity(newActivity) {
+        this._objectActivitiesList = Object.assign([], this._objectActivitiesList);
+        this._objectActivitiesList.unshift(newActivity)
         this._emitOnObjectActivitiesUpdate();
     }
 
+    addObjectsActivityFromObjId(objId = null, actType, actDescription) {
+        var actObjId = "";
+        var actObjName = "";
+        var actObjOwner = "";
+
+        if (objId == null) {
+          actObjId = "N/A";
+          actObjName = "N/A";
+          actObjOwner = "N/A";
+
+        } else {
+          const object = this.jcpFE.getObjects().getById(objId);
+          if (object == null) {
+            actObjId = objId;
+            actObjName = "NotFound";
+            actObjOwner = "NotFound";
+          } else if (object.getOwner()=="00000-00000-00000") {
+            actObjId = objId;
+            actObjName = "NotFound";
+            actObjOwner = "Anonymous";
+          } else {
+            actObjId = objId;
+            actObjName = object.getName();
+            actObjOwner = object.getOwner();
+          }
+        }
+
+        if (actObjOwner === "Anonymous")
+          return;
+
+        const newActivity = {
+            id: this._objectActivitiesLastId++,
+            time: new Date().getTime(),
+            objId: actObjId,
+            objName: actObjName,
+            objOwner: actObjOwner,
+            type: actType,
+            description: actDescription,
+        };
+        this.addObjectsActivity(newActivity);
+    }
 
 }
 
@@ -264,7 +302,7 @@ class Stats_OnObjects {
         this._owner.registerOnObject(objId);
 
         // Processing
-        this._owner.addObjectsActivity(objId,"OBJ_ADD","Added '" + objId + "' object");
+        this._owner.addObjectsActivityFromObjId(objId,"OBJ_ADD","Added '" + objId + "' object");
         if (this._owner._maxObjectCount < this._owner.getObjectsCount())
             this._owner._maxObjectCount = this._owner.getObjectsCount();
     }
@@ -274,17 +312,17 @@ class Stats_OnObjects {
         this._owner.deregisterOnObject(objId);
 
         // Processing
-        this._owner.addObjectsActivity(objId,"OBJ_REM","Removed '" + objId + "' object");
+        this._owner.addObjectsActivityFromObjId(objId,"OBJ_REM","Removed '" + objId + "' object");
     }
 
     onConnected(jcpJSLWB, objects, objId) {
         // Processing
-        this._owner.addObjectsActivity(objId,"OBJ_CON","Connected '" + objId + "' object");
+        this._owner.addObjectsActivityFromObjId(objId,"OBJ_CON","Connected '" + objId + "' object");
     }
 
     onDisconnected(jcpJSLWB, objects, objId) {
         // Processing
-        this._owner.addObjectsActivity(objId,"OBJ_DIS","Disconnected '" + objId + "' object");
+        this._owner.addObjectsActivityFromObjId(objId,"OBJ_DIS","Disconnected '" + objId + "' object");
     }
     
 }
@@ -306,22 +344,22 @@ class Stats_OnObject {
         this._owner.updateOnComponent(object);
 
         // Processing
-        this._owner.addObjectsActivity(object.getId(),"OBJ_STR","Updated '" + object.getId() + "' object structure");
+        this._owner.addObjectsActivityFromObjId(object.getId(),"OBJ_STR","Updated '" + object.getId() + "' object structure");
     }
 
     onPermsUpd(jcpJSLWB, object) {
         // Processing
-        this._owner.addObjectsActivity(object.getId(),"OBJ_PRS","Updated '" + object.getId() + "' object permissions");
+        this._owner.addObjectsActivityFromObjId(object.getId(),"OBJ_PRS","Updated '" + object.getId() + "' object permissions");
     }
 
     onPermSrvUpd(jcpJSLWB, object, value, old) {
         // Processing
-        this._owner.addObjectsActivity(object.getId(),"OBJ_SPR","Updated '" + object.getId() + "' object / service's permission = '" + value + "'");
+        this._owner.addObjectsActivityFromObjId(object.getId(),"OBJ_SPR","Updated '" + object.getId() + "' object / service's permission = '" + value + "'");
     }
 
     onInfoUpd(jcpJSLWB, object, key, value, old) {
         // Processing
-        this._owner.addObjectsActivity(object.getId(),"OBJ_INF","Updated '" + object.getId() + "'  'object info's '" + key + "' = '" + value + "'");
+        this._owner.addObjectsActivityFromObjId(object.getId(),"OBJ_INF","Updated '" + object.getId() + "'  'object info's '" + key + "' = '" + value + "'");
     }
     
 }
@@ -336,7 +374,7 @@ class Stats_OnComponent {
 
     onStatusUpdate(jcpJSLWB, component, status, oldStatus) {
         // Processing
-        this._owner.addObjectsActivity(component.getObjectId(),"OBJ_CMP","Updated '" + component.getObjectId() + "' object '" + component.getComponentPath() + "' component's state = '" + status + "'");
+        this._owner.addObjectsActivityFromObjId(component.getObjectId(),"OBJ_CMP","Updated '" + component.getObjectId() + "' object '" + component.getComponentPath() + "' component's state = '" + status + "'");
     }
     
 }

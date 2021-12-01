@@ -1,7 +1,7 @@
 **This is the main repository of the Open Source John O.S. Project.**
 
-* Current version: 2.2.1</td></tr>
-* References: [JOSP Components @ JOSP Docs](href="https://www.johnosproject.org/docs/References/JOSP_Components/Home)
+* Current version: 2.2.2</td></tr>
+* References: [JOSP Components @ JOSP Docs](href="https://www.johnosproject.org/docs/references/josp/)
 * Repository: [com.robypomper.josp @ Bitbucket](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/master/)
 
 ![John O.S. Project Logo](docs/media/logo_text_full_500.png "John O.S. Project")
@@ -18,9 +18,9 @@
 The John O.S. Project (JOSP for friends) provide a suite of softwares and tools to create **any kind of [IoT Solutions](https://www.johnosproject.org/docs/What/IoT%20Solutions)**
 in minutes. The main software supplied includes:
 
-* **[John Object Daemon](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Object%20Daemon/Home)** the agent to connect objects
-* **[John Service Library](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Service%20Library/Home)** the library to include in your software
-* **[John Cloud Platform](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Cloud%20Platform/Home)** the cloud platform to provide internet connectivity
+* **[John Object Daemon](https://www.johnosproject.org/docs/references/josp/jod/)** the agent to connect objects
+* **[John Service Library](https://www.johnosproject.org/docs/references/josp/jsl/)** the library to include in your software
+* **[John Cloud Platform](https://www.johnosproject.org/docs/references/josp/jcp/)** the cloud platform to provide internet connectivity
 
 This project also provides Tools to help makers and developers to speed up IoT objects and services development. Moreover, we provide a public/shared instance of the JOSP Cloud Platform that anyone can use as his personal IoT EcoSystem.
 
@@ -57,7 +57,7 @@ then with included [Gradle](https://gradle.org) Wrapper you can execute project'
 ### Local JOSP Eco-System
 
 The first, **basic IoT Eco-System** is composed only by a connected object, and by a service to interact with. To run a basic IoT Eco-System it's required to run the
-[JOD object agent](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Object%20Daemon/Home), and the shell version of the [JSL library](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Service%20Library/Home). The only requirement is that both instance have to be connected to the same local network.
+[JOD object agent](https://www.johnosproject.org/docs/references/josp/jod/), and the shell version of the [JSL library](https://www.johnosproject.org/docs/references/josp/jsl/specs/). The only requirement is that both instance have to be connected to the same local network.
 
 1. Run the John Object Daemon (JOD)
    ```shellscript
@@ -73,8 +73,8 @@ That's it! **Your IoT EcoSystem is running!**
 The JOD agent, when executed, starts and publish his local server. At the same time the JSL library, when initialized, starts his local object's discovery. When the JSL library detect an object, it starts the direct communication (Srv2Obj); after the SSL handshaking, the JOD agent (depending on object's permission) send his presentation messages to the service. At this point, if the JSL service has right permissions, can send action command and will receive all statuses updates to/from JOD agent.
 **Object's presentation are send only to JSL service according to object's access permissions.**
 
-Now, JSL Shell can interact with objects. Both softwares, the JOD and JSL Shell, provide a shell interface to interact with them. Type ```?list``` to print shell's command list or check out the [JOD Shell](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Object%20Daemon/Shell_Commands)
-and [JSL Shell](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Service%20Library/Shell_Commands)
+Now, JSL Shell can interact with objects. Both softwares, the JOD and JSL Shell, provide a shell interface to interact with them. Type ```?list``` to print shell's command list or check out the [JOD Shell](https://www.johnosproject.org/docs/references/josp/jod/specs/shell)
+and [JSL Shell](https://www.johnosproject.org/docs/references/josp/jsl/specs/shell)
 commands list.
 
 Gradle's **```javaJODRun``` task run a full working instance of the JOD agent** that represent a development object, you can [customize this object's structure](docs/jospJOD/configure_object_structure.md)
@@ -83,7 +83,7 @@ or [struct_MAC.jod](src/jospJOD/configs/struct_MAC.jod) files. This task once ru
 dir. For other execution options see the [JOD Runners](docs/jospJOD/tasks_groups.md#runner-tasks)
 tasks group.
 
-Gradle's **```javaJSLRun``` task run a shell application that implement a basic JSL service**. This JSL service translate all JSL features in [interactive commands](https://www.johnosproject.org/docs/References/JOSP_Components/John%20Service%20Library/Shell_Commands). Like for ```javaJODRun``` task, the ```javaJSLRun``` task generate his configs on first execution and then stored them in ```envs/runnables/jsl/JSL```
+Gradle's **```javaJSLRun``` task run a shell application that implement a basic JSL service**. This JSL service translate all JSL features in [interactive commands](https://www.johnosproject.org/docs/references/josp/jsl/specs/shell). Like for ```javaJODRun``` task, the ```javaJSLRun``` task generate his configs on first execution and then stored them in ```envs/runnables/jsl/JSL```
 dir. Other execution options are available at [JSL Runners](docs/jospJSL/tasks_groups.md#runner-tasks)
 tasks group.
 
@@ -95,12 +95,12 @@ You can run first the JOD agent and second the JSL Shell or vice versa. Both JOS
 
 JOD objects and JSL services can communicate directly when on the same local network, or remotely via the JOSP Cloud Platform. The JCP is composed by 4 micro-services:
 
-* [JCP DB](https://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Database/Home): manage the DBs (jcp_auth, jcp_apis...) for other micro-services
-* [JCP Auth](https://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Auth/Home): provide the authentication and authorization service
-* [JCP APIs](https://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20APIs/Home): basic JCP APIs required by JOSP objects and services
-* [JOSP Gateways](https://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Gateways/Home): the cloud gateways that acts as bridge between JOSP objects and services
-* [JOSP JSL Web Bridge](https://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20JSL%20Web%20Bridge/Home): the JSL's HTTP APIs manager for JSL services as web clients
-* [JOSP Front End](https://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Front%20End/Home): the JCP front end
+* [JCP DB](https://www.johnosproject.org/docs/references/josp/jcp/microservices/dbms/): manage the DBs (jcp_auth, jcp_apis...) for other micro-services
+* [JCP Auth](https://www.johnosproject.org/docs/references/josp/jcp/microservices/auth/): provide the authentication and authorization service
+* [JCP APIs](https://www.johnosproject.org/docs/references/josp/jcp/microservices/apis/): basic JCP APIs required by JOSP objects and services
+* [JOSP Gateways](https://www.johnosproject.org/docs/references/josp/jcp/microservices/gws/): the cloud gateways that acts as bridge between JOSP objects and services
+* [JOSP JSL Web Bridge](https://www.johnosproject.org/docs/references/josp/jcp/microservices/jslwb/): the JSL's HTTP APIs manager for JSL services as web clients
+* [JOSP Front End](https://www.johnosproject.org/docs/references/josp/jcp/microservices/fe/): the JCP front end
 
 When the IoT Eco-System require remote connectivity, objects and services with the Cloud Communication enabled can communicate via the John Cloud Platform that acts as a bridge. When a JSL service connect to the JCP Gateways, it responds with object's presentations messages so the JSL service know all available objects (via cloud). At the same time, when it's a JOD agent that connects to JCP Gateways, it sends his presentation to the JCP Gateways, that's forwarded to the connected JSL services. **Object's presentation are send only to JSL service according to object's access permissions.**
 
@@ -156,10 +156,11 @@ John Operating System Project provided softwares must communicate togheter and w
 | [JOD Structure](docs/josp/internal_versions.md#JOD-Structure)   | 2a     |     JOSP>2 Structure>a
 | [JSL Interface](docs/josp/internal_versions.md#JSL-Interface)   | 2.2.0  |     Same as current (?mayor?) release
 
-All components from current source code's release are build with **2.2.1** version.
+All components from current source code's release are build with **2.2.2** version.
 
 **Older version of JOSP source code:**
 
+* v [2.2.2](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.2/)
 * v [2.2.1](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.1/)
 * v [2.2.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.0/)
 * v [2.1.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.1.0/)

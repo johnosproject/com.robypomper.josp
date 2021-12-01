@@ -50,12 +50,12 @@ The JOSP Cloud Platform (JCP) allow objects and service to communicate when are 
 * [JCP Front End](jcpFE/README.md): to display JCP objects and info in a web portal
 * [JCP All](jcpAll/README.md): join all jcp services in one (not working)
 
-        * a [JCP DB](http://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Database/Home) service to store the AAA and the JCP databases
-        * an [JCP Auth](http://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Auth/Home) service to register and manage objects, services and users
-        * the [JCP APIs](http://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20APIs/Home) for objects and services
-        * the [JOSP Gateways](http://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Gateways/Home) to forward messages from objects 2 services and vice versa
-        * the [JOSP JSL Web Bridge](http://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20JSL%20Web%20Bridge/Home) to allow JSL services as web client implementation
-        * the [JOSP Front End](http://www.johnosproject.org/docs/References/JOSP_Components/JCP%20MicroServices/JCP%20Front%20End/Home) to display JCP objects and info in a web portal
+        * a [JCP DB](http://www.johnosproject.org/docs/references/josp/jcp/microservices/dbms/) service to store the AAA and the JCP databases
+        * an [JCP Auth](http://www.johnosproject.org/docs/references/josp/jcp/microservices/auth/) service to register and manage objects, services and users
+        * the [JCP APIs](http://www.johnosproject.org/docs/references/josp/jcp/microservices/apis/) for objects and services
+        * the [JOSP Gateways](http://www.johnosproject.org/docs/references/josp/jcp/microservices/gws/) to forward messages from objects 2 services and vice versa
+        * the [JOSP JSL Web Bridge](http://www.johnosproject.org/docs/references/josp/jcp/microservices/jslwb/) to allow JSL services as web client implementation
+        * the [JOSP Front End](http://www.johnosproject.org/docs/references/josp/jcp/microservices/fe/) to display JCP objects and info in a web portal
 
 ----
 

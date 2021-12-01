@@ -29,62 +29,121 @@ import com.robypomper.java.JavaDate;
 import java.util.Calendar;
 import java.util.Date;
 
+
+@SuppressWarnings("unused")
 public class HistoryLimits {
 
     // Default HistoryLimits
+    public static Date LAST_HOUR_FROM() { return JavaDate.getDateAltered(JavaDate.getNowDate(), Calendar.HOUR_OF_DAY, -1); }
+    public static Date PAST_HOUR_FROM() { return JavaDate.getDateExactAltered(Calendar.HOUR_OF_DAY, Calendar.HOUR_OF_DAY, -1); }
+    public static Date PAST_HOUR_TO() { return JavaDate.getDateExact(Calendar.HOUR_OF_DAY); }
 
-    public static final HistoryLimits NO_LIMITS = new HistoryLimits();
-    public static final HistoryLimits LATEST_10 = new HistoryLimits();
-    public static final HistoryLimits ANCIENT_10 = new HistoryLimits();
-    public static final HistoryLimits LAST_HOUR = new HistoryLimits();
-    public static final HistoryLimits PAST_HOUR = new HistoryLimits();
-    private static final String LATEST_JSON_FORMATTER = "{ \"latestCount\":\"%d\" }";
+    public static HistoryLimits NO_LIMITS() { return new HistoryLimits(null, null, null, null, null, null, null, null); }
+    public static HistoryLimits LATEST(int count) { return new HistoryLimits(count, null, null, null, null, null, null, null); }
+    public static HistoryLimits ANCIENT(int count) { return new HistoryLimits(null, count, null, null, null, null, null, null); }
+    public static HistoryLimits FROM_ID(long id) { return new HistoryLimits(null, null, id, null, null, null, null, null); }
+    public static HistoryLimits TO_ID(long id) { return new HistoryLimits(null, null, null, id, null, null, null, null); }
+    public static HistoryLimits BETWEEN_ID(long start, long end) { return new HistoryLimits(null, null, start, end, null, null, null, null); }
+    public static HistoryLimits LAST_HOUR() { return new HistoryLimits(null, null, null, null, LAST_HOUR_FROM(), null, null, null); }
+    public static HistoryLimits PAST_HOUR() { return new HistoryLimits(null, null, null, null, PAST_HOUR_FROM(), PAST_HOUR_TO(), null, null); }
+    public static HistoryLimits PAGE(int page, int size) { return new HistoryLimits(null, null, null, null, null, null, page, size); }
+    public static HistoryLimits ERROR() { return new HistoryLimits(10, 10, null, null, null, null, null, null); }
 
     // Internal consts
+    private static final String LATEST_JSON_FORMATTER = "{ \"latestCount\":\"%d\" }";
     private static final String ANCIENT_JSON_FORMATTER = "{ \"ancientCount\":\"%d\" }";
     private static final String ID_RANGE_JSON_FORMATTER_A = "\"fromID\":\"%d\"";
     private static final String ID_RANGE_JSON_FORMATTER_B = ", \"toID\":\"%d\"";
     private static final String DATE_RANGE_JSON_FORMATTER_A = "\"fromDate\":\"%d\"";
     private static final String DATE_RANGE_JSON_FORMATTER_B = ", \"toDate\":\"%d\"";
-
-    static {
-        LATEST_10.latestCount = 10;
-        ANCIENT_10.ancientCount = 10;
-        LAST_HOUR.fromDate = JavaDate.getDateExact(Calendar.HOUR_OF_DAY);
-        LAST_HOUR.fromDate = JavaDate.getDateAltered(JavaDate.getNowDate(), Calendar.HOUR_OF_DAY, -1);
-        PAST_HOUR.fromDate = JavaDate.getDateExactAltered(Calendar.HOUR_OF_DAY, Calendar.HOUR_OF_DAY, -1);
-        PAST_HOUR.toDate = JavaDate.getDateExact(Calendar.HOUR_OF_DAY);
-    }
+    private static final String PAGE_RANGE_JSON_FORMATTER_A = "\"pageNum\":\"%d\"";
+    private static final String PAGE_RANGE_JSON_FORMATTER_B = ", \"pageSize\":\"%d\"";
 
 
     // Internal vars
 
-    private long latestCount = -1;
-    private long ancientCount = -1;
+    @JsonProperty("latestCount")
+    private int latestCount = -1;
+    @JsonProperty("ancientCount")
+    private int ancientCount = -1;
+    @JsonProperty("fromID")
     private long fromID = -1;
+    @JsonProperty("toID")
     private long toID = -1;
+    @JsonProperty("fromDate")
     private Date fromDate = null;
+    @JsonProperty("toDate")
     private Date toDate = null;
+    @JsonProperty("pageNum")
+    private int pageNum = -1;
+    @JsonProperty("pageSize")
+    private int pageSize = -1;
 
 
     // Constructor
 
-    public HistoryLimits() {
-    }
-
     @JsonCreator
-    public HistoryLimits(@JsonProperty("latestCount") Long latestCount,
-                         @JsonProperty("ancientCount") Long ancientCount,
+    public HistoryLimits(@JsonProperty("latestCount") Integer latestCount,
+                         @JsonProperty("ancientCount") Integer ancientCount,
                          @JsonProperty("fromID") Long fromID,
                          @JsonProperty("toID") Long toID,
                          @JsonProperty("fromDate") Date fromDate,
-                         @JsonProperty("toDate") Date toDate) {
-        if (latestCount != null) this.latestCount = latestCount;
-        if (ancientCount != null) this.ancientCount = ancientCount;
-        if (fromID != null) this.fromID = fromID;
-        if (toID != null) this.toID = toID;
-        if (fromDate != null) this.fromDate = fromDate;
-        if (toDate != null) this.toDate = toDate;
+                         @JsonProperty("toDate") Date toDate,
+                         @JsonProperty("pageNum") Integer pageNum,
+                         @JsonProperty("pageSize") Integer pageSize) {
+        this.latestCount = latestCount!=null ? latestCount : this.latestCount;
+        this.ancientCount = ancientCount!=null ? ancientCount : this.ancientCount;
+        this.fromID = fromID!=null ? fromID : this.fromID;
+        this.toID = toID!=null ? toID : this.toID;
+        this.fromDate = fromDate!=null ? fromDate : this.fromDate;
+        this.toDate = toDate!=null ? toDate : this.toDate;
+        this.pageNum = pageNum!=null ? pageNum : this.pageNum;
+        this.pageSize = pageSize!=null ? pageSize : this.pageSize;
+
+        checkHistoryLimitsExclusivity();
+    }
+
+    private void checkHistoryLimitsExclusivity() {
+        int count = 0;
+        count += isLatestCount(this) ? 1 : 0;
+        count += isAncientCount(this) ? 1 : 0;
+        count += isIDRange(this) ? 1 : 0;
+        count += isDateRange(this) ? 1 : 0;
+        count += isPageRange(this) ? 1 : 0;
+        if (count<=1)
+            return;
+
+        if (isLatestCount(this)
+                && (isAncientCount(this) || isIDRange(this) || isDateRange(this) || isPageRange(this))) {
+            if (isAncientCount(this))
+                throw new IllegalArgumentException("isLatestCount and isAncientCount");
+            if (isIDRange(this))
+                throw new IllegalArgumentException("isLatestCount and isIDRange");
+            if (isDateRange(this))
+                throw new IllegalArgumentException("isLatestCount and isDateRange");
+            throw new IllegalArgumentException("isLatestCount and isPageRange");
+        }
+
+        if (isAncientCount(this)
+                && (isIDRange(this) || isDateRange(this)  || isPageRange(this))) {
+            if (isIDRange(this))
+                throw new IllegalArgumentException("isAncientCount and isIDRange");
+            if (isDateRange(this))
+                throw new IllegalArgumentException("isAncientCount and isDateRange");
+            throw new IllegalArgumentException("isAncientCount and isPageRange");
+        }
+
+        if (isIDRange(this)
+                && (isDateRange(this)  || isPageRange(this))) {
+            if (isDateRange(this))
+                throw new IllegalArgumentException("isIDRange and isDateRange");
+            throw new IllegalArgumentException("isIDRange and isPageRange");
+        }
+
+        if (isDateRange(this)
+                && (isPageRange(this))) {
+            throw new IllegalArgumentException("isDateRange and isPageRange");
+        }
     }
 
 
@@ -112,70 +171,115 @@ public class HistoryLimits {
 //        }
 
 
-        if (limits.isLatestCount())
+        if (isLatestCount(limits))
             return String.format(LATEST_JSON_FORMATTER, limits.latestCount);
 
-        if (limits.isAncientCount())
+        if (isAncientCount(limits))
             return String.format(ANCIENT_JSON_FORMATTER, limits.ancientCount);
 
-        if (limits.isIDRange()) {
+        if (isIDRange(limits)) {
             String s = String.format(ID_RANGE_JSON_FORMATTER_A, limits.fromID);
             if (limits.toID != -1)
                 s += String.format(ID_RANGE_JSON_FORMATTER_B, limits.toID);
             return "{" + s + "}";
         }
 
-        if (limits.isDateRange()) {
+        if (isDateRange(limits)) {
             String s = String.format(DATE_RANGE_JSON_FORMATTER_A, limits.fromDate.getTime());
             if (limits.toDate != null)
                 s += String.format(DATE_RANGE_JSON_FORMATTER_B, limits.toDate.getTime());
             return "{" + s + "}";
         }
 
+        if (isPageRange(limits)) {
+            String s = String.format(PAGE_RANGE_JSON_FORMATTER_A, limits.pageNum);
+            if (limits.pageSize != -1)
+                s += String.format(PAGE_RANGE_JSON_FORMATTER_B, limits.pageSize);
+            return "{" + s + "}";
+        }
+
         return "{}";
-    }
 
-    @JsonIgnore
-    public boolean isLatestCount() {
-        return latestCount != -1;
-    }
 
-    @JsonIgnore
-    public boolean isAncientCount() {
-        return ancientCount != -1;
+
+        // toString()
+        //if (isLatestCount(this))
+        //    return "latestCount: " + latestCount + "";
+        //
+        //if (isAncientCount(this))
+        //    return "ancientCount: " + ancientCount + "";
+        //
+        //if (isPageRange(this)) {
+        //    String s = "pageNum: " + pageNum + "";
+        //    if (pageSize != -1)
+        //        s += "; pageSize: " + pageSize + "";
+        //    return s;
+        //}
+        //
+        //if (isDateRange(this)) {
+        //    String s = "fromDate: " + JavaDate.DEF_DATE_FORMATTER.format(fromDate) + "";
+        //    if (toDate != null)
+        //        s += "; toDate: " + JavaDate.DEF_DATE_FORMATTER.format(toDate) + "";
+        //    return s;
+        //}
+        //
+        //return "NoLimits";
     }
 
 
     // Getters
 
+    public static boolean isLatestCount(HistoryLimits hl) {
+        return hl.latestCount != -1;
+    }
+
+    public static boolean isAncientCount(HistoryLimits hl) {
+        return hl.ancientCount != -1;
+    }
+
+    public static boolean isIDRange(HistoryLimits hl) {
+        return hl.fromID != -1 || hl.toID != -1;
+    }
+
+    public static boolean isDateRange(HistoryLimits hl) {
+        return hl.fromDate != null || hl.toDate != null;
+    }
+
+    public static boolean isPageRange(HistoryLimits hl) {
+        return hl.pageNum != -1 || hl.pageSize != -1;
+    }
+
+
+    // Getters (required by swagger)
+
     @JsonIgnore
-    public boolean isIDRange() {
-        return fromID != -1 || toID != -1;
+    public int getLatestCount() {
+        return latestCount;
     }
 
     @JsonIgnore
-    public boolean isDateRange() {
-        return fromDate != null || toDate != null;
+    public int getAncientCount() {
+        return ancientCount;
     }
 
     @JsonIgnore
-    public Long getLatestCount() {
-        return latestCount != -1 ? latestCount : null;
+    public long getFromID() {
+        return fromID;
     }
 
     @JsonIgnore
-    public Long getAncientCount() {
-        return ancientCount != -1 ? ancientCount : null;
+    public long getFromIDOrDefault() {
+        return fromID!=-1 ? fromID : 0;
     }
 
     @JsonIgnore
-    public Long getFromId() {
-        return fromID != -1 ? fromID : null;
+    public long getToID() {
+        return toID;
     }
 
     @JsonIgnore
-    public Long getToId() {
-        return toID != -1 ? toID : null;
+    public long getToIDOrDefault() {
+        return toID!=-1 ? toID : Long.MAX_VALUE;
     }
 
     @JsonIgnore
@@ -183,72 +287,48 @@ public class HistoryLimits {
         return fromDate;
     }
 
-
-    // Converters
+    @JsonIgnore
+    public Date getFromDateOrDefault() {
+        return fromDate!=null ? fromDate : new Date(0);
+    }
 
     @JsonIgnore
     public Date getToDate() {
         return toDate;
     }
 
-    @Override
-    public String toString() {
-        if (isLatestCount())
-            return "latestCount: " + latestCount + "";
-
-        if (isAncientCount())
-            return "ancientCount: " + ancientCount + "";
-
-        if (isIDRange()) {
-            String s = "fromID: " + fromID + "";
-            if (toID != -1)
-                s += "; toID: " + toID + "";
-            return s;
-        }
-
-        if (isDateRange()) {
-            String s = "fromDate: " + JavaDate.DEF_DATE_FORMATTER.format(fromDate) + "";
-            if (toDate != null)
-                s += "; toDate: " + JavaDate.DEF_DATE_FORMATTER.format(toDate) + "";
-            return s;
-        }
-
-        return "NoLimits";
+    @JsonIgnore
+    public Date getToDateOrDefault() {
+        //return toDate!=null ? toDate : new Date(Long.MAX_VALUE);    //                          64bit max date
+        //return toDate!=null ? toDate : new Date(253402297199L);     // 23:59:59 31/12/9999      max date < year 4 digit
+        return toDate!=null ? toDate : new Date(2147483647000L);    // 03:14:07 19/01/2038      32bit max date
     }
 
+    @JsonIgnore
+    public int getPageNum() {
+        return pageNum;
+    }
 
-//    public static void main(String[] args) {
-//
-//        HistoryLimits hs;
-//        hs = HistoryLimits.NO_LIMITS;
-//        test(hs,"NO_LIMITS");
-//
-//        hs = HistoryLimits.LATEST_10;
-//        test(hs,"LATEST_10");
-//
-//        hs = HistoryLimits.ANCIENT_10;
-//        test(hs,"ANCIENT_10");
-//
-//        hs = HistoryLimits.LAST_HOUR;
-//        test(hs,"LAST_HOUR");
-//
-//        hs = HistoryLimits.PAST_HOUR;
-//        test(hs,"PAST_HOUR");
-//
-//    }
-//
-//    private static void test(HistoryLimits limitsToTest, String testname) {
-//        System.out.println("Test: " + testname);
-//
-//        try {
-//            String limitsStr = HistoryLimits.toString(limitsToTest);
-//            System.out.println("- toString: " + limitsStr);
-//            HistoryLimits limits = HistoryLimits.fromString(limitsStr);
-//            System.out.println("- fromString: " + limits);
-//        } catch (JOSPProtocol.ParsingException e) {
-//            System.err.println("Error on test '" + testname + "': " + e.getMessage());
-//            System.err.println("              '" + testname + "': " + e.getCause().getMessage());
-//        }
-//    }
+    @JsonIgnore
+    public int getPageNumOrDefault() {
+        return pageNum!=-1 ? pageNum : 0;
+    }
+
+    @JsonIgnore
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    @JsonIgnore
+    public int getPageSizeOrDefault() {
+        return pageSize!=-1 ? pageSize : 10;
+    }
+
+    // Converters
+
+    @Override
+    public String toString() {
+        return toString(this);
+    }
 
 }

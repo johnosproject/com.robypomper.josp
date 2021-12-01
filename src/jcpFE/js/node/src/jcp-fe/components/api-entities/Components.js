@@ -39,7 +39,7 @@ function renderComponent(jcpFE,objUrl,component) {
     if (component.getType() === "RangeAction")
         return <ObjectRangeActionDetails key={component.getComponentPath()} jcpfe={jcpFE} objId={component.getObjectId()} objUrl={objUrl} component={component} expanded={defaultExpanded} />;
 
-    return <p key={component.getComponentPath()}>Unknow component {component.name}</p>;
+    return <p id={component.getComponentPath()} key={component.getComponentPath()}>Unknow component {component.name}</p>;
 }
 
 
@@ -75,7 +75,7 @@ export class ObjectBooleanStateRaw extends ReactObjectComponentBase {
         const component = this.getComponent();
 
         return (
-            <div style={{minWidth: '100px', marginRight: '20px', textAlign: 'center'}}>
+            <div id={component.getComponentPath()} style={{minWidth: '100px', marginRight: '20px', textAlign: 'center'}}>
                 <Switch
                     disabled
                     checked={this.state.status}
@@ -118,6 +118,7 @@ export class ObjectRangeStateRaw extends ReactObjectComponentBase {
 
         return (
             <Slider
+                id={component.getComponentPath()}
                 disabled
                 defaultValue={this.state.status}
                 min={component.getMin()}
@@ -201,10 +202,10 @@ export class ObjectBooleanActionRaw extends ObjectBooleanStateRaw {
             return this.renderComponentNotInit();
 
         // const object = this.getObject();
-        // const component = this.getComponent();
+        const component = this.getComponent();
         // const haveActionPermission = this.state.srvPerm==="CoOwner" || this.state.srvPerm==="Actions";
         return (
-            <div style={{
+            <div id={component.getComponentPath()} style={{
                 minWidth: '100px',
                 marginRight: isWidthUp('sm',this.props.width) ? this.props.theme.spacing(2) : '0px',
                 textAlign: 'center'
@@ -272,7 +273,7 @@ export class ObjectRangeActionRaw extends ObjectRangeStateRaw {
         const component = this.getComponent();
         // const haveActionPermission = this.state.srvPerm==="CoOwner" || this.state.srvPerm==="Actions";
         return (
-            <div style={{
+            <div id={component.getComponentPath()} style={{
                 minWidth: '100px',
                 marginRight: isWidthUp('sm',this.props.width) ? this.props.theme.spacing(2) : '0px',
                 textAlign: 'center'
@@ -390,8 +391,17 @@ class ObjectComponentDetailsRaw extends ReactObjectComponentBase {
         const expanded = this.state.expanded;
         var stateStr = component.getType() !== "Container" ? getStateStr(component.getState()) : "";
 
+        const pageWidth = window.innerWidth;
+        var padding;
+        var width;
+        if (pageWidth>=1920)
+          padding = '32px';
+        else if (pageWidth>=1024)
+          padding = '16px';
+        else
+          padding = '0px';
         return (
-            <Card key={this.key} style={{
+            <Card id={component.getComponentPath()!=""?component.getComponentPath():"(root)"} key={this.key} style={{
                     marginLeft: '0px',
                     marginRight: '0px',
                     marginTop: this.props.theme.spacing(2),
@@ -440,8 +450,8 @@ class ObjectComponentDetailsRaw extends ReactObjectComponentBase {
                         
                     </div>
 
-                    <Collapse in={expanded[this.key]} timeout="auto" unmountOnExit>
-                        <Container>{compInfo}</Container>
+                    <Collapse id="comp_collapsable" in={expanded[this.key]} timeout="auto" unmountOnExit>
+                        <Container id="comp_collapsable_container" style={{paddingLeft: padding, paddingRight: padding}}>{compInfo}</Container>
                     </Collapse>
 
                 </CardContent>
@@ -471,12 +481,12 @@ class ObjectContainerDetailsRaw extends ObjectComponentDetailsRaw {
         const component = this.getComponent();
         const compMain = null;
         const compInfo = (
-            <React.Fragment>
+            <div id="sub_comps">
                 {/* this.renderCommonsFields(component) */}
                 {component.getSubComponents().map( subComp =>
                     renderComponent(this.jcpFE, this.objUrl, subComp)
                 )}
-            </React.Fragment>);
+            </div>);
 
         return this.renderComponent(component,compMain,compInfo);
     }

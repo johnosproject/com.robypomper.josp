@@ -105,7 +105,7 @@ public class DefaultHistoryCompStatus extends HistoryBase implements HistoryComp
         try {
             sendToObjectCloudly(JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryCompStatusMsg(getServiceInfo().getFullId(), getRemote().getId(), getComponent().getPath().getString(), Integer.toString(reqId), limits));
 
-        } catch (PeerNotConnectedException | PeerStreamException ignore) {
+        } catch (JSLRemoteObject.MissingPermission | PeerNotConnectedException | PeerStreamException ignore) {
             sendToObjectLocally(JOSPProtocol_ServiceToObject.HISTORY_STATUS_REQ_MIN_PERM, JOSPProtocol_ServiceToObject.createHistoryCompStatusMsg(getServiceInfo().getFullId(), getRemote().getId(), getComponent().getPath().getString(), Integer.toString(reqId), limits));
         }
     }

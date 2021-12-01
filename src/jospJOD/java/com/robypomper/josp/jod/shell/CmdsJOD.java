@@ -43,6 +43,18 @@ public class CmdsJOD {
     }
 
     /**
+     * Connect current JOD Service.
+     *
+     * @return success or error message.
+     */
+    @Command(description = "Print current JOD instance info.")
+    public String jodInstanceInfo() {
+        jod.printInstanceInfo();
+
+        return "OK";
+    }
+
+    /**
      * Start current JOD Object.
      *
      * @return success or error message.
@@ -65,10 +77,15 @@ public class CmdsJOD {
     @Command(description="Stop current JOD Object.")
     public String jodStop() {
         try {
-            jod.shutdown();
+            jod.restart();
+
         } catch (StateException e) {
-            return String.format("Error on stopping JOD Object:\n\t'%s'", e.getMessage());
+            return "Error on restart JOD Object because " + e.getMessage();
         }
-        return "JOD Object stopped successfully.";
+
+        if (jod.getState() != JODState.RUN)
+            return "JOD Object NOT restarted.";
+
+        return "JOD Object restarted successfully.";
     }
 }

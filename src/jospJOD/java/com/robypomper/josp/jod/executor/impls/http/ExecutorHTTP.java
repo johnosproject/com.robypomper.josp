@@ -82,15 +82,6 @@ public class ExecutorHTTP extends AbsJODExecutor implements JODBooleanAction.JOS
     // Mngm
 
     /**
-     * Exec action method: print a log messages and return <code>true</code>.
-     */
-    @Override
-    protected boolean subExec() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorHTTP for component '%s' of proto '%s' exec", getName(), getProto()));
-        return true;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -116,6 +107,10 @@ public class ExecutorHTTP extends AbsJODExecutor implements JODBooleanAction.JOS
         try {
             String requestUrl = http.getActionRequest(commandAction);
             String requestBodyStr = new Substitutions(requestBody)
+                    //.substituteObject(jod.getObjectInfo())
+                    //.substituteObjectConfigs(jod.getObjectInfo())
+                    .substituteComponent(getComponent())
+                    .substituteState((JODState)getComponent())
                     .substituteAction(commandAction)
                     .toString();
             response = http.execRequest(requestUrl, requestBodyStr);
@@ -135,7 +130,7 @@ public class ExecutorHTTP extends AbsJODExecutor implements JODBooleanAction.JOS
         }
 
         try {
-            result = evaluator.evaluate(result);
+            result = evaluator.evaluate(result,commandAction);
         } catch (EvaluatorInternal.EvaluationException e) {
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorHTTP '%s' of proto '%s' error on evaluating result '%s'", getName(), getProto(), result), e);
             return true;

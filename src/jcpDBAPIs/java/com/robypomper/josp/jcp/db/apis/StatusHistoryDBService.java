@@ -26,10 +26,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class StatusHistoryDBService {
+
+    private static final String ENTITY_ID = "shId";
+    private static final Sort.Direction ENTITY_PAGE_ORDER = Sort.Direction.DESC;
+    private static final String ENTITY_PAGE_ORDER_FIELD = "updatedAt";
 
     // Internal vars
 
@@ -47,18 +52,24 @@ public class StatusHistoryDBService {
     }
 
     public List<ObjectStatusHistory> find(String objId, String compPath, HistoryLimits limits) {
-        if (limits.isLatestCount())
-            return statusesHistory.findByObjIdAndCompPath(objId, compPath, PageRequest.of(0, (int) (long) limits.getLatestCount(), Sort.by(Sort.Direction.DESC, "shId")));
+        if (HistoryLimits.isLatestCount(limits))
+            return statusesHistory.findByObjIdAndCompPath(objId, compPath, PageRequest.of(0, (int) (long) limits.getLatestCount(), Sort.by(Sort.Direction.DESC, ENTITY_ID)));
 
-        if (limits.isAncientCount())
-            return statusesHistory.findByObjIdAndCompPath(objId, compPath, PageRequest.of(0, (int) (long) limits.getAncientCount(), Sort.by(Sort.Direction.ASC, "shId")));
+        if (HistoryLimits.isAncientCount(limits)) {
+            List<ObjectStatusHistory> list = statusesHistory.findByObjIdAndCompPath(objId, compPath, PageRequest.of(0, (int) (long) limits.getAncientCount(), Sort.by(Sort.Direction.ASC, ENTITY_ID)));
+            Collections.reverse(list);
+            return list;
+        }
 
-        if (limits.isDateRange())
-            return statusesHistory.findByObjIdAndCompPathAndUpdatedAtBetween(objId, compPath, limits.getFromDate(), limits.getToDate());
+        if (HistoryLimits.isIDRange(limits))
+            return statusesHistory.findByObjIdAndCompPathAndShIdBetween(objId, compPath, limits.getFromIDOrDefault(), limits.getToIDOrDefault());
 
-        if (limits.isIDRange())
-            return statusesHistory.findByObjIdAndCompPathAndShIdBetween(objId, compPath, limits.getFromId(), limits.getToId());
+        if (HistoryLimits.isDateRange(limits))
+            return statusesHistory.findByObjIdAndCompPathAndUpdatedAtBetween(objId, compPath, limits.getFromDateOrDefault(), limits.getToDateOrDefault());
 
-        return statusesHistory.findByObjIdAndCompPath(objId, compPath);
+        if (HistoryLimits.isPageRange(limits))
+            return statusesHistory.findByObjIdAndCompPath(objId, compPath, PageRequest.of(limits.getPageNumOrDefault(), limits.getPageSizeOrDefault(), Sort.by(ENTITY_PAGE_ORDER, ENTITY_PAGE_ORDER_FIELD)));
+
+        return statusesHistory.findByObjIdAndCompPath(objId, compPath, Sort.by(Sort.Direction.DESC, ENTITY_ID));
     }
 }

@@ -158,27 +158,52 @@ public class CmdsJSLObjsMngr {
 
     @Command(description = "Print all events of given objId.")
     public String objPrintObjectEvents(String objId) {
-        return doObjPrintObjectEvents(objId, HistoryLimits.NO_LIMITS);
+        return doObjPrintObjectEvents(objId, HistoryLimits.NO_LIMITS());
     }
 
     @Command(description = "Print latest 10 events of given objId.")
     public String objPrintObjectEventsLatest(String objId) {
-        return doObjPrintObjectEvents(objId, HistoryLimits.LATEST_10);
+        return doObjPrintObjectEvents(objId, HistoryLimits.LATEST(10));
     }
 
     @Command(description = "Print ancient 10 events of given objId.")
     public String objPrintObjectEventsAncient(String objId) {
-        return doObjPrintObjectEvents(objId, HistoryLimits.ANCIENT_10);
+        return doObjPrintObjectEvents(objId, HistoryLimits.ANCIENT(10));
+    }
+
+    @Command(description = "Print all events from specified event's id of given objId.")
+    public String objPrintObjectEventsFromID(String objId, long id) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.FROM_ID(id));
+    }
+
+    @Command(description = "Print all events until specified event's id of given objId.")
+    public String objPrintObjectEventsToID(String objId, long id) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.TO_ID(id));
+    }
+
+    @Command(description = "Print all events contained in specified event's id range (inclusive) of given objId.")
+    public String objPrintObjectEventsBetweenID(String objId, long start, long end) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.BETWEEN_ID(start,end));
     }
 
     @Command(description = "Print last hour events of given objId.")
     public String objPrintObjectEventsLastHour(String objId) {
-        return doObjPrintObjectEvents(objId, HistoryLimits.LAST_HOUR);
+        return doObjPrintObjectEvents(objId, HistoryLimits.LAST_HOUR());
     }
 
     @Command(description = "Print past hour all events of given objId.")
     public String objPrintObjectEventsPastHour(String objId) {
-        return doObjPrintObjectEvents(objId, HistoryLimits.PAST_HOUR);
+        return doObjPrintObjectEvents(objId, HistoryLimits.PAST_HOUR());
+    }
+
+    @Command(description = "Print specified page of events of given objId.")
+    public String objPrintObjectEventsPage(String objId, int page, int size) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.PAGE(page,size));
+    }
+
+    @Command(description = "Send a bad formatted request.")
+    public String objPrintObjectEventsError(String objId) {
+        return doObjPrintObjectEvents(objId, HistoryLimits.ERROR());
     }
 
     private String doObjPrintObjectEvents(String objId, HistoryLimits limits) {
@@ -251,30 +276,55 @@ public class CmdsJSLObjsMngr {
 
     @Command(description = "Print object's component status history.")
     public String objStatusHistory(String objId, String compPath) {
-        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.NO_LIMITS);
+        return doObjStatusHistory(objId, compPath, HistoryLimits.NO_LIMITS());
     }
 
     @Command(description = "Print latest 10 object's component status history.")
     public String objStatusHistoryLatest(String objId, String compPath) {
-        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.LATEST_10);
+        return doObjStatusHistory(objId, compPath, HistoryLimits.LATEST(10));
     }
 
     @Command(description = "Print ancient 10 object's component status history.")
     public String objStatusHistoryAncient(String objId, String compPath) {
-        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.ANCIENT_10);
+        return doObjStatusHistory(objId, compPath, HistoryLimits.ANCIENT(10));
+    }
+
+    @Command(description = "Print all object's component status history from specified id.")
+    public String objStatusHistoryFromID(String objId, String compPath, long id) {
+        return doObjStatusHistory(objId, compPath, HistoryLimits.FROM_ID(id));
+    }
+
+    @Command(description = "Print all object's component status history until specified id.")
+    public String objStatusHistoryToID(String objId, String compPath, long id) {
+        return doObjStatusHistory(objId, compPath, HistoryLimits.TO_ID(id));
+    }
+
+    @Command(description = "Print all object's component status history contained in the specified range (inclusive).")
+    public String objStatusHistoryBetweenID(String objId, String compPath, long start, long end) {
+        return doObjStatusHistory(objId, compPath, HistoryLimits.BETWEEN_ID(start,end));
     }
 
     @Command(description = "Print latest hour object's component status history.")
     public String objStatusHistoryLastHour(String objId, String compPath) {
-        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.LAST_HOUR);
+        return doObjStatusHistory(objId, compPath, HistoryLimits.LAST_HOUR());
     }
 
     @Command(description = "Print latest hour object's component status history.")
     public String objStatusHistoryPastHour(String objId, String compPath) {
-        return doObjStatusHistoryLatest(objId, compPath, HistoryLimits.PAST_HOUR);
+        return doObjStatusHistory(objId, compPath, HistoryLimits.PAST_HOUR());
     }
 
-    private String doObjStatusHistoryLatest(String objId, String compPath, HistoryLimits limits) {
+    @Command(description = "Print specified page of object's component status history.")
+    public String objStatusHistoryPage(String objId, String compPath, int page, int size) {
+        return doObjStatusHistory(objId, compPath, HistoryLimits.PAGE(page,size));
+    }
+
+    @Command(description = "Send a bad formatted request.")
+    public String objStatusHistoryError(String objId, String compPath) {
+        return doObjStatusHistory(objId, compPath, HistoryLimits.ERROR());
+    }
+
+    private String doObjStatusHistory(String objId, String compPath, HistoryLimits limits) {
         JSLRemoteObject obj = objs.getById(objId);
         if (obj == null)
             return String.format("No object found with id '%s'", objId);

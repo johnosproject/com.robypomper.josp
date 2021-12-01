@@ -24,8 +24,6 @@ import com.robypomper.josp.clients.HTTPClient;
 import com.robypomper.josp.jod.executor.AbsJODPuller;
 import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODState;
-import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
-import com.robypomper.josp.jod.structure.pillars.JODRangeState;
 import com.robypomper.log.Mrk_JOD;
 
 import java.net.MalformedURLException;
@@ -159,11 +157,13 @@ public class PullerHTTP extends AbsJODPuller {
 
         log.debug(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerHTML '%s' of proto '%s' pulling url '%s' and get '%s' value from '%s' result", getName(), getProto(), http.getLastUrl(), resultEvaluated, result));
 
-        // For each JODState supported
-        if (getComponent() instanceof JODBooleanState)
-            ((JODBooleanState) getComponent()).setUpdate(Boolean.parseBoolean(resultEvaluated));
-        else if (getComponent() instanceof JODRangeState)
-            ((JODRangeState) getComponent()).setUpdate(Double.parseDouble(resultEvaluated));
+        if (!convertAndSetStatus(resultEvaluated))
+            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerFiles for component '%s' can't update his component because not supported (%s)", getName(), getComponent().getClass().getSimpleName()));
+        //// For each JODState supported
+        //if (getComponent() instanceof JODBooleanState)
+        //    ((JODBooleanState) getComponent()).setUpdate(Boolean.parseBoolean(resultEvaluated));
+        //else if (getComponent() instanceof JODRangeState)
+        //    ((JODRangeState) getComponent()).setUpdate(Double.parseDouble(resultEvaluated));
     }
 
 }

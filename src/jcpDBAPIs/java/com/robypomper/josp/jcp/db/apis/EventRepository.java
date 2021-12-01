@@ -22,6 +22,7 @@ package com.robypomper.josp.jcp.db.apis;
 import com.robypomper.josp.jcp.db.apis.entities.Event;
 import com.robypomper.josp.types.josp.EventType;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
@@ -36,6 +37,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findBySrcId(@Param("srcId") String srcId);
 
+    List<Event> findBySrcId(@Param("srcId") String srcId, Sort sort);
+
     List<Event> findBySrcId(@Param("srcId") String srcId, Pageable pageable);
 
     List<Event> findBySrcIdAndEmittedAtBetween(@Param("srcId") String srcId,
@@ -43,7 +46,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                                @Param("endDate") Date endDate);
 
     List<Event> findBySrcIdAndEvnIdBetween(@Param("srcId") String srcId,
-                                           @Param("startShId") long startShId,
-                                           @Param("endShId") long endShId);
+                                           @Param("startEvnId") long startEvnId,
+                                           @Param("endEvnId") long endEvnId);
 
 }
