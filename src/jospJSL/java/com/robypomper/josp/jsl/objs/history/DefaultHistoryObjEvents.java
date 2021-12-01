@@ -103,7 +103,7 @@ public class DefaultHistoryObjEvents extends HistoryBase implements HistoryObjEv
         try {
             sendToObjectCloudly(JOSPPerm.Type.CoOwner, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
 
-        } catch (PeerNotConnectedException | PeerStreamException ignore) {
+        } catch (JSLRemoteObject.MissingPermission | PeerNotConnectedException | PeerStreamException ignore) {
             sendToObjectLocally(JOSPPerm.Type.CoOwner, JOSPProtocol_ServiceToObject.createHistoryEventsMsg(getServiceInfo().getFullId(), getRemote().getId(), Integer.toString(reqId), limits));
         }
     }
