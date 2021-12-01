@@ -69,9 +69,6 @@ public class HistoryLimits {
 
     // Constructor
 
-    public HistoryLimits() {
-    }
-
     @JsonCreator
     public HistoryLimits(@JsonProperty("latestCount") Long latestCount,
                          @JsonProperty("ancientCount") Long ancientCount,
