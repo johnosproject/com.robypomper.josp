@@ -31,7 +31,7 @@ import java.util.*;
 /**
  * Class utils to help store and retrieve JSON arrays from files.
  * <p>
- * This class implements also an internal chace to reduce the number of
+ * This class implements also an internal cache to reduce the number of
  * read/write operations on file.
  *
  * @param <T> type of JSON array content.
@@ -131,7 +131,7 @@ public abstract class JavaJSONArrayToFile<T, K> {
         int countAdded = 0;
         synchronized (cacheBuffered) {
             if (cacheBuffered.size() == 0) {
-                System.out.println("JavaJSONArrayToFile cacheBuffered cleaned before flush cache to file.");
+                //System.out.println("JavaJSONArrayToFile cacheBuffered cleaned before flush cache to file.");
                 return;
             }
 
@@ -259,7 +259,7 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return filtered;
     }
 
-    public List<T> filterAllBuffered(Filter<T> filter) {
+    private List<T> filterAllBuffered(Filter<T> filter) {
         List<T> filtered = new ArrayList<>();
 
         for (T o : cacheBuffered) {
@@ -270,21 +270,17 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return filtered;
     }
 
-    public List<T> filterAllFile(Filter<T> filter) throws IOException {
+    private List<T> filterAllFile(Filter<T> filter) throws IOException {
         List<T> filtered = new ArrayList<>();
 
         ArrayNode array = getMainNode();
-        int count = 0;
         for (Iterator<JsonNode> i = array.elements(); i.hasNext(); ) {
-            count++;
             JsonNode node = i.next();
             T o = jsonMapper.readValue(node.traverse(), typeOfT);
 
             if (filter.accepted(o))
                 filtered.add(o);
         }
-
-        System.out.println(String.format("\nScanning di %d elementi, %d accepted", count, filtered.size()));
 
         return filtered;
     }
@@ -309,7 +305,7 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return filtered;
     }
 
-    public List<T> filterLatestBuffered(Filter<T> filter, long latestCount) {
+    private List<T> filterLatestBuffered(Filter<T> filter, long latestCount) {
         List<T> filtered = new ArrayList<>();
 
         for (ListIterator<T> i = cacheBuffered.listIterator(cacheBuffered.size()); i.hasPrevious(); ) {
@@ -323,13 +319,11 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return filtered;
     }
 
-    public List<T> filterLatestFile(Filter<T> filter, long latestCount) throws IOException {
+    private List<T> filterLatestFile(Filter<T> filter, long latestCount) throws IOException {
         List<T> filtered = new ArrayList<>();
 
         ArrayNode array = getMainNode();
-        int count = 0;
         for (Iterator<JsonNode> i = array.elements(); i.hasNext(); ) {
-            count++;
             JsonNode node = i.next();
             T o = jsonMapper.readValue(node.traverse(), typeOfT);
 
@@ -339,8 +333,6 @@ public abstract class JavaJSONArrayToFile<T, K> {
                     break;
             }
         }
-
-        System.out.println(String.format("\nScanning di %d elementi, %d accepted", count, filtered.size()));
 
         return filtered;
     }
@@ -365,7 +357,7 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return filtered;
     }
 
-    public List<T> filterAncientBuffered(Filter<T> filter, long ancientCount) {
+    private List<T> filterAncientBuffered(Filter<T> filter, long ancientCount) {
         List<T> filtered = new ArrayList<>();
 
         for (T o : cacheBuffered) {
@@ -378,19 +370,16 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return filtered;
     }
 
-    public List<T> filterAncientFile(Filter<T> filter, long ancientCount) throws IOException {
+    private List<T> filterAncientFile(Filter<T> filter, long ancientCount) throws IOException {
         List<T> filtered = new ArrayList<>();
 
         ArrayNode array = getMainNode();
-        int count = 0;
         for (JsonNode jsonNode : array) {
-            count++;
             T o = jsonMapper.readValue(jsonNode.traverse(), typeOfT);
             if (filter.accepted(o))
                 filtered.add(o);
         }
 
-        System.out.println(String.format("\nScanning di %d elementi, %d accepted", count, filtered.size()));
         if (filtered.size() > ancientCount)
             filtered = filtered.subList((int) (filtered.size() - ancientCount), filtered.size());
 
@@ -411,28 +400,24 @@ public abstract class JavaJSONArrayToFile<T, K> {
     public List<T> filterById(Filter<T> filter, K fromId, K toId) throws IOException {
         if (count() == 0) return new ArrayList<>();
 
+        // If 1stBufElem < fromId
         if (fromId != null && getFirstBuffered() != null && compareItemIds(getItemId(getFirstBuffered()), fromId) < 0)
             return filterByIdBuffered(filter, fromId, toId);
 
-        //List<T> filtered = new ArrayList<>();
         List<T> filtered = filterByIdFile(filter, fromId, toId);
+        // If LastBufElem < toId
         if (toId == null || (getLastBuffered() != null && compareItemIds(getItemId(getFirstBuffered()), toId) < 0))
             filtered.addAll(filterByIdBuffered(filter, fromId, toId));
         return filtered;
     }
 
-    public List<T> filterByIdBuffered(Filter<T> filter, K fromId, K toId) {
+    private List<T> filterByIdBuffered(Filter<T> filter, K fromId, K toId) {
         boolean store = fromId == null;
         List<T> range = new ArrayList<>();
 
+        // Until v.id > toId
         for (T v : cacheBuffered) {
-            //if (fromId != null && equalsItemIds(fromId, getItemId(v)))
-            //    store = true;
-            //if (store && filter.accepted(v))
-            //    range.add(v);
-            //if (toId != null && equalsItemIds(toId, getItemId(v)))
-            //    store = false;
-
+            // To exclude fromId, use > instead >=
             if (fromId != null && compareItemIds(getItemId(v), fromId) >= 0)
                 store = true;
             if (toId != null && compareItemIds(getItemId(v), toId) > 0)
@@ -444,16 +429,18 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return range;
     }
 
-    public List<T> filterByIdFile(Filter<T> filter, K fromId, K toId) throws IOException {
+    private List<T> filterByIdFile(Filter<T> filter, K fromId, K toId) throws IOException {
         boolean store = toId == null;
         List<T> range = new ArrayList<>();
 
         ArrayNode array = getMainNode();
+        // Until v.id < fromId
         for (Iterator<JsonNode> i = array.elements(); i.hasNext(); ) {
             JsonNode node = i.next();
             T v = jsonMapper.readValue(node.traverse(), typeOfT);
 
-            if (toId != null && compareItemIds(getItemId(v), toId) < 0)
+            // to exclude toID, use < instead <=
+            if (toId != null && compareItemIds(getItemId(v), toId) <= 0)
                 store = true;
             if (fromId != null && compareItemIds(getItemId(v), fromId) < 0)
                 break;
@@ -479,23 +466,27 @@ public abstract class JavaJSONArrayToFile<T, K> {
     public List<T> filterByDate(Filter<T> filter, Date fromDate, Date toDate) throws IOException {
         if (count() == 0) return new ArrayList<>();
 
+        // If 1stBufElem < fromDate
         if (fromDate != null && getFirstBuffered() != null && compareItemDate(getItemDate(getFirstBuffered()), fromDate) < 0)
             return filterByDateBuffered(filter, fromDate, toDate);
 
         List<T> filtered = filterByDateFile(filter, fromDate, toDate);
-        if (toDate == null || (getLastBuffered() != null && compareItemDate(getItemDate(getLastBuffered()), toDate) > 0))
+        // If LastBufElem < toDate
+        if (toDate == null || (getLastBuffered() != null && compareItemDate(getItemDate(getLastBuffered()), toDate) < 0))
             filtered.addAll(filterByDateBuffered(filter, fromDate, toDate));
         return filtered;
     }
 
-    public List<T> filterByDateBuffered(Filter<T> filter, Date fromDate, Date toDate) {
+    private List<T> filterByDateBuffered(Filter<T> filter, Date fromDate, Date toDate) {
         boolean store = fromDate == null;
         List<T> range = new ArrayList<>();
 
+        // Until v.date > toDate
         for (T v : cacheBuffered) {
-            if (fromDate != null && compareItemDate(fromDate, getItemDate(v)) < 0)
+            // To exclude fromDate, use > instead >=
+            if (fromDate != null && compareItemDate(getItemDate(v), fromDate) >= 0)
                 store = true;
-            if (toDate != null && compareItemDate(toDate, getItemDate(v)) < 0)
+            if (toDate != null && compareItemDate(getItemDate(v), toDate) > 0)
                 break;
             if (store && filter.accepted(v))
                 range.add(v);
@@ -504,33 +495,26 @@ public abstract class JavaJSONArrayToFile<T, K> {
         return range;
     }
 
-    public List<T> filterByDateFile(Filter<T> filter, Date fromDate, Date toDate) throws IOException {
+    private List<T> filterByDateFile(Filter<T> filter, Date fromDate, Date toDate) throws IOException {
         boolean store = toDate == null;
         List<T> range = new ArrayList<>();
 
         ArrayNode array = getMainNode();
+        // Until v.date < fromDate
         for (Iterator<JsonNode> i = array.elements(); i.hasNext(); ) {
             JsonNode node = i.next();
             T v = jsonMapper.readValue(node.traverse(), typeOfT);
 
-            if (toDate != null && compareItemDate(toDate, getItemDate(v)) > 0)
+            // to exclude toDate, use < instead <=
+            if (toDate != null && compareItemDate(getItemDate(v), toDate) <= 0)
                 store = true;
-            if (fromDate != null && compareItemDate(fromDate, getItemDate(v)) > 0)
+            if (fromDate != null && compareItemDate(getItemDate(v), fromDate) < 0)
                 break;
             if (store && filter.accepted(v))
                 range.add(v);
         }
 
         return range;
-    }
-
-    /**
-     * @return the value {@code 0} if the argument string is equal to this string;
-     * a value less than {@code 0} if first date is before than the second argument;
-     * and a value greater than {@code 0} if first date is after than the second argument.
-     */
-    protected int compareItemDate(Date id1, Date id2) {
-        return (int) (id1.getTime() - id2.getTime());
     }
 
 
@@ -543,6 +527,10 @@ public abstract class JavaJSONArrayToFile<T, K> {
     }
 
     protected abstract K getItemId(T value);
+
+    protected int compareItemDate(Date id1, Date id2) {
+        return id1.compareTo(id2);
+    }
 
     protected boolean equalsItemDate(Date id1, Date id2) {
         return compareItemDate(id1, id2) == 0;
