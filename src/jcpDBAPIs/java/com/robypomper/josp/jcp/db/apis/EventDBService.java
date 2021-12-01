@@ -27,11 +27,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 
 @Service
 public class EventDBService {
+
+    private static final String ENTITY_ID = "evnId";
+    private static final Sort.Direction ENTITY_PAGE_ORDER = Sort.Direction.DESC;
+    private static final String ENTITY_PAGE_ORDER_FIELD = "emittedAt";
 
     // Internal vars
 
@@ -63,19 +68,25 @@ public class EventDBService {
     }
 
     public List<Event> find(String srcId, HistoryLimits limits) {
-        if (limits.isLatestCount())
-            return events.findBySrcId(srcId, PageRequest.of(0, (int) (long) limits.getLatestCount(), Sort.by(Sort.Direction.DESC, "evnId")));
+        if (HistoryLimits.isLatestCount(limits))
+            return events.findBySrcId(srcId, PageRequest.of(0, (int) (long) limits.getLatestCount(), Sort.by(Sort.Direction.DESC, ENTITY_ID)));
 
-        if (limits.isAncientCount())
-            return events.findBySrcId(srcId, PageRequest.of(0, (int) (long) limits.getAncientCount(), Sort.by(Sort.Direction.ASC, "evnId")));
+        if (HistoryLimits.isAncientCount(limits)) {
+            List<Event> list = events.findBySrcId(srcId, PageRequest.of(0, (int) (long) limits.getAncientCount(), Sort.by(Sort.Direction.ASC, ENTITY_ID)));
+            Collections.reverse(list);
+            return list;
+        }
 
-        if (limits.isDateRange())
-            return events.findBySrcIdAndEmittedAtBetween(srcId, limits.getFromDate(), limits.getToDate());
+        if (HistoryLimits.isIDRange(limits))
+            return events.findBySrcIdAndEvnIdBetween(srcId, limits.getFromIDOrDefault(), limits.getToIDOrDefault());
 
-        if (limits.isIDRange())
-            return events.findBySrcIdAndEvnIdBetween(srcId, limits.getFromId(), limits.getToId());
+        if (HistoryLimits.isDateRange(limits))
+            return events.findBySrcIdAndEmittedAtBetween(srcId, limits.getFromDateOrDefault(), limits.getToDateOrDefault());
 
-        return events.findBySrcId(srcId);
+        if (HistoryLimits.isPageRange(limits))
+            return events.findBySrcId(srcId, PageRequest.of(limits.getPageNumOrDefault(), limits.getPageSizeOrDefault(), Sort.by(ENTITY_PAGE_ORDER, ENTITY_PAGE_ORDER_FIELD)));
+
+        return events.findBySrcId(srcId, Sort.by(Sort.Direction.DESC, ENTITY_ID));
     }
 
 }

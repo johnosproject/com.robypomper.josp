@@ -81,8 +81,7 @@ export default class JSLSession {
             throw 'JSL Session already init';
 
         const thiz = this;
-        //Caller.apiGET(thiz, thiz._jcpJSLWB.getFrontEndUrl() + thiz.API_FE_INIT_SESSION + '?session_id=' + this._idJSLWBSession,
-        Caller.apiGET(thiz, thiz._jcpJSLWB.API_FE_INIT_SESSION + '?session_id=' + this._idJSLWBSession,
+        Caller.apiGET(thiz, thiz._jcpJSLWB.getFEUrl() + thiz._jcpJSLWB.API_FE_INIT_SESSION + '?session_id=' + this._idJSLWBSession,
 
             function processresponse(thiz,responseText) {
                 thiz._isInit = responseText === 'true';

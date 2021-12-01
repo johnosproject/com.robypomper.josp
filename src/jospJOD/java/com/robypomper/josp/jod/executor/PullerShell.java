@@ -83,13 +83,20 @@ public class PullerShell extends AbsJODPuller {
     public void pull() {
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerShell '%s' of proto '%s' pulling (cmd='%s')", getName(), getProto(), cmd));
 
+        String cmdFormatted = new Substitutions(cmd)
+            //.substituteObject(jod.getObjectInfo())
+            //.substituteObjectConfigs(jod.getObjectInfo())
+            .substituteComponent(getComponent())
+            .substituteState((JODState) getComponent())
+            .toString();
+
         // CmdPartitioning
         String state;
         try {
-            state = JavaExecProcess.execCmd(cmd).trim();
+            state = JavaExecProcess.execCmd(cmdFormatted).trim();
 
         } catch (IOException | JavaExecProcess.ExecStillAliveException e) {
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerShell error on executing cmd '%s' for component '%s' because '%s'", cmd, getName(), e.getMessage()), e);
+            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerShell error on executing cmd '%s' for component '%s' because '%s'", cmdFormatted, getName(), e.getMessage()), e);
             return;
         }
         log.info(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerShell '%s' of proto '%s' read state '%s'", getName(), getProto(), state));

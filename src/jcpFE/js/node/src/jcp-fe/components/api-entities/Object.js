@@ -1527,13 +1527,37 @@ export class ComponentHistoryPage extends ReactObjectComponentBase {
         );
     }
 
+    renderComponentHistoryFetching() {
+        return (
+            <Container>
+                <Typography variant="body2" component="p">
+                    Loading Component {this.compPath} history...
+                </Typography>
+            </Container>
+        );
+    }
+
+    _renderCard(content) {
+      return (
+        <Container>
+            <Card style={{margin:'20px 0'}}>
+                <CardContent>
+                    {content}
+                </CardContent>
+            </Card>
+        </Container>
+      );
+    }
+
     render() {
+        if (this.state.isFetching)
+            return this._renderCard(this.renderComponentHistoryFetching());
         if (!this.isObjectInit())
-            return this.renderObjectNotInit();
+            return this._renderCard(this.renderObjectNotInit());
         if (!this.isObjectAllowed())
-            return this.renderObjectNotAllowed();
+            return this._renderCard(this.renderObjectNotAllowed());
         if (!this.isComponentInit())
-            return this.renderComponentNotInit();
+            return this._renderCard(this.renderComponentNotInit());
 
         const type = this.getComponent().getType();
         const minDate = this.state.history[0] ? new Date(this.state.history[0].updatedAt) : new Date();

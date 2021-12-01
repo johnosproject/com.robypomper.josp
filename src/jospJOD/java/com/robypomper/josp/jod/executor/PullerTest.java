@@ -59,11 +59,19 @@ public class PullerTest extends AbsJODPuller {
     public void pull() {
         log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest '%s' of proto '%s' pulling", getName(), getProto()));
 
-        // For each JODState supported
+        String state = "";
         if (getComponent() instanceof JODBooleanState)
-            ((JODBooleanState) getComponent()).setUpdate(true);
+            state = "true";
         else if (getComponent() instanceof JODRangeState)
-            ((JODRangeState) getComponent()).setUpdate(5);
+            state = "5";
+
+        if (!convertAndSetStatus(state))
+            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerShell for component '%s' can't update his component because not supported (%s)", getName(), getComponent().getClass().getSimpleName()));
+        //// For each JODState supported
+        //if (getComponent() instanceof JODBooleanState)
+        //    ((JODBooleanState) getComponent()).setUpdate(true);
+        //else if (getComponent() instanceof JODRangeState)
+        //    ((JODRangeState) getComponent()).setUpdate(5);
 
     }
 

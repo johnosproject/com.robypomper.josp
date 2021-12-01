@@ -175,11 +175,13 @@ export class DashboardLastObjectActivityNamesCard extends ReactDashboardBaseCard
     // Objects activities Events
 
     onObjectsActivitiesUpdate(objectActivitiesList) {
-        if (objectActivitiesList[0].objId != "NONE")
+        if (objectActivitiesList[0].objId != "NONE") {
+            const object = this.jcpFE.getObjects().getById(objectActivitiesList[0].objId);
             this.setState({
                 objId: objectActivitiesList[0].objId,
-                objName: this.jcpFE.getObjects().getById(objectActivitiesList[0].objId).getName()
+                objName: object ? object.getName() : "N/A"
             });
+        }
     }
 
 
@@ -462,7 +464,9 @@ export class DashboardObjectsActivitiesCard extends ReactDashboardBaseCard {
             { field: 'time', headerName: 'Time', width: 160, type: 'dateTime',
                 valueGetter: (params) => (new Date(params.row.time))},
             { field: 'objId', headerName: 'Object', flex: 0.3,
-                renderCell: (params) => <Typography>{params.row.objId ? <Link to={getObjectUrl(params.row.objId)}>{params.row.objId}</Link> : null}</Typography>},
+                renderCell: (params) => <Typography>{params.row.objId != "N/A" ? <Link to={getObjectUrl(params.row.objId)}>{params.row.objId}</Link> : "-"}</Typography>},
+            { field: 'objName', headerName: 'Name', flex: 0.3,
+                renderCell: (params) => <Typography>{params.row.objName != "N/A" ? params.row.objName : "-"}</Typography> },
             { field: 'type', headerName: 'Type', width: 140 },
             { field: 'description', headerName: 'Activities', flex: 1 },
             { field: 'id', headerName: 'ID', width: 60 },

@@ -22,6 +22,7 @@ package com.robypomper.josp.jod.executor;
 
 import com.robypomper.java.JavaFiles;
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
 import com.robypomper.josp.protocol.JOSPProtocol;
@@ -90,16 +91,6 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
     // Mngm
 
     /**
-     * Exec action method: print a log messages and return <code>true</code>.
-     */
-    @Deprecated
-    @Override
-    protected boolean subExec() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorFiles for component '%s' of proto '%s' exec", getName(), getProto()));
-        return true;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -109,6 +100,10 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
         System.out.printf("\toldState %b%n", cmdAction.oldState);
 
         String actionStr = new Substitutions(actionStrFormat)
+                //.substituteObject(jod.getObjectInfo())
+                //.substituteObjectConfigs(jod.getObjectInfo())
+                .substituteComponent(getComponent())
+                .substituteState((JODState)getComponent())
                 .substituteAction(commandAction)
                 .toString();
         log.trace(Mrk_Commons.DISC_PUB_IMPL, String.format("Write ExecutorFiles state '%s' on '%s' file", actionStr, filePath));
@@ -120,6 +115,8 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
             log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorFiles error on writing file '%s' for component '%s'", filePath, getName()));
             return false;
         }
+
+        ((JODState) getComponent()).forceCheckState();
 
         return true;
     }
@@ -145,6 +142,8 @@ public class ExecutorFiles extends AbsJODExecutor implements JODBooleanAction.JO
                 log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorFiles error on writing file '%s' for component '%s'", filePath, getName()));
                 return false;
             }
+
+        ((JODState) getComponent()).forceCheckState();
 
         return true;
     }

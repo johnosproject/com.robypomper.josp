@@ -23,6 +23,7 @@ package com.robypomper.josp.jod.executor;
 import com.robypomper.java.JavaExecProcess;
 import com.robypomper.java.JavaFiles;
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
 import com.robypomper.josp.protocol.JOSPProtocol;
@@ -79,16 +80,6 @@ public class ExecutorShell extends AbsJODExecutor implements JODBooleanAction.JO
     // Mngm
 
     /**
-     * Exec action method: print a log messages and return <code>true</code>.
-     */
-    @Deprecated
-    @Override
-    protected boolean subExec() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ExecutorTest for component '%s' of proto '%s' exec", getName(), getProto()));
-        return true;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -97,12 +88,19 @@ public class ExecutorShell extends AbsJODExecutor implements JODBooleanAction.JO
         System.out.printf("\tnewState %b%n", cmdAction.newState);
         System.out.printf("\toldState %b%n", cmdAction.oldState);
 
-
         String cmdUpd = new Substitutions(cmd)
+                //.substituteObject(jod.getObjectInfo())
+                //.substituteObjectConfigs(jod.getObjectInfo())
+                .substituteComponent(getComponent())
+                .substituteState((JODState)getComponent())
                 .substituteAction(commandAction)
                 .toString();
         String redirectUpd = redirect.isEmpty() ? null :
                 new Substitutions(redirect)
+                        //.substituteObject(jod.getObjectInfo())
+                        //.substituteObjectConfigs(jod.getObjectInfo())
+                        .substituteComponent(getComponent())
+                        .substituteState((JODState)getComponent())
                         .substituteAction(commandAction)
                         .toString();
 
@@ -127,6 +125,8 @@ public class ExecutorShell extends AbsJODExecutor implements JODBooleanAction.JO
             log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorShell error on writing output to '%s' file of partial cmd '%s' for component '%s' because %s", redirectUpd, cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
+
+        ((JODState) getComponent()).forceCheckState();
 
         return true;
     }
@@ -161,6 +161,8 @@ public class ExecutorShell extends AbsJODExecutor implements JODBooleanAction.JO
             log.warn(Mrk_JOD.JOD_EXEC, String.format("ExecutorShell error on writing output to '%s' file of partial cmd '%s' for component '%s' because %s", redirectUpd, cmdUpd, getName(), e.getMessage()), e);
             return false;
         }
+
+        ((JODState) getComponent()).forceCheckState();
 
         return true;
     }

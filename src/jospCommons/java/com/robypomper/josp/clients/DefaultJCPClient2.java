@@ -1038,6 +1038,10 @@ public class DefaultJCPClient2 implements JCPClient2 {
                     log.warn(String.format("JCP Client '%s' refresh failed, re-connect.", getApiName()));
                     try {
                         disconnect();
+
+                    } catch (StateException ignore) {}
+
+                    try {
                         try {
                             connect();
 
@@ -1050,8 +1054,8 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
                             connect();
                         }
-
                     } catch (StateException ignore) {}
+
 //
 //                    // Get new access token with new authentication process
 //                    if (isClientCredentialFlowEnabled())

@@ -353,17 +353,37 @@ public class JODEvents_002 implements JODEvents {
 
     @Override
     public List<JOSPEvent> filterHistoryEvents(HistoryLimits limits, JavaJSONArrayToFile.Filter<JOSPEvent> filter) {
-        if (limits.isLatestCount())
+        if (HistoryLimits.isLatestCount(limits))
             return events.tryLatest(filter, limits.getLatestCount());
 
-        if (limits.isAncientCount())
+        if (HistoryLimits.isAncientCount(limits))
             return events.tryAncient(filter, limits.getAncientCount());
 
-        if (limits.isIDRange())
-            return events.tryById(filter, limits.getFromId(), limits.getToId());
+        if (HistoryLimits.isIDRange(limits))
+            return events.tryById(filter, limits.getFromIDOrDefault(), limits.getToIDOrDefault());
 
-        if (limits.isDateRange())
-            return events.tryByDate(filter, limits.getFromDate(), limits.getToDate());
+        if (HistoryLimits.isDateRange(limits))
+            return events.tryByDate(filter, limits.getFromDateOrDefault(), limits.getToDateOrDefault());
+
+        if (HistoryLimits.isPageRange(limits))
+            try {
+                List<JOSPEvent> all = events.filterAll(filter);
+
+                int page = limits.getPageNumOrDefault();
+                int size = limits.getPageSizeOrDefault();
+
+                int posStart = page*size;
+                if (posStart>all.size()-1)
+                    return new ArrayList<>();
+
+                int posEnd = (page*size) + size - 1;
+                if (posEnd>=all.size()-1)
+                    posEnd = all.size()-1;
+                return all.subList(posStart,posEnd+1);
+
+            } catch (IOException e) {
+                return new ArrayList<>();
+            }
 
         try {
             return events.filterAll(filter);

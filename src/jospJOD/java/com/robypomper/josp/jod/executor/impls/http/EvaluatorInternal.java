@@ -20,7 +20,10 @@
 package com.robypomper.josp.jod.executor.impls.http;
 
 import com.robypomper.josp.jod.executor.AbsJODWorker;
+import com.robypomper.josp.jod.executor.Substitutions;
 import com.robypomper.josp.jod.structure.JODComponent;
+import com.robypomper.josp.jod.structure.JODState;
+import com.robypomper.josp.protocol.JOSPProtocol;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -46,7 +49,6 @@ public class EvaluatorInternal {
     private final JODComponent component;
     private final String evalScript;
     private static final ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-    ;
 
 
     // Constructor
@@ -64,11 +66,26 @@ public class EvaluatorInternal {
     }
 
     public String evaluate(String result) throws EvaluationException {
+        return evaluate(result,null);
+    }
+
+    public String evaluate(String result, JOSPProtocol.ActionCmd commandAction) throws EvaluationException {
+        if (evalScript.isEmpty())
+            return result;
+
         String evalResult;
         synchronized (engine) {
+            Substitutions evalScriptSubstitution = new Substitutions(evalScript)
+                    //.substituteObject(jod.getObjectInfo())
+                    //.substituteObjectConfigs(jod.getObjectInfo())
+                    .substituteComponent(component)
+                    .substituteState((JODState) component);
+            if (commandAction!=null)
+                    evalScriptSubstitution.substituteAction(commandAction);
+            String evalScriptUpdated = evalScriptSubstitution.toString();
             engine.put(SCRIPT_VAR_HTTP_RESULT, result);
             try {
-                evalResult = engine.eval(evalScript).toString();
+                evalResult = engine.eval(evalScriptUpdated).toString();
 
             } catch (ScriptException e) {
                 throw new EvaluationException(e);
