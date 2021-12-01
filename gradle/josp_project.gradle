@@ -60,9 +60,9 @@ ext {
     set('projectGitUrl', 'https://bitbucket.org/johnosproject_shared/com.robypomper.josp')
 
     // Preset build modes for JOSP Project
-    set('jospMode', ext.get('jospModes.DEV'))           // on first build, set jospDependenciesVersion=CURRENT
+    //set('jospMode', ext.get('jospModes.DEV'))           // on first build, set jospDependenciesVersion=CURRENT
     //set('jospMode', ext.get('jospModes.STAGE'))         // on first build, set jospDependenciesVersion=PREV
-    //set('jospMode', ext.get('jospModes.RELEASE'))
+    set('jospMode', ext.get('jospModes.RELEASE'))
 
     // Set true to enable private tasks (require $USER_HOME/.gradle/properties.gradle file)
     set('OVERRIDE_enablePrivate', false)
@@ -74,6 +74,7 @@ ext {
     // Customize version required for JOSP Components internal dependencies
     // (de-comment for first jospModes=DEV's build)
     //ext.set('OVERRIDE_jospDependenciesVersion',ext.get('jospVersions.CURRENT'))       // Default: jospBuildVersion
+    //ext.set('OVERRIDE_jospDependenciesVersion','2.2.2-DEV')       // Default: jospBuildVersion
 
     // PROJECT BUILD CONFIGURATIONS - END
 
