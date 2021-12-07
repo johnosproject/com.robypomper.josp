@@ -26,9 +26,6 @@ import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import com.robypomper.log.Mrk_JSL;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -38,7 +35,7 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultJSLRemoteObject.class);
 
     private final DefaultObjInfo objInfo;
     private final DefaultObjStruct objStruct;
@@ -83,9 +80,9 @@ public class DefaultJSLRemoteObject implements JSLRemoteObject {
 
         if (localClient!=null) {
             objComm.addLocalClient(localClient);
-            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' on '%s' service (via direct connection: '%s')", objId, srvInfo.getSrvId(), localClient.getConnectionInfo()));
+            log.info(String.format("Initialized JSLRemoteObject '%s' on '%s' service (via direct connection: '%s')", objId, srvInfo.getSrvId(), localClient.getConnectionInfo()));
         } else
-            log.info(Mrk_JSL.JSL_OBJS_SUB, String.format("Initialized JSLRemoteObject '%s' on '%s' service (via cloud connection)", objId, srvInfo.getSrvId()));
+            log.info(String.format("Initialized JSLRemoteObject '%s' on '%s' service (via cloud connection)", objId, srvInfo.getSrvId()));
     }
 
 

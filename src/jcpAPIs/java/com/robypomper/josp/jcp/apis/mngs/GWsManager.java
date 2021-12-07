@@ -32,8 +32,6 @@ import com.robypomper.josp.jcp.db.apis.entities.GW;
 import com.robypomper.josp.jcp.db.apis.entities.GWStatus;
 import com.robypomper.josp.states.StateException;
 import com.robypomper.josp.types.josp.gw.GWType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -72,7 +70,7 @@ public class GWsManager {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(GWsManager.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GWsManager.class);
     private final GWDBService gwService;
     private final JCPClientsMngr clientsMngr;
     private int removed = 0;

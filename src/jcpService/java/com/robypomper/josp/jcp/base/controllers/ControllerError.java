@@ -20,8 +20,6 @@
 package com.robypomper.josp.jcp.base.controllers;
 
 import com.robypomper.josp.jcp.defs.base.errors.Params20;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +44,7 @@ public class ControllerError implements ErrorController {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerError.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ControllerError.class);
 
 
     // Error handlers

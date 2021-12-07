@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.Verb;
 import com.robypomper.java.*;
 import com.robypomper.josp.states.HTTPClientState;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -49,7 +47,7 @@ public class DefaultHTTPClient implements HTTPClient {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultHTTPClient.class);
     private final JavaEnum.SynchronizableState<HTTPClientState> state = new JavaEnum.SynchronizableState<>(HTTPClientState.NOT_AVAILABLE, log);
     // Configs
     private final String httpBaseUrl;

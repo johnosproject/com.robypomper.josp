@@ -33,8 +33,6 @@ import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,7 +48,7 @@ public class JODPermissions_002 implements JODPermissions {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(JODPermissions.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JODPermissions.class);
     private final JODSettings_002 locSettings;
     private final JODObjectInfo objInfo;
     private final Caller20 apiPermissionsCaller;

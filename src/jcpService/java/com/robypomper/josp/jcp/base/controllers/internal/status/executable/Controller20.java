@@ -25,8 +25,6 @@ import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.jcp.defs.base.internal.status.executable.Params20;
 import com.robypomper.josp.jcp.defs.base.internal.status.executable.Paths20;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +45,7 @@ public class Controller20 extends ControllerImpl {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Controller20.class);
 
 
     // Index methods

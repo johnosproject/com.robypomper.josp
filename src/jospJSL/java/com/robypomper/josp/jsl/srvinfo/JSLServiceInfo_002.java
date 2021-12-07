@@ -24,9 +24,6 @@ import com.robypomper.josp.jsl.JSLSettings_002;
 import com.robypomper.josp.jsl.comm.JSLCommunication;
 import com.robypomper.josp.jsl.objs.JSLObjsMngr;
 import com.robypomper.josp.jsl.user.JSLUserMngr;
-import com.robypomper.log.Mrk_JSL;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -43,7 +40,7 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JSLServiceInfo_002.class);
     private final JSLSettings_002 locSettings;
     private final Caller20 apiSrvsCaller;
     private JSLUserMngr userMngr;
@@ -69,11 +66,11 @@ public class JSLServiceInfo_002 implements JSLServiceInfo {
         this.instanceId = instanceId;
         this.apiSrvsCaller = new Caller20(jcpClient);
 
-        log.debug(Mrk_JSL.JSL_INFO, "Setting service's id to JCPClient");
+        log.debug("Setting service's id to JCPClient");
         jcpClient.setServiceId(getSrvId());
-        log.debug(Mrk_JSL.JSL_INFO, "Service's id set to JCPClient");
+        log.debug("Service's id set to JCPClient");
 
-        log.info(Mrk_JSL.JSL_INFO, String.format("Initialized JSLServiceInfo instance for '%s' service with '%s' id", getSrvName(), getSrvId()));
+        log.info(String.format("Initialized JSLServiceInfo instance for '%s' service with '%s' id", getSrvName(), getSrvId()));
     }
 
 

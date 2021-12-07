@@ -24,9 +24,6 @@ import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ServiceToObject;
-import com.robypomper.log.Mrk_JSL;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Base class for all object's interfaces ({@link ObjInfo}, {@link ObjStruct},
@@ -39,7 +36,7 @@ public class ObjBase {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ObjBase.class);
 
     private final JSLRemoteObject remoteObject;
     private final JSLServiceInfo serviceInfo;
@@ -92,7 +89,7 @@ public class ObjBase {
                 return;
 
             } catch (PeerNotConnectedException | PeerStreamException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+                log.warn(String.format("Error on sending message '%s' to object (via local) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
             }
         }
 
@@ -106,7 +103,7 @@ public class ObjBase {
                 ((DefaultObjComm) getRemote().getComm()).getCloudConnection().sendData(msg);
 
             } catch (PeerNotConnectedException | PeerStreamException e) {
-                log.warn(Mrk_JSL.JSL_OBJS_SUB, String.format("Error on sending message '%s' to object (via cloud) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
+                log.warn(String.format("Error on sending message '%s' to object (via cloud) because %s", msg.substring(0, msg.indexOf('\n')), e.getMessage()), e);
             }
         }
     }

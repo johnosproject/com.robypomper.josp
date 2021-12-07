@@ -34,8 +34,6 @@ import com.robypomper.comm.peer.PeerAbs;
 import com.robypomper.comm.peer.PeerConnectionListener;
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaTimers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.Socket;
@@ -52,7 +50,7 @@ public abstract class ClientAbs extends PeerAbs implements Client {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(ClientAbs.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClientAbs.class);
     // communication
     private Socket socket = null;
     // remote's endpoint

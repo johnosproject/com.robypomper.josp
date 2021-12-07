@@ -23,8 +23,6 @@ import com.robypomper.josp.jsl.objs.history.DefaultHistoryObjEvents;
 import com.robypomper.josp.jsl.objs.history.HistoryObjEvents;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,7 @@ public class DefaultObjInfo extends ObjBase implements ObjInfo {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultObjInfo.class);
     private String name = null;
     private String ownerId = null;
     private String jodVersion = null;

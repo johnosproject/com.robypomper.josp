@@ -22,8 +22,6 @@ package com.robypomper.discovery.impl;
 import com.robypomper.discovery.DiscoverAbs;
 import com.robypomper.discovery.DiscoveryService;
 import com.robypomper.java.JavaAssertions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -37,7 +35,7 @@ public class DiscoverJmDNS extends DiscoverAbs implements ServiceListener {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(DiscoverJmDNS.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DiscoverJmDNS.class);
 
 
     // Constructor

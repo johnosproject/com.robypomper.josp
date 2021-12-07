@@ -29,8 +29,6 @@ import com.robypomper.java.*;
 import com.robypomper.josp.jcp.defs.base.internal.status.executable.Paths20;
 import com.robypomper.josp.states.JCPClient2State;
 import com.robypomper.josp.states.StateException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
@@ -54,7 +52,7 @@ public class DefaultJCPClient2 implements JCPClient2 {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DefaultJCPClient2.class);
     private final JavaEnum.SynchronizableState<JCPClient2State> state = new JavaEnum.SynchronizableState<>(JCPClient2State.DISCONNECTED, log);
     // Configs
     private final String clientId;

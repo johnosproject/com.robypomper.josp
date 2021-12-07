@@ -22,9 +22,6 @@ package com.robypomper.josp.jod.structure;
 import com.robypomper.josp.jod.history.JODHistory;
 import com.robypomper.josp.protocol.HistoryLimits;
 import com.robypomper.josp.protocol.JOSPStatusHistory;
-import com.robypomper.log.Mrk_JOD;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -42,7 +39,7 @@ public abstract class AbsJODComponent implements JODComponent {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AbsJODComponent.class);
     private final JODStructure structure;
     private final JODHistory history;
     private JODContainer parent = null;
@@ -67,7 +64,7 @@ public abstract class AbsJODComponent implements JODComponent {
         this.name = name;
         this.descr = descr != null ? descr : "";
 
-        log.info(Mrk_JOD.JOD_STRU_SUB, String.format("Initialized JODComponent/%s instance for '%s' component", this.getClass().getSimpleName(), name));
+        log.info(String.format("Initialized JODComponent/%s instance for '%s' component", this.getClass().getSimpleName(), name));
     }
 
 

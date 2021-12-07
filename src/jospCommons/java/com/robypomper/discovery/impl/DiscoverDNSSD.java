@@ -24,8 +24,6 @@ import com.robypomper.discovery.DiscoveryService;
 import com.robypomper.discovery.PublisherAbs;
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaThreads;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,7 +41,7 @@ public class DiscoverDNSSD extends DiscoverAbs {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(DiscoverDNSSD.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DiscoverDNSSD.class);
     private Thread browseThread = null;
     private Process browseProcess = null;
     private boolean isShuttingDown = false;

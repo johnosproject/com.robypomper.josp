@@ -21,14 +21,12 @@ package com.robypomper.josp.jsl.objs.structure.pillars;
 import com.robypomper.josp.jsl.objs.JSLRemoteObject;
 import com.robypomper.josp.jsl.objs.structure.JSLAction;
 import com.robypomper.josp.jsl.objs.structure.JSLActionParams;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class JSLBooleanAction extends JSLBooleanState implements JSLAction {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JSLBooleanAction.class);
 
 
     // Constructor

@@ -46,8 +46,6 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.states.StateException;
 import org.apache.catalina.connector.ClientAbortException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -116,7 +114,7 @@ public class JSLWebBridge {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(JSLWebBridge.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JSLWebBridge.class);
     private final JSLParams jslParams;
     // jsl instances
     private final Map<String, JSL> jslInstances = new HashMap<>();

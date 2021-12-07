@@ -25,8 +25,6 @@ import com.robypomper.josp.jcp.jslwebbridge.exceptions.JSLNotInitForSessionExcep
 import com.robypomper.josp.jcp.jslwebbridge.webbridge.JSLParams;
 import com.robypomper.josp.jcp.jslwebbridge.webbridge.JSLWebBridge;
 import com.robypomper.josp.jsl.JSL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
@@ -48,7 +46,7 @@ public class JSLWebBridgeService {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(JSLWebBridgeService.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JSLWebBridgeService.class);
     private final JSLWebBridge webBridge;
     private static final Map<String, HttpSession> sessions = new HashMap<>();
 

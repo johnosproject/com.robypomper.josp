@@ -34,8 +34,6 @@ import com.robypomper.josp.jod.permissions.JODPermissions;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -55,7 +53,7 @@ public class JODObjectInfo_002 implements JODObjectInfo {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(JODObjectInfo.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JODObjectInfo.class);
     private final JODSettings_002 locSettings;
     private final Caller20 apiObjsCaller;
     private JODStructure structure;

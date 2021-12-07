@@ -26,8 +26,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +41,7 @@ public class Controller20 extends ControllerImpl {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Controller20.class);
 
 
     // Index methods
