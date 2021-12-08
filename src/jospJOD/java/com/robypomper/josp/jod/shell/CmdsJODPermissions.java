@@ -34,7 +34,6 @@ public class CmdsJODPermissions {
 
     private final JODObjectInfo objInfo;
     private final JODPermissions permission;
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
     public CmdsJODPermissions(JODObjectInfo objInfo, JODPermissions permission) {
         this.objInfo = objInfo;

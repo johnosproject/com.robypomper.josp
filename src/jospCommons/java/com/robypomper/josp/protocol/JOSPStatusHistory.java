@@ -79,7 +79,7 @@ public class JOSPStatusHistory {
 
     @JsonIgnore
     public String getUpdatedAtStr() {
-        return JavaDate.DEF_DATE_FORMATTER.format(updatedAt);
+        return JavaDate.formatDateTimeSerializationUTC(updatedAt);
     }
 
     public String getPayload() {
@@ -107,7 +107,7 @@ public class JOSPStatusHistory {
     }
 
     public static String toString(JOSPStatusHistory statusHistory) {
-        return String.format(STATUS_HISTORY_REQ_FORMAT, statusHistory.getId(), statusHistory.getCompPath(), statusHistory.getCompType(), JavaDate.DEF_DATE_FORMATTER.format(statusHistory.getUpdatedAt()), statusHistory.getPayload());
+        return String.format(STATUS_HISTORY_REQ_FORMAT, statusHistory.getId(), statusHistory.getCompPath(), statusHistory.getCompType(), JavaDate.formatDateTimeSerializationUTC(statusHistory.getUpdatedAt()), statusHistory.getPayload());
     }
 
     public static String toString(List<JOSPStatusHistory> statusesHistory) {
@@ -132,7 +132,7 @@ public class JOSPStatusHistory {
         String payload = statusHistoryStrs[4].substring(statusHistoryStrs[4].indexOf(":") + 1);
 
         try {
-            return new JOSPStatusHistory(Long.parseLong(id), compPath, compType, JavaDate.DEF_DATE_FORMATTER.parse(updatedAt), payload);
+            return new JOSPStatusHistory(Long.parseLong(id), compPath, compType, JavaDate.parseDateTimeSerializationUTC(updatedAt), payload);
         } catch (ParseException e) {
             throw new JOSPProtocol.ParsingException(String.format("Error parsing JOSPStatusHistory fileds: %s", e.getMessage()));
         }

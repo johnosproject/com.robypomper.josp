@@ -113,8 +113,8 @@ public class CmdsJSLAdmin {
         s += String.format("  Status . . . . %s / %s\n", obj.online ? "online" : "offline", obj.active ? "active" : "deactivated");
         s += String.format("  Owner  . . . . %s\n", obj.owner);
         s += String.format("  Version  . . . %s\n", obj.version);
-        s += String.format("  Created at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(obj.createdAt));
-        s += String.format("  Updated at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(obj.updatedAt));
+        s += String.format("  Created at . . %s\n", JavaDate.formatDateTime(obj.createdAt));
+        s += String.format("  Updated at . . %s\n", JavaDate.formatDateTime(obj.updatedAt));
         return s;
     }
 
@@ -185,8 +185,8 @@ public class CmdsJSLAdmin {
         String s = "";
         s += String.format("  Id . . . . . . %s\n", srv.id);
         s += String.format("  Name . . . . . %s\n", srv.name);
-        s += String.format("  Created at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(srv.createdAt));
-        s += String.format("  Updated at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(srv.updatedAt));
+        s += String.format("  Created at . . %s\n", JavaDate.formatDateTime(srv.createdAt));
+        s += String.format("  Updated at . . %s\n", JavaDate.formatDateTime(srv.updatedAt));
         return s;
     }
 
@@ -255,8 +255,8 @@ public class CmdsJSLAdmin {
         s += String.format("  First Name . . %s\n", usr.first_name);
         s += String.format("  Second Name  . %s\n", usr.second_name);
         s += String.format("  Email  . . . . %s\n", usr.email);
-        s += String.format("  Created at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(usr.createdAt));
-        s += String.format("  Updated at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(usr.updatedAt));
+        s += String.format("  Created at . . %s\n", JavaDate.formatDateTime(usr.createdAt));
+        s += String.format("  Updated at . . %s\n", JavaDate.formatDateTime(usr.updatedAt));
         return s;
     }
 
@@ -330,10 +330,10 @@ public class CmdsJSLAdmin {
         s += String.format("  Status . . . . %s\n", gw.connected ? "Connected" : "Disconnected");
         s += String.format("  ReConn Att.  . %s\n", gw.reconnectionAttempts);
         s += String.format("  Conn Clients . %s\n", gw.currentClients);
-        s += String.format("  Name . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gw.lastClientConnected));
-        s += String.format("  Name . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gw.lastClientDisconnected));
-        s += String.format("  Created at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gw.createdAt));
-        s += String.format("  Updated at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gw.updatedAt));
+        s += String.format("  Name . . . . . %s\n", JavaDate.formatDateTime(gw.lastClientConnected));
+        s += String.format("  Name . . . . . %s\n", JavaDate.formatDateTime(gw.lastClientDisconnected));
+        s += String.format("  Created at . . %s\n", JavaDate.formatDateTime(gw.createdAt));
+        s += String.format("  Updated at . . %s\n", JavaDate.formatDateTime(gw.updatedAt));
         return s;
     }
 
@@ -375,7 +375,7 @@ public class CmdsJSLAdmin {
         }
 
         StringBuilder s = new StringBuilder();
-        s.append(String.format("  Online . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(online)));
+        s.append(String.format("  Online . . . . . %s\n", JavaDate.formatDateTime(online)));
         //s += String.format("  Process  . . . . %s\n", process....);
         s.append(String.format("  OS . . . . . . . %s (v. %s arch %s)\n", os.name, os.version, os.arch));
         s.append(String.format("  CPU load . . . . %.2f (#%d)\n", cpu.loadAvg, cpu.count));
@@ -429,7 +429,7 @@ public class CmdsJSLAdmin {
         s += String.format("  VM . . . . . . . %s (v. %s)\n", vm.vmName, vm.vmVersion);
         s += String.format("  VM Spec  . . . . v. %s (vendor %s)\n", vm.specVersion, vm.specVendor);
         //s += String.format("  Runtime  . . . . %s\n", process....);
-        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.DEF_DATE_FORMATTER.format(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
+        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.formatDateTime(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
         s += String.format("  Classes  . . . . %d / %d / %d (Loaded/Loaded Total/Unloaded)\n", classes.classesLoaded, classes.classesLoadedTotal, classes.classesUnloaded);
         s += String.format("  Memory . . . . . %.2f / %.2f / %.2f (Init/Used/Committed)\n", memory.memoryInit, memory.memoryUsed, memory.memoryCommitted);
         s += String.format("  Memory Heap  . . %.2f / %.2f / %.2f / %.2f (Used/Free/Committed/Max)\n", memory.memoryHeapUsed, memory.memoryHeapFree, memory.memoryHeapCommitted, memory.memoryHeapMax);
@@ -485,7 +485,7 @@ public class CmdsJSLAdmin {
         s += String.format("  Sources  . . . . ::%s:%s\n", buildInfo.project, buildInfo.sourceSet);
         s += String.format("  Git  . . . . . . %s (branch %s)\n", buildInfo.gitCommitShort, buildInfo.gitBranch);
         s += "  Build Process:";
-        s += String.format("    Time . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(buildInfo.buildTime));
+        s += String.format("    Time . . . . . %s\n", JavaDate.formatDateTime(buildInfo.buildTime));
         s += String.format("    Java . . . . . v. %s (path %s)\n", buildInfo.javaVersion, buildInfo.javaHome);
         s += String.format("    Gradle . . . . v. %s\n", buildInfo.gradleVersion);
         s += String.format("    User . . . . . %s\n", buildInfo.user);
@@ -609,15 +609,15 @@ public class CmdsJSLAdmin {
         String s = "";
         s += String.format("  Id . . . . . . %s\n", gwCli.id);
         s += String.format("  Status . . . . %s\n", gwCli.isConnected ? "Connected" : "Disconnected");
-        s += String.format("  Rx . . . . . . %.2f MB (%s)\n", (double)gwCli.bytesRx / JOSPConstants.BYTE_TRANSFORM, JavaDate.DEF_DATE_FORMATTER.format(gwCli.lastDataRx));
-        s += String.format("  Tx . . . . . . %.2f MB (%s)\n", (double)gwCli.bytesTx / JOSPConstants.BYTE_TRANSFORM, JavaDate.DEF_DATE_FORMATTER.format(gwCli.lastDataTx));
+        s += String.format("  Rx . . . . . . %.2f MB (%s)\n", (double)gwCli.bytesRx / JOSPConstants.BYTE_TRANSFORM, JavaDate.formatDateTime(gwCli.lastDataRx));
+        s += String.format("  Tx . . . . . . %.2f MB (%s)\n", (double)gwCli.bytesTx / JOSPConstants.BYTE_TRANSFORM, JavaDate.formatDateTime(gwCli.lastDataTx));
         s += String.format("  Local  . . . . %s\n", gwCli.local);
         s += String.format("  Remote . . . . %s\n", gwCli.remote);
-        s += String.format("  Last Conn  . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gwCli.lastConnection));
-        s += String.format("  Last Disconn . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gwCli.lastDisconnection));
-        s += String.format("  Last HB  . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gwCli.lastHeartBeat));
-        s += String.format("  Last HB Fail . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gwCli.lastHeartBeatFailed));
-        s += String.format("  Last Conn  . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(gwCli.lastConnection));
+        s += String.format("  Last Conn  . . %s\n", JavaDate.formatDateTime(gwCli.lastConnection));
+        s += String.format("  Last Disconn . %s\n", JavaDate.formatDateTime(gwCli.lastDisconnection));
+        s += String.format("  Last HB  . . . %s\n", JavaDate.formatDateTime(gwCli.lastHeartBeat));
+        s += String.format("  Last HB Fail . %s\n", JavaDate.formatDateTime(gwCli.lastHeartBeatFailed));
+        s += String.format("  Last Conn  . . %s\n", JavaDate.formatDateTime(gwCli.lastConnection));
         return s;
     }
 
@@ -816,7 +816,7 @@ public class CmdsJSLAdmin {
         }
 
         StringBuilder s = new StringBuilder();
-        s.append(String.format("  Online . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(online)));
+        s.append(String.format("  Online . . . . . %s\n", JavaDate.formatDateTime(online)));
         //s += String.format("  Process  . . . . %s\n", process....);
         s.append(String.format("  OS . . . . . . . %s (v. %s arch %s)\n", os.name, os.version, os.arch));
         s.append(String.format("  CPU load . . . . %.2f (#%d)\n", cpu.loadAvg, cpu.count));
@@ -870,7 +870,7 @@ public class CmdsJSLAdmin {
         s += String.format("  VM . . . . . . . %s (v. %s)\n", vm.vmName, vm.vmVersion);
         s += String.format("  VM Spec  . . . . v. %s (vendor %s)\n", vm.specVersion, vm.specVendor);
         //s += String.format("  Runtime  . . . . %s\n", process....);
-        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.DEF_DATE_FORMATTER.format(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
+        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.formatDateTime(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
         s += String.format("  Classes  . . . . %d / %d / %d (Loaded/Loaded Total/Unloaded)\n", classes.classesLoaded, classes.classesLoadedTotal, classes.classesUnloaded);
         s += String.format("  Memory . . . . . %.2f / %.2f / %.2f (Init/Used/Committed)\n", memory.memoryInit, memory.memoryUsed, memory.memoryCommitted);
         s += String.format("  Memory Heap  . . %.2f / %.2f / %.2f / %.2f (Used/Free/Committed/Max)\n", memory.memoryHeapUsed, memory.memoryHeapFree, memory.memoryHeapCommitted, memory.memoryHeapMax);
@@ -926,7 +926,7 @@ public class CmdsJSLAdmin {
         s += String.format("  Sources  . . . . ::%s:%s\n", buildInfo.project, buildInfo.sourceSet);
         s += String.format("  Git  . . . . . . %s (branch %s)\n", buildInfo.gitCommitShort, buildInfo.gitBranch);
         s += "  Build Process:";
-        s += String.format("    Time . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(buildInfo.buildTime));
+        s += String.format("    Time . . . . . %s\n", JavaDate.formatDateTime(buildInfo.buildTime));
         s += String.format("    Java . . . . . v. %s (path %s)\n", buildInfo.javaVersion, buildInfo.javaHome);
         s += String.format("    Gradle . . . . v. %s\n", buildInfo.gradleVersion);
         s += String.format("    User . . . . . %s\n", buildInfo.user);
@@ -978,8 +978,8 @@ public class CmdsJSLAdmin {
         String s = "";
         s += String.format("  Id . . . . . . %s\n", sess.id);
         s += String.format("  Name . . . . . %s\n", sess.name);
-        s += String.format("  Created at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(sess.createdAt));
-        s += String.format("  Updated at . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(sess.lastAccessedAt));
+        s += String.format("  Created at . . %s\n", JavaDate.formatDateTime(sess.createdAt));
+        s += String.format("  Updated at . . %s\n", JavaDate.formatDateTime(sess.lastAccessedAt));
         s += String.format("  Updated at . . %s\n", humanReadableFormat(sess.maxInactiveInterval / 1000));
         return s;
     }
@@ -1022,7 +1022,7 @@ public class CmdsJSLAdmin {
         }
 
         StringBuilder s = new StringBuilder();
-        s.append(String.format("  Online . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(online)));
+        s.append(String.format("  Online . . . . . %s\n", JavaDate.formatDateTime(online)));
         //s += String.format("  Process  . . . . %s\n", process....);
         s.append(String.format("  OS . . . . . . . %s (v. %s arch %s)\n", os.name, os.version, os.arch));
         s.append(String.format("  CPU load . . . . %.2f (#%d)\n", cpu.loadAvg, cpu.count));
@@ -1076,7 +1076,7 @@ public class CmdsJSLAdmin {
         s += String.format("  VM . . . . . . . %s (v. %s)\n", vm.vmName, vm.vmVersion);
         s += String.format("  VM Spec  . . . . v. %s (vendor %s)\n", vm.specVersion, vm.specVendor);
         //s += String.format("  Runtime  . . . . %s\n", process....);
-        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.DEF_DATE_FORMATTER.format(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
+        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.formatDateTime(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
         s += String.format("  Classes  . . . . %d / %d / %d (Loaded/Loaded Total/Unloaded)\n", classes.classesLoaded, classes.classesLoadedTotal, classes.classesUnloaded);
         s += String.format("  Memory . . . . . %.2f / %.2f / %.2f (Init/Used/Committed)\n", memory.memoryInit, memory.memoryUsed, memory.memoryCommitted);
         s += String.format("  Memory Heap  . . %.2f / %.2f / %.2f / %.2f (Used/Free/Committed/Max)\n", memory.memoryHeapUsed, memory.memoryHeapFree, memory.memoryHeapCommitted, memory.memoryHeapMax);
@@ -1132,7 +1132,7 @@ public class CmdsJSLAdmin {
         s += String.format("  Sources  . . . . ::%s:%s\n", buildInfo.project, buildInfo.sourceSet);
         s += String.format("  Git  . . . . . . %s (branch %s)\n", buildInfo.gitCommitShort, buildInfo.gitBranch);
         s += "  Build Process:";
-        s += String.format("    Time . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(buildInfo.buildTime));
+        s += String.format("    Time . . . . . %s\n", JavaDate.formatDateTime(buildInfo.buildTime));
         s += String.format("    Java . . . . . v. %s (path %s)\n", buildInfo.javaVersion, buildInfo.javaHome);
         s += String.format("    Gradle . . . . v. %s\n", buildInfo.gradleVersion);
         s += String.format("    User . . . . . %s\n", buildInfo.user);
@@ -1183,7 +1183,7 @@ public class CmdsJSLAdmin {
         }
 
         StringBuilder s = new StringBuilder();
-        s.append(String.format("  Online . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(online)));
+        s.append(String.format("  Online . . . . . %s\n", JavaDate.formatDateTime(online)));
         //s += String.format("  Process  . . . . %s\n", process....);
         s.append(String.format("  OS . . . . . . . %s (v. %s arch %s)\n", os.name, os.version, os.arch));
         s.append(String.format("  CPU load . . . . %.2f (#%d)\n", cpu.loadAvg, cpu.count));
@@ -1237,7 +1237,7 @@ public class CmdsJSLAdmin {
         s += String.format("  VM . . . . . . . %s (v. %s)\n", vm.vmName, vm.vmVersion);
         s += String.format("  VM Spec  . . . . v. %s (vendor %s)\n", vm.specVersion, vm.specVendor);
         //s += String.format("  Runtime  . . . . %s\n", process....);
-        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.DEF_DATE_FORMATTER.format(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
+        s += String.format("  Started  . . . . %s (%s)\n", JavaDate.formatDateTime(times.timeStart), humanReadableFormat(times.timeRunning * 1000));
         s += String.format("  Classes  . . . . %d / %d / %d (Loaded/Loaded Total/Unloaded)\n", classes.classesLoaded, classes.classesLoadedTotal, classes.classesUnloaded);
         s += String.format("  Memory . . . . . %.2f / %.2f / %.2f (Init/Used/Committed)\n", memory.memoryInit, memory.memoryUsed, memory.memoryCommitted);
         s += String.format("  Memory Heap  . . %.2f / %.2f / %.2f / %.2f (Used/Free/Committed/Max)\n", memory.memoryHeapUsed, memory.memoryHeapFree, memory.memoryHeapCommitted, memory.memoryHeapMax);
@@ -1293,7 +1293,7 @@ public class CmdsJSLAdmin {
         s += String.format("  Sources  . . . . ::%s:%s\n", buildInfo.project, buildInfo.sourceSet);
         s += String.format("  Git  . . . . . . %s (branch %s)\n", buildInfo.gitCommitShort, buildInfo.gitBranch);
         s += "  Build Process:";
-        s += String.format("    Time . . . . . %s\n", JavaDate.DEF_DATE_FORMATTER.format(buildInfo.buildTime));
+        s += String.format("    Time . . . . . %s\n", JavaDate.formatDateTime(buildInfo.buildTime));
         s += String.format("    Java . . . . . v. %s (path %s)\n", buildInfo.javaVersion, buildInfo.javaHome);
         s += String.format("    Gradle . . . . v. %s\n", buildInfo.gradleVersion);
         s += String.format("    User . . . . . %s\n", buildInfo.user);

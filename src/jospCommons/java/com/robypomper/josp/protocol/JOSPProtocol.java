@@ -58,12 +58,6 @@ public class JOSPProtocol {
     private static final String CMD_MSG = CMD_MSG_BASE + " %s\nfullSrvId:%s/%s/%s\n%s\ncompPath:%s\ncmdType:%s\n%s";
 
 
-    // Public vars
-
-    private static final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
-    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd-HHmmssSSS");
-
-
     // Status update message
 
     public static boolean isUpdMsg(String msg) {
@@ -75,7 +69,7 @@ public class JOSPProtocol {
     }
 
     public static String fromUpdToMsg(StatusUpd upd) {
-        return String.format(UPD_MSG, JavaDate.getNow(), upd.getObjectId(),
+        return String.format(UPD_MSG, JavaDate.nowDateTimeDefault(), upd.getObjectId(),
                 upd.getComponentPath(), upd.getUpdate().getType(), upd.getUpdate().encode());
     }
 
@@ -149,7 +143,7 @@ public class JOSPProtocol {
     }
 
     public static String fromCmdToMsg(ActionCmd cmd) {
-        return String.format(CMD_MSG, JavaDate.getNow(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
+        return String.format(CMD_MSG, JavaDate.nowDateTimeDefault(), cmd.getServiceId(), cmd.getUserId(), cmd.getInstanceId(), cmd.getObjectId(),
                 cmd.getComponentPath(), cmd.getCommand().getType(), cmd.getCommand().encode());
     }
 
