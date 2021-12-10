@@ -31,9 +31,7 @@ import org.springframework.boot.gradle.tasks.run.BootRun;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -50,26 +48,30 @@ public class SpringBuildUtils {
      * @param ss
      */
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss) {
-        makeSpringBootFromSourceSet(project, ss, null, new HashMap<>());
+        makeSpringBootFromSourceSet(project, ss, null, new HashMap<>(), new ArrayList<>());
     }
 
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, String profiles) {
-        makeSpringBootFromSourceSet(project, ss, profiles, new HashMap<>());
+        makeSpringBootFromSourceSet(project, ss, profiles, new HashMap<>(), new ArrayList<>());
     }
 
     static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, String profiles, Map<String, ?> envs) {
-        SpringBuildUtils.configureBootJarTask(project, ss);
-        SpringBuildUtils.configureBootRunTask(project, ss, profiles, envs);
+        makeSpringBootFromSourceSet(project, ss, profiles, envs, new ArrayList<>());
     }
 
-    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File logConfigs, String profiles) {
-        makeSpringBootFromSourceSet(project, ss, logConfigs, profiles, new HashMap<>());
+    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, String profiles, Map<String, ?> envs, List<String> cmdLineArgs) {
+        SpringBuildUtils.configureBootJarTask(project, ss);
+        SpringBuildUtils.configureBootRunTask(project, ss, profiles, envs, cmdLineArgs);
     }
 
-    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File logConfigs, String profiles, Map<String, ?> envs) {
+    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File log4jConfigs, String profiles) {
+        makeSpringBootFromSourceSet(project, ss, log4jConfigs, profiles, new HashMap<>(), new ArrayList<>());
+    }
+
+    static public void makeSpringBootFromSourceSet(Project project, SourceSet ss, File log4jConfigs, String profiles, Map<String, ?> envs, List<String> cmdLineArgs) {
         SpringBuildUtils.configureBootJarTask(project, ss);
-        BootRun br = SpringBuildUtils.configureBootRunTask(project, ss, profiles, envs);
-        br.setJvmArgs(Collections.singletonList("-Dlog4j.configurationFile=" + logConfigs.getAbsolutePath()));
+        BootRun br = SpringBuildUtils.configureBootRunTask(project, ss, profiles, envs, cmdLineArgs);
+        br.setJvmArgs(Collections.singletonList("-Dlog4j.configurationFile=" + log4jConfigs.getAbsolutePath()));
     }
 
     static private BootJar configureBootJarTask(Project project, SourceSet ss) {
@@ -83,7 +85,7 @@ public class SpringBuildUtils {
         return bootJar;
     }
 
-    static private BootRun configureBootRunTask(Project project, SourceSet ss, String profiles, Map<String, ?> envs) {
+    static private BootRun configureBootRunTask(Project project, SourceSet ss, String profiles, Map<String, ?> envs, List<String> cmdLineArgs) {
         String taskName = String.format("boot%sRun", Naming.capitalize(ss.getName()));
         String buildTaskName = String.format("boot%sJar", Naming.capitalize(ss.getName()));
         JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
@@ -91,8 +93,8 @@ public class SpringBuildUtils {
         run.setDescription(String.format("Runs this project %s sources as a Spring Boot application.", ss.getName()));
         run.setGroup(ApplicationPlugin.APPLICATION_GROUP);
         run.classpath(ss.getRuntimeClasspath());
-        if (profiles != null)
-            run.setArgs(Collections.singletonList("--spring.profiles.active=" + profiles));
+        if (profiles != null) cmdLineArgs.add("--spring.profiles.active=" + profiles);
+        run.setArgs(cmdLineArgs);
         run.getConventionMapping().map("jvmArgs", () -> {
             if (project.hasProperty("applicationDefaultJvmArgs")) {
                 return project.property("applicationDefaultJvmArgs");
