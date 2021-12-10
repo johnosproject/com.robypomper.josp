@@ -20,6 +20,7 @@
 package com.robypomper.josp.jcp;
 
 import com.robypomper.java.JavaSSLIgnoreChecks;
+import com.robypomper.josp.jcp.logging.JCPShellLoggerConfigurator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -32,6 +33,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class JcpJSLWebBridge {
 
     public static void main(String[] args) {
+        org.slf4j.LoggerFactory.getLogger(JcpJSLWebBridge.class);
+        args = new JCPShellLoggerConfigurator("jcpJSLWB").setupLoggingEnvironment(args);
+
         String DISABLE_SSL_CHECKS = System.getenv("DISABLE_SSL_CHECKS");    // NONE, LOCALHOST, ALL
         if (DISABLE_SSL_CHECKS!=null) {
             if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST") == 0)
