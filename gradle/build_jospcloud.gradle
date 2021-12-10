@@ -229,7 +229,7 @@ def springEnvs = [HOSTNAME: "localhost", DISABLE_SSL_CHECKS: "localhost"]
 task printGradleVersions(type: PrintGradleVersion)
 
 // JCP APIs
-SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpAPIs, project.file('src/jcpApis/resources/log4j2_project.xml'), 'dev,spring,auth,db-apis,ssl', springEnvs)
+SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpAPIs, 'dev,spring,auth,db-apis,ssl', springEnvs, ['--loggingDevelopment','--loggingLibsDevelopment'])
 tasks.bootJcpAPIsRun {
     workingDir('envs/runnables/jcpAPIs')
     doFirst {
@@ -251,7 +251,7 @@ clean.dependsOn jcpAPIs_Clean
 bootJcpAPIsRun.dependsOn printGradleVersions
 
 // JCP GWs
-SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpGWs, project.file('src/jcpGWs/resources/log4j2_project.xml'), 'dev,spring,auth,db-apis,ssl', springEnvs)
+SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpGWs, project.file('src/jcpGWs/resources/log4j2_project.xml'), 'dev,spring,auth,db-apis,ssl', springEnvs, ['--loggingDevelopment','--loggingLibsDevelopment'])
 tasks.bootJcpGWsRun {
     workingDir('envs/runnables/jcpGWs')
     doFirst {
@@ -273,7 +273,7 @@ clean.dependsOn jcpGWs_Clean
 bootJcpGWsRun.dependsOn printGradleVersions
 
 // JCP JSL Web Bridge
-SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpJSLWebBridge, project.file('src/jcpJSLWebBridge/resources/log4j2_project.xml'), 'dev,spring,auth,data-none,ssl,cors,sessions', springEnvs)
+SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpJSLWebBridge, project.file('src/jcpJSLWebBridge/resources/log4j2_project.xml'), 'dev,spring,auth,data-none,ssl,cors,sessions', springEnvs, ['--loggingDevelopment','--loggingLibsDevelopment'])
 tasks.bootJcpJSLWebBridgeRun {
     workingDir('envs/runnables/jcpJSLWebBridge')
     doFirst {
@@ -295,7 +295,7 @@ clean.dependsOn jcpJSLWebBridge_Clean
 bootJcpJSLWebBridgeRun.dependsOn printGradleVersions
 
 // JCP FE
-SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpFE, project.file('src/jcpFE/resources/log4j2_project.xml'), 'dev,spring,auth,db-fe,ssl',springEnvs)
+SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpFE, project.file('src/jcpFE/resources/log4j2_project.xml'), 'dev,spring,auth,db-fe,ssl',springEnvs, ['--loggingDevelopment','--loggingLibsDevelopment'])
 tasks.bootJcpFERun {
     workingDir('envs/runnables/jcpFE')
     doFirst {
@@ -339,7 +339,7 @@ clean.dependsOn tasks.jcpFEStatic_Clean
 nodeJcpFERun.dependsOn printGradleVersions
 
 // JCP All
-SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpAll, project.file('src/jcpAll/resources/log4j2_project.xml'), 'dev,spring,auth,db-all,ssl', springEnvs)
+SpringBuildUtils.makeSpringBootFromSourceSet(project, sourceSets.jcpAll, project.file('src/jcpAll/resources/log4j2_project.xml'), 'dev,spring,auth,db-all,ssl', springEnvs, ['--loggingDevelopment','--loggingLibsDevelopment'])
 tasks.bootJcpAllRun {
     workingDir('envs/runnables/jcpAll')
     doFirst {
