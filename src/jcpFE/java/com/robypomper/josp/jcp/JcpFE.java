@@ -33,10 +33,12 @@ public class JcpFE {
 
     public static void main(String[] args) {
         String DISABLE_SSL_CHECKS = System.getenv("DISABLE_SSL_CHECKS");    // NONE, LOCALHOST, ALL
-        if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST") == 0)
-            JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
-        else if (DISABLE_SSL_CHECKS.compareToIgnoreCase("ALL") == 0)
-            JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnAllHost();
+        if (DISABLE_SSL_CHECKS!=null) {
+            if (DISABLE_SSL_CHECKS.compareToIgnoreCase("LOCALHOST") == 0)
+                JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnLocalHost();
+            else if (DISABLE_SSL_CHECKS.compareToIgnoreCase("ALL") == 0)
+                JavaSSLIgnoreChecks.disableSSLChecksAndHostVerifierOnAllHost();
+        }
 
         SpringApplication.run(JcpFE.class, args);
     }
