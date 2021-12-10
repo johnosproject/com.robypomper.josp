@@ -119,13 +119,15 @@ sourceSets {
 }
 
 configurations {
-
-    jcpServiceImplementation.exclude module: 'spring-boot-starter-logging'
-    jcpAPIsImplementation.exclude module: 'spring-boot-starter-logging'
-    jcpGWsImplementation.exclude module: 'spring-boot-starter-logging'
-    jcpJSLWebBridgeImplementation.exclude module: 'spring-boot-starter-logging'
-    jcpFEImplementation.exclude module: 'spring-boot-starter-logging'
-    jcpAllImplementation.exclude module: 'spring-boot-starter-logging'
+    [jcpServiceImplementation,
+     jcpAPIsImplementation,
+     jcpGWsImplementation,
+     jcpJSLWebBridgeImplementation,
+     jcpFEImplementation,
+     jcpAllImplementation,
+    ].each {
+        it.exclude module: 'spring-boot-starter-logging'
+    }
 
     jcpDBAPIsCompileOnly.extendsFrom jcpDBCompileOnly
     jcpDBAPIsAnnotationProcessor.extendsFrom jcpDBAnnotationProcessor
@@ -143,9 +145,7 @@ dependencies {
     jcpCommonsImplementation "com.robypomper.josp:jospJSL:${project.ext.get("version.deps.jospJSL")}"
     jcpCommonsImplementation "org.apache.tomcat.embed:tomcat-embed-core:${project.ext.get("version.tomcat")}"
     jcpCommonsImplementation "org.springframework:spring-context"
-    // Spring Boot Context (required by JCP's clients)
     jcpCommonsImplementation "org.springframework:spring-beans"
-    // Spring Boot Beans (required by JCP's clients)
     jcpCommonsImplementation "org.springframework:spring-web"
 
     // JCP DB
@@ -167,38 +167,22 @@ dependencies {
     // JCP Service
     jcpServiceImplementation "com.robypomper.josp:jcpCommons:${project.ext.get("version.deps.jcpCommons")}"
     jcpServiceImplementation 'org.springframework.boot:spring-boot-starter-web'
-    // Spring Boot Web
     jcpServiceCompileOnly 'org.springframework.boot:spring-boot-devtools'
-    // Spring Boot DevTools
-    jcpServiceImplementation 'org.springframework.boot:spring-boot-starter-log4j2'
-    // Spring Boot Logger
+    jcpServiceImplementation "org.slf4j:slf4j-jdk14:${project.ext.get("version.slf4j")}"
     jcpServiceImplementation 'org.springframework.boot:spring-boot-starter-security'
-    // Spring Boot SSL support
     jcpServiceImplementation 'org.springframework.security:spring-security-oauth2-client'
-    // Spring Boot OAuth (Client)
     jcpServiceImplementation 'org.springframework.security:spring-security-oauth2-resource-server'
-    // Spring Boot OAuth (Resource Server)
     jcpServiceImplementation 'org.springframework.security:spring-security-oauth2-jose'
-    // Spring Boot OAuth (JSON messages)
     jcpServiceImplementation 'org.keycloak:keycloak-spring-boot-starter'
-    // Keycloak 4 Spring Boot
     jcpServiceImplementation "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:${project.ext.get("version.jackson")}"
-    // Jackson 4 Hibernate5jcpAPIsImplementation "io.springfox:springfox-swagger2:${project.ext.get("version.swaggerSpring")}", excludeSwagger // Swagger support
     jcpServiceImplementation "io.springfox:springfox-swagger2:${project.ext.get("version.swaggerSpring")}", excludeSwagger
-    // Swagger 4 Spring Boot
     jcpServiceImplementation "io.springfox:springfox-swagger-ui:${project.ext.get("version.swaggerSpring")}", excludeSwagger
-    // Swagger 4 Spring Boot
     jcpServiceImplementation "io.swagger:swagger-models:${project.ext.get("version.swagger")}"
-    // Swagger Model
     jcpServiceImplementation "io.swagger:swagger-annotations:${project.ext.get("version.swagger")}"
-    // Swagger Annotations
     jcpServiceCompileOnly "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
-    // Lombok annotations for Swagger docs
     jcpServiceAnnotationProcessor "org.projectlombok:lombok:${project.ext.get("version.lombok")}"
     jcpServiceImplementation "jakarta.persistence:jakarta.persistence-api:${project.ext.get("version.jakarta")}"
-    // Swagger Annotations
     jcpServiceImplementation "org.hibernate:hibernate-core:${project.ext.get("version.hibernate")}"
-    // Swagger Annotations
 
     // JCP APIs
     jcpAPIsImplementation "com.robypomper.josp:jcpService:${project.ext.get("version.deps.jcpService")}"

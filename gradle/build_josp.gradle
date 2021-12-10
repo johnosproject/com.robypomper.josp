@@ -83,18 +83,14 @@ dependencies {
     jospJODImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
     jospJODImplementation "net.sourceforge.htmlcleaner:htmlcleaner:${project.ext.get("version.htmlcleaner")}"
     jospJODImplementation "com.jayway.jsonpath:json-path:${project.ext.get("version.json-path")}"
-    jospJODRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:${project.ext.get("version.apache.log4j")}"
-    jospJODRuntimeOnly "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"
-    jospJODRuntimeOnly "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
+    jospJODRuntimeOnly "org.slf4j:slf4j-jdk14:${project.ext.get("version.slf4j")}"
 
 
     // JOSP JSL
     jospJSLImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.deps.jospCommons")}"
     jospJSLImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
     jospJSLImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
-    jospJSLRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:${project.ext.get("version.apache.log4j")}"
-    jospJSLRuntimeOnly "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"
-    jospJSLRuntimeOnly "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
+    jospJSLRuntimeOnly "org.slf4j:slf4j-jdk14:${project.ext.get("version.slf4j")}"
 
 }
 
