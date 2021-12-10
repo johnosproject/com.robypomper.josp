@@ -21,6 +21,7 @@ package com.robypomper.josp.jsl;
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jsl.info.JSLInfo;
+import com.robypomper.josp.jsl.logging.JSLShellLoggerConfigurator;
 import com.robypomper.josp.jsl.shell.*;
 import com.robypomper.josp.states.JSLState;
 import com.robypomper.josp.states.StateException;
@@ -75,6 +76,7 @@ public class JSLShell {
      *             {@link #createArgsParser()}.
      */
     public static void main(String[] args) {
+        args = new JSLShellLoggerConfigurator().setupLoggingEnvironment(args);
         JSLShell shell = new JSLShell();
 
         // Get cmdLine args
