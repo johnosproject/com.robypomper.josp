@@ -20,6 +20,7 @@
 package com.robypomper.build.gradle;
 
 import com.robypomper.build.commons.ProcessUtils;
+import com.robypomper.build.java.JavaDataDefinitions;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Task;
@@ -78,7 +79,7 @@ public class GradleAsyncTasksUtils {
             }
             if (logFile!=null) {
                 if (addLogFileStartTime)
-                    logFile = new File(logFile.getAbsolutePath() + "_" + new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date()));
+                    logFile = new File(logFile.getAbsolutePath() + "_" + JavaDataDefinitions.nowDateTimeCompact());
                 if (!logFile.exists())
                     logFile.getParentFile().mkdirs();
                 builder.redirectOutput(logFile);

@@ -34,6 +34,8 @@ import java.util.Date;
 public class HistoryLimits {
 
     // Default HistoryLimits
+
+    //@formatter:off
     public static Date LAST_HOUR_FROM() { return JavaDate.getDateAltered(JavaDate.getNowDate(), Calendar.HOUR_OF_DAY, -1); }
     public static Date PAST_HOUR_FROM() { return JavaDate.getDateExactAltered(Calendar.HOUR_OF_DAY, Calendar.HOUR_OF_DAY, -1); }
     public static Date PAST_HOUR_TO() { return JavaDate.getDateExact(Calendar.HOUR_OF_DAY); }
@@ -48,8 +50,10 @@ public class HistoryLimits {
     public static HistoryLimits PAST_HOUR() { return new HistoryLimits(null, null, null, null, PAST_HOUR_FROM(), PAST_HOUR_TO(), null, null); }
     public static HistoryLimits PAGE(int page, int size) { return new HistoryLimits(null, null, null, null, null, null, page, size); }
     public static HistoryLimits ERROR() { return new HistoryLimits(10, 10, null, null, null, null, null, null); }
+    //@formatter:on
 
     // Internal consts
+
     private static final String LATEST_JSON_FORMATTER = "{ \"latestCount\":\"%d\" }";
     private static final String ANCIENT_JSON_FORMATTER = "{ \"ancientCount\":\"%d\" }";
     private static final String ID_RANGE_JSON_FORMATTER_A = "\"fromID\":\"%d\"";
@@ -91,14 +95,14 @@ public class HistoryLimits {
                          @JsonProperty("toDate") Date toDate,
                          @JsonProperty("pageNum") Integer pageNum,
                          @JsonProperty("pageSize") Integer pageSize) {
-        this.latestCount = latestCount!=null ? latestCount : this.latestCount;
-        this.ancientCount = ancientCount!=null ? ancientCount : this.ancientCount;
-        this.fromID = fromID!=null ? fromID : this.fromID;
-        this.toID = toID!=null ? toID : this.toID;
-        this.fromDate = fromDate!=null ? fromDate : this.fromDate;
-        this.toDate = toDate!=null ? toDate : this.toDate;
-        this.pageNum = pageNum!=null ? pageNum : this.pageNum;
-        this.pageSize = pageSize!=null ? pageSize : this.pageSize;
+        this.latestCount = latestCount != null ? latestCount : this.latestCount;
+        this.ancientCount = ancientCount != null ? ancientCount : this.ancientCount;
+        this.fromID = fromID != null ? fromID : this.fromID;
+        this.toID = toID != null ? toID : this.toID;
+        this.fromDate = fromDate != null ? fromDate : this.fromDate;
+        this.toDate = toDate != null ? toDate : this.toDate;
+        this.pageNum = pageNum != null ? pageNum : this.pageNum;
+        this.pageSize = pageSize != null ? pageSize : this.pageSize;
 
         checkHistoryLimitsExclusivity();
     }
@@ -110,7 +114,7 @@ public class HistoryLimits {
         count += isIDRange(this) ? 1 : 0;
         count += isDateRange(this) ? 1 : 0;
         count += isPageRange(this) ? 1 : 0;
-        if (count<=1)
+        if (count <= 1)
             return;
 
         if (isLatestCount(this)
@@ -125,7 +129,7 @@ public class HistoryLimits {
         }
 
         if (isAncientCount(this)
-                && (isIDRange(this) || isDateRange(this)  || isPageRange(this))) {
+                && (isIDRange(this) || isDateRange(this) || isPageRange(this))) {
             if (isIDRange(this))
                 throw new IllegalArgumentException("isAncientCount and isIDRange");
             if (isDateRange(this))
@@ -134,7 +138,7 @@ public class HistoryLimits {
         }
 
         if (isIDRange(this)
-                && (isDateRange(this)  || isPageRange(this))) {
+                && (isDateRange(this) || isPageRange(this))) {
             if (isDateRange(this))
                 throw new IllegalArgumentException("isIDRange and isDateRange");
             throw new IllegalArgumentException("isIDRange and isPageRange");
@@ -186,8 +190,10 @@ public class HistoryLimits {
 
         if (isDateRange(limits)) {
             String s = String.format(DATE_RANGE_JSON_FORMATTER_A, limits.fromDate.getTime());
+            //String s = String.format(DATE_RANGE_JSON_FORMATTER_A, JavaDate.formatDateTimeSerializationUTC(limits.fromDate));
             if (limits.toDate != null)
                 s += String.format(DATE_RANGE_JSON_FORMATTER_B, limits.toDate.getTime());
+            //s += String.format(DATE_RANGE_JSON_FORMATTER_B, JavaDate.formatDateTimeSerializationUTC(limits.toDate));
             return "{" + s + "}";
         }
 
@@ -199,7 +205,6 @@ public class HistoryLimits {
         }
 
         return "{}";
-
 
 
         // toString()
@@ -217,9 +222,9 @@ public class HistoryLimits {
         //}
         //
         //if (isDateRange(this)) {
-        //    String s = "fromDate: " + JavaDate.DEF_DATE_FORMATTER.format(fromDate) + "";
+        //    String s = "fromDate: " + JavaDate.formatDateTimeSerializationUTC(fromDate) + "";
         //    if (toDate != null)
-        //        s += "; toDate: " + JavaDate.DEF_DATE_FORMATTER.format(toDate) + "";
+        //        s += "; toDate: " + JavaDate.formatDateTimeSerializationUTC(toDate) + "";
         //    return s;
         //}
         //
@@ -269,7 +274,7 @@ public class HistoryLimits {
 
     @JsonIgnore
     public long getFromIDOrDefault() {
-        return fromID!=-1 ? fromID : 0;
+        return fromID != -1 ? fromID : 0;
     }
 
     @JsonIgnore
@@ -279,7 +284,7 @@ public class HistoryLimits {
 
     @JsonIgnore
     public long getToIDOrDefault() {
-        return toID!=-1 ? toID : Long.MAX_VALUE;
+        return toID != -1 ? toID : Long.MAX_VALUE;
     }
 
     @JsonIgnore
@@ -289,7 +294,7 @@ public class HistoryLimits {
 
     @JsonIgnore
     public Date getFromDateOrDefault() {
-        return fromDate!=null ? fromDate : new Date(0);
+        return fromDate != null ? fromDate : new Date(0);
     }
 
     @JsonIgnore
@@ -301,7 +306,7 @@ public class HistoryLimits {
     public Date getToDateOrDefault() {
         //return toDate!=null ? toDate : new Date(Long.MAX_VALUE);    //                          64bit max date
         //return toDate!=null ? toDate : new Date(253402297199L);     // 23:59:59 31/12/9999      max date < year 4 digit
-        return toDate!=null ? toDate : new Date(2147483647000L);    // 03:14:07 19/01/2038      32bit max date
+        return toDate != null ? toDate : new Date(2147483647000L);    // 03:14:07 19/01/2038      32bit max date
     }
 
     @JsonIgnore
@@ -311,7 +316,7 @@ public class HistoryLimits {
 
     @JsonIgnore
     public int getPageNumOrDefault() {
-        return pageNum!=-1 ? pageNum : 0;
+        return pageNum != -1 ? pageNum : 0;
     }
 
     @JsonIgnore
@@ -321,7 +326,7 @@ public class HistoryLimits {
 
     @JsonIgnore
     public int getPageSizeOrDefault() {
-        return pageSize!=-1 ? pageSize : 10;
+        return pageSize != -1 ? pageSize : 10;
     }
 
     // Converters

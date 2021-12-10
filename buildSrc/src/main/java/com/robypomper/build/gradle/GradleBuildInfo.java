@@ -20,6 +20,7 @@
 package com.robypomper.build.gradle;
 
 import com.robypomper.build.commons.Naming;
+import com.robypomper.build.java.JavaDataDefinitions;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.SourceSet;
 
@@ -132,8 +133,8 @@ public class GradleBuildInfo {
         properties += String.format(RESOURCE_PROPERTY_TMPL, "project", project.getName());
         properties += String.format(RESOURCE_PROPERTY_TMPL, "sourceSet", ss.getName());
         properties += String.format(RESOURCE_PROPERTY_TMPL, "version", version);
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "versionBuild", version + "-" + getBuildDate());
-        properties += String.format(RESOURCE_PROPERTY_TMPL, "buildTime", getCurrentDateTimeUTC());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "versionBuild", version + "-" + JavaDataDefinitions.nowDateTimeCompactUTC());
+        properties += String.format(RESOURCE_PROPERTY_TMPL, "buildTime", JavaDataDefinitions.nowISO8601UTC());
         //properties += String.format(RESOURCE_PROPERTY_TMPL, "buildTime", new Date());
         properties += String.format(RESOURCE_PROPERTY_TMPL, "javaVersion", System.getProperty("java.specification.version"));
         properties += String.format(RESOURCE_PROPERTY_TMPL, "javaHome", System.getProperty("java.home").replace("\\", "\\\\"));
@@ -161,20 +162,6 @@ public class GradleBuildInfo {
         }
 
         return String.format(RESOURCE_TMPL, properties);
-    }
-
-    private static String getCurrentDateTimeUTC() {
-        Date date = new Date();
-        SimpleDateFormat sdf_utc = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        sdf_utc.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf_utc.format(date);
-    }
-
-    private static String getBuildDate() {
-        Date date = new Date();
-        SimpleDateFormat sdf_utc = new SimpleDateFormat("yyyyMMddHHmm");
-        sdf_utc.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf_utc.format(date);
     }
 
     private static String getGitCommit(Project project) {

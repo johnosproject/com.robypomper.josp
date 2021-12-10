@@ -19,6 +19,7 @@
 
 package com.robypomper.build.commons;
 
+import com.robypomper.build.java.JavaDataDefinitions;
 import com.robypomper.build.java.JavaPublicationUtils;
 
 import java.io.File;
@@ -55,7 +56,7 @@ public class ManifestUtils {
             res.put("Main-Class", (!groupId.isEmpty() ? groupId + "." : "") + Naming.capitalize(artifact));
         //res.put("Class-Path"                : sourceSets.jcpFE_Extended.runtimeClasspath.collect { "libs/" + it.getName() }.join(" "));
         res.put("Built-By", System.getProperty("user.name"));
-        res.put("Build-Timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()));
+        res.put("Build-Timestamp"           , JavaDataDefinitions.nowISO8601UTC());
         //res.put("Build-Revision"            : versioning.info.commit);
         res.put("Created-By", String.format("Gradle %s", System.getProperty("gradle.gradleVersion}")));
         res.put("Build-Jdk", String.format("%s (%s %s)", System.getProperty("java.version"), System.getProperty("java.vendor"), System.getProperty("java.vm.version")));
@@ -76,7 +77,7 @@ public class ManifestUtils {
         if (pubDesc.executable)
             res.put("Main-Class"            , pubDesc.groupId + "." + Naming.capitalize(pubDesc.artifact));
         res.put("Built-By"                  , System.getProperty("user.name"));
-        res.put("Build-Timestamp"           , new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()));
+        res.put("Build-Timestamp"           , JavaDataDefinitions.nowISO8601UTC());
         res.put("Created-By"                , String.format("Gradle %s", System.getProperty("gradle.gradleVersion}")));
         res.put("Build-Jdk"                 , String.format("%s (%s %s)", System.getProperty("java.version"), System.getProperty("java.vendor"), System.getProperty("java.vm.version")));
         res.put("Build-OS"                  , String.format("%s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")));

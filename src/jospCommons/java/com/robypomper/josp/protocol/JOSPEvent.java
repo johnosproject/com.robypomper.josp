@@ -101,7 +101,7 @@ public class JOSPEvent {
 
     @JsonIgnore
     public String getEmittedAtStr() {
-        return JavaDate.DEF_DATE_FORMATTER.format(emittedAt);
+        return JavaDate.formatDateTimeSerializationUTC(emittedAt);
     }
 
     public String getPhase() {
@@ -140,7 +140,7 @@ public class JOSPEvent {
     }
 
     public static String toString(JOSPEvent event) {
-        return String.format(EVENTS_REQ_FORMAT, event.getId(), event.getType(), event.getSrcId(), event.getSrcType(), JavaDate.DEF_DATE_FORMATTER.format(event.getEmittedAt()), event.phase, event.getPayload(), event.getErrorPayload());
+        return String.format(EVENTS_REQ_FORMAT, event.getId(), event.getType(), event.getSrcId(), event.getSrcType(), JavaDate.formatDateTimeSerializationUTC(event.getEmittedAt()), event.phase, event.getPayload(), event.getErrorPayload());
     }
 
     public static String toString(List<JOSPEvent> statusesHistory) {
@@ -168,7 +168,7 @@ public class JOSPEvent {
         String errorPayload = eventStrs[7].substring(eventStrs[7].indexOf(":") + 1);
 
         try {
-            return new JOSPEvent(Long.parseLong(id), EventType.valueOf(type), srcId, AgentType.valueOf(srcType), JavaDate.DEF_DATE_FORMATTER.parse(emittedAt), phase, payload, errorPayload);
+            return new JOSPEvent(Long.parseLong(id), EventType.valueOf(type), srcId, AgentType.valueOf(srcType), JavaDate.parseDateTimeSerializationUTC(emittedAt), phase, payload, errorPayload);
 
         } catch (ParseException e) {
             throw new JOSPProtocol.ParsingException(String.format("Error parsing JOSPEvent fields: %s", e.getMessage()));
