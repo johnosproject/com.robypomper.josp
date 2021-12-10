@@ -33,8 +33,6 @@ import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaByteArrays;
 import com.robypomper.java.JavaListeners;
 import com.robypomper.java.JavaThreads;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import java.io.DataInputStream;
@@ -62,7 +60,7 @@ public abstract class PeerAbs implements Peer {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(PeerAbs.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PeerAbs.class);
     // connection
     private final ConnectionInfoDefault connectionInfo;
     private DisconnectionReason disconnectionReason;

@@ -24,8 +24,6 @@ import com.robypomper.comm.trustmanagers.AbsCustomTrustManager;
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaByteArrays;
 import com.robypomper.java.JavaJKS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.security.cert.Certificate;
@@ -37,7 +35,7 @@ public class ServerCertSharing extends ServerAbsTCP {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(ServerCertSharing.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ServerCertSharing.class);
     private final Certificate localPublicCertificate;
     private final AbsCustomTrustManager certTrustManager;
     private final Map<ServerClient, byte[]> serverCertBuffer = new HashMap<>();

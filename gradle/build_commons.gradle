@@ -75,8 +75,6 @@ dependencies {
 
     // JOSP Commons
     jospCommonsImplementation "com.robypomper.josp:jospAPIs:${project.ext.get("version.deps.jospAPIs")}"
-    jospCommonsImplementation "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"           // Logger
-    jospCommonsImplementation "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
     jospCommonsImplementation "org.yaml:snakeyaml:${project.ext.get("version.snakeyaml")}"                              // YAML
     jospCommonsImplementation "com.github.scribejava:scribejava-core:${project.ext.get("version.scribejava")}"          // HTTP & OAuth2
     jospCommonsImplementation "com.github.scribejava:scribejava-apis:${project.ext.get("version.scribejava")}"

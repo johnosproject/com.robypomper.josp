@@ -23,7 +23,6 @@ import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.josp.jod.structure.pillars.JODRangeState;
-import com.robypomper.log.Mrk_JOD;
 
 
 /**
@@ -33,6 +32,11 @@ import com.robypomper.log.Mrk_JOD;
  * the {@link JODState} sub class's <code>setUpdate(...)</code> method.
  */
 public class PullerTest extends AbsJODPuller {
+
+    // Internal vars
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PullerTest.class);
+
 
     // Constructor
 
@@ -45,7 +49,7 @@ public class PullerTest extends AbsJODPuller {
      */
     public PullerTest(String name, String proto, String configsStr, JODComponent component) {
         super(name, proto, component);
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest for component '%s' init with config string '%s://%s'.", getName(), proto, configsStr));
+        log.trace(String.format("PullerTest for component '%s' init with config string '%s://%s'.", getName(), proto, configsStr));
     }
 
 
@@ -57,7 +61,7 @@ public class PullerTest extends AbsJODPuller {
      */
     @Override
     public void pull() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerTest '%s' of proto '%s' pulling", getName(), getProto()));
+        log.trace(String.format("PullerTest '%s' of proto '%s' pulling", getName(), getProto()));
 
         String state = "";
         if (getComponent() instanceof JODBooleanState)
@@ -66,7 +70,7 @@ public class PullerTest extends AbsJODPuller {
             state = "5";
 
         if (!convertAndSetStatus(state))
-            log.warn(Mrk_JOD.JOD_EXEC_IMPL, String.format("PullerShell for component '%s' can't update his component because not supported (%s)", getName(), getComponent().getClass().getSimpleName()));
+            log.warn(String.format("PullerShell for component '%s' can't update his component because not supported (%s)", getName(), getComponent().getClass().getSimpleName()));
         //// For each JODState supported
         //if (getComponent() instanceof JODBooleanState)
         //    ((JODBooleanState) getComponent()).setUpdate(true);

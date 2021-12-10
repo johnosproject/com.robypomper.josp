@@ -24,8 +24,6 @@ import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.jcp.defs.base.internal.status.buildinfo.Params20;
 import com.robypomper.josp.jcp.defs.base.internal.status.buildinfo.Paths20;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +49,7 @@ public abstract class Controller20 extends ControllerImplAbs {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Controller20.class);
 
 
     // Methods

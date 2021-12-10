@@ -39,8 +39,6 @@ import com.robypomper.josp.jsl.objs.structure.pillars.JSLRangeState;
 import com.robypomper.josp.protocol.JOSPPerm;
 import com.robypomper.josp.protocol.JOSPProtocol;
 import com.robypomper.josp.protocol.JOSPProtocol_ObjectToService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -48,7 +46,7 @@ public class GWClientO2S extends GWClientTCPAbs implements BrokerClientJOD {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(GWClientO2S.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GWClientO2S.class);
     private final BrokerJOD broker;
     private final ObjectDBService objectDBService;
     private final PermissionsDBService permissionsDBService;

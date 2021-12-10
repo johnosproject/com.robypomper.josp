@@ -22,8 +22,6 @@ package com.robypomper.discovery.impl;
 import com.robypomper.discovery.Discover;
 import com.robypomper.discovery.PublisherAbs;
 import com.robypomper.java.JavaAssertions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +33,7 @@ public class PublisherDNSSD extends PublisherAbs {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(PublisherDNSSD.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PublisherDNSSD.class);
     public Process publishProcess = null;
 
 

@@ -83,18 +83,14 @@ dependencies {
     jospJODImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
     jospJODImplementation "net.sourceforge.htmlcleaner:htmlcleaner:${project.ext.get("version.htmlcleaner")}"
     jospJODImplementation "com.jayway.jsonpath:json-path:${project.ext.get("version.json-path")}"
-    jospJODRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:${project.ext.get("version.apache.log4j")}"
-    jospJODRuntimeOnly "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"
-    jospJODRuntimeOnly "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
+    jospJODRuntimeOnly "org.slf4j:slf4j-jdk14:${project.ext.get("version.slf4j")}"
 
 
     // JOSP JSL
     jospJSLImplementation "com.robypomper.josp:jospCommons:${project.ext.get("version.deps.jospCommons")}"
     jospJSLImplementation "commons-cli:commons-cli:${project.ext.get("version.cli")}"
     jospJSLImplementation "com.googlecode.clichemaven:cliche:${project.ext.get("version.cliche")}"
-    jospJSLRuntimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:${project.ext.get("version.apache.log4j")}"
-    jospJSLRuntimeOnly "org.apache.logging.log4j:log4j-api:${project.ext.get("version.apache.log4j")}"
-    jospJSLRuntimeOnly "org.apache.logging.log4j:log4j-core:${project.ext.get("version.apache.log4j")}"
+    jospJSLRuntimeOnly "org.slf4j:slf4j-jdk14:${project.ext.get("version.slf4j")}"
 
 }
 
@@ -105,7 +101,7 @@ GradleBuildInfo.makeBuildInfoForSourceSet(project, sourceSets.jospJSL, (String)p
 // Runners Tasks
 // -------------
 
-// Utils: Make Java Runnable
+// JOD Runnable makers
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod) {
     makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, null, true)
 }
@@ -115,11 +111,11 @@ def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jo
 def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, boolean overrideIfExist) {
     makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, null, overrideIfExist)
 }
+def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, String group_name, boolean overrideIfExist) {
+    makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, group_name, overrideIfExist)
+}
 def makeJODJavaDaemon(String runnableName, String config_yml, String struct_jod, String perms_jod, boolean overrideIfExist) {
     makeJODJavaRunnable(runnableName, true, config_yml, struct_jod, perms_jod, null, overrideIfExist)
-}
-def makeJODJavaRunnable(String runnableName, String config_yml, String struct_jod, String perms_jod, String group_name, boolean overrideIfExist) {
-    makeJODJavaRunnable(runnableName, false, config_yml, struct_jod, perms_jod, null, overrideIfExist)
 }
 def makeJODJavaRunnable(String runnableName, boolean isDaemon, String config_yml, String struct_jod, String perms_jod, String group_name, boolean overrideIfExist) {
     runnableName = "JOD${runnableName}" + (isDaemon ? "Daemon" : "")
@@ -133,10 +129,9 @@ def makeJODJavaRunnable(String runnableName, boolean isDaemon, String config_yml
     tasks.getByName(jarTaskName) {
         group = group_name==null ? 'JOSP runners jod' : "JOSP runners jod ($group_name)"
         standardInput = System.in
-        //args = ['--configs', 'src/jospJOD/configs/jod_dev.yml']
-        //jvmArgs = ['-Djavax.net.debug=ssl']
-        jvmArgs = ['-Dlog4j.configurationFile=' + project.file('src/jospJOD/resources/log4j2_project.xml').absolutePath]
-
+        // Logging params are defined in the JOSPLoggerConfiguratorBasic class
+        args = ['--loggingDevelopment','--loggingLibsDevelopment']      // to disable logging use '--loggingDisabled'
+        args = ['--loggingDevelopment','--loggingLibsDevelopment','--loggingNoColors']      // to disable logging use '--loggingDisabled'
         doFirst {
             if (workingDir.exists() && overrideIfExist)
                 delete workingDir
@@ -154,6 +149,8 @@ def makeJODJavaRunnable(String runnableName, boolean isDaemon, String config_yml
         }
     }
 }
+
+// JSL Runnable makers
 def makeJSLJavaRunnable(String runnableName, String config_yml) {
     makeJSLJavaRunnable(runnableName, config_yml, null, true)
 }
@@ -174,10 +171,8 @@ def makeJSLJavaRunnable(String runnableName, String config_yml, String group_nam
     tasks.getByName(jarTaskName) {
         group = group_name==null ? 'JOSP runners jsl' : "JOSP runners jsl ($group_name)"
         standardInput = System.in
-        //args = ['--configs', 'src/jospJSL/configs/jsl_dev.yml']
-        //jvmArgs = ['-Djavax.net.debug=ssl']
-        jvmArgs = ['-Dlog4j.configurationFile=' + project.file('src/jospJSL/resources/log4j2_project.xml').absolutePath]
-
+        // Logging params are defined in the JOSPLoggerConfiguratorBasic class
+        args = ['--loggingDevelopment','--loggingLibsDevelopment']      // to disable logging use '--loggingDisabled'
         doFirst {
             if (workingDir.exists() && overrideIfExist)
                 delete workingDir

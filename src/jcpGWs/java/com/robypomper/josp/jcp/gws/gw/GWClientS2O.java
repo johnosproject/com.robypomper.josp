@@ -37,8 +37,6 @@ import com.robypomper.josp.jcp.gws.exceptions.JSLServiceMissingPermissionExcepti
 import com.robypomper.josp.jcp.gws.exceptions.JSLServiceNotInDBException;
 import com.robypomper.josp.jcp.gws.exceptions.JSLServiceNotRegisteredException;
 import com.robypomper.josp.protocol.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +46,7 @@ public class GWClientS2O extends GWClientTCPAbs implements BrokerClientJSL {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(GWClientS2O.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GWClientS2O.class);
     private final BrokerJSL broker;
     private final ServiceDBService serviceDBService;
     private final EventDBService eventsDBService;

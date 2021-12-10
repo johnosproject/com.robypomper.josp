@@ -22,6 +22,8 @@ package com.robypomper.josp.jod;
 import asg.cliche.Shell;
 import asg.cliche.ShellFactory;
 import com.robypomper.josp.jod.info.JODInfo;
+import com.robypomper.josp.jod.logging.JODDaemonLoggerConfigurator;
+import com.robypomper.josp.jod.logging.JODShellLoggerConfigurator;
 import com.robypomper.josp.jod.shell.*;
 import com.robypomper.josp.states.JODState;
 import com.robypomper.josp.states.StateException;
@@ -72,6 +74,7 @@ public class JODShell {
      *             {@link #createArgsParser()}.
      */
     public static void main(String[] args) {
+        args = new JODShellLoggerConfigurator().setupLoggingEnvironment(args);
         JODShell shell = new JODShell();
 
         // Get cmdLine args

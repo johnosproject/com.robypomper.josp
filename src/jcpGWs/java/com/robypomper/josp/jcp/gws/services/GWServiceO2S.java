@@ -26,8 +26,6 @@ import com.robypomper.josp.jcp.clients.JCPClientsMngr;
 import com.robypomper.josp.jcp.db.apis.ObjectDBService;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.jcp.gws.gw.GWO2S;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -41,7 +39,7 @@ public class GWServiceO2S implements ApplicationListener<ContextRefreshedEvent> 
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(GWServiceO2S.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GWServiceO2S.class);
     private final GWO2S gw;
 
 

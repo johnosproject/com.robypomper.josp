@@ -19,8 +19,8 @@
 
 package com.robypomper.josp.jod;
 
-import asg.cliche.Shell;
 import com.robypomper.josp.jod.info.JODInfo;
+import com.robypomper.josp.jod.logging.JODDaemonLoggerConfigurator;
 import com.robypomper.josp.states.JODState;
 import com.robypomper.josp.states.StateException;
 import org.apache.commons.cli.*;
@@ -35,7 +35,6 @@ public class JODDaemon {
     // Internal vars
 
     private JOD jod;
-    private Shell shell;
     private boolean stopLoop = false;
     private boolean fatalThrown = false;
 
@@ -71,6 +70,7 @@ public class JODDaemon {
      *             {@link #createArgsParser()}.
      */
     public static void main(String[] args) {
+        args = new JODDaemonLoggerConfigurator().setupLoggingEnvironment(args);
         JODDaemon daemon = new JODDaemon();
 
         // Get cmdLine args

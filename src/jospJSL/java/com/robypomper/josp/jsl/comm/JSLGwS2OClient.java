@@ -26,8 +26,6 @@ import com.robypomper.josp.clients.JCPAPIsClientSrv;
 import com.robypomper.josp.defs.core.gateways.Params20;
 import com.robypomper.josp.jsl.srvinfo.JSLServiceInfo;
 import com.robypomper.josp.protocol.JOSPPerm;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
@@ -43,7 +41,7 @@ public class JSLGwS2OClient extends AbsGWsClient {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JSLGwS2OClient.class);
     // JSL
     private final JSLCommunication_002 jslComm;
     private final JSLServiceInfo srvInfo;

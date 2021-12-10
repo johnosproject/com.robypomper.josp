@@ -30,8 +30,6 @@ import com.robypomper.josp.jcp.db.apis.StatusHistoryDBService;
 import com.robypomper.josp.jcp.gws.broker.BrokerJSL;
 import com.robypomper.josp.jcp.gws.exceptions.JSLServiceNotRegisteredException;
 import com.robypomper.josp.types.josp.gw.GWType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -46,7 +44,7 @@ public class GWS2O extends GWAbs {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(GWS2O.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GWS2O.class);
     private final Map<String, GWClientS2O> jslGWClients = new HashMap<>();
     private final BrokerJSL gwBroker;
     private final ServiceDBService serviceDBService;

@@ -39,8 +39,6 @@ import com.robypomper.comm.peer.PeerConnectionListener;
 import com.robypomper.comm.peer.PeerDataListener;
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaListeners;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -51,7 +49,7 @@ public class ClientWrapper implements Client {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(ClientWrapper.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClientWrapper.class);
     // wrapper
     private Client wrapper;
     private final String localId;

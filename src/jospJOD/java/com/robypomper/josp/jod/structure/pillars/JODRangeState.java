@@ -26,16 +26,13 @@ import com.robypomper.josp.jod.structure.AbsJODState;
 import com.robypomper.josp.jod.structure.JODStateUpdate;
 import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jod.structure.StructureDefinitions;
-import com.robypomper.log.Mrk_JOD;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 public class JODRangeState extends AbsJODState {
 
     // Internal vars
 
-    private static final Logger log = LogManager.getLogger();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JODRangeState.class);
     private final double min;
     private final double max;
     private final double step;
@@ -112,7 +109,7 @@ public class JODRangeState extends AbsJODState {
         try {
             propagateState(new JOSPRange(newState, oldState));
         } catch (JODStructure.CommunicationSetException e) {
-            log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on propagating state of component '%s' to JOD Communication because %s", getName(), e.getMessage()), e);
+            log.warn(String.format("Error on propagating state of component '%s' to JOD Communication because %s", getName(), e.getMessage()), e);
         }
     }
 

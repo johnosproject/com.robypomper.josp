@@ -23,7 +23,6 @@ import com.robypomper.josp.jod.structure.JODComponent;
 import com.robypomper.josp.jod.structure.JODState;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanState;
 import com.robypomper.josp.jod.structure.pillars.JODRangeState;
-import com.robypomper.log.Mrk_JOD;
 
 
 /**
@@ -37,6 +36,11 @@ import com.robypomper.log.Mrk_JOD;
  */
 public class ListenerTest extends AbsJODListenerLoop {
 
+    // Internal vars
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ListenerTest.class);
+
+
     // Constructor
 
     /**
@@ -48,7 +52,7 @@ public class ListenerTest extends AbsJODListenerLoop {
      */
     public ListenerTest(String name, String proto, String configsStr, JODComponent component) {
         super(name, proto, component);
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
+        log.trace(String.format("ListenerTest for component '%s' init with config string '%s://%s'", getName(), proto, configsStr));
     }
 
 
@@ -61,10 +65,10 @@ public class ListenerTest extends AbsJODListenerLoop {
      */
     @Override
     protected void getServerLoop() {
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' of proto '%s' running", getName(), getProto()));
+        log.trace(String.format("ListenerTest for component '%s' of proto '%s' running", getName(), getProto()));
 
         while (!mustShoutingDown()) {
-            log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' of proto '%s' listened", getName(), getProto()));
+            log.trace(String.format("ListenerTest for component '%s' of proto '%s' listened", getName(), getProto()));
 
             // For each JODState supported
             if (getComponent() instanceof JODBooleanState)
@@ -80,7 +84,7 @@ public class ListenerTest extends AbsJODListenerLoop {
             }
         }
 
-        log.trace(Mrk_JOD.JOD_EXEC_IMPL, String.format("ListenerTest for component '%s' terminated", getName()));
+        log.trace(String.format("ListenerTest for component '%s' terminated", getName()));
     }
 
 }

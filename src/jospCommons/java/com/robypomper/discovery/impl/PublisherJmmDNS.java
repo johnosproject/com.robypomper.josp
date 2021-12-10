@@ -22,8 +22,6 @@ package com.robypomper.discovery.impl;
 import com.robypomper.discovery.Discover;
 import com.robypomper.discovery.PublisherAbs;
 import com.robypomper.java.JavaAssertions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.impl.JmmDNSImpl;
@@ -36,7 +34,7 @@ public class PublisherJmmDNS extends PublisherAbs {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(PublisherJmmDNS.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PublisherJmmDNS.class);
     private final javax.jmdns.JmmDNS jmmDNS;
     private final javax.jmdns.ServiceInfo serviceInfo;
 

@@ -19,8 +19,6 @@
 
 package com.robypomper.discovery;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +39,7 @@ public abstract class PublisherAbs extends DiscoveryBase<Publisher, PublisherSta
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(PublisherAbs.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PublisherAbs.class);
     // service info
     private final String srvName;
     private final int srvPort;

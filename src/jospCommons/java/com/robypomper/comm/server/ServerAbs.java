@@ -30,8 +30,6 @@ import com.robypomper.comm.peer.*;
 import com.robypomper.java.JavaAssertions;
 import com.robypomper.java.JavaListeners;
 import com.robypomper.java.JavaThreads;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -51,7 +49,7 @@ public abstract class ServerAbs implements Server {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(ServerAbs.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ServerAbs.class);
     private ServerState state = ServerState.STOPPED;
     private ServerSocket serverSocket;
     private final PeerInfoLocalDefault localInfo;

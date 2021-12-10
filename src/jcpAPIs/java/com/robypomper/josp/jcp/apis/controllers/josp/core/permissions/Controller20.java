@@ -27,8 +27,6 @@ import com.robypomper.josp.jcp.base.spring.SwaggerConfigurer;
 import com.robypomper.josp.jcp.db.apis.PermissionsDBService;
 import com.robypomper.josp.protocol.JOSPPerm;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,7 +52,7 @@ public class Controller20 extends ControllerImpl {
 
     // Internal vars
 
-    private static final Logger log = LoggerFactory.getLogger(Controller20.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Controller20.class);
     @Autowired
     private PermissionsDBService permissionsDBService;
 
