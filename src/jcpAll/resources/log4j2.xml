@@ -25,13 +25,13 @@
 
     <Appenders>
 
-        <xi:include href="jar:file:libs/jospCommons-2.2.2.jar!/log4j2/appenders/error.xml"/>
-        <xi:include href="jar:file:libs/jospCommons-2.2.2.jar!/log4j2/appenders/error-dark.xml"/>
-        <xi:include href="jar:file:libs/jospCommons-2.2.2.jar!/log4j2/appenders/error-file.xml"/>
-        <xi:include href="jar:file:libs/jospCommons-2.2.2.jar!/log4j2/appenders/error-libs.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/error.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/error-dark.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/error-file.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/error-libs.xml"/>
 
-        <xi:include href="jar:file:libs/jospCommons-2.2.2.jar!/log4j2/appenders/warning.xml"/>
-        <xi:include href="jar:file:libs/jospCommons-2.2.2.jar!/log4j2/appenders/warning-dark.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/warning.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/warning-dark.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.2.2-DEV.jar!/log4j2/appenders/warning-file.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.2.2-DEV.jar!/log4j2/appenders/warning-libs.xml"/>
 
