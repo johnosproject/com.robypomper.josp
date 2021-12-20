@@ -40,7 +40,7 @@ But when joined in the springTestSingleInstance, it publish both endpoints:
 * [localhost:5082/springTest2](http://localhost:5082/springTest2)
 
 Try it running:
-```shell script
+```shell
 ./gradlew bootSpringTestRun
 ./gradlew bootSpringTest2Run
 ./gradlew bootSpringTestSingleInstanceRun
