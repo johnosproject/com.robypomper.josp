@@ -12,7 +12,7 @@ and realm is ```jcp```.
 ## Service mngm
 
 Like others Docker based project, it can be **started and stopped** with following cmds:
-```shell script
+```shell
 ./gradlew auth_Up
 ./gradlew auth_Down
 ```

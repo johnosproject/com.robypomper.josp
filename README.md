@@ -45,13 +45,13 @@ then with included [Gradle](https://gradle.org) Wrapper you can execute project'
 1. [Install Java JDK](https://www.johnosproject.org/docs/external/java/install-jdk)
 1. [Install Docker and docker-compose](https://www.johnosproject.org/docs/external/docker/install) (Opt. to run JCP Cloud)
 1. Clone com.robypomper.josp repository
-    ```shellscript
-    git clone https://bitbucket.org/johnosproject_shared/com.robypomper.josp.git
+    ```shell
+    $ git clone https://bitbucket.org/johnosproject_shared/com.robypomper.josp.git
     ```
 1. Enter cloned directory and start executing Gradle tasks via wrapper
-    ```shellscript
-    cd com.robypomper.josp
-    ./gradlew --console=plain {TASK_NAME}
+    ```shell
+    $ cd com.robypomper.josp
+    $ ./gradlew --console=plain {TASK_NAME}
     ```
 
 ### Local JOSP Eco-System
@@ -60,12 +60,12 @@ The first, **basic IoT Eco-System** is composed only by a connected object, and 
 [JOD object agent](https://www.johnosproject.org/docs/references/josp/jod/), and the shell version of the [JSL library](https://www.johnosproject.org/docs/references/josp/jsl/specs/). The only requirement is that both instance have to be connected to the same local network.
 
 1. Run the John Object Daemon (JOD)
-   ```shellscript
-   ./gradlew javaJODRun
+   ```shell
+   $ ./gradlew javaJODRun
    ```
 1. Run the John Service Library Shell
-   ```shellscript
-   ./gradlew javaJSLRun
+   ```shell
+   $ ./gradlew javaJSLRun
    ```
 
 That's it! **Your IoT EcoSystem is running!**
@@ -106,7 +106,7 @@ When the IoT Eco-System require remote connectivity, objects and services with t
 
 To **startup and shutdown all JCP micro-services** once, run one of following Gradle's tasks: ```jospCloud_Start``` or ```jospCloud_Stop```. When are running you can print JCP micro-service's logs with following command:
 
-```shellscript
+```shell
 $ ./gradlew jospCloud_Start
 $ tail -f tail -f envs/runnables/jcp/{JCP_SERVICE}_StartAsync/jcp.log_{START_DATE_TIME}
 Ctrl+C

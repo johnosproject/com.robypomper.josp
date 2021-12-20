@@ -6,7 +6,7 @@
 
 The JOSP JSL's running tasks execute the JSL library with the interactive shell. This JSL implementation is called JSL Shell and can be executed with following tasks:
 
-```shellscript
+```shell
 ./gradlew javaJSLRun
 ```
 
@@ -15,7 +15,7 @@ so any modification will not commit to the repository.
 
 ### Vanilla
 
-```shellscript
+```shell
 ./gradlew javaJSLVanillaRun
 ```
 
@@ -34,7 +34,7 @@ Standard and Vanilla runners starts a JSL instance with both cloud and local com
 
 ### User and cloud Connected
 
-```shellscript
+```shell
 ./gradlew javaJSL{UC}Run
 ```
 
@@ -49,7 +49,7 @@ like the ```javaJSLVanillaRun``` task but with pre-set configs:
 
 ### Discovery system
 
-```shellscript
+```shell
 ./gradlew javaJSL{Disc}Run
 ```
 
@@ -67,7 +67,7 @@ to the tasks name ```javaJSL{Mod}Run``` and ```javaJSLVanilla{Mod}Run```. Each m
 
 ## Cleaner tasks
 
-```shellscript
+```shell
 ./gradlew javaJSL_Clean
 ```
 
@@ -85,13 +85,13 @@ The JOSP JOD publication package and publish following files:
 | ```jsl-{VERSION}-doc.jar```  | Docs archive contains all Java docs from JSL's source code |
 | ```jsl-{VERSION}-deps.jar``` | Deps jar archive provide all dependencies required by the JOSP JSL library |
 
-```shellscript
+```shell
 ./gradlew jospJSL_PublishToLocal
 ```
 
 generate the publication artifacts and publish them to local maven repo.
 
-```shellscript
+```shell
 ./gradlew jospJSL_PublishToSonatype
 ```
 

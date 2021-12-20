@@ -6,7 +6,7 @@
 
 To run the JOSP JOD agent this project provide different tasks for different purposes. With Gradle's task, the JOD agent is always executed as interactive shell:
 
-```shellscript
+```shell
 ./gradlew javaJODRun
 ```
 
@@ -15,7 +15,7 @@ To run the JOSP JOD agent this project provide different tasks for different pur
 this task start a JOD agent from a persistent working dir. This means that, after the first execution (when the object initialize his ids, name, etc...), all other execution keep the same configs. In other words when executed with this task, the JOD agent always represent the same object. After the first git commit, this task's working dir is added to ```.gitignore```
 so any modification will not commit to the repository.
 
-```shellscript
+```shell
 ./gradlew javaJODVanillaRun
 ```
 
@@ -34,7 +34,7 @@ Standard and Vanilla runners starts a JOD instance with both cloud and local com
 
 ### Obj't ID, Owner and cloud Connected
 
-```shellscript
+```shell
 ./gradlew javaJOD{IOC}Run
 ```
 
@@ -57,7 +57,7 @@ like the ```javaJODVanillaRun``` task but with pre-set configs:
 
 ### Discovery system
 
-```shellscript
+```shell
 ./gradlew javaJOD{Disc}Run
 ```
 
@@ -76,7 +76,7 @@ to the tasks name ```javaJOD{Mod}Run``` and ```javaJODVanilla{Mod}Run```. Each m
 
 ## Cleaner tasks
 
-```shellscript
+```shell
 ./gradlew javaJOD_Clean
 ```
 
@@ -95,13 +95,13 @@ The JOSP JOD publication package and publish following files:
 | ```jod-{VERSION}-doc.jar```  | Docs archive contains all Java docs from JOD's source code |
 | ```jod-{VERSION}-deps.jar``` | Deps jar archive provide all dependencies required by the JOSP JOD agent |
 
-```shellscript
+```shell
 ./gradlew jospJOD_PublishToLocal
 ```
 
 generate the publication artifacts and publish them to local maven repo.
 
-```shellscript
+```shell
 ./gradlew jospJOD_PublishToSonatype
 ```
 

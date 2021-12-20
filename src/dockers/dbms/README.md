@@ -12,7 +12,7 @@ password is ```root```.
 ## Service mngm
 
 Like others Docker based project, it can be **started and stopped** with following cmds:
-```shell script
+```shell
 ./gradlew dbms_Up
 ./gradlew dbms_Down
 ```
@@ -22,7 +22,7 @@ you should stop tha service, delete his permanent volumes and then restart the
 server. During the reboot, the server will parse all files contained in
 ```sql/``` dir.
 
-```shell script
+```shell
 ./gradlew dbms_Up
 ./gradlew dbms_Down
 sudo rm -rf docker_envs/dbms/mysql/data
