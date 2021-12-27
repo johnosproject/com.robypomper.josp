@@ -21,6 +21,7 @@ package com.robypomper.josp.jsl.comm;
 
 import com.robypomper.josp.clients.JCPAPIsClientObj;
 import com.robypomper.josp.clients.JCPAPIsClientSrv;
+import com.robypomper.josp.clients.JCPClient2;
 import com.robypomper.josp.jod.JODSettings_002;
 import com.robypomper.josp.jod.comm.JODCommunication;
 import com.robypomper.josp.jod.comm.JODLocalClientInfo;
@@ -79,7 +80,7 @@ public class JOSPCommunicationIntegration {
     // Test config
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws JCPClient2.AuthenticationException {
         log.debug(Mrk_Test.TEST_SPACER, "########## ########## ########## ########## ##########");
         log.debug(Mrk_Test.TEST_METHODS, "setUp");
 
