@@ -48,7 +48,7 @@
         <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/trace.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/trace-dark.xml"/>
         <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/trace-file.xml"/>
-        <xi:include href="jar:file:libs/jospCommons-2.2.2-DEV.jar!/log4j2/appenders/trace-libs.xml"/>
+        <xi:include href="jar:file:libs/jospCommons-2.2.3-DEV.jar!/log4j2/appenders/trace-libs.xml"/>
 
     </Appenders>
 
