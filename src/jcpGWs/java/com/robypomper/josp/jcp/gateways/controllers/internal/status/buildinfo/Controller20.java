@@ -24,6 +24,7 @@ import com.robypomper.jcpGWs.BuildInfoJcpGWs;
 import com.robypomper.josp.jcp.defs.base.internal.status.buildinfo.Params20;
 import com.robypomper.josp.jcp.defs.base.internal.status.buildinfo.Paths20;
 import io.swagger.annotations.Api;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController(value = Paths20.API_NAME + " " + Paths20.DOCS_NAME)
 @Api(tags = Paths20.DOCS_NAME, description = Paths20.DOCS_DESCR)
+@Profile("jcp-gateways")
 public class Controller20 extends com.robypomper.josp.jcp.base.controllers.internal.status.buildinfo.Controller20 {
 
     static Params20.BuildInfo current = Params20.BuildInfo.clone(BuildInfoJcpGWs.current);
