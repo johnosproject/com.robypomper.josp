@@ -21,6 +21,11 @@ jcp.client.fe.private: localhost
 jcp.client.fe.public: ${localhost.public}
 jcp.client.fe.port: 9000
 
+# JCP APIs (all instance, dev)
+jcp.apis.gws.cache.load_on_startup: false
+jcp.apis.gws.availability.delay_seconds: 10
+jcp.apis.gws.availability.attempts: 3
+
 # JCP GWs
 jcp.gws.enabled: true
 jcp.gws.region: Europe
