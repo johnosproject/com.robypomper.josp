@@ -8,7 +8,7 @@
         "Volume (Linux)" : {
             "type": "RangeAction",
             "puller" : "shell://cmd=scripts/sensors/volume.sh;freq=5",
-            "executor" : "shell://cmd=scripts/sensors/volume.sh %VAL%",
+            "executor" : "shell://cmd=scripts/sensors/volume.sh %A_VAL%",
             "min": "0",
             "max": "100",
             "step": "5"
@@ -17,7 +17,7 @@
         "Volume Mute (Linux)" : {
             "type": "BooleanAction",
             "puller" : "shell://cmd=scripts/sensors/volume_mute.sh;freq=5",
-            "executor" : "shell://cmd=scripts/sensors/volume.sh %VAL_BOOL%"
+            "executor" : "shell://cmd=scripts/sensors/volume.sh %A_VAL_BOOL%"
         }
     }
 }
