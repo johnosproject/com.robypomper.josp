@@ -27,13 +27,13 @@
             "contains": {
                 "Action On/Off" : {
                     "type": "BooleanAction",
-                    "listener" : "file://path=status/%C_NAME%_State.txt",
-                    "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                    "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                    "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                 },
                 "Action 0-50" : {
                     "type": "RangeAction",
-                    "listener" : "file://path=status/%C_NAME%_State.txt",
-                    "executor" : "file://path=status/%C_NAME%_State.txt",
+                    "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                    "executor" : "file://path=status/%COMP_NAME%_State.txt",
                     "min": "0",
                     "max": "50",
                     "step": "5"
@@ -48,13 +48,13 @@
             "contains": {
                 "Switch" : {
                     "type": "BooleanAction",
-                    "listener" : "file://path=status/%C_NAME%_State.txt",
-                    "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                    "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                    "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                 },
                 "Consumption" : {
                     "type": "RangeState",
-                    "listener" : "file://path=status/%C_NAME%_State.txt",
-                    "executor" : "file://path=status/%C_NAME%_State.txt",
+                    "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                    "executor" : "file://path=status/%COMP_NAME%_State.txt",
                     "min": "0",
                     "max": "100",
                     "step": "5"
@@ -67,13 +67,13 @@
             "contains": {
                 "Switch" : {
                     "type": "BooleanAction",
-                    "listener" : "file://path=status/%C_NAME%_State.txt",
-                    "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                    "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                    "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                 },
                 "Dimmming" : {
                     "type": "RangeAction",
-                    "listener" : "file://path=status/%C_NAME%_State.txt",
-                    "executor" : "file://path=status/%C_NAME%_State.txt",
+                    "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                    "executor" : "file://path=status/%COMP_NAME%_State.txt",
                     "min": "0",
                     "max": "100",
                     "step": "1"
@@ -83,24 +83,24 @@
                     "contains": {
                         "Red" : {
                             "type": "RangeAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "file://path=status/%C_NAME%_State.txt",
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "file://path=status/%COMP_NAME%_State.txt",
                             "min": "0",
                             "max": "255",
                             "step": "1"
                         },
                         "Green" : {
                             "type": "RangeAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "file://path=status/%C_NAME%_State.txt",
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "file://path=status/%COMP_NAME%_State.txt",
                             "min": "0",
                             "max": "255",
                             "step": "1"
                         },
                         "Blue" : {
                             "type": "RangeAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "file://path=status/%C_NAME%_State.txt",
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "file://path=status/%COMP_NAME%_State.txt",
                             "min": "0",
                             "max": "255",
                             "step": "1"
@@ -112,44 +112,44 @@
                     "contains": {
                         "Withe" : {
                             "type": "BooleanAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                         },
                         "Red" : {
                             "type": "BooleanAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                         },
                         "Orange" : {
                             "type": "BooleanAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                         },
                         "Yellow" : {
                             "type": "BooleanAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                         },
                         "Green" : {
                             "type": "BooleanAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                         },
                         "Blue" : {
                             "type": "BooleanAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                         },
                         "Violet" : {
                             "type": "BooleanAction",
-                            "listener" : "file://path=status/%C_NAME%_State.txt",
-                            "executor" : "shell://cmd=echo %VAL%;redirect=status/%C_NAME%_State.txt"
+                            "listener" : "file://path=status/%COMP_NAME%_State.txt",
+                            "executor" : "shell://cmd=echo %A_VAL%;redirect=status/%COMP_NAME%_State.txt"
                         }
                     }
                 },
                 "Consumption" : {
                     "type": "RangeState",
-                    "listener" : "file://path=status/%C_NAME%_State.txt",
+                    "listener" : "file://path=status/%COMP_NAME%_State.txt",
                     "min": "0",
                     "max": "100",
                     "step": "5"
