@@ -85,7 +85,7 @@ public abstract class AbsJODState extends AbsJODComponent
                     JODComponentListener compWorker = new JODComponentListener(this, name, AbsJODWorker.extractProto(listener), AbsJODWorker.extractConfigsStr(listener));
                     stateWorkerTmp = execMngr.initListener(compWorker);
 
-                } catch (JODWorker.FactoryException e) {
+                } catch (JODWorker.FactoryException | JODWorker.MalformedConfigsException e) {
                     log.warn(Mrk_JOD.JOD_STRU_SUB, String.format("Error on setting state component '%s' listener because %s", getName(), e.getMessage()), e);
                     throw new JODStructure.ComponentInitException(String.format("Error on setting state component '%s' listener", getName()), e);
                 }
@@ -102,7 +102,7 @@ public abstract class AbsJODState extends AbsJODComponent
                     JODComponentPuller compWorker = new JODComponentPuller(this, name, AbsJODWorker.extractProto(puller), AbsJODWorker.extractConfigsStr(puller));
                     stateWorkerTmp = execMngr.initPuller(compWorker);
 
-                } catch (JODWorker.FactoryException e) {
+                } catch (JODWorker.FactoryException | JODWorker.MalformedConfigsException e) {
                     log.warn(String.format("Error on setting state component '%s' puller because %s", getName(), e.getMessage()), e);
                     throw new JODStructure.ComponentInitException(String.format("Error on setting state component '%s' puller", getName()), e);
                 }
