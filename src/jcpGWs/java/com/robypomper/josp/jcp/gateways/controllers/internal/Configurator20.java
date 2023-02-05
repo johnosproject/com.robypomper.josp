@@ -24,6 +24,7 @@ import com.robypomper.josp.jcp.defs.gateways.internal.Versions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import springfox.documentation.spring.web.plugins.Docket;
 
 
@@ -31,6 +32,7 @@ import springfox.documentation.spring.web.plugins.Docket;
  * JCP Gateways (Internal)
  */
 @Configuration(Versions.API_NAME)
+@Profile("jcp-gateways")
 public class Configurator20 {
 
     @Autowired

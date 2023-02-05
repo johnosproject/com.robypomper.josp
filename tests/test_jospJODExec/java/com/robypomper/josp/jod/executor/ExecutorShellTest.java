@@ -20,6 +20,9 @@
 package com.robypomper.josp.jod.executor;
 
 import com.robypomper.java.JavaFormatter;
+import com.robypomper.josp.jod.structure.AbsJODState;
+import com.robypomper.josp.jod.structure.JODState;
+import com.robypomper.josp.jod.structure.JODStructure;
 import com.robypomper.josp.jod.structure.pillars.JODBooleanAction;
 import com.robypomper.josp.jod.structure.pillars.JODRangeAction;
 import com.robypomper.josp.protocol.JOSPMsgParams;
@@ -39,7 +42,23 @@ public class ExecutorShellTest {
         String configs = String.format("cmd=echo %s", echoParam);
 
         System.out.println("\nCREATE AND START LISTENER FOR FILES");
-        ExecutorShell e = new ExecutorShell(name, proto, configs, null);
+        JODState state = null;
+        try {
+            state = new AbsJODState(null,null,null,"","","NONE",null) {
+                @Override
+                public String getState() {
+                    return "N/A";
+                }
+
+                @Override
+                public String getType() {
+                    return "JODStateMock";
+                }
+            };
+        } catch (JODStructure.ComponentInitException e) {
+            e.printStackTrace();
+        }
+        ExecutorShell e = new ExecutorShell(name, proto, configs, state);
         JOSPProtocol.ActionCmd commandAction = new MockActionCmd();
 
         System.out.println("\nEXECUTE RANGE ACTION");

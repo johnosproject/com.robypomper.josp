@@ -62,19 +62,19 @@ ext {
     // Preset build modes for JOSP Project
     //set('jospMode', ext.get('jospModes.DEV'))           // on first build, set jospDependenciesVersion=CURRENT
     //set('jospMode', ext.get('jospModes.STAGE'))         // on first build, set jospDependenciesVersion=PREV
-    set('jospMode', ext.get('jospModes.RELEASE'))
+    set('jospMode', ext.get('jospModes.RELEASE'))         // on first build, set jospDependenciesVersion=PREV
 
     // Set true to enable private tasks (require $USER_HOME/.gradle/properties.gradle file)
     set('OVERRIDE_enablePrivate', false)
 
     // Customize version used for JOSP Components build
-    //ext.set('OVERRIDE_jospBuildVersion',ext.get('jospVersions.CURRENT'))              // Default: NEXT if jospMode=DEV, CURRENT otherwise
-    //ext.set('OVERRIDE_jospBuildClassifier','alpha')                                  // Default: 'DEV if jospMode=DEV, 'SNAPSHOT' if jospMode='STAGE, '' otherwise
+    //ext.set('OVERRIDE_jospBuildVersion',ext.get('jospVersions.CURRENT'))           // Default: NEXT if jospMode=DEV, CURRENT otherwise
+    //ext.set('OVERRIDE_jospBuildClassifier','alpha')                                // Default: 'DEV if jospMode=DEV, 'SNAPSHOT' if jospMode='STAGE, '' otherwise
 
     // Customize version required for JOSP Components internal dependencies
     // (de-comment for first jospModes=DEV's build)
-    //ext.set('OVERRIDE_jospDependenciesVersion',ext.get('jospVersions.CURRENT'))       // Default: jospBuildVersion
-    //ext.set('OVERRIDE_jospDependenciesVersion','2.2.2-DEV')       // Default: jospBuildVersion
+    //ext.set('OVERRIDE_jospDependenciesVersion',ext.get('jospVersions.CURRENT'))    // Default: jospBuildVersion
+    //ext.set('OVERRIDE_jospDependenciesVersion','2.2.3-DEV')                        // Default: jospBuildVersion
 
     // PROJECT BUILD CONFIGURATIONS - END
 

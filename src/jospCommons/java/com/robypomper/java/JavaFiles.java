@@ -58,9 +58,9 @@ public class JavaFiles {
      */
     public static void createParentIfNotExist(File file) throws IOException {
         if (!file.exists()) {
-            if (!file.getParentFile().exists())
+            if (!file.getAbsoluteFile().exists())
                 //noinspection ResultOfMethodCallIgnored
-                file.getParentFile().mkdirs();
+                file.getAbsoluteFile().getParentFile().mkdirs();
             //noinspection ResultOfMethodCallIgnored
             file.createNewFile();
         }

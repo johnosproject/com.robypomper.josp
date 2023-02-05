@@ -195,8 +195,17 @@ public class JODExecutorMngr_002 implements JODExecutorMngr {
                 continue;
             }
 
-            String proto = AbsJODWorker.extractProto(iClass);
-            String iClassName = AbsJODWorker.extractConfigsStr(iClass);
+            String proto;
+            String iClassName;
+            try {
+                proto = AbsJODWorker.extractProto(iClass);
+                iClassName = AbsJODWorker.extractConfigsStr(iClass);
+
+            } catch (JODWorker.MalformedConfigsException e) {
+                log.warn(Mrk_JOD.JOD_EXEC, String.format("Error instantiating %s worker protocol '%s' because %s", workName, iClass, e.getMessage()), e);
+                continue;
+            }
+
             try {
                 log.trace(Mrk_JOD.JOD_EXEC, String.format("Instantiating %s worker protocol '%s' with class '%s'", workName, proto, iClassName));
                 factory.register(proto, iClassName);

@@ -1,6 +1,6 @@
 {
   "name": "jcp-fe-static",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "JCP Front End",
   "main": "app.js",
   "homepage": "/frontend",

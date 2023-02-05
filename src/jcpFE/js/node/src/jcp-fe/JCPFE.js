@@ -245,7 +245,7 @@ class Stats {
             actObjOwner = "NotFound";
           } else if (object.getOwner()=="00000-00000-00000") {
             actObjId = objId;
-            actObjName = "NotFound";
+            actObjName = object.getName();
             actObjOwner = "Anonymous";
           } else {
             actObjId = objId;

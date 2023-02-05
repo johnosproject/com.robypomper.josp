@@ -213,7 +213,7 @@ public class JODStructure_002 implements JODStructure {
 
             log.trace(Mrk_JOD.JOD_STRU, String.format("Parsing '%s' object structure '%s...'", objInfo.getObjId(), structureStr.substring(0, 100).replace("\n", " ")));
             root = objMapper.readerFor(JODRoot_Jackson.class).readValue(structureStr);
-            Events.registerStructLoad(root.getModel(),"version",root.getComponents().size());
+            Events.registerStructLoad(root.getModel(), objInfo.getJODVersion(), root.getComponents().size());
 
         } catch (JsonProcessingException e) {
             String eMessage = e.getMessage().indexOf('\n') == -1 ? e.getMessage() : e.getMessage().substring(0, e.getMessage().indexOf('\n'));

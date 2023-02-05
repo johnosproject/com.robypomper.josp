@@ -69,7 +69,7 @@ A working example of Spring Boot based micro-service can be found at dockerTest
 [README.md](../../src/springTest/docs/README.md).
 
 To run the example exec the command:
-```shell script
+```shell
 ./gradlew botSpringTestRun
 ```
 

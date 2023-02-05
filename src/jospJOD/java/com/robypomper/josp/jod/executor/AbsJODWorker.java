@@ -134,8 +134,12 @@ public abstract class AbsJODWorker implements JODWorker {
      * @param fullConfigs the worker full configs string.
      * @return the protocol defined in given full configs string.
      */
-    public static String extractProto(String fullConfigs) {
-        return fullConfigs.substring(0, fullConfigs.indexOf(CONFIG_STR_SEP)).trim();
+    public static String extractProto(String fullConfigs) throws MalformedConfigsException {
+        try {
+            return fullConfigs.substring(0, fullConfigs.indexOf(CONFIG_STR_SEP)).trim();
+        } catch (Exception e) {
+            throw new MalformedConfigsException(fullConfigs, e);
+        }
     }
 
     /**
@@ -144,8 +148,12 @@ public abstract class AbsJODWorker implements JODWorker {
      * @param fullConfigs the worker full configs string.
      * @return the configs/name defined in given full configs string.
      */
-    public static String extractConfigsStr(String fullConfigs) {
-        return fullConfigs.substring(fullConfigs.indexOf(CONFIG_STR_SEP) + 3).trim();
+    public static String extractConfigsStr(String fullConfigs) throws MalformedConfigsException {
+        try {
+            return fullConfigs.substring(fullConfigs.indexOf(CONFIG_STR_SEP) + 3).trim();
+        } catch (Exception e) {
+            throw new MalformedConfigsException(fullConfigs, e);
+        }
     }
 
     /**
