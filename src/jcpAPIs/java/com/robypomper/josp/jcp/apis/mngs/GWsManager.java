@@ -33,6 +33,9 @@ import com.robypomper.josp.jcp.db.apis.entities.GWStatus;
 import com.robypomper.josp.states.StateException;
 import com.robypomper.josp.types.josp.gw.GWType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -61,7 +64,7 @@ import java.util.*;
  * status.<br>
  */
 @Component
-public class GWsManager {
+public class GWsManager implements ApplicationListener<ContextRefreshedEvent> {
 
     // Class constants
 
@@ -73,26 +76,34 @@ public class GWsManager {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GWsManager.class);
     private final GWDBService gwService;
     private final JCPClientsMngr clientsMngr;
+    private final boolean loadOnStartup;    // must be false on jcpAll, because HTTPS wrong hostname exception
+    private final int availabilityTimersDelayMS;
+    private final int availabilityAttempts;
     private int removed = 0;
     private int total = 0;
     private final Map<String, Timer> availabilityTimers = new HashMap<>();
-    private final int availabilityTimersDelayMS = 30 * 1000;
-    private final int availabilityAttempts = 20;
 
     @Autowired
-    public GWsManager(GWDBService gwService, JCPClientsMngr clientsMngr) {
+    public GWsManager(@Value("${jcp.apis.gws.cache.load_on_startup:true}") final boolean loadOnStartup,
+                      @Value("${jcp.apis.gws.availability.delay:30000}") final int availabilityTimersDelayMS,
+                      @Value("${jcp.apis.gws.availability.attempts:10}") final int availabilityAttempts,
+                      GWDBService gwService, JCPClientsMngr clientsMngr) {
         this.gwService = gwService;
         this.clientsMngr = clientsMngr;
+        this.loadOnStartup = loadOnStartup;
+        this.availabilityTimersDelayMS = availabilityTimersDelayMS;
+        this.availabilityAttempts = availabilityAttempts;
 
-        for (GW gw : gwService.getAll()) {
-            clientsMngr.createGWsClientByGW(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort());
-            log.info(String.format("Registered new JCP GW '%s'", gw.getGwId()));
+        if (!this.loadOnStartup)
+            cleanCachedGWsFromDB();
+    }
 
-            if (!checkGWAvailability(gw))
-                startGWAvailabilityTimer(gw);
 
-            total++;
-        }
+    // Spring events listener
+
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+        if (this.loadOnStartup)
+            loadCachedGWsFromDB();
     }
 
 
@@ -212,6 +223,20 @@ public class GWsManager {
         gwService.delete(gw);
     }
 
+    private void loadCachedGWsFromDB() {
+        for (GW gw : gwService.getAll()) {
+            clientsMngr.createGWsClientByGW(gw.getGwId(), gw.getGwAPIsAddr(), gw.getGwAPIsPort());
+            log.info(String.format("Registered JCP GW '%s' from DB", gw.getGwId()));
+            if (!checkGWAvailability(gw))
+                startGWAvailabilityTimer(gw);
+            total++;
+        }
+    }
+
+    private void cleanCachedGWsFromDB() {
+        gwService.deleteAll();
+    }
+
 
     // Getters
 
@@ -281,6 +306,9 @@ public class GWsManager {
     }
 
     private void updateGWAvailability(GW gw, boolean online) {
+
+        log.info(String.format("Update JCP GW '%s' availability", gw.getGwId()));
+        log.info(String.format("'%s'", gw.getStatus()!=null ? gw.getStatus() : "NULL"));
         if (gw.getStatus().isOnline() == online)
             return;
 

@@ -31,6 +31,7 @@ import com.robypomper.josp.jcp.gws.services.GWServiceO2S;
 import com.robypomper.josp.jcp.gws.services.GWServiceS2O;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,7 @@ import java.security.cert.CertificateEncodingException;
  */
 @RestController(value = Paths20.API_NAME + " " + Paths20.DOCS_NAME)
 @Api(tags = Paths20.DOCS_NAME, description = Paths20.DOCS_DESCR)
+//@Profile("jcp-gateways")
 public class Controller20 extends ControllerImpl {
 
     // Internal vars

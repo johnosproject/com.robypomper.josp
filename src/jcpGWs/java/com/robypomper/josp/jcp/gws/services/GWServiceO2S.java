@@ -59,7 +59,8 @@ public class GWServiceO2S implements ApplicationListener<ContextRefreshedEvent> 
 
     @PreDestroy
     public void destroy() {
-        gw.destroy();
+        if (gw != null)
+            gw.destroy();
         log.trace("JCP GW O2S service destroyed");
     }
 

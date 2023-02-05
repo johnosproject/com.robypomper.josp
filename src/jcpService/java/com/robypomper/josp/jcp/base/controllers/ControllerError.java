@@ -121,7 +121,7 @@ public class ControllerError implements ErrorController {
         ControllerError.log.warn(String.format("REQUEST EXCEPTION [%d-%s on '%s']: '%s' (%s)'", status.value(), type, reqUrl, msg, reqSource));
 
         // Prepare response
-        if (headerAccept.contains("text/html"))
+        if (headerAccept!=null && headerAccept.contains("text/html"))
             return generateHtmlResponse(request.getRequestURI(), status, type, msg, details);
 
         return generateDefaultResponse(request.getRequestURI(), status, type, msg, details);

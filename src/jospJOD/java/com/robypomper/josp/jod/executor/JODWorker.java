@@ -87,6 +87,18 @@ public interface JODWorker {
      * Exceptions for missing mandatory property or with wrong value from the
      * configs string during the {@link JODWorker} object initialization.
      */
+    class MalformedConfigsException extends Throwable {
+        private static final String MSG_MALFORMED_CONFIG = "Config string '%s' bad formatted.";
+
+        public MalformedConfigsException(String fullConfig, Exception e) {
+            super(String.format(MSG_MALFORMED_CONFIG, fullConfig), e);
+        }
+    }
+
+    /**
+     * Exceptions for missing mandatory property or with wrong value from the
+     * configs string during the {@link JODWorker} object initialization.
+     */
     class MissingPropertyException extends Throwable {
         private static final String MSG_MISSING_PROP = "Mandatory property '%s' for '%s://%s' %s is missing.";
 

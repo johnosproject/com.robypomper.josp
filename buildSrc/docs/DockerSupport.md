@@ -61,7 +61,7 @@ A working example of Docker based micro-service can be found at dockerTest
 [README.md](../../src/dockerTest/docs/README.md).
 
 To run the example exec the command:
-```shell script
+```shell
 ./gradlew dockerTestComposeUp
 ```
 

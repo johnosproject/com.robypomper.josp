@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class MockJCPClient_Object extends JCPAPIsClientObj {
 
-    public MockJCPClient_Object() {
+    public MockJCPClient_Object() throws AuthenticationException {
         super(false, null, null, null, null);
     }
 

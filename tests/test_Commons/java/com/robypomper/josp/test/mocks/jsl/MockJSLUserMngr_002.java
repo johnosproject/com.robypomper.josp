@@ -58,4 +58,10 @@ public class MockJSLUserMngr_002 implements JSLUserMngr {
     public void setCommunication(JSLCommunication comm) {
     }
 
+    @Override
+    public void addUserListener(UserListener listener) {}
+
+    @Override
+    public void removeUserListener(UserListener listener) {}
+
 }

@@ -39,6 +39,10 @@ public class JavaFormatter {
      */
     public static final List<String> TRUE_ALIASES = Arrays.asList("TRUE", "1", "ON", "HIGH", "OPEN", "FULL");
 
+    public static final String TRUE_STR = "TRUE";
+    public static final String FALSE_STR = "FALSE";
+    public static final String TRUE_STR_BIN = "1";
+    public static final String FALSE_STR_BIN = "0";
 
     // Independent locale formatter for Double
 
@@ -59,6 +63,26 @@ public class JavaFormatter {
 
 
     // Boolean convert methods
+
+    /**
+     * Convert given boolean to string.
+     *
+     * @param b the boolean to convert.
+     * @return {@value TRUE_STR} if given param is `true`, otherwsise the {@value FALSE_STR}.
+     */
+    public static String booleanToString(boolean b) {
+        return b ? TRUE_STR : FALSE_STR;
+    }
+
+    /**
+     * Convert given boolean to string.
+     *
+     * @param b the boolean to convert.
+     * @return {@value TRUE_STR} if given param is `true`, otherwsise the {@value FALSE_STR}.
+     */
+    public static String booleanToStringBin(boolean b) {
+        return b ? TRUE_STR_BIN : FALSE_STR_BIN;
+    }
 
     /**
      * Convert given string to boolean.

@@ -20,3 +20,8 @@ jcp.client.jslWB.port: 9003
 jcp.client.fe.private: localhost
 jcp.client.fe.public: ${localhost.public}
 jcp.client.fe.port: 9004
+
+# JCP APIs (single instance - dev)
+jcp.apis.gws.cache.load_on_startup: true
+jcp.apis.gws.availability.delay_seconds: 10
+jcp.apis.gws.availability.attempts: 5

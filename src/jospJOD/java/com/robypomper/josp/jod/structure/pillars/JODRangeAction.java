@@ -72,7 +72,7 @@ public class JODRangeAction extends JODRangeState implements JODAction {
                 throw new JODStructure.ComponentInitException(String.format("Error on setting action component '%s' executor because not set", getName()));
             }
 
-        } catch (JODWorker.FactoryException e) {
+        } catch (JODWorker.FactoryException | JODWorker.MalformedConfigsException e) {
             log.warn(String.format("Error on setting action component '%s' executor because %s", getName(), e.getMessage()), e);
             throw new JODStructure.ComponentInitException(String.format("Error on setting action component '%s' executor", getName()), e);
         }
