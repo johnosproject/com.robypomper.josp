@@ -2,7 +2,7 @@
 
 ![John O.S. Project Logo](docs/media/logo_text_full_500.png "John O.S. Project")
 
-* Current version: 2.2.3-DEV
+* Current version: 2.2.3
 * Downloads: [com.robypomper.josp / downloads @ Bitbucket](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/downloads/?tab=tags)
 * Repository: [com.robypomper.josp / master @ Bitbucket](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/master/)
 * Libraries: [Group Id com.robypomper.josp @ Maven Central](https://search.maven.org/search?q=g:com.robypomper.josp)
@@ -359,11 +359,12 @@ can communicate with software that also support one of following versions.
 | [JOD Structure](docs/comps/josp/core_versions.md#jod-structure)  | 2a                 |     JOSP>2 Structure>a
 | [JSL Interface](docs/comps/josp/core_versions.md#jsl-interface)  | 2.2.0              |     Same as current (?mayor?) release
 
-All components from current source code's release are build with **2.2.3-dev**
+All components from current source code's release are build with **2.2.3**
 version.
 
 **Older version of JOSP source code:**
 
+* v [2.2.3](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.3/)
 * v [2.2.2](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.2/)
 * v [2.2.1](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.1/)
 * v [2.2.0](https://bitbucket.org/johnosproject_shared/com.robypomper.josp/src/2.2.0/)
